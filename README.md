@@ -21,50 +21,50 @@ Arch and `docker-compose.*.*.yml` usage:
       * Purpose: all essential web services, such as DBs, API's and WebApps.
  * **Images** :
    * `docker-compose.reverse.proxy.yml`:
-     * jwilder/nginx-proxy:alpine
-     * jrcs/letsencrypt-nginx-proxy-companion
+     * **jwilder/nginx-proxy:alpine**
+     * **jrcs/letsencrypt-nginx-proxy-companion**
    * `docker-compose.admin.smartco.yml`:
-     * docker.elastic.co/kibana/kibana:7.6.0
-     * phpmyadmin/phpmyadmin
-     * nginx //goaccess
-     * allinurl/goaccess
-     * php:fpm-alpine
-     * nginx //admin
-     * kanboard/kanboard
+     * **docker.elastic.co/kibana/kibana:7.6.0**
+     * **phpmyadmin/phpmyadmin**
+     * **nginx** *->goaccess*
+     * **allinurl/goaccess**
+     * **php:fpm-alpine**
+     * **nginx** *->admin*
+     * **kanboard/kanboard**
    * `docker-compose.admin.smartdom.yml`:
-     * docker.elastic.co/kibana/kibana:7.6.0
-     * phpmyadmin/phpmyadmin
-     * nginx:goaccess
-     * allinurl/goaccess
-     * php:fpm-alpine
-     * nginx:admin
-     * kanboard/kanboard
+     * **docker.elastic.co/kibana/kibana:7.6.0**
+     * **phpmyadmin/phpmyadmin**
+     * **nginx:goaccess**
+     * **allinurl/goaccess**
+     * **php:fpm-alpine**
+     * **nginx:admin**
+     * **kanboard/kanboard**
    * `docker-compose.services.smartco.yml`:
-     * analogic/poste.io
-     * ethereum/client-go
+     * **analogic/poste.io**
+     * **ethereum/client-go**
    * `docker-compose.services.smartdom.yml`:
-     * jitsi/web
-     * jitsi/prosody
-     * jitsi/jicofo
-     * jitsi/jvb
-     * analogic/poste.io
-     * ethereum/client-go
+     * **jitsi/web**
+     * **jitsi/prosody**
+     * **jitsi/jicofo**
+     * **jitsi/jvb**
+     * **analogic/poste.io**
+     * **ethereum/client-go**
    * `docker-compose.web.smartco.yml`:
-     * mysql:5.7
-     * docker.elastic.co/elasticsearch/elasticsearch:7.6.0
-     * python //api
-     * nginx //landing
-     * nginx //dashboard
-     * php:fpm-alpine
-     * nginx //error
+     * **mysql:5.7**
+     * **docker.elastic.co/elasticsearch/elasticsearch:7.6.0**
+     * **python** *->api*
+     * **nginx** *->landing*
+     * **nginx** *->dashboard*
+     * **php:fpm-alpine**
+     * **nginx** *->error*
    * `docker-compose.web.smartdom.yml`:
-     * mysql:5.7
-     * docker.elastic.co/elasticsearch/elasticsearch:7.6.0
-     * python //api
-     * nginx //landing
-     * nginx //dashboard
-     * php:fpm-alpine
-     * nginx //error
+     * **mysql:5.7**
+     * **docker.elastic.co/elasticsearch/elasticsearch:7.6.0**
+     * **python** *->api*
+     * **nginx** *->landing*
+     * **nginx** *->dashboard*
+     * **php:fpm-alpine**
+     * **nginx** *->error*
 
 #### To deploy:
 
