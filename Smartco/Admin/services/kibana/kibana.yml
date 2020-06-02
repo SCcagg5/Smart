@@ -1,0 +1,7 @@
+server.name: smartco-admin-kibana
+server.host: "0"
+elasticsearch.hosts: [ "http://smartco-web-elasticsearch:9200" ]
+xpack.monitoring.ui.container.elasticsearch.enabled: true
+server:
+  basePath: "/elastic"
+  host: "smartco-admin-kibana"
