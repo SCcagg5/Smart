@@ -1,0 +1,45 @@
+version: '3'
+
+networks:
+  proxy:
+    external:
+      name: smart_proxy
+  web-net:
+    external:
+      name: smart_smartco-web-net
+  db-net:
+    external:
+      name: smart_smartco-db-net
+
+services:
+  smartco-web-sql:
+    image: mysql:5.7
+    container_name: smartco-web-sql
+    restart: always
+    networks:
+      - db-net
+    volumes:
+      - ./Smartco/Micro/sql/data:/var/lib/mysql
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+      MYSQL_USER: ${SMARTCO_DB_USER}
+      MYSQL_DATABASE: smartco
+      MYSQL_PASSWORD: ${SMARTCO_DB_PASS}
+
+  smartco-web-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    container_name: smartco-web-elasticsearch
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=false
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./Smartco/Micro/elasticsearch/data:/usr/share/elasticsearch/data
+    networks:
+      - db-net
