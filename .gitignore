@@ -6,4 +6,19 @@ Proxy/logs
 Proxy/passwd
 Proxy/vhost
 
+Smartco/Admin/services/goaccess
+Smartco/Admin/services/kanboard/data
+Smartco/Admin/services/kanboard/plugins
+Smartco/Admin/services/phpmyadmin/sessions
 
+Smartco/Micro/elasticsearch/data
+Smartco/Micro/sql/data
+
+
+Smartdom/Admin/services/goaccess
+Smartdom/Admin/services/kanboard/data
+Smartdom/Admin/services/kanboard/plugins
+Smartdom/Admin/services/phpmyadmin/sessions
+
+Smartdom/Micro/elasticsearch/data
+Smartdom/Micro/sql/data
