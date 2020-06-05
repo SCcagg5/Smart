@@ -78,6 +78,8 @@ services:
        - ./Smartdom/Admin/services/goaccess/front:/stats:ro
      networks:
        - adm-net
+     environment:
+       HOST: ${SMARTDOM_DOMAIN}
 
    smartdom-admin-nginx:
      image: nginx
