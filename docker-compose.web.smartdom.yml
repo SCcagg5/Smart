@@ -43,3 +43,30 @@ services:
       - ./Smartdom/Micro/elasticsearch/data:/usr/share/elasticsearch/data
     networks:
       - db-net
+
+  map_bck-end:
+    build: ./Smartdom/Webapps/api.smartdom
+    expose:
+      - 8080
+    tty: true
+    stdin_open: true
+    depends_on:
+      - smartdom-web-sql
+    networks:
+      - db-net
+      - proxy
+    volumes:
+      - ./Smartdom/Webapps/api.smartdom:/home/api/
+    environment:
+      VIRTUAL_HOST: api.${SMARTDOM_DOMAIN}
+      VIRTUAL_PORT: 8080
+      LETSENCRYPT_HOST: api.${SMARTDOM_DOMAIN}
+      LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
+      API_MOD: ${SMARTDOM_API_MOD}
+      API_PASS: password
+      API_ADM: ${SMARTDOM_API_ADM}
+      DB_USER: ${SMARTDOM_DB_USER}
+      DB_PASS: ${SMARTDOM_DB_PASS}
+      STRIPE_PRIV: ${SMARTDOM_STRIPE_PRIV}
+      WEB3_INFURA_PROJECT_ID: ${WEB3_INFURA_PROJECT_ID}
+      WEB3_INFURA_API_KEY: ${WEB3_INFURA_PROJECT_ID}
