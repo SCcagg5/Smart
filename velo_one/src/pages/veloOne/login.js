@@ -40,6 +40,7 @@ import oaLogo from "../../assets/images/oaLogo.png"
 import Snackbar from "@material-ui/core/Snackbar"
 
 import { Player } from 'video-react';
+import moment from "../../components/Gcalendy/Gcalendy";
 
 
 const loading = () => <Loader/>;
@@ -83,6 +84,19 @@ class login extends Component {
         this.setState({[name]:true})
     }
 
+    onToken = (token, addresses) => {
+        token.velo={
+            name:localStorage.getItem("veloName"),
+            prix:localStorage.getItem("prix"),
+            heure:localStorage.getItem("heure"),
+            date:localStorage.getItem("date"),
+            duree:localStorage.getItem("duree")
+
+        }
+        firebase.database().ref("payment/").push({
+            token
+        })
+    };
 
 
 
@@ -166,16 +180,19 @@ class login extends Component {
 
                             <div className="mt-3 text-center">
                                 <StripeCheckout
-                                    email={"test@yopmail.com"}
-                                    amount={(this.state.amount *100)}
+
+
+
+                                    amount={this.state.amount * 100}
                                     currency="CHF"
                                     description="Velo One"
                                     image={oaLogo}
                                     locale="auto"
                                     name="Velo One"
-                                    stripeKey="pk_test_hiPNdlAKoA1OtzgcI7a4Wx7I00RqtRPDLL"
+                                    stripeKey="pk_test_51Gu5l8AL9qNlrkR4v77NlhLVXhWfZEN8bz1hYWfyzAsmnv9W59RIL8SCX2Cq5oQ711Mp314IFNM8u6jaahqQ6vn700RgxiqGzz"
                                     token={this.onToken}
                                     label="Stripe 💳"
+
                                 >
                                     <button className="btn btn-primary mt-1 ml-2">
                                         Payer avec Stripe

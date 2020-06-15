@@ -72,29 +72,33 @@ class Navbar extends Component {
                         </div>
                         <div className="row align-items-center justify-content-center">
                         <div className="col-md-1" style={{cursor:"pointer" ,borderBottomColor:this.state.villeborder,borderBottomWidth: 3 ,borderBottomStyle:"solid"}} onClick={()=>{this.changeborder("villeborder")
-                            this.props.changeActivePage("showVille")}}>
-                            <text>
+                            this.props.changeActivePage("showVille")
+                        this.props.history.push("/categorie/ville")}}>
+                            <text >
                                 VILLE (VAE)
 
                             </text>
 
                         </div>
                             <div className="col-md-1"style={{cursor:"pointer",borderBottomColor:this.state.vtcborder,borderBottomWidth: 3 ,borderBottomStyle:"solid"}} onClick={()=>{this.changeborder("vtcborder")
-                                this.props.changeActivePage("showVtc")}}>
-                                <text>
+                                this.props.changeActivePage("showVtc")
+                                this.props.history.push("/categorie/vtc")}}>
+                                <text >
                                     VTC (VAE)
                                 </text>
 
                             </div>
                             <div className="col-md-1" style={{cursor:"pointer",borderBottomColor:this.state.compactborder,borderBottomWidth: 3 ,borderBottomStyle:"solid"}} onClick={()=>{this.changeborder("compactborder")
-                                this.props.changeActivePage("showCompact")}}>
+                                this.props.changeActivePage("showCompact")
+                                this.props.history.push("/categorie/compact")}}>
                                 <text>
                                     Compact (VAE)
                                 </text>
 
                             </div>
                             <div className="col-md-auto" style={{cursor:"pointer",borderBottomColor:this.state.veborder,borderBottomWidth: 3 ,borderBottomStyle:"solid"}} onClick={()=>{this.changeborder("veborder")
-                                this.props.changeActivePage("showVE")}}>
+                                this.props.changeActivePage("showVE")
+                                this.props.history.push("/categorie/VoitureElectrique")}}>
                                 <text>
                                     Voiture Electrique
                                 </text>

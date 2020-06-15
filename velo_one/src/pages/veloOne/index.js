@@ -38,7 +38,7 @@ import Snackbar from "@material-ui/core/Snackbar"
 import { Player } from 'video-react';
 
 
-const loading = () => <Loader/>;
+const loading = () => <div className="text-center"></div>;
 
 
 class index extends Component {
@@ -137,135 +137,6 @@ class index extends Component {
                                     déplacements sur base de vélos électriques et
                                     de voitures électrique
                                 </h1>
-                            </div>
-
-
-                        </div>
-                    }
-                    {
-                        this.state.showVille===true &&
-                           <div>
-                            <div className="row ">
-
-                                {this.state.ville.map((item,key)=>
-                                    <div className="col-md-3"  >
-                                        <div>
-                                            <img src={item.imageUrl} style={{width:"100%"}}>
-
-                                            </img>
-
-                                            <div style={{position:"absolute" ,bottom:180,left:130}}>
-
-                                                <h3>{item.nom}</h3>
-
-                                            </div>
-                                        </div>
-                                        <div className="text-center p-2" style={{backgroundColor:"#1382c0"}}>
-                                            <div>
-                                                <text style={{color:"white"}}>location (LLD) à partir de </text>
-                                            </div>
-                                            <div>
-                                                <text style={{color:"white" ,fontSize:22}}>{item.prixToken} TOKENS / MOIS</text>
-                                            </div>
-
-                                            <div className="row align-items-center justify-content-around mt-2">
-                                                {item.price.map((itemm,key)=>
-                                                    <div className="col-md-auto " style={{borderColor:"white",borderStyle:"solid",borderWidth:1,cursor:"pointer"}} onClick={()=>{this.reservation(item,itemm)}}>
-                                                        <div>
-                                                            <text style={{color:"yellow"}}>{itemm.prix}</text>
-                                                        </div>
-                                                        <div>
-                                                            <text style={{color:"white"}}>{itemm.duree}</text>
-                                                        </div>
-
-                                                    </div>
-                                                )}
-
-
-
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                )}
-
-
-                            </div>
-                               <div className="container-fluid mt-5">
-
-                                   <div style={{marginLeft:"20%"}} >
-                                   <small>* Tokens O&A, sont des unités de comptes délivrer par la direction de O&A pour les employés de la sociétés ou des clients de passage
-                                   </small>
-                                   </div>
-                                   <div className="mt-3" style={{marginLeft:"20%"}}>
-                                   <small>
-                                       ** Une application permet d’acquérir les QR-codes qui permet d’informer O&A de l’utilisation des véhicules électriques
-                                   </small>
-                                   </div>
-
-                               </div>
-                           </div>
-
-
-                    }
-                    {
-                        this.state.showVtc==true &&
-                        <div className="row ">
-                            <div className="col-md-3">
-                                <div>
-                                    <img src={VelairCruiser2} style={{width:"100%"}}/>
-                                </div>
-                                <div className="text-center p-2" style={{backgroundColor:"#1382c0"}}>
-                                    <div>
-                                        <text style={{color:"white"}}>location (LLD) à partir de </text>
-                                    </div>
-                                    <div>
-                                        <text style={{color:"white" ,fontSize:22}}>12 TOKENS / MOIS</text>
-                                    </div>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                    }
-                    {
-                        this.state.showCompact==true &&
-                        <div className="row ">
-                            <div className="col-md-3">
-                                <div>
-                                    <img src={VelairCruiser3} style={{width:"100%"}}/>
-                                </div>
-                                <div className="text-center p-2" style={{backgroundColor:"#1382c0"}}>
-                                    <div>
-                                        <text style={{color:"white"}}>location (LLD) à partir de </text>
-                                    </div>
-                                    <div>
-                                        <text style={{color:"white" ,fontSize:22}}>3 TOKENS / MOIS</text>
-                                    </div>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                    }
-                    {
-                        this.state.showVE==true &&
-                        <div className="row ">
-                            <div className="col-md-3">
-                                <div>
-                                    <img src={CitroenAmi} style={{width:"100%"}}/>
-                                </div>
-                                <div className="text-center p-2" style={{backgroundColor:"#1382c0"}}>
-                                    <div>
-                                        <text style={{color:"white"}}>location (LLD) à partir de </text>
-                                    </div>
-                                    <div>
-                                        <text style={{color:"white" ,fontSize:22}}>3 TOKENS / MOIS</text>
-                                    </div>
-                                </div>
-
                             </div>
 
 

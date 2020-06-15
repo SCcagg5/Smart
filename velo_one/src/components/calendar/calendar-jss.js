@@ -35,11 +35,11 @@ const styles = theme => ({
       backgroundColor: theme.palette.background.paper,
     },
     '& div[class="rbc-header"]': {
-      backgroundColor: theme.palette.type === 'dark' ? theme.palette.grey[700] : theme.palette.grey[200],
+      backgroundColor: theme.palette.categorie === 'dark' ? theme.palette.grey[700] : theme.palette.grey[200],
       color: theme.palette.text.primary
     },
     '& div[class*="rbc-day-bg"], div[class="rbc-month-row"]': {
-      borderColor: theme.palette.type === 'dark' ? theme.palette.grey[700] : theme.palette.grey[200]
+      borderColor: theme.palette.categorie === 'dark' ? theme.palette.grey[700] : theme.palette.grey[200]
     },
     '& div[class*="rbc-date-cell"]': {
       '& a': {
@@ -52,10 +52,10 @@ const styles = theme => ({
       }
     },
     '& div[class*="rbc-off-range-bg"]': {
-      backgroundColor: theme.palette.type === 'dark' ? theme.palette.grey[600] : theme.palette.grey[100],
+      backgroundColor: theme.palette.categorie === 'dark' ? theme.palette.grey[600] : theme.palette.grey[100],
     },
     '& div[class*="rbc-today"]': {
-      backgroundColor: theme.palette.type === 'dark' ? theme.palette.secondary.dark : theme.palette.transparent
+      backgroundColor: theme.palette.categorie === 'dark' ? theme.palette.secondary.dark : theme.palette.transparent
     }
   },
   addBtn: {

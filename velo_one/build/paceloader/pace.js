@@ -220,7 +220,7 @@
         return !1
     }, y().on("request", function (b) {
         var c, d, e, f, g;
-        return f = b.type, e = b.request, g = b.url, I(g) ? void 0 : j.running || D.restartOnRequestAfter === !1 && "force" !== J(f) ? void 0 : (d = arguments, c = D.restartOnRequestAfter || 0, "boolean" == typeof c && (c = 0), setTimeout(function () {
+        return f = b.categorie, e = b.request, g = b.url, I(g) ? void 0 : j.running || D.restartOnRequestAfter === !1 && "force" !== J(f) ? void 0 : (d = arguments, c = D.restartOnRequestAfter || 0, "boolean" == typeof c && (c = 0), setTimeout(function () {
             var b, c, g, h, i, k;
             if (b = "socket" === f ? e.readyState < 2 : 0 < (h = e.readyState) && 4 > h) {
                 for (j.restart(), i = j.sources, k = [], c = 0, g = i.length; g > c; c++) {
@@ -243,7 +243,7 @@
 
         return a.prototype.watch = function (a) {
             var b, c, d, e;
-            return d = a.type, b = a.request, e = a.url, I(e) ? void 0 : (c = "socket" === d ? new n(b) : new o(b), this.elements.push(c))
+            return d = a.categorie, b = a.request, e = a.url, I(e) ? void 0 : (c = "socket" === d ? new n(b) : new o(b), this.elements.push(c))
         }, a
     }(), o = function () {
         function a(a) {
