@@ -1,0 +1,267 @@
+{
+	"info": {
+		"_postman_id": "dfe4db4c-9ab2-480c-925b-b3e73d047a48",
+		"name": "Smart",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "api.localhost/test/",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.localhost/test/",
+					"host": [
+						"api",
+						"localhost"
+					],
+					"path": [
+						"test",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api.localhost/login/",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"pass\": \"password\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "api.localhost/login/",
+					"host": [
+						"api",
+						"localhost"
+					],
+					"path": [
+						"login",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api.localhost/signup/",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\",\r\n    \"password2\": \"test\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "api.localhost/signup/",
+					"host": [
+						"api",
+						"localhost"
+					],
+					"path": [
+						"signup",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api.localhost/signin/",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "api.localhost/signin/",
+					"host": [
+						"api",
+						"localhost"
+					],
+					"path": [
+						"signin",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api.localhost/wallet/create/",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "api.localhost/wallet/create/",
+					"host": [
+						"api",
+						"localhost"
+					],
+					"path": [
+						"wallet",
+						"create",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api.localhost/wallets",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.localhost/wallets",
+					"host": [
+						"api",
+						"localhost"
+					],
+					"path": [
+						"wallets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api.localhost/wallet/0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.localhost/wallet/0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1",
+					"host": [
+						"api",
+						"localhost"
+					],
+					"path": [
+						"wallet",
+						"0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api.localhost/wallet/0x21c568710AA7335476d2738E6b493478cf4C9a3d/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "api.localhost/wallet/0x21c568710AA7335476d2738E6b493478cf4C9a3d/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
+					"host": [
+						"api",
+						"localhost"
+					],
+					"path": [
+						"wallet",
+						"0x21c568710AA7335476d2738E6b493478cf4C9a3d",
+						"token",
+						"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api.localhost/wallet/0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/send",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"to\": \"0x21c568710AA7335476d2738E6b493478cf4C9a3d\",\r\n    \"amount\": 1235\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "api.localhost/wallet/0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/send",
+					"host": [
+						"api",
+						"localhost"
+					],
+					"path": [
+						"wallet",
+						"0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1",
+						"token",
+						"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
+						"send"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api.localhost/wallet/0x21c568710AA7335476d2738E6b493478cf4C9a3d/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/fund",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"amount\": 20000}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "api.localhost/wallet/0x21c568710AA7335476d2738E6b493478cf4C9a3d/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/fund",
+					"host": [
+						"api",
+						"localhost"
+					],
+					"path": [
+						"wallet",
+						"0x21c568710AA7335476d2738E6b493478cf4C9a3d",
+						"token",
+						"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
+						"fund"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"id": "96884a35-7fdd-4048-831d-4a1818441ad3",
+			"key": "url",
+			"value": "api.localhost",
+			"type": "string"
+		},
+		{
+			"id": "395b6404-f6f2-47e3-8941-e7288fa1ccf1",
+			"key": "password",
+			"value": "password",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
