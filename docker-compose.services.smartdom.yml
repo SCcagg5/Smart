@@ -9,6 +9,32 @@ networks:
     meet.jitsi:
 
 services:
+    web-odoo:
+        image: odoo:12.0
+        depends_on:
+            - db
+        ports:
+            - "8069:8069"
+        volumes:
+            - ./Smartdom/Micro/odoo/web/data:/var/lib/odoo
+            - ./Smartdom/Micro/odoo/web/config:/etc/odoo
+            - ./Smartdom/Micro/odoo/web/addons:/mnt/extra-addons
+        networks:
+            - proxy
+            - db-net
+
+    db:
+        image: postgres:10
+        environment:
+            - POSTGRES_DB=postgres
+            - POSTGRES_PASSWORD=odoo
+            - POSTGRES_USER=odoo
+            - PGDATA=/var/lib/postgresql/data/pgdata
+        volumes:
+            - ./Smartdom/Micro/odoo/db:/var/lib/postgresql/data/pgdata
+        networks:
+            - db-net
+
     web:
         image: jitsi/web
         restart: unless-stopped

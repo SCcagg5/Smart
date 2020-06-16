@@ -4,6 +4,7 @@ import hashlib
 import time
 import os
 import re
+import uuid
 import phonenumbers
 from .sql import sql
 
@@ -39,11 +40,11 @@ class user:
             return [False, "Email already in use", 400]
         if not self.__email(email):
             return [False, "Invalid email", 400]
-
+        id = str(uuid.uuid4())
         password = self.__hash(email, pass1)
         date = str(int(round(time.time() * 1000)))
         succes = sql.input("INSERT INTO `user` (`id`, `role`, `email`, `password`, `date`) VALUES (%s , %s, %s, %s, %s)", \
-        (0, email, password, date))
+        (id, 0, email, password, date))
         if not succes:
             return [False, "data input error", 500]
         return [True, {}, None]

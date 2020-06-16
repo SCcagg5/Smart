@@ -176,25 +176,40 @@ def emulate(cn, nextc):
     err = sim.calc()
     return cn.call_next(nextc, err)
 
-def blk_send(cn, nextc):
-    err = check.contain(cn.pr, ["from", "to", "amount"])
+
+def wallet_create(cn, nextc):
+    err = eth_contract(user=cn.private["user"].id).create_account()
+    return cn.call_next(nextc, err)
+
+def wallets(cn, nextc):
+    err = eth_contract(user=cn.private["user"].id).accounts()
+    return cn.call_next(nextc, err)
+
+def wallet_balance(cn, nextc):
+    err = eth_contract(user=cn.private["user"].id).wallet_balance(cn.rt["wallet"])
+    return cn.call_next(nextc, err)
+
+def wallet_token(cn, nextc):
+    err = eth_contract(cn.rt["token"], user=cn.private["user"].id).get_balance(cn.rt["wallet"])
+    return cn.call_next(nextc, err)
+
+def wallet_send(cn, nextc):
+    err = check.contain(cn.pr, ["to", "amount"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
 
-    err = eth_contract("0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4").send(cn.pr["from"], cn.pr["to"], int(cn.pr["amount"]))
+    err = eth_contract(cn.rt["token"], user=cn.private["user"].id).send(cn.rt["wallet"], cn.pr["to"], int(cn.pr["amount"]))
     return cn.call_next(nextc, err)
 
-def blk_balance(cn, nextc):
-    err = check.contain(cn.pr, ["account"])
+def wallet_fund(cn, nextc):
+    err = check.contain(cn.pr, ["amount"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
 
-    err = eth_contract("0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4").get_balance(cn.pr["account"]))
+    err = eth_contract(cn.rt["token"], user=cn.private["user"].id).fund(cn.rt["wallet"], int(cn.pr["amount"]))
     return cn.call_next(nextc, err)
-
-get_balance
 
 def admtoken(cn, nextc):
     err = check.contain(cn.pr, ["password"])
