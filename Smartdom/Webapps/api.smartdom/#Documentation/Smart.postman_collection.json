@@ -11,13 +11,11 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "api.localhost/test/",
+					"raw": "{{url}}test/",
 					"host": [
-						"api",
-						"localhost"
+						"{{url}}test"
 					],
 					"path": [
-						"test",
 						""
 					]
 				}
@@ -31,7 +29,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"pass\": \"password\"\r\n}",
+					"raw": "{\r\n    \"pass\": {{password}}\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -39,10 +37,9 @@
 					}
 				},
 				"url": {
-					"raw": "api.localhost/login/",
+					"raw": "{{url}}/login/",
 					"host": [
-						"api",
-						"localhost"
+						"{{url}}"
 					],
 					"path": [
 						"login",
@@ -67,10 +64,9 @@
 					}
 				},
 				"url": {
-					"raw": "api.localhost/signup/",
+					"raw": "{{url}}/signup/",
 					"host": [
-						"api",
-						"localhost"
+						"{{url}}"
 					],
 					"path": [
 						"signup",
@@ -95,10 +91,9 @@
 					}
 				},
 				"url": {
-					"raw": "api.localhost/signin/",
+					"raw": "{{url}}/signin/",
 					"host": [
-						"api",
-						"localhost"
+						"{{url}}"
 					],
 					"path": [
 						"signin",
@@ -114,10 +109,9 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "api.localhost/wallet/create/",
+					"raw": "{{url}}/wallet/create/",
 					"host": [
-						"api",
-						"localhost"
+						"{{url}}"
 					],
 					"path": [
 						"wallet",
@@ -134,10 +128,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "api.localhost/wallets",
+					"raw": "{{url}}/wallets",
 					"host": [
-						"api",
-						"localhost"
+						"{{url}}"
 					],
 					"path": [
 						"wallets"
@@ -152,10 +145,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "api.localhost/wallet/0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1",
+					"raw": "{{url}}/wallet/0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1",
 					"host": [
-						"api",
-						"localhost"
+						"{{url}}"
 					],
 					"path": [
 						"wallet",
@@ -171,10 +163,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "api.localhost/wallet/0x21c568710AA7335476d2738E6b493478cf4C9a3d/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
+					"raw": "{{url}}/wallet/0x21c568710AA7335476d2738E6b493478cf4C9a3d/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
 					"host": [
-						"api",
-						"localhost"
+						"{{url}}"
 					],
 					"path": [
 						"wallet",
@@ -201,10 +192,9 @@
 					}
 				},
 				"url": {
-					"raw": "api.localhost/wallet/0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/send",
+					"raw": "{{url}}/wallet/0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/send",
 					"host": [
-						"api",
-						"localhost"
+						"{{url}}"
 					],
 					"path": [
 						"wallet",
@@ -232,10 +222,9 @@
 					}
 				},
 				"url": {
-					"raw": "api.localhost/wallet/0x21c568710AA7335476d2738E6b493478cf4C9a3d/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/fund",
+					"raw": "{{url}}/wallet/0x21c568710AA7335476d2738E6b493478cf4C9a3d/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/fund",
 					"host": [
-						"api",
-						"localhost"
+						"{{url}}"
 					],
 					"path": [
 						"wallet",
@@ -251,13 +240,13 @@
 	],
 	"variable": [
 		{
-			"id": "96884a35-7fdd-4048-831d-4a1818441ad3",
+			"id": "d0b020c4-09a1-4605-b700-34e68622ff28",
 			"key": "url",
 			"value": "api.localhost",
 			"type": "string"
 		},
 		{
-			"id": "395b6404-f6f2-47e3-8941-e7288fa1ccf1",
+			"id": "eab3583b-1648-4917-bba1-9df584150b11",
 			"key": "password",
 			"value": "password",
 			"type": "string"
