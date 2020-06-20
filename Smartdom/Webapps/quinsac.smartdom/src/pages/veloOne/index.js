@@ -106,6 +106,16 @@ class index extends Component {
 
                     {
                         this.state.showAcceuil===true &&
+                            <div>
+                                <div className="row justify-content-end">
+                                    <div className="px-1 "  style={{backgroundColor:"yellow",padding:0.5,cursor:"pointer"}}>
+                                        <h5>Point de livraison  </h5>
+                                    </div>
+                                    <div className="ml-3 px-1 mr-5"  style={{backgroundColor:"yellow",padding:0.5,cursor:"pointer"}}>
+                                        <h5> Comment ça marche ? </h5>
+                                    </div>
+
+                                </div>
                         <div className="row">
                             <div className="col-md-4 ">
                                 {/* <img src={velo} style={{width:"100%",marginLeft:"auto"}}/> */}
@@ -160,6 +170,7 @@ class index extends Component {
 
 
                         </div>
+                            </div>
                     }
 
 

@@ -32,7 +32,7 @@ import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import {FacebookLoginButton, GoogleLoginButton, LinkedInLoginButton} from "react-social-login-buttons";
 
 import StripeCheckout from "react-stripe-checkout";
-import Logo from "../../assets/images/vin/logo.PNG"
+import Logo from "../../assets/images/vin/logo.png"
 
 
 

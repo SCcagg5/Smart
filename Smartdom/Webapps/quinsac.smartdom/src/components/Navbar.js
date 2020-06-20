@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { Collapse } from 'reactstrap';
-import logo from'../assets/images/vin/logo.png'
+import logo from '../assets/images/vin/logo.png'
 import certif from'../assets/images/certif.jpg'
 
 
@@ -94,6 +94,19 @@ class Navbar extends Component {
                                 <text>
                                    Une palette
                                 </text>
+
+                            </div>
+
+                            <div style={{marginLeft:"20%"}}>
+                               <div className="px-1"  style={{backgroundColor:"yellow",padding:0.5,cursor:"pointer"}}>
+                                   <h5>Prêter de l’argent à 2% à BACCHUS ? </h5>
+                               </div>
+
+                            </div>
+                            <div >
+                                <div className="ml-2 px-1"  style={{backgroundColor:"yellow",padding:0.5,cursor:"pointer"}}>
+                                    <h5>Crowdunding sur BACCHUS? </h5>
+                                </div>
 
                             </div>
 
