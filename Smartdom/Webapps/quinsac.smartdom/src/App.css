@@ -1,0 +1,67 @@
+.App {
+    text-align: center;
+}
+
+.App-logo {
+    height: 40vmin;
+}
+
+.App-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
+.App-link {
+    color: #09d3ac;
+}
+
+.selectedItem {
+    background-color: #abcdff;
+    color: white;
+}
+
+.background-gainboro {
+    background-color: #ebf2ff;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.signatureCard {
+    border: 1px solid #F0F0F0;
+    padding: 20px 25px 20px;
+}
+
+.container-fluid-65 {
+    max-width: 65%;
+}
+
+.custom-input-file {
+    border: 2px solid #F0F0F0;
+    width: 80%;
+    height:auto;
+    cursor: pointer;
+    padding: 10px;
+}
+.numberCircle {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+
+    background: #fff;
+    border: 2px solid #666;
+    color: #666;
+    text-align: center;
+
+    font: 18px Arial, sans-serif;
+}
+
+

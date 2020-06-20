@@ -1,0 +1,813 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="15725f10-0d46-4145-b2ab-25fa6ca6a53d" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution>
+      <executable />
+    </execution>
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="smartco-marketplace" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/assets/scss/_variables.scss">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="153">
+              <caret line="9" column="1" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/assets/scss/custom/pages/_authentication.scss">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="102">
+              <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pages/veloOne/categorie.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="448">
+              <caret line="102" column="42" selection-start-line="102" selection-start-column="42" selection-end-line="102" selection-end-column="42" />
+              <folding>
+                <element signature="e#0#49#0" expanded="true" />
+                <element signature="e#507#573#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pages/veloOne/login.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="510">
+              <caret line="192" selection-start-line="192" selection-end-line="192" />
+              <folding>
+                <element signature="e#0#49#0" expanded="true" />
+                <element signature="e#507#573#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pages/veloOne/index.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="324">
+              <caret line="196" selection-start-line="196" selection-end-line="196" />
+              <folding>
+                <element signature="e#0#49#0" expanded="true" />
+                <element signature="e#507#573#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/public/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="136">
+              <caret line="41" column="25" selection-start-line="41" selection-start-column="25" selection-end-line="41" selection-end-column="25" />
+              <folding>
+                <element signature="n#style#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/components/Navbar.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="41" selection-start-column="41" selection-end-column="41" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/assets/scss/app.scss">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/assets/scss/app-rtl.scss">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="238">
+              <caret line="14" column="19" selection-start-line="14" selection-start-column="19" selection-end-line="14" selection-end-column="19" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>Tend</find>
+      <find>sear</find>
+      <find>style</find>
+      <find>nomb</find>
+      <find>Petit déjeuner</find>
+      <find>Plat</find>
+      <find>Desser</find>
+      <find>navbar</find>
+      <find>color</find>
+      <find>topna</find>
+      <find>dark</find>
+      <find>entre</find>
+      <find>Payer via CB</find>
+      <find>histo</find>
+      <find>boo</find>
+      <find>updateShow</find>
+      <find>confirmer</find>
+      <find>Réunion de 30mn</find>
+      <find>title</find>
+      <find>itemm</find>
+      <find>imageUrl</find>
+      <find>Ajouter des invitées</find>
+      <find>push</find>
+      <find>dayp</find>
+      <find>h</find>
+      <find>Réunion de 30m</find>
+      <find>daysof</find>
+      <find>daypi</find>
+      <find>backg</find>
+      <find>bg-pattern-2.png</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/assets/scss/app.scss" />
+        <option value="$PROJECT_DIR$/src/assets/scss/DefaultTheme.scss" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/domicialisation.js" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/operations/domiciliation.js" />
+        <option value="$PROJECT_DIR$/src/index.css" />
+        <option value="$PROJECT_DIR$/src/App.css" />
+        <option value="$PROJECT_DIR$/src/assets/scss/custom/structure/_general.scss" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/forfaitComptaEnfin.js" />
+        <option value="$PROJECT_DIR$/src/assets/scss/_variables.scss" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/forfait.js" />
+        <option value="$PROJECT_DIR$/node_modules/primereact/components/carousel/Carousel.css" />
+        <option value="$PROJECT_DIR$/src/components/primereact/components/carousel/Carousel.css" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/choixCreationSociete.js" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/smartcoLink.js" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/domiciliation.js" />
+        <option value="$PROJECT_DIR$/public/paceloader/pace.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/personnalisationService.css" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/index.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/personnalisationService.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/domiciliation.js" />
+        <option value="$PROJECT_DIR$/src/pages/auth/signup.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdom.js" />
+        <option value="$PROJECT_DIR$/src/pages/auth/login.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/courrier.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/testCarousel.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/forfait.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/forfaitComptaEnfin.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js" />
+        <option value="$PROJECT_DIR$/src/components/Loader.js" />
+        <option value="$PROJECT_DIR$/src/components/Topbar.js" />
+        <option value="$PROJECT_DIR$/src/pages/questions/questions.js" />
+        <option value="$PROJECT_DIR$/src/pages/addRecette/addRecette.js" />
+        <option value="$PROJECT_DIR$/src/pages/listRecette/listeRecette.js" />
+        <option value="$PROJECT_DIR$/src/pages/listRecette/recette.js" />
+        <option value="$PROJECT_DIR$/src/assets/scss/custom/structure/_horizontal-nav.scss" />
+        <option value="$PROJECT_DIR$/src/components/TopbarRecettes.js" />
+        <option value="$PROJECT_DIR$/package.json" />
+        <option value="$PROJECT_DIR$/src/pages/veloOne/checkoutform.js" />
+        <option value="$PROJECT_DIR$/src/pages/veloOne/velair.js" />
+        <option value="$PROJECT_DIR$/src/pages/veloOne/reservation.js" />
+        <option value="$PROJECT_DIR$/src/pages/veloOne/type.js" />
+        <option value="$PROJECT_DIR$/src/components/Gcalendy/Gcalendy.js" />
+        <option value="$PROJECT_DIR$/src/assets/scss/custom/pages/_authentication.scss" />
+        <option value="$PROJECT_DIR$/src/components/Navbar.js" />
+        <option value="$PROJECT_DIR$/src/pages/veloOne/categorie.js" />
+        <option value="$PROJECT_DIR$/src/pages/veloOne/stripe.js" />
+        <option value="$PROJECT_DIR$/src/App.js" />
+        <option value="$PROJECT_DIR$/src/pages/veloOne/login.js" />
+        <option value="$PROJECT_DIR$/src/pages/veloOne/index.js" />
+        <option value="$PROJECT_DIR$/public/index.html" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="950" />
+    <option name="y" value="70" />
+    <option name="width" value="1235" />
+    <option name="height" value="980" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="quinsac" type="b2602c69:ProjectViewProjectNode" />
+              <item name="quinsac" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="quinsac" type="b2602c69:ProjectViewProjectNode" />
+              <item name="quinsac" type="462c0819:PsiDirectoryNode" />
+              <item name="public" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="quinsac" type="b2602c69:ProjectViewProjectNode" />
+              <item name="quinsac" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="quinsac" type="b2602c69:ProjectViewProjectNode" />
+              <item name="quinsac" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="assets" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/assets/images/vin" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.standard" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.standard" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.standard" value="" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="nodejs_package_manager_path" value="yarn" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="ts.external.directory.path" value="C:\Program Files\JetBrains\PhpStorm 2019.1.3\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\DJO\Desktop\work\smartco\espaceTravaille\velo_one\src\assets\images" />
+      <recent name="C:\Users\DJO\Desktop\smartco\espaceTravaille\smartdom\src\assets" />
+      <recent name="C:\Users\DJO\Desktop\smartco\espaceTravaille\smartco-marketplace\src\pages\marketplace" />
+      <recent name="C:\Users\DJO\Desktop\smartco\smApi\OtherApplications\smartco-marketplace\src\pages\dashboard\entreprises" />
+      <recent name="C:\Users\DJO\Desktop\smartco\smApi\OtherApplications\smartco-marketplace\src\pages\dashboard\entreprises\operations" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\DJO\Desktop\work\smartco\espaceTravaille\quinsac\src\assets\images\vin" />
+      <recent name="C:\Users\DJO\Desktop\work\smartco\espaceTravaille\velo_one\src\assets\images" />
+      <recent name="C:\Users\DJO\Desktop\work\smartco\espaceTravaille\velo_one\src\provider" />
+      <recent name="C:\Users\DJO\Desktop\work\smartco\espaceTravaille\velo_one\src\assets\css" />
+      <recent name="C:\Users\DJO\Desktop\work\smartco\espaceTravaille\velo_one\src\components" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="15725f10-0d46-4145-b2ab-25fa6ca6a53d" name="Default Changelist" comment="" />
+      <created>1584534370754</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1584534370754</updated>
+      <workItem from="1584534373470" duration="22427000" />
+      <workItem from="1584621472871" duration="5674000" />
+      <workItem from="1584638530350" duration="20664000" />
+      <workItem from="1584700586508" duration="12448000" />
+      <workItem from="1584713989250" duration="12906000" />
+      <workItem from="1584789053039" duration="2044000" />
+      <workItem from="1584794851654" duration="19153000" />
+      <workItem from="1584879380802" duration="24182000" />
+      <workItem from="1584964583052" duration="2213000" />
+      <workItem from="1584967595526" duration="9280000" />
+      <workItem from="1584986120905" duration="6131000" />
+      <workItem from="1585046069156" duration="300000" />
+      <workItem from="1585047930334" duration="4713000" />
+      <workItem from="1585054122713" duration="33240000" />
+      <workItem from="1585135457962" duration="33679000" />
+      <workItem from="1585225084076" duration="30970000" />
+      <workItem from="1585267160619" duration="5692000" />
+      <workItem from="1585273469196" duration="2549000" />
+      <workItem from="1585276198168" duration="685000" />
+      <workItem from="1585305017135" duration="685000" />
+      <workItem from="1585313618255" duration="7586000" />
+      <workItem from="1585327699136" duration="20111000" />
+      <workItem from="1585399505946" duration="33389000" />
+      <workItem from="1585498414910" duration="26073000" />
+      <workItem from="1585591586200" duration="9369000" />
+      <workItem from="1585824731797" duration="2080000" />
+      <workItem from="1585847007037" duration="13323000" />
+      <workItem from="1585921714766" duration="30988000" />
+      <workItem from="1586025167334" duration="22207000" />
+      <workItem from="1586116077796" duration="9249000" />
+      <workItem from="1586175117720" duration="358000" />
+      <workItem from="1586178424851" duration="4794000" />
+      <workItem from="1586206723256" duration="94000" />
+      <workItem from="1586218938369" duration="1031000" />
+      <workItem from="1586278949742" duration="180000" />
+      <workItem from="1586296246098" duration="1429000" />
+      <workItem from="1586298285319" duration="5466000" />
+      <workItem from="1586361797899" duration="1552000" />
+      <workItem from="1586366076034" duration="9229000" />
+      <workItem from="1586722965571" duration="352000" />
+      <workItem from="1587225136721" duration="447000" />
+      <workItem from="1587556741872" duration="661000" />
+      <workItem from="1587677800204" duration="3000" />
+      <workItem from="1588383962315" duration="11283000" />
+      <workItem from="1588398041422" duration="14000" />
+      <workItem from="1588399324381" duration="3000" />
+      <workItem from="1588642633739" duration="5039000" />
+      <workItem from="1588729996618" duration="2807000" />
+      <workItem from="1588816559091" duration="4941000" />
+      <workItem from="1588822911692" duration="116000" />
+      <workItem from="1588829589431" duration="2416000" />
+      <workItem from="1588905706953" duration="5942000" />
+      <workItem from="1588986390132" duration="65000" />
+      <workItem from="1588990159345" duration="880000" />
+      <workItem from="1589150855780" duration="1768000" />
+      <workItem from="1589164273458" duration="8000" />
+      <workItem from="1589175164904" duration="2098000" />
+      <workItem from="1589240761824" duration="283000" />
+      <workItem from="1589595651723" duration="1699000" />
+      <workItem from="1589764244019" duration="7304000" />
+      <workItem from="1589772429295" duration="14166000" />
+      <workItem from="1589856890199" duration="3434000" />
+      <workItem from="1590885510423" duration="2168000" />
+      <workItem from="1591052294761" duration="15643000" />
+      <workItem from="1591147451656" duration="13003000" />
+      <workItem from="1591165005560" duration="328000" />
+      <workItem from="1591277681445" duration="609000" />
+      <workItem from="1591563250680" duration="16464000" />
+      <workItem from="1591741747261" duration="6048000" />
+      <workItem from="1591805382148" duration="1178000" />
+      <workItem from="1591913415639" duration="8405000" />
+      <workItem from="1592004798724" duration="5557000" />
+      <workItem from="1592140515880" duration="72000" />
+      <workItem from="1592142375549" duration="2182000" />
+      <workItem from="1592173635347" duration="10083000" />
+      <workItem from="1592575398378" duration="10343000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="605955000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <layout>
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4978903" visible="true" weight="0.24228188" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="npm" order="2" side_tool="true" />
+      <window_info id="Favorites" order="3" sideWeight="0.5021097" side_tool="true" weight="0.3067114" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3286119" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3286119" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.3286119" />
+      <window_info anchor="bottom" id="Database Changes" order="9" />
+      <window_info anchor="bottom" id="TypeScript" order="10" />
+      <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.5026846" side_tool="true" weight="0.3286119" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="12" sideWeight="0.49731544" visible="true" weight="0.3286119" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js</url>
+          <line>616</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js</url>
+          <line>732</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js</url>
+          <line>933</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js</url>
+          <line>2124</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js</url>
+          <line>2149</line>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js</url>
+          <line>762</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js</url>
+          <line>606</line>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/marketplace/domiciliation.js</url>
+          <line>511</line>
+          <option name="timeStamp" value="22" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js</url>
+          <line>1036</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/marketplace/personnalisationService.js</url>
+          <line>326</line>
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js</url>
+          <line>448</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js</url>
+          <line>628</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js</url>
+          <line>685</line>
+          <option name="timeStamp" value="32" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://D:/c/pds/test/SmartcoChatBot/src/loginSignupForm/login.js</url>
+          <line>160</line>
+          <option name="timeStamp" value="33" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/addRecette/addRecette.js</url>
+          <line>233</line>
+          <option name="timeStamp" value="34" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/addRecette/addRecette.js</url>
+          <line>259</line>
+          <option name="timeStamp" value="35" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/addRecette/addRecette.js</url>
+          <line>302</line>
+          <option name="timeStamp" value="36" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/addRecette/addRecette.js</url>
+          <line>390</line>
+          <option name="timeStamp" value="37" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/addRecette/addRecette.js</url>
+          <line>527</line>
+          <option name="timeStamp" value="38" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/components/TopbarRecettes.js</url>
+          <line>122</line>
+          <option name="timeStamp" value="40" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/listRecette/listeRecette.js</url>
+          <line>71</line>
+          <option name="timeStamp" value="41" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/listRecette/recette.js</url>
+          <line>345</line>
+          <option name="timeStamp" value="44" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/listRecette/listeRecette.js</url>
+          <line>221</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/veloOne/index.js</url>
+          <line>163</line>
+          <option name="timeStamp" value="46" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/veloOne/categorie.js</url>
+          <line>263</line>
+          <option name="timeStamp" value="47" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/assets/images/checked.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/personnalisationService.js" />
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/courrier.js" />
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js" />
+    <entry file="file://$PROJECT_DIR$/src/serviceWorker.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/video-react/dist/video-react.css" />
+    <entry file="file://$PROJECT_DIR$/src/pages/questions/questions.js" />
+    <entry file="file://$PROJECT_DIR$/src/tools/customSnackBar.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1190">
+          <caret line="82" column="39" selection-start-line="82" selection-start-column="30" selection-end-line="82" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/hourglass.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-impl.jar!/resources/html5-schema/html5/block.rnc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="19" lean-forward="true" selection-start-line="19" selection-end-line="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/addRecette/addRecette.js" />
+    <entry file="file://$PROJECT_DIR$/src/pages/listRecette/recette.js" />
+    <entry file="file://$PROJECT_DIR$/src/pages/listRecette/listeRecette.js" />
+    <entry file="file://$PROJECT_DIR$/src/assets/images/OA.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-impl.jar!/resources/html5-schema/html5/structural.rnc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="384">
+          <caret line="129" column="16" selection-start-line="129" selection-start-column="16" selection-end-line="129" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/react/cjs/react.development.js" />
+    <entry file="file://$PROJECT_DIR$/node_modules/bootstrap/scss/_variables.scss" />
+    <entry file="file://$PROJECT_DIR$/src/components/Topbar.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="528">
+          <caret line="123" column="39" lean-forward="true" selection-start-line="123" selection-start-column="39" selection-end-line="123" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/@stripe/react-stripe-js/dist/react-stripe.d.ts" />
+    <entry file="file://$PROJECT_DIR$/src/components/NavBarAvocat.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="20" column="115" selection-start-line="20" selection-start-column="104" selection-end-line="20" selection-end-column="115" />
+          <folding>
+            <element signature="e#0#41#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/css/multiEmail.css">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/react-day-picker/types/DayPicker.d.ts" />
+    <entry file="file://$PROJECT_DIR$/node_modules/react-scripts/lib/react-app.d.ts" />
+    <entry file="file://$PROJECT_DIR$/node_modules/react-day-picker/types/Modifiers.d.ts" />
+    <entry file="file://$PROJECT_DIR$/src/pages/veloOne/checkoutform.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="415">
+          <caret line="107" column="6" selection-start-line="107" selection-start-column="6" selection-end-line="107" selection-end-column="6" />
+          <folding>
+            <element signature="e#0#33#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/provider/gCalendarService.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/veloOne/velair.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1156">
+          <caret line="104" column="39" selection-start-line="104" selection-start-column="39" selection-end-line="104" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+            <element signature="e#507#573#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Gcalendy/style.css">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="646">
+          <caret line="38" selection-start-line="38" selection-end-line="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package-lock.json">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Loader.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="6" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Gcalendy/Gcalendy.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="267">
+          <caret line="227" column="141" selection-start-line="226" selection-start-column="52" selection-end-line="227" selection-end-column="141" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/veloOne/reservation.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="222">
+          <caret line="133" column="42" selection-start-line="133" selection-start-column="42" selection-end-line="133" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+            <element signature="e#507#573#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/bootstrap/scss/_functions.scss" />
+    <entry file="file://$PROJECT_DIR$/src/assets/scss/DefaultTheme.scss">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/scss/bootstrap.scss">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/scss/custom/structure/_page-head.scss">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/scss/custom/structure/_horizontal-nav.scss">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3587">
+          <caret line="211" column="21" selection-start-line="211" selection-start-column="16" selection-end-line="211" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/fonts/cerebrisans-medium.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/scss/_variables.scss">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="1" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/scss/app.scss">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/scss/app-rtl.scss">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" column="19" selection-start-line="14" selection-start-column="19" selection-end-line="14" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/scss/custom/pages/_authentication.scss">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/TopbarRecettes.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-667">
+          <caret line="96" column="6" selection-start-line="96" selection-start-column="6" selection-end-line="96" selection-end-column="6" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Navbar.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="41" selection-start-column="41" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/veloOne/categorie.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="448">
+          <caret line="102" column="42" selection-start-line="102" selection-start-column="42" selection-end-line="102" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+            <element signature="e#507#573#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/veloOne/stripe.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="647">
+          <caret line="133" column="46" selection-start-line="133" selection-start-column="46" selection-end-line="133" selection-end-column="46" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/App.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-391">
+          <caret line="22" column="42" selection-start-line="22" selection-start-column="42" selection-end-line="22" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/veloOne/login.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="192" selection-start-line="192" selection-end-line="192" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+            <element signature="e#507#573#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/veloOne/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="196" selection-start-line="196" selection-end-line="196" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+            <element signature="e#507#573#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="41" column="25" selection-start-line="41" selection-start-column="25" selection-end-line="41" selection-end-column="25" />
+          <folding>
+            <element signature="n#style#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
