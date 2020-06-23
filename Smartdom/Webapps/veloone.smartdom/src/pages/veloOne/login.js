@@ -40,8 +40,7 @@ import oaLogo from "../../assets/images/oaLogo.png"
 import Snackbar from "@material-ui/core/Snackbar"
 
 import { Player } from 'video-react';
-import moment from "../../components/Gcalendy/Gcalendy";
-
+import  moment from"moment"
 
 const loading = () => <Loader/>;
 
@@ -90,11 +89,17 @@ class login extends Component {
             prix:localStorage.getItem("prix"),
             heure:localStorage.getItem("heure"),
             date:localStorage.getItem("date"),
-            duree:localStorage.getItem("duree")
+            duree:localStorage.getItem("duree"),
+            datefin:localStorage.getItem("dateF")
 
         }
         firebase.database().ref("payment/").push({
             token
+        }).then((snap)=>{
+            let key = snap.key
+
+            localStorage.setItem("Fkey",snap.key)
+            this.props.history.push("/invoice")
         })
     };
 

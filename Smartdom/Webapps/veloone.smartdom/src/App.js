@@ -25,6 +25,7 @@ import login from "./pages/veloOne/login";
 import stripe from "./pages/veloOne/stripe";
 import reservation from "./pages/veloOne/reservation";
 import categorie from "./pages/veloOne/categorie";
+import invoice from "./pages/veloOne/invoice";
 
 
 
@@ -74,6 +75,8 @@ class App extends Component{
             <Route exact path="/login" component={login}/>
             <Route exact path="/payment" component={stripe}/>
             <Route exact path="/reservation" component={reservation}/>
+            <Route exact path="/invoice" component={invoice}/>
+
 
 
 
