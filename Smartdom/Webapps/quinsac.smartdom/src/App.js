@@ -18,10 +18,23 @@ import './App.css'
 
 
 import firebase from "firebase/app";
-
+import Etape1 from "./pages/auth/signUp/etape1";
+import Etape2 from "./pages/auth/signUp/etape2";
 import index from "./pages/veloOne/index";
+import Login from "./pages/auth/login/login";
+import Logout from "./pages/auth/logout";
+import Documents from "./pages/auth/completerProfil/documents";
+import SituationEtExp from "./pages/auth/completerProfil/situationEtExp";
+import Signature from "./pages/auth/completerProfil/signature";
+
+import InvestisorSignUp from "./pages/auth/signUp/investisorSignUp";
+
+import EnergieRenouvelables from "./pages/projects/energieRenouvelables";
+import CommentInvestir from "./pages/commentInvestir";
+
 import login from "./pages/veloOne/login";
 import categorie from "./pages/veloOne/categorie";
+import invoice from "./pages/invoice";
 
 
 
@@ -58,8 +71,23 @@ class App extends Component{
             <Route exact path="/" component={index}/>
             <Route  path="/categorie/:type" component={categorie}/>
 
+            <Route exact path="/signup/investisor" component={InvestisorSignUp}/>
+            <Route exact path="/signup/investisor/step1" component={Etape1}/>
+            <Route exact path="/signup/investisor/step2" component={Etape2}/>
+            <Route exact path="/investisor/completer-profil/documents" component={Documents}/>
+            <Route exact path="/investisor/completer-profil/situationEtExperiences" component={SituationEtExp}/>
+                <Route exact path="/investisor/completer-profil/signature" component={Signature}/>
 
-            <Route exact path="/login" component={login}/>
+            <Route exact path="/acceuil/energies-renouvelables" component={EnergieRenouvelables}/>
+            <Route exact path="/comment-investir" component={CommentInvestir}/>
+
+            <Route exact path="/invoice" component={invoice}/>
+
+
+
+            <Route exact path="/login" component={Login}/>
+            <Route exact path="/logout" name="logout" component={Logout}/>
+
 
 
 

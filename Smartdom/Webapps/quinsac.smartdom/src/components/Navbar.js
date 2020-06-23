@@ -73,7 +73,9 @@ class Navbar extends Component {
                         <div className="row align-items-center justify-content-center">
                         <div className="col-md-1" style={{cursor:"pointer" ,borderBottomColor:this.state.villeborder,borderBottomWidth: 3 ,borderBottomStyle:"solid"}} onClick={()=>{this.changeborder("villeborder")
                             this.props.changeActivePage("showVille")
-                        this.props.history.push("/categorie/4bouteilles")}}>
+                        this.props.history.push("/categorie/4bouteilles")
+                        localStorage.setItem("typeAchat","4bouteilles")}
+                        }>
                             <text >
                                 4 bouteilles
 
@@ -82,7 +84,8 @@ class Navbar extends Component {
                         </div>
                             <div className="col-md-1"style={{cursor:"pointer",borderBottomColor:this.state.vtcborder,borderBottomWidth: 3 ,borderBottomStyle:"solid"}} onClick={()=>{this.changeborder("vtcborder")
                                 this.props.changeActivePage("showVtc")
-                                this.props.history.push("/categorie/caisse")}}>
+                                this.props.history.push("/categorie/caisse")
+                                localStorage.setItem("typeAchat","caisee")}}>
                                 <text >
                                    Une caisse
                                 </text>
@@ -90,7 +93,8 @@ class Navbar extends Component {
                             </div>
                             <div className="col-md-1" style={{cursor:"pointer",borderBottomColor:this.state.compactborder,borderBottomWidth: 3 ,borderBottomStyle:"solid"}} onClick={()=>{this.changeborder("compactborder")
                                 this.props.changeActivePage("showCompact")
-                                this.props.history.push("/categorie/palette")}}>
+                                this.props.history.push("/categorie/palette")
+                                localStorage.setItem("typeAchat","palette")}}>
                                 <text>
                                    Une palette
                                 </text>
@@ -104,7 +108,7 @@ class Navbar extends Component {
 
                             </div>
                             <div >
-                                <div className="ml-2 px-1"  style={{backgroundColor:"yellow",padding:0.5,cursor:"pointer"}}>
+                                <div className="ml-2 px-1"  style={{backgroundColor:"yellow",padding:0.5,cursor:"pointer"}} onClick={()=>{this.props.history.push('/comment-investir')}}>
                                     <h5>Crowdunding sur BACCHUS? </h5>
                                 </div>
 

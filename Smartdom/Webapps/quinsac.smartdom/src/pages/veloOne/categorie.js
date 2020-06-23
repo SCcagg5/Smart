@@ -53,17 +53,33 @@ class categorie extends Component {
             showVtc:false,
             showCompact:false,
             showVE:false,
+            user:"",
 
             vin:"",
-            params:""
+            params:"",
+            role:""
 
         }
     }
 
     componentDidMount() {
         const { type } = this.props.match.params;
-
         this.setState({loading:true})
+
+        firebase.database().ref("users/"+localStorage.getItem('uid')).on("value",(snapshot)=>{
+            let user = snapshot.val()
+            if  (user===null){
+                this.setState({user:user,role:""})
+            }else{
+                this.setState({user:user,role:user.role})
+            }
+
+
+            console.log(user)
+        })
+
+
+
 
         firebase.database().ref("data/"+type).on("value",  (snapshot) => {
             let vin = snapshot.val()
@@ -77,6 +93,8 @@ class categorie extends Component {
 
 
     }
+
+
 
     componentWillReceiveProps(nextProps) {
         const { type } = nextProps.match.params;
@@ -95,7 +113,10 @@ class categorie extends Component {
     }
 
 
-
+  gotoinvoice(data){
+        localStorage.setItem("invoiceData",JSON.stringify(this.state.vin))
+      this.props.history.push("/invoice")
+  }
 
 
     payment(itemm){
@@ -125,6 +146,7 @@ class categorie extends Component {
     render() {
 
         let data = this.state.vin
+        let user =this.state.user
 
         return (
             <div >
@@ -163,6 +185,7 @@ class categorie extends Component {
 
                                                         </div>
                                                     </div>
+                                                    {(this.state.role != "investisor" ) &&
                                                     <div className="text-center p-2"
                                                          style={{backgroundColor: "#1382c0"}}>
                                                         <div>
@@ -185,7 +208,9 @@ class categorie extends Component {
                                                                     borderStyle: "solid",
                                                                     borderWidth: 1,
                                                                     cursor: "pointer"
-                                                                }} onClick={()=>{this.payment(itemm)}}>
+                                                                }} onClick={() => {
+                                                                    this.payment(itemm)
+                                                                }}>
                                                                     <div>
                                                                         <text
                                                                             style={{color: "yellow"}}>{itemm.prix}</text>
@@ -201,6 +226,12 @@ class categorie extends Component {
 
                                                         </div>
                                                     </div>
+                                                    }
+                                                    {this.state.role ==="investisor"&&
+                                                       <div className="text-center">
+                                                           <h3 style={{color:"red"}}> sois {data.investissement}  euros</h3>
+                                                       </div>
+                                                    }
 
                                                 </div>
 
@@ -247,17 +278,39 @@ class categorie extends Component {
 
 
                                         </div>
+
                                         <div className="container-fluid mt-5">
 
-                                            <div style={{marginLeft:"20%"}} >
-                                                <small>* Tokens O&A, sont des unités de comptes délivrer par la direction de O&A pour les employés de la sociétés ou des clients de passage
-                                                </small>
-                                            </div>
-                                            <div className="mt-3" style={{marginLeft:"20%"}}>
-                                                <small>
-                                                    ** Une application permet d’acquérir les QR-codes qui permet d’informer O&A de l’utilisation des véhicules électriques
-                                                </small>
-                                            </div>
+                                            {this.state.role ==="investisor"&&
+                                           <div className="row justify-content-end align-items-start">
+                                               <div className="col-md-auto ">
+                                                   <button className="btn btn-danger bg-danger " style={{borderRadius:500}}>
+                                                       <h5 style={{color:"white"}} onClick={()=>{this.gotoinvoice(data)
+                                                       }}>Je confirmes l’investissement    </h5>
+
+                                                   </button>
+
+
+                                               </div>
+
+                                                   <h4>
+                                                       de <text style={{color:"red" ,fontWeight:"bold"}}> {data.investissement} euros </text>
+                                                   </h4>
+
+                                               <div className="col-md-3">
+
+                                                   <h3>
+                                                       sur la ferme solaire
+                                                       de château
+                                                       Montaigne
+                                                   </h3>
+
+                                               </div>
+
+
+                                           </div>
+                                            }
+
 
                                         </div>
                                     </div>

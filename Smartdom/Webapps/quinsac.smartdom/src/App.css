@@ -63,5 +63,546 @@
 
     font: 18px Arial, sans-serif;
 }
+.selectedItem {
+    background-color: #abcdff;
+    color: white;
+}
+
+.background-gainboro {
+    background-color: #ebf2ff;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.signatureCard {
+    border: 1px solid #F0F0F0;
+    padding: 20px 25px 20px;
+}
+
+.container-fluid-65 {
+    max-width: 65%;
+}
+
+.hoverColor:hover {
+    color: #19b4fa!important;
+    text-decoration: none;
+}
+
+.spinnerColor:hover {
+    background-color: #19b4fa!important;
+    color: #FFF!important;
+}
+.spinnerColor {
+    background-color: #FFF!important; ;
+    color: #19b4fa!important;
+}
+
+
+/*Tabs custom css*/
+
+.custom-react-tabs__tab {
+    display: inline-block;
+    border: 1px solid transparent;
+    border-bottom: none;
+    bottom: -1px;
+    position: relative;
+    list-style: none;
+    padding: 8px 14px;
+    cursor: pointer;
+    color:#19b4fa;
+    font-size: large;
+    background: #fff;
+    min-width: 100%;
+    max-width: 700px;
+    min-height: 500px;
+}
+.custom-react-tabs__tab--selected {
+    background: #fff;
+    border: 1px solid #C0C0C0!important;
+    border-bottom-color: transparent!important;
+    color: #555;
+    /*border-radius: 5px 5px 0 0;*/
+    font-size: large;
+}
+/*End*/
+
+.customImageCard {
+    height: 100vh;
+    padding: 2.5rem;
+    box-sizing: border-box;
+    background-image: url("./assets/images/green-enr.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: rgb(34, 34, 34);
+    text-shadow: rgb(255, 255, 255) 0px 0px 0.4375rem;
+}
+
+.customImageCommentInvCard {
+    height: 50vh;
+    padding: 2.5rem;
+    box-sizing: border-box;
+    background-image: url("./assets/fermeSolaire.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: rgb(34, 34, 34);
+    text-shadow: rgb(255, 255, 255) 0px 0px 0.4375rem;
+}
+
+.customImageCommentEmpCard {
+    height: 50vh;
+    padding: 2.5rem;
+    box-sizing: border-box;
+    background-image: url("./assets/coverEmp.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: rgb(34, 34, 34);
+    text-shadow: rgb(255, 255, 255) 0px 0px 0.4375rem;
+}
+
+.customImageCommentEmpCard > div > h1 {
+    font-size:2.88rem;
+    line-height:1.2;
+    font-weight:900;
+    letter-spacing:0.01rem;
+    color:#fff
+}
+
+.customImageCommentInvCard > div > h1 {
+    font-size:2.88rem;
+    line-height:1.2;
+    font-weight:900;
+    letter-spacing:0.01rem;
+    color:#fff
+}
+
+.customImageCardImmo {
+    height: 100vh;
+    padding: 2.5rem;
+    box-sizing: border-box;
+    background-image: url("./assets/images/estate.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: rgb(255, 255, 255);
+    text-shadow: rgb(255, 255, 255) 0px 0px 0.4375rem;
+}
+
+.lendo_button {
+    display: inline-block;
+    box-sizing: border-box;
+    cursor: pointer;
+    border: .125rem solid transparent;
+    vertical-align: middle;
+    font-size: .88889rem;
+    line-height: 2.875rem;
+    font-family: "Maax",Helvetica,Arial,sans-serif;
+    font-weight: 500;
+    border-radius: 0;
+    padding: 0 1.875rem;
+    min-width: 12.5rem;
+    text-align: center;
+    background-color: #05a8e6;
+    color: #fff;
+}
+.lendo_button:hover{
+    border: .125rem solid #05a8e6;
+    background-color: #05a8e6;
+    color: #fff;
+}
+
+.custombtn {
+    line-height: 1.9;
+    font-size: 0.975rem;
+    padding: 0.65rem 1.3rem;
+}
+
+.invBlock {
+    margin-top: 40%;
+}
+
+.etape1-left-block{
+    height: 100vh;
+    padding: 0px 2.5rem;
+    background-color: rgb(0, 46, 125);
+    display: block;
+}
+.etape1-left-block > img {
+    position: absolute;
+    top: 2.1875rem;
+    left: 2.5rem;
+    width: 10.0625rem;
+    height: 2.75rem;
+}
+.etape1-left-block > div {
+    display: flex;
+    flex-direction: column;
+    -moz-box-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+
+@media screen and (max-width: 1400px) and (min-width: 1300px) {
+    .img-header-title{
+        font-size: 3.4375rem!important; ;
+    }
+    .img-header-subtitle{
+        font-size: 1.3375rem
+    }
+}
+@media screen and (max-width: 900px) and (min-width: 400px) {
+    .img-header-title{
+        font-size: 2.5rem!important; ;
+    }
+    .img-header-subtitle{
+        font-size: 1.3375rem
+    }
+}
+@media screen and (max-width: 1300px) and (min-width: 900px) {
+    .img-header-title{
+        font-size: 2.9rem!important; ;
+    }
+    .img-header-subtitle{
+        font-size: 1.333rem
+    }
+}
+@media screen and (min-width: 1400px) {
+    .img-header-title {
+        font-size: 3.9375rem ;
+    }
+    .img-header-subtitle{
+        font-size: 1.6375rem
+    }
+}
+@media screen and (max-width: 600px) {
+    .customImageCommentInvCard > div {
+        padding: 2rem 1.4rem!important;
+    }
+    .customImageCommentInvCard > div > h1 {
+        font-size:1.9rem;
+        line-height:1.2;
+        font-weight:900;
+        letter-spacing:0.01rem;
+        color:#fff
+    }
+
+    .customImageCommentEmpCard > div {
+        padding: 2rem 1.4rem!important;
+    }
+    .customImageCommentEmpCard > div > h1 {
+        font-size:1.9rem;
+        line-height:1.2;
+        font-weight:900;
+        letter-spacing:0.01rem;
+        color:#fff
+    }
+}
+
+@media screen and (max-width: 1100px) {
+    .visibility{
+        visibility: hidden;
+    }
+    .update-margin {
+        margin-left: 2% !important;
+    }
+}
+
+.customUILabel {
+    font-size: 1.0rem !important;
+    color: rgb(34,34,34);
+    line-height: 1.2!important;
+    font-weight: bold!important;
+}
+.customUILabelNotBold {
+    font-size: 1.0rem !important;
+    color: rgb(34,34,34);
+    line-height: 1.5!important;
+}
+
+.customFormControlLabel {
+    padding: 18px;
+    background-color: #fff;
+    width: 320px;
+    height: 5.625rem;
+    border: 4px solid #F0F0F0;
+}
+.customUILabel-root{
+    margin-left: 30px!important;
+    margin-right: 16px!important;
+}
+
+.customUICheckboxIcon {
+    font-size: 2rem;
+}
+
+.customAlert {
+    color: #19b4fa;
+    font-weight: 400;
+    font-size: .88889rem;
+    padding-top: 15px;
+}
+
+.profile-dropdown {
+    width: auto;
+}
+
+.user-header {
+    background-image: url("./assets/images/dot.png");
+    background-color: #fff;
+    background-position: -2px 8px;
+    position: fixed;
+    height: 30%;
+    width: 100%;
+}
+
+.dashboard-container {
+    padding: 5rem;
+}
+
+.custom-nav-tab {
+    border: 0;
+    bottom: 2px;
+    font-family: "futura-pt","din next w01","helvetica neue","helvetica","arial",sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    position: relative;
+    text-transform: uppercase;
+    margin-bottom: 0;
+    padding-left: 0;
+    list-style: none;
+}
+.custom-nav-tab > li {
+    float: left;
+    position: relative;
+    display: block;
+    margin: 0;
+    padding-left: 25px;
+    font-weight: bold;
+}
+.tab-item-selected {
+    background: 0 0;
+    border: 0;
+    border-bottom: solid #19b4fa 2px;
+    margin-bottom: -2px;
+    margin-right: 10px;
+    padding: 10px;
+    border-bottom-width: 4px;
+}
+.background-white {
+    background-color: #fff!important;
+}
+
+.custom-input-image-file {
+    border: 2px solid #F0F0F0;
+    width: 262px;
+    height: 148px;
+    cursor: pointer;
+}
+
+.custom-input-file {
+    border: 2px solid #F0F0F0;
+    width: 90%;
+    height: 100px;
+    cursor: pointer;
+    padding: 15px;
+}
+
+.custom-inline-input {
+    border: none;
+    border-bottom: 3px solid #C0C0C0;
+    border-radius: unset;
+}
+.no-bottom-margin {
+    margin-bottom:0!important
+}
+.notice {
+    border: 3px solid !important;
+    margin: 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.custom-select {
+    border: 2px solid #F0F0F0;
+}
+
+.unselected-button {
+    background-color: #fff;
+    color: #000;
+    border: 3px solid #F0F0F0;
+}
+
+.containerImgMapper {
+    position: relative;
+}
+
+.tooltipImgMapper {
+    position: absolute;
+    color: #fff;
+    padding: 10px;
+    background: rgba(0,0,0,0.8);
+    transform: translate3d(-50%, -50%, 0);
+    border-radius: 5px;
+    pointer-events: none;
+    z-index: 1000;
+}
+.MuiDialogContent-root:first-child {
+    padding-top: 1px;
+}
+.MuiDialog-paperScrollPaper {
+    display: flex;
+    max-height: calc(100% - 96px);
+    flex-direction: column;
+    padding-top: 0;
+    padding-left: 1%;
+    padding: 3.5%;
+}
+
+.selectedEstimationImg{
+    border: 3px solid #f50057;
+    border-radius: 10%;
+}
+
+.btnNb{
+    background-color: white;
+    color: #000;
+    font-weight: bold;
+    font-size: 22px;
+    height: 40px;
+}
+.btnNb:hover{
+    background-color: white;
+    color: #000;
+    border-color: #000!important;
+}
+.btnNbValue{
+    background-color: white;
+    color: #000;
+    font-weight: bold;
+    font-size: 22px;
+    height: 40px;
+    width: 150px;
+}
+.btnNbValue:hover{
+    background-color: white;
+    color: #000;
+    border-color: #000!important;
+}
+.MuiBackdrop-root {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    z-index: -1;
+    position: fixed;
+    align-items: center;
+    touch-action: none;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.2)!important;
+    -webkit-tap-highlight-color: transparent;
+}
+.MuiDialog-paperScrollPaper {
+    display: flex;
+    max-height: calc(100% - 96px);
+    flex-direction: column;
+    padding: 2.2%!important;
+}
+.MuiDialog-paperDemiScreen {
+    width: 100%;
+    height: 90%!important;
+    margin: 0;
+    max-width: 100%;
+    max-height: none;
+    border-radius: 10px!important;
+    margin-left: 55%!important;
+    margin-top: 10%!important;
+    margin-bottom: 8%!important;
+}
+.MuiDialog-paper40Screen {
+    width: 100%;
+    height: 90%!important;
+    margin: 0;
+    max-width: 100%;
+    max-height: none;
+    border-radius: 10px!important;
+    margin-left: 40%!important;
+    margin-top: 10%!important;
+    margin-bottom: 8%!important;
+}
+.MuiDialog-paper25Screen {
+    width: 100%;
+    height: 90%!important;
+    margin: 0;
+    max-width: 100%;
+    max-height: none;
+    border-radius: 10px!important;
+    margin-left: 25%!important;
+    margin-top: 10%!important;
+    margin-bottom: 8%!important;
+}
+.MuiDialog-paper10Screen {
+    width: 100%;
+    height: 90%!important;
+    margin: 0;
+    max-width: 100%;
+    max-height: none;
+    border-radius: 10px!important;
+    margin-left: 10%!important;
+    margin-top: 10%!important;
+    margin-bottom: 8%!important;
+}
+.MuiDialog-paper5Screen {
+    width: 100%;
+    height: 90%!important;
+    margin: 0;
+    max-width: 100%;
+    max-height: none;
+    border-radius: 10px!important;
+    margin-left: 5%!important;
+    margin-top: 10%!important;
+    margin-bottom: 8%!important;
+}
+.MuiDialog-paperFScreen {
+    width: 100%;
+    height: 90%!important;
+    margin: 0;
+    max-width: 100%;
+    max-height: none;
+    border-radius: 10px!important;
+    margin-left: 5%!important;
+    margin-right: 5%!important;
+    margin-top: 10%!important;
+    margin-bottom: 10%!important;
+}
+
+.bubble-text{
+    background:#fff; color:#fff; padding:7px 15px; border-radius:5px; width:160px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05)
+}
+
+.bubble-text::after{
+    content:"";
+    border-left:20px solid transparent;
+    border-right:20px solid transparent;
+    border-top: 20px solid #fff;
+    position: absolute;
+}
+
+.background-gainboro {
+    background-color: #ebf2ff;
+}
+
+.customUILabel {
+    font-size: 1.0rem !important;
+    color: rgb(34,34,34);
+    font-weight: bold!important;
+}
+
+.customUILabel-root {
+    margin-left: 5px !important;
+    margin-right: 5px !important;
+}
 
 
