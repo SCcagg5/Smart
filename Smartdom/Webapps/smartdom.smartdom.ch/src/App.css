@@ -1,0 +1,183 @@
+.App {
+    text-align: center;
+}
+
+.App-logo {
+    height: 40vmin;
+}
+
+.App-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
+.App-link {
+    color: #09d3ac;
+}
+
+.selectedItem {
+    background-color: #abcdff;
+    color: white;
+}
+
+.background-gainboro {
+    background-color: #ebf2ff;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.signatureCard {
+    border: 1px solid #F0F0F0;
+    padding: 20px 25px 20px;
+}
+
+.container-fluid-65 {
+    max-width: 65%;
+}
+
+.custom-input-file {
+    border: 2px solid #F0F0F0;
+    width: 80%;
+    height:auto;
+    cursor: pointer;
+    padding: 10px;
+}
+.numberCircle {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+
+    background: #fff;
+    border: 2px solid #666;
+    color: #666;
+    text-align: center;
+
+    font: 18px Arial, sans-serif;
+}
+
+
+.file-box-content {
+    margin-bottom: -16px
+}
+
+.file-box-content .file-box {
+    border: 1px solid #f1f5fa;
+    border-radius: 5px;
+    padding: 20px;
+    width: 160px;
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 16px;
+    background-color: #fff;
+    -webkit-box-shadow: 0px 2px 4px rgba(31, 30, 47, 0.1);
+    box-shadow: 0px 2px 4px rgba(31, 30, 47, 0.1)
+}
+
+.file-box-content .file-box .download-icon-link {
+    color: #a4abc5
+}
+
+.file-box-content .file-box .download-icon-link .file-download-icon {
+    font-size: 13px;
+    position: relative;
+    top: -10px;
+    left: 110px
+}
+
+.file-box-content .file-box .download-icon-link .file-download-icon1 {
+    font-size: 14px;
+    position: relative;
+    top: -10px;
+    left: 95px
+}
+.file-box-content .file-box .download-icon-link .file-download-icon2 {
+    font-size: 14px;
+    position: relative;
+    top: -11px;
+    left: 104px
+}
+
+.file-box-content .file-box .download-icon-link:hover {
+    color: #506ee4
+}
+
+.file-box-content .file-box i {
+    font-size: 36px
+}
+
+.file-category {
+    width: 100%
+}
+
+.file-category .file-category-block {
+    text-align: center;
+    margin-right: 20px
+}
+
+.file-category .file-category-block .file-category-folder {
+    border-bottom: 2px solid transparent;
+    padding: 10px 20px !important;
+    border-radius: 18px
+}
+
+.file-category .file-category-block .file-category-folder.active {
+    border-bottom: 2px solid
+}
+
+.file-category .file-category-block .file-category-folder i {
+    display: block;
+    font-size: 38px
+}
+
+.files-nav .nav .nav-link span {
+    font-size: 22px;
+    vertical-align: middle;
+}
+
+.category-icon i {
+    font-size: 200px;
+    color: #f8f8fc
+}
+
+.nav-pills .nav-item.show .nav-link, .nav-pills .nav-link.active {
+    background: linear-gradient(14deg, #506ee4 0%, rgba(80, 110, 228, 0.6));
+    color: #fff;
+    -webkit-box-shadow: 0 7px 14px 0 rgba(80, 110, 228, 0.5);
+    box-shadow: 0 7px 14px 0 rgba(80, 110, 228, 0.5);
+    border-radius: 0
+}
+.nav-border .nav-item.show .nav-link, .nav-border .nav-link.active {
+    background: transparent;
+    color: #506ee4;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border-bottom: 3px solid #506ee4
+}
+
+/*Tree View*/
+
+.deni-react-treeview-container.classic {
+     border-color: #fff!important;
+}
+
+.deni-react-treeview-container {
+    font-family: tahoma,arial;
+    font-size: 12px;
+    padding: 0px;
+    overflow-x: auto;
+    overflow-y: auto;
+    border: solid 1px;
+    height: auto!important;
+    width: auto!important;
+}
+
+
