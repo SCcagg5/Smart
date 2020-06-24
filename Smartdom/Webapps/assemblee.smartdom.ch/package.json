@@ -1,0 +1,69 @@
+{
+  "name": "smartco-capbloc-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.5.1",
+    "@material-ui/icons": "^4.5.1",
+    "@material/drawer": "^5.1.0",
+    "availity-reactstrap-validation": "^2.5.1",
+    "bootstrap": "^4.4.1",
+    "classnames": "^2.2.6",
+    "firebase": "^5.9.3",
+    "jquery": "^3.4.1",
+    "metismenujs": "^1.0.3",
+    "mgr-pdf-viewer-react": "^1.0.3",
+    "moment": "^2.24.0",
+    "morris.js": "^0.5.0",
+    "node-modules": "^1.0.1",
+    "node-sass": "^4.13.1",
+    "nuka-carousel": "^4.6.6",
+    "pdf-viewer-reactjs": "^1.0.5",
+    "primeicons": "^2.0.0",
+    "primereact": "^4.1.2",
+    "prop-types": "15.7.2",
+    "raphael": "^2.3.0",
+    "react": "^16.7.0",
+    "react-big-calendar": "^0.22.0",
+    "react-bootstrap": "^1.0.0-beta.16",
+    "react-border-wrapper": "^1.0.3",
+    "react-dom": "^16.7.0",
+    "react-geosuggest": "^2.12.1",
+    "react-items-carousel": "^2.8.0",
+    "react-loadable": "^5.5.0",
+    "react-multi-carousel": "^2.5.3",
+    "react-perfect-scrollbar": "^1.5.0",
+    "react-phone-input-2": "^2.10.0",
+    "react-pose": "^4.0.10",
+    "react-responsive-modal": "^4.0.1",
+    "react-router-auth": "^1.0.1",
+    "react-router-dom": "^5.0.0",
+    "react-scripts": "^3.4.1",
+    "react-signature-canvas": "^1.0.3",
+    "react-slick": "^0.25.2",
+    "react-spring": "^8.0.27",
+    "react-transition-group": "^2.5.1",
+    "reactstrap": "^8.0.0",
+    "recharts": "^1.4.2",
+    "slick-carousel": "^1.8.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "css-loader": "^3.4.2",
+    "style-loader": "^1.1.3"
+  }
+}

@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/src/assets/scss/_variables.scss" description="  &quot;gray&quot;:       $gray-600,&#10;" line="104" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="15725f10-0d46-4145-b2ab-25fa6ca6a53d" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution>
+      <executable />
+    </execution>
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="smartco-marketplace" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/public/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="375">
+              <caret line="41" column="24" selection-start-line="41" selection-start-column="24" selection-end-line="41" selection-end-column="24" />
+              <folding>
+                <element signature="n#style#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/App.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="131">
+              <caret line="61" selection-start-line="61" selection-end-line="61" />
+              <folding>
+                <element signature="e#0#39#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pages/marketplace/forfait.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="10268">
+              <caret line="693" column="60" selection-start-line="693" selection-start-column="60" selection-end-line="693" selection-end-column="60" />
+              <folding>
+                <element signature="e#0#49#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>informa</find>
+      <find>scro</find>
+      <find>cardte</find>
+      <find>info</find>
+      <find>infor</find>
+      <find>cardtem</find>
+      <find>besoin</find>
+      <find>username</find>
+      <find>besoi</find>
+      <find>personnalisa</find>
+      <find>en savo</find>
+      <find>je me</find>
+      <find>top</find>
+      <find>personn</find>
+      <find>histor</find>
+      <find>Personnalisation des services</find>
+      <find>hist</find>
+      <find>gap</find>
+      <find>gra</find>
+      <find>JE ME</find>
+      <find>bg-su</find>
+      <find>push</find>
+      <find>&lt;hr</find>
+      <find>laussa</find>
+      <find>posed</find>
+      <find>suis</find>
+      <find>us</find>
+      <find>je com</find>
+      <find>rejo</find>
+      <find>style</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/newSuisseSARLEntreprise.js" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/smartcoLink.js" />
+        <option value="$PROJECT_DIR$/src/pages/redirect.js" />
+        <option value="$PROJECT_DIR$/src/pages/carous.js" />
+        <option value="$PROJECT_DIR$/src/assets/images/modal2/video.SVG" />
+        <option value="$PROJECT_DIR$/src/assets/images/modal2/microphone.svg" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/SARLAfterCreationPage.js" />
+        <option value="$PROJECT_DIR$/src/assets/images/flash.svg" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/testCarousel.js" />
+        <option value="$PROJECT_DIR$/src/assets/scss/app.scss" />
+        <option value="$PROJECT_DIR$/src/assets/scss/DefaultTheme.scss" />
+        <option value="$PROJECT_DIR$/package.json" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/domicialisation.js" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/operations/domiciliation.js" />
+        <option value="$PROJECT_DIR$/src/components/Topbar.js" />
+        <option value="$PROJECT_DIR$/src/index.css" />
+        <option value="$PROJECT_DIR$/src/App.css" />
+        <option value="$PROJECT_DIR$/src/assets/scss/custom/structure/_general.scss" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/forfaitComptaEnfin.js" />
+        <option value="$PROJECT_DIR$/src/assets/scss/_variables.scss" />
+        <option value="$PROJECT_DIR$/src/assets/scss/custom/pages/_authentication.scss" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/forfait.js" />
+        <option value="$PROJECT_DIR$/node_modules/primereact/components/carousel/Carousel.css" />
+        <option value="$PROJECT_DIR$/src/components/primereact/components/carousel/Carousel.css" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/choixCreationSociete.js" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/smartcoLink.js" />
+        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/domiciliation.js" />
+        <option value="$PROJECT_DIR$/public/paceloader/pace.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/domiciliation.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/personnalisationService.css" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/index.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdom.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/personnalisationService.js" />
+        <option value="$PROJECT_DIR$/node_modules/bootstrap/dist/css/bootstrap.css" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/forfait.js" />
+        <option value="$PROJECT_DIR$/public/index.html" />
+        <option value="$PROJECT_DIR$/src/App.js" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="950" />
+    <option name="y" value="70" />
+    <option name="width" value="1235" />
+    <option name="height" value="980" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="s" type="b2602c69:ProjectViewProjectNode" />
+              <item name="s" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="s" type="b2602c69:ProjectViewProjectNode" />
+              <item name="s" type="462c0819:PsiDirectoryNode" />
+              <item name="public" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="s" type="b2602c69:ProjectViewProjectNode" />
+              <item name="s" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/assets/images/smartDom" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.standard" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.standard" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.standard" value="" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="nodejs_package_manager_path" value="yarn" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="ts.external.directory.path" value="C:\Program Files\JetBrains\PhpStorm 2019.1.3\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\DJO\Desktop\smartco\espaceTravaille\smartco-marketplace\src\pages\marketplace" />
+      <recent name="C:\Users\DJO\Desktop\smartco\smApi\OtherApplications\smartco-marketplace\src\pages\dashboard\entreprises" />
+      <recent name="C:\Users\DJO\Desktop\smartco\smApi\OtherApplications\smartco-marketplace\src\pages\dashboard\entreprises\operations" />
+      <recent name="C:\Users\DJO\Desktop\smartco\smApi\OtherApplications\smartco-creation\src\assets\images" />
+      <recent name="C:\Users\DJO\Desktop\smartco\smApi\OtherApplications\smartco-creation\src\pages\dashboard\entreprises" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\DJO\Desktop\work\smartco\espaceTravaille\smartco-marketplace\src\assets\images\smartDom" />
+      <recent name="C:\Users\DJO\Desktop\work\smartco\espaceTravaille\smartco-marketplace\src\assets\images\flags" />
+      <recent name="C:\Users\DJO\Desktop\work\smartco\espaceTravaille\smartco-marketplace\src\assets\images" />
+      <recent name="C:\Users\DJO\Desktop\smartco\espaceTravaille\smartco-marketplace\src\assets\images\smartDom" />
+      <recent name="C:\Users\DJO\Desktop\smartco\espaceTravaille\smartco-marketplace\src\assets\images\domiciliation\personnalisationService" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="15725f10-0d46-4145-b2ab-25fa6ca6a53d" name="Default Changelist" comment="" />
+      <created>1584534370754</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1584534370754</updated>
+      <workItem from="1584534373470" duration="22427000" />
+      <workItem from="1584621472871" duration="5674000" />
+      <workItem from="1584638530350" duration="20664000" />
+      <workItem from="1584700586508" duration="12448000" />
+      <workItem from="1584713989250" duration="12906000" />
+      <workItem from="1584789053039" duration="2044000" />
+      <workItem from="1584794851654" duration="19153000" />
+      <workItem from="1584879380802" duration="24182000" />
+      <workItem from="1584964583052" duration="2213000" />
+      <workItem from="1584967595526" duration="9280000" />
+      <workItem from="1584986120905" duration="6131000" />
+      <workItem from="1585046069156" duration="300000" />
+      <workItem from="1585047930334" duration="4713000" />
+      <workItem from="1585054122713" duration="33240000" />
+      <workItem from="1585135457962" duration="33679000" />
+      <workItem from="1585225084076" duration="30970000" />
+      <workItem from="1585267160619" duration="5692000" />
+      <workItem from="1585273469196" duration="2549000" />
+      <workItem from="1585276198168" duration="685000" />
+      <workItem from="1585305017135" duration="685000" />
+      <workItem from="1585313618255" duration="7586000" />
+      <workItem from="1585327699136" duration="20111000" />
+      <workItem from="1585399505946" duration="33389000" />
+      <workItem from="1585498414910" duration="26073000" />
+      <workItem from="1585591586200" duration="9369000" />
+      <workItem from="1585824731797" duration="2080000" />
+      <workItem from="1585847007037" duration="13323000" />
+      <workItem from="1585921714766" duration="30988000" />
+      <workItem from="1586025167334" duration="22207000" />
+      <workItem from="1586116077796" duration="9249000" />
+      <workItem from="1586175117720" duration="358000" />
+      <workItem from="1586176413577" duration="654000" />
+      <workItem from="1586361569451" duration="192000" />
+      <workItem from="1586722644967" duration="641000" />
+      <workItem from="1593004752597" duration="256000" />
+      <workItem from="1593005224772" duration="7445000" />
+      <workItem from="1593027412630" duration="4000" />
+      <workItem from="1593027821820" duration="1040000" />
+      <workItem from="1593029089462" duration="107000" />
+      <workItem from="1593029237082" duration="39000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="434746000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4978903" visible="true" weight="0.25838926" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="npm" order="2" side_tool="true" />
+      <window_info id="Favorites" order="3" sideWeight="0.5021097" side_tool="true" weight="0.3067114" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3286119" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3286119" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.3286119" />
+      <window_info anchor="bottom" id="Database Changes" order="9" />
+      <window_info anchor="bottom" id="TypeScript" order="10" />
+      <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50067115" side_tool="true" weight="0.3286119" />
+      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.49932885" visible="true" weight="0.3286119" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" />
+    </layout>
+    <layout-to-restore>
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4978903" visible="true" weight="0.22483222" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="npm" order="2" side_tool="true" />
+      <window_info id="Favorites" order="3" sideWeight="0.5021097" side_tool="true" weight="0.3067114" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3286119" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3286119" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.3286119" />
+      <window_info anchor="bottom" id="Database Changes" order="9" />
+      <window_info anchor="bottom" id="TypeScript" order="10" />
+      <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50067115" side_tool="true" weight="0.3286119" />
+      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.49932885" visible="true" weight="0.3286119" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/App.js</url>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js</url>
+          <line>401</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js</url>
+          <line>581</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js</url>
+          <line>638</line>
+          <option name="timeStamp" value="32" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/marketplace/forfait.js</url>
+          <line>533</line>
+          <option name="timeStamp" value="33" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/components/primereact/components/carousel/Carousel.css" />
+    <entry file="file://$PROJECT_DIR$/src/index.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/csstype/index.d.ts" />
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/buildingBlocks.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/App.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="629">
+          <caret line="37" column="29" selection-start-line="37" selection-start-column="29" selection-end-line="37" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/App.test.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/react-pose/lib/posed.d.ts" />
+    <entry file="file://$PROJECT_DIR$/node_modules/react/cjs/react.development.js" />
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/mailBox.svg" />
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/mailbox.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/adjustment.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/react-router-dom/cjs/react-router-dom.js" />
+    <entry file="file://$PROJECT_DIR$/node_modules/recharts/umd/Recharts.js" />
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/photocopy.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/mail.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/telephone.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/paceloader/pace.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/paceloader/pace.css">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/comingHome.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/businessPlan.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/productTeardown.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/result.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/runnerStart.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/interview.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/personnalisationService/salleReunion.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/personnalisationService.css" />
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/index.js" />
+    <entry file="file://$PROJECT_DIR$/src/assets/images/smartDom/CreationProcess.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/smartDom/onlineCalendar.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/react-phone-input-2/lang/fr.json" />
+    <entry file="file://$PROJECT_DIR$/node_modules/react-phone-input-2/lib/lib.js" />
+    <entry file="file://$PROJECT_DIR$/src/pages/dashboard/entreprises/choixCreationSociete.js" />
+    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/switzerland.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/smartDom/caution.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js" />
+    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/domiciliation.js" />
+    <entry file="file://$PROJECT_DIR$/src/assets/images/flags/suisse.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/smartDom/zap.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/smartDom/arrow-right-circle.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/static/css/main.4ec86a3f.chunk.css" />
+    <entry file="file://$PROJECT_DIR$/src/assets/images/smartDom/icons/mic.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/assets/images/smartDom/undraw_security.svg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/react-phone-input-2/lib/style.css" />
+    <entry file="file://$PROJECT_DIR$/node_modules/react-phone-input-2/lib/high-res.css" />
+    <entry file="file://$PROJECT_DIR$/node_modules/bootstrap/dist/css/bootstrap.css" />
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js" />
+    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/personnalisationService.js" />
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js" />
+    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/forfait.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="10268">
+          <caret line="693" column="60" selection-start-line="693" selection-start-column="60" selection-end-line="693" selection-end-column="60" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/App.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="131">
+          <caret line="61" selection-start-line="61" selection-end-line="61" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="41" column="24" selection-start-line="41" selection-start-column="24" selection-end-line="41" selection-end-column="24" />
+          <folding>
+            <element signature="n#style#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
