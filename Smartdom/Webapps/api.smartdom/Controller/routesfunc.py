@@ -211,6 +211,15 @@ def wallet_fund(cn, nextc):
     err = eth_contract(cn.rt["token"], user=cn.private["user"].id).fund(cn.rt["wallet"], int(cn.pr["amount"]))
     return cn.call_next(nextc, err)
 
+def token_create(cn, nextc):
+    err = check.contain(cn.pr, ["name", "symbol", "amount"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+
+    err = eth_contract().deploy_contract(cn.pr["name"], cn.pr["symbol"], cn.pr["amount"])
+    return cn.call_next(nextc, err)
+
 def admtoken(cn, nextc):
     err = check.contain(cn.pr, ["password"])
     if not err[0]:

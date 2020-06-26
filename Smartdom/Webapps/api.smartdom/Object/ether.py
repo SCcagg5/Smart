@@ -1,4 +1,3 @@
-from web3.auto.infura.ropsten import w3
 from eth_account import Account
 from .contract import *
 from web3 import Web3
@@ -9,11 +8,11 @@ from .sql import sql
 adm_mnemonic = str(os.getenv('ETH_ADM_MNEMONIC', None))
 gwei = str(os.getenv('ETH_GWEI_PRICE', 35))
 
-
+#w3 = "mainnet"
 if w3 == "mainnet":
-    w3 = Web3()
+    from web3.auto.infura import w3
 else:
-    w3 = w3
+    from web3.auto.infura.ropsten import w3
 if w3.isConnected():
     print("W3 is connected")
 else:
@@ -74,7 +73,6 @@ class eth_contract:
             return [False, "invalid user", 400]
         if account not in self.__get_accounts(self.user_id):
             return [False, "invalid account", 400]
-            "{:.2f}".format(a)
         eth = "{:.5f}".format(w3.eth.getBalance(w3.toChecksumAddress(account)) / 1000000000000000000)
         return [True, {"ether": eth}, None]
 
@@ -94,11 +92,18 @@ class eth_contract:
         w3.eth.waitForTransactionReceipt(txn)
         return [True, {"transact": txn}, None]
 
-    def __deploy_contract(self):
-        tx_hash = w3.eth.contract(abi=self.abi,bytecode=self.bin).deploy()
-        address = w3.eth.getTransactionReceipt(tx_hash)['contractAddress']
-        self.obj = w3.eth.contract(address, abi=self.abi)
-        return address
+    def deploy_contract(self, name, symbol, number):
+        transaction = w3.eth.contract(abi=self.abi,bytecode=self.bin).constructor(name, symbol, self.__owner().address, number)
+        cost = transaction.estimateGas()
+        build = transaction.buildTransaction({
+          'gas': cost + 30000 ,
+          'gasPrice': w3.toWei(str(gwei), 'gwei'),
+          'nonce': w3.eth.getTransactionCount(self.__owner().address, "pending")
+        })
+        signed_txn = w3.eth.account.signTransaction(build, private_key=self.__owner().key)
+        txn = w3.eth.sendRawTransaction(signed_txn.rawTransaction).hex()
+        w3.eth.waitForTransactionReceipt(txn)
+        return [True, {"transact": txn, "cost": cost}, None]
 
     def __get_contract(self, address, abi):
         self.obj = w3.eth.contract(address, abi=abi)

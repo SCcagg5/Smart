@@ -9,5 +9,4 @@ RUN pip install --upgrade pip
 COPY ./requirements.txt ./
 RUN pip install --upgrade -r requirements.txt
 
-
 ENTRYPOINT python3 server.py;

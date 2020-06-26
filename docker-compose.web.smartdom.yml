@@ -71,3 +71,59 @@ services:
       WEB3_INFURA_PROJECT_ID: ${WEB3_INFURA_PROJECT_ID}
       WEB3_INFURA_API_KEY: ${WEB3_INFURA_PROJECT_ID}
       ETH_ADM_MNEMONIC: ${SMARTDOM_ETH_ADM_MNEMONIC}
+
+  smartdom-veloone:
+     image: nginx
+     container_name: smartdom-veloone-nginx
+     restart: always
+     volumes:
+       - ./Smartdom/Webapps/veloone.smartdom/build:/usr/share/nginx/html:ro
+     networks:
+       - proxy
+     environment:
+       VIRTUAL_HOST: veloone.${SMARTDOM_DOMAIN}
+       VIRTUAL_PORT: 80
+       LETSENCRYPT_HOST: veloone.${SMARTDOM_DOMAIN}
+       LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
+
+  smartdom-quinsac:
+     image: nginx
+     container_name: smartdom-quinsac-nginx
+     restart: always
+     volumes:
+       - ./Smartdom/Webapps/quinsac.smartdom/build:/usr/share/nginx/html:ro
+     networks:
+       - proxy
+     environment:
+       VIRTUAL_HOST: quinsac.${SMARTDOM_DOMAIN}
+       VIRTUAL_PORT: 80
+       LETSENCRYPT_HOST: quinsac.${SMARTDOM_DOMAIN}
+       LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
+
+  smartdom-assemblee:
+     image: nginx
+     container_name: smartdom-assemblee-nginx
+     restart: always
+     volumes:
+       - ./Smartdom/Webapps/assemblee.smartdom/build:/usr/share/nginx/html:ro
+     networks:
+       - proxy
+     environment:
+       VIRTUAL_HOST: assemblee.${SMARTDOM_DOMAIN}
+       VIRTUAL_PORT: 80
+       LETSENCRYPT_HOST: assemblee.${SMARTDOM_DOMAIN}
+       LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
+
+  smartdom-web:
+     image: nginx
+     container_name: smartdom-web-nginx
+     restart: always
+     volumes:
+       - ./Smartdom/Webapps/smartdom.smartdom/build:/usr/share/nginx/html:ro
+     networks:
+       - proxy
+     environment:
+       VIRTUAL_HOST: ${SMARTDOM_DOMAIN}
+       VIRTUAL_PORT: 80
+       LETSENCRYPT_HOST: ${SMARTDOM_DOMAIN}
+       LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
