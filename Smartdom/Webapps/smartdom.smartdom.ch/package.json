@@ -37,6 +37,7 @@
     "react-router-dom": "^5.0.0",
     "react-scripts": "^3.4.1",
     "react-select-datepicker": "^1.0.2",
+    "react-stripe-checkout": "^2.6.3",
     "reactstrap": "^8.0.0",
     "styled-components": "^4.4.1"
   },

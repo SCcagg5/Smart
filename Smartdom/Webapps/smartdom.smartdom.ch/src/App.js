@@ -8,6 +8,8 @@ import smartdomForfait from "./pages/SmartDom/smartdomForfait";
 import MeetingRoom from "./pages/SmartDom/Meeting/MeetingRoom";
 import fonctionnalite from "./pages/SmartDom/fonctionnalite";
 import tokenizeSmartco from "./pages/SmartDom/tokenizeSmartco";
+import forfaitInv from "./pages/SmartDom/forfaitInv";
+import invoice from "./pages/SmartDom/invoice"
 
 
 const firebaseConfig = {
@@ -32,6 +34,8 @@ class App extends Component {
         return (
             <Router>
                 <Route exact path="/" component={domiciliation}/>
+                <Route exact path="/forfaitInv" component={forfaitInv}/>
+
                 <Route exact path="/PersonnalisationService" component={personnalisationService}/>
 
                 <Route exact path="/SmartDom/Meeting/Room/:idMeeting" component={MeetingRoom}/>
@@ -41,6 +45,8 @@ class App extends Component {
                 <Route exact path="/SmartDom/forfait" component={smartdomForfait}/>
                 <Route exact path="/fonctionnalite" component={fonctionnalite}/>
                 <Route exact path="/tokenizeSmartco" component={tokenizeSmartco}/>
+                <Route exact path="/invoice" component={invoice}/>
+
 
 
 
