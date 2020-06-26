@@ -10461,6 +10461,11 @@ react-select-datepicker@^1.0.2:
   resolved "https://registry.yarnpkg.com/react-select-datepicker/-/react-select-datepicker-1.0.2.tgz#ab8b681f5cddc255c344f7a8e5db70023be457fd"
   integrity sha512-bG9/Pkc8bCQzyN8poVSwGhA1emVL8D59oz1+dP1CJ7Y/kvBT/40etTxyHHLp2TSjlkwZErjy3uDrJHgvKLq9cQ==
 
+react-stripe-checkout@^2.6.3:
+  version "2.6.3"
+  resolved "https://registry.yarnpkg.com/react-stripe-checkout/-/react-stripe-checkout-2.6.3.tgz#3173a870b04e5a3c321a06d24cd53c6030111c45"
+  integrity sha1-MXOocLBOWjwyGgbSTNU8YDARHEU=
+
 react-syntax-highlighter@^6.1.1:
   version "6.1.2"
   resolved "https://registry.yarnpkg.com/react-syntax-highlighter/-/react-syntax-highlighter-6.1.2.tgz#a6fd152400139dedf50dcad5e05fc07e054b4b94"

@@ -538,6 +538,84 @@ class  domiciliation extends Component {
 
                             </section>
 
+                            <section style={{marginTop:"7%"  }}  >
+
+
+                                <div className="container  d-flex flex-column align-items-center justify-content-center " style={{height:"580px"}}>
+
+                                   <table className="table">
+                                       <thead>
+                                       <tr>
+                                           <th scope="col" width="30%"></th>
+                                           <th scope="col" className="text-center"> {'<<Petit>> émetteur\n'}<br/>
+                                               {'<20 Actionnaires'}</th>
+                                           <th scope="col" className="text-center"> {'<<Moyen>> émetteur\n'}<br/>
+                                               {'20-29 Actionnaires'}</th>
+                                           <th scope="col" className="text-center"> {'<<Grand>> émetteur\n'}<br/>
+                                               {'50+ Actionnaires'}</th>
+                                       </tr>
+                                       </thead>
+
+                                       <tbody>
+                                       <tr>
+                                           <th scope="row">
+                                               Augmentation de capital numérique</th>
+                                           <td className="text-center">privé : 1'000 <br/> public : 2'500</td>
+                                           <td className="text-center">privé : 1'000 <br/> public : 2'500</td>
+                                           <td className="text-center">privé : 1'000 <br/> public : 2'500</td>
+
+                                       </tr>
+
+                                       <tr>
+                                           <th scope="row">
+                                               Transferts d'actions numériques</th>
+
+
+                                       </tr>
+                                       <tr>
+                                           <th scope="row">
+
+                                               Registre de partage numérique</th>
+
+
+                                       </tr>
+                                       <tr>
+                                           <th scope="row">
+
+                                               Numérisation des actions existantes</th>
+                                           <td className="text-center">
+                                               One time 1'500.- <br/>
+                                               <small>
+                                                   total par entreprise <br/>
+                                                   incl. tous les actionnaires</small>
+                                           </td>
+
+
+                                       </tr>
+                                       <tr>
+                                           <th scope="row">
+                                               Assemblée générale virtuelle</th>
+
+                                           <td className="text-center">
+                                               <small>Covid jusqu'au 30.06.2020</small><br/>
+                                               <text>295.-</text><br/>
+                                               <small>À partir du 01.07.2020</small><br/>
+                                               <text>700</text>
+                                           </td>
+
+
+                                       </tr>
+                                       </tbody>
+
+                                   </table>
+
+
+                                </div>
+
+
+
+                            </section>
+
                             <footer style={{marginTop: "7%"}}>
 
 
