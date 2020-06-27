@@ -259,4 +259,4 @@ define('SHOW_GROUP_MEMBERSHIPS_IN_USERLIST', true);
 // ... when hovering the mouse over the group-icon of a given user!)
 // If set to 0 ALL group-memberships will be listed (7 by default)
 define('SHOW_GROUP_MEMBERSHIPS_IN_USERLIST_WITH_LIMIT', 7);
-define('KANBOARD_URL', 'https://admin.localhost/kanban/');
+define('KANBOARD_URL', 'https://admin.smartdom.ch/kanban/');
