@@ -19,7 +19,7 @@ services:
     networks:
       - db-net
     volumes:
-      - ./Smartdom/Micro/sql/data:/var/lib/mysql
+      - ../Smartdom/Micro/sql/data:/var/lib/mysql
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: 1
       MYSQL_USER: ${SMARTDOM_DB_USER}
@@ -40,12 +40,12 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./Smartdom/Micro/elasticsearch/data:/usr/share/elasticsearch/data
+      - ../Smartdom/Micro/elasticsearch/data:/usr/share/elasticsearch/data
     networks:
       - db-net
 
   map_bck-end:
-    build: ./Smartdom/Webapps/api.smartdom
+    build: ../Smartdom/Webapps/api.smartdom
     expose:
       - 8080
     tty: true
@@ -56,7 +56,7 @@ services:
       - db-net
       - proxy
     volumes:
-      - ./Smartdom/Webapps/api.smartdom:/home/api/
+      - ../Smartdom/Webapps/api.smartdom:/home/api/
     environment:
       VIRTUAL_HOST: api.${SMARTDOM_DOMAIN}
       VIRTUAL_PORT: 8080
@@ -73,7 +73,7 @@ services:
       ETH_ADM_MNEMONIC: ${SMARTDOM_ETH_ADM_MNEMONIC}
 
   smartdom-veloone:
-     build: ./Smartdom/Webapps/veloone.smartdom/
+     build: ../Smartdom/Webapps/veloone.smartdom/
      container_name: smartdom-veloone-nginx
      restart: always
      tty: true
@@ -89,7 +89,7 @@ services:
        LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
 
   smartdom-quinsac:
-     build: ./Smartdom/Webapps/quinsac.smartdom/
+     build: ../Smartdom/Webapps/quinsac.smartdom/
      container_name: smartdom-quinsac-nginx
      restart: always
      tty: true
@@ -105,7 +105,7 @@ services:
        LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
 
   smartdom-assemblee:
-     build: ./Smartdom/Webapps/assemblee.smartdom/
+     build: ../Smartdom/Webapps/assemblee.smartdom/
      container_name: smartdom-assemblee-nginx
      restart: always
      tty: true
@@ -121,7 +121,7 @@ services:
        LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
 
   smartdom-web:
-     build: ./Smartdom/Webapps/smartdom/
+     build: ../Smartdom/Webapps/smartdom/
      container_name: smartdom-web-yarn
      restart: always
      tty: true

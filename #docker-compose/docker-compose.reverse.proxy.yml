@@ -27,12 +27,12 @@ services:
             - 80:80
             - 443:443
         volumes:
-            - ./Proxy/logs/global:/var/log/nginx
-            - ./Proxy/conf/:/etc/nginx/conf.d/
-            - ./Proxy/vhost:/etc/nginx/vhost.d
-            - ./Proxy/passwd:/etc/nginx/htpasswd
-            - ./Proxy/data/html:/usr/share/nginx/html
-            - ./Proxy/data/certs:/etc/nginx/certs:ro
+            - ../Proxy/logs/global:/var/log/nginx
+            - ../Proxy/conf/:/etc/nginx/conf.d/
+            - ../Proxy/vhost:/etc/nginx/vhost.d
+            - ../Proxy/passwd:/etc/nginx/htpasswd
+            - ../Proxy/data/html:/usr/share/nginx/html
+            - ../Proxy/data/certs:/etc/nginx/certs:ro
             - /var/run/docker.sock:/tmp/docker.sock:ro
         networks:
             - proxy
@@ -41,9 +41,9 @@ services:
         image: jrcs/letsencrypt-nginx-proxy-companion
         container_name: letsencrypt
         volumes:
-            - ./Proxy/vhost:/etc/nginx/vhost.d
-            - ./Proxy/data/html:/usr/share/nginx/html
-            - ./Proxy/data/certs:/etc/nginx/certs:rw
+            - ../Proxy/vhost:/etc/nginx/vhost.d
+            - ../Proxy/data/html:/usr/share/nginx/html
+            - ../Proxy/data/certs:/etc/nginx/certs:rw
             - /var/run/docker.sock:/var/run/docker.sock:ro
         depends_on:
             - nginx

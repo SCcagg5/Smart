@@ -17,7 +17,7 @@ services:
           - POSTGRES_DB=postgres
         restart: always             # run as a service
         volumes:
-          - ./Smartdom/Micro/odoo/db:/var/lib/postgresql/data
+          - ../Smartdom/Micro/odoo/db:/var/lib/postgresql/data
         networks:
           - db-net
 
@@ -30,9 +30,9 @@ services:
         tty: true
         command: -- --dev=reload
         volumes:
-          - ./Smartdom/Micro/odoo/web/data:/var/lib/odoo
-          - ./Smartdom/Micro/odoo/web/config:/etc/odoo
-          - ./Smartdom/Micro/odoo/web/addons:/mnt/extra-addons
+          - ../Smartdom/Micro/odoo/web/data:/var/lib/odoo
+          - ../Smartdom/Micro/odoo/web/config:/etc/odoo
+          - ../Smartdom/Micro/odoo/web/addons:/mnt/extra-addons
         networks:
           - proxy
           - db-net
@@ -52,9 +52,9 @@ services:
             - 80
             - 443
         volumes:
-            - ./Smartdom/Micro/jitsi/web:/config
-            - ./Smartdom/Micro/jitsi/web/letsencrypt:/etc/letsencrypt
-            - ./Smartdom/Micro/jitsi/transcripts:/usr/share/jitsi-meet/transcripts
+            - ../Smartdom/Micro/jitsi/web:/config
+            - ../Smartdom/Micro/jitsi/web/letsencrypt:/etc/letsencrypt
+            - ../Smartdom/Micro/jitsi/transcripts:/usr/share/jitsi-meet/transcripts
         environment:
             - ENABLE_AUTH
             - ENABLE_GUESTS
@@ -95,7 +95,7 @@ services:
             - 5347
             - 5280
         volumes:
-            - ./Smartdom/Micro/jitsi/prosody:/config
+            - ../Smartdom/Micro/jitsi/prosody:/config
         environment:
             - AUTH_TYPE
             - ENABLE_AUTH
@@ -154,7 +154,7 @@ services:
         image: jitsi/jicofo
         restart: unless-stopped
         volumes:
-            - ./Smartdom/Micro/jitsi/jicofo:/config
+            - ../Smartdom/Micro/jitsi/jicofo:/config
         environment:
             - ENABLE_AUTH
             - XMPP_DOMAIN
@@ -184,7 +184,7 @@ services:
             - '${JVB_PORT}:${JVB_PORT}/udp'
             - '${JVB_TCP_PORT}:${JVB_TCP_PORT}'
         volumes:
-            - ./Smartdom/Micro/jitsi/jvb:/config
+            - ../Smartdom/Micro/jitsi/jvb:/config
         environment:
             - DOCKER_HOST_ADDRESS
             - XMPP_AUTH_DOMAIN
@@ -218,7 +218,7 @@ services:
         expose:
             - 80
         volumes:
-            - ./Smartdom/Micro/posteio:/data
+            - ../Smartdom/Micro/posteio:/data
         hostname: mail
         domainname: smartdom.ch
         environment:
@@ -236,7 +236,7 @@ services:
         command: bash -c 'for i in `seq 1 30`; do node main.js && s=$$? && break || s=$$?; echo "Tried $$i times. Waiting 5 secs..."; sleep 5; done; (exit $$s)'
         restart: unless-stopped
         volumes:
-            - ./Smartdom/Micro/rocket/uploads:/app/uploads
+            - ../Smartdom/Micro/rocket/uploads:/app/uploads
         networks:
             - db-net
             - proxy
@@ -261,8 +261,8 @@ services:
         networks:
             - db-net
         volumes:
-            - ./Smartdom/Micro/rocket/data/db:/data/db
-            - ./Smartdom/Micro/rocket/data/dump:/dump
+            - ../Smartdom/Micro/rocket/data/db:/data/db
+            - ../Smartdom/Micro/rocket/data/dump:/dump
         command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
 
     mongo-init-replica:

@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.1
+-- version 5.0.2
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : mer. 17 juin 2020 à 11:49
--- Version du serveur :  5.7.29
--- Version de PHP : 7.4.1
+-- Généré le : mer. 01 juil. 2020 à 11:32
+-- Version du serveur :  5.7.30
+-- Version de PHP : 7.4.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -42,7 +41,7 @@ CREATE TABLE `orderdetails` (
 
 CREATE TABLE `orders` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
   `payment_id` varchar(64) NOT NULL,
   `date` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -55,7 +54,7 @@ CREATE TABLE `orders` (
 
 CREATE TABLE `paymentstripe` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
   `chr_token` varchar(64) NOT NULL,
   `amount` float NOT NULL,
   `date` varchar(64) NOT NULL
@@ -83,7 +82,7 @@ CREATE TABLE `user` (
 
 CREATE TABLE `userdetails` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
   `fname` varchar(255) NOT NULL,
   `lname` varchar(255) NOT NULL,
   `phone` varchar(255) NOT NULL
@@ -97,7 +96,7 @@ CREATE TABLE `userdetails` (
 
 CREATE TABLE `userstripes` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
   `stripe_id` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

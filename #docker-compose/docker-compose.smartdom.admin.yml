@@ -16,7 +16,7 @@ services:
      image: docker.elastic.co/kibana/kibana:7.6.0
      container_name: smartdom-admin-kibana
      volumes:
-       - ./Smartdom/Admin/services/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+       - ../Smartdom/Admin/services/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
      networks:
        - db-net
        - adm-net
@@ -25,9 +25,9 @@ services:
      image: kanboard/kanboard:latest
      container_name: smartdom-admin-kanboard
      volumes:
-       - ./Smartdom/Admin/services/kanboard/conf/config.php:/var/www/app/config.php
-       - ./Smartdom/Admin/services/kanboard/data:/var/www/app/data
-       - ./Smartdom/Admin/services/kanboard/plugins:/var/www/app/plugins
+       - ../Smartdom/Admin/services/kanboard/conf/config.php:/var/www/app/config.php
+       - ../Smartdom/Admin/services/kanboard/data:/var/www/app/data
+       - ../Smartdom/Admin/services/kanboard/plugins:/var/www/app/plugins
      networks:
        - adm-net
 
@@ -38,8 +38,8 @@ services:
        - PMA_ARBITRARY=1
      restart: always
      volumes:
-       - ./Smartdom/Admin/services/phpmyadmin/sessions:/sessions
-       - ./Smartdom/Admin/services/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php:ro
+       - ../Smartdom/Admin/services/phpmyadmin/sessions:/sessions
+       - ../Smartdom/Admin/services/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php:ro
      external_links:
        - smartdom-web-sql:db
      networks:
@@ -50,7 +50,7 @@ services:
        PMA_PASSWORD: ${SMARTDOM_DB_PASS}
 
    smartdom-admin-postmanviewer:
-      build: ./Smartdom/Admin/services/postman-viewer/
+      build: ../Smartdom/Admin/services/postman-viewer/
       container_name: smartdom-admin-postmanviewer
       restart: always
       tty: true
@@ -65,7 +65,7 @@ services:
      container_name: smartdom-admin-goaccess
      restart: always
      volumes:
-       - ./Smartdom/Admin/services/goaccess/front:/usr/share/nginx/html:ro
+       - ../Smartdom/Admin/services/goaccess/front:/usr/share/nginx/html:ro
      networks:
        - adm-net
 
@@ -73,9 +73,9 @@ services:
      image: allinurl/goaccess
      container_name: smartdom-admin-goaccesscli
      volumes:
-       - ./Proxy/logs/services:/logs/:ro
-       - ./Smartdom/Admin/services/goaccess/conf:/etc/goaccess/
-       - ./Smartdom/Admin/services/front:/results/
+       - ../Proxy/logs/services:/logs/:ro
+       - ../Smartdom/Admin/services/goaccess/conf:/etc/goaccess/
+       - ../Smartdom/Admin/services/front:/results/
      entrypoint: "watch `goaccess /logs/${SMARTDOM_DOMAIN}.log -o /results/${SMARTDOM_DOMAIN}.html --log-format=COMBINED;
                         goaccess /logs/dashboard.${SMARTDOM_DOMAIN}.log -o /results/dashboard${SMARTDOM_DOMAIN}.html --log-format=COMBINED;
                         goaccess /logs/api.${SMARTDOM_DOMAIN}.log -o /results/api${SMARTDOM_DOMAIN}.html --log-format=COMBINED;`
@@ -85,8 +85,8 @@ services:
      image: php:fpm-alpine
      container_name: smartdom-admin-php
      volumes:
-       - ./Smartdom/Admin/front:/script:ro
-       - ./Smartdom/Admin/services/goaccess/front:/stats:ro
+       - ../Smartdom/Admin/front:/script:ro
+       - ../Smartdom/Admin/services/goaccess/front:/stats:ro
      networks:
        - adm-net
      environment:
@@ -97,8 +97,8 @@ services:
      container_name: smartdom-admin-nginx
      restart: always
      volumes:
-       - ./Smartdom/Admin/front:/usr/share/nginx/html:ro
-       - ./Smartdom/Admin/conf/admin.conf:/etc/nginx/conf.d/default.conf:ro
+       - ../Smartdom/Admin/front:/usr/share/nginx/html:ro
+       - ../Smartdom/Admin/conf/admin.conf:/etc/nginx/conf.d/default.conf:ro
      links:
        - smartdom-admin-goaccess
        - smartdom-admin-phpmyadmin

@@ -19,7 +19,7 @@ services:
     networks:
       - db-net
     volumes:
-      - ./Smartco/Micro/sql/data:/var/lib/mysql
+      - ../Smartco/Micro/sql/data:/var/lib/mysql
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: 1
       MYSQL_USER: ${SMARTCO_DB_USER}
@@ -40,6 +40,6 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./Smartco/Micro/elasticsearch/data:/usr/share/elasticsearch/data
+      - ../Smartco/Micro/elasticsearch/data:/usr/share/elasticsearch/data
     networks:
       - db-net
