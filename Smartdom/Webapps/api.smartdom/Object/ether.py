@@ -8,7 +8,7 @@ from .sql import sql
 adm_mnemonic = str(os.getenv('ETH_ADM_MNEMONIC', None))
 gwei = str(os.getenv('ETH_GWEI_PRICE', 35))
 
-#w3 = "mainnet"
+w3 = "not mainnet"
 if w3 == "mainnet":
     from web3.auto.infura import w3
 else:
