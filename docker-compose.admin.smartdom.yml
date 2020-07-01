@@ -49,6 +49,17 @@ services:
        PMA_USER: ${SMARTDOM_DB_USER}
        PMA_PASSWORD: ${SMARTDOM_DB_PASS}
 
+   smartdom-admin-postmanviewer:
+      build: ./Smartdom/Admin/services/postman-collection-viewer/
+      container_name: smartdom-admin-postmanviewer
+      restart: always
+      tty: true
+      stdin_open: true
+      expose:
+       - 80
+      networks:
+        - adm-net
+
    smartdom-admin-goaccess:
      image: nginx
      container_name: smartdom-admin-goaccess

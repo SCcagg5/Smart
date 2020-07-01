@@ -6,237 +6,1240 @@
 	},
 	"item": [
 		{
-			"name": "/test/",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{method}}{{url}}/test/",
-					"host": [
-						"{{method}}{{url}}"
-					],
-					"path": [
-						"test",
-						""
+			"name": "Test",
+			"item": [
+				{
+					"name": "/test/",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/test/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"test",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/test/",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/test/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"test",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:07:18 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "553"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/test/\",\n        \"params\": null,\n        \"header\": {\n            \"host\": \"api.smartdom.ch\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": null,\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
 					]
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "/login/",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
+			],
+			"description": "Perform a request, returning default pattern",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "04889bf5-bcf7-4c7b-bf9e-521ad114222d",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
 					}
 				},
-				"url": {
-					"raw": "{{method}}{{url}}/login/",
-					"host": [
-						"{{method}}{{url}}"
-					],
-					"path": [
-						"login",
-						""
-					]
+				{
+					"listen": "test",
+					"script": {
+						"id": "072fe512-9d6e-4e5a-b4f4-c0323fd25999",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
-			},
-			"response": []
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "/signup/",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\",\r\n    \"password2\": \"test\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Auth",
+			"item": [
+				{
+					"name": "/login/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/login/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"login",
+								""
+							]
 						}
+					},
+					"response": [
+						{
+							"name": "/login/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pass\": \"{{password}}false\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/login/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"login",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:08:52 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1036"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/login/\",\n        \"params\": {\n            \"pass\": \"passwordfalse\"\n        },\n        \"header\": {\n            \"host\": \"api.smartdom.ch\"\n        }\n    },\n    \"status\": 403,\n    \"error\": \"Invalid password\",\n    \"data\": null,\n    \"succes\": false,\n    \"mod\": \"DEV\"\n}"
+						},
+						{
+							"name": "/login/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/login/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"login",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:06:55 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "445"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI; Path=/"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/login/\",\n        \"params\": {\n            \"pass\": \"password\"\n        },\n        \"header\": {\n            \"host\": \"api.smartdom.ch\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"exp\": \"2020-07-02 09:06:55.466741\",\n        \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Allow any client to perform a request in order to get a 48h token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a0bcfb3c-957d-4e4b-83e0-c15f157550bd",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
 					}
 				},
-				"url": {
-					"raw": "{{method}}{{url}}/signup/",
-					"host": [
-						"{{method}}{{url}}"
-					],
-					"path": [
-						"signup",
-						""
-					]
+				{
+					"listen": "test",
+					"script": {
+						"id": "63f7e08b-37fe-47d9-a799-3be4f09b791d",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
-			},
-			"response": []
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "/signin/",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "User",
+			"item": [
+				{
+					"name": "/signup/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\",\r\n    \"password2\": \"test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/signup/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"signup",
+								""
+							]
 						}
+					},
+					"response": [
+						{
+							"name": "/signup/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\",\r\n    \"password2\": \"test\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/signup/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"signup",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:08:16 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "874"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "usrtoken=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3NjcyOTYsImlkIjoiNTA5Y2Q5NjctOGI4Yi00MTRlLWI5NzUtZjVhMmUyNWYzN2RiIiwicGFzc3dvcmQiOi00Njk4MDMyMDI5MjAyNDgwOTMyfQ.VtJcmas_xVi7qiVKDoaskcPLkUrrSpX-mafpBxcrmac; Path=/"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/signup/\",\n        \"params\": {\n            \"email\": \"test@test.fr\",\n            \"password1\": \"test\",\n            \"password2\": \"test\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"04afce69-0f60-475a-89c9-744a5022a99e\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"exp\": \"2020-07-03 09:08:16.647933\",\n        \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3NjcyOTYsImlkIjoiNTA5Y2Q5NjctOGI4Yi00MTRlLWI5NzUtZjVhMmUyNWYzN2RiIiwicGFzc3dvcmQiOi00Njk4MDMyMDI5MjAyNDgwOTMyfQ.VtJcmas_xVi7qiVKDoaskcPLkUrrSpX-mafpBxcrmac\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						},
+						{
+							"name": "/signup/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\",\r\n    \"password2\": \"test\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/signup/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"signup",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:13:43 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1320"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "usrtoken=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc2MjMsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.mMc2Idbt_AMDzhMNz2UaFqlG9huhB6vgbwoE6OnqD6M; Path=/"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/signup/\",\n        \"params\": {\n            \"email\": \"test@test.fr\",\n            \"password1\": \"test\",\n            \"password2\": \"test\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3NjcyOTYsImlkIjoiNTA5Y2Q5NjctOGI4Yi00MTRlLWI5NzUtZjVhMmUyNWYzN2RiIiwicGFzc3dvcmQiOi00Njk4MDMyMDI5MjAyNDgwOTMyfQ.VtJcmas_xVi7qiVKDoaskcPLkUrrSpX-mafpBxcrmac\",\n            \"host\": \"api.smartdom.ch\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3NjcyOTYsImlkIjoiNTA5Y2Q5NjctOGI4Yi00MTRlLWI5NzUtZjVhMmUyNWYzN2RiIiwicGFzc3dvcmQiOi00Njk4MDMyMDI5MjAyNDgwOTMyfQ.VtJcmas_xVi7qiVKDoaskcPLkUrrSpX-mafpBxcrmac\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"exp\": \"2020-07-03 09:13:43.331482\",\n        \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc2MjMsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.mMc2Idbt_AMDzhMNz2UaFqlG9huhB6vgbwoE6OnqD6M\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/signin/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/signin/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"signin",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/signin/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/signin/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"signin",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:18:27 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1299"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "usrtoken=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo; Path=/"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/signin/\",\n        \"params\": {\n            \"email\": \"test@test.fr\",\n            \"password1\": \"test\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc2MjMsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.mMc2Idbt_AMDzhMNz2UaFqlG9huhB6vgbwoE6OnqD6M\",\n            \"host\": \"api.smartdom.ch\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc2MjMsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.mMc2Idbt_AMDzhMNz2UaFqlG9huhB6vgbwoE6OnqD6M\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"exp\": \"2020-07-03 09:18:27.126852\",\n        \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Allow to create user, signin and change his main informations ",
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Wallet",
+			"item": [
+				{
+					"name": "/wallet/create/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/wallet/create/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"wallet",
+								"create",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/wallet/create/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/wallet/create/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"wallet",
+										"create",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:18:52 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1061"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/wallet/create/\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\",\n            \"host\": \"api.smartdom.ch\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"address\": \"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/wallets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/wallets",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"wallets"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/wallets",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/wallets",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"wallets"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:19:14 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1057"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/wallets\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\",\n            \"host\": \"api.smartdom.ch\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"accounts\": [\n            \"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284\"\n        ]\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/wallet/<address>",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"wallet",
+								"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/wallet/<address>",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"wallet",
+										"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:19:35 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1059"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\",\n            \"host\": \"api.smartdom.ch\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"ether\": \"0.00000\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/wallet/<address>/token/<adr_contract>",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"wallet",
+								"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284",
+								"token",
+								"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/wallet/<address>/token/<adr_contract>",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"wallet",
+										"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284",
+										"token",
+										"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:19:58 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1102"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\",\n            \"host\": \"api.smartdom.ch\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"balance\": 0\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Allow user to create Ethereum wallet and manage them\r\n- creating\r\n- listing\r\n- balance of eth\r\n- balance in any erc20 token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "28b33a12-7301-477f-a44f-5a02369ae811",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
 					}
 				},
-				"url": {
-					"raw": "{{method}}{{url}}/signin/",
-					"host": [
-						"{{method}}{{url}}"
-					],
-					"path": [
-						"signin",
-						""
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/wallet/create/",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "{{method}}{{url}}/wallet/create/",
-					"host": [
-						"{{method}}{{url}}"
-					],
-					"path": [
-						"wallet",
-						"create",
-						""
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/wallets",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{method}}{{url}}/wallets",
-					"host": [
-						"{{method}}{{url}}"
-					],
-					"path": [
-						"wallets"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/wallet/<address>",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{method}}{{url}}/wallet/0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1",
-					"host": [
-						"{{method}}{{url}}"
-					],
-					"path": [
-						"wallet",
-						"0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/wallet/<address>/token/<adr_contract>",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{method}}{{url}}/wallet/0x21c568710AA7335476d2738E6b493478cf4C9a3d/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
-					"host": [
-						"{{method}}{{url}}"
-					],
-					"path": [
-						"wallet",
-						"0x21c568710AA7335476d2738E6b493478cf4C9a3d",
-						"token",
-						"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/wallet/<address>/token/<adr_contract>/send",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"to\": \"0x21c568710AA7335476d2738E6b493478cf4C9a3d\",\r\n    \"amount\": 1235\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
+				{
+					"listen": "test",
+					"script": {
+						"id": "c1d125af-fd19-4418-a028-71dbcce8c954",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
 					}
-				},
-				"url": {
-					"raw": "{{method}}{{url}}/wallet/0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/send",
-					"host": [
-						"{{method}}{{url}}"
-					],
-					"path": [
-						"wallet",
-						"0xb02C43F52dFe07d35dA97748106A8561a6b1e6e1",
-						"token",
-						"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
-						"send"
-					]
 				}
-			},
-			"response": []
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "/wallet/<address>/token/<adr_contract>/fund",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\"amount\": 20000}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Elayer",
+			"item": [
+				{
+					"name": "/wallet/<address>/token/<adr_contract>/send",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"to\": \"0x21c568710AA7335476d2738E6b493478cf4C9a3d\",\r\n    \"amount\": 1235\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/send",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"wallet",
+								"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284",
+								"token",
+								"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
+								"send"
+							]
 						}
-					}
+					},
+					"response": [
+						{
+							"name": "/wallet/<address>/token/<adr_contract>/send",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"to\": \"0x21c568710AA7335476d2738E6b493478cf4C9a3d\",\r\n    \"amount\": 1235\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/send",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"wallet",
+										"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284",
+										"token",
+										"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
+										"send"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:22:52 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1239"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/send\",\n        \"params\": {\n            \"to\": \"0x21c568710AA7335476d2738E6b493478cf4C9a3d\",\n            \"amount\": 1235\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\",\n            \"host\": \"api.smartdom.ch\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"transact\": \"0x39f3cbf1f4c0cfee411af55da2b7cc668ac23e3890260ed9d125de7b2495ccd1\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
 				},
-				"url": {
-					"raw": "{{method}}{{url}}/wallet/0x21c568710AA7335476d2738E6b493478cf4C9a3d/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/fund",
-					"host": [
-						"{{method}}{{url}}"
-					],
-					"path": [
-						"wallet",
-						"0x21c568710AA7335476d2738E6b493478cf4C9a3d",
-						"token",
-						"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
-						"fund"
+				{
+					"name": "/wallet/<address>/token/<adr_contract>/fund",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"amount\": 20000}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/fund",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"wallet",
+								"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284",
+								"token",
+								"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
+								"fund"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/wallet/<address>/token/<adr_contract>/fund",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"amount\": 20000}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/fund",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"wallet",
+										"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284",
+										"token",
+										"0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4",
+										"fund"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:21:08 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1188"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/wallet/0x046756D1b1c42a98175Db08AF35a25c3cc9c7284/token/0x70dc7BE0c79159FffcE171CcA2C11Af5cb8552d4/fund\",\n        \"params\": {\n            \"amount\": 20000\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\",\n            \"host\": \"api.smartdom.ch\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"transact\": \"0x805ae38aa164824abea4171319256c8237a7d3df7e56d38608a86f7509d2b926\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/token/new #disabled",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/token/new",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"token",
+								"new"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/token/new",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/token/new",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"token",
+										"new"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:05:51 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "181"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/token/new\",\n        \"params\": {},\n        \"header\": null,\n        \"cookie\": null\n    },\n    \"status\": 404,\n    \"error\": \"Not found: '/token/new'\",\n    \"data\": null,\n    \"succes\": false,\n    \"mod\": \"DEV\"\n}"
+						}
 					]
 				}
-			},
-			"response": []
+			],
+			"description": "Allow user to send and buy Elayer tokens from there wallets \r\nAllow admin to fund users in any Elayer token\r\n",
+			"protocolProfileBehavior": {}
 		}
 	],
 	"event": [
@@ -263,22 +1266,19 @@
 	],
 	"variable": [
 		{
-			"id": "338b5b7f-b9f4-434e-965a-5ac253f0d044",
+			"id": "bac6d636-fc47-4574-9167-fb639e385162",
 			"key": "url",
-			"value": "api.localhost",
-			"type": "string"
+			"value": "api.localhost"
 		},
 		{
-			"id": "c6beffc5-9fb9-4b30-9b04-f1b30efc1f7f",
+			"id": "f9ae7a21-bad5-4ebe-9b5e-492fcab76809",
 			"key": "password",
-			"value": "password",
-			"type": "string"
+			"value": "password"
 		},
 		{
-			"id": "660047cf-71d0-471e-8d3a-b93b93134576",
+			"id": "2e00df41-68c7-4357-bb8d-b153cd897e28",
 			"key": "method",
-			"value": "http://",
-			"type": "string"
+			"value": "http://"
 		}
 	],
 	"protocolProfileBehavior": {}

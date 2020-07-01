@@ -9,31 +9,41 @@ networks:
     meet.jitsi:
 
 services:
-    web-odoo:
-        image: odoo:12.0
-        depends_on:
-            - db
-        ports:
-            - "8069:8069"
-        volumes:
-            - ./Smartdom/Micro/odoo/web/data:/var/lib/odoo
-            - ./Smartdom/Micro/odoo/web/config:/etc/odoo
-            - ./Smartdom/Micro/odoo/web/addons:/mnt/extra-addons
-        networks:
-            - proxy
-            - db-net
-
     db:
-        image: postgres:10
+        image: postgres:11
         environment:
-            - POSTGRES_DB=postgres
-            - POSTGRES_PASSWORD=odoo
-            - POSTGRES_USER=odoo
-            - PGDATA=/var/lib/postgresql/data/pgdata
+          - POSTGRES_PASSWORD=odoo
+          - POSTGRES_USER=odoo
+          - POSTGRES_DB=postgres
+        restart: always             # run as a service
         volumes:
-            - ./Smartdom/Micro/odoo/db:/var/lib/postgresql/data/pgdata
+          - ./Smartdom/Micro/odoo/db:/var/lib/postgresql/data
         networks:
-            - db-net
+          - db-net
+
+    odoo13:
+        image: odoo:13
+        depends_on:
+          - db
+        expose:
+          - 8069
+        tty: true
+        command: -- --dev=reload
+        volumes:
+          - ./Smartdom/Micro/odoo/web/data:/var/lib/odoo
+          - ./Smartdom/Micro/odoo/web/config:/etc/odoo
+          - ./Smartdom/Micro/odoo/web/addons:/mnt/extra-addons
+        networks:
+          - proxy
+          - db-net
+        restart: always
+        environment:
+            TZ: Europe/Prague
+            HTTPS: 'OFF'
+            VIRTUAL_HOST: odoo.${SMARTDOM_DOMAIN}
+            VIRTUAL_PORT: 8069
+            LETSENCRYPT_HOST: odoo.${SMARTDOM_DOMAIN}
+            LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
 
     web:
         image: jitsi/web

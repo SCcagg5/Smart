@@ -1,4 +1,4 @@
-<?php 
+<?php
 
    $htt = ($_ENV['HOST'] == 'localhost') ? 'http': 'https';
  ?>
@@ -38,8 +38,11 @@
         }
       }
       ?>
+
       <a onclick="switchiframe('./elastic/')" class="choice list-group-item list-group-item-action bg-light">Elasticsearch</a>
       <a onclick="switchiframe('./phpmyadmin/')" class="choice list-group-item list-group-item-action bg-light">SQL</a>
+      <a onclick="switchiframe('./postman/')" class="choice list-group-item list-group-item-action bg-light">Postman</a>
+      
       <a onclick="switchiframe('./kanban/')" class="choice list-group-item list-group-item-action bg-light">Task</a>
       <a href='<?= $htt . '://mail.' . $_ENV['HOST']; ?>/webmail/' class="choice list-group-item list-group-item-action bg-light">Mail</a>
       <a onclick="switchiframe('<?= $htt . '://mail.' . $_ENV['HOST']; ?>/admin/')" class="choice list-group-item list-group-item-action bg-light">Admin Mail</a>
