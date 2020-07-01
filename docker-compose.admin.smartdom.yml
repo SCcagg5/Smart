@@ -50,7 +50,7 @@ services:
        PMA_PASSWORD: ${SMARTDOM_DB_PASS}
 
    smartdom-admin-postmanviewer:
-      build: ./Smartdom/Admin/services/postman-collection-viewer/
+      build: ./Smartdom/Admin/services/postman-viewer/
       container_name: smartdom-admin-postmanviewer
       restart: always
       tty: true
