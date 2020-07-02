@@ -3,13 +3,13 @@ version: '3'
 networks:
    proxy:
      external:
-       name: smart_proxy
+       name: docker-compose_proxy
    adm-net:
      external:
-         name: smart_smartco-adm-net
+         name: docker-compose_smartco-adm-net
    db-net:
      external:
-         name: smart_smartco-db-net
+         name: docker-compose_smartco-db-net
 
 services:
    smartco-admin-kibana:

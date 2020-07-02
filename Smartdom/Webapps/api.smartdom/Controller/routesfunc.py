@@ -2,7 +2,7 @@ from Model.basic import check, auth
 from Object.users import user
 from Object.tpe import tpe
 from Object.order import order
-from Object.calc import sim
+from Object.items import item
 from Object.admin import admin
 from Object.ether import eth_contract
 import json
@@ -127,7 +127,7 @@ def pay(cn, nextc):
     cn.pr = err[1]
 
     use = cn.private["user"]
-    err = tpe.pay(cn.private["cmd"]["price"]["amount"], cn.pr["crd_token"], use.id)
+    err = tpe.pay(cn.private["cmd"]["price"], cn.pr["crd_token"], use.id)
     if err[0]:
         cn.private["pay_id"] = err[1]["id"]
     return cn.call_next(nextc, err)
@@ -167,13 +167,17 @@ def history(cn, nextc):
     err = order.orders(use.id)
     return cn.call_next(nextc, err)
 
-def emulate(cn, nextc):
-    err = check.contain(cn.pr, [])
+def getitems(cn, nextc):
+    err = item.items(cn.rt["website"])
+    return cn.call_next(nextc, err)
+
+def cart(cn, nextc):
+    err = check.contain(cn.pr, ["command"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
 
-    err = sim.calc()
+    err = item.panier(cn.rt["website"], cn.pr["command"])
     return cn.call_next(nextc, err)
 
 

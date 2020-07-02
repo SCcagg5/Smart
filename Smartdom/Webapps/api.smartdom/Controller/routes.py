@@ -14,12 +14,15 @@ def setuproute(app, call):
     @app.route('/addcard/',    	            ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, addcard])                   )
     @app.route('/delcard/',    	            ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, delcard])                   )
     @app.route('/listcard/',    	        ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, listcard])                  )
-    @app.route('/payments/',    	        ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, payments])                  )
-    @app.route('/paymentdetails/',          ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, paymentdetails])            )
+
     @app.route('/order/',    	            ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, cmd_decode, pay, ordering]) )
     @app.route('/orderdetail/',             ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, orderdetails])              )
     @app.route('/history/',    	            ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, history])                   )
-    @app.route('/emulate/',    	            ['OPTIONS', 'POST'],        lambda x = None: call([myauth, emulate])                             )
+
+    @app.route('/website/<>/items',    	    ['OPTIONS', 'GET'],         lambda x = None: call([myauth, getitems])                            )
+    @app.route('/website/<>/cart/',    	    ['OPTIONS', 'POST'],        lambda x = None: call([myauth, cart])                                )
+    @app.route('/payments/',    	        ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, payments])                  )
+    @app.route('/paymentdetails/',          ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, paymentdetails])            )
 
     @app.route('/wallet/create/',           ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, wallet_create])             )
     @app.route('/wallets',                  ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, wallets])                   )

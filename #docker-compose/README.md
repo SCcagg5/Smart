@@ -107,28 +107,39 @@ Arch and `docker-compose.*.*.yml` usage:
         ```
 **LASTLY**
   * Launch:
-    * `docker-compose -f docker-compose.reverse.proxy.yml up -d`
     * for full `${SMARTCO_DOMAIN}` support:
       ```bash
-      docker-compose -f docker-compose.admin.smartco.yml \
-                     -f docker-compose.web.smartco.yml \
-                     -f docker-compose.services.smartco.yml\
-                     up -d
+        cd \#docker-compose/; \
+        docker-compose -f docker-compose.reverse.proxy.yml     up -d; \
+        docker-compose -f docker-compose.smartco.web.yml       up -d; \
+        docker-compose -f docker-compose.smartco.services.yml  up -d; \
+        docker-compose -f docker-compose.smartco.admin.yml     up -d;
       ```
     * for full `${SMARTDOM_DOMAIN}` support:
       ```bash
-      docker-compose -f docker-compose.admin.smartdom.yml \
-                     -f docker-compose.web.smartdom.yml \
-                     -f docker-compose.services.smartdom.yml\
-                     up -d
+        cd \#docker-compose/; \
+        docker-compose -f docker-compose.reverse.proxy.yml     up -d; \
+        docker-compose -f docker-compose.smartdom.web.yml      up -d; \
+        docker-compose -f docker-compose.smartdom.services.yml up -d; \
+        docker-compose -f docker-compose.smartdom.admin.yml    up -d;
       ```
+    * for back-end `${SMARTDOM_DOMAIN}` support:
+      ```bash
+        cd \#docker-compose/; \
+        docker-compose -f docker-compose.reverse.proxy.yml      up -d; \
+        docker-compose -f docker-compose.smartdom.web.micro.yml up -d; \
+        docker-compose -f docker-compose.smartdom.services.yml  up -d; \
+        docker-compose -f docker-compose.smartdom.admin.yml     up -d;
+        ```
     * for full support on `${SMARTCO_DOMAIN}` and `${SMARTDOM_DOMAIN}`:
       ```bash
-      docker-compose -f docker-compose.admin.smartco.yml \
-                     -f docker-compose.web.smartco.yml \
-                     -f docker-compose.services.smartco.yml\
-                     -f docker-compose.admin.smartdom.yml \
-                     -f docker-compose.web.smartdom.yml \
-                     -f docker-compose.services.smartdom.yml\
-                     up -d
+        cd \#docker-compose/; \
+        docker-compose -f docker-compose.reverse.proxy.yml     up -d; \
+        docker-compose -f docker-compose.smartco.web.yml       up -d; \
+        docker-compose -f docker-compose.smartco.services.yml  up -d; \
+        docker-compose -f docker-compose.smartco.admin.yml     up -d; \
+        docker-compose -f docker-compose.reverse.proxy.yml     up -d; \
+        docker-compose -f docker-compose.smartdom.web.yml      up -d; \
+        docker-compose -f docker-compose.smartdom.services.yml up -d; \
+        docker-compose -f docker-compose.smartdom.admin.yml    up -d;
       ```

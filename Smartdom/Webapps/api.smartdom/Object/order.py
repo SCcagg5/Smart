@@ -54,14 +54,14 @@ class order:
 
     def gettoken(res):
         secret =  "ijshzgoubzsdogbzosengozwsbdg9ouigubnzwsoeg"
-        ret = jwt.encode(res, str(secret)).decode('utf-8')
+        ret = jwt.encode({"data": res}, str(secret)).decode('utf-8')
         return ret
 
     def tokendata(token = None):
         secret = "ijshzgoubzsdogbzosengozwsbdg9ouigubnzwsoeg"
         decoded = None
         try:
-            decoded = jwt.decode(token, str(secret), algorithms=['HS256'])
+            decoded = jwt.decode(token, str(secret), algorithms=['HS256'])["data"]
         except:
-            return  [False, "Invalid usr_token", 403]
+            return  [False, "Invalid cmd_token", 400]
         return [True, decoded, None]
