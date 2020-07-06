@@ -1,0 +1,11 @@
+.menu-item{
+    display: flex;
+    padding: 10px;
+    cursor: pointer;
+}
+.menu-item:hover{
+    display: flex;
+    padding: 10px;
+    cursor: pointer;
+    background-color: aliceblue;
+}
