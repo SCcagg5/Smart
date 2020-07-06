@@ -1,0 +1,36 @@
+{
+  "name": "react-native-pin-view",
+  "version": "2.2.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/talut/react-native-pin-view.git"
+  },
+  "description": "React Native Pin View Component for Protection",
+  "keywords": [
+    "react-native",
+    "pin-view",
+    "pin-password",
+    "pin-view-password",
+    "react-native-pin-view",
+    "react pin view",
+    "pin view",
+    "react pin",
+    "react password",
+    "pin",
+    "PinView"
+  ],
+  "main": "index.js",
+  "types": "react-native-pin-view.d.ts",
+  "author": "Talut Tasgiran",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/talut/react-native-pin-view/issues"
+  },
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start"
+  },
+  "homepage": "https://github.com/talut/react-native-pin-view",
+  "dependencies": {
+    "prop-types": "^15.7.2"
+  }
+}

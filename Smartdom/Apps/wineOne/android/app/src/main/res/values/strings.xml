@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Wine One</string>
+    <string name="facebook_app_id">3046074155428473</string>
+    <string name="fb_login_protocol_scheme">fb3046074155428473</string>
+
+    <string name="server_client_id">856473453678-bt47et2bn66af7rdnrr4tumol4g3ptir.apps.googleusercontent.com    </string>
+</resources>
