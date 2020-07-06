@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">SmartCo</string>
+    <string name="facebook_app_id">468655970439160</string>
+    <string name="fb_login_protocol_scheme">fb468655970439160</string>
+    <string name="server_client_id">482572690350-lrbvcp561lu16ka19f2jhfo2tkr287ns.apps.googleusercontent.com</string>
+</resources>
