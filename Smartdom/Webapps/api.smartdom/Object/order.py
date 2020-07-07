@@ -16,16 +16,28 @@ class order:
         if not succes:
             return [False, "data input error12", 500]
         res = sql.get("SELECT `id`  FROM `orders` WHERE `user_id` = %s AND `date` = %s", (user_id, date))
-        if len(res) > 0:
-            id = str(res[0][0])
-            return order.orderup(id, details)
-        return [False, "data read error", 500]
+        if len(res) == 0:
+            return [False, "data read error", 500]
+        order_id = str(res[0][0])
+        succes = order.orderup(order_id, details)
+        if not succes[0]:
+            return succes
+        return order.asset_tracking(user_id, order_id, pay_id, date, details)
+
 
     def orderup(order_id, details):
         succes = sql.input("INSERT INTO `orderdetails` (`id`, `order_id`, `json`) VALUES (NULL, %s, %s)", \
         (order_id, details))
         if not succes:
-            return [False, "data input error123", 500]
+            return [False, "data input error", 500]
+        return [True, {"order_id": order_id}, None]
+
+    def asset_tracking(user_id, order_id, pay_id, date, details):
+        for i in details["cart"]:
+            if "asset" in i:
+                for i2 in i["assets"]["uuid"]:
+                    sql.input("INSERT INTO `assets` (`id`, `asset_id`, `asset_name`, `token_val`, `user_id`, `order_id`, `pay_id`, `date`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s)", \
+                    (i2, i2["assets"]["name"], i["token"], user_id, order_id, pay_id, date))
         return [True, {"order_id": order_id}, None]
 
     def orders(user_id):

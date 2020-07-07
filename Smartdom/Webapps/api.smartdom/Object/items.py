@@ -1,49 +1,56 @@
 from .order import order
+import uuid
 
 
 class item:
     def items(website):
         items = {"veloone":[{
-                "id": "1234",
-                "title": "veloone_token",
-                "address": "",
-                "description": None,
-                "price":
-                { "amount": "10.00", "currency": "Eur"}
-        }], "quinsac": [
-		{
-		 "id": "1",
-                 "title": "Une bouteille",
-                 "address": "",
-                 "description": None,
-                 "price":
-                 { "amount": "30.00", "currency": "Eur"}
-		},
-		{
-                 "id": "2",
-                 "title": "Quatre bouteilles",
-                 "address": "",
-                 "description": None,
-                 "price":
-                 { "amount": "120.00", "currency": "Eur"}
-                },
-		{
-                 "id": "3",
-                 "title": "Caisse de bouteilles",
-                 "address": "",
-                 "description": "12 bouteilles",
-                 "price":
-                 { "amount": "360.00", "currency": "Eur"}
-                },
-		{
-                 "id": "4",
-                 "title": "Palette de bouteilles",
-                 "address": "",
-                 "description": "600 bouteilles",
-                 "price":
-                 { "amount": "15000.00", "currency": "Eur"}
-                }
-	]}
+                    "id": "1234",
+                    "title": "veloone_token",
+                    "address": "",
+                    "description": None,
+                    "price":
+                    { "amount": "10.00", "currency": "Eur"}
+             }], "quinsac": [
+                    {
+                     "id": "1",
+                     "title": "Une bouteille",
+                     "description": None,
+                     "assets": {"number": 1, "uuid": [], "name": "bouteille"},
+                     "price":
+                     { "amount": "30.00", "currency": "Eur"}
+                    },
+                    {
+                     "id": "2",
+                     "title": "Quatre bouteilles",
+                     "address": "",
+                     "description": None,
+                     "token": {"address": "", "ind_value":3},
+                     "assets": {"number": 4, "uuid": [], "name": "bouteille"},
+                     "price":
+                     { "amount": "120.00", "currency": "Eur"}
+                    },
+                    {
+                     "id": "3",
+                     "title": "Caisse de bouteilles",
+                     "address": "",
+                     "description": "12 bouteilles",
+                     "token": {"address": "", "ind_value":3},
+                     "assets": {"number": 12, "uuid": [], "name": "bouteille"},
+                     "price":
+                     { "amount": "360.00", "currency": "Eur"}
+                    },
+                    {
+                     "id": "4",
+                     "title": "Palette de bouteilles",
+                     "address": "",
+                     "description": "600 bouteilles",
+                     "token": {"address": "", "ind_value":3},
+                     "assets": {"number": 600, "uuid": [], "name": "bouteille"},
+                     "price":
+                     { "amount": "15000.00", "currency": "Eur"}
+                    }
+                ]}
         if website not in items:
             return [False, "invalid website", 400]
         res = items[website]
@@ -51,45 +58,52 @@ class item:
 
     def panier(website, commande):
         items = {"veloone":[{
-                "id": "1234",
-                "title": "veloone_token",
-                "address": "",
-                "description": None,
-                "price":
-                { "amount": "10.00", "currency": "Eur"}
-        }], "quinsac": [
-                {
-                 "id": "1",
-                 "title": "Une bouteille",
-                 "address": "",
-                 "description": None,
-                 "price":
-                 { "amount": "30.00", "currency": "Eur"}
-                },
-                {
-                 "id": "2",
-                 "title": "Quatre bouteilles",
-                 "address": "",
-                 "description": None,
-                 "price":
-                 { "amount": "120.00", "currency": "Eur"}
-                },
-                {
-                 "id": "3",
-                 "title": "Caisse de bouteilles",
-                 "address": "",
-                 "description": "12 bouteilles",
-                 "price":
-                 { "amount": "360.00", "currency": "Eur"}
-                },
-                {
-                 "id": "4",
-                 "title": "Palette de bouteilles",
-                 "address": "",
-                 "description": "600 bouteilles",                 "price":
-                 { "amount": "15000.00", "currency": "Eur"}
-                }
-        ]}
+                    "id": "1234",
+                    "title": "veloone_token",
+                    "address": "",
+                    "description": None,
+                    "price":
+                    { "amount": "10.00", "currency": "Eur"}
+             }], "quinsac": [
+                    {
+                     "id": "1",
+                     "title": "Une bouteille",
+                     "description": None,
+                     "assets": {"number": 1, "uuid": [], "name": "bouteille"},
+                     "price":
+                     { "amount": "30.00", "currency": "Eur"}
+                    },
+                    {
+                     "id": "2",
+                     "title": "Quatre bouteilles",
+                     "address": "",
+                     "description": None,
+                     "token": {"address": "", "ind_value":3},
+                     "assets": {"number": 4, "uuid": [], "name": "bouteille"},
+                     "price":
+                     { "amount": "120.00", "currency": "Eur"}
+                    },
+                    {
+                     "id": "3",
+                     "title": "Caisse de bouteilles",
+                     "address": "",
+                     "description": "12 bouteilles",
+                     "token": {"address": "", "ind_value":3},
+                     "assets": {"number": 12, "uuid": [], "name": "bouteille"},
+                     "price":
+                     { "amount": "360.00", "currency": "Eur"}
+                    },
+                    {
+                     "id": "4",
+                     "title": "Palette de bouteilles",
+                     "address": "",
+                     "description": "600 bouteilles",
+                     "token": {"address": "", "ind_value":3},
+                     "assets": {"number": 600, "uuid": [], "name": "bouteille"},
+                     "price":
+                     { "amount": "15000.00", "currency": "Eur"}
+                    }
+                ]}
         if website not in items:
             return [False, "invalid website", 400]
         res = []
@@ -99,6 +113,9 @@ class item:
                 if i2["id"] == i["id"]:
                     t = i2
                     t["number"] = int(1 if "number" not in i else i["number"] if int(i["number"]) > 0 else 1)
+                    if "assets" in t:
+                        for i3 in range(t["assets"]["number"]):
+                            t["assets"]["uuid"].append(str(uuid.uuid4()))
                     res.append(t)
                     price += float(t["price"]["amount"]) * t["number"]
         token = order.gettoken({"price": price, "cart": res})
