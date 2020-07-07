@@ -5,7 +5,7 @@ from .tpe import tpe
 import jwt
 
 class order:
-    def do_order(user_id, pay_id, details_or):
+    def do_order(user_id, pay_id, details_or, to_wallet):
         date = str(int(round(time.time() * 1000)))
         try:
             details = json.dumps(details_or)
@@ -22,7 +22,7 @@ class order:
         succes = order.orderup(order_id, details)
         if not succes[0]:
             return succes
-        return order.asset_tracking(user_id, order_id, pay_id, date, details_or)
+        return order.asset_tracking(user_id, order_id, pay_id, date, details_or, to_wallet)
 
 
     def orderup(order_id, details):
@@ -32,12 +32,14 @@ class order:
             return [False, "data input error", 500]
         return [True, {"order_id": order_id}, None]
 
-    def asset_tracking(user_id, order_id, pay_id, date, details):
+    def asset_tracking(user_id, order_id, pay_id, date, details, to_wallet):
         for i in details["cart"]:
             if "assets" in i:
                 for i2 in i["assets"]["uuid"]:
                     sql.input("INSERT INTO `assets` (`id`, `asset_id`, `asset_name`, `token_val`, `user_id`, `order_id`, `pay_id`, `date`, `active`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s)", \
                     (i2, i["assets"]["name"], json.dumps(i["token"]), user_id, order_id, pay_id, date, 1))
+            if "token" in i:
+                eth_contract(i["address"], user=user_id).fund(to_wallet, i["number"] * i["ind_value"],  async = True)
         return [True, {"order_id": order_id}, None]
 
     def orders(user_id):

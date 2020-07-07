@@ -135,7 +135,7 @@ def pay(cn, nextc):
 
 def ordering(cn, nextc):
     use = cn.private["user"]
-    err = order.do_order(use.id, cn.private["pay_id"], cn.private["cmd"])
+    err = order.do_order(use.id, cn.private["pay_id"], cn.private["cmd"], cn.pr["to_wallet"])
     return cn.call_next(nextc, err)
 
 def payments(cn, nextc):
@@ -181,6 +181,14 @@ def cart(cn, nextc):
     err = item.panier(cn.rt["website"], cn.pr["command"])
     return cn.call_next(nextc, err)
 
+
+def wallet_check(cn, nextc):
+    err = check.contain(cn.pr, ["to_wallet"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = eth_contract(user=cn.private["user"].id).check(cn.pr["to_wallet"])
+    return cn.call_next(nextc, err)
 
 def wallet_create(cn, nextc):
     err = eth_contract(user=cn.private["user"].id).create_account()

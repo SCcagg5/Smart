@@ -68,6 +68,13 @@ class eth_contract:
         w3.eth.waitForTransactionReceipt(txn)
         return [True, {"transact": txn}, None]
 
+    def check(self, account):
+        if self.user_id is None:
+            return [False, "invalid user", 400]
+        if account not in self.__get_accounts(self.user_id):
+            return [False, "invalid account", 400]
+        return [True, {}, None]
+
     def wallet_balance(self, account): #balance in eth
         if self.user_id is None:
             return [False, "invalid user", 400]
@@ -76,7 +83,7 @@ class eth_contract:
         eth = "{:.5f}".format(w3.eth.getBalance(w3.toChecksumAddress(account)) / 1000000000000000000)
         return [True, {"ether": eth}, None]
 
-    def fund(self, ad_to, amount):
+    def fund(self, ad_to, amount, async = False):
         if self.user_id is None:
             return [False, "invalid user", 400]
         if ad_to not in self.__get_accounts(self.user_id):
@@ -89,7 +96,8 @@ class eth_contract:
         })
         signed_txn = w3.eth.account.signTransaction(build, private_key=self.__owner().key)
         txn = w3.eth.sendRawTransaction(signed_txn.rawTransaction).hex()
-        w3.eth.waitForTransactionReceipt(txn)
+        if not async:
+            w3.eth.waitForTransactionReceipt(txn)
         return [True, {"transact": txn}, None]
 
     def deploy_contract(self, name, symbol, number):
