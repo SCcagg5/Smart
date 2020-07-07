@@ -8,15 +8,15 @@ from .sql import sql
 adm_mnemonic = str(os.getenv('ETH_ADM_MNEMONIC', None))
 gwei = str(os.getenv('ETH_GWEI_PRICE', 35))
 
-w3 = "not mainnet"
-if w3 == "mainnet":
+w3_type = "ropsten"
+if w3_type == "mainnet":
     from web3.auto.infura import w3
 else:
     from web3.auto.infura.ropsten import w3
 if w3.isConnected():
-    print("W3 is connected")
+    print("W3 is connected to " + w3_type)
 else:
-    print("W3 is disconnected")
+    print("W3 is disconnected from " + w3_type)
 w3.eth.account.enable_unaudited_hdwallet_features()
 
 class eth_contract:

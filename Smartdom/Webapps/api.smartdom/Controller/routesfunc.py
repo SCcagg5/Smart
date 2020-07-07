@@ -4,6 +4,7 @@ from Object.tpe import tpe
 from Object.order import order
 from Object.items import item
 from Object.admin import admin
+from Object.asset import asset
 from Object.ether import eth_contract
 import json
 
@@ -222,6 +223,10 @@ def token_create(cn, nextc):
     cn.pr = err[1]
 
     err = eth_contract().deploy_contract(cn.pr["name"], cn.pr["symbol"], cn.pr["amount"])
+    return cn.call_next(nextc, err)
+
+def asset_info(cn, nextc):
+    err = asset.info(cn.rt["asset"])
     return cn.call_next(nextc, err)
 
 def admtoken(cn, nextc):
