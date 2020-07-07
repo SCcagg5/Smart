@@ -42,7 +42,7 @@ class eth_contract:
             return [False, "data input error", 500]
         return [True, {"address":  ret["address"]} , None]
 
-    def get_balance(self, address):
+    def get_balance(self, address): #balance in specific token
         if self.user_id is None:
             return [False, "invalid user", 400]
         if address not in self.__get_accounts(self.user_id):
@@ -68,7 +68,7 @@ class eth_contract:
         w3.eth.waitForTransactionReceipt(txn)
         return [True, {"transact": txn}, None]
 
-    def wallet_balance(self, account):
+    def wallet_balance(self, account): #balance in eth
         if self.user_id is None:
             return [False, "invalid user", 400]
         if account not in self.__get_accounts(self.user_id):

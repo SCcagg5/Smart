@@ -229,6 +229,15 @@ def asset_info(cn, nextc):
     err = asset.info(cn.rt["asset"])
     return cn.call_next(nextc, err)
 
+
+def asset_transfert(cn, nextc):
+    err = check.contain(cn.pr, ["from_wallet", "to"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = asset.transfert(cn.private["user"].id, cn.pr["from_wallet"], cn.pr["to"], cn.rt["asset"])
+    return cn.call_next(nextc, err)
+
 def admtoken(cn, nextc):
     err = check.contain(cn.pr, ["password"])
     if not err[0]:

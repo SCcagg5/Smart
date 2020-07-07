@@ -16,7 +16,7 @@ class item:
                      "id": "1",
                      "title": "Une bouteille",
                      "description": None,
-		     "token": {"address": "", "ind_value":3},
+		             "token": {"address": "0x9520C239baE78a4a672a70370d85051FCD8DD6c9", "ind_value":3},
                      "assets": {"number": 1, "uuid": [], "name": "bouteille"},
                      "price":
                      { "amount": "30.00", "currency": "Eur"}
@@ -24,9 +24,8 @@ class item:
                     {
                      "id": "2",
                      "title": "Quatre bouteilles",
-                     "address": "",
                      "description": None,
-                     "token": {"address": "", "ind_value":3},
+                     "token": {"address": "0x9520C239baE78a4a672a70370d85051FCD8DD6c9", "ind_value":3},
                      "assets": {"number": 4, "uuid": [], "name": "bouteille"},
                      "price":
                      { "amount": "120.00", "currency": "Eur"}
@@ -34,9 +33,8 @@ class item:
                     {
                      "id": "3",
                      "title": "Caisse de bouteilles",
-                     "address": "",
                      "description": "12 bouteilles",
-                     "token": {"address": "", "ind_value":3},
+                     "token": {"address": "0x9520C239baE78a4a672a70370d85051FCD8DD6c9", "ind_value":3},
                      "assets": {"number": 12, "uuid": [], "name": "bouteille"},
                      "price":
                      { "amount": "360.00", "currency": "Eur"}
@@ -44,9 +42,8 @@ class item:
                     {
                      "id": "4",
                      "title": "Palette de bouteilles",
-                     "address": "",
                      "description": "600 bouteilles",
-                     "token": {"address": "", "ind_value":3},
+                     "token": {"address": "0x9520C239baE78a4a672a70370d85051FCD8DD6c9", "ind_value":3},
                      "assets": {"number": 600, "uuid": [], "name": "bouteille"},
                      "price":
                      { "amount": "15000.00", "currency": "Eur"}

@@ -9,6 +9,13 @@ import phonenumbers
 from .sql import sql
 
 class user:
+    def fromemail(email):
+        es = sql.get("SELECT `id`  FROM `user` WHERE `email` = %s", (email))
+        if len(res) > 0:
+            id = str(res[0][0])
+            return id
+        return False
+        
     def __init__(self, id = -1):
         self.id = str(id)
 
