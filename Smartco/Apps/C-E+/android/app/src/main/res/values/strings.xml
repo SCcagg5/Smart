@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">C-E+</string> 
+    <string name="facebook_app_id">468655970439160</string>
+    <string name="fb_login_protocol_scheme">fb468655970439160</string>
+    <string name="server_client_id">240735399678-0r4mjcft98og71sj4clqo3qec22u36b7.apps.googleusercontent.com</string>
+
+</resources>
