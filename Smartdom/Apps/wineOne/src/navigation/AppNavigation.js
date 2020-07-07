@@ -30,6 +30,7 @@ import stripeWebView from "../pages/wines/stripeWebView";
 import listcard from "../pages/Cards/listcard";
 import addCard from "../pages/Cards/addCard";
 import selectCard from "../pages/wines/selectCard";
+import wallets from "../pages/Wallets/wallets";
 
 class AppNavigation extends React.Component {
 
@@ -66,36 +67,37 @@ class AppNavigation extends React.Component {
         const TabNavigator = createBottomTabNavigator(
             {
                 Comptes: {
-                    screen: Comptes,
+                    screen: wines,
                     navigationOptions: {
                         title: 'Carte listes services',
                         tabBarIcon: ({tintColor}) => (
-                            <Icon color={tintColor} size={24} type="material" name='credit-card'/>
+                            <Icon color={tintColor} size={24} type="material" name='store'/>
                         )
                     }
                 },
-              /*  Statistiques: {
-                    screen: Statistiques,
+               Statistiques: {
+                    screen: scan,
                     navigationOptions: {
                         tabBarIcon: ({tintColor}) => (
                             <View>
-                                <Icon color={tintColor} size={24} type="font-awesome" name='clock-o'/>
+                                <Icon color={tintColor} size={24} type="font-awesome" name='qrcode'/>
                             </View>
                         )
                     }
                 },
-                BodyCheck: {
-                    screen: bodyCheck,
+                         BodyCheck: {
+                    screen: wallets,
                     navigationOptions: {
 
                         title: 'BodyCheck',
                         tabBarIcon: ({tintColor}) => (
                             <View>
-                                <FontAwesomeIcon style={[{color: tintColor}]} size={24} name='hand-o-up'/>
+                                <Icon style={[{color: tintColor}]} type="simple-line-icon" size={24} name="wallet"/>
                             </View>
                         )
                     }
                 },
+                /*
                 Depenses: {
                     screen: Depenses,
                     navigationOptions: {

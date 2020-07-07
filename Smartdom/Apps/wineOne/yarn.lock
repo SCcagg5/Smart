@@ -6908,6 +6908,14 @@ react-native-drawer@2.5.1:
     prop-types "^15.5.8"
     tween-functions "^1.0.1"
 
+react-native-dropdown-picker@^3.1.6:
+  version "3.1.6"
+  resolved "https://registry.yarnpkg.com/react-native-dropdown-picker/-/react-native-dropdown-picker-3.1.6.tgz#5bb6a75c07dd350dc624c68f4ecb422997f1584e"
+  integrity sha512-m7cYB0ixvhfMkfeqVWb5yxwTKRX6Z8WT5f3LoRxYlW3bDPUZIOhL1ieOVLdTHRJwi13JlfsoN7if2ufbsiv8Uw==
+  dependencies:
+    prop-types "^15.7.2"
+    react-native-vector-icons "^6.6.0"
+
 react-native-dropdownalert@^4.2.1:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/react-native-dropdownalert/-/react-native-dropdownalert-4.2.1.tgz#e49ca7b37fde4582aaecc6d241828e907c18a520"
