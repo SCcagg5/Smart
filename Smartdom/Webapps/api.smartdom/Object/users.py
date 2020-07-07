@@ -10,7 +10,7 @@ from .sql import sql
 
 class user:
     def fromemail(email):
-        es = sql.get("SELECT `id`  FROM `user` WHERE `email` = %s", (email))
+        res = sql.get("SELECT `id`  FROM `user` WHERE `email` = %s", (email))
         if len(res) > 0:
             id = str(res[0][0])
             return id
