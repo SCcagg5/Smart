@@ -5,10 +5,10 @@ from .tpe import tpe
 import jwt
 
 class order:
-    def do_order(user_id, pay_id, details):
+    def do_order(user_id, pay_id, details_or):
         date = str(int(round(time.time() * 1000)))
         try:
-            details = json.dumps(details)
+            details = json.dumps(details_or)
         except:
             return [False, "Invalid json", 401]
         succes = sql.input("INSERT INTO `orders` (`id`, `user_id`, `payment_id`, `date`) VALUES (NULL, %s, %s, %s)", \
@@ -22,7 +22,7 @@ class order:
         succes = order.orderup(order_id, details)
         if not succes[0]:
             return succes
-        return order.asset_tracking(user_id, order_id, pay_id, date, details)
+        return order.asset_tracking(user_id, order_id, pay_id, date, details_or)
 
 
     def orderup(order_id, details):
@@ -34,10 +34,10 @@ class order:
 
     def asset_tracking(user_id, order_id, pay_id, date, details):
         for i in details["cart"]:
-            if "asset" in i:
+            if "assets" in i:
                 for i2 in i["assets"]["uuid"]:
-                    sql.input("INSERT INTO `assets` (`id`, `asset_id`, `asset_name`, `token_val`, `user_id`, `order_id`, `pay_id`, `date`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s)", \
-                    (i2, i2["assets"]["name"], i["token"], user_id, order_id, pay_id, date))
+                    sql.input("INSERT INTO `assets` (`id`, `asset_id`, `asset_name`, `token_val`, `user_id`, `order_id`, `pay_id`, `date`, `active`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s)", \
+                    (i2, i["assets"]["name"], json.dumps(i["token"]), user_id, order_id, pay_id, date, 1))
         return [True, {"order_id": order_id}, None]
 
     def orders(user_id):

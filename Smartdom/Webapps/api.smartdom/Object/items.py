@@ -16,6 +16,7 @@ class item:
                      "id": "1",
                      "title": "Une bouteille",
                      "description": None,
+		     "token": {"address": "", "ind_value":3},
                      "assets": {"number": 1, "uuid": [], "name": "bouteille"},
                      "price":
                      { "amount": "30.00", "currency": "Eur"}
@@ -69,6 +70,7 @@ class item:
                      "id": "1",
                      "title": "Une bouteille",
                      "description": None,
+		     "token": {"address": "", "ind_value":3},
                      "assets": {"number": 1, "uuid": [], "name": "bouteille"},
                      "price":
                      { "amount": "30.00", "currency": "Eur"}
@@ -114,7 +116,7 @@ class item:
                     t = i2
                     t["number"] = int(1 if "number" not in i else i["number"] if int(i["number"]) > 0 else 1)
                     if "assets" in t:
-                        for i3 in range(t["assets"]["number"]):
+                        for i3 in range(t["assets"]["number"] * t["number"]):
                             t["assets"]["uuid"].append(str(uuid.uuid4()))
                     res.append(t)
                     price += float(t["price"]["amount"]) * t["number"]
