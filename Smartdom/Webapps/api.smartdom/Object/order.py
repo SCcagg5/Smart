@@ -2,6 +2,7 @@ import json
 import time
 from .sql import sql
 from .tpe import tpe
+from .ether import eth_contract
 import jwt
 
 class order:
@@ -39,7 +40,7 @@ class order:
                     sql.input("INSERT INTO `assets` (`id`, `asset_id`, `asset_name`, `token_val`, `user_id`, `order_id`, `pay_id`, `date`, `active`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s)", \
                     (i2, i["assets"]["name"], json.dumps(i["token"]), user_id, order_id, pay_id, date, 1))
             if "token" in i:
-                eth_contract(i["address"], user=user_id).fund(to_wallet, i["number"] * i["ind_value"],  async = True)
+                eth_contract(i["token"]["address"], user=user_id).fund(to_wallet, i["number"] * i["token"]["ind_value"])
         return [True, {"order_id": order_id}, None]
 
     def orders(user_id):
