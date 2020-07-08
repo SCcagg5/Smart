@@ -20,10 +20,12 @@ else:
 w3.eth.account.enable_unaudited_hdwallet_features()
 
 class eth_contract:
-    def __init__(self, adr = None, w3 = "ropsten", user = None):
+    def __init__(self, adr = None, user = None):
         src = contract_src()
         self.abi = src['abi']
         self.bin = src['bytecode']
+        if adr is not None:
+            adr = w3.toChecksumAddress(adr)
         self.obj = None if adr is None else self.__get_contract(adr, self.abi)
         self.user_id = user
 
@@ -47,7 +49,7 @@ class eth_contract:
             return [False, "invalid user", 400]
         if address not in self.__get_accounts(self.user_id):
             return [False, "invalid account", 400]
-        return [True, {"balance": self.__get_balance(address)}, None]
+        return [True, {"balance": self.__get_balance(w3.toChecksumAddress(address))}, None]
 
     def send(self, ad_fr, ad_to, amount):
         if self.user_id is None:
