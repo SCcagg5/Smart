@@ -1,21 +1,8 @@
 import React from 'react';
 import AppContainer from './src/navigation/AppNavigation';
-import * as firebase from "firebase";
-import {PermissionsAndroid, View, ActivityIndicator} from "react-native";
+import {View, ActivityIndicator} from "react-native";
+import FlashMessage from "./custom_modules/react-native-flash-message/src";
 
-
-var firebaseConfig = {
-    apiKey: "AIzaSyBZzmIgVrXxE3xohn48vXX65maBX9WCjoE",
-    authDomain: "quinsac-55271.firebaseapp.com",
-    databaseURL: "https://quinsac-55271.firebaseio.com",
-    projectId: "quinsac-55271",
-    storageBucket: "quinsac-55271.appspot.com",
-    messagingSenderId: "856473453678",
-    appId: "1:856473453678:web:e3be0c6aa35cd9b84cd27f",
-    measurementId: "G-P8VCKR3M92"
-};
-
-firebase.initializeApp(firebaseConfig);
 console.disableYellowBox = true;
 
 class App extends React.Component {
@@ -41,7 +28,13 @@ class App extends React.Component {
         } else {
 
             return (
-                <AppContainer/>
+                <View style={{flex:1}}>
+                    <AppContainer/>
+                    <FlashMessage position="top" hideOnPress={true} duration={5000}
+                                  titleStyle={{fontWeight:"bold"}} animated={true}
+                    />
+                </View>
+
             );
 
         }

@@ -36,7 +36,7 @@ class CreditCard extends Component {
     componentWillReceiveProps(nextProps) {
         this.updateType(nextProps);
     }
-    componentWillMount() {
+    componentDidMount() {
         this.updateType(this.props);
     }
     updateType(props) {
@@ -154,17 +154,18 @@ class CreditCard extends Component {
 
                                 position: 'absolute',
                                 top: 20,
-
                                 left:20}}>
-                                <Image source={require('../../src/assets/images/logo.png')}  style={{
+                                <Text style={{ color: '#fff',
+                                    fontSize: 22,
                                     textAlign: 'center',
                                     marginBottom: 10,
-                                    height:50,
-                                    width:250
-                                   }}></Image>
+                                    backgroundColor: 'transparent'}}>{this.props.cardName}</Text>
                             </View>
 
-
+                            <Image
+                                 style={styles.logo}
+                                 source={this.props.logo}
+                            />
                             {isAmex ?
                                 <View style={styles.cvcFront}>
                                     <Text style={styles.text}>{this.getValue("cvc")}</Text>
@@ -211,11 +212,12 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     logo: {
-        height: 50,
-        width: 57,
+        height: 45,
+        width: 60,
         position: 'absolute',
-        top: 20,
-        right: 20
+        top: 12,
+        right: 20,
+        resizeMode:"contain"
     },
     text: {
         color: '#fff'
@@ -273,7 +275,7 @@ const styles = StyleSheet.create({
     },
     textName: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: 12,
         backgroundColor: 'transparent',
     },
     textExpiry: {

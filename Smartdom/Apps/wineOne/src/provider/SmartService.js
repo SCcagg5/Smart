@@ -10,8 +10,6 @@ let SmartService = {
         headers.append("Accept", 'application/json');
         headers.append("token", token);
         headers.append("usrtoken", usrtoken);
-        headers.append("Connection","keep-alive");
-
         return headers;
     },
 
@@ -74,21 +72,31 @@ let SmartService = {
         });
     },
 
-    paymentdetaile(data){
-        return fetch(endpoint + '/paymentdetails/', {
+    getItems(token){
+        return fetch(endpoint + '/website/quinsac/items', {
+            method: 'GET',
+            headers:this.loadHeaders(token,"")
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    addToCart(data,token){
+        return fetch(endpoint + '/website/quinsac/cart/', {
             method: 'POST',
-            headers:{
-
-                "Cache-Control":"no-cache",
-                "Content-Type":"application/json",
-                "Accept":"*/*",
-                "Accept-Encoding":"gzip, deflate, br",
-                "Connection":"keep-alive",
-
-
-            },
+            headers:this.loadHeaders(token,""),
             body:JSON.stringify(data)
-        }).then(response => console.log( response.json())).catch(error => {
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    placeOrder(data,token){
+        return fetch(endpoint + '/order/', {
+            method: 'POST',
+            headers:this.loadHeaders(token,""),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
             console.log(error);
         });
     }
