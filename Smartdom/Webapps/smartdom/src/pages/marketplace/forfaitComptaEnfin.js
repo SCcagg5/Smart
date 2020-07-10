@@ -1,29 +1,21 @@
 import React, {Component, Suspense} from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import firebase from "firebase/app";
-import Card from 'react-bootstrap/Card'
-import CardGroup from 'react-bootstrap/CardGroup'
-import CardDeck from 'react-bootstrap/CardDeck'
 
 import "firebase/database";
 import 'firebase/storage';
-import {AvFeedback, AvForm, AvGroup, AvInput} from "availity-reactstrap-validation";
-import {Button, Container, FormGroup, Label, Modal, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
+
 import 'react-phone-input-2/lib/style.css'
-import PhoneInput from "react-phone-input-2";
-import countryList from "../../tools/countryList";
+
 import MySnackbarContentWrapper from "../../tools/customSnackBar";
 import Snackbar from "@material-ui/core/Snackbar";
-import cantonList from "../../tools/cantonSuisse";
 import moment from "moment";
 import "moment/locale/fr"
 import Loader from "../../components/Loader";
 
 import  check from "../../assets/images/forfait/check-success.svg"
 import danger from "../../assets/images/forfait/x-danger.svg"
-import  close from "../../assets/images/forfait/close.svg"
-import menu from "../../assets/images/forfait/menu.svg"
+
 import {Button as ButtonS} from 'primereact/button';
 
 
@@ -47,8 +39,6 @@ import {Button as ButtonS} from 'primereact/button';
 
 
 
-import Carousel from "nuka-carousel";
-import Image from "react-bootstrap/Image";
 
 
 
@@ -59,9 +49,7 @@ import Image from "react-bootstrap/Image";
 
 
 const Topbar = React.lazy(() => import("../../components/Topbar"));
-const Navbar = React.lazy(() => import("../../components/Navbar"));
 const loading = () => <Loader/>;
-const google = window.google;
 
 moment.locale('fr');
 

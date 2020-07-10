@@ -7,7 +7,6 @@ import subscriptions from "../../assets/images/courrier/subscriptions.svg"
 
 
 
-import customer from"../../assets/images/customer.svg"
 import Chart from "react-apexcharts";
 
 
@@ -35,8 +34,7 @@ class courrier extends Component {
 
 
         this.viewer = React.createRef();
-        this.docViewer = null;
-        this.annotManager = null;
+
         this.instance = null;
         this.state = {
             loading: false,

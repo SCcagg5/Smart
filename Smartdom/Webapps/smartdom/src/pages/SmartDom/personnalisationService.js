@@ -1,11 +1,6 @@
 import React, {Component, Suspense} from "react";
 
-import firebase from "firebase/app";
-import Card from 'react-bootstrap/Card'
-import CardGroup from 'react-bootstrap/CardGroup'
-import CardDeck from 'react-bootstrap/CardDeck'
 
-import {Transition} from 'react-spring/renderprops'
 
 import'./personnalisationService.css'
 
@@ -13,17 +8,12 @@ import'./personnalisationService.css'
 
 import "firebase/database";
 import 'firebase/storage';
-import {AvFeedback, AvForm, AvGroup, AvInput} from "availity-reactstrap-validation";
-import {Button, Container, FormGroup, Label, Modal, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
-import PhoneInput from "react-phone-input-2";
-import countryList from "../../tools/countryList";
+
 import MySnackbarContentWrapper from "../../tools/customSnackBar";
 import Snackbar from "@material-ui/core/Snackbar";
-import cantonList from "../../tools/cantonSuisse";
 import moment from "moment";
 import "moment/locale/fr"
 import Loader from "../../components/Loader";
-import posed from 'react-pose';
 
 
 
@@ -71,28 +61,11 @@ import salleReunion from "../../assets/images/domiciliation/personnalisationServ
 
 
 const Topbar = React.lazy(() => import("../../components/Topbar"));
-const Navbar = React.lazy(() => import("../../components/Navbar"));
 const loading = () => <Loader/>;
-const google = window.google;
 
 moment.locale('fr');
 
-const Box = posed.div({
-    hoverable: true,
-    pressable: true,
-    init: {
-        scale: 1,
-        boxShadow: '0px 0px 0px rgba(0,0,0,0)'
-    },
-    hover: {
-        scale: 1.13,
-        boxShadow: '0px 5px 10px rgba(0,0,0,0.2)'
-    },
-    press: {
-        scale: 1.1,
-        boxShadow: '0px 2px 5px rgba(0,0,0,0.1)'
-    }
-});
+
 
 
 
@@ -159,7 +132,7 @@ class  personnalisationService extends Component {
                             <div className="container-fluid text-center">
                                 <div>
 
-                                    <h1 style={{color:"white",fontFamily:"Publico-Medium"}}> Plus de services, <text style={{fontWeight:"bold",color:"white"}}> moins de contraintes.</text> </h1>
+                                    <h1 style={{color:"white",fontFamily:"Publico-Medium"}}> Plus de services, <label style={{fontWeight:"bold",color:"white"}}> moins de contraintes.</label> </h1>
                                 </div>
 
                                 <div className="mt-5">
@@ -238,8 +211,8 @@ class  personnalisationService extends Component {
                                 <div className="container-fluid p-5">
 
                                 <h1 style={{fontFamily:"serif",fontWeight:"bold"}}>Sélection de services sur mesure</h1>
-                                <text style={{color:"#a6a6a6"}}>Nous avaons etabli des partenariats avec des spécialistes afin que vous puissez menez à
-                                bien votre projet en quelques clics, depuis votre canapé !</text>
+                                <label style={{color:"#a6a6a6"}}>Nous avaons etabli des partenariats avec des spécialistes afin que vous puissez menez à
+                                bien votre projet en quelques clics, depuis votre canapé !</label>
 
                                 </div>
 

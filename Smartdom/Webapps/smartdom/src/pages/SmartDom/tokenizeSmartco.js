@@ -104,9 +104,9 @@ class  tokenizeSmartco extends Component {
 
 
                                 <div className="col-md-4">
-                                    <text style={{fontSize:17 ,color:"black"}}>
+                                    <label style={{fontSize:17 ,color:"black"}}>
                                         Avec l’offre  TOKENIZE de SMARTCO  nous avons tout en place pour distribuer et gérer les devises numériques et les actifs tokenisés
-                                    </text>
+                                    </label>
 
                                 </div>
 
@@ -118,20 +118,20 @@ class  tokenizeSmartco extends Component {
 
                                 <div className="col-md-8">
                                     <div>
-                                    <text style={{fontSize:17 ,color:"black"}}>
+                                    <label style={{fontSize:17 ,color:"black"}}>
                                         La tokenisation est le processus de représentation de la titrisation d'un actif du monde réel à l'aide de jetons numériques sur une blockchain
-                                    </text>
+                                    </label>
                                     </div>
                                     <div className="mt-2">
-                                        <text style={{fontSize:17 ,color:"black"}}>
+                                        <label style={{fontSize:17 ,color:"black"}}>
                                             C'est un cas d’utilisation significatif  de la technologie blockchain, comportant une partie d'intégration importante. Nous proposons des conseils et des solutions toutes faites dans tous les domaines nécessaires à notre vision d'une plate-forme de jetons de sécurité à 360 ° conforme à la réglementation, y compris des solutions de liquidité et des services de garde .
-                                        </text>
+                                        </label>
                                     </div>
                                     <div className="mt-2">
-                                        <text style={{fontSize:17 ,color:"black"}}>
+                                        <label style={{fontSize:17 ,color:"black"}}>
                                             Une plate-forme de jetons de sécurité regroupe émission, un marché conforme ( compliance. )  à la réglementation FINMA et liquidité garantie à l'intérieur de la plateforme.
                                             Marketplace
-                                        </text>
+                                        </label>
                                     </div>
 
 
@@ -176,10 +176,10 @@ class  tokenizeSmartco extends Component {
                                     <h4 className="font-weight-bold">Une plate-forme devrait de manière transparente </h4>
                                 </div>
                                 <div className="col-md-5">
-                                    <text style={{fontSize:17}}>
+                                    <label style={{fontSize:17}}>
                                         Permettre des flux de revenus à long terme tels que les frais de négociation, introduire de nouvelles classes d'investissement (par exemple pour les fournisseurs de liquidité) et inclure toutes les parties impliquées pour bénéficier de la compensation des frais de négociation.
 
-                                    </text>
+                                    </label>
                                 </div>
 
                             </div>
@@ -192,9 +192,9 @@ class  tokenizeSmartco extends Component {
                                     <h4 className="font-weight-bold">Échanges et liquidité  </h4>
                                 </div>
                                 <div className="col-md-5">
-                                    <text style={{fontSize:17}}>
+                                    <label style={{fontSize:17}}>
                                         Nous proposons un partenaire, freeport, qui offre différentes options pour exécuter un échange de jetons de sécurité conforme à la réglementation avec une liquidité automatisée
-                                    </text>
+                                    </label>
                                 </div>
 
                             </div>
@@ -207,8 +207,8 @@ class  tokenizeSmartco extends Component {
                                     <h4 className="font-weight-bold">L'intégration  </h4>
                                 </div>
                                 <div className="col-md-5">
-                                    <text style={{fontSize:17}}>
-                                        Nous proposons une intégration au niveau technique (par exemple, génération de contrats intelligents, connexion de systèmes ERP), au niveau du processus (par exemple, fourniture de workflows pour démarrer un processus) et également au niveau du marché (par exemple, concepts de liquidité)                                    </text>
+                                    <label style={{fontSize:17}}>
+                                        Nous proposons une intégration au niveau technique (par exemple, génération de contrats intelligents, connexion de systèmes ERP), au niveau du processus (par exemple, fourniture de workflows pour démarrer un processus) et également au niveau du marché (par exemple, concepts de liquidité)                                    </label>
                                 </div>
 
                             </div>
@@ -222,9 +222,9 @@ class  tokenizeSmartco extends Component {
                                     </h4>
                                 </div>
                                 <div className="col-md-5">
-                                    <text style={{fontSize:17}}>
+                                    <label style={{fontSize:17}}>
                                         Nous proposons des portefeuilles d'émissions de dérivés et de logiciels basés sur des règles, négociant automatiquement les actifs sousjacents
-                                    </text>
+                                    </label>
                                 </div>
 
                             </div>
@@ -238,9 +238,9 @@ class  tokenizeSmartco extends Component {
                                     </h4>
                                 </div>
                                 <div className="col-md-5">
-                                    <text style={{fontSize:17}}>
+                                    <label style={{fontSize:17}}>
                                         Nous proposons des forfaits sur mesure pour répondre aux besoins de chaque client
-                                    </text>
+                                    </label>
                                 </div>
 
                             </div>
@@ -256,7 +256,7 @@ class  tokenizeSmartco extends Component {
                                 <div className="col-md-3">
                                     {this.state.savoirplus===false &&
                                     <h5 onClick={()=>this.setState({savoirplus:true})}>
-                                        <text style={{cursor:"pointer"}}><u>En savoir plus</u></text>
+                                        <label style={{cursor:"pointer"}}><u>En savoir plus</u></label>
                                     </h5>
                                     }
 
@@ -265,9 +265,9 @@ class  tokenizeSmartco extends Component {
                                     <button
                                         style={{width:"120%",backgroundColor: "#0c68ca", borderColor: "#0c68ca",borderRadius:100}}
                                         className="btn btn-small  justify-content-start">
-                                        <text style={{ fontWeight: "bold", color: "white"}}>
+                                        <label style={{ fontWeight: "bold", color: "white"}}>
                                             Mise en relation avec SmartCo
-                                        </text>
+                                        </label>
                                     </button>
                                 </div>
 

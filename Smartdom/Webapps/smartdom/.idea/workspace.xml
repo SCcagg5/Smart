@@ -1,156 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="15725f10-0d46-4145-b2ab-25fa6ca6a53d" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/pages/SmartDom/forfaitInv.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/pages/SmartDom/invoice.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../smartco-capbloc/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../smartco-capbloc/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../smartco-capbloc/src/components/Navbar.js" beforeDir="false" afterPath="$PROJECT_DIR$/../smartco-capbloc/src/components/Navbar.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/asset-manifest.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/precache-manifest.7458e430748ba4f9dfa998ed2790097b.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/service-worker.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/css/0.18fb2ca0.chunk.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/css/0.18fb2ca0.chunk.css.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/css/5.ac1e3de1.chunk.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/css/5.ac1e3de1.chunk.css.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/css/main.32f747bc.chunk.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/css/main.32f747bc.chunk.css.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/0.4d7d0f8f.chunk.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/0.4d7d0f8f.chunk.js.LICENSE.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/0.4d7d0f8f.chunk.js.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/1.10f60d54.chunk.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/1.10f60d54.chunk.js.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/2.398792d9.chunk.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/2.398792d9.chunk.js.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/5.259604d3.chunk.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/5.259604d3.chunk.js.LICENSE.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/5.259604d3.chunk.js.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/main.3233b81f.chunk.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/main.3233b81f.chunk.js.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/runtime-main.841d4918.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/js/runtime-main.841d4918.js.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/CreationProcess.51cd89f4.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/MaterialIcons-Regular.012cf6a1.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/MaterialIcons-Regular.570eb838.woff2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/MaterialIcons-Regular.a37b0c01.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/MaterialIcons-Regular.e79bfd88.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/Mobile_application.e5c4ba08.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/Slack_logo.715ff720.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/Team.aafd78cd.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/adjustment.f81afff9.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/adresse.36499046.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/buildingBlocks.71ee150b.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/businessPlan.26476398.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/businessShop.c24e1bff.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/caution.47ab08d2.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/cerebrisans-bold.43a5f55c.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/cerebrisans-bold.73d4b835.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/cerebrisans-light.78c63630.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/cerebrisans-light.f4a3a566.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/cerebrisans-medium.abe53ace.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/cerebrisans-medium.c01e4a7d.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/cerebrisans-regular.548f0235.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/cerebrisans-regular.e63b280f.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/cerebrisans-semibold.16e9c1c6.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/cerebrisans-semibold.2a1663dd.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/chart.759e3b4d.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/chatbot.f3bdf9ef.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/check-success.804c4faf.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/check.389fe445.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/close.f215d971.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/cloud.ad0df4f6.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/comingHome.863eb056.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/customer.25c43035.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/customerWhite.e9298ac0.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/dashboard.7fb38741.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/development.ee4d55b8.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/dripicons-v2.11fc83ae.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/dripicons-v2.7e12564e.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/dripicons-v2.83598443.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/dripicons-v2.cf09c981.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/echange.71e81285.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-brands-400.3186ebd2.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-brands-400.662c24d0.woff2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-brands-400.a995bae1.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-brands-400.c7d7a2a1.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-brands-400.e4fed0a5.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-regular-400.304f31f4.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-regular-400.6a9d786e.woff2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-regular-400.72f15fa7.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-regular-400.80efa56b.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-regular-400.fcb220ee.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-solid-900.20c189aa.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-solid-900.3638e62e.woff2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-solid-900.9a52a4e9.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-solid-900.9c73abbd.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fa-solid-900.c8ea4c79.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/facebook.d88b7cfb.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/feather.3d2fa2e5.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/feather.6a750f01.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/feather.90f969db.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/feather.931c9e74.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/freshNotifications.03f0ebcc.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/fribourg.b6e1cb38.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/geneve.4b9de481.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/happyFeeling.553c7456.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/icon-minus-gray.8a422611.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/icon-plus-gray.1f73c31f.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/instagram.e5976716.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/integration.bd6fb7a3.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/interview.1b4c4145.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/judgeKaterina.d925566f.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/laussanne.558dbd6a.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/linkedin.1ebbe2f9.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/logoSmartCo.9f1af5de.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/logoSmartDom.75a949e1.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/mail.71dc69a0.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/mailbox.67044004.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/mapdark.003a3b84.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/materialdesignicons-webfont.40cd6e2c.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/materialdesignicons-webfont.59860d9a.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/materialdesignicons-webfont.5a293a27.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/materialdesignicons-webfont.a57de8f6.woff2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/materialdesignicons-webfont.da103334.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/meet.1b69bfb5.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/menu.8b3fff67.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/onlineCalendar.73729982.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/pdfimage.bfead945.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/personalFinance.adb844ce.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/photocopy.327ee586.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/productTeardown.380535d5.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/programming.c1a95f73.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/republique de geneve.35339e03.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/result.4dcda924.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/reunion.c1b5f868.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/runnerStart.d44c39b9.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/salleReunion.5e5bd3f1.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/salon.1e723ce9.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/schedule.046c5568.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/swisschat.eda3f158.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/switzerland.c1f9b0b2.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/tablette.1114b87d.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/telephone.3f0c4aca.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/todolist.b838c666.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/tokenization.fb60b9cc.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/twitter.a46fa20f.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/userTr.cf218a61.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/wallet.0e8afb5c.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/static/media/x-danger.614f0add.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/key" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/key.pub" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/marketplace/domiciliation.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/marketplace/domiciliation.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../velo_one/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../velo_one/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../velo_one/src/pages/veloOne/login.js" beforeDir="false" afterPath="$PROJECT_DIR$/../velo_one/src/pages/veloOne/login.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../api/controllers/apiController.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../api/controllers/apiController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../server.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../../yarn.lock" afterDir="false" />
-    </list>
+    <list default="true" id="15725f10-0d46-4145-b2ab-25fa6ca6a53d" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -170,24 +21,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pages/marketplace/domiciliation.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="9146">
-              <caret line="598" column="69" selection-end-line="736" />
-              <folding>
-                <element signature="e#0#49#0" expanded="true" />
-                <element signature="e#24024#27490#0" />
-              </folding>
+            <state relative-caret-position="102">
+              <caret line="12" column="53" selection-start-line="12" selection-start-column="40" selection-end-line="12" selection-end-column="53" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/forfaitInv.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="359" column="61" selection-start-line="359" selection-start-column="61" selection-end-line="359" selection-end-column="61" />
-              <folding>
-                <element signature="e#0#49#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="-578">
+              <caret line="8" selection-start-line="8" selection-end-line="8" />
             </state>
           </provider>
         </entry>
@@ -195,17 +39,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-101">
-              <caret line="11" column="45" selection-start-line="11" selection-start-column="45" selection-end-line="11" selection-end-column="45" />
+            <state relative-caret-position="34">
+              <caret line="35" column="56" selection-start-line="35" selection-start-column="56" selection-end-line="35" selection-end-column="56" />
+              <folding>
+                <element signature="e#0#39#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/invoice.js">
+        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1467">
-              <caret line="116" column="52" selection-start-line="116" selection-start-column="52" selection-end-line="116" selection-end-column="52" />
+            <state relative-caret-position="17">
+              <caret line="22" selection-start-line="22" selection-end-line="22" selection-end-column="5" />
               <folding>
                 <element signature="e#0#49#0" expanded="true" />
               </folding>
@@ -214,31 +61,13 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/fonctionnalite.js">
+        <entry file="file://$PROJECT_DIR$/src/components/Topbar.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1309">
-              <caret line="110" selection-end-line="466" />
+            <state relative-caret-position="153">
+              <caret line="9" selection-start-line="9" selection-end-line="9" />
               <folding>
-                <element signature="e#0#49#0" expanded="true" />
+                <element signature="e#0#39#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/tokenizeSmartco.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="11" selection-start-line="11" selection-end-line="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/index.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="11" selection-start-line="11" selection-end-line="11" />
             </state>
           </provider>
         </entry>
@@ -246,29 +75,26 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/Meeting/MeetingRoom.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="17" column="57" selection-start-line="17" selection-start-column="40" selection-end-line="17" selection-end-column="57" />
+            <state relative-caret-position="255">
+              <caret line="15" column="12" lean-forward="true" selection-start-line="15" selection-start-column="12" selection-end-line="15" selection-end-column="12" />
             </state>
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/build/static/media/adjustment.f81afff9.svg">
+          <provider selected="true" editor-type-id="images" />
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/courrier.js">
+        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/domiciliation.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1751">
-              <caret line="121" column="68" selection-start-line="121" selection-start-column="68" selection-end-line="121" selection-end-column="68" />
+            <state relative-caret-position="527">
+              <caret line="46" selection-start-line="46" selection-end-line="46" />
               <folding>
                 <element signature="e#0#49#0" expanded="true" />
+                <element signature="e#30041#31803#0" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="476">
-              <caret line="45" selection-start-line="45" selection-end-line="45" />
             </state>
           </provider>
         </entry>
@@ -277,13 +103,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>en savo</find>
-      <find>je me</find>
-      <find>top</find>
-      <find>personn</find>
-      <find>histor</find>
-      <find>Personnalisation des services</find>
-      <find>hist</find>
       <find>gap</find>
       <find>gra</find>
       <find>JE ME</find>
@@ -307,10 +126,22 @@
       <find>react-pose</find>
       <find>react-multi</find>
       <find>velo</find>
+      <find>&lt;&lt;Petit&gt;&gt;</find>
+      <find>text</find>
+      <find>&lt;text&gt;</find>
+      <find>&lt;text</find>
+      <find>img</find>
+      <find>&lt;/text&gt;</find>
+      <find>&lt;img</find>
     </findStrings>
+    <replaceStrings>
+      <replace>&lt;label</replace>
+      <replace>&lt;/label&gt;</replace>
+      <replace>&lt;img alt={&quot;&quot;}</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -342,31 +173,33 @@
         <option value="$PROJECT_DIR$/public/paceloader/pace.js" />
         <option value="$PROJECT_DIR$/src/pages/marketplace/personnalisationService.css" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/index.js" />
-        <option value="$PROJECT_DIR$/src/pages/marketplace/personnalisationService.js" />
-        <option value="$PROJECT_DIR$/src/components/Topbar.js" />
         <option value="$PROJECT_DIR$/src/pages/auth/signup.js" />
         <option value="$PROJECT_DIR$/src/pages/auth/login.js" />
-        <option value="$PROJECT_DIR$/src/pages/SmartDom/courrier.js" />
         <option value="$PROJECT_DIR$/package.json" />
-        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js" />
         <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/testCarousel.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/partenariat.js" />
+        <option value="$PROJECT_DIR$/public/index.html" />
+        <option value="$PROJECT_DIR$/src/App.js" />
         <option value="$PROJECT_DIR$/src/pages/marketplace/forfait.js" />
         <option value="$PROJECT_DIR$/src/pages/marketplace/forfaitComptaEnfin.js" />
         <option value="$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js" />
-        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdom.js" />
-        <option value="$PROJECT_DIR$/src/pages/SmartDom/partenariat.js" />
-        <option value="$PROJECT_DIR$/public/index.html" />
-        <option value="$PROJECT_DIR$/src/pages/SmartDom/domiciliation.js" />
-        <option value="$PROJECT_DIR$/src/pages/SmartDom/fonctionnalite.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/courrier.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/personnalisationService.js" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/tokenizeSmartco.js" />
-        <option value="$PROJECT_DIR$/src/pages/marketplace/domiciliation.js" />
-        <option value="$PROJECT_DIR$/src/App.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/invoice.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/personnalisationService.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/fonctionnalite.js" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/forfaitInv.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/Meeting/MeetingRoom.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/domiciliation.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/domiciliation.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdom.js" />
+        <option value="$PROJECT_DIR$/src/components/Topbar.js" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="950" />
     <option name="y" value="70" />
     <option name="width" value="1235" />
@@ -391,6 +224,22 @@
             <path>
               <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
               <item name="smartdom" type="462c0819:PsiDirectoryNode" />
+              <item name="build" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
+              <item name="smartdom" type="462c0819:PsiDirectoryNode" />
+              <item name="build" type="462c0819:PsiDirectoryNode" />
+              <item name="static" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
+              <item name="smartdom" type="462c0819:PsiDirectoryNode" />
+              <item name="public" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
+              <item name="smartdom" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -403,8 +252,7 @@
               <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
               <item name="smartdom" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="assets" type="462c0819:PsiDirectoryNode" />
-              <item name="images" type="462c0819:PsiDirectoryNode" />
+              <item name="components" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
@@ -537,16 +385,18 @@
       <workItem from="1593089640695" duration="8319000" />
       <workItem from="1593160078882" duration="1753000" />
       <workItem from="1593163483782" duration="1837000" />
+      <workItem from="1594333860347" duration="62000" />
+      <workItem from="1594334038868" duration="6742000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="482873000" />
+    <option name="totallyTimeSpent" value="489677000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="7" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4978903" visible="true" weight="0.29798657" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4978903" visible="true" weight="0.30604026" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Favorites" order="3" sideWeight="0.5021097" side_tool="true" weight="0.3067114" />
@@ -562,7 +412,7 @@
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="TypeScript" order="10" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50201344" side_tool="true" weight="0.3286119" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="12" sideWeight="0.49798658" visible="true" weight="0.3286119" />
+      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.49798658" visible="true" weight="0.3286119" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -635,7 +485,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/pages/marketplace/domiciliation.js</url>
-          <line>511</line>
+          <line>510</line>
           <option name="timeStamp" value="22" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
@@ -654,17 +504,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js</url>
-          <line>448</line>
+          <line>447</line>
           <option name="timeStamp" value="29" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js</url>
-          <line>628</line>
+          <line>627</line>
           <option name="timeStamp" value="31" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js</url>
-          <line>685</line>
+          <line>684</line>
           <option name="timeStamp" value="32" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
@@ -674,44 +524,26 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/pages/SmartDom/domiciliation.js</url>
-          <line>587</line>
+          <line>586</line>
           <option name="timeStamp" value="34" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/pages/marketplace/domiciliation.js</url>
-          <line>538</line>
+          <line>537</line>
           <option name="timeStamp" value="35" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/pages/SmartDom/invoice.js</url>
+          <line>101</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="36" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/node_modules/react-phone-input-2/lib/lib.js" />
-    <entry file="file://$PROJECT_DIR$/src/assets/images/domiciliation/switzerland.svg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/assets/images/smartDom/caution.svg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/react-phone-input-2/lib/style.css" />
-    <entry file="file://$PROJECT_DIR$/node_modules/react-phone-input-2/lib/high-res.css" />
-    <entry file="file://$PROJECT_DIR$/src/components/Topbar.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="58" selection-start-line="8" selection-start-column="58" selection-end-line="8" selection-end-column="58" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/dashboard/entreprises/choixCreationSociete.js" />
     <entry file="file://$PROJECT_DIR$/src/pages/dashboard/entreprises/operations/emissionTitre/emissionTitre.js" />
     <entry file="file://$PROJECT_DIR$/src/pages/dashboard/entreprises/operations/transfertTitres/cessionActions.js" />
-    <entry file="file://$PROJECT_DIR$/src/pages/redirect.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="6" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/pages/auth/logout.js" />
     <entry file="file://$PROJECT_DIR$/src/pages/auth/signup.js" />
     <entry file="file://D:/c/pds/test/SmartcoChatBot/src/loginSignupForm/login.js">
@@ -735,74 +567,13 @@
     <entry file="file://$PROJECT_DIR$/src/pages/dashboard/entreprises/newEntreprise.js" />
     <entry file="file://$PROJECT_DIR$/src/pages/dashboard/entreprises/entrepriseDashboard.js" />
     <entry file="file://$PROJECT_DIR$/src/pages/dashboard/entreprises/testCarousel.js" />
-    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/forfaitComptaEnfin.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="131">
-          <caret line="48" selection-start-line="48" selection-end-line="48" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/public/css/react-big-calendar.css" />
-    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/personnalisationService.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="131">
-          <caret line="98" column="7" selection-start-line="98" selection-start-column="7" selection-end-line="98" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#49#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/pages/auth/login.js" />
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="49" column="6" selection-start-line="49" selection-start-column="6" selection-end-line="49" selection-end-column="6" />
-          <folding>
-            <element signature="e#0#49#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/assets/css/fa.css">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/src/assets/images/smartDom/Updates.svg" />
     <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/partenariat.js" />
-    <entry file="file://$PROJECT_DIR$/public/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="36" column="49" selection-start-line="36" selection-start-column="49" selection-end-line="36" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/forfait.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="765">
-          <caret line="45" selection-start-line="45" selection-end-line="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34442">
-          <caret line="2118" column="60" selection-start-line="2118" selection-start-column="60" selection-end-line="2118" selection-end-column="60" />
-          <folding>
-            <element signature="e#0#49#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/personnalisationService.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="7" selection-start-column="7" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#49#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/assets/images/smartDom/check.svg">
       <provider selected="true" editor-type-id="images" />
     </entry>
@@ -828,50 +599,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/domiciliation.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9299">
-          <caret line="582" column="118" selection-end-line="664" selection-end-column="29" />
-          <folding>
-            <element signature="e#0#49#0" expanded="true" />
-            <element signature="e#30041#31803#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/assets/images/logos/logoSmartDom.jpeg">
       <provider selected="true" editor-type-id="images" />
     </entry>
     <entry file="file://$PROJECT_DIR$/src/assets/images/logos/logoSmartCo.jpeg">
       <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/domiciliation.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9146">
-          <caret line="598" column="69" selection-end-line="736" />
-          <folding>
-            <element signature="e#0#49#0" expanded="true" />
-            <element signature="e#24024#27490#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/fonctionnalite.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1309">
-          <caret line="110" selection-end-line="466" />
-          <folding>
-            <element signature="e#0#49#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/tokenizeSmartco.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" selection-start-line="11" selection-end-line="11" />
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/index.js">
       <provider selected="true" editor-type-id="text-editor">
@@ -880,41 +612,123 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/Meeting/MeetingRoom.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="57" selection-start-line="17" selection-start-column="40" selection-end-line="17" selection-end-column="57" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/public/manifest.json">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/courrier.js">
+    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/forfait.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1751">
-          <caret line="121" column="68" selection-start-line="121" selection-start-column="68" selection-end-line="121" selection-end-column="68" />
+        <state relative-caret-position="3638">
+          <caret line="214" column="103" selection-start-line="214" selection-start-column="103" selection-end-line="214" selection-end-column="103" />
           <folding>
             <element signature="e#0#49#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js">
+    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/forfaitComptaEnfin.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="476">
-          <caret line="45" selection-start-line="45" selection-end-line="45" />
+        <state relative-caret-position="-11594">
+          <caret line="20" selection-start-line="20" selection-end-line="20" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/App.js">
+    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/smartcoLink.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-101">
-          <caret line="11" column="45" selection-start-line="11" selection-start-column="45" selection-end-line="11" selection-end-column="45" />
+        <state relative-caret-position="19">
+          <caret line="2622" column="168" selection-start-line="2622" selection-start-column="168" selection-end-line="2622" selection-end-column="168" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/courrier.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1989">
+          <caret line="117" column="12" selection-start-line="117" selection-end-line="118" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/personnalisationService.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="121">
+          <caret line="214" column="98" selection-start-line="214" selection-start-column="98" selection-end-line="214" selection-end-column="98" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/redirect.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="6" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="19" selection-start-line="19" selection-end-line="19" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/tokenizeSmartco.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4267">
+          <caret line="269" column="48" selection-start-line="269" selection-start-column="48" selection-end-line="269" selection-end-column="48" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/invoice.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1467">
-          <caret line="116" column="52" selection-start-line="116" selection-start-column="52" selection-end-line="116" selection-end-column="52" />
+        <state relative-caret-position="138">
+          <caret line="100" column="61" selection-start-line="100" selection-start-column="61" selection-end-line="100" selection-end-column="61" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/favicon.ico">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="799">
+          <caret line="47" column="25" selection-start-line="47" selection-start-column="25" selection-end-line="47" selection-end-column="25" />
+          <folding>
+            <element signature="n#style#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/personnalisationService.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="121">
+          <caret line="196" column="48" selection-start-line="196" selection-start-column="44" selection-end-line="196" selection-end-column="48" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/fonctionnalite.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="58">
+          <caret line="106" column="40" selection-start-line="106" selection-start-column="40" selection-end-line="106" selection-end-column="40" />
           <folding>
             <element signature="e#0#49#0" expanded="true" />
           </folding>
@@ -923,13 +737,85 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/forfaitInv.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="359" column="61" selection-start-line="359" selection-start-column="61" selection-end-line="359" selection-end-column="61" />
+        <state relative-caret-position="-578">
+          <caret line="8" selection-start-line="8" selection-end-line="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/domiciliation.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="46" selection-start-line="46" selection-end-line="46" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+            <element signature="e#30041#31803#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="22" selection-start-line="22" selection-end-line="22" selection-end-column="5" />
           <folding>
             <element signature="e#0#49#0" expanded="true" />
           </folding>
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Topbar.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/App.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="35" column="56" selection-start-line="35" selection-start-column="56" selection-end-line="35" selection-end-column="56" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/marketplace/domiciliation.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="12" column="53" selection-start-line="12" selection-start-column="40" selection-end-line="12" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/static/js/main.dc0aa2a5.chunk.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-22491" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/static/js/3.4ba51b76.chunk.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/static/js/0.0ea383ee.chunk.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/Meeting/MeetingRoom.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="15" column="12" lean-forward="true" selection-start-line="15" selection-start-column="12" selection-end-line="15" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/static/media/adjustment.f81afff9.svg">
+      <provider selected="true" editor-type-id="images" />
     </entry>
   </component>
 </project>
