@@ -19,6 +19,7 @@ import EditAccount from "../pages/Auth/Profile/EditAccount";
 import Items from "../pages/Shop/Items";
 import Panier from "../pages/Panier/Panier";
 import Scanner from "../pages/Scan/Scanner";
+import Cards from "../pages/CreditCards/Cards";
 
 class AppNavigation extends React.Component {
 
@@ -156,7 +157,8 @@ class AppNavigation extends React.Component {
                 Nav: TabNavigator,
                 Empty: EmptyPage,
                 EditAccount:EditAccount,
-                Panier:Panier
+                Panier:Panier,
+                Cards:Cards
                 //PdfViewr:PdfViewr,
                 //SelectSociety:SelectSociety,
                 //Events:Events,

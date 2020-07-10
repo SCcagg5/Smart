@@ -22,7 +22,10 @@ export default class Panier extends React.Component{
     state={
         loading:true,
         command:[],
-        btnSpinner:false
+        btnSpinner:false,
+        wallet:"",
+        card:"",
+        usrToken:""
     }
 
 
@@ -36,7 +39,51 @@ export default class Panier extends React.Component{
 
     componentDidMount() {
         AsyncStorage.getItem("command").then(command => {
-            this.setState({command:JSON.parse(command) || [],loading:false})
+            AsyncStorage.getItem("user").then( value => {
+                let user = JSON.parse(value)
+                AsyncStorage.getItem("pwd").then( pwd => {
+                    SmartService.getToken().then( res => {
+                        if (res.succes === true && res.status === 200) {
+                            SmartService.login({
+                                email: user.email,
+                                password1: pwd
+                            }, res.data.token).then( result => {
+                                //console.log(result)
+                                if (result.succes === true && result.status === 200) {
+
+                                    SmartService.getUserWallets(res.data.token,result.data.usrtoken).then( wallets => {
+                                        if (wallets.succes === true && wallets.status === 200) {
+
+                                            SmartService.getCards(res.data.token,result.data.usrtoken).then( cards => {
+                                                if (cards.succes === true && cards.status === 200) {
+                                                    this.setState({card:cards.data.cards[0].crd_token,wallet:wallets.data.accounts[0],
+                                                        command:JSON.parse(command) || [],usrToken:result.data.usrtoken,loading:false})
+                                                }else{
+                                                    alert(cards.error)
+                                                    this.setState({loading:false})
+                                                }
+                                            }).catch(err => {
+                                                alert(err)
+                                                this.setState({loading:false})
+                                            })
+
+                                        }else{
+                                            alert(wallets.error)
+                                            this.setState({loading:false})
+                                        }
+                                    }).catch( err => {alert(err);this.setState({loading:false})})
+
+                                }else{
+                                    alert(result.error)
+                                    this.setState({loading:false})
+                                }
+                            }).catch(err => {this.setState({loading:false})})
+                        }else{
+                            this.setState({loading:false})
+                        }
+                    }).catch(err => {this.setState({loading:false})})
+                })
+            });
         })
     }
 
@@ -44,13 +91,29 @@ export default class Panier extends React.Component{
         this.setState({btnSpinner:true})
         SmartService.getToken().then( data => {
             if (data.succes === true && data.status === 200) {
-                SmartService.addToCart(this.state.command,data.data.token).then( res => {
+                console.log(this.state.command)
+                SmartService.addToCart({command:this.state.command},data.data.token).then( res => {
                     if (res.succes === true && res.status === 200) {
-                        AsyncStorage.removeItem("command").then( ok => {
-                            this.setState({btnSpinner:false,command:[]})
-                            showMessage({message:"Votre commande est bien validée",icon:"success",type:"success"})
-                            this.props.navigation.goBack();
-                        })
+                        console.log(this.state.card)
+                        SmartService.placeOrder({cmd_token:res.data.cmd_token,crd_token:this.state.card,to_wallet:this.state.wallet},data.data.token,this.state.usrToken).then( order => {
+                            if (order.succes === true && order.status === 200) {
+
+                                AsyncStorage.removeItem("command").then( ok => {
+                                    this.setState({btnSpinner:false,command:[]})
+                                    showMessage({message:"Votre commande est bien validée",icon:"success",type:"success"})
+                                    this.props.navigation.goBack();
+                                    setTimeout(()=>{
+                                        this.props.navigation.navigate("Dashboard")
+                                    },1000);
+                                })
+
+                            }else{
+                                alert(order.error)
+                            }
+                            console.log(order)
+
+                        }).catch(err => {alert(err)})
+
                     }else{
                         alert(res.error)
                         this.setState({btnSpinner:false})

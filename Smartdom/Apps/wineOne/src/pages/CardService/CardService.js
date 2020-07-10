@@ -1,24 +1,60 @@
 import React from 'react';
-import {View, ActivityIndicator, Image, AsyncStorage, TouchableOpacity, Text} from "react-native";
+import {View, ActivityIndicator, Image, AsyncStorage, TouchableOpacity, Text, ScrollView} from "react-native";
 import {Container,Header,Content} from "native-base";
 import CreditCard from '../../../custom_modules/react-native-credit-card';
 import SmartService from "../../provider/SmartService";
 import DesignedLogo from "../../components/logo/designedLogo";
+import {Icon} from "react-native-elements";
+import Spinner from "react-native-loading-spinner-overlay";
 
 export default class CardService extends React.Component{
 
     state={
-        user:""
+        loading:true,
+        user:"",
+        wallet:"",
+        balance:"",
+        ether:0.00
     }
 
     componentDidMount() {
-        AsyncStorage.getItem("user").then(value => {
+        AsyncStorage.getItem("user").then( value => {
             let user = JSON.parse(value)
-            this.setState({user: user});
-            SmartService.getActioByMail(user.email).then( actio => {
-                //console.log(actio);
-            }).catch(err => console.log(err))
+            AsyncStorage.getItem("pwd").then( pwd => {
+                SmartService.getToken().then( res => {
+                    if (res.succes === true && res.status === 200) {
+                        SmartService.login({
+                            email: user.email,
+                            password1: pwd
+                        }, res.data.token).then( result => {
+                            //console.log(result)
+                            if (result.succes === true && result.status === 200) {
+
+                                SmartService.getUserWallets(res.data.token,result.data.usrtoken).then( wallets => {
+                                    if (wallets.succes === true && wallets.status === 200) {
+
+                                        SmartService.getWalletBalance(wallets.data.accounts[0],res.data.token,result.data.usrtoken).then( balance => {
+                                            this.setState({wallet:wallets.data.accounts[0],balance:balance.data.balance,loading:false})
+                                        }).catch(err => {this.setState({loading:false})})
+
+                                    }else{
+                                        alert(wallets.error)
+                                        this.setState({loading:false})
+                                    }
+                                }).catch( err => {alert(err);this.setState({loading:false})})
+
+                            }else{
+                                alert(result.error)
+                                this.setState({loading:false})
+                            }
+                        }).catch(err => {this.setState({loading:false})})
+                    }else{
+                        this.setState({loading:false})
+                    }
+                }).catch(err => {this.setState({loading:false})})
+            })
         });
+
     }
 
     render() {
@@ -31,21 +67,32 @@ export default class CardService extends React.Component{
                 </Header>
                 <Content>
                     <View>
-                        <View style={{marginLeft: 25, marginBottom: 15, marginTop: 20}}>
-                            <CreditCard
-                                type={null}
-                                logo={require("../../assets/images/logoWineOne.png")}
-                                cardName={"Carte SmartCo"}
-                                shiny={false}
-                                bar={true}
-                                focused={null}
-                                number="2541369400579981"
-                                name={this.state.user.firstname + ' ' + this.state.user.lastname || "---"}
-                                expiry="01/22"
-                                cvc="159"/>
+                        <View style={{marginLeft: 15, marginBottom: 15, marginTop: 20,marginRight:15}}>
+                            <TouchableOpacity onPress={() => {}}>
+                                <View style={{backgroundColor:"#fff",borderWidth:2,borderColor:"#f0f0f0",padding:10,borderRadius:10}}>
+                                    <View style={{flexDirection:"row"}}>
+                                        <View style={{width:"20%",alignItems:"center",justifyContent:"center"}}>
+                                            <Icon type="simple-line-icon" name="wallet" size={30} color="#981b1a"/>
+                                        </View>
+                                        <View style={{width:"80%"}}>
+                                            <Text style={{fontSize:18,fontFamily:"sans-serif-medium",color:"#981b1a"}}>My wallet</Text>
+                                            <Text style={{fontSize:13,fontFamily:"sans-serif-medium"}}>Adress:</Text>
+                                            <Text style={{fontSize:11,fontFamily:"sans-serif-medium",color:"#c0c0c0"}}>{this.state.wallet}</Text>
+                                            <Text style={{fontSize:13,fontFamily:"sans-serif-medium"}}>Balance: <Text style={{color:"#981b1a"}}>{this.state.balance} tokens</Text></Text>
+                                            <Text style={{fontSize:13,fontFamily:"sans-serif-medium"}}>Ether: <Text style={{color:"#981b1a"}}>{this.state.ether} ETH</Text></Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </Content>
+                <Spinner
+                    visible={this.state.loading}
+                    textContent={'Chargement...'}
+                    textStyle={{color:"#fff",fontSize:16}}
+                    overlayColor="rgba(0, 0, 0, 0.6)"
+                />
             </Container>
         )
     }

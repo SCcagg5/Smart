@@ -50,28 +50,21 @@ const information = [
         icon:"creditcard",
         typeIcon:"antdesign",
         iconColor:"#c0c0c0",
-        to:""
+        to:"Cards"
     },
     {
-        title:"Mes wallets",
-        icon:"wallet",
-        typeIcon:"simple-line-icon",
+        title:"Mes commandes",
+        icon:"clipboard-list-outline",
+        typeIcon:"material-community",
         iconColor:"#c0c0c0",
         to:""
-    }
+    },
 ];
 const settings = [
     {
         title:"Articles sauvgardés",
         icon:"hearto",
         typeIcon:"antdesign",
-        iconColor:"#c0c0c0",
-        to:""
-    },
-    {
-        title:"Mes commandes",
-        icon:"clipboard-list-outline",
-        typeIcon:"material-community",
         iconColor:"#c0c0c0",
         to:""
     },

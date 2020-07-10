@@ -82,10 +82,25 @@ export default class LogInScreen extends React.Component {
                         SmartService.getUserInfo(res.data.token, result.data.usrtoken).then( data => {
 
                             if (data.succes === true && data.status === 200) {
-                                AsyncStorage.setItem('user', JSON.stringify(data.data));
-                                AsyncStorage.setItem('pwd', this.state.password);
-                                this.setState({btnSpinner: false});
-                                this.props.navigation.navigate('PinCode');
+
+                                SmartService.getUserWallets(res.data.token,result.data.usrtoken).then( wallets => {
+                                    if (wallets.succes === true && wallets.status === 200) {
+
+                                        AsyncStorage.setItem('user', JSON.stringify(data.data));
+                                        AsyncStorage.setItem('pwd', this.state.password);
+                                        AsyncStorage.setItem('wallet', wallets.data.accounts[0]);
+                                        this.setState({btnSpinner: false});
+                                        this.props.navigation.navigate('PinCode');
+
+                                    }else{
+                                        alert(wallets.error)
+                                        this.setState({btnSpinner: false});
+                                    }
+                                }).catch(err => {
+                                    alert(data.error)
+                                    this.setState({btnSpinner: false});
+                                })
+
                             } else {
                                 alert(data.error)
                                 this.setState({btnSpinner: false});
@@ -145,10 +160,19 @@ export default class LogInScreen extends React.Component {
                                                     console.log("OK 3")
                                                     SmartService.getUserInfo(data.data.token, r.data.usrtoken).then(infos => {
                                                         if (infos.succes === true && infos.status === 200) {
-                                                            AsyncStorage.setItem('user', JSON.stringify(infos.data));
-                                                            AsyncStorage.setItem('pwd', d.userID);
-                                                            this.setState({loading: false});
-                                                            this.props.navigation.navigate('PinCode');
+
+                                                            SmartService.getUserWallets(data.data.token,r.data.usrtoken).then( wallets => {
+                                                                if (wallets.succes === true && wallets.status === 200) {
+                                                                    AsyncStorage.setItem('user', JSON.stringify(infos.data));
+                                                                    AsyncStorage.setItem('pwd', d.userID);
+                                                                    this.setState({loading: false});
+                                                                    this.props.navigation.navigate('PinCode');
+                                                                }else{
+                                                                    alert(wallets.error)
+                                                                    this.setState({loading: false});
+                                                                }
+                                                            })
+
                                                         } else {
                                                             alert(infos.error)
                                                             this.setState({loading: false});
@@ -175,6 +199,7 @@ export default class LogInScreen extends React.Component {
                                                             },data.data.token,register.data.usrtoken).then( r2 => {
                                                                 console.log(r2)
                                                                 if (r2.succes === true && r2.status === 200) {
+
                                                                     AsyncStorage.setItem("user",JSON.stringify(r2.data))
                                                                     AsyncStorage.setItem("pwd",d.userID)
                                                                     this.setState({loading: false});
