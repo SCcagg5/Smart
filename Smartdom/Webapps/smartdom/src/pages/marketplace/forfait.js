@@ -1,18 +1,12 @@
 import React, {Component, Suspense} from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import firebase from "firebase/app";
-import Card from 'react-bootstrap/Card'
-import CardGroup from 'react-bootstrap/CardGroup'
-import CardDeck from 'react-bootstrap/CardDeck'
 
 import "firebase/database";
 import 'firebase/storage';
-import {AvFeedback, AvForm, AvGroup, AvInput} from "availity-reactstrap-validation";
-import {Button, Container, FormGroup, Label, Modal, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
+
 import 'react-phone-input-2/lib/style.css'
-import PhoneInput from "react-phone-input-2";
-import countryList from "../../tools/countryList";
+
 import MySnackbarContentWrapper from "../../tools/customSnackBar";
 import Snackbar from "@material-ui/core/Snackbar";
 import moment from "moment";
@@ -42,23 +36,8 @@ import menu from "../../assets/images/forfait/menu.svg"
 
 
 
-
-
-import Carousel from "nuka-carousel";
-import Image from "react-bootstrap/Image";
-
-
-
-
-
-
-
-
-
 const Topbar = React.lazy(() => import("../../components/Topbar"));
-const Navbar = React.lazy(() => import("../../components/Navbar"));
 const loading = () => <Loader/>;
-const google = window.google;
 
 moment.locale('fr');
 
@@ -218,7 +197,7 @@ class forfait extends Component {
                                         <div className="col-lg-2 col-3 col-sm-3 py-3 py-md-4 border-bottom">
                                             <div className="d-flex flex-column align-items-center text-center">
                                                 <div>
-                                                <h4 >Startup <text style={{color:"red"}}>Audio</text></h4>
+                                                <h4 >Startup <label style={{color:"red"}}>Audio</label></h4>
                                                 </div>
                                                 <div className="d-flex align-items-center justify-content-center mb-1">
                                                     <span className="h5 mb-0 mr-1 mr-sm-2">€</span>
@@ -233,7 +212,7 @@ class forfait extends Component {
 
                                         <div className="col-lg-2 col-3 col-sm-3 py-3 py-md-4 border-bottom">
                                             <div className="d-flex flex-column align-items-center text-center">
-                                                <h4>Startup <text style={{color:"red"}}>Vision</text></h4>
+                                                <h4>Startup <label style={{color:"red"}}>Vision</label></h4>
                                                 <div className="d-flex align-items-center justify-content-center mb-1">
                                                     <span className="h5 mb-0 mr-1 mr-sm-2">€</span>
                                                     <span className="display-4 mb-0 text-dark">49</span>

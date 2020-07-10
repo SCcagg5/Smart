@@ -1,95 +1,12 @@
 import React, {Component} from "react";
 import {Link} from 'react-router-dom';
-import classNames from 'classnames';
-import {UncontrolledDropdown, DropdownMenu, DropdownToggle, DropdownItem, Container} from 'reactstrap';
+import { Container} from 'reactstrap';
 
-import NotificationDropdown from './NotificationDropdown';
-import ProfileDropdown from './ProfileDropdown';
+
 import logoSm from '../assets/images/logos/logoSmartDom.jpeg';
 import logo from '../assets/images/logos/logoSmartDom.jpeg';
-import profilePic from '../assets/images/users/default_avatar.jpg';
 
 
-const Notifications = [
-    {
-        id: 1,
-        text: 'Caleb Flakelar commented on Admin',
-        subText: '1 min ago',
-        icon: 'mdi mdi-comment-account-outline',
-        bgColor: 'primary'
-    },
-    {
-        id: 2,
-        text: 'New user registered.',
-        subText: '5 min ago',
-        icon: 'mdi mdi-account-plus',
-        bgColor: 'info'
-    },
-    {
-        id: 3,
-        text: 'Cristina Pride',
-        subText: 'Hi, How are you? What about our next meeting',
-        icon: 'mdi mdi-comment-account-outline',
-        bgColor: 'success'
-    },
-    {
-        id: 4,
-        text: 'Caleb Flakelar commented on Admin',
-        subText: '2 days ago',
-        icon: 'mdi mdi-comment-account-outline',
-        bgColor: 'danger'
-    },
-    {
-        id: 5,
-        text: 'Caleb Flakelar commented on Admin',
-        subText: '1 min ago',
-        icon: 'mdi mdi-comment-account-outline',
-        bgColor: 'primary'
-    },
-    {
-        id: 6,
-        text: 'New user registered.',
-        subText: '5 min ago',
-        icon: 'mdi mdi-account-plus',
-        bgColor: 'info'
-    },
-    {
-        id: 7,
-        text: 'Cristina Pride',
-        subText: 'Hi, How are you? What about our next meeting',
-        icon: 'mdi mdi-comment-account-outline',
-        bgColor: 'success'
-    },
-    {
-        id: 8,
-        text: 'Caleb Flakelar commented on Admin',
-        subText: '2 days ago',
-        icon: 'mdi mdi-comment-account-outline',
-        bgColor: 'danger'
-    }];
-
-const ProfileMenus = [
-    {
-        label: 'Mon compte',
-        icon: 'fe-user',
-        redirectTo: "/",
-    },
-    {
-        label: 'Mes entreprises',
-        icon: 'fe-zoom-in',
-        redirectTo: "/gestion/entreprises"
-    },
-    {
-        label: 'Paramètres',
-        icon: 'fe-settings',
-        redirectTo: "/"
-    },
-    {
-        label: 'Déconnexion',
-        icon: 'fe-log-out',
-        redirectTo: "/logout",
-        hasDivider: true
-    }];
 
 
 class Topbar extends Component {

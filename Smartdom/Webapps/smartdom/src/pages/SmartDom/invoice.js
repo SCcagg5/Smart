@@ -6,38 +6,19 @@ import Snackbar from "@material-ui/core/Snackbar";
 import moment from "moment";
 import "moment/locale/fr"
 import Loader from "../../components/Loader";
-import posed from 'react-pose';
 import firebase from 'firebase'
-import StripeCheckout from "react-stripe-checkout";
-import logo from "../../assets/images/logos/logoSmartDom.jpeg"
 
 
-import {Button} from "@material-ui/core";
+
 
 const Topbar = React.lazy(() => import("../../components/Topbar"));
-const Navbar = React.lazy(() => import("../../components/Navbar"));
 const loading = () => <Loader/>;
 
 
 moment.locale('fr');
 
 
-const Box = posed.div({
-    hoverable: true,
-    pressable: true,
-    init: {
-        scale: 1,
-        boxShadow: '0px 0px 0px rgba(0,0,0,0)'
-    },
-    hover: {
-        scale: 1.13,
-        boxShadow: '0px 5px 10px rgba(0,0,0,0.2)'
-    },
-    press: {
-        scale: 1.1,
-        boxShadow: '0px 2px 5px rgba(0,0,0,0.1)'
-    }
-});
+
 
 
 
@@ -117,7 +98,7 @@ class  invoice extends Component {
                         <div className="wrapper mb-5">
                             <div className="container-fluid w-100 mt-5 px-4 ">
 
-                                {(facture!=null && facture!="")&&
+                                {(facture!=null && facture!=="")&&
                                 <div className="card-box">
                                     <div className="clearfix">
                                         <div className="float-left">

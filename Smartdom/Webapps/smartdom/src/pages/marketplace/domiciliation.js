@@ -36,7 +36,6 @@ import vaud from "../../assets/images/domiciliation/contant de vaud.png"
 
 
 const Topbar = React.lazy(() => import("../../components/Topbar"));
-const Navbar = React.lazy(() => import("../../components/Navbar"));
 const loading = () => <Loader/>;
 
 
@@ -131,20 +130,20 @@ class  domiciliation extends Component {
 
                                     <div className="row  ">
                                         <h1 style={{fontFamily:" Georgia, serif"}}>
-                                            <h1 style={{fontWeight:"bold",fontFamily:" Georgia, serif"}}> La domiciliation </h1> de votre entreprise à Lausanne et
+                                            <label style={{fontWeight:"bold",fontFamily:" Georgia, serif"}}> La domiciliation </label> de votre entreprise à Lausanne et
                                         </h1>
                                         <h1 style={{fontFamily:" Georgia, serif",borderColor:"red",borderBottomColor:"green",borderBottomStyle:"solid"}}>
                                             partout en Suisse
 
                                         </h1>
 
-                                        <img src={switzerland} style={{width:"3%"}}/>
+                                        <img alt={""} src={switzerland} style={{width:"3%"}}/>
                                     </div>
 
 
 
                                     <div className="mt-5">
-                                        <text>En 6 minutes, sans engagement</text>
+                                        <label>En 6 minutes, sans engagement</label>
                                     </div>
 
                                     <div  className="row justify-content-left mt-5  text-center">
@@ -157,7 +156,7 @@ class  domiciliation extends Component {
                                         </div>
                                         <div className="col col-lg-4">
                                             < button style={{marginRight:"3%",width:"100%",backgroundColor:"white",borderColor:"#a6a6a6"}} className="btn btn-primary btn-lg" >
-                                                <img src={customer} style={{width:"11%" ,marginRight:"5%"}}/>
+                                                <img alt={""} src={customer} style={{width:"11%" ,marginRight:"5%"}}/>
                                                 <small style={{fontSize:"0.8vw" ,fontWeight:"bold",color:"#a6a6a6"}}>ÉTRE CONTACTÉ</small>
                                             </button>
                                         </div>
@@ -172,14 +171,14 @@ class  domiciliation extends Component {
                                     <div className="row mt-5 justify-content-center">
 
                                         <div className="col-md-3 d-flex flex-row align-items-end">
-                                            <img src={vaud} style={{width:"20%"}}/>
+                                            <img alt={""} src={vaud} style={{width:"20%"}}/>
                                             <small style={{fontSize:"0.5vw"}} className="ml-2 font-weight-bold">Service de la promotion et de l'economie et de l'innovation(SPEI)</small>
 
                                         </div>
                                         <div className="col-md-5  d-flex flex-row">
                                             <div className="col-md-6 text-right">
 
-                                            <img  src={Rgeneve} style={{width:"70%"}}/>
+                                            <img alt={""}  src={Rgeneve} style={{width:"70%"}}/>
                                             </div>
 
                                             <div className="d-flex flex-column justify-content-between" >
@@ -194,7 +193,7 @@ class  domiciliation extends Component {
 
                                 </div>
                                 <div className="col-md-5">
-                                    <img src={tablette}style={{width:"100%"}}/>
+                                    <img alt={""} src={tablette}style={{width:"100%"}}/>
 
                                 </div>
 
@@ -208,13 +207,13 @@ class  domiciliation extends Component {
 
                                 <div className="row bg-white"style={{padding:"2%"}}   >
                                    <div className="col-md-4 ">
-                                       <img src={salon} style={{width:"85%"}}/>
+                                       <img alt={""} src={salon} style={{width:"85%"}}/>
 
                                    </div>
                                     <div className="col-md-8 align-self-lg-center">
                                         <div className="container-fluid bg-white">
                                         <div className="d-flex flex-row ">
-                                            <h1 style={{fontFamily:"serif"}}>La domiciliation commerciale avec SmartDom  <img src={switzerland} style={{width:'2%', marginLeft:"1%",marginBottom:"0.8%"}}/> </h1>
+                                            <h1 style={{fontFamily:"serif"}}>La domiciliation commerciale avec SmartDom  <img alt={""} src={switzerland} style={{width:'2%', marginLeft:"1%",marginBottom:"0.8%"}}/> </h1>
 
                                         </div>
 
@@ -227,7 +226,7 @@ class  domiciliation extends Component {
                                             <div className="col">
                                                 <div className="row">
                                                     <div className="col-md-3">
-                                                        <img src={personalFinance} style={{width:"100%"}}/>
+                                                        <img alt={""} src={personalFinance} style={{width:"100%"}}/>
 
                                                     </div>
                                                     <div className="col-md-8">
@@ -235,7 +234,7 @@ class  domiciliation extends Component {
                                                             <h5 style={{fontWeight:"bold" ,fontFamily:"serif"}}>Tarifs trasparent</h5>
                                                         </div>
                                                         <div>
-                                                            <text style={{color:"#a6a6a6"}}>Des tarifs fixes, sans frais cachés, caution ou dépôt de garantie.</text>
+                                                            <label style={{color:"#a6a6a6"}}>Des tarifs fixes, sans frais cachés, caution ou dépôt de garantie.</label>
                                                         </div>
 
                                                     </div>
@@ -245,7 +244,7 @@ class  domiciliation extends Component {
                                             <div className="col">
                                                 <div className="row">
                                                     <div className="col-md-3">
-                                                        <img src={freshNotifications} style={{width:"80%"}}/>
+                                                        <img alt={""} src={freshNotifications} style={{width:"80%"}}/>
 
                                                     </div>
                                                     <div className="col-md-8">
@@ -253,7 +252,7 @@ class  domiciliation extends Component {
                                                             <h5 style={{fontWeight:"bold" ,fontFamily:"serif"}}>Sans engagement</h5>
                                                         </div>
                                                         <div>
-                                                            <text style={{color:"#a6a6a6"}}>Accorder de la liberté à votre projet!</text>
+                                                            <label style={{color:"#a6a6a6"}}>Accorder de la liberté à votre projet!</label>
                                                         </div>
 
                                                     </div>
@@ -266,7 +265,7 @@ class  domiciliation extends Component {
                                             <div className="col">
                                                 <div className="row">
                                                     <div className="col-md-3">
-                                                        <img src={adresse} style={{width:"100%"}}/>
+                                                        <img alt={""} src={adresse} style={{width:"100%"}}/>
 
                                                     </div>
                                                     <div className="col-md-8">
@@ -274,7 +273,7 @@ class  domiciliation extends Component {
                                                             <h5 style={{fontWeight:"bold" ,fontFamily:"serif"}}>Adresse professionnelle</h5>
                                                         </div>
                                                         <div>
-                                                            <text style={{color:"#a6a6a6"}}>Une selection d'adresse et de centres d'affaires dans toute la France.</text>
+                                                            <label style={{color:"#a6a6a6"}}>Une selection d'adresse et de centres d'affaires dans toute la France.</label>
                                                         </div>
 
                                                     </div>
@@ -284,7 +283,7 @@ class  domiciliation extends Component {
                                             <div className="col">
                                                 <div className="row">
                                                     <div className="col-md-3">
-                                                        <img src={mailbox} style={{width:"100%"}}/>
+                                                        <img alt={""} src={mailbox} style={{width:"100%"}}/>
 
                                                     </div>
                                                     <div className="col-md-8">
@@ -292,7 +291,7 @@ class  domiciliation extends Component {
                                                             <h5 style={{fontWeight:"bold" ,fontFamily:"serif"}}>Courrier en temps réel</h5>
                                                         </div>
                                                         <div>
-                                                            <text style={{color:"#a6a6a6"}}>Externalisez la gestion de votre courrier afin de vous concentrer sur votre développement</text>
+                                                            <label style={{color:"#a6a6a6"}}>Externalisez la gestion de votre courrier afin de vous concentrer sur votre développement</label>
                                                         </div>
 
                                                     </div>
@@ -305,7 +304,7 @@ class  domiciliation extends Component {
                                             <div className="col">
                                                 <div className="row">
                                                     <div className="col-md-3">
-                                                        <img src={todolist} style={{width:"100%"}}/>
+                                                        <img alt={""} src={todolist} style={{width:"100%"}}/>
 
                                                     </div>
                                                     <div className="col-md-8">
@@ -313,7 +312,7 @@ class  domiciliation extends Component {
                                                             <h5 style={{fontWeight:"bold" ,fontFamily:"serif"}}>Services sur mesure</h5>
                                                         </div>
                                                         <div>
-                                                            <text style={{color:"#a6a6a6"}}>Reservation de salle, standart téléphonique, location de bureaux, banque en ligne,...</text>
+                                                            <label style={{color:"#a6a6a6"}}>Reservation de salle, standart téléphonique, location de bureaux, banque en ligne,...</label>
                                                         </div>
 
                                                     </div>
@@ -323,7 +322,7 @@ class  domiciliation extends Component {
                                             <div className="col">
                                                 <div className="row">
                                                     <div className="col-md-3">
-                                                        <img src={chatbot} style={{width:"100%"}}/>
+                                                        <img alt={""} src={chatbot} style={{width:"100%"}}/>
 
                                                     </div>
                                                     <div className="col-md-8">
@@ -331,7 +330,7 @@ class  domiciliation extends Component {
                                                             <h5 style={{fontWeight:"bold" ,fontFamily:"serif"}}>service client réactif</h5>
                                                         </div>
                                                         <div>
-                                                            <text style={{color:"#a6a6a6"}}>Nos conseillers sont disponibles afin de vous accompagner dans la construction de votre projet.</text>
+                                                            <label style={{color:"#a6a6a6"}}>Nos conseillers sont disponibles afin de vous accompagner dans la construction de votre projet.</label>
                                                         </div>
 
                                                     </div>
@@ -357,12 +356,12 @@ class  domiciliation extends Component {
                                <div className="container bg-white  d-flex flex-column align-items-center justify-content-center " style={{height:"500px"}}>
 
                                    <h1 style={{fontFamily:"serif",fontWeight:"bold"}}>Votre domiciliation en quelques click</h1>
-                                   <text style={{color:"#a6a6a6"}}>Votre domiciliation en moins de six minutes.</text>
+                                   <label style={{color:"#a6a6a6"}}>Votre domiciliation en moins de six minutes.</label>
 
                                    <div className="d-flex justify-content-between " style={{marginTop:"8%"}}>
                                        <div className="col-md-3 d-flex flex-column align-items-center text-center ">
                                            <div >
-                                               <img src={mapdark} style={{width:"60%"}}/>
+                                               <img alt={""} src={mapdark} style={{width:"60%"}}/>
                                            </div>
                                            <div className="mt-3">
                                                <div className="numberCircle">1</div>
@@ -377,7 +376,7 @@ class  domiciliation extends Component {
                                        </div>
                                        <div className="col-md-3 d-flex flex-column align-items-center text-center ">
                                            <div >
-                                               <img src={adjustment} style={{width:"70%"}}/>
+                                               <img alt={""} src={adjustment} style={{width:"70%"}}/>
                                            </div>
                                            <div className="mt-3">
                                                <div className="numberCircle">2</div>
@@ -393,7 +392,7 @@ class  domiciliation extends Component {
 
                                        <div className="col-md-3 d-flex flex-column align-items-center text-center ">
                                            <div  >
-                                               <img src={cloud} style={{width:"55%"}}/>
+                                               <img alt={""} src={cloud} style={{width:"55%"}}/>
                                            </div>
                                            <div className="mt-3">
                                                <div className="numberCircle">3</div>
@@ -423,13 +422,13 @@ class  domiciliation extends Component {
                                 <div className="container  d-flex flex-column align-items-center justify-content-center " style={{height:"500px"}}>
 
                                     <h1 style={{fontFamily:"serif",fontWeight:"bold"}}>Nos villes de domiciliation</h1>
-                                    <text style={{color:"#a6a6a6"}}>3 villes 3 adresse</text>
+                                    <label style={{color:"#a6a6a6"}}>3 villes 3 adresse</label>
 
                                     <div className="d-flex justify-content-between " style={{marginTop:"5%"}}>
                                         <Box className="col-md-4 d-flex flex-column align-items-center text-center " style={{backgroundColor:"transparent",position:"initial"}}>
                                             <Box  >
 
-                                                <img src={geneve} style={{width:"100%"}}/>
+                                                <img alt={""} src={geneve} style={{width:"100%"}}/>
 
                                             </Box>
 
@@ -440,7 +439,7 @@ class  domiciliation extends Component {
                                         </Box>
                                         <Box className="col-md-4 d-flex flex-column align-items-center text-center " style={{position:"initial"}}>
                                             <Box >
-                                                <img src={laussanne} style={{width:"100%"}}/>
+                                                <img alt={""} src={laussanne} style={{width:"100%"}}/>
                                             </Box>
 
                                             <div className="mt-3">
@@ -452,7 +451,7 @@ class  domiciliation extends Component {
 
                                         <Box className="col-md-4 d-flex flex-column align-items-center text-center "style={{position:"initial"}} >
                                             <Box  >
-                                                <img src={fribourg} style={{width:"90%"}}/>
+                                                <img alt={""} src={fribourg} style={{width:"90%"}}/>
                                             </Box>
 
                                             <div className="mt-3">
@@ -482,7 +481,7 @@ class  domiciliation extends Component {
                                 <div className="container  d-flex flex-column align-items-center justify-content-center " style={{height:"580px"}}>
 
                                     <h1 style={{fontFamily:"serif",fontWeight:"bold"}}>La domiciliation pour quel type de société ? </h1>
-                                    <h5  style={{color:"#a6a6a6", width:"60%",textAlign:"center" , marginTop:"5%"}}>Nos services d’adressent principalement à des <text style={{color:"#0c68ca",fontWeight:"bold"}}>sociétés</text> et des <text  style={{color:"#0c68ca",fontWeight:"bold"}}> holdings</text>. Nous pouvons également proposer des solutions de domiciliation à des <text style={{color:"#0c68ca"}}><u> associations </u></text> et <text style={{color:"#0c68ca"}} ><u>fondations.</u></text> </h5>
+                                    <h5  style={{color:"#a6a6a6", width:"60%",textAlign:"center" , marginTop:"5%"}}>Nos services d’adressent principalement à des <label style={{color:"#0c68ca",fontWeight:"bold"}}>sociétés</label> et des <label style={{color:"#0c68ca",fontWeight:"bold"}}> holdings</label>. Nous pouvons également proposer des solutions de domiciliation à des <label style={{color:"#0c68ca"}}><u> associations </u></label> et <label style={{color:"#0c68ca"}} ><u>fondations.</u></label> </h5>
 
                                     <div className="d-flex justify-content-between " style={{marginTop:"5%"}}>
                                         <div className="col-md-3 d-flex flex-column align-items-center text-center " style={{backgroundColor:"transparent",position:"initial"}}>
@@ -491,7 +490,7 @@ class  domiciliation extends Component {
                                             </div>
                                             <div >
 
-                                                <img src={businessShop} style={{width:"65%"}}/>
+                                                <img alt={""} src={businessShop} style={{width:"65%"}}/>
 
                                             </div>
 
@@ -505,7 +504,7 @@ class  domiciliation extends Component {
                                                 <h4 style={{fontWeight:"bold",color:"#0c68ca"}}>Holding</h4>
                                             </div>
                                             <div >
-                                                <img src={programming} style={{width:"100%"}}/>
+                                                <img alt={""} src={programming} style={{width:"100%"}}/>
                                             </div>
 
                                             <div className="mt-5">
@@ -538,83 +537,7 @@ class  domiciliation extends Component {
 
                             </section>
 
-                            <section style={{marginTop:"7%"  }}  >
 
-
-                                <div className="container  d-flex flex-column align-items-center justify-content-center " style={{height:"580px"}}>
-
-                                   <table className="table">
-                                       <thead>
-                                       <tr>
-                                           <th scope="col" width="30%"></th>
-                                           <th scope="col" className="text-center"> {'<<Petit>> émetteur\n'}<br/>
-                                               {'<20 Actionnaires'}</th>
-                                           <th scope="col" className="text-center"> {'<<Moyen>> émetteur\n'}<br/>
-                                               {'20-29 Actionnaires'}</th>
-                                           <th scope="col" className="text-center"> {'<<Grand>> émetteur\n'}<br/>
-                                               {'50+ Actionnaires'}</th>
-                                       </tr>
-                                       </thead>
-
-                                       <tbody>
-                                       <tr>
-                                           <th scope="row">
-                                               Augmentation de capital numérique</th>
-                                           <td className="text-center">privé : 1'000 <br/> public : 2'500</td>
-                                           <td className="text-center">privé : 1'000 <br/> public : 2'500</td>
-                                           <td className="text-center">privé : 1'000 <br/> public : 2'500</td>
-
-                                       </tr>
-
-                                       <tr>
-                                           <th scope="row">
-                                               Transferts d'actions numériques</th>
-
-
-                                       </tr>
-                                       <tr>
-                                           <th scope="row">
-
-                                               Registre de partage numérique</th>
-
-
-                                       </tr>
-                                       <tr>
-                                           <th scope="row">
-
-                                               Numérisation des actions existantes</th>
-                                           <td className="text-center">
-                                               One time 1'500.- <br/>
-                                               <small>
-                                                   total par entreprise <br/>
-                                                   incl. tous les actionnaires</small>
-                                           </td>
-
-
-                                       </tr>
-                                       <tr>
-                                           <th scope="row">
-                                               Assemblée générale virtuelle</th>
-
-                                           <td className="text-center">
-                                               <small>Covid jusqu'au 30.06.2020</small><br/>
-                                               <text>295.-</text><br/>
-                                               <small>À partir du 01.07.2020</small><br/>
-                                               <text>700</text>
-                                           </td>
-
-
-                                       </tr>
-                                       </tbody>
-
-                                   </table>
-
-
-                                </div>
-
-
-
-                            </section>
 
                             <footer style={{marginTop: "7%"}}>
 
@@ -626,14 +549,14 @@ class  domiciliation extends Component {
 
                                             <div>
                                                 <h3 className="exemplefantasy" style={{fontWeight: "bold"}}>Smart
-                                                    <text style={{color: "#0c68ca"}}>Dom</text>
+                                                    <label style={{color: "#0c68ca"}}>Dom</label>
                                                 </h3>
                                             </div>
                                             <div className="d-flex flex-row justify-content-center mt-3">
-                                                <img className="mr-3" src={linkedin} style={{width: "5%"}}/>
-                                                <img className="mr-3" src={twitter} style={{width: "5%"}}/>
-                                                <img className="mr-3" src={facebook} style={{width: "5%"}}/>
-                                                <img src={instagram} style={{width: "5%"}}/>
+                                                <img alt={""} className="mr-3" src={linkedin} style={{width: "5%"}}/>
+                                                <img alt={""} className="mr-3" src={twitter} style={{width: "5%"}}/>
+                                                <img alt={""} className="mr-3" src={facebook} style={{width: "5%"}}/>
+                                                <img alt={""} src={instagram} style={{width: "5%"}}/>
 
                                             </div>
 
@@ -665,7 +588,7 @@ class  domiciliation extends Component {
 
 
                                                 <div className="d-flex flex-row align-items-end mt-3">
-                                                    <img className="rounded-circle" src={user} style={{width: "10%"}}/>
+                                                    <img alt={""} className="rounded-circle" src={user} style={{width: "10%"}}/>
                                                     <h6 className="ml-2" style={{fontFamily: "serif"}}> Vous avez une question
                                                         ?</h6>
 
@@ -674,7 +597,7 @@ class  domiciliation extends Component {
                                                     < button
                                                         style={{backgroundColor: "#0c68ca", borderColor: "#0c68ca", width: "80%"}}
                                                         className="btn btn-small  justify-content-start">
-                                                        <img src={customerWhite} style={{width: "9%", marginRight: "5%"}}/>
+                                                        <img alt={""} src={customerWhite} style={{width: "9%", marginRight: "5%"}}/>
                                                         <small style={{fontSize: "0.7vw", fontWeight: "bold", color: "white"}}>ÉTRE
                                                             RAPPELÉ PAR UN CONSEILLER
                                                         </small>
