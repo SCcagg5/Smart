@@ -18,41 +18,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/pages/marketplace/domiciliation.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="12" column="53" selection-start-line="12" selection-start-column="40" selection-end-line="12" selection-end-column="53" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/forfaitInv.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-578">
-              <caret line="8" selection-start-line="8" selection-end-line="8" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/App.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="35" column="56" selection-start-line="35" selection-start-column="56" selection-end-line="35" selection-end-column="56" />
-              <folding>
-                <element signature="e#0#39#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="22" selection-start-line="22" selection-end-line="22" selection-end-column="5" />
+            <state relative-caret-position="182">
+              <caret line="375" column="45" lean-forward="true" selection-start-line="375" selection-start-column="45" selection-end-line="375" selection-end-column="45" />
               <folding>
                 <element signature="e#0#49#0" expanded="true" />
               </folding>
@@ -61,12 +31,72 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/components/Topbar.js">
+        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/forfaitInv.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="153">
-              <caret line="9" selection-start-line="9" selection-end-line="9" />
+              <caret line="9" column="42" selection-start-line="9" selection-start-column="42" selection-end-line="9" selection-end-column="42" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/App.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="51">
+              <caret line="35" column="56" lean-forward="true" selection-start-line="35" selection-start-column="56" selection-end-line="35" selection-end-column="56" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="114">
+              <caret line="98" column="61" selection-start-line="98" selection-start-column="61" selection-end-line="98" selection-end-column="61" />
+              <folding>
+                <element signature="e#0#49#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/package.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="216">
+              <caret line="40" column="17" selection-start-line="40" selection-start-column="17" selection-end-line="40" selection-end-column="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/customComponents/pdf-viewer-reactjs/dist/pdf-viewer-reactjs.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="122">
+              <caret line="10" selection-start-line="10" selection-end-line="10" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/components/SearchResults.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="17">
+              <caret line="1" column="26" selection-start-line="1" selection-start-column="20" selection-end-line="1" selection-end-column="26" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="10695">
+              <caret line="840" column="51" selection-start-line="840" selection-start-column="51" selection-end-line="840" selection-end-column="51" />
+              <folding>
+                <element signature="e#0#49#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -75,25 +105,22 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/Meeting/MeetingRoom.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="15" column="12" lean-forward="true" selection-start-line="15" selection-start-column="12" selection-end-line="15" selection-end-column="12" />
+            <state relative-caret-position="272">
+              <caret line="151" column="14" selection-start-line="151" selection-start-column="14" selection-end-line="151" selection-end-column="14" />
+              <folding>
+                <element signature="e#0#26#0" expanded="true" />
+              </folding>
             </state>
           </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/build/static/media/adjustment.f81afff9.svg">
-          <provider selected="true" editor-type-id="images" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/domiciliation.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="527">
+            <state relative-caret-position="187">
               <caret line="46" selection-start-line="46" selection-end-line="46" />
               <folding>
                 <element signature="e#0#49#0" expanded="true" />
-                <element signature="e#30041#31803#0" />
               </folding>
             </state>
           </provider>
@@ -103,19 +130,11 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>gap</find>
-      <find>gra</find>
-      <find>JE ME</find>
-      <find>bg-su</find>
-      <find>&lt;hr</find>
-      <find>laussa</find>
-      <find>posed</find>
       <find>suis</find>
       <find>us</find>
       <find>je com</find>
       <find>push</find>
       <find>goto</find>
-      <find>fire</find>
       <find>date</find>
       <find>plus</find>
       <find>create</find>
@@ -130,14 +149,23 @@
       <find>text</find>
       <find>&lt;text&gt;</find>
       <find>&lt;text</find>
-      <find>img</find>
       <find>&lt;/text&gt;</find>
       <find>&lt;img</find>
+      <find>node</find>
+      <find>fire</find>
+      <find>react-scr</find>
+      <find>reactstrap</find>
+      <find>Démar</find>
+      <find>img</find>
+      <find>&lt;img</find>
+      <find>props</find>
+      <find>voir</find>
     </findStrings>
     <replaceStrings>
       <replace>&lt;label</replace>
       <replace>&lt;/label&gt;</replace>
       <replace>&lt;img alt={&quot;&quot;}</replace>
+      <replace>&lt;img alt=&quot;&quot;</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -146,7 +174,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/newSuisseSARLEntreprise.js" />
         <option value="$PROJECT_DIR$/src/pages/dashboard/smartcoLink.js" />
         <option value="$PROJECT_DIR$/src/pages/redirect.js" />
         <option value="$PROJECT_DIR$/src/pages/carous.js" />
@@ -175,7 +202,6 @@
         <option value="$PROJECT_DIR$/src/pages/SmartDom/index.js" />
         <option value="$PROJECT_DIR$/src/pages/auth/signup.js" />
         <option value="$PROJECT_DIR$/src/pages/auth/login.js" />
-        <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/src/pages/dashboard/entreprises/testCarousel.js" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/partenariat.js" />
         <option value="$PROJECT_DIR$/public/index.html" />
@@ -186,22 +212,25 @@
         <option value="$PROJECT_DIR$/src/pages/SmartDom/courrier.js" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/personnalisationService.js" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/tokenizeSmartco.js" />
-        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/invoice.js" />
         <option value="$PROJECT_DIR$/src/pages/marketplace/personnalisationService.js" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/fonctionnalite.js" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/forfaitInv.js" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/Meeting/MeetingRoom.js" />
         <option value="$PROJECT_DIR$/src/pages/SmartDom/domiciliation.js" />
-        <option value="$PROJECT_DIR$/src/pages/marketplace/domiciliation.js" />
-        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdom.js" />
         <option value="$PROJECT_DIR$/src/components/Topbar.js" />
+        <option value="$PROJECT_DIR$/src/serviceWorker.js" />
+        <option value="$PROJECT_DIR$/package.json" />
+        <option value="$PROJECT_DIR$/src/customComponents/pdf-viewer-reactjs/dist/pdf-viewer-reactjs.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js" />
+        <option value="$PROJECT_DIR$/src/pages/SmartDom/smartdom.js" />
+        <option value="$PROJECT_DIR$/src/pages/marketplace/domiciliation.js" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="950" />
-    <option name="y" value="70" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="610" />
+    <option name="y" value="20" />
     <option name="width" value="1235" />
     <option name="height" value="980" />
   </component>
@@ -213,7 +242,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -224,35 +252,7 @@
             <path>
               <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
               <item name="smartdom" type="462c0819:PsiDirectoryNode" />
-              <item name="build" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
-              <item name="smartdom" type="462c0819:PsiDirectoryNode" />
-              <item name="build" type="462c0819:PsiDirectoryNode" />
-              <item name="static" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
-              <item name="smartdom" type="462c0819:PsiDirectoryNode" />
-              <item name="public" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
-              <item name="smartdom" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
-              <item name="smartdom" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="assets" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
-              <item name="smartdom" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="components" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="smartdom" type="b2602c69:ProjectViewProjectNode" />
@@ -279,6 +279,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -386,17 +387,21 @@
       <workItem from="1593160078882" duration="1753000" />
       <workItem from="1593163483782" duration="1837000" />
       <workItem from="1594333860347" duration="62000" />
-      <workItem from="1594334038868" duration="6742000" />
+      <workItem from="1594334038868" duration="7153000" />
+      <workItem from="1594343009478" duration="20000" />
+      <workItem from="1594343107836" duration="544000" />
+      <workItem from="1594475241560" duration="91000" />
+      <workItem from="1594476527602" duration="7464000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="489677000" />
+    <option name="totallyTimeSpent" value="498207000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="7" />
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4978903" visible="true" weight="0.30604026" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4978903" visible="true" weight="0.33020133" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Favorites" order="3" sideWeight="0.5021097" side_tool="true" weight="0.3067114" />
@@ -412,7 +417,7 @@
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="TypeScript" order="10" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50201344" side_tool="true" weight="0.3286119" />
-      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.49798658" visible="true" weight="0.3286119" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="12" sideWeight="0.49798658" visible="true" weight="0.3286119" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -535,28 +540,12 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/pages/SmartDom/invoice.js</url>
           <line>101</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="36" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/pages/dashboard/entreprises/operations/emissionTitre/emissionTitre.js" />
-    <entry file="file://$PROJECT_DIR$/src/pages/dashboard/entreprises/operations/transfertTitres/cessionActions.js" />
-    <entry file="file://$PROJECT_DIR$/src/pages/auth/logout.js" />
-    <entry file="file://$PROJECT_DIR$/src/pages/auth/signup.js" />
-    <entry file="file://D:/c/pds/test/SmartcoChatBot/src/loginSignupForm/login.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="186" selection-start-line="160" selection-start-column="7" selection-end-line="186" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-            <element signature="e#4794#5545#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/assets/images/customer.svg">
       <provider selected="true" editor-type-id="images" />
     </entry>
@@ -592,25 +581,11 @@
     <entry file="file://$PROJECT_DIR$/src/assets/images/smartDom/wallet.svg">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="37" selection-start-line="8" selection-start-column="37" selection-end-line="8" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/assets/images/logos/logoSmartDom.jpeg">
       <provider selected="true" editor-type-id="images" />
     </entry>
     <entry file="file://$PROJECT_DIR$/src/assets/images/logos/logoSmartCo.jpeg">
       <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" selection-start-line="11" selection-end-line="11" />
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/manifest.json">
       <provider selected="true" editor-type-id="text-editor" />
@@ -672,16 +647,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="19" selection-start-line="19" selection-end-line="19" />
-          <folding>
-            <element signature="e#0#49#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/tokenizeSmartco.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4267">
@@ -735,37 +700,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/forfaitInv.js">
+    <entry file="file://$PROJECT_DIR$/build/static/js/main.dc0aa2a5.chunk.js" />
+    <entry file="file://$PROJECT_DIR$/build/static/js/3.4ba51b76.chunk.js" />
+    <entry file="file://$PROJECT_DIR$/build/static/js/0.0ea383ee.chunk.js" />
+    <entry file="file://$PROJECT_DIR$/build/static/media/adjustment.f81afff9.svg" />
+    <entry file="file://$PROJECT_DIR$/src/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-578">
-          <caret line="8" selection-start-line="8" selection-end-line="8" />
+        <state relative-caret-position="187">
+          <caret line="11" selection-start-line="11" selection-end-line="11" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/domiciliation.js">
+    <entry file="file://$PROJECT_DIR$/src/serviceWorker.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="527">
-          <caret line="46" selection-start-line="46" selection-end-line="46" />
+        <state relative-caret-position="392">
+          <caret line="135" selection-start-line="135" selection-end-line="135" />
           <folding>
-            <element signature="e#0#49#0" expanded="true" />
-            <element signature="e#30041#31803#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="22" selection-start-line="22" selection-end-line="22" selection-end-column="5" />
-          <folding>
-            <element signature="e#0#49#0" expanded="true" />
+            <element signature="n#!!doc" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/components/Topbar.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
+        <state relative-caret-position="51">
           <caret line="9" selection-start-line="9" selection-end-line="9" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
@@ -773,10 +731,84 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/domiciliation.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="46" selection-start-line="46" selection-end-line="46" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/webpack/package.json">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package-lock.json">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/customComponents/pdf-viewer-reactjs/dist/pdf-viewer-reactjs.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="122">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/SearchResults.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="26" selection-start-line="1" selection-start-column="20" selection-end-line="1" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/forfaitInv.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="42" selection-start-line="9" selection-start-column="42" selection-end-line="9" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="40" column="17" selection-start-line="40" selection-start-column="17" selection-end-line="40" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdomForfait.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="98" column="61" selection-start-line="98" selection-start-column="61" selection-end-line="98" selection-end-column="61" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/Meeting/MeetingRoom.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="151" column="14" selection-start-line="151" selection-start-column="14" selection-end-line="151" selection-end-column="14" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/smartdom.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="10695">
+          <caret line="840" column="51" selection-start-line="840" selection-start-column="51" selection-end-line="840" selection-end-column="51" />
+          <folding>
+            <element signature="e#0#49#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="35" column="56" selection-start-line="35" selection-start-column="56" selection-end-line="35" selection-end-column="56" />
+        <state relative-caret-position="51">
+          <caret line="35" column="56" lean-forward="true" selection-start-line="35" selection-start-column="56" selection-end-line="35" selection-end-column="56" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
@@ -785,37 +817,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/pages/marketplace/domiciliation.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="12" column="53" selection-start-line="12" selection-start-column="40" selection-end-line="12" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/static/js/main.dc0aa2a5.chunk.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-22491" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/static/js/3.4ba51b76.chunk.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
+        <state relative-caret-position="182">
+          <caret line="375" column="45" lean-forward="true" selection-start-line="375" selection-start-column="45" selection-end-line="375" selection-end-column="45" />
           <folding>
-            <element signature="n#!!doc" expanded="true" />
+            <element signature="e#0#49#0" expanded="true" />
           </folding>
         </state>
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/static/js/0.0ea383ee.chunk.js">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pages/SmartDom/Meeting/MeetingRoom.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="15" column="12" lean-forward="true" selection-start-line="15" selection-start-column="12" selection-end-line="15" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/static/media/adjustment.f81afff9.svg">
-      <provider selected="true" editor-type-id="images" />
     </entry>
   </component>
 </project>

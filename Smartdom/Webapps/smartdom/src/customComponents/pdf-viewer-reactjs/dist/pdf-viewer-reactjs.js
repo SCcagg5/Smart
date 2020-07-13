@@ -8,7 +8,6 @@ var PDF = _interopDefault(require('react-pdf-js'));
 var jquery_dist_jquery_min_js = require('jquery/dist/jquery.min.js');
 //var bootstrap_dist_css_bootstrap_min_css = require('bootstrap/dist/css/bootstrap.min.css');
 var bootstrap_dist_js_bootstrap_min_js = require('bootstrap/dist/js/bootstrap.min.js');
-var materialDesignIcons_iconfont_materialIcons_css = require('material-design-icons/iconfont/material-icons.css');
 
 var NextPageButton = function NextPageButton(_ref) {
     var css = _ref.css,

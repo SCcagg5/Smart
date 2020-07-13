@@ -216,7 +216,7 @@ class smartdom extends Component{
                                 borderRadius: "3%",
                                 borderStyle: "solid"
                             }}>
-                                <img src={creationProcess} style={{width: "50%"}}/>
+                                <img alt=""src={creationProcess} style={{width: "50%"}}/>
 
                                 <h5 className="mt-3" style={{fontWeight: "bold", color: "#808080"}}>Création</h5>
 
@@ -229,7 +229,7 @@ class smartdom extends Component{
                                 borderStyle: "solid"
                             }}>
 
-                                <img src={developement} style={{width: "50%"}}/>
+                                <img alt=""src={developement} style={{width: "50%"}}/>
 
                                 <h5 className="mt-3" style={{fontWeight: "bold", color: "#808080"}}>Transfert de
                                     siège</h5>
@@ -270,7 +270,7 @@ class smartdom extends Component{
                                 borderRadius: "3%",
                                 borderStyle: "solid"
                             }}>
-                                <img src={onlineCalendar} style={{width: "60%"}}/>
+                                <img alt=""src={onlineCalendar} style={{width: "60%"}}/>
 
                                 <h6 className="mt-3" style={{fontWeight: "bold", color: "#808080"}}>Moins d'une semaine</h6>
 
@@ -283,7 +283,7 @@ class smartdom extends Component{
                                 borderStyle: "solid"
                             }}>
 
-                                <img src={schedule} style={{width: "60%"}}/>
+                                <img alt=""src={schedule} style={{width: "60%"}}/>
 
                                 <h6 className="mt-3" style={{fontWeight: "bold", color: "#808080"}}>Moins d'un mois</h6>
 
@@ -295,7 +295,7 @@ class smartdom extends Component{
                                 borderStyle: "solid"
                             }}>
 
-                                <img src={happyFeeling} style={{width: "50%"}}/>
+                                <img alt=""src={happyFeeling} style={{width: "50%"}}/>
 
                                 <h6 className="mt-3" style={{fontWeight: "bold", color: "#808080"}}>Je ne sais pas</h6>
 
@@ -649,7 +649,7 @@ class smartdom extends Component{
                     {this.state.showStep9 === true &&
                     <div className="container w-50   ">
                         <div>
-                            <h2 style={{fontFamily: "Georgia, serif"}}>Vous êtes en création de société en suisse <img src={switzerland} style={{width:"3%"}}/> </h2>
+                            <h2 style={{fontFamily: "Georgia, serif"}}>Vous êtes en création de société en suisse <img alt=""src={switzerland} style={{width:"3%"}}/> </h2>
 
                         </div>
 
@@ -838,7 +838,7 @@ class smartdom extends Component{
                                 <div className="row">
 
                                     <div className="col-md-2">
-                                        <img src={caution} style={{width:"100%"}}/>
+                                        <img alt=""src={caution} style={{width:"100%"}}/>
 
                                     </div>
                                     <div className="col-md-8">

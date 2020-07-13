@@ -367,10 +367,10 @@ class  domiciliation extends Component {
                                                <div className="numberCircle">1</div>
                                            </div>
                                            <div className="mt-3">
-                                               <h6 style={{fontSize:"1.1vw", fontFamily:"serif ", fontWeight:"bold"}}>Choix de l'adresse.</h6>
+                                               <h6  style={{fontSize:"1.1vw", fontFamily:"serif ", fontWeight:"bold"}}>Choix de l'adresse.</h6>
                                            </div>
                                            <div>
-                                               < small  style={{cursor:"pointer", color:"#0c68ca" ,fontSize:"0.7vw" ,fontWeight:"bold"}}> > VOIR LES TARIFS ASSOCIÉS  </small>
+                                               < small onClick={()=>this.props.history.push('/forfaitInv')}  style={{cursor:"pointer", color:"#0c68ca" ,fontSize:"0.7vw" ,fontWeight:"bold"}}> > VOIR LES TARIFS ASSOCIÉS  </small>
                                            </div>
 
                                        </div>
