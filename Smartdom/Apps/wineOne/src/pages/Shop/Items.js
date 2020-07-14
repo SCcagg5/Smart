@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, ActivityIndicator, Text, Dimensions, Image, TouchableOpacity, AsyncStorage} from "react-native";
+import {View, ActivityIndicator, Text, Dimensions, Image, TouchableOpacity, AsyncStorage,DeviceEventEmitter} from "react-native";
 import SmartService from "../../provider/SmartService";
 import {Container, Content} from "native-base";
 import DesignedLogo from "../../components/logo/designedLogo";
@@ -10,6 +10,7 @@ import {Header,Button} from "react-native-elements";
 import Modal, {
     ModalContent
 } from 'react-native-modals';
+import {showMessage} from "../../../custom_modules/react-native-flash-message/src";
 
 const {height, width} = Dimensions.get('window');
 
@@ -25,6 +26,9 @@ export default class Items extends React.Component{
     }
 
     componentDidMount() {
+        DeviceEventEmitter.addListener('clearP', (e) => {
+            this.setState({command:[]})
+        })
         SmartService.getToken().then( data => {
             if (data.succes === true && data.status === 200) {
                 SmartService.getItems(data.data.token).then(items => {
@@ -58,16 +62,23 @@ export default class Items extends React.Component{
                     rightComponent={<Basket value={this.state.command.length} onPress={() => this.props.navigation.navigate("Panier")}/>}
                     centerComponent={ <DesignedLogo />}
                 />
-                <Content>
+                <Content style={{backgroundColor:"#f0f0f0"}}>
                     <View style={{marginRight:15,marginLeft:15}}>
                         <View style={{marginTop:20}}>
                             {
                                 (this.state.items || []).map((item,key) =>
                                     <ItemContainer name={item.title} price={item.price.amount} currency={item.price.currency}
+                                                   id={item.id}
+                                                   onPress={() => this.props.navigation.navigate("ItemDetail",{item:item})}
                                                    onPressPlusButton={() => {
                                                        this.setState({showBottomModal:true,selectedItem:item})
                                                    }}
-                                                   image={require("../../assets/images/1bouteille.jpeg")} />
+                                                   image={
+                                                       item.id === "1" ? require("../../assets/images/1bouteille.jpeg") :
+                                                           item.id === "2" ? require("../../assets/images/4bouteille.jpeg") :
+                                                               item.id === "3" ? require("../../assets/images/12bouteille.jpg") :
+                                                                   item.id === "4" ? require("../../assets/images/600bouteille.jpeg") : null
+                                                   } />
                                 )
                             }
 
@@ -147,8 +158,11 @@ export default class Items extends React.Component{
                                                 onPress={() => {
                                                     let command = this.state.command || [];
                                                     command.push({id:this.state.selectedItem.id,number:this.state.itemNumber,item:this.state.selectedItem})
-                                                    AsyncStorage.setItem("command",JSON.stringify(command))
-                                                    this.setState({showBottomModal:false,itemNumber:1,command:command})
+                                                    AsyncStorage.setItem("command",JSON.stringify(command)).then( ok => {
+                                                        showMessage({message:"Article ajouté au panier avec succès",type:"success",icon:"success"})
+                                                        this.setState({showBottomModal:false,itemNumber:1,command:command})
+                                                    })
+
                                                 }}
                                         />
                                     </View>

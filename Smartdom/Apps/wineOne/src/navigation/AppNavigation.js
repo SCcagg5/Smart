@@ -20,6 +20,12 @@ import Items from "../pages/Shop/Items";
 import Panier from "../pages/Panier/Panier";
 import Scanner from "../pages/Scan/Scanner";
 import Cards from "../pages/CreditCards/Cards";
+import Orders from "../pages/Orders/Orders";
+import OrderDetail from "../pages/Orders/OrderDetail";
+import ContactListe from "../pages/Scan/Transfer/ContactListe";
+import ContactDetail from "../pages/Scan/Transfer/ContactDetail";
+import ShareTransferLink from "../pages/Scan/Transfer/ShareTransferLink";
+import ItemDetail from "../pages/Shop/ItemDetail";
 
 class AppNavigation extends React.Component {
 
@@ -158,11 +164,14 @@ class AppNavigation extends React.Component {
                 Empty: EmptyPage,
                 EditAccount:EditAccount,
                 Panier:Panier,
-                Cards:Cards
+                Cards:Cards,
+                Orders:Orders,
+                OrderDetail:OrderDetail,
+                ContactListe:ContactListe,
+                ContactDetail:ContactDetail,
+                ShareTransferLink:ShareTransferLink,
+                ItemDetail:ItemDetail
                 //PdfViewr:PdfViewr,
-                //SelectSociety:SelectSociety,
-                //Events:Events,
-                //EventDetail:EventDetail
             },
             {
 

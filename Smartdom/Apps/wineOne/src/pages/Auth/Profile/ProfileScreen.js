@@ -4,7 +4,7 @@ import {
     AsyncStorage,
     StyleSheet,
     Text,
-    View, Image
+    View, Image, DeviceEventEmitter
 } from 'react-native';
 import BackButton from '../../../components/BackButton/BackButton';
 import {LoginManager} from 'react-native-fbsdk';
@@ -45,19 +45,19 @@ const information = [
         iconColor:"#c0c0c0",
         to:"EditAccount"
     },
-    {
+    /*{
         title:"Mes cartes",
         icon:"creditcard",
         typeIcon:"antdesign",
         iconColor:"#c0c0c0",
-        to:"Cards"
-    },
+        to:""
+    },*/
     {
         title:"Mes commandes",
         icon:"clipboard-list-outline",
         typeIcon:"material-community",
         iconColor:"#c0c0c0",
-        to:""
+        to:"Orders"
     },
 ];
 const settings = [
@@ -103,6 +103,11 @@ export default class ProfileScreen extends React.Component {
     }
 
     componentDidMount() {
+        DeviceEventEmitter.addListener('updateinfo', (e) => {
+            AsyncStorage.getItem("user").then(value => {
+                this.setState({user:JSON.parse(value)})
+            });
+        })
         AsyncStorage.getItem("user").then(value => {
             AsyncStorage.getItem("pwd").then( pwd => {
                 this.setState({pwd:pwd,user:JSON.parse(value)})
@@ -111,6 +116,8 @@ export default class ProfileScreen extends React.Component {
     }
 
     render() {
+        let fname = this.state.user.firstname || "";
+        let lname = this.state.user.lastname || ""
         return (
 
             <Container>
@@ -122,7 +129,7 @@ export default class ProfileScreen extends React.Component {
                         alignItems: "center",
                         paddingBottom: 20
                     }}
-                    rightComponent={<Basket value={0}/>}
+                    /*rightComponent={<Basket value={0}/>}*/
                     centerComponent={<Text style={{fontWeight:"bold",fontSize:14}}>Tableau de bord</Text>}
                 />
                 <Content>
@@ -136,7 +143,8 @@ export default class ProfileScreen extends React.Component {
                                                 <Image source={require("../../../assets/images/defaultAvatar.png")} style={{height:60,width:60,resizeMode:"cover"}}/>
                                             </View>
                                             <View style={{width:"80%"}}>
-                                                <Text style={{marginLeft:15,fontSize:17,marginTop:10}}>{"Bonjour, "+this.state.user.firstname+" "+this.state.user.lastname}</Text>
+                                                <Text style={{marginLeft:15,fontSize:17,marginTop:10}}>
+                                                    {"Bonjour, "+fname + " " + lname }</Text>
                                             </View>
                                         </View>
                                     </View>
@@ -191,202 +199,6 @@ export default class ProfileScreen extends React.Component {
                     </View>
                 </Content>
             </Container>
-
-
-
-            /*<ScrollView style={styles.scroll}>
-                <View style={styles.userRow}>
-                    <View style={styles.userImage}>
-                        <Avatar
-                            rounded
-                            size="medium"
-                            source={this.state.user && this.state.user.photoURL ? {uri: this.state.user.photoURL} : defaultAvatar}
-                        />
-                    </View>
-                    <View>
-                        <Text style={{fontSize: 16}}>{this.state.user ? this.state.user.firstname +" "+ this.state.user.lastname || this.state.user.fullname : "---"} </Text>
-                        <Text
-                            style={{
-                                color: 'gray',
-                                fontSize: 16,
-                            }}
-                        >
-                            {this.state.user ? this.state.user.email : "---"}
-                        </Text>
-                    </View>
-                </View>
-                <InfoText text="Compte"/>
-                <View>
-                    <ListItem
-                        hideChevron
-                        title="Push Notifications"
-                        containerStyle={styles.listItemContainer}
-                        rightElement={
-                            <Switch
-                                onValueChange={() => this.setState({pushNotifications: !this.state.pushNotifications})}
-                                value={this.state.pushNotifications}
-                            />
-                        }
-                        leftIcon={
-                            <BaseIcon
-                                containerStyle={{
-                                    backgroundColor: '#FFADF2',
-                                }}
-                                icon={{
-                                    type: 'material',
-                                    name: 'notifications',
-                                }}
-                            />
-                        }
-                    />
-                    <ListItem
-                        // chevron
-                        title="Devise"
-                        rightTitle="EURO"
-                        rightTitleStyle={{fontSize: 15}}
-                        onPress={() => this.onPressOptions()}
-                        containerStyle={styles.listItemContainer}
-                        leftIcon={
-                            <BaseIcon
-                                containerStyle={{backgroundColor: '#FAD291'}}
-                                icon={{
-                                    type: 'font-awesome',
-                                    name: 'money',
-                                }}
-                            />
-                        }
-                        rightIcon={<Chevron/>}
-                    />
-                    <ListItem
-                        title="Adresse"
-                        rightTitle={this.state.user ? this.state.user.adress : "---"}
-                        rightTitleStyle={{fontSize: 12}} 
-                        onPress={() => this.onPressOptions()} 
-                        containerStyle={styles.listItemContainer}
-                        leftIcon={
-                            <BaseIcon
-                                containerStyle={{backgroundColor: '#57DCE7'}}
-                                icon={{
-                                    type: 'material',
-                                    name: 'place',
-                                }}
-                            />
-                        }
-                    />
-                    <ListItem
-                        title="Langue"
-                        rightTitle="Français"
-                        rightTitleStyle={{fontSize: 15}}
-                        onPress={() => this.onPressOptions()}
-                        containerStyle={styles.listItemContainer}
-                        leftIcon={
-                            <BaseIcon
-                                containerStyle={{backgroundColor: '#FEA8A1'}}
-                                icon={{
-                                    type: 'material',
-                                    name: 'language',
-                                }}
-                            />
-                        }
-                        rightIcon={<Chevron/>}
-                    />
-                </View>
-                <InfoText text="Autre"/>
-                <View>
-                    <ListItem
-                        title="A propos"
-                        onPress={() => this.onPressOptions()}
-                        containerStyle={styles.listItemContainer}
-                        leftIcon={
-                            <BaseIcon
-                                containerStyle={{backgroundColor: '#A4C8F0'}}
-                                icon={{
-                                    type: 'ionicon',
-                                    name: 'md-information-circle',
-                                }}
-                            />
-                        }
-                        rightIcon={<Chevron/>}
-                    />
-                    <ListItem
-                        title="Termes et politiques"
-                        onPress={() => this.onPressOptions()}
-                        containerStyle={styles.listItemContainer}
-                        leftIcon={
-                            <BaseIcon
-                                containerStyle={{backgroundColor: '#C6C7C6'}}
-                                icon={{
-                                    type: 'entypo',
-                                    name: 'light-bulb',
-                                }}
-                            />
-                        }
-                        rightIcon={<Chevron/>}
-                    />
-                    <ListItem
-                        title="Évaluez nous"
-                        onPress={() => this.onPressOptions()}
-                        containerStyle={styles.listItemContainer}
-                        badge={{
-                            value: 5,
-                            textStyle: {color: 'white'},
-                            containerStyle: {backgroundColor: 'gray', marginTop: 0},
-                        }}
-                        leftIcon={
-                            <BaseIcon
-                                containerStyle={{
-                                    backgroundColor: '#FECE44',
-                                }}
-                                icon={{
-                                    type: 'entypo',
-                                    name: 'star',
-                                }}
-                            />
-                        }
-                        rightIcon={<Chevron/>}
-                    />
-                    <ListItem
-                        title="Envoyer FeedBack"
-                        onPress={() => this.onPressOptions()}
-                        containerStyle={styles.listItemContainer}
-                        leftIcon={
-                            <BaseIcon
-                                containerStyle={{
-                                    backgroundColor: '#00C001',
-                                }}
-                                icon={{
-                                    type: 'materialicon',
-                                    name: 'feedback',
-                                }}
-                            />
-                        }
-                        rightIcon={<Chevron/>}
-                    />
-                    <ListItem
-                        title="Déconnexion"
-                        onPress={() => {
-                            GoogleSignin.signOut()
-                            LoginManager.logOut();
-                            AsyncStorage.clear();
-                            RNRestart.Restart();
-                            //this.props.navigation.navigate("Landing");
-                        }}
-                        containerStyle={styles.listItemContainer}
-                        leftIcon={
-                            <BaseIcon
-                                containerStyle={{
-                                    backgroundColor: 'red',
-                                }}
-                                icon={{
-                                    type: 'materialicon',
-                                    name: 'settings-power',
-                                }}
-                            />
-                        }
-                        rightIcon={<Chevron/>}
-                    />
-                </View>
-            </ScrollView>*/
 
 
         );

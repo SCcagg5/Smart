@@ -87,12 +87,23 @@ export default class SignUpScreen extends React.Component {
                         },res.data.token,result.data.usrtoken).then( r => {
                             console.log(r)
                             if (r.succes === true && r.status === 200) {
-                                showMessage({
-                                    message: "Félicitation",
-                                    description:"Votre inscription est bien effectuée, Vous pouvez maintenant se connecter en utilisant votre mot de passe ",
-                                    type: "success", icon:"success"
-                                });
-                                setTimeout(() => {this.props.navigation.goBack()},2000);
+
+                                SmartService.addCard({crd_token:"tok_mastercard"},res.data.token,result.data.usrtoken).then( card => {
+                                    if (card.succes === true && card.status === 200) {
+                                        showMessage({
+                                            message: "Félicitation",
+                                            description:"Votre inscription est bien effectuée, Vous pouvez maintenant se connecter en utilisant votre mot de passe ",
+                                            type: "success", icon:"success"
+                                        });
+                                        setTimeout(() => {this.props.navigation.goBack()},2000);
+                                    }else{
+                                        alert(card.error)
+                                        this.setState({btnSpinner: false});
+                                    }
+                                }).catch(err => {
+                                    alert(err)
+                                    this.setState({btnSpinner: false});
+                                })
                             }else {
                                 alert("ERROR 1")
                                 this.setState({btnSpinner: false});

@@ -1,7 +1,9 @@
 import React from 'react';
 import AppContainer from './src/navigation/AppNavigation';
-import {View, ActivityIndicator} from "react-native";
+import {View, ActivityIndicator,PermissionsAndroid} from "react-native";
 import FlashMessage from "./custom_modules/react-native-flash-message/src";
+import Contacts from "react-native-contacts";
+
 
 console.disableYellowBox = true;
 
@@ -10,11 +12,31 @@ class App extends React.Component {
     constructor() {
         super();
         this.state = {
-            loading: false
+            loading: true
         }
     }
 
     componentDidMount() {
+
+        if (Platform.OS === "android") {
+            PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
+                title: "Contacts",
+                message: "Cette application souhaite afficher vos contacts."
+            }).then(() => {
+
+                Contacts.getAll((err, contacts) => {
+                    if (err) {
+                        alert(JSON.stringify(err))
+                    } else {
+
+                        global.contacts = contacts;
+                        this.setState({loading: false})
+
+                    }
+                })
+
+            });
+        }
 
     }
 

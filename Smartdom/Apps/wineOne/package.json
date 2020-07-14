@@ -48,7 +48,8 @@
     "react-native-modals": "^0.19.9",
     "react-native-camera": "^3.17.0",
     "react-native-qrcode-scanner": "^1.4.1",
-    "react-native-permissions": "^2.1.5"
+    "react-native-permissions": "^2.1.5",
+    "react-native-contacts": "^5.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

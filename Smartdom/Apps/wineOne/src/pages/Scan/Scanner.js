@@ -34,20 +34,34 @@ export default class Scanner extends React.Component {
     constructor(props){
         super(props)
         this.state={
-
+            reactivate:false,
+            user:"",
             showBottomModal:false,
             asset:"",
             data: ""
 
         }
     }
+
+    componentDidMount() {
+        AsyncStorage.getItem("user").then( value =>{
+            let user = JSON.parse(value)
+            this.setState({user:user})
+        })
+    }
+
     onSuccess = e => {
+        console.log(this.props.navigation.state.routeName)
+        this.state.showBottomModal === false  &&
         SmartService.getToken().then(res => {
             if (res.succes === true && res.status === 200) {
+                console.log(e.data)
                 SmartService.getAssetInfo(e.data,res.data.token).then( asset => {
                     if (asset.succes === true && asset.status === 200) {
                         this.setState({asset:asset.data,showBottomModal:true})
-                    }else alert(asset.error)
+                    }else {
+                        alert(asset.error)
+                    }
                 }).catch( err => alert(err))
             }else alert(res.error)
         }).catch(err => alert(err))
@@ -74,6 +88,7 @@ export default class Scanner extends React.Component {
                 <Content>
                     <View>
                         <QRCodeScanner
+                            reactivateTimeout={5000}
                             reactivate={true}
                             onRead={this.onSuccess}
                             flashMode={RNCamera.Constants.FlashMode.auto}
@@ -83,6 +98,11 @@ export default class Scanner extends React.Component {
                             markerStyle={{borderRadius:10,borderColor:"rgba(152, 27, 26,0.4)",borderStyle:"dashed"}}
                         />
                     </View>
+                    {/*<View style={{marginTop:5}}>
+                        <TouchableOpacity onPress={() => this.props.navigation.navigate("ContactListe",{asset:""})}>
+                            <Text style={{alignSelf:"center"}}>Transfer</Text>
+                        </TouchableOpacity>
+                    </View>*/}
                 </Content>
 
                 <Modal.BottomModal
@@ -101,14 +121,14 @@ export default class Scanner extends React.Component {
                         <View>
                             <Text style={{fontSize:18,alignSelf:"center",fontFamily:"sans-serif-medium"}}>Détails</Text>
                             <View style={{marginTop:25,marginLeft:20,marginRight:20}}>
-                                <View style={{flexDirection:"row"}}>
+                                {/*<View style={{flexDirection:"row"}}>
                                     <View style={{width:"25%"}}>
                                         <Text style={{fontWeight:"bold",fontSize:14}}>Asset:</Text>
                                     </View>
                                     <View style={{width:"75%"}}>
                                         <Text style={{fontWeight:"normal",fontSize:15,color:"grey"}}>{this.state.asset.asset || ""}</Text>
                                     </View>
-                                </View>
+                                </View>*/}
                                 <View style={{flexDirection:"row",marginTop:15}}>
                                     <View style={{width:"25%"}}>
                                         <Text style={{fontWeight:"bold",fontSize:14}}>Nom:</Text>
@@ -117,14 +137,14 @@ export default class Scanner extends React.Component {
                                         <Text style={{fontWeight:"normal",fontSize:15,color:"grey"}}>{this.state.asset.name || ""}</Text>
                                     </View>
                                 </View>
-                                <View style={{flexDirection:"row",marginTop:15}}>
+                                {/*<View style={{flexDirection:"row",marginTop:15}}>
                                     <View style={{width:"25%"}}>
                                         <Text style={{fontWeight:"bold",fontSize:14}}>Adress:</Text>
                                     </View>
                                     <View style={{width:"75%"}}>
                                         <Text style={{fontWeight:"normal",fontSize:15,color:"grey"}}>{this.state.asset.value && this.state.asset.value.address || ""}</Text>
                                     </View>
-                                </View>
+                                </View>*/}
                                 <View style={{flexDirection:"row",marginTop:15}}>
                                     <View style={{width:"25%"}}>
                                         <Text style={{fontWeight:"bold",fontSize:14}}>Valeur:</Text>
@@ -140,7 +160,8 @@ export default class Scanner extends React.Component {
                                             <Text style={{fontWeight:"bold",fontSize:14}}>Nom:</Text>
                                         </View>
                                         <View style={{width:"75%"}}>
-                                            <Text style={{fontWeight:"normal",fontSize:15,color:"grey"}}>{this.state.asset.owner &&this.state.asset.owner.name}</Text>
+                                            <Text style={{fontWeight:"normal",fontSize:15,color:"grey"}}>
+                                                {this.state.asset.owner && (this.state.asset.owner.firstname+" "+this.state.asset.owner.lastname)}</Text>
                                         </View>
                                     </View>
                                     <View style={{flexDirection:"row",marginTop:15}}>
@@ -172,13 +193,12 @@ export default class Scanner extends React.Component {
                                                 titleStyle={{textTransform:"uppercase",fontSize:13,color:"grey",fontFamily:"sans-serif-medium"}}
                                         />
                                         <Button title="Transférer"
+                                                //disabled={this.state.asset.owner && (this.state.asset.owner.email !== this.state.user.email)}
                                                 buttonStyle={{width:(width / 2 ) - 50,height:50,backgroundColor:"#27BF0F"}}
                                                 titleStyle={{textTransform:"uppercase",fontSize:13,color:"#fff",fontFamily:"sans-serif-medium"}}
                                                 onPress={() => {
-                                                    let command = this.state.command || [];
-                                                    command.push({id:this.state.selectedItem.id,number:this.state.itemNumber,item:this.state.selectedItem})
-                                                    AsyncStorage.setItem("command",JSON.stringify(command))
-                                                    this.setState({showBottomModal:false,itemNumber:1,command:command})
+                                                    this.setState({showBottomModal:false})
+                                                    this.props.navigation.navigate("ContactListe",{asset:this.state.asset})
                                                 }}
                                         />
                                     </View>

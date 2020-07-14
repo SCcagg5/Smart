@@ -1,5 +1,5 @@
 import React from 'react';
-import {AsyncStorage, Dimensions, Text, View} from "react-native";
+import {AsyncStorage, DeviceEventEmitter, Dimensions, Text, View} from "react-native";
 import {Button, Header} from "react-native-elements";
 import CustomInput from "../../../components/Input/CustomInput";
 import SmartService from "../../../provider/SmartService";
@@ -52,6 +52,7 @@ export default class EditAccount extends React.Component{
                         },res.data.token,login.data.usrtoken).then( update => {
                             if (update.succes === true && update.status === 200) {
                                 AsyncStorage.setItem("user",JSON.stringify(update.data)).then( ok => {
+                                    DeviceEventEmitter.emit("updateinfo");
                                     showMessage({message:"Modification effectuée avec succès",type:"success",icon:"success"})
                                     this.setState({btnSpinner:false})
                                 })

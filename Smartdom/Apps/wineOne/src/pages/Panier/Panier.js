@@ -7,7 +7,7 @@ import {
     TouchableOpacity,
     ScrollView,
     Dimensions,
-    AsyncStorage
+    AsyncStorage, DeviceEventEmitter
 } from "react-native";
 import {Button, Header} from "react-native-elements";
 import Spinner from "react-native-loading-spinner-overlay";
@@ -88,7 +88,7 @@ export default class Panier extends React.Component{
     }
 
     placeOrder = () => {
-        this.setState({btnSpinner:true})
+        this.setState({btnSpinner:true,loading:true})
         SmartService.getToken().then( data => {
             if (data.succes === true && data.status === 200) {
                 console.log(this.state.command)
@@ -99,38 +99,51 @@ export default class Panier extends React.Component{
                             if (order.succes === true && order.status === 200) {
 
                                 AsyncStorage.removeItem("command").then( ok => {
-                                    this.setState({btnSpinner:false,command:[]})
+                                    this.setState({command:[],loading:false})
+                                    DeviceEventEmitter.emit("clearP");
                                     showMessage({message:"Votre commande est bien validée",icon:"success",type:"success"})
-                                    this.props.navigation.goBack();
                                     setTimeout(()=>{
-                                        this.props.navigation.navigate("Dashboard")
-                                    },1000);
+                                        this.setState({btnSpinner:false})
+                                        this.props.navigation.goBack();
+                                        setTimeout(() => {
+                                            this.props.navigation.navigate("Orders")
+                                        },1500)
+                                    },1500);
                                 })
 
                             }else{
                                 alert(order.error)
+                                this.setState({btnSpinner:false,loading:false})
                             }
-                            console.log(order)
 
-                        }).catch(err => {alert(err)})
+                        }).catch(err => {
+                            alert(err)
+                            this.setState({btnSpinner:false,loading:false})
+                        })
 
                     }else{
                         alert(res.error)
-                        this.setState({btnSpinner:false})
+                        this.setState({btnSpinner:false,loading:false})
                     }
                 }).catch(err => {
                     alert(err)
-                    this.setState({btnSpinner:false})
+                    this.setState({btnSpinner:false,loading:false})
                 })
             }else{
                 alert(data.error)
-                this.setState({btnSpinner:false})
+                this.setState({btnSpinner:false,loading:false})
             }
         }).catch(err => alert(err))
 
     }
 
     render() {
+        let Tprice = 0;
+        let items = this.state.command || []
+        items.map((item,key) => {
+            let price = item.item.price.amount * item.number;
+            Tprice = Tprice + price
+        })
         return(
             <View>
                 <Spinner
@@ -203,32 +216,38 @@ export default class Panier extends React.Component{
 
                     </View>
                 </ScrollView>
-                    <View style={{backgroundColor:"#f0f0f0",height:10}}/>
-                    <View style={{marginTop:20,marginLeft:35,marginRight:50}}>
-                        <View style={{flexDirection:"row",justifyContent:"space-between"}}>
-                            <Text style={{fontFamily:"sans-serif-medium",fontSize:14,fontWeight:"bold"}}>Total</Text>
-                            <Text style={{fontFamily:"sans-serif-medium",fontSize:13,color:"grey"}}>50 €</Text>
-                        </View>
-                        <View style={{flexDirection:"row",justifyContent:"space-between",marginTop:10}}>
-                            <Text style={{fontFamily:"sans-serif-medium",fontSize:14,fontWeight:"bold"}}>frais</Text>
-                            <Text style={{fontFamily:"sans-serif-medium",fontSize:13,color:"grey"}}>0 €</Text>
-                        </View>
-                    </View>
-                    <View style={{marginTop:15,marginLeft:15,marginRight:15}}>
-                        <View style={{flexDirection:"row",justifyContent:"space-between"}}>
-                            <Text style={{fontFamily:"sans-serif-medium",fontSize:17,fontWeight:"bold"}}>Total</Text>
-                            <Text style={{fontFamily:"sans-serif-medium",fontSize:17}}>500 €</Text>
-                        </View>
-                        <View style={{marginTop:10}}>
-                            <View style={{ alignItems: 'center'}}>
-                                <Button title="Passer la commande" loading={this.state.btnSpinner}
-                                        buttonStyle={{width: (width -30), height: 45, backgroundColor: "#981B1A"}}
-                                        titleStyle={{fontSize: 14, color: "#fff", fontWeight: "bold"}}
-                                        onPress={this.placeOrder}
-                                />
+                {
+                    this.state.loading === false && this.state.command.length > 0 &&
+                        <View>
+                            <View style={{backgroundColor:"#f0f0f0",height:10}}/>
+                            <View style={{marginTop:20,marginLeft:35,marginRight:50}}>
+                                <View style={{flexDirection:"row",justifyContent:"space-between"}}>
+                                    <Text style={{fontFamily:"sans-serif-medium",fontSize:14,fontWeight:"bold"}}>Prix total</Text>
+                                    <Text style={{fontFamily:"sans-serif-medium",fontSize:13,color:"grey"}}>{Tprice} €</Text>
+                                </View>
+                                <View style={{flexDirection:"row",justifyContent:"space-between",marginTop:10}}>
+                                    <Text style={{fontFamily:"sans-serif-medium",fontSize:14,fontWeight:"bold"}}>frais</Text>
+                                    <Text style={{fontFamily:"sans-serif-medium",fontSize:13,color:"grey"}}>0 €</Text>
+                                </View>
+                            </View>
+                            <View style={{marginTop:15,marginLeft:15,marginRight:15}}>
+                                <View style={{flexDirection:"row",justifyContent:"space-between"}}>
+                                    <Text style={{fontFamily:"sans-serif-medium",fontSize:17,fontWeight:"bold"}}>Total</Text>
+                                    <Text style={{fontFamily:"sans-serif-medium",fontSize:17}}>{Tprice} €</Text>
+                                </View>
+                                <View style={{marginTop:10}}>
+                                    <View style={{ alignItems: 'center'}}>
+                                        <Button title="Passer la commande" loading={this.state.btnSpinner}
+                                                buttonStyle={{width: (width -30), height: 45, backgroundColor: "#981B1A"}}
+                                                titleStyle={{fontSize: 14, color: "#fff", fontWeight: "bold"}}
+                                                onPress={this.placeOrder}
+                                        />
+                                    </View>
+                                </View>
                             </View>
                         </View>
-                    </View>
+                }
+
 
 
             </View>

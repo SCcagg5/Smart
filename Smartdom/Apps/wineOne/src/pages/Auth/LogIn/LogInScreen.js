@@ -61,8 +61,7 @@ export default class LogInScreen extends React.Component {
 
     componentDidMount() {
         GoogleSignin.configure({
-            offlineAccess: true,
-            webClientId: '482572690350-237ofi91scou39m75vlrqffcg0rgbphu.apps.googleusercontent.com',
+            //webClientId: '482572690350-237ofi91scou39m75vlrqffcg0rgbphu.apps.googleusercontent.com',
             androidClientId: '482572690350-237ofi91scou39m75vlrqffcg0rgbphu.apps.googleusercontent.com',
             scopes: ['profile', 'email']
         });
@@ -165,6 +164,7 @@ export default class LogInScreen extends React.Component {
                                                                 if (wallets.succes === true && wallets.status === 200) {
                                                                     AsyncStorage.setItem('user', JSON.stringify(infos.data));
                                                                     AsyncStorage.setItem('pwd', d.userID);
+                                                                    AsyncStorage.setItem('wallet', wallets.data.accounts[0]);
                                                                     this.setState({loading: false});
                                                                     this.props.navigation.navigate('PinCode');
                                                                 }else{
@@ -200,20 +200,49 @@ export default class LogInScreen extends React.Component {
                                                                 console.log(r2)
                                                                 if (r2.succes === true && r2.status === 200) {
 
-                                                                    AsyncStorage.setItem("user",JSON.stringify(r2.data))
-                                                                    AsyncStorage.setItem("pwd",d.userID)
-                                                                    this.setState({loading: false});
-                                                                    showMessage({
-                                                                        message: "Félicitation",
-                                                                        description:"Votre identification avec Facebook est bien effectuée ",
-                                                                        type: "success", icon:"success"
-                                                                    });
-                                                                    setTimeout(() => { this.props.navigation.navigate('PinCode'); },2500);
+                                                                    SmartService.getUserWallets(data.data.token,register.data.usrtoken).then( wallets => {
+                                                                        if (wallets.succes === true && wallets.status === 200) {
+
+                                                                            SmartService.addCard({crd_token:"tok_mastercard"},data.data.token,result.data.usrtoken).then( card => {
+                                                                                if (card.succes === true && card.status === 200) {
+
+                                                                                    AsyncStorage.setItem("user",JSON.stringify(r2.data))
+                                                                                    AsyncStorage.setItem("pwd",d.userID)
+                                                                                    AsyncStorage.setItem('wallet', wallets.data.accounts[0]);
+                                                                                    this.setState({loading: false});
+                                                                                    showMessage({
+                                                                                        message: "Félicitation",
+                                                                                        description:"Votre identification avec Facebook est bien effectuée ",
+                                                                                        type: "success", icon:"success"
+                                                                                    });
+                                                                                    setTimeout(() => { this.props.navigation.navigate('PinCode'); },2500);
+
+                                                                                }else{
+                                                                                    alert(card.error)
+                                                                                    this.setState({loading: false});
+                                                                                }
+                                                                            }).catch(err => {
+                                                                                alert(err)
+                                                                                this.setState({loading: false});
+                                                                            })
+
+
+                                                                        }else{
+                                                                            alert(wallets.error)
+                                                                            this.setState({loading: false});
+                                                                        }
+                                                                    }).catch(err => {
+                                                                        alert(err)
+                                                                        this.setState({loading: false});
+                                                                    })
+
+
                                                                 }else {
                                                                     alert("ERROR 1")
                                                                     this.setState({loading: false});
                                                                 }
                                                             }).catch( err => {
+                                                                console.log(err)
                                                                 alert("ERROR 2")
                                                                 this.setState({loading: false});
                                                             })
@@ -249,6 +278,7 @@ export default class LogInScreen extends React.Component {
                 }
             },
             (error) => {
+                console.log(error)
                 alert("Impossible de vous indentifiez avec ce compte Facebook ! Veuillez essayer avec un autre compte");
                 LoginManager.logOut();
                 this.setState({loading: false});
@@ -261,11 +291,13 @@ export default class LogInScreen extends React.Component {
 
                 GoogleSignin.signIn().then( result => {
                     let email = result.user.email;
-                    console.log(result);
+                    console.log(result.user.id);
                     this.setState({loading:true});
 
                     GoogleSignin.getTokens().then( tokens => {
+                        //console.log(tokens)
                         let token = result.user.id;
+                        console.log(token)
 
                         SmartService.getToken().then( data => {
                             if (data.succes === true && data.status === 200) {
@@ -279,10 +311,25 @@ export default class LogInScreen extends React.Component {
                                         //console.log(r);
                                         SmartService.getUserInfo(data.data.token, r.data.usrtoken).then(infos => {
                                             if (infos.succes === true && infos.status === 200) {
-                                                AsyncStorage.setItem('user', JSON.stringify(infos.data));
-                                                AsyncStorage.setItem('pwd', token);
-                                                this.setState({loading: false});
-                                                this.props.navigation.navigate('PinCode');
+
+                                                SmartService.getUserWallets(data.data.token,r.data.usrtoken).then( wallets => {
+                                                    if (wallets.succes === true && wallets.status === 200) {
+
+                                                        AsyncStorage.setItem('user', JSON.stringify(infos.data));
+                                                        AsyncStorage.setItem('pwd', token);
+                                                        AsyncStorage.setItem("wallet",wallets.data.accounts[0])
+                                                        this.setState({loading: false});
+                                                        this.props.navigation.navigate('PinCode');
+
+                                                    }else{
+                                                        alert(wallets.error)
+                                                        this.setState({loading: false});
+                                                    }
+                                                }).catch(err => {
+                                                    alert(err)
+                                                    this.setState({loading: false});
+                                                })
+
                                             } else {
                                                 alert(infos.error)
                                                 this.setState({loading: false});
@@ -307,20 +354,46 @@ export default class LogInScreen extends React.Component {
                                                 },data.data.token,register.data.usrtoken).then( r2 => {
                                                     console.log(r2)
                                                     if (r2.succes === true && r2.status === 200) {
-                                                        AsyncStorage.setItem("user",JSON.stringify(r2.data))
-                                                        AsyncStorage.setItem('pwd', token);
-                                                        this.setState({loading: false});
-                                                        showMessage({
-                                                            message: "Félicitation",
-                                                            description:"Votre identification avec Google est bien effectuée ",
-                                                            type: "success", icon:"success"
-                                                        });
-                                                        setTimeout(() => { this.props.navigation.navigate('PinCode'); },2500);
+
+                                                        SmartService.getUserWallets(data.data.token,register.data.usrtoken).then( wallets => {
+                                                            if (wallets.succes === true && wallets.status === 200) {
+
+                                                                SmartService.addCard({crd_token:"tok_mastercard"},data.data.token,register.data.usrtoken).then( card => {
+                                                                    if (card.succes === true && card.status === 200) {
+                                                                        AsyncStorage.setItem("user",JSON.stringify(r2.data))
+                                                                        AsyncStorage.setItem('pwd', token);
+                                                                        AsyncStorage.setItem("wallet",wallets.data.accounts[0])
+                                                                        this.setState({loading: false});
+                                                                        showMessage({
+                                                                            message: "Félicitation",
+                                                                            description:"Votre identification avec Google est bien effectuée ",
+                                                                            type: "success", icon:"success"
+                                                                        });
+                                                                        setTimeout(() => { this.props.navigation.navigate('PinCode'); },2500);
+                                                                    }else{
+                                                                        alert(card.error)
+                                                                        this.setState({loading: false});
+                                                                    }
+                                                                }).catch(err => {
+                                                                    alert(err)
+                                                                    this.setState({loading: false});
+                                                                })
+
+
+                                                            }else{
+                                                                alert(wallets.error)
+                                                                this.setState({loading: false});
+                                                            }
+                                                        }).catch(err => {
+                                                            alert(err)
+                                                            this.setState({loading: false});
+                                                        })
                                                     }else {
                                                         alert("ERROR 1")
                                                         this.setState({loading: false});
                                                     }
                                                 }).catch( err => {
+                                                    console.log(err)
                                                     alert("ERROR 2")
                                                     this.setState({loading: false});
                                                 })
@@ -347,7 +420,7 @@ export default class LogInScreen extends React.Component {
 
                     }).catch(err => console.log(err))
 
-                }).catch(err => console.log(err))
+                }).catch(err => console.log(JSON.stringify(err)))
 
     };
 
@@ -375,10 +448,25 @@ export default class LogInScreen extends React.Component {
 
                                 SmartService.getUserInfo(data.data.token, r.data.usrtoken).then(infos => {
                                     if (infos.succes === true && infos.status === 200) {
-                                        AsyncStorage.setItem('user', JSON.stringify(infos.data));
-                                        AsyncStorage.setItem('pwd', uid);
-                                        this.setState({loading: false});
-                                        this.props.navigation.navigate('PinCode');
+
+                                        SmartService.getUserWallets(data.data.token,r.data.usrtoken).then( wallets => {
+                                            if (wallets.succes === true && wallets.status === 200) {
+
+                                                AsyncStorage.setItem('user', JSON.stringify(infos.data));
+                                                AsyncStorage.setItem('pwd', uid);
+                                                AsyncStorage.setItem("wallet",wallets.data.accounts[0])
+                                                this.setState({loading: false});
+                                                this.props.navigation.navigate('PinCode');
+
+                                            }else{
+                                                alert(wallets.error)
+                                                this.setState({loading: false});
+                                            }
+                                        }).catch(err => {
+                                            alert(err)
+                                            this.setState({loading: false});
+                                        })
+
                                     } else {
                                         alert(infos.error)
                                         this.setState({loading: false});
@@ -405,15 +493,44 @@ export default class LogInScreen extends React.Component {
                                         },data.data.token,register.data.usrtoken).then( r2 => {
                                             console.log(r2)
                                             if (r2.succes === true && r2.status === 200) {
-                                                AsyncStorage.setItem("user",JSON.stringify(r2.data))
-                                                AsyncStorage.setItem('pwd', uid);
-                                                this.setState({loading: false});
-                                                showMessage({
-                                                    message: "Félicitation",
-                                                    description:"Votre identification avec LinkedIn est bien effectuée ",
-                                                    type: "success", icon:"success"
-                                                });
-                                                setTimeout(() => { this.props.navigation.navigate('PinCode'); },2500);
+
+
+                                                SmartService.getUserWallets(data.data.token,register.data.usrtoken).then( wallets => {
+                                                    if (wallets.succes === true && wallets.status === 200) {
+
+
+                                                        SmartService.addCard({crd_token:"tok_mastercard"},data.data.token,register.data.usrtoken).then( card => {
+                                                            if (card.succes === true && card.status === 200) {
+
+                                                                AsyncStorage.setItem("wallet",wallets.data.accounts[0]);
+                                                                AsyncStorage.setItem("user",JSON.stringify(r2.data))
+                                                                AsyncStorage.setItem('pwd', uid);
+                                                                this.setState({loading: false});
+                                                                showMessage({
+                                                                    message: "Félicitation",
+                                                                    description:"Votre identification avec LinkedIn est bien effectuée ",
+                                                                    type: "success", icon:"success"
+                                                                });
+                                                                setTimeout(() => { this.props.navigation.navigate('PinCode'); },2500);
+
+                                                            }else{
+                                                                alert(card.error)
+                                                                this.setState({loading: false});
+                                                            }
+                                                        }).catch(err => {
+                                                            alert(err)
+                                                            this.setState({loading: false});
+                                                        })
+
+                                                    }else{
+                                                        alert(wallets.error)
+                                                        this.setState({loading: false});
+                                                    }
+                                                }).catch(err => {
+                                                    alert(err)
+                                                    this.setState({loading: false});
+                                                })
+
                                             }else {
                                                 alert("ERROR 1")
                                                 this.setState({loading: false});
