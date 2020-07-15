@@ -1,16 +1,23 @@
-FROM node:14-alpine AS SMARTDOM
+FROM node:12.18.2 AS builder_smartdom
 
 LABEL maintainer="Courtel Eliot"
 LABEL maintainermail="eliot.courtel@wanadoo.fr"
 
-WORKDIR /home/frontend
+WORKDIR /app
+COPY ./ ./
 
-COPY ./package.json       ./package.json
-RUN npm install
+RUN yarn install
+RUN yarn build
 
-COPY ./* ./
-COPY ./src/               ./src/
-COPY ./public/            ./public/
-RUN npm run build;
-RUN ls
-CMD ["node", "server.js"]
+
+FROM mhart/alpine-node
+
+LABEL maintainer="Courtel Eliot"
+LABEL maintainermail="eliot.courtel@wanadoo.fr"
+
+WORKDIR /app
+RUN yarn global add serve
+
+COPY --from=builder_smartdom /app/build .
+
+CMD ["serve", "-p", "80", "-s", "."]
