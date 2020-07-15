@@ -6,3 +6,21 @@ services:
     container: build-assembly
     volumes:
       - ../../Smartdom/Webapps/assemblee.smartdom:/app/
+
+  build-quinsac:
+    build: .
+    container: build-quinsac
+    volumes:
+      - ../../Smartdom/Webapps/quinsac.smartdom:/app/
+
+  build-assembly:
+    build: .
+    container: build-smartdom
+    volumes:
+      - ../../Smartdom/Webapps/smartdom:/app/
+
+  build-veloone:
+    build: .
+    container: build-veloone
+    volumes:
+      - ../../Smartdom/Webapps/veloone.smartdom:/app/
