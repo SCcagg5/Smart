@@ -67,43 +67,8 @@ import  correctOrange from "../../assets/images/modal3/correctOrange.svg"
 import  correctC from "../../assets/images/modal3/correctC.svg"
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import check from "../../assets/images/forfait/check-success.svg";
-
-
-
-
-
-
-
-
-
 const Topbar = React.lazy(() => import("../../components/Topbar"));
-const Navbar = React.lazy(() => import("../../components/Navbar"));
 const loading = () => <Loader/>;
-const google = window.google;
 
 moment.locale('fr');
 
@@ -112,10 +77,6 @@ moment.locale('fr');
 class smartcoLink extends Component {
 
 
-    CIN1Upload = {};
-    CIN2Upload = {};
-    signUpload = {};
-    sigCanvas = {};
 
     constructor(props) {
         super(props);
@@ -296,12 +257,12 @@ class smartcoLink extends Component {
                         <div className="row ">
                             <img style={{width: "12%", color: "red"}}
                                  src={card.imgOffre}/>
-                            <text style={{
+                            <label style={{
                                 fontWeight: "bold",
                                 color: "#f95437",
                                 fontSize: "small"
                             }}>{card.moinsOffre}
-                            </text>
+                            </label>
                         </div>
                     </div>
                     {card.pourcentage != "" &&
@@ -310,12 +271,12 @@ class smartcoLink extends Component {
                         textAlign: "left",
                         borderRadius: "10%"
                     }}>
-                        <text style={{
+                        <label style={{
                             color: "white",
                             fontWeight: "bold",
                             fontSize: "small"
                         }}>- 10%
-                        </text>
+                        </label>
                     </div>
                     }
                 </div>
@@ -336,25 +297,25 @@ class smartcoLink extends Component {
                     width: "90%",
                     textAlign: "center"
                 }}>
-                    <text style={{
+                    <label style={{
                         color: "#79beff",
                         marginLeft: "auto",
                         marginRight: "auto",
                         fontWeight: "bold",
                         fontSize: "small"
                     }}>{card.titre}
-                    </text>
+                    </label>
                 </div>
                 <div style={{
                     width: "100%",
                     textAlign: "center",
                     marginTop: "2%"
                 }}>
-                    <text style={{
+                    <label style={{
                         fontSize: "small",
                         fontWeight: "bold"
                     }}>{card.desc}
-                    </text>
+                    </label>
                 </div>
                 {card.EnSavoirPlus === true &&
                 <div style={{
@@ -362,8 +323,8 @@ class smartcoLink extends Component {
                     textAlign: "center",
                     marginTop: "2%"
                 }}>
-                    <text style={{fontSize: "small"}}><a>En savoir
-                        plus</a></text>
+                    <label style={{fontSize: "small"}}><a>En savoir
+                        plus</a></label>
                 </div>
                 }
 
@@ -374,12 +335,12 @@ class smartcoLink extends Component {
                 cursor: "pointer",
                 textAlign: "center"
             }}>
-                <text style={{
+                <label style={{
                     color: "white",
                     fontWeight: "bold",
                     fontSize: "small"
                 }}>J'essaie gratuitement
-                </text>
+                </label>
             </div>
         </div>
 
@@ -641,7 +602,7 @@ class smartcoLink extends Component {
                                                                 <div className="row">
                                                                     <div style={{marginLeft:"1%"}}>
                                                                         <img src={abon} width="3%"/>
-                                                                        <text style={{marginLeft:"2%"}}>Abonnement</text>
+                                                                        <label style={{marginLeft:"2%"}}>Abonnement</label>
 
 
                                                                     </div>
@@ -658,12 +619,12 @@ class smartcoLink extends Component {
                                                                 <div className="row">
                                                                     <div className="col" style={{textAlign:"left"}} >
                                                                         <div className="row" style={{textAlign:"left"}}>
-                                                                            <text style={{fontWeight:"bold",size:"5%"}}> Création SAS</text>
-                                                                            <text style={{marginLeft:"2%" ,fontFamily:"serif"}}>n° {x.num} | Mise à jour le : {x.date}</text>
+                                                                            <label style={{fontWeight:"bold",size:"5%"}}> Création SAS</label>
+                                                                            <label style={{marginLeft:"2%" ,fontFamily:"serif"}}>n° {x.num} | Mise à jour le : {x.date}</label>
 
                                                                         </div>
                                                                         <div className="row" style={{marginTop:"2%"}}>
-                                                                            <text style={{fontSize:"small",color:"#999999"}}>Completez votre questionnaire</text>
+                                                                            <label style={{fontSize:"small",color:"#999999"}}>Completez votre questionnaire</label>
                                                                         </div>
                                                                     </div>
 
@@ -767,11 +728,11 @@ class smartcoLink extends Component {
                                                                     <div className="col-md-auto col-sm-auto col-auto" style={{marginLeft:"2%"}}>
                                                                         <div >
                                                                             <div className="container" style={{backgroundColor:"#eafbf4" }}>
-                                                                          <text style={{color:"#10a770", fontWeight:"bold"}}>Compta SaaS</text>
+                                                                          <label style={{color:"#10a770", fontWeight:"bold"}}>Compta SaaS</label>
                                                                             </div>
                                                                         </div>
                                                                         <div>
-                                                                            <text style={{fontSize:"small"}}> Gérez vos comptablités facilement</text>
+                                                                            <label style={{fontSize:"small"}}> Gérez vos comptablités facilement</label>
 
                                                                         </div>
                                                                     </div>
@@ -808,7 +769,7 @@ class smartcoLink extends Component {
                                                                         </button>
                                                                         <div style={{ marginTop:"5%"}}>
 
-                                                                        <text style={{fontSize:"small" , marginTop:"5%"}}><u> Gérer mon abonnement</u></text>
+                                                                        <label style={{fontSize:"small" , marginTop:"5%"}}><u> Gérer mon abonnement</u></label>
                                                                         </div>
 
 
@@ -842,11 +803,11 @@ class smartcoLink extends Component {
                                                                     <div className="col-md-auto col-sm-auto col-auto" style={{marginLeft:"2%"}}>
                                                                         <div >
                                                                             <div className="container" style={{backgroundColor:"#eafbf4" }}>
-                                                                                <text style={{color:"#10a770", fontWeight:"bold"}}>Service Obligations Juridiques</text>
+                                                                                <label style={{color:"#10a770", fontWeight:"bold"}}>Service Obligations Juridiques</label>
                                                                             </div>
                                                                         </div>
                                                                         <div>
-                                                                            <text style={{fontSize:"small"}}> Gérez vos obligations juridiques en toute sérenité</text>
+                                                                            <label style={{fontSize:"small"}}> Gérez vos obligations juridiques en toute sérenité</label>
 
                                                                         </div>
                                                                     </div>
@@ -868,9 +829,9 @@ class smartcoLink extends Component {
                                                                             <div style={{marginLeft:"3%",alignItems:"left" ,fontSize:"small"}} >
                                                                                 <li> Mise à jour de votre sociéte : votre prochaine modification statuaire offerte</li>
                                                                                 <li>Approbation des comptes annuelle + formalités au greffe (obligatoire) </li>
-                                                                                <li><text style={{color:"green", fontWeight:"bold"}}>3 entretiens</text> avec un Expert Conformité </li>
+                                                                                <li><label style={{color:"green", fontWeight:"bold"}}>3 entretiens</label> avec un Expert Conformité </li>
                                                                                 <li>Envoi des registre Obligatoires </li>
-                                                                                <li>Accès a notre <text style={{color:"green", fontWeight:"bold"}}>bibliothèque de contrats</text></li>
+                                                                                <li>Accès a notre <label style={{color:"green", fontWeight:"bold"}}>bibliothèque de contrats</label></li>
                                                                             </div>
                                                                         </ul>
                                                                     </div>
@@ -881,7 +842,7 @@ class smartcoLink extends Component {
                                                                         </button>
                                                                         <div style={{ marginTop:"5%"}}>
 
-                                                                            <text style={{fontSize:"small" , marginTop:"5%"}}><u> Gérer mon abonnement</u></text>
+                                                                            <label style={{fontSize:"small" , marginTop:"5%"}}><u> Gérer mon abonnement</u></label>
                                                                         </div>
 
 
@@ -924,7 +885,7 @@ class smartcoLink extends Component {
 
                                                     </div>
                                                     <div>
-                                                        <text>Vous n'avez souscrit à aucun abonnement</text>
+                                                        <label>Vous n'avez souscrit à aucun abonnement</label>
                                                     </div>
 
 
@@ -951,12 +912,12 @@ class smartcoLink extends Component {
                                                                         <div className="row" style={{marginLeft: "2%"}}>
                                                                             <img style={{width: "8%", color: "red"}}
                                                                                  src={gift}/>
-                                                                            <text style={{
+                                                                            <label style={{
                                                                                 fontWeight: "bold",
                                                                                 color: "#f95437",
                                                                                 fontSize: "small"
                                                                             }}>1 MOIS OFFERT
-                                                                            </text>
+                                                                            </label>
                                                                         </div>
 
 
@@ -973,45 +934,45 @@ class smartcoLink extends Component {
                                                                                 width: "80%",
                                                                                 textAlign: "center"
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     color: "#10a770",
                                                                                     marginLeft: "auto",
                                                                                     marginRight: "auto",
                                                                                     fontWeight: "bold",
                                                                                     fontSize: "small"
                                                                                 }}>Assistance Smartco
-                                                                                </text>
+                                                                                </label>
                                                                             </div>
                                                                             <div style={{
                                                                                 width: "100%",
                                                                                 textAlign: "center",
                                                                                 marginTop: "2%"
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     fontSize: "small",
                                                                                     fontWeight: "bold"
                                                                                 }}>L'accompagnement juridique essentiel
-                                                                                </text>
+                                                                                </label>
                                                                             </div>
                                                                             <div style={{
                                                                                 width: "100%",
                                                                                 textAlign: "center",
                                                                                 marginTop: "2%"
                                                                             }}>
-                                                                                <text style={{fontSize: "small"}}><a>En savoir
-                                                                                    plus</a></text>
+                                                                                <label style={{fontSize: "small"}}><a>En savoir
+                                                                                    plus</a></label>
                                                                             </div>
                                                                             <div style={{
                                                                                 width: "100%",
                                                                                 textAlign: "center",
                                                                                 marginTop: "2%"
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     fontSize: "small",
                                                                                     fontWeight: "bold",
                                                                                     color: "#f95437"
                                                                                 }}>Sans engagement
-                                                                                </text>
+                                                                                </label>
                                                                             </div>
 
                                                                         </div>
@@ -1021,12 +982,12 @@ class smartcoLink extends Component {
                                                                             cursor: "pointer",
                                                                             textAlign: "center"
                                                                         }}>
-                                                                            <text style={{
+                                                                            <label style={{
                                                                                 color: "white",
                                                                                 fontWeight: "bold",
                                                                                 fontSize: "small"
                                                                             }}>J'essaie gratuitement
-                                                                            </text>
+                                                                            </label>
                                                                         </Card.Footer>
                                                                     </div>
 
@@ -1038,12 +999,12 @@ class smartcoLink extends Component {
                                                                         <div className="row" style={{marginLeft: "2%"}}>
                                                                             <img style={{width: "8%", color: "red"}}
                                                                                  src={gift}/>
-                                                                            <text style={{
+                                                                            <label style={{
                                                                                 fontWeight: "bold",
                                                                                 color: "#f95437",
                                                                                 fontSize: "small"
                                                                             }}>1 MOIS OFFERT
-                                                                            </text>
+                                                                            </label>
                                                                         </div>
 
 
@@ -1061,45 +1022,45 @@ class smartcoLink extends Component {
                                                                                 textAlign: "center",
                                                                                 marginTop:"2%"
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     color: "#10a770",
                                                                                     marginLeft: "auto",
                                                                                     marginRight: "auto",
                                                                                     fontWeight: "bold",
                                                                                     fontSize: "small"
                                                                                 }}>Compta Enfin !
-                                                                                </text>
+                                                                                </label>
                                                                             </div>
                                                                             <div style={{
                                                                                 width: "100%",
                                                                                 textAlign: "center",
 
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     fontSize: "small",
                                                                                     fontWeight: "bold"
                                                                                 }}>Gérez vos comptabilités <br></br>facilement
-                                                                                </text>
+                                                                                </label>
                                                                             </div>
                                                                             <div style={{
                                                                                 width: "100%",
                                                                                 textAlign: "center",
                                                                                 marginTop: "2%"
                                                                             }}>
-                                                                                <text style={{fontSize: "small"}}><a>En savoir
-                                                                                    plus</a></text>
+                                                                                <label style={{fontSize: "small"}}><a>En savoir
+                                                                                    plus</a></label>
                                                                             </div>
                                                                             <div style={{
                                                                                 width: "100%",
                                                                                 textAlign: "center",
                                                                                 marginTop: "2%"
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     fontSize: "small",
                                                                                     fontWeight: "bold",
                                                                                     color: "#f95437"
                                                                                 }}>Sans engagement
-                                                                                </text>
+                                                                                </label>
                                                                             </div>
 
                                                                         </Card.Body>
@@ -1109,12 +1070,12 @@ class smartcoLink extends Component {
                                                                             cursor: "pointer",
                                                                             textAlign: "center"
                                                                         }}>
-                                                                            <text style={{
+                                                                            <label style={{
                                                                                 color: "white",
                                                                                 fontWeight: "bold",
                                                                                 fontSize: "small"
                                                                             }}>J'essaie gratuitement
-                                                                            </text>
+                                                                            </label>
                                                                         </Card.Footer>
                                                                     </Card>
 
@@ -1128,12 +1089,12 @@ class smartcoLink extends Component {
                                                                                     <div className="row">
                                                                                         <img style={{width: "12%", color: "red"}}
                                                                                              src={offreFlash}/>
-                                                                                        <text style={{
+                                                                                        <label style={{
                                                                                             fontWeight: "bold",
                                                                                             color: "#f95437",
                                                                                             fontSize: "small"
                                                                                         }}>OFFRE FLASH
-                                                                                        </text>
+                                                                                        </label>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="col-auto" style={{
@@ -1141,12 +1102,12 @@ class smartcoLink extends Component {
                                                                                     textAlign: "left",
                                                                                     borderRadius: "10%"
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         color: "white",
                                                                                         fontWeight: "bold",
                                                                                         fontSize: "small"
                                                                                     }}>- 10%
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -1166,34 +1127,34 @@ class smartcoLink extends Component {
                                                                                 width: "90%",
                                                                                 textAlign: "center"
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     color: "#79beff",
                                                                                     marginLeft: "auto",
                                                                                     marginRight: "auto",
                                                                                     fontWeight: "bold",
                                                                                     fontSize: "small"
                                                                                 }}>Compte courant d'associé
-                                                                                </text>
+                                                                                </label>
                                                                             </div>
                                                                             <div style={{
                                                                                 width: "100%",
                                                                                 textAlign: "center",
                                                                                 marginTop: "2%"
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     fontSize: "small",
                                                                                     fontWeight: "bold"
                                                                                 }}>Financer simplement l'activité de votre
                                                                                     societé
-                                                                                </text>
+                                                                                </label>
                                                                             </div>
                                                                             <div style={{
                                                                                 width: "100%",
                                                                                 textAlign: "center",
                                                                                 marginTop: "2%"
                                                                             }}>
-                                                                                <text style={{fontSize: "small"}}><a>En savoir
-                                                                                    plus</a></text>
+                                                                                <label style={{fontSize: "small"}}><a>En savoir
+                                                                                    plus</a></label>
                                                                             </div>
 
 
@@ -1203,12 +1164,12 @@ class smartcoLink extends Component {
                                                                             cursor: "pointer",
                                                                             textAlign: "center"
                                                                         }}>
-                                                                            <text style={{
+                                                                            <label style={{
                                                                                 color: "white",
                                                                                 fontWeight: "bold",
                                                                                 fontSize: "small"
                                                                             }}>J'essaie gratuitement
-                                                                            </text>
+                                                                            </label>
                                                                         </div>
                                                                     </div>
 
@@ -1238,33 +1199,33 @@ class smartcoLink extends Component {
                                                                                     marginTop:"1%"
 
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         color: "#79beff",
                                                                                         marginLeft: "auto",
                                                                                         marginRight: "auto",
                                                                                         fontWeight: "bold",
                                                                                         fontSize: "small"
                                                                                     }}>Assemblée generale En Web Conférence
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
                                                                                     marginTop: "2%"
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         fontSize: "small",
                                                                                         fontWeight: "bold"
                                                                                     }}>Réalisez vos assemblées générales en Vidéo ou audioconférence avec génération des PV
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div className="mt-auto"style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
 
                                                                                 }} >
-                                                                                    <text style={{fontSize: "small"}}><a>En savoir
-                                                                                        plus</a></text>
+                                                                                    <label style={{fontSize: "small"}}><a>En savoir
+                                                                                        plus</a></label>
                                                                                 </div>
 
 
@@ -1276,12 +1237,12 @@ class smartcoLink extends Component {
                                                                                 cursor: "pointer",
                                                                                 textAlign: "center"
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     color: "white",
                                                                                     fontWeight: "bold",
                                                                                     fontSize: "small"
                                                                                 }}>J'en profite
-                                                                                </text>
+                                                                                </label>
                                                                             </Card.Footer>
                                                                         </Card>
 
@@ -1304,33 +1265,33 @@ class smartcoLink extends Component {
                                                                                     marginTop:"1%"
 
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         color: "#79beff",
                                                                                         marginLeft: "auto",
                                                                                         marginRight: "auto",
                                                                                         fontWeight: "bold",
                                                                                         fontSize: "small"
                                                                                     }}>SARL SA pate d'actionnaires
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
                                                                                     marginTop: "2%"
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         fontSize: "small",
                                                                                         fontWeight: "bold"
                                                                                     }}>Anticipez les situations delicates qui peuvent survenir entre actionnaires
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div className="mt-auto"style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
 
                                                                                 }} >
-                                                                                    <text style={{fontSize: "small"}}><a>En savoir
-                                                                                        plus</a></text>
+                                                                                    <label style={{fontSize: "small"}}><a>En savoir
+                                                                                        plus</a></label>
                                                                                 </div>
 
 
@@ -1340,12 +1301,12 @@ class smartcoLink extends Component {
                                                                                 cursor: "pointer",
                                                                                 textAlign: "center"
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     color: "white",
                                                                                     fontWeight: "bold",
                                                                                     fontSize: "small"
                                                                                 }}>J'en profite
-                                                                                </text>
+                                                                                </label>
                                                                             </Card.Footer>
                                                                         </Card>
 
@@ -1357,12 +1318,12 @@ class smartcoLink extends Component {
                                                                                     <div className="row">
                                                                                         <img style={{width: "12%", color: "red"}}
                                                                                              src={offreFlash}/>
-                                                                                        <text style={{
+                                                                                        <label style={{
                                                                                             fontWeight: "bold",
                                                                                             color: "#f95437",
                                                                                             fontSize: "small"
                                                                                         }}>OFFRE FLASH
-                                                                                        </text>
+                                                                                        </label>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="col-sm-4" style={{
@@ -1370,12 +1331,12 @@ class smartcoLink extends Component {
                                                                                     textAlign: "left",
                                                                                     borderRadius: "10%"
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         color: "white",
                                                                                         fontWeight: "bold",
                                                                                         fontSize: "small"
                                                                                     }}>- 10%
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                             </div>
 
@@ -1396,33 +1357,33 @@ class smartcoLink extends Component {
                                                                                     marginTop:"1%"
 
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         color: "#79beff",
                                                                                         marginLeft: "auto",
                                                                                         marginRight: "auto",
                                                                                         fontWeight: "bold",
                                                                                         fontSize: "small"
                                                                                     }}>Augumentation de capitale
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
                                                                                     marginTop: "2%"
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         fontSize: "small",
                                                                                         fontWeight: "bold"
                                                                                     }}>Développez votre activité avec SmartCo et son partenaire Notaire.
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div className="mt-auto"style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
 
                                                                                 }} >
-                                                                                    <text style={{fontSize: "small"}}><a>En savoir
-                                                                                        plus</a></text>
+                                                                                    <label style={{fontSize: "small"}}><a>En savoir
+                                                                                        plus</a></label>
                                                                                 </div>
 
 
@@ -1433,12 +1394,12 @@ class smartcoLink extends Component {
                                                                                 textAlign: "center"
                                                                             }}>
 
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     color: "white",
                                                                                     fontWeight: "bold",
                                                                                     fontSize: "small"
                                                                                 }}>J'en profite
-                                                                                </text>
+                                                                                </label>
                                                                             </Card.Footer>
                                                                         </div>
 
@@ -1478,33 +1439,33 @@ class smartcoLink extends Component {
                                                                                     marginTop:"1%"
 
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         color: "#79beff",
                                                                                         marginLeft: "auto",
                                                                                         marginRight: "auto",
                                                                                         fontWeight: "bold",
                                                                                         fontSize: "small"
                                                                                     }}>Embauche d'un salarié
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
                                                                                     marginTop: "2%"
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         fontSize: "small",
                                                                                         fontWeight: "bold"
                                                                                     }}>Generez automatiquement un contrat CDI/CDD sur mesure
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div className="mt-auto"style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
 
                                                                                 }} >
-                                                                                    <text style={{fontSize: "small"}}><a>En savoir
-                                                                                        plus</a></text>
+                                                                                    <label style={{fontSize: "small"}}><a>En savoir
+                                                                                        plus</a></label>
                                                                                 </div>
 
 
@@ -1515,12 +1476,12 @@ class smartcoLink extends Component {
                                                                                 cursor: "pointer",
                                                                                 textAlign: "center"
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     color: "white",
                                                                                     fontWeight: "bold",
                                                                                     fontSize: "small"
                                                                                 }}>J'en profite
-                                                                                </text>
+                                                                                </label>
                                                                             </Card.Footer>
                                                                         </div>
 
@@ -1532,12 +1493,12 @@ class smartcoLink extends Component {
                                                                                         <div className="row">
                                                                                             <img style={{width: "12%", color: "red"}}
                                                                                                  src={offreFlash}/>
-                                                                                            <text style={{
+                                                                                            <label style={{
                                                                                                 fontWeight: "bold",
                                                                                                 color: "#f95437",
                                                                                                 fontSize: "small"
                                                                                             }}>OFFRE FLASH
-                                                                                            </text>
+                                                                                            </label>
                                                                                         </div>
                                                                                     </div>
                                                                                     <div className="col-sm-4" style={{
@@ -1545,12 +1506,12 @@ class smartcoLink extends Component {
                                                                                         textAlign: "left",
                                                                                         borderRadius: "10%"
                                                                                     }}>
-                                                                                        <text style={{
+                                                                                        <label style={{
                                                                                             color: "white",
                                                                                             fontWeight: "bold",
                                                                                             fontSize: "small"
                                                                                         }}>- 10%
-                                                                                        </text>
+                                                                                        </label>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -1579,33 +1540,33 @@ class smartcoLink extends Component {
                                                                                     marginTop:"1%"
 
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         color: "#79beff",
                                                                                         marginLeft: "auto",
                                                                                         marginRight: "auto",
                                                                                         fontWeight: "bold",
                                                                                         fontSize: "small"
                                                                                     }}>Recouvrement de factures
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div className="mt-2" style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
                                                                                     marginTop: "2%"
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         fontSize: "small",
                                                                                         fontWeight: "bold"
                                                                                     }}>Recouvrement vos factures avec SmartCo
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div className="mt-auto"style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
 
                                                                                 }} >
-                                                                                    <text style={{fontSize: "small"}}><a>En savoir
-                                                                                        plus</a></text>
+                                                                                    <label style={{fontSize: "small"}}><a>En savoir
+                                                                                        plus</a></label>
                                                                                 </div>
 
 
@@ -1618,12 +1579,12 @@ class smartcoLink extends Component {
                                                                                 textAlign: "center",
                                                                                 bottom:"0"
                                                                             }}>
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     color: "white",
                                                                                     fontWeight: "bold",
                                                                                     fontSize: "small"
                                                                                 }}>J'en profite
-                                                                                </text>
+                                                                                </label>
                                                                             </div>
                                                                         </div>
 
@@ -1646,33 +1607,33 @@ class smartcoLink extends Component {
                                                                                     marginTop:"1%"
 
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         color: "#79beff",
                                                                                         marginLeft: "auto",
                                                                                         marginRight: "auto",
                                                                                         fontWeight: "bold",
                                                                                         fontSize: "small"
                                                                                     }}>Conditions générale de ventes (CGV)
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
                                                                                     marginTop: "2%"
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         fontSize: "small",
                                                                                         fontWeight: "bold"
                                                                                     }}>Protégez vos transactions en ligne et hors ligne gràce a nos modèles
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </div>
                                                                                 <div style={{
                                                                                     width: "100%",
                                                                                     textAlign: "center",
 
                                                                                 }} >
-                                                                                    <text style={{fontSize: "small"}}><a>En savoir
-                                                                                        plus</a></text>
+                                                                                    <label style={{fontSize: "small"}}><a>En savoir
+                                                                                        plus</a></label>
                                                                                 </div>
 
 
@@ -1685,12 +1646,12 @@ class smartcoLink extends Component {
                                                                                 textAlign: "center"
                                                                             }}>
 
-                                                                                <text style={{
+                                                                                <label style={{
                                                                                     color: "white",
                                                                                     fontWeight: "bold",
                                                                                     fontSize: "small"
                                                                                 }}>J'en profite
-                                                                                </text>
+                                                                                </label>
                                                                             </Card.Footer>
                                                                         </div>
 
@@ -1801,34 +1762,34 @@ class smartcoLink extends Component {
                                                                                         width: "80%",
                                                                                         textAlign: "center"
                                                                                     }}>
-                                                                                        <text style={{
+                                                                                        <label style={{
                                                                                             color: "white",
                                                                                             marginLeft: "auto",
                                                                                             marginRight: "auto",
                                                                                             fontWeight: "bold",
                                                                                             fontSize: "small"
                                                                                         }}>Domicialitation
-                                                                                        </text>
+                                                                                        </label>
                                                                                     </div>
                                                                                     <div style={{
                                                                                         width: "100%",
                                                                                         textAlign: "center",
                                                                                         marginTop: "2%"
                                                                                     }}>
-                                                                                        <text style={{
+                                                                                        <label style={{
                                                                                             fontSize: "small",
                                                                                             fontWeight: "bold"
                                                                                         }}>Une adresse prestigieuse pour ma domiciliation
-                                                                                        </text>
+                                                                                        </label>
                                                                                     </div>
                                                                                     <div style={{
                                                                                         width: "100%",
                                                                                         textAlign: "center",
                                                                                         marginTop: "2%"
                                                                                     }}>
-                                                                                        <text style={{fontSize: "small"}}><a>En
+                                                                                        <label style={{fontSize: "small"}}><a>En
                                                                                             savoir
-                                                                                            plus</a></text>
+                                                                                            plus</a></label>
                                                                                     </div>
 
 
@@ -1838,12 +1799,12 @@ class smartcoLink extends Component {
                                                                                     cursor: "pointer",
                                                                                     textAlign: "center"
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         color: "white",
                                                                                         fontWeight: "bold",
                                                                                         fontSize: "small"
                                                                                     }}>J'en profite
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </Card.Footer>
                                                                             </Card>
 
@@ -1866,34 +1827,34 @@ class smartcoLink extends Component {
                                                                                         width: "80%",
                                                                                         textAlign: "center"
                                                                                     }}>
-                                                                                        <text style={{
+                                                                                        <label style={{
                                                                                             color: "white",
                                                                                             marginLeft: "auto",
                                                                                             marginRight: "auto",
                                                                                             fontWeight: "bold",
                                                                                             fontSize: "small"
                                                                                         }}>Token Shares
-                                                                                        </text>
+                                                                                        </label>
                                                                                     </div>
                                                                                     <div style={{
                                                                                         width: "100%",
                                                                                         textAlign: "center",
                                                                                         marginTop: "2%"
                                                                                     }}>
-                                                                                        <text style={{
+                                                                                        <label style={{
                                                                                             fontSize: "small",
                                                                                             fontWeight: "bold"
                                                                                         }}>Simple, rapide, en ligne Tokeniser vos actions
-                                                                                        </text>
+                                                                                        </label>
                                                                                     </div>
                                                                                     <div style={{
                                                                                         width: "100%",
                                                                                         textAlign: "center",
                                                                                         marginTop: "2%"
                                                                                     }}>
-                                                                                        <text style={{fontSize: "small"}}><a>En
+                                                                                        <label style={{fontSize: "small"}}><a>En
                                                                                             savoir
-                                                                                            plus</a></text>
+                                                                                            plus</a></label>
                                                                                     </div>
 
 
@@ -1903,12 +1864,12 @@ class smartcoLink extends Component {
                                                                                     cursor: "pointer",
                                                                                     textAlign: "center"
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         color: "white",
                                                                                         fontWeight: "bold",
                                                                                         fontSize: "small"
                                                                                     }}>J'en profite
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </Card.Footer>
                                                                             </Card>
 
@@ -1931,34 +1892,34 @@ class smartcoLink extends Component {
                                                                                         width: "65%",
                                                                                         textAlign: "center"
                                                                                     }}>
-                                                                                        <text style={{
+                                                                                        <label style={{
                                                                                             color: "white",
                                                                                             marginLeft: "auto",
                                                                                             marginRight: "auto",
                                                                                             fontWeight: "bold",
                                                                                             fontSize: "small"
                                                                                         }}>Assurance
-                                                                                        </text>
+                                                                                        </label>
                                                                                     </div>
                                                                                     <div style={{
                                                                                         width: "100%",
                                                                                         textAlign: "center",
                                                                                         marginTop: "2%"
                                                                                     }}>
-                                                                                        <text style={{
+                                                                                        <label style={{
                                                                                             fontSize: "small",
                                                                                             fontWeight: "bold"
                                                                                         }}>Protéger votre société contre les imprévus
-                                                                                        </text>
+                                                                                        </label>
                                                                                     </div>
                                                                                     <div style={{
                                                                                         width: "100%",
                                                                                         textAlign: "center",
                                                                                         marginTop: "2%"
                                                                                     }}>
-                                                                                        <text style={{fontSize: "small"}}><a>En
+                                                                                        <label style={{fontSize: "small"}}><a>En
                                                                                             savoir
-                                                                                            plus</a></text>
+                                                                                            plus</a></label>
                                                                                     </div>
 
 
@@ -1968,12 +1929,12 @@ class smartcoLink extends Component {
                                                                                     cursor: "pointer",
                                                                                     textAlign: "center"
                                                                                 }}>
-                                                                                    <text style={{
+                                                                                    <label style={{
                                                                                         color: "white",
                                                                                         fontWeight: "bold",
                                                                                         fontSize: "small"
                                                                                     }}>J'en profite
-                                                                                    </text>
+                                                                                    </label>
                                                                                 </Card.Footer>
                                                                             </Card>
 
@@ -2126,14 +2087,14 @@ class smartcoLink extends Component {
                                               <div style={{textAlign:"center" , marginTop:"10%"}}>
                                                   <div>
                                                       <h6 style={{color:"blue" , fontWeight:"bold"}}>Profitez de 30 jours gratuits.</h6>
-                                                      <small> puis <text style={{fontWeight:"bold"}}>29,9 €HT</text> sans engagement</small>
+                                                      <small> puis <label style={{fontWeight:"bold"}}>29,9 €HT</label> sans engagement</small>
 
                                                   </div>
 
                                               </div>
                                               <div style={{marginTop:"6%"}}>
                                                   <button type="button"
-                                                          className="btn  btn-lg btn-block"  style={{backgroundColor:"#1ca973" ,}}><text style={{color:"white"}}>J'essaie gratuitement</text>
+                                                          className="btn  btn-lg btn-block"  style={{backgroundColor:"#1ca973" ,}}><label style={{color:"white"}}>J'essaie gratuitement</label>
                                                   </button>
 
                                               </div>
@@ -2184,7 +2145,7 @@ class smartcoLink extends Component {
                                                             <img src={grid} style={{width:"18%"}}/>
                                                         </div>
                                                         <div className="row">
-                                                            <div className="col-md-2"> <text style={{fontWeight:"bold", color:"red",fontFamily:"serif"}}>Option*</text></div>
+                                                            <div className="col-md-2"> <label style={{fontWeight:"bold", color:"red",fontFamily:"serif"}}>Option*</label></div>
                                                             <div className="col-md-8"><h6>Salon privés </h6></div>
                                                         </div>
                                                         <div>
@@ -2198,7 +2159,7 @@ class smartcoLink extends Component {
                                                             <img src={video}/>
                                                         </div>
                                                         <div className="row">
-                                                            <div className="col-md-2"> <text style={{fontWeight:"bold", color:"red",fontFamily:"serif"}}>Option*</text></div>
+                                                            <div className="col-md-2"> <label style={{fontWeight:"bold", color:"red",fontFamily:"serif"}}>Option*</label></div>
                                                             <div className="col-md-8"><h6>Visioconférence </h6></div>
                                                         </div>
                                                         <div>
@@ -2222,7 +2183,7 @@ class smartcoLink extends Component {
                                                 <div style={{marginTop:"3%"}}>
                                                     <button onClick={()=>{this.setState({showModal2:true ,
                                                     modalStep2:"assemble general"})}}  type="button"
-                                                            className="btn  btn-lg btn-block"  style={{backgroundColor:"#1ca973" ,}}><text style={{color:"white"}}>J'essaie gratuitement</text>
+                                                            className="btn  btn-lg btn-block"  style={{backgroundColor:"#1ca973" ,}}><label style={{color:"white"}}>J'essaie gratuitement</label>
                                                     </button>
 
                                                 </div>
@@ -2309,7 +2270,7 @@ class smartcoLink extends Component {
                                                 <div style={{marginTop:"3%"}}>
                                                     <button onClick={()=>{this.setState({showModal2:true ,
                                                         modalStep2:"Compta Enfin1"})}}  type="button"
-                                                             className="btn  btn-lg btn-block"  style={{backgroundColor:"#1ca973" ,}}><text style={{color:"white"}}>J'essaie gratuitement</text>
+                                                             className="btn  btn-lg btn-block"  style={{backgroundColor:"#1ca973" ,}}><label style={{color:"white"}}>J'essaie gratuitement</label>
                                                     </button>
 
                                                 </div>
@@ -2591,7 +2552,7 @@ class smartcoLink extends Component {
                                                                 <h4 style={{color:"white"}}>Débutez gratuitement votre première réunion</h4>
                                                             </div>
                                                             <div>
-                                                                <text style={{color:"white"}}>Invitez vos collaborateurs et participez à une visioconférence rapide, fluide, et sécurisée partout dans le monde.</text>
+                                                                <label style={{color:"white"}}>Invitez vos collaborateurs et participez à une visioconférence rapide, fluide, et sécurisée partout dans le monde.</label>
 
                                                             </div>
                                                             <div style={{marginTop:"5%"}}>
@@ -2633,7 +2594,7 @@ class smartcoLink extends Component {
 
                                                     </div>
                                                     <div style={{color:"#c0c0c0"}}className="text-left col-md-8 col-sm-8 col-8">
-                                                        <text className="text-left">Aucune saisie , aucune logiciel a telcharger pour démarrer votre essai gratuit</text>
+                                                        <label className="text-left">Aucune saisie , aucune logiciel a telcharger pour démarrer votre essai gratuit</label>
 
                                                     </div>
 
@@ -2646,7 +2607,7 @@ class smartcoLink extends Component {
                                                     </div>
                                                     <div className="text-left col-md-8 col-sm-8 col-8
                                                     ">
-                                                        <text style={{color:"#c0c0c0"}}>Toute votre comptabilité sur Enfin ! Smartco pour un abonnement tres attractif</text>
+                                                        <label style={{color:"#c0c0c0"}}>Toute votre comptabilité sur Enfin ! Smartco pour un abonnement tres attractif</label>
 
                                                     </div>
 
@@ -2659,7 +2620,7 @@ class smartcoLink extends Component {
                                                     </div>
                                                     <div className="text-left col-md-8 col-sm-8 col-8
                                                     ">
-                                                        <text style={{color:"#c0c0c0"}}>Service support disponible en illimité de 9h a 19h du lundi au vendredi</text>
+                                                        <label style={{color:"#c0c0c0"}}>Service support disponible en illimité de 9h a 19h du lundi au vendredi</label>
 
                                                     </div>
 

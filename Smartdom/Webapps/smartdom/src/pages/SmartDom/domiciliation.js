@@ -44,7 +44,6 @@ import vaud from "../../assets/images/domiciliation/contant de vaud.png"
 
 const Topbar = React.lazy(() => import("../../components/Topbar"));
 const loading = () => <Loader/>;
-const google = window.google;
 
 
 moment.locale('fr');

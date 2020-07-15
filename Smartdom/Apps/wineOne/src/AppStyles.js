@@ -7,7 +7,8 @@ import defaultConfig from "./constants/defaultConfig";
 export const landing = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 50
+    padding: 50,
+    paddingTop:15
   },
   title: {
     color: '#2d65c9',

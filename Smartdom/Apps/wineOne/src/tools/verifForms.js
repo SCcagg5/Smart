@@ -1,7 +1,7 @@
 let verifForms = {
 
     verif_inpuText:function(text) {
-        return text === '' || text.trim() === '';
+        if(text !== null && text !== undefined) return text === '';
     },
 
     verif_Number:function(phone){

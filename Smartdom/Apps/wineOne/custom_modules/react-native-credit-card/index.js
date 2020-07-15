@@ -36,7 +36,7 @@ class CreditCard extends Component {
     componentWillReceiveProps(nextProps) {
         this.updateType(nextProps);
     }
-    componentWillMount() {
+    componentDidMount() {
         this.updateType(this.props);
     }
     updateType(props) {
@@ -151,20 +151,20 @@ class CreditCard extends Component {
                                 : null}
 
                             <View style={{
-
                                 position: 'absolute',
-                                top: 20,
-
+                                top: 30,
                                 left:20}}>
-                                <Image source={require('../../src/assets/images/logo.png')}  style={{
+                                <Text style={{ color: '#000',
+                                    fontSize: 22,
+                                    fontFamily:"sans-serif-medium",
                                     textAlign: 'center',
-                                    marginBottom: 10,
-                                    height:50,
-                                    width:250
-                                   }}></Image>
+                                    backgroundColor: 'transparent'}}>{this.props.cardName}</Text>
                             </View>
 
-
+                            <Image
+                                 style={styles.logo}
+                                 source={this.props.logo}
+                            />
                             {isAmex ?
                                 <View style={styles.cvcFront}>
                                     <Text style={styles.text}>{this.getValue("cvc")}</Text>
@@ -174,7 +174,7 @@ class CreditCard extends Component {
                                 <View style={styles.number}><Text style={styles.textNumber}>{this.getValue("number")}</Text></View>
                                 <View style={styles.rowWrap}>
                                     <View style={styles.name}><Text style={styles.textName}>{this.getValue("name")}</Text></View>
-                                    <View style={styles.validthru}><Text style={styles.textValidThru}>En cours de validité</Text></View>
+                                    <View style={styles.validthru}><Text style={styles.textValidThru}>{this.props.statusText}</Text></View>
                                     <View
                                         style={styles.expiry}
                                         data-before={this.props.expiryBefore}
@@ -207,18 +207,20 @@ class CreditCard extends Component {
 const styles = StyleSheet.create({
     container: {
         borderRadius: 8,
-        borderWidth: 0,
+        borderWidth: 2,
         flex: 1,
+        borderColor:"#f0f0f0"
     },
     logo: {
-        height: 50,
-        width: 57,
+        height: 25,
+        width: 120,
         position: 'absolute',
-        top: 20,
-        right: 20
+        top: 5,
+        right: 10,
+        resizeMode:"cover"
     },
     text: {
-        color: '#fff'
+        color: '#000'
     },
     bgImage: {
         position: 'absolute',
@@ -253,33 +255,37 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     textValidThru: {
-        fontSize: 8,
-        color: '#ddd',
-        fontWeight: '900',
+        fontSize: 11,
+        color: '#27BF0F',
         backgroundColor: 'transparent',
+        fontFamily:"sans-serif-medium",
     },
     textSmall: {
         fontSize: 8,
-        color: '#ddd',
+        color: '#d3d3d3',
         fontWeight: '900',
         backgroundColor: 'transparent',
+        fontFamily:"sans-serif-medium",
     },
     textNumber: {
-        color: '#fff',
+        color: '#981b1a',
+        fontFamily:"sans-serif-medium",
         fontSize: 22,
         textAlign: 'center',
         marginBottom: 10,
         backgroundColor: 'transparent',
     },
     textName: {
-        color: '#fff',
-        fontSize: 14,
+        color: '#000',
+        fontSize: 12,
         backgroundColor: 'transparent',
+        fontFamily:"sans-serif-medium",
     },
     textExpiry: {
-        color: '#fff',
+        color: '#000',
         fontSize: 16,
         backgroundColor: 'transparent',
+        fontFamily:"sans-serif-medium",
     },
     front: {
 
@@ -302,7 +308,6 @@ const styles = StyleSheet.create({
         fontSize: 18
     },
     info: {
-
         flex: 1,
     },
     shinyFront: {
@@ -345,7 +350,7 @@ CreditCard.defaultProps = {
     type: null,
     width: 300,
     height: 180,
-    bgColor: '#981b1a',
+    bgColor: '#fff',
 };
 
 CreditCard.CardImages = images;

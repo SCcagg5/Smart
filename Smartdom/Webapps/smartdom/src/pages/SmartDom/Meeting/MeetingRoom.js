@@ -1,12 +1,10 @@
 import React from 'react';
-import Nestable from 'react-nestable';
 import {Modal, ModalBody, ModalHeader, Collapse} from 'reactstrap';
 import firebase from 'firebase/app';
 import 'firebase/database';
 import moment from 'moment';
 import augmCapitalService from '../../../provider/augmCapitalService';
 import entrepriseSARLService from '../../../provider/entrepriseSARLService';
-import smartCoService from '../../../provider/smartCoService';
 import MySnackbarContentWrapper from '../../../tools/customSnackBar';
 import Snackbar from '@material-ui/core/Snackbar';
 import Loader from '../../../components/Loader';

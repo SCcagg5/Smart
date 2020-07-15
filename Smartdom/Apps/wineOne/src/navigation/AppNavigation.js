@@ -1,52 +1,45 @@
 import React from 'react';
-import {View, AsyncStorage, Dimensions} from 'react-native';
+import {View, AsyncStorage, Dimensions, ActivityIndicator} from 'react-native';
 import {
     createStackNavigator,
     createAppContainer,
     createBottomTabNavigator,
     createSwitchNavigator,
 } from 'react-navigation';
-import WelcomeScreen from '../pages/Welcome/WelcomeScreen';
-import LogInScreen from '../pages/LogIn/LogInScreen';
-import SignUpScreen from '../pages/SignUp/SignUpScreen';
-
-import Comptes from '../pages/Comptes/Comptes';
-import Dashboard from '../pages/Dashboard/Dashboard';
+import LogInScreen from '../pages/Auth/LogIn/LogInScreen';
 import {Icon} from 'react-native-elements'
 import defaultConfig from "../constants/defaultConfig";
-
-import RegisterPhoneNumber from "../pages/LogIn/registerPhoneNumber"
-
-import ProfileScreen from "../pages/Profile/ProfileScreen";
-
-import PinCode from "../pages/PinCode/PinCode"
-import scan from "../pages/scan/scan";
-
-import commander from "../pages/wines/commander"
-import wines from "../pages/wines/wines"
-import Wine from "../pages/wines/wine"
-import PlayVideo from "../pages/wines/Video"
-import stripeWebView from "../pages/wines/stripeWebView";
-import listcard from "../pages/Cards/listcard";
-import addCard from "../pages/Cards/addCard";
-import selectCard from "../pages/wines/selectCard";
-import wallets from "../pages/Wallets/wallets";
+import EmptyPage from "../pages/emptyPage/EmptyPage";
+import SignUpScreen from "../pages/Auth/SignUp/SignUpScreen";
+import PinCode from "../pages/Auth/PinCode/PinCode";
+import ProfileScreen from "../pages/Auth/Profile/ProfileScreen";
+import CardService from "../pages/CardService/CardService";
+import Journal from "../pages/Journal/Journal";
+import EditAccount from "../pages/Auth/Profile/EditAccount";
+import Items from "../pages/Shop/Items";
+import Panier from "../pages/Panier/Panier";
+import Scanner from "../pages/Scan/Scanner";
+import Cards from "../pages/CreditCards/Cards";
+import Orders from "../pages/Orders/Orders";
+import OrderDetail from "../pages/Orders/OrderDetail";
+import ContactListe from "../pages/Scan/Transfer/ContactListe";
+import ContactDetail from "../pages/Scan/Transfer/ContactDetail";
+import ShareTransferLink from "../pages/Scan/Transfer/ShareTransferLink";
+import ItemDetail from "../pages/Shop/ItemDetail";
 
 class AppNavigation extends React.Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            redirectTo: ""
-        }
+    state = {
+        loading: true,
+        redirectTo: ""
     }
 
     componentDidMount() {
-        AsyncStorage.getItem("user").then(value => {
+        AsyncStorage.getItem("pinCode").then(value => {
             if (value === undefined || value === null) {
-                this.setState({redirectTo: "login"})
+                this.setState({redirectTo: "login",loading:false})
             } else {
-                this.setState({redirectTo: "home"})
+                this.setState({redirectTo: "home",loading:false})
             }
         });
     }
@@ -55,66 +48,64 @@ class AppNavigation extends React.Component {
     render() {
         const LandingNavigator = createStackNavigator(
             {
-                Welcome: WelcomeScreen,
                 LogIn: LogInScreen,
                 SignUp: SignUpScreen,
-                RegisterPhoneNumber: RegisterPhoneNumber
+                PinCode: PinCode
             },
             {
-                initialRouteName: 'Welcome'
+                initialRouteName: this.state.redirectTo === "login" ? "LogIn" : "PinCode"
             }
         );
         const TabNavigator = createBottomTabNavigator(
             {
                 Comptes: {
-                    screen: wines,
+                    screen: CardService,
                     navigationOptions: {
-                        title: 'Carte listes services',
+                        title: 'Comptes',
                         tabBarIcon: ({tintColor}) => (
-                            <Icon color={tintColor} size={24} type="material" name='store'/>
+                            <Icon color={tintColor} size={20} type="font-awesome" name='credit-card'/>
                         )
                     }
                 },
-               Statistiques: {
-                    screen: scan,
+                Shop: {
+                    screen: Items,
                     navigationOptions: {
+                        title: "Shop",
                         tabBarIcon: ({tintColor}) => (
                             <View>
-                                <Icon color={tintColor} size={24} type="font-awesome" name='qrcode'/>
+                                <Icon color={tintColor} size={20} type="feather" name='shopping-cart'/>
                             </View>
                         )
                     }
                 },
-                         BodyCheck: {
-                    screen: wallets,
+                Portefeuille: {
+                    screen: EmptyPage,
                     navigationOptions: {
-
-                        title: 'BodyCheck',
+                        title: 'Portefeuille',
                         tabBarIcon: ({tintColor}) => (
                             <View>
-                                <Icon style={[{color: tintColor}]} type="simple-line-icon" size={24} name="wallet"/>
+                                <Icon color={tintColor} size={20} type="simple-line-icon" name="wallet"/>
                             </View>
                         )
                     }
                 },
-                /*
-                Depenses: {
-                    screen: Depenses,
+                Scan: {
+                    screen: Scanner,
                     navigationOptions: {
-                        title: 'Dépenses',
+                        title: 'Scan',
                         tabBarIcon: ({tintColor}) => (
                             <View>
-                                <Icon color={tintColor} size={24} type="font-awesome" name='shopping-cart'/>
+                                <Icon color={tintColor} size={20} type="antdesign" name='scan1'/>
                             </View>
                         )
                     }
-                },*/
+                },
                 Dashboard: {
-                    screen: Dashboard,
+                    screen: ProfileScreen,
                     navigationOptions: {
-                        title: 'Mon compte',
+                        title: 'Tableau de bord',
                         tabBarIcon: ({tintColor}) => (
-                            <Icon color={tintColor} size={24} type="font-awesome" name='user'/>
+                            <Icon color={tintColor} size={20} type="material" name='dashboard'/>
                         )
                     }
                 }
@@ -123,12 +114,6 @@ class AppNavigation extends React.Component {
                 initialRouteName: 'Comptes',
                 navigationOptions: ({navigation}) => {
                     var {routeName} = navigation.state.routes[navigation.state.index];
-                    if (routeName === "BodyCheck")
-                        routeName = "BodyCheck";
-
-                    if (routeName === "Dashboard")
-                        routeName = "tableau de bord";
-
 
                     return {
                         headerTitle: routeName,
@@ -148,15 +133,27 @@ class AppNavigation extends React.Component {
                     };
                 },
                 tabBarOptions: {
-                    showLabel: false,
-                    activeTintColor: '#70B62F',
+                    showLabel: true,
+                    activeTintColor: '#981b1a',
                     inactiveTintColor: '#c0c0c0',
+                    iconStyle: {},
                     labelStyle: {
-                        fontSize: 10
+                        fontSize: 10,fontWeight:"bold"
                     },
                     style: {
-                        backgroundColor: '#fafafa'
-                    }
+                        //alignItems:"center",
+                        backgroundColor: '#fff',
+                        borderTopWidth: 1,
+                        borderTopColor: "#f0f0f0",
+                        borderTopLeftRadius: 20,
+                        borderTopRightRadius: 20,
+                        borderLeftWidth: 1,
+                        borderRightWidth: 1,
+                        borderRightColor: "#f0f0f0",
+                        borderLeftColor: "#f0f0f0",
+                        height: 65,
+                        paddingBottom: 15
+                    },
                 }
             }
         );
@@ -164,47 +161,17 @@ class AppNavigation extends React.Component {
         const MainNavigator = createStackNavigator(
             {
                 Nav: TabNavigator,
-                Profile: ProfileScreen,
-                /*
-                ChatBot: BotCreateSociety,
-                BondDetails: BondDetails,
-                ChooseAddPayementMethod: ChooseAddPayementMethod,
-                TransferBondFirstScreen: TransferBondFirstScreen,
-                TransferBondContactList: TransferBondContactList,
-                SelectedContactScreen: SelectedContactScreen,
-                AmountBondToSendScreen: AmountBondToSendScreen,
-                SendLinkAmountScreen: SendLinkAmountScreen,
-                Dons: Dons,
-                DetailDon: DetailDon,
-                MiseEnPlaceDon: MiseEnPlaceDon,
-                PetiteMonnaieScreen: PetiteMonnaieScreen,
-                PetiteMonnaieValidateScreen: PetiteMonnaieValidateScreen,
-                NewRecurentDon: NewRecurentDon,
-                DonRecurentValidateScreen: DonRecurentValidateScreen,
-                RevolutAddPayment: RevolutAddPayment,
-                QuestionsWebView: QuestionsWebView,
-                Products:Products,
-
-                ProductDetails:ProductDetails,
-                ProductPaiement:ProductPaiement,
-                PaiementMethod:PaiementMethod,
-                Landing:LandingNavigator,
-                TakePicyure:TakePicyure,
-                ValidatePicture:ValidatePicture,
-                */
-                Wines:wines,
-                parcourirRepas:wines,
-                listcards:listcard,
-                wine:Wine,
-                PlayVideo:PlayVideo,
-                commander:commander,
-
-
-                stripe:stripeWebView,
-                scan:scan,
-                addcard:addCard,
-                selectCard:selectCard
-
+                Empty: EmptyPage,
+                EditAccount:EditAccount,
+                Panier:Panier,
+                Cards:Cards,
+                Orders:Orders,
+                OrderDetail:OrderDetail,
+                ContactListe:ContactListe,
+                ContactDetail:ContactDetail,
+                ShareTransferLink:ShareTransferLink,
+                ItemDetail:ItemDetail
+                //PdfViewr:PdfViewr,
             },
             {
 
@@ -235,20 +202,21 @@ class AppNavigation extends React.Component {
                 },
                 Main: {
                     screen: MainNavigator
-                },
-                pinCode: {
-                    screen: PinCode
                 }
             },
             {
 
-                initialRouteName: this.state.redirectTo === "login" ? "Landing" : "pinCode"
+                initialRouteName: "Landing"
             }
         );
         const AppContainer = createAppContainer(Navigator);
 
         return (
-            <AppContainer/>
+            this.state.loading === true ?
+                <View style={{flex: 1, justifyContent: "center", flexDirection: "row", backgroundColor: "#fff"}}>
+                    <ActivityIndicator size="large" color="red"/>
+                </View> :
+                <AppContainer/>
         )
     }
 

@@ -6,7 +6,6 @@ import Snackbar from "@material-ui/core/Snackbar";
 import moment from "moment";
 import "moment/locale/fr"
 import Loader from "../../components/Loader";
-import posed from 'react-pose';
 
 import  switzerland from "../../assets/images/domiciliation/switzerland.svg"
 import facetime from "../../assets/images/smartDom/facetime.png"
@@ -19,14 +18,6 @@ import swisschat from "../../assets/images/smartDom/swisschat.png"
 
 
 
-import instagram from "../../assets/images/socialMedia/instagram.svg"
-import linkedin from "../../assets/images/socialMedia/linkedin.svg"
-import facebook from "../../assets/images/socialMedia/facebook.svg"
-import twitter from "../../assets/images/socialMedia/twitter.svg"
-import user from "../../assets/images/users/user-5.jpg"
-import customerWhite from "../../assets/images/domiciliation/customerWhite.svg"
-import Rgeneve from "../../assets/images/domiciliation/republique de geneve.png"
-import vaud from "../../assets/images/domiciliation/contant de vaud.png"
 
 
 
@@ -37,28 +28,12 @@ import check from "../../assets/images/smartDom/check.svg"
 
 const Topbar = React.lazy(() => import("../../components/Topbar"));
 const loading = () => <Loader/>;
-const google = window.google;
 
 
 moment.locale('fr');
 
 
-const Box = posed.div({
-    hoverable: true,
-    pressable: true,
-    init: {
-        scale: 1,
-        boxShadow: '0px 0px 0px rgba(0,0,0,0)'
-    },
-    hover: {
-        scale: 1.13,
-        boxShadow: '0px 5px 10px rgba(0,0,0,0.2)'
-    },
-    press: {
-        scale: 1.1,
-        boxShadow: '0px 2px 5px rgba(0,0,0,0.1)'
-    }
-});
+
 
 
 
@@ -129,14 +104,14 @@ class  fonctionnalite extends Component {
                                <div className="col-md-4  ">
                                    <h1>Fonctionnalités</h1>
                                   <div className="text-left ml-5 mt-5 ">
-                                   <img src={facetime } />
+                                   <img  src={facetime } alt={"Smart.Visio"} />
                                    <h1 className="font-weight-bold" style={{color:"#0364c0"}}> Smart.Visio</h1>
                                   </div>
 
                                </div>
                                 <div className="col-md-4">
 
-                                    <img src={meet} style={{width:"100%"}}/>
+                                    <img alt={""} src={meet} style={{width:"100%"}}/>
 
 
 
@@ -151,7 +126,7 @@ class  fonctionnalite extends Component {
                                 <div className="col-md-4">
                                     <div className="row align-items-center">
                                         <div className="col-md-2 text-center ">
-                                            <img src={check} style={{width:"50%"}}/>
+                                            <img alt={""} src={check} style={{width:"50%"}}/>
                                         </div>
 
                                            <div className="col-md-10">
@@ -180,7 +155,7 @@ class  fonctionnalite extends Component {
                                 <div className="col-md-4">
                                     <div className="row align-items-center">
                                         <div className="col-md-2 text-center ">
-                                            <img src={check} style={{width:"50%"}}/>
+                                            <img alt={""} src={check} style={{width:"50%"}}/>
                                         </div>
 
                                         <div className="col-md-10">
@@ -210,14 +185,14 @@ class  fonctionnalite extends Component {
                                 <div className="col-md-4">
                                     <div className="row ">
                                         <div className="col-md-2 text-center mt-2 ">
-                                            <img src={check} style={{width:"50%"}}/>
+                                            <img alt={""} src={check} style={{width:"50%"}}/>
                                         </div>
 
                                         <div className="col-md-10">
 
 
 
-                                            <h3 className="font-weight-bold" style={{fontFamily:"sans-serif"}}>Données sécurisées en Suisse <img src={switzerland} style={{width:"8%",borderRadius:100}}/></h3>
+                                            <h3 className="font-weight-bold" style={{fontFamily:"sans-serif"}}>Données sécurisées en Suisse <img alt={""} src={switzerland} style={{width:"8%",borderRadius:100}}/></h3>
                                         </div>
 
 
@@ -247,10 +222,10 @@ class  fonctionnalite extends Component {
                             <div className="row">
                                 <div className="col-md-6">
                                     <div>
-                                    <h1 className="font-weight-bold" style={{color:"#0364c0"}}>SmartCalendar + <img src={facetime} style={{width:"10%"}}/>  Meet  </h1>
+                                    <h1 className="font-weight-bold" style={{color:"#0364c0"}}>SmartCalendar + <img alt={""} src={facetime} style={{width:"10%"}}/>  Meet  </h1>
                                     </div>
                                     <div>
-                                        <img src={reunion} style={{width:"100%"}}/>
+                                        <img alt={""} src={reunion} style={{width:"100%"}}/>
                                     </div>
 
                                 </div>
@@ -265,7 +240,7 @@ class  fonctionnalite extends Component {
 
                                         <div className="col-md-1 text-center">
 
-                                            <img src={check} style={{width:"60%"}}/>
+                                            <img alt={""} src={check} style={{width:"60%"}}/>
                                         </div>
 
                                         <div className="col-md-11">
@@ -281,7 +256,7 @@ class  fonctionnalite extends Component {
 
                                         <div className="col-md-1 text-center">
 
-                                            <img src={check} style={{width:"60%"}}/>
+                                            <img alt={""} src={check} style={{width:"60%"}}/>
                                         </div>
 
                                         <div className="col-md-11">
@@ -296,7 +271,7 @@ class  fonctionnalite extends Component {
 
                                         <div className="col-md-1 text-center">
 
-                                            <img src={check} style={{width:"60%"}}/>
+                                            <img alt={""} src={check} style={{width:"60%"}}/>
                                         </div>
 
                                         <div className="col-md-11">
@@ -311,7 +286,7 @@ class  fonctionnalite extends Component {
 
                                         <div className="col-md-1 text-center">
 
-                                            <img src={check} style={{width:"60%"}}/>
+                                            <img alt={""} src={check} style={{width:"60%"}}/>
                                         </div>
 
                                         <div className="col-md-11">
@@ -340,7 +315,7 @@ class  fonctionnalite extends Component {
 
                                         <div className="col-md-1 text-center">
 
-                                            <img src={check} style={{width:"60%"}}/>
+                                            <img alt={""} src={check} style={{width:"60%"}}/>
                                         </div>
 
                                         <div className="col-md-11">
@@ -356,7 +331,7 @@ class  fonctionnalite extends Component {
 
                                         <div className="col-md-1 text-center">
 
-                                            <img src={check} style={{width:"60%"}}/>
+                                            <img alt={""} src={check} style={{width:"60%"}}/>
                                         </div>
 
                                         <div className="col-md-11">
@@ -372,7 +347,7 @@ class  fonctionnalite extends Component {
 
                                         <div className="col-md-1 text-center">
 
-                                            <img src={check} style={{width:"60%"}}/>
+                                            <img alt={""} src={check} style={{width:"60%"}}/>
                                         </div>
 
                                         <div className="col-md-11">
@@ -389,11 +364,11 @@ class  fonctionnalite extends Component {
                                 <div className="col-md-5">
                                         <div className="row">
                                             <div className="col-md-6">
-                                                <img src={slack} style={{width:"100%"}}/>
+                                                <img alt={""} src={slack} style={{width:"100%"}}/>
                                             </div>
                                             <div className="col-md-6">
                                                 <div>
-                                                    <img src={swisschat} style={{width:"70%"}}/>
+                                                    <img alt={""} src={swisschat} style={{width:"70%"}}/>
                                                 </div>
                                                 <div className="text-left">
 

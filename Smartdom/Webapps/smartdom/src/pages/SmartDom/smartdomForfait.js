@@ -3,8 +3,7 @@ import React, {Component, Suspense} from "react";
 
 import "firebase/database";
 import 'firebase/storage';
-import {AvFeedback, AvForm, AvGroup, AvInput} from "availity-reactstrap-validation";
-import {Button, Container, FormGroup, Label, Modal, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
+
 import 'react-phone-input-2/lib/style.css'
 import MySnackbarContentWrapper from "../../tools/customSnackBar";
 import Snackbar from "@material-ui/core/Snackbar";
@@ -14,13 +13,10 @@ import Loader from "../../components/Loader";
 
 import  check from "../../assets/images/forfait/check-success.svg"
 import danger from "../../assets/images/forfait/x-danger.svg"
-import  close from "../../assets/images/forfait/close.svg"
-import menu from "../../assets/images/forfait/menu.svg"
+
 
 const Topbar = React.lazy(() => import("../../components/Topbar"));
-const Navbar = React.lazy(() => import("../../components/Navbar"));
 const loading = () => <Loader/>;
-const google = window.google;
 
 moment.locale('fr');
 
@@ -100,7 +96,7 @@ class smartdomForfait extends Component {
                                                         <span className="display-4 mb-0 text-dark">0</span>
                                                     </div>
                                                     <div className="text-small mb-3 mb-md-4">par mois</div>
-                                                    <a  className="btn btn-outline-primary btn-block">
+                                                    <a href=""  className="btn btn-outline-primary btn-block">
                                                         <span className="d-none d-md-inline-block">Démarrer</span>
                                                     </a>
                                                 </div>
@@ -108,7 +104,7 @@ class smartdomForfait extends Component {
                                             <div className="col-lg-2 col-3 col-sm-3 py-3 py-md-4 border-bottom">
                                                 <div className="d-flex flex-column align-items-center text-center">
                                                     <div>
-                                                        <h4 >Startup <text style={{color:"red"}}>Audio</text></h4>
+                                                        <h4 >Startup <label style={{color:"red"}}>Audio</label></h4>
                                                     </div>
                                                     <div className="d-flex align-items-center justify-content-center mb-1">
                                                         <span className="h5 mb-0 mr-1 mr-sm-2">€</span>
@@ -123,7 +119,7 @@ class smartdomForfait extends Component {
 
                                             <div className="col-lg-2 col-3 col-sm-3 py-3 py-md-4 border-bottom">
                                                 <div className="d-flex flex-column align-items-center text-center">
-                                                    <h4>Startup <text style={{color:"red"}}>Vision</text></h4>
+                                                    <h4>Startup <label style={{color:"red"}}>Vision</label></h4>
                                                     <div className="d-flex align-items-center justify-content-center mb-1">
                                                         <span className="h5 mb-0 mr-1 mr-sm-2">€</span>
                                                         <span className="display-4 mb-0 text-dark">49</span>

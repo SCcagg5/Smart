@@ -7,7 +7,6 @@ import Snackbar from "@material-ui/core/Snackbar";
 import moment from "moment";
 import "moment/locale/fr"
 import Loader from "../../components/Loader";
-import posed from 'react-pose';
 import dashboard from "../../assets/images/domiciliation/dashboard.jpeg"
 import mailBox from "../../assets/images/domiciliation/mailbox.svg"
 import productTeardown from "../../assets/images/domiciliation/personnalisationService/productTeardown.svg"
@@ -26,28 +25,10 @@ import salleReunion from "../../assets/images/domiciliation/personnalisationServ
 
 
 const Topbar = React.lazy(() => import("../../components/Topbar"));
-const Navbar = React.lazy(() => import("../../components/Navbar"));
 const loading = () => <Loader/>;
-const google = window.google;
 
 moment.locale('fr');
 
-const Box = posed.div({
-    hoverable: true,
-    pressable: true,
-    init: {
-        scale: 1,
-        boxShadow: '0px 0px 0px rgba(0,0,0,0)'
-    },
-    hover: {
-        scale: 1.13,
-        boxShadow: '0px 5px 10px rgba(0,0,0,0.2)'
-    },
-    press: {
-        scale: 1.1,
-        boxShadow: '0px 2px 5px rgba(0,0,0,0.1)'
-    }
-});
 
 
 
@@ -114,7 +95,7 @@ class  personnalisationService extends Component {
                             <div className="container-fluid text-center">
                                 <div>
 
-                                    <h1 style={{color:"white",fontFamily:"Publico-Medium"}}> Plus de services, <text style={{fontWeight:"bold",color:"white"}}> moins de contraintes.</text> </h1>
+                                    <h1 style={{color:"white",fontFamily:"Publico-Medium"}}> Plus de services, <label style={{fontWeight:"bold",color:"white"}}> moins de contraintes.</label> </h1>
                                 </div>
 
                                 <div className="mt-5">
@@ -123,7 +104,7 @@ class  personnalisationService extends Component {
                             </div>
 
                             <div className="container mt-5   " style={{height:"28vw",position:"relative",boxSizing:"border-box",display:"block",padding:0,margin:0}}>
-                                <img  className="shadow" src={dashboard} style={{width:"100%"   ,padding:0 ,boxSizing:"border-box",position:"absolute",left:0,top:0,boxShadow:""}}/>
+                                <img alt={""}  className="shadow" src={dashboard} style={{width:"100%"   ,padding:0 ,boxSizing:"border-box",position:"absolute",left:0,top:0,boxShadow:""}}/>
                             </div>
 
 
@@ -133,7 +114,7 @@ class  personnalisationService extends Component {
                          <div className="d-flex justify-content-around " style={{marginTop:"7%"}}>
                              <div className="col-md-4 flex-column d-flex align-items-center">
                                  <div>
-                                     <img src={mailBox} style={{width:"20%"}}/>
+                                     <img alt={""}  src={mailBox} style={{width:"20%"}}/>
                                  </div>
 
                                  <div className="d-flex flex-column align-items-start">
@@ -150,7 +131,7 @@ class  personnalisationService extends Component {
                              </div>
                              <div className="col-md-4 flex-column d-flex align-items-center">
                                  <div>
-                                     <img src={productTeardown} style={{width:"23%"}}/>
+                                     <img alt={""}  src={productTeardown} style={{width:"23%"}}/>
                                  </div>
 
                                  <div className="d-flex flex-column align-items-start">
@@ -166,7 +147,7 @@ class  personnalisationService extends Component {
                              </div>
                              <div className="col-md-4 flex-column d-flex align-items-center ">
                                  <div>
-                                     <img src={businessPlan} style={{width:"23%"}}/>
+                                     <img alt={""}  src={businessPlan} style={{width:"23%"}}/>
                                  </div>
 
                                  <div className="d-flex flex-column align-items-start" >
@@ -193,15 +174,15 @@ class  personnalisationService extends Component {
                                 <div className="container-fluid p-5">
 
                                 <h1 style={{fontFamily:"serif",fontWeight:"bold"}}>Sélection de services sur mesure</h1>
-                                <text style={{color:"#a6a6a6"}}>Nous avaons etabli des partenariats avec des spécialistes afin que vous puissez menez à
-                                bien votre projet en quelques clics, depuis votre canapé !</text>
+                                <label style={{color:"#a6a6a6"}}>Nous avaons etabli des partenariats avec des spécialistes afin que vous puissez menez à
+                                bien votre projet en quelques clics, depuis votre canapé !</label>
 
                                 </div>
 
                                 <div className="row  justify-content-around " style={{marginTop:"5%"}}>
                                     <div className="col-md-2 d-flex flex-column align-items-center text-center ">
                                         <div >
-                                            <img src={runnerStart} style={{width:"75%"}}/>
+                                            <img alt={""}  src={runnerStart} style={{width:"75%"}}/>
                                         </div>
 
                                         <div className="mt-3">
@@ -213,7 +194,7 @@ class  personnalisationService extends Component {
 
                                     <div className="col-md-2 d-flex flex-column align-items-center text-center ">
                                         <div >
-                                            <img src={buildingBlocks} style={{width:"95%"}}/>
+                                            <img alt={""} src={buildingBlocks} style={{width:"95%"}}/>
                                         </div>
 
                                         <div className="mt-3">
@@ -224,7 +205,7 @@ class  personnalisationService extends Component {
                                     </div>
                                     <div className="col-md-2 d-flex flex-column align-items-center text-center ">
                                         <div >
-                                            <img src={judgeKaterin} style={{width:"75%"}}/>
+                                            <img alt={""} src={judgeKaterin} style={{width:"75%"}}/>
                                         </div>
 
                                         <div className="mt-3">
@@ -236,7 +217,7 @@ class  personnalisationService extends Component {
 
                                     <div className="col-md-2 d-flex flex-column align-items-center text-center ">
                                         <div  >
-                                            <img src={commingHome} style={{width:"100%"}}/>
+                                            <img alt={""} src={commingHome} style={{width:"100%"}}/>
                                         </div>
 
                                         <div className="mt-3">
@@ -247,7 +228,7 @@ class  personnalisationService extends Component {
                                     </div>
                                     <div className="col-md-2 d-flex flex-column align-items-center text-center ">
                                         <div >
-                                            <img src={result} style={{width:"80%"}}/>
+                                            <img alt={""} src={result} style={{width:"80%"}}/>
                                         </div>
 
                                         <div className="mt-3">
@@ -284,7 +265,7 @@ class  personnalisationService extends Component {
 
 
                                     <div className="col-md-4 align-self-start text-left">
-                                        <img src={photocopy} style={{width:"80%"}}/>
+                                        <img alt={""} src={photocopy} style={{width:"80%"}}/>
 
                                         <h2 className="mt-3" style={{fontFamily:"publico-Medium" , fontWeight:"bold"}}>Gestion du courrier sur mesure</h2>
 
@@ -305,7 +286,7 @@ class  personnalisationService extends Component {
 
                                             <div className="col-4 ">
 
-                                            <img className="shadow2" src={mail} style={{height:"85%"}}/>
+                                            <img alt={""} className="shadow2" src={mail} style={{height:"85%"}}/>
                                         </div>
                                             <div className="col-md-8 align-self-center " >
                                                 <div>
@@ -370,7 +351,7 @@ class  personnalisationService extends Component {
 
 
                                 <div className="col-md-4 align-self-start text-left">
-                                    <img src={mobileApplication} style={{width:"80%"}}/>
+                                    <img alt={""} src={mobileApplication} style={{width:"80%"}}/>
 
                                     <h2 className="mt-3" style={{fontFamily:"publico-Medium" , fontWeight:"bold"}}>Solutions téléphoniques</h2>
 
@@ -427,7 +408,7 @@ class  personnalisationService extends Component {
                                         </div>
                                         <div className="col-md-4 ">
 
-                                            <img className="shadow2" src={telephone} style={{height:"85%"}}/>
+                                            <img alt={""} className="shadow2" src={telephone} style={{height:"85%"}}/>
                                         </div>
 
 
@@ -459,7 +440,7 @@ class  personnalisationService extends Component {
 
 
                                 <div className="col-md-4 align-self-start text-left">
-                                    <img src={interview} style={{width:"80%"}}/>
+                                    <img alt={""} src={interview} style={{width:"80%"}}/>
 
                                     <h2 className="mt-3" style={{fontFamily:"publico-Medium" , fontWeight:"bold"}}>Salle de réunion et bureaux physique ou dans le cloud</h2>
 
@@ -480,7 +461,7 @@ class  personnalisationService extends Component {
 
                                         <div className="col-4 ">
 
-                                            <img className="shadow2" src={salleReunion} style={{height:"85%"}}/>
+                                            <img alt={""} className="shadow2" src={salleReunion} style={{height:"85%"}}/>
                                         </div>
                                         <div className="col-md-8 align-self-center " >
                                             <div className="col-md-9">
