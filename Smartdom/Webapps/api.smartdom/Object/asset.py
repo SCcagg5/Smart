@@ -8,18 +8,24 @@ from .users import user
 
 class asset:
     def info(uuid):
-        res = sql.get("SELECT `asset_id`, `asset_name`, `token_val`, `email`, `fname`, `lname`, `assets`.`date` FROM `assets` INNER JOIN `user` ON user.id = assets.user_id INNER JOIN `userdetails` ON user.id = assets.user_id WHERE asset_id = %s AND ACTIVE = 1", (uuid))
+        res = sql.get("SELECT `asset_id`, `asset_name`, `token_val`, `email`, `assets`.`date`, `fname`, `lname` FROM `assets` INNER JOIN `user` ON user.id = assets.user_id INNER JOIN `userdetails` ON user.id = assets.user_id WHERE asset_id = %s AND ACTIVE = 1", (uuid, ))
+        print(res)
         if len(res) == 0:
-            return [False, "Invalid uuid", 404]
-        res = res[0]
+            res = sql.get("SELECT `asset_id`, `asset_name`, `token_val`, `email`, `assets`.`date` FROM `assets` INNER JOIN `user` ON user.id = assets.user_id WHERE asset_id = %s AND ACTIVE = 1", (uuid, ))
+            if len(res) == 0:
+                return [False, "Invalid uuid", 404]
+            ret = (*res[0], None , None)
+        else:
+            ret = res[0]
         info = {
             "asset": uuid,
-            "name": res[1],
-            "value": json.loads(res[2]),
+            "name": ret[1],
+            "value": json.loads(ret[2]),
             "owner": {
-                "email": str(res[3]),
-                "name": str(res[4]) + " " +str(res[5]),
-                "owner_since": str(res[6])
+                "email": str(ret[3]),
+                "lastname": ret[6],
+                "firstname": ret[5],
+                "owner_since": str(ret[4])
             }
         }
         return [True, info, False]
