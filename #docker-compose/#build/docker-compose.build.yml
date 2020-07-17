@@ -3,24 +3,24 @@ version: "3"
 services:
   build-assembly:
     build: .
-    container: build-assembly
+    container_name: build-assembly
     volumes:
       - ../../Smartdom/Webapps/assemblee.smartdom:/app/
 
   build-quinsac:
     build: .
-    container: build-quinsac
+    container_name: build-quinsac
     volumes:
       - ../../Smartdom/Webapps/quinsac.smartdom:/app/
 
   build-assembly:
     build: .
-    container: build-smartdom
+    container_name: build-smartdom
     volumes:
       - ../../Smartdom/Webapps/smartdom:/app/
 
   build-veloone:
     build: .
-    container: build-veloone
+    container_name: build-veloone
     volumes:
       - ../../Smartdom/Webapps/veloone.smartdom:/app/

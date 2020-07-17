@@ -14,7 +14,8 @@ Smartco/Admin/services/phpmyadmin/sessions
 
 Smartco/Micro/elasticsearch/data
 Smartco/Micro/sql/data
-
+Smartco/Micro/sqlwp/
+Smartco/Webapps/wp.smartco/
 
 Smartdom/Admin/services/goaccess
 Smartdom/Admin/services/kanboard/data
@@ -27,7 +28,8 @@ Smartdom/Micro/jitsi/
 Smartdom/Micro/posteio/
 Smartdom/Micro/rocket/
 Smartdom/Micro/odoo/db/
-
+Smartdom/Micro/sqlwp/
+Smartdom/Webapps/wp.smartdom/
 
 node_modules
 .pnp

@@ -43,3 +43,39 @@ services:
       - ../Smartco/Micro/elasticsearch/data:/usr/share/elasticsearch/data
     networks:
       - db-net
+
+  db-smartco:
+    container_name: smartco-wp-sql
+    image: mariadb:latest
+    restart: always
+    volumes:
+      - ../Smartco/Micro/sqlwp/data:/var/lib/mysql
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+      MYSQL_USER: ${SMARTCO_DB_USER}
+      MYSQL_DATABASE: smartco
+      MYSQL_PASSWORD: ${SMARTCO_DB_PASS}
+    networks:
+      - db-net
+
+  wp-smartco:
+    container_name: smartco-wp-web
+    build: ../Smartco/Webapps/wp.smartco/
+    depends_on:
+      - db-smartco
+    restart: always
+    volumes:
+      - ../Smartco/Webapps/wp.smartco/html:/var/www/html:rw
+    environment:
+      WORDPRESS_DB_HOST: smartco-wp-sql
+      WORDPRESS_DB_NAME: smartco
+      WORDPRESS_DB_USER: ${SMARTCO_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${SMARTCO_DB_PASS}
+      WORDPRESS_TABLE_PREFIX: wp
+      VIRTUAL_HOST: ${SMARTCO_DOMAIN}
+      VIRTUAL_PORT: 80
+      LETSENCRYPT_HOST: ${SMARTCO_DOMAIN}
+      LETSENCRYPT_EMAIL: ${SMARTCO_EMAIL}
+    networks:
+      - db-net
+      - proxy
