@@ -1,0 +1,8 @@
+bottle
+pymysql
+requests
+pyjwt
+elasticsearch
+langdetect
+unidecode
+pdfrw
