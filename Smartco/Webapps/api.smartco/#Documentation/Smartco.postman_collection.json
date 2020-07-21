@@ -1,0 +1,2167 @@
+{
+	"info": {
+		"_postman_id": "dfe4db4c-9ab2-480c-925b-b3e73d047a48",
+		"name": "Smartco",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Test",
+			"item": [
+				{
+					"name": "/test/",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/test/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"test",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/test/",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/test/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"test",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:07:18 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "553"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/test/\",\n        \"params\": null,\n        \"header\": {\n            \"host\": \"api.smartdom.ch\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": null,\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Perform a request, returning default pattern",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "04889bf5-bcf7-4c7b-bf9e-521ad114222d",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "072fe512-9d6e-4e5a-b4f4-c0323fd25999",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "/login/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/login/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"login",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/login/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pass\": \"{{password}}false\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/login/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"login",
+										""
+									]
+								}
+							},
+							"status": "FAIL",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:08:52 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1036"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/login/\",\n        \"params\": {\n            \"pass\": \"passwordfalse\"\n        },\n        \"header\": {\n            \"host\": \"api.smartdom.ch\"\n        }\n    },\n    \"status\": 403,\n    \"error\": \"Invalid password\",\n    \"data\": null,\n    \"succes\": false,\n    \"mod\": \"DEV\"\n}"
+						},
+						{
+							"name": "/login/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/login/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"login",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:06:55 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "445"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI; Path=/"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/login/\",\n        \"params\": {\n            \"pass\": \"password\"\n        },\n        \"header\": {\n            \"host\": \"api.smartdom.ch\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"exp\": \"2020-07-02 09:06:55.466741\",\n        \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Allow any client to perform a request in order to get a 48h token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a0bcfb3c-957d-4e4b-83e0-c15f157550bd",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "63f7e08b-37fe-47d9-a799-3be4f09b791d",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "/signup/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\",\r\n    \"password2\": \"test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/signup/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"signup",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/signup/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\",\r\n    \"password2\": \"test\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/signup/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"signup",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:08:16 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "874"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "usrtoken=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3NjcyOTYsImlkIjoiNTA5Y2Q5NjctOGI4Yi00MTRlLWI5NzUtZjVhMmUyNWYzN2RiIiwicGFzc3dvcmQiOi00Njk4MDMyMDI5MjAyNDgwOTMyfQ.VtJcmas_xVi7qiVKDoaskcPLkUrrSpX-mafpBxcrmac; Path=/"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/signup/\",\n        \"params\": {\n            \"email\": \"test@test.fr\",\n            \"password1\": \"test\",\n            \"password2\": \"test\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"04afce69-0f60-475a-89c9-744a5022a99e\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"exp\": \"2020-07-03 09:08:16.647933\",\n        \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3NjcyOTYsImlkIjoiNTA5Y2Q5NjctOGI4Yi00MTRlLWI5NzUtZjVhMmUyNWYzN2RiIiwicGFzc3dvcmQiOi00Njk4MDMyMDI5MjAyNDgwOTMyfQ.VtJcmas_xVi7qiVKDoaskcPLkUrrSpX-mafpBxcrmac\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/signin/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/signin/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"signin",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/signin/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"test@test.fr\",\r\n    \"password1\": \"test\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/signin/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"signin",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 01 Jul 2020 09:18:27 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1299"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "usrtoken=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo; Path=/"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/signin/\",\n        \"params\": {\n            \"email\": \"test@test.fr\",\n            \"password1\": \"test\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM2ODA4MTUsInBhc3N3b3JkIjoxNjU5ODc3ODcxMDM2MDQyMDQyfQ.qsllAwXsG1_07oeU7XaIx4-VUEcAyrCqN_xV1YkB2yI\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc2MjMsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.mMc2Idbt_AMDzhMNz2UaFqlG9huhB6vgbwoE6OnqD6M\",\n            \"host\": \"api.smartdom.ch\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"exp\": \"2020-07-03 09:18:27.126852\",\n        \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3Njc5MDcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOi00NDQ4MDAwNzQ1MzkyOTQzNzE4fQ.yHwqICTR7B70mhi9l2XMTJx7EsaZ3e0NEJDbY1PmHbo\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Allow to create user, signin and change his main informations ",
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Card",
+			"item": [
+				{
+					"name": "/addcard/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"crd_token\": \"tok_visa\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/addcard/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"addcard",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/addcard/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"crd_token\": \"tok_visa\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/addcard/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"addcard",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:14:51 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1156"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/addcard/\",\n        \"params\": {\n            \"crd_token\": \"tok_visa\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"2b991120-c9f3-45b1-90c1-40b8ed6c74c9\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"card\": {\n            \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\",\n            \"brand\": \"Visa\",\n            \"country\": \"US\",\n            \"exp_month\": 7,\n            \"exp_year\": 2021,\n            \"last4\": \"4242\"\n        }\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/delcard/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/delcard/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"delcard",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/delcard/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/delcard/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"delcard",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:22:33 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1123"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/delcard/\",\n        \"params\": {\n            \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"0dc22c36-5bbd-41ab-92f7-dcdffb1e9667\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"deleted\": {\n            \"id\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\",\n            \"object\": \"card\",\n            \"deleted\": true\n        }\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/listcard/",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/listcard/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"listcard",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/addcard/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"crd_token\": \"tok_visa\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/addcard/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"addcard",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:14:51 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1156"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/addcard/\",\n        \"params\": {\n            \"crd_token\": \"tok_visa\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"2b991120-c9f3-45b1-90c1-40b8ed6c74c9\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"card\": {\n            \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\",\n            \"brand\": \"Visa\",\n            \"country\": \"US\",\n            \"exp_month\": 7,\n            \"exp_year\": 2021,\n            \"last4\": \"4242\"\n        }\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						},
+						{
+							"name": "/listcard/",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/listcard/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"listcard",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:22:13 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1139"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/listcard/\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"627e1cb6-7327-47da-8306-cb333e756a92\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"cards\": [\n            {\n                \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\",\n                \"brand\": \"Visa\",\n                \"country\": \"US\",\n                \"exp_month\": 7,\n                \"exp_year\": 2021,\n                \"last4\": \"4242\"\n            }\n        ]\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "/store/items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/store/items",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"store",
+								"items"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/website/<website>/items",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/website/quinsac/items",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"website",
+										"quinsac",
+										"items"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 07 Jul 2020 13:47:31 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1615"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/website/quinsac/items\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTYwNDksInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.6wwiQU-36mM-vJeoFbv8PJoIw9c_uvnmG-qX3xRnchQ\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"17ce248c-99c4-4f85-bb21-b7231d2a57a2\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": [\n        {\n            \"id\": \"1\",\n            \"title\": \"Une bouteille\",\n            \"description\": null,\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 1,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"30.00\",\n                \"currency\": \"Eur\"\n            }\n        },\n        {\n            \"id\": \"2\",\n            \"title\": \"Quatre bouteilles\",\n            \"description\": null,\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 4,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"120.00\",\n                \"currency\": \"Eur\"\n            }\n        },\n        {\n            \"id\": \"3\",\n            \"title\": \"Caisse de bouteilles\",\n            \"description\": \"12 bouteilles\",\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 12,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"360.00\",\n                \"currency\": \"Eur\"\n            }\n        },\n        {\n            \"id\": \"4\",\n            \"title\": \"Palette de bouteilles\",\n            \"description\": \"600 bouteilles\",\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 600,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"15000.00\",\n                \"currency\": \"Eur\"\n            }\n        }\n    ],\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/store/cart",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"command\": [{\"id\": \"1\", \"number\": 2}]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/store/cart",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"store",
+								"cart"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/website/<website>/cart/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"command\": [{\"id\": \"1\", \"number\": 2}]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/website/quinsac/cart/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"website",
+										"quinsac",
+										"cart",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 07 Jul 2020 13:48:40 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1967"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/website/quinsac/cart/\",\n        \"params\": {\n            \"command\": [\n                {\n                    \"id\": \"1\",\n                    \"number\": 2\n                }\n            ]\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTYwNDksInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.6wwiQU-36mM-vJeoFbv8PJoIw9c_uvnmG-qX3xRnchQ\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQzMDI0OTcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOjIwOTk3MzE1MzM5Mjk0Nzg0Njl9.jZKVSKiNOVT88fgFlei4wyzwH9qySNI5CbtzDI7OrD4\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"2699d667-7d0e-4e7b-b115-360343000fcf\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"cart\": [\n            {\n                \"id\": \"1\",\n                \"title\": \"Une bouteille\",\n                \"description\": null,\n                \"token\": {\n                    \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                    \"ind_value\": 3\n                },\n                \"assets\": {\n                    \"number\": 1,\n                    \"uuid\": [\n                        \"aedf8cbb-e6db-4bbf-a544-710b9597bbee\",\n                        \"f3d5adbe-8792-47d7-b585-caab83619052\"\n                    ],\n                    \"name\": \"bouteille\"\n                },\n                \"price\": {\n                    \"amount\": \"30.00\",\n                    \"currency\": \"Eur\"\n                },\n                \"number\": 2\n            }\n        ],\n        \"price\": 60,\n        \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjo2MC4wLCJjYXJ0IjpbeyJpZCI6IjEiLCJ0aXRsZSI6IlVuZSBib3V0ZWlsbGUiLCJkZXNjcmlwdGlvbiI6bnVsbCwidG9rZW4iOnsiYWRkcmVzcyI6IjB4OTUyMEMyMzliYUU3OGE0YTY3MmE3MDM3MGQ4NTA1MUZDRDhERDZjOSIsImluZF92YWx1ZSI6M30sImFzc2V0cyI6eyJudW1iZXIiOjEsInV1aWQiOlsiYWVkZjhjYmItZTZkYi00YmJmLWE1NDQtNzEwYjk1OTdiYmVlIiwiZjNkNWFkYmUtODc5Mi00N2Q3LWI1ODUtY2FhYjgzNjE5MDUyIl0sIm5hbWUiOiJib3V0ZWlsbGUifSwicHJpY2UiOnsiYW1vdW50IjoiMzAuMDAiLCJjdXJyZW5jeSI6IkV1ciJ9LCJudW1iZXIiOjJ9XX19.bbglO3y9uojetxABpiEkK5-54jjTSTgfRB3ynnu9nL8\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/order/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjo2MC4wLCJjYXJ0IjpbeyJpZCI6IjEiLCJ0aXRsZSI6IlVuZSBib3V0ZWlsbGUiLCJkZXNjcmlwdGlvbiI6bnVsbCwidG9rZW4iOnsiYWRkcmVzcyI6IjB4OTUyMEMyMzliYUU3OGE0YTY3MmE3MDM3MGQ4NTA1MUZDRDhERDZjOSIsImluZF92YWx1ZSI6M30sImFzc2V0cyI6eyJudW1iZXIiOjEsInV1aWQiOlsiODFlNDJmYjgtZjgyNi00NzY1LTljODItYzc1Njk1ZDBhNDA0IiwiNjg1YmY4ZjQtNDQ0OS00NGNkLWJhNjItYWNjZTM3ZDQ4MTE0Il0sIm5hbWUiOiJib3V0ZWlsbGUifSwicHJpY2UiOnsiYW1vdW50IjoiMzAuMDAiLCJjdXJyZW5jeSI6IkV1ciJ9LCJudW1iZXIiOjJ9XX19.4QioL7LMrRcZjg4PPb_gx1gtCr7SHbYxYiDDw9lVAsg\",\r\n    \"crd_token\": \"card_1H24rWEQJBMo0CQbYMV2xeS4\",\r\n    \"to_wallet\": \"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/order/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"order",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "{{method}}{{url}}/order/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjoyMC4wLCJjYXJ0IjpbeyJpZCI6IjEyMzQiLCJ0aXRsZSI6InZlbG9vbmVfdG9rZW4iLCJhZGRyZXNzIjoiIiwiZGVzY3JpcHRpb24iOm51bGwsInByaWNlIjp7ImFtb3VudCI6IjEwLjAwIiwiY3VycmVuY3kiOiJFdXIifSwibnVtYmVyIjoyfV19fQ.nA2iMK_OKXp-FXHsb3Odq_Eb62kglTIrvxITCkD_q9s\",\r\n    \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/order/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"order",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:15:29 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1359"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/order/\",\n        \"params\": {\n            \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjoyMC4wLCJjYXJ0IjpbeyJpZCI6IjEyMzQiLCJ0aXRsZSI6InZlbG9vbmVfdG9rZW4iLCJhZGRyZXNzIjoiIiwiZGVzY3JpcHRpb24iOm51bGwsInByaWNlIjp7ImFtb3VudCI6IjEwLjAwIiwiY3VycmVuY3kiOiJFdXIifSwibnVtYmVyIjoyfV19fQ.nA2iMK_OKXp-FXHsb3Odq_Eb62kglTIrvxITCkD_q9s\",\n            \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"5b0e56a3-b4a4-470e-8410-ad3bdbfe0568\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"order_id\": \"1\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "2b6906f8-e2fc-4041-b728-ba198b537164",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "36b4e5df-96af-4392-a3b5-8c14bc8202d4",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Ged",
+			"item": [
+				{
+					"name": "/ged",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/ged",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/website/<website>/items",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/website/quinsac/items",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"website",
+										"quinsac",
+										"items"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 07 Jul 2020 13:47:31 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1615"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/website/quinsac/items\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTYwNDksInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.6wwiQU-36mM-vJeoFbv8PJoIw9c_uvnmG-qX3xRnchQ\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"17ce248c-99c4-4f85-bb21-b7231d2a57a2\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": [\n        {\n            \"id\": \"1\",\n            \"title\": \"Une bouteille\",\n            \"description\": null,\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 1,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"30.00\",\n                \"currency\": \"Eur\"\n            }\n        },\n        {\n            \"id\": \"2\",\n            \"title\": \"Quatre bouteilles\",\n            \"description\": null,\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 4,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"120.00\",\n                \"currency\": \"Eur\"\n            }\n        },\n        {\n            \"id\": \"3\",\n            \"title\": \"Caisse de bouteilles\",\n            \"description\": \"12 bouteilles\",\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 12,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"360.00\",\n                \"currency\": \"Eur\"\n            }\n        },\n        {\n            \"id\": \"4\",\n            \"title\": \"Palette de bouteilles\",\n            \"description\": \"600 bouteilles\",\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 600,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"15000.00\",\n                \"currency\": \"Eur\"\n            }\n        }\n    ],\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "ged/<folder_id>",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"command\": [{\"id\": \"1\", \"number\": 2}]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/test",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"test"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/website/<website>/cart/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"command\": [{\"id\": \"1\", \"number\": 2}]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/website/quinsac/cart/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"website",
+										"quinsac",
+										"cart",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 07 Jul 2020 13:48:40 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1967"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/website/quinsac/cart/\",\n        \"params\": {\n            \"command\": [\n                {\n                    \"id\": \"1\",\n                    \"number\": 2\n                }\n            ]\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTYwNDksInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.6wwiQU-36mM-vJeoFbv8PJoIw9c_uvnmG-qX3xRnchQ\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQzMDI0OTcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOjIwOTk3MzE1MzM5Mjk0Nzg0Njl9.jZKVSKiNOVT88fgFlei4wyzwH9qySNI5CbtzDI7OrD4\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"2699d667-7d0e-4e7b-b115-360343000fcf\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"cart\": [\n            {\n                \"id\": \"1\",\n                \"title\": \"Une bouteille\",\n                \"description\": null,\n                \"token\": {\n                    \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                    \"ind_value\": 3\n                },\n                \"assets\": {\n                    \"number\": 1,\n                    \"uuid\": [\n                        \"aedf8cbb-e6db-4bbf-a544-710b9597bbee\",\n                        \"f3d5adbe-8792-47d7-b585-caab83619052\"\n                    ],\n                    \"name\": \"bouteille\"\n                },\n                \"price\": {\n                    \"amount\": \"30.00\",\n                    \"currency\": \"Eur\"\n                },\n                \"number\": 2\n            }\n        ],\n        \"price\": 60,\n        \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjo2MC4wLCJjYXJ0IjpbeyJpZCI6IjEiLCJ0aXRsZSI6IlVuZSBib3V0ZWlsbGUiLCJkZXNjcmlwdGlvbiI6bnVsbCwidG9rZW4iOnsiYWRkcmVzcyI6IjB4OTUyMEMyMzliYUU3OGE0YTY3MmE3MDM3MGQ4NTA1MUZDRDhERDZjOSIsImluZF92YWx1ZSI6M30sImFzc2V0cyI6eyJudW1iZXIiOjEsInV1aWQiOlsiYWVkZjhjYmItZTZkYi00YmJmLWE1NDQtNzEwYjk1OTdiYmVlIiwiZjNkNWFkYmUtODc5Mi00N2Q3LWI1ODUtY2FhYjgzNjE5MDUyIl0sIm5hbWUiOiJib3V0ZWlsbGUifSwicHJpY2UiOnsiYW1vdW50IjoiMzAuMDAiLCJjdXJyZW5jeSI6IkV1ciJ9LCJudW1iZXIiOjJ9XX19.bbglO3y9uojetxABpiEkK5-54jjTSTgfRB3ynnu9nL8\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/ged/addfolder",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"test\",\r\n    \"folder_id\": \"52dcb300-b48a-4002-9be3-51bf736a217f\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/addfolder",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"addfolder"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "{{method}}{{url}}/order/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjoyMC4wLCJjYXJ0IjpbeyJpZCI6IjEyMzQiLCJ0aXRsZSI6InZlbG9vbmVfdG9rZW4iLCJhZGRyZXNzIjoiIiwiZGVzY3JpcHRpb24iOm51bGwsInByaWNlIjp7ImFtb3VudCI6IjEwLjAwIiwiY3VycmVuY3kiOiJFdXIifSwibnVtYmVyIjoyfV19fQ.nA2iMK_OKXp-FXHsb3Odq_Eb62kglTIrvxITCkD_q9s\",\r\n    \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/order/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"order",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:15:29 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1359"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/order/\",\n        \"params\": {\n            \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjoyMC4wLCJjYXJ0IjpbeyJpZCI6IjEyMzQiLCJ0aXRsZSI6InZlbG9vbmVfdG9rZW4iLCJhZGRyZXNzIjoiIiwiZGVzY3JpcHRpb24iOm51bGwsInByaWNlIjp7ImFtb3VudCI6IjEwLjAwIiwiY3VycmVuY3kiOiJFdXIifSwibnVtYmVyIjoyfV19fQ.nA2iMK_OKXp-FXHsb3Odq_Eb62kglTIrvxITCkD_q9s\",\n            \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"5b0e56a3-b4a4-470e-8410-ad3bdbfe0568\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"order_id\": \"1\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/ged/addfolder",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/eliot/Downloads/D_Vertrag.pdf"
+								},
+								{
+									"key": "folder_id",
+									"value": "52dcb300-b48a-4002-9be3-51bf736a217f",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/addfile",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"addfile"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "{{method}}{{url}}/order/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjoyMC4wLCJjYXJ0IjpbeyJpZCI6IjEyMzQiLCJ0aXRsZSI6InZlbG9vbmVfdG9rZW4iLCJhZGRyZXNzIjoiIiwiZGVzY3JpcHRpb24iOm51bGwsInByaWNlIjp7ImFtb3VudCI6IjEwLjAwIiwiY3VycmVuY3kiOiJFdXIifSwibnVtYmVyIjoyfV19fQ.nA2iMK_OKXp-FXHsb3Odq_Eb62kglTIrvxITCkD_q9s\",\r\n    \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/order/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"order",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:15:29 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1359"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/order/\",\n        \"params\": {\n            \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjoyMC4wLCJjYXJ0IjpbeyJpZCI6IjEyMzQiLCJ0aXRsZSI6InZlbG9vbmVfdG9rZW4iLCJhZGRyZXNzIjoiIiwiZGVzY3JpcHRpb24iOm51bGwsInByaWNlIjp7ImFtb3VudCI6IjEwLjAwIiwiY3VycmVuY3kiOiJFdXIifSwibnVtYmVyIjoyfV19fQ.nA2iMK_OKXp-FXHsb3Odq_Eb62kglTIrvxITCkD_q9s\",\n            \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"5b0e56a3-b4a4-470e-8410-ad3bdbfe0568\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"order_id\": \"1\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "01dc5406-47b1-4fe9-84b2-63f1e8d9777e",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "1c574db9-63c3-4b28-975a-ff4b20c8a90c",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Assets",
+			"item": [
+				{
+					"name": "/asset/<asset_uuid>/infos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/asset/81e42fb8-f826-4765-9c82-c75695d0a404/infos",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"asset",
+								"81e42fb8-f826-4765-9c82-c75695d0a404",
+								"infos"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/asset/<asset_uuid>/infos",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/asset/81e42fb8-f826-4765-9c82-c75695d0a404/infos",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"asset",
+										"81e42fb8-f826-4765-9c82-c75695d0a404",
+										"infos"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 07 Jul 2020 13:33:08 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1276"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/asset/81e42fb8-f826-4765-9c82-c75695d0a404/infos\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTQxNzgsInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.f4Nfc0UQkNlv2xw0z17BMBFSPsTZh1zMBYxjzvl75ZY\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQzMDA1ODAsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOjIwOTk3MzE1MzM5Mjk0Nzg0Njl9.KQ_XXxq6gqbEHhIGEurRdbwRbSXdPFvu2ptbnWXqcrA\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"9056f387-5d9a-4dcd-8d09-95c92fa5d721\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"asset\": \"81e42fb8-f826-4765-9c82-c75695d0a404\",\n        \"name\": \"bouteille\",\n        \"value\": {\n            \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n            \"ind_value\": 3\n        },\n        \"owner\": {\n            \"email\": \"test@test.fr\",\n            \"name\": \"Jawher zairi\",\n            \"owner_since\": \"1594127837580\"\n        }\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/asset/<asset_uuid>/transfert",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"from_wallet\": \"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284\",\r\n    \"to\": \"djo199529@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/asset/81e42fb8-f826-4765-9c82-c75695d0a404/transfert",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"asset",
+								"81e42fb8-f826-4765-9c82-c75695d0a404",
+								"transfert"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/asset/<asset_uuid>/transfert",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"from_wallet\": \"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284\",\r\n    \"to\": \"djo199529@gmail.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/asset/81e42fb8-f826-4765-9c82-c75695d0a404/transfert",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"asset",
+										"81e42fb8-f826-4765-9c82-c75695d0a404",
+										"transfert"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 07 Jul 2020 13:35:06 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1122"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/asset/81e42fb8-f826-4765-9c82-c75695d0a404/transfert\",\n        \"params\": {\n            \"from_wallet\": \"0x046756D1b1c42a98175Db08AF35a25c3cc9c7284\",\n            \"to\": \"djo199529@gmail.com\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTQxNzgsInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.f4Nfc0UQkNlv2xw0z17BMBFSPsTZh1zMBYxjzvl75ZY\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQzMDA1ODAsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOjIwOTk3MzE1MzM5Mjk0Nzg0Njl9.KQ_XXxq6gqbEHhIGEurRdbwRbSXdPFvu2ptbnWXqcrA\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"358dfeab-9f68-4708-86ea-9bff84b01cda\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {},\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "cd18d4ae-bc38-4c94-8bc4-de4d1f1e090f",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "b16b9977-4b43-4bed-948e-2484af031d91",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Manage orders",
+			"item": [
+				{
+					"name": "/history/",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/history/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"history",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/history/",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/history/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"history",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 07 Jul 2020 13:49:57 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1038"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/history/\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTYwNDksInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.6wwiQU-36mM-vJeoFbv8PJoIw9c_uvnmG-qX3xRnchQ\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQzMDI0OTcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOjIwOTk3MzE1MzM5Mjk0Nzg0Njl9.jZKVSKiNOVT88fgFlei4wyzwH9qySNI5CbtzDI7OrD4\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"19c4109a-1502-45e6-a982-9fdb3788f462\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"orders\": [\n            {\n                \"id\": 1,\n                \"date\": \"1594127837580\"\n            }\n        ]\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/orderdetail/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"order_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/orderdetail/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"orderdetail",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/orderdetail/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"order_id\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/orderdetail/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"orderdetail",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 07 Jul 2020 13:50:48 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1654"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/orderdetail/\",\n        \"params\": {\n            \"order_id\": 1\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTYwNDksInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.6wwiQU-36mM-vJeoFbv8PJoIw9c_uvnmG-qX3xRnchQ\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQzMDI0OTcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOjIwOTk3MzE1MzM5Mjk0Nzg0Njl9.jZKVSKiNOVT88fgFlei4wyzwH9qySNI5CbtzDI7OrD4\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"5063b6d3-70c4-4a1b-9834-57c1150cbb98\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTYwNDksInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.6wwiQU-36mM-vJeoFbv8PJoIw9c_uvnmG-qX3xRnchQ\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQzMDI0OTcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOjIwOTk3MzE1MzM5Mjk0Nzg0Njl9.jZKVSKiNOVT88fgFlei4wyzwH9qySNI5CbtzDI7OrD4\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"order\": {\n            \"date\": \"1594127837580\",\n            \"payment\": {\n                \"chr_token\": \"ch_1H2GfhEQJBMo0CQbHjxLCx1J\",\n                \"amount\": \"60.00\",\n                \"paid\": true,\n                \"source\": {\n                    \"crd_token\": \"card_1H24rWEQJBMo0CQbYMV2xeS4\",\n                    \"brand\": \"Visa\",\n                    \"country\": \"US\",\n                    \"exp_month\": 7,\n                    \"exp_year\": 2021,\n                    \"last4\": \"4242\"\n                }\n            },\n            \"details\": {\n                \"price\": 60,\n                \"cart\": [\n                    {\n                        \"id\": \"1\",\n                        \"title\": \"Une bouteille\",\n                        \"description\": null,\n                        \"token\": {\n                            \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                            \"ind_value\": 3\n                        },\n                        \"assets\": {\n                            \"number\": 1,\n                            \"uuid\": [\n                                \"81e42fb8-f826-4765-9c82-c75695d0a404\",\n                                \"685bf8f4-4449-44cd-ba62-acce37d48114\"\n                            ],\n                            \"name\": \"bouteille\"\n                        },\n                        \"price\": {\n                            \"amount\": \"30.00\",\n                            \"currency\": \"Eur\"\n                        },\n                        \"number\": 2\n                    }\n                ]\n            }\n        }\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Manage payments",
+			"item": [
+				{
+					"name": "/payments/",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/payments/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"payments",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/payments/",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/payments/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"payments",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:19:54 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1099"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/payments/\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"e74ca653-8217-4739-a438-74f4ccff8703\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"payments\": [\n            {\n                \"chr_token\": \"ch_1H0U8LEQJBMo0CQbWrZRcOMp\",\n                \"amount\": \"20.00\",\n                \"date\": \"1593702929703\"\n            }\n        ]\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/paymentdetails/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"chr_token\": \"ch_1H0U8LEQJBMo0CQbWrZRcOMp\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/paymentdetails/",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"paymentdetails",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/paymentdetails/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"chr_token\": \"ch_1H0U8LEQJBMo0CQbWrZRcOMp\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/paymentdetails/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"paymentdetails",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:20:55 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1261"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/paymentdetails/\",\n        \"params\": {\n            \"chr_token\": \"ch_1H0U8LEQJBMo0CQbWrZRcOMp\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"4ec603f0-a91f-421f-874e-eb8f0de3977b\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"chr_token\": \"ch_1H0U8LEQJBMo0CQbWrZRcOMp\",\n        \"amount\": \"20.00\",\n        \"paid\": true,\n        \"source\": {\n            \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\",\n            \"brand\": \"Visa\",\n            \"country\": \"US\",\n            \"exp_month\": 7,\n            \"exp_year\": 2021,\n            \"last4\": \"4242\"\n        }\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "069dd6c2-f219-4738-bbf9-90c2942d5cff",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "4c702fad-bf1b-41f3-af61-3e1577e3f0a5",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "20f17ef7-45e2-413e-bccb-4fc786435439",
+			"key": "url",
+			"value": "api.localhost"
+		},
+		{
+			"id": "7864b127-1a25-4aaf-879a-029019b63489",
+			"key": "password",
+			"value": "password"
+		},
+		{
+			"id": "7a5c0445-5961-4b1b-85b7-b986f353a615",
+			"key": "method",
+			"value": "http://"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
