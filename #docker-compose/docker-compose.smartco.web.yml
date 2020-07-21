@@ -46,7 +46,7 @@ services:
       - db-net
 
   map_bck-end:
-    build: ../Smartco/Webapps/api.smartdom
+    build: ../Smartco/Webapps/api.smartco
     ports:
       - 8080:8080
     tty: true
