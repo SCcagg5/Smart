@@ -183,22 +183,20 @@ def cart(cn, nextc):
     return cn.call_next(nextc, err)
 
 def ged_add_folder(cn, nextc):
-    err = check.contain(cn.pr, ["name", "folder_id"])
+    err = check.contain(cn.pr, ["name"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
-    err = folder(usr_id=cn.private["user"].id).new(cn.rt["name"], cn.rt["folder_id"])
+    cn.pr = check.setnoneopt(cn.pr, ["folder_id"])
+    err = folder(usr_id=cn.private["user"].id).new(cn.pr["name"], cn.pr["folder_id"])
     return cn.call_next(nextc, err)
 
 def ged_add_file(cn, nextc):
     err = check.contain(cn.req.files, ["file"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
-    err = check.contain(cn.pr, ["name", "folder_id"])
-    if not err[0]:
-        return cn.toret.add_error(err[1], err[2])
-    cn.pr = err[1]
-    err = file(usr_id=cn.private["user"].id).new(cn.rt["name"], cn.req.files["file"], cn.rt["folder_id"])
+    cn.pr = check.setnoneopt(cn.req.forms, ["folder_id"])
+    err = file(usr_id=cn.private["user"].id).new(cn.req.files["file"], cn.req.forms["folder_id"])
     return cn.call_next(nextc, err)
 
 def ged_get_content(cn, nextc):

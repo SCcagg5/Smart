@@ -16,6 +16,7 @@ Smartco/Micro/elasticsearch/data
 Smartco/Micro/sql/data
 Smartco/Micro/sqlwp/
 Smartco/Webapps/wp.smartco/
+Smartco/Webapps/ged.smartco/
 
 Smartdom/Admin/services/goaccess
 Smartdom/Admin/services/kanboard/data
