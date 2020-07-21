@@ -45,23 +45,34 @@ services:
     networks:
       - db-net
 
-  bck-end:
-      build: ../Smartco/Webapps/ged.smartco
-      container_name: smartco-ged-bck-end
-      tty: true
-      stdin_open: true
-      restart: always
-      expose:
-        - 8080
-      networks:
-        - db-net
-        - proxy
-      environment:
-        API_PASS: 1q2W3e4R%T^Y
-        VIRTUAL_HOST: ged.${SMARTCO_DOMAIN}
-        VIRTUAL_PORT: 8080
-        LETSENCRYPT_HOST: ged.${SMARTCO_DOMAIN}
-        LETSENCRYPT_EMAIL: ${EMAIL}
+  map_bck-end:
+    build: ../Smartco/Webapps/api.smartdom
+    ports:
+      - 8080:8080
+    tty: true
+    stdin_open: true
+    depends_on:
+      - smartco-web-sql
+    networks:
+      - db-net
+      - proxy
+    volumes:
+      - ../Smartco/Webapps/api.smartco:/home/api/
+      - ../Smartco/Webapps/ged.smartco:/home/ged/
+    environment:
+      VIRTUAL_HOST: api.${SMARTCO_DOMAIN}
+      VIRTUAL_PORT: 8080
+      LETSENCRYPT_HOST: api.${SMARTCO_DOMAIN}
+      LETSENCRYPT_EMAIL: ${SMARTCO_EMAIL}
+      API_MOD: ${SMARTCO_API_MOD}
+      API_PASS: 1q2W3e4R%T^Y
+      API_ADM: ${SMARTCO_API_ADM}
+      DB_USER: ${SMARTCO_DB_USER}
+      DB_PASS: ${SMARTCO_DB_PASS}
+      STRIPE_PRIV: ${SMARTCO_STRIPE_PRIV}
+      WEB3_INFURA_PROJECT_ID: ${WEB3_INFURA_PROJECT_ID}
+      WEB3_INFURA_API_KEY: ${WEB3_INFURA_PROJECT_ID}
+      ETH_ADM_MNEMONIC: ${SMARTCO_ETH_ADM_MNEMONIC}
 
   db-smartco:
     container_name: smartco-wp-sql
@@ -98,4 +109,3 @@ services:
     networks:
       - db-net
       - proxy
->>>>>>> 80b3e7a355a6682f1213a36f97cd0f25a00c8e5e

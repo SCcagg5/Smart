@@ -14,6 +14,59 @@ from pytesseract import image_to_string
 import string
 
 BASE_URL = str(os.getenv('URL', ''))
+
+
+class devpdf:
+    def get_text(path, file, limit = 800000):
+        try:
+            with open(path + file , "rb") as f:
+                p = pdftotext.PDF(f)
+            text =  "".join(p)
+            if limit:
+                if len(text) > limit:
+                    return [False, "Text too long", 400]
+        except:
+            return [False, "Invalid pdf", 400]
+        return [True, {"text": text, "content": content, "map": map["count"], "lexiq": map["lexiq"]}, None]
+
+    def get_map(path, file, limit = 800000):
+        try:
+            with open(path + file , "rb") as f:
+                p = pdftotext.PDF(f)
+            text =  "".join(p)
+            if limit:
+                if len(text) > limit:
+                    return [False, "Text too long", 400]
+            content = base64.encodestring(open(path + file , "rb").read()).decode("utf-8").replace("\n", "")
+        except:
+            return [False, "Invalid pdf", 400]
+        l = text.lower()
+        chara = ",'’&/-●"
+        for k in chara:
+            l = l.replace(k, ' ')
+        max = 600
+        t = l.strip(string.punctuation).split()
+        le = [w for w in  t if len(w) > 3]
+        map = {"lexiq": ' '.join(list(dict.fromkeys(le))), "count": {}}
+        n = 0
+        while n < len(le):
+            if str(le[n]) not in map["count"]:
+                map["count"][str(le[n])] = 1
+            else:
+                map["count"][str(le[n])] += 1
+            n += 1
+        limit_l = 1
+        while len(map["count"]) > max:
+            t = []
+            for i in map["count"]:
+                if map["count"][i] <= limit_l and len(map["count"]) - len(t) > max :
+                    t.append(i)
+            for i in t:
+                del map["count"][i]
+            limit_l += 1
+        return [True, {"text": text, "content": content, "map": map["count"], "lexiq": map["lexiq"]}, None]
+
+
 class pdf:
     def get_title(path, file, title = None):
         if title is None:

@@ -60,8 +60,7 @@ class ret:
         if level == 0 :
             return
         if level == 2 :
-            if "queryInfos" in self.data:
-                del self.data["queryInfos"]
+            del self.data["queryInfos"]
             return
         forb = ["content-type", "connection", "x-real-ip", "x-forwarded-for",
                 "x-forwarded-proto", "x-forwarded-ssl", "x-forwarded-port",
@@ -143,8 +142,6 @@ class check:
         return False
 
     def setnoneopt(json, arr_opt):
-        if json is None:
-            json = {}
         for i in arr_opt:
             if i not in json:
                 json[i] = None

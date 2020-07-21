@@ -1,0 +1,13 @@
+bottle
+pymysql
+requests
+pyjwt
+phonenumbers
+stripe
+elasticsearch
+uuid
+web3
+eth_account
+langdetect
+unidecode
+pdfrw
