@@ -2,6 +2,7 @@ import requests
 import os
 import uuid
 import time
+import base64
 from .sql import sql
 
 class folder:
@@ -11,7 +12,7 @@ class folder:
     def new(self, name, folder_id):
         id = str(uuid.uuid4())
         date = str(int(round(time.time() * 1000)))
-        if folder_id is not None and not self.folderexist(folder_id):
+        if folder_id is not None and not self.exist(folder_id):
             return [False, "folder_id does not exist", 400]
         succes = sql.input("INSERT INTO `folder` (`id`,`user_id`, `name`, `inside`, `date`) VALUES (%s, %s, %s, %s, %s)", \
         (id, self.usr_id, name, folder_id, date))
@@ -19,46 +20,12 @@ class folder:
             return [False, "data input error", 500]
         return [True, {}, None]
 
-    def folderexist(self, folder_id):
+    def exist(self, folder_id):
         res = sql.get("SELECT `id` FROM `folder` WHERE id = %s", \
         (folder_id, ))
         return True if len(res) > 0 else False
 
-
-class file:
-    def __init__(self, usr_id = -1):
-        self.usr_id = str(usr_id)
-
-    def new(self, file, folder_id):
-        id = str(uuid.uuid4())
-        date = str(int(round(time.time() * 1000)))
-        name, ext = os.path.splitext(file.filename)
-        if ext not in ('.pdf', ):
-            return [False, "File extension not allowed.", 401]
-        if folder_id is not None and not folder(self.usr_id).folderexist(folder_id):
-            return [False, "folder_id does not exist", 400]
-        save_path = "/home/ged/{user_id}/".format(user_id=self.usr_id)
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
-        file_path = "{path}/{file}{ext}".format(path=save_path, file=id, ext=ext)
-        file.save(file_path)
-        succes = sql.input("INSERT INTO `file` (`id`,`user_id`, `name`, `type`, `inside`, `date`) VALUES (%s, %s, %s, %s, %s, %s)", \
-        (id, self.usr_id, name, ext[1:], folder_id, date))
-        if not succes:
-            return [False, "data input error", 500]
-        return [True, {"id": id}, None]
-
-class ged:
-    def __init__(self, usr_id = -1):
-        self.usr_id = str(usr_id)
-
-    def get(self, folder_id):
-        if folder_id is not None:
-            return [False, "Not done", 500]
-        ret = self.__content(folder_id)
-        return [True, ret, None]
-
-    def __content(self, folder_id = None, name = None, date = None, i = 5):
+    def content(self, folder_id = None, name = None, date = None, i = 5):
         res = {"id": folder_id, "name": name, "date": date, "Content": {"files": [], "folders": []}}
         i -= 1
         if i < 0:
@@ -83,3 +50,65 @@ class ged:
         for i2 in folders:
             res["Content"]["folders"].append(self.__content(i2[0], i2[1], i2[2], i))
         return res
+
+class file:
+    def __init__(self, usr_id = -1):
+        self.usr_id = str(usr_id)
+
+    def new(self, file, folder_id):
+        id = str(uuid.uuid4())
+        date = str(int(round(time.time() * 1000)))
+        name, ext = os.path.splitext(file.filename)
+        if ext not in ('.pdf', ):
+            return [False, "File extension not allowed.", 401]
+        if folder_id is not None and not folder(self.usr_id).exist(folder_id):
+            return [False, "folder_id does not exist", 400]
+        file.save(self.path(id))
+        succes = sql.input("INSERT INTO `file` (`id`,`user_id`, `name`, `type`, `inside`, `date`) VALUES (%s, %s, %s, %s, %s, %s)", \
+        (id, self.usr_id, name, ext[1:], folder_id, date))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {"id": id}, None]
+
+    def path(self, file_id):
+        save_path = "/home/ged/{user_id}/".format(user_id=self.usr_id)
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+        file_path = "{path}/{file}".format(path=save_path, file=id)
+        return file_path
+
+    def exist(self, file_id):
+        res = sql.get("SELECT `id` FROM `file` WHERE id = %s", \
+        (file_id, ))
+        return True if len(res) > 0 else False
+
+    def content(self, file_id):
+        ret = None
+        res = sql.get("SELECT `id`, `name`, `date`, `type`, `inside` FROM `folder` WHERE id = %s AND user_id = %s",
+        (file_id, self.usr_id,))
+        if len(res) != 0:
+            file = open(self.path(file_id), "r").read()
+            data = base64.b64encode(file)
+            ret = {
+                     "name": res[0][1],
+                     "date": res[0][2],
+                     "type": res[0][3],
+                     "inside": res[0][4],
+                     "Content": {
+                                "Encode": "base64",
+                                "Data": data
+                              }
+                   }
+        return ret
+
+class ged:
+    def __init__(self, usr_id = -1):
+        self.usr_id = str(usr_id)
+
+    def get(self, doc_id):
+        ret = None
+        if doc_id is None or folder(self.usr_id).exist(doc_id):
+            ret = folder(self.usr_id).content(doc_id)
+        elif file(self.usr_id).exist(doc_id):
+            ret = file(self.usr_id).content(doc_id)
+        return [True, ret, None]
