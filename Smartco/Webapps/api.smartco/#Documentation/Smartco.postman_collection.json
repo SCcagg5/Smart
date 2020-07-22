@@ -1236,7 +1236,7 @@
 					]
 				},
 				{
-					"name": "ged/<folder_id>",
+					"name": "ged/<folder_id or file_id>",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1338,13 +1338,24 @@
 					]
 				},
 				{
-					"name": "/ged/addfolder",
+					"name": "/ged/addfile",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"test\",\r\n    \"folder_id\": \"52dcb300-b48a-4002-9be3-51bf736a217f\"\r\n}",
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/eliot/Downloads/D_Vertrag.pdf"
+								},
+								{
+									"key": "folder_id",
+									"value": "52dcb300-b48a-4002-9be3-51bf736a217f",
+									"type": "text"
+								}
+							],
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1352,13 +1363,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{method}}{{url}}/ged/addfolder",
+							"raw": "{{method}}{{url}}/ged/addfile",
 							"host": [
 								"{{method}}{{url}}"
 							],
 							"path": [
 								"ged",
-								"addfolder"
+								"addfile"
 							]
 						}
 					},
@@ -1436,19 +1447,8 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"src": "/C:/Users/eliot/Downloads/D_Vertrag.pdf"
-								},
-								{
-									"key": "folder_id",
-									"value": "52dcb300-b48a-4002-9be3-51bf736a217f",
-									"type": "text"
-								}
-							],
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"test\",\r\n    \"folder_id\": \"52dcb300-b48a-4002-9be3-51bf736a217f\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1456,13 +1456,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{method}}{{url}}/ged/addfile",
+							"raw": "{{method}}{{url}}/ged/addfolder",
 							"host": [
 								"{{method}}{{url}}"
 							],
 							"path": [
 								"ged",
-								"addfile"
+								"addfolder"
 							]
 						}
 					},
@@ -2148,17 +2148,17 @@
 	],
 	"variable": [
 		{
-			"id": "20f17ef7-45e2-413e-bccb-4fc786435439",
+			"id": "5b0ebfb1-d9c8-4119-9031-6512b67a2925",
 			"key": "url",
 			"value": "api.localhost"
 		},
 		{
-			"id": "7864b127-1a25-4aaf-879a-029019b63489",
+			"id": "ef01b8ec-2f8c-46e6-bee8-8a85db7533ea",
 			"key": "password",
 			"value": "password"
 		},
 		{
-			"id": "7a5c0445-5961-4b1b-85b7-b986f353a615",
+			"id": "3a6b774a-2c7a-4ae6-a3c5-f7048cfd8006",
 			"key": "method",
 			"value": "http://"
 		}
