@@ -21,6 +21,9 @@ import SideMenu from "../../components/SideMenu/SideMenu";
 import data from "../../data/data";
 import SideBar from "../../components/SideBar/SideBar";
 import {isEmail, ReactMultiEmail} from "react-multi-email";
+import emailService from "../../provider/emailService";
+import MySnackbarContentWrapper from "../../tools/customSnackBar";
+import Snackbar from "@material-ui/core/Snackbar";
 
 
 const endpoint = "http://51.158.97.220:3001/api";
@@ -34,6 +37,10 @@ class Meeting extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            openAlert: false,
+            alertMessage: '',
+            alertType: '',
+
             selectedSieMenuItem:"Meet",
             openSideMenu:false,
             showSecondSideBar:false,
@@ -75,22 +82,17 @@ class Meeting extends React.Component {
         }
     }
 
-    searchOCR = (text) => event => {
+    openSnackbar = (type, msg) => {
+        this.setState({
+            openAlert: true,
+            alertMessage: msg, //***
+            alertType: type
+        });
+    };
 
-        if (text !== '') {
-            this.setState({textSearch: text});
-            DocSearchService.login().then(ok => {
-
-                DocSearchService.search({word: text}, ok.data.token).then(res => {
-
-                    //console.log(res);
-                    this.setState({resultData: res})
-
-                }).catch(err => console.log(err))
-
-            }).catch(err => console.log(err))
-
-        }
+    closeSnackbar = (event, reason) => {
+        if (reason === 'clickaway') return;
+        this.setState({openAlert: false});
     };
 
 
@@ -364,18 +366,39 @@ class Meeting extends React.Component {
                                             },
                                         ) => {
                                             return (
-                                                <div data-tag key={index}>
+                                                <div data-tag="" key={index}>
                                                     {email}
-                                                    <span data-tag-handle
+                                                    <span data-tag-handle=""
                                                           onClick={() => removeEmail(index)}>
-                                                                                                                ×
-                                                                                                            </span>
+                                                        ×
+                                                    </span>
                                                 </div>
                                             );
                                         }}
                                     />
                                     <div style={{marginTop:15,textAlign:"right"}}>
-                                        <button className="btn btn-success  font-weight-normal" style={{fontFamily:"sans-serif"}}>
+                                        <button className="btn btn-success  font-weight-normal" style={{fontFamily:"sans-serif"}}
+                                                disabled={this.state.inviteEmails.length === 0}
+                                                onClick={() => {
+                                                    emailService.sendMailsWithurl({
+                                                        recipients:this.state.inviteEmails,
+                                                        subject:"Invitation pour rejoindre une réunion sur OALegal",
+
+                                                        linkUrl:"Cliquer ici pour réjoindre la réunion",
+                                                        url:this.state.meeturl,
+
+                                                        msg:"Bonjour, <br> Vous etes invité à réjoindre une réunion sur oalegal.org . <br> Cliquer sur ce lien pour accéder directement.<br><br>",
+
+                                                        footerMsg:"<br><br> Cordialement"
+                                                    }).then( ok => {
+                                                        this.openSnackbar("success","Les invitations sont bien envoyées au participants !")
+                                                        this.setState({showInviteModal:false})
+                                                    }).catch(err => {
+                                                        console.log(err);
+                                                        this.openSnackbar("error",err)
+                                                    })
+                                                }}
+                                        >
                                             Envoyer e-mail
                                         </button>
                                     </div>
@@ -404,6 +427,23 @@ class Meeting extends React.Component {
 
                                 </ModalBody>
                             </Modal>
+
+
+                            <Snackbar
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'left',
+                                }}
+                                open={this.state.openAlert}
+                                autoHideDuration={5000}
+                                onClose={this.closeSnackbar}
+                            >
+                                <MySnackbarContentWrapper
+                                    onClose={this.closeSnackbar}
+                                    variant={this.state.alertType}
+                                    message={this.state.alertMessage}
+                                />
+                            </Snackbar>
 
                         </div>
                 }

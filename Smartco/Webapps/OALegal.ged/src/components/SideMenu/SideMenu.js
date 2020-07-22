@@ -1,4 +1,4 @@
-import logo from "../../assets/images/logos/logoSmartCo.jpeg";
+import logo from "../../assets/images/logos/logo-OA.png";
 import Drawer from "@material-ui/core/Drawer";
 import React from "react";
 import "./style.css"
@@ -9,7 +9,7 @@ export default function SideMenu(props) {
     return(
         <Drawer anchor="left" open={props.opened} onClose={props.onClose}>
             <div  style={{padding:15,width:300,marginLeft:15}}>
-                <img alt="" src={logo} style={{height:60}}/>
+                <img alt="" src={logo} style={{height:60,width:250,objectFit:"contain"}}/>
             </div>
 
             <div style={{marginTop:30}}>

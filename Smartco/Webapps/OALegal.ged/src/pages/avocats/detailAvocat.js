@@ -3,7 +3,7 @@ import moment from 'moment';
 import 'moment/locale/fr'
 import defaultAvatar from "../../assets/images/users/default_avatar.jpg"
 import TopBar from "../../components/TopBar/TopBar";
-import logo from "../../assets/images/logos/logoSmartCo.jpeg";
+import logo from "../../assets/images/logos/logo-OA-dark.png";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import SideBar from "../../components/SideBar/SideBar";
 import dataC from "../../data/data";
@@ -55,7 +55,7 @@ class detailAvocat extends Component {
 
             <div>
 
-                <TopBar logo={logo} height={90} onClickMenuIcon={() => this.setState({openSideMenu: true})}/>
+                <TopBar logo={logo} height={90} onClickMenuIcon={() => this.setState({openSideMenu:true})}/>
                 <SideMenu logo={logo} items={dataC.sideBarItems} iconColor={"blue"} textColor={"#65728E"}
                           history={this.props.history}
                           opened={this.state.openSideMenu} onClose={() => this.setState({openSideMenu: false})}/>
@@ -105,22 +105,22 @@ class detailAvocat extends Component {
 
                                     <ul className="social-list list-inline mt-3 mb-0">
                                         <li className="list-inline-item">
-                                            <a href="javascript: void(0);"
+                                            <a href=""
                                                className="social-list-item border-primary text-primary"><i
                                                 className="mdi mdi-facebook"/></a>
                                         </li>
                                         <li className="list-inline-item">
-                                            <a href="javascript: void(0);"
+                                            <a href=""
                                                className="social-list-item border-danger text-danger"><i
                                                 className="mdi mdi-google"/></a>
                                         </li>
                                         <li className="list-inline-item">
-                                            <a href="javascript: void(0);"
+                                            <a href=""
                                                className="social-list-item border-info text-info"><i
                                                 className="mdi mdi-twitter"/></a>
                                         </li>
                                         <li className="list-inline-item">
-                                            <a href="javascript: void(0);"
+                                            <a href=""
                                                className="social-list-item border-secondary text-secondary"><i
                                                 className="mdi mdi-github-circle"/></a>
                                         </li>
@@ -129,11 +129,11 @@ class detailAvocat extends Component {
                             </div>
 
                             <div className="col-lg-9 col-xl-9" style={{minHeight:1000,height:1000}}>
-                                    <iframe
+                                    {/*<iframe
                                         src={data}
                                         height="100%"
                                         width="100%"
-                                        frameBorder="0"/>
+                                        frameBorder="0"/>*/}
                             </div>
                         </div>
 

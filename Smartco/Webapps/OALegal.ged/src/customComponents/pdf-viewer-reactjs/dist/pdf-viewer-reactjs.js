@@ -5,6 +5,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var React = _interopDefault(require('react'));
 var PropTypes = _interopDefault(require('prop-types'));
 var PDF = _interopDefault(require('react-pdf-js'));
+var materialDesignIcons_iconfont_materialIcons_css = require('material-design-icons/iconfont/material-icons.css');
 
 var NextPageButton = function NextPageButton(_ref) {
     var css = _ref.css,
@@ -413,7 +414,7 @@ var createClass = function () {
 
 
 
-/*var get = function get(object, property, receiver) {
+var get = function get(object, property, receiver) {
   if (object === null) object = Function.prototype;
   var desc = Object.getOwnPropertyDescriptor(object, property);
 
@@ -436,7 +437,7 @@ var createClass = function () {
 
     return getter.call(receiver);
   }
-};*/
+};
 
 var inherits = function (subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
@@ -474,7 +475,7 @@ var possibleConstructorReturn = function (self, call) {
 
 
 
-/*var set = function set(object, property, value, receiver) {
+var set = function set(object, property, value, receiver) {
   var desc = Object.getOwnPropertyDescriptor(object, property);
 
   if (desc === undefined) {
@@ -494,7 +495,7 @@ var possibleConstructorReturn = function (self, call) {
   }
 
   return value;
-};*/
+};
 
 var PDFViewer = function (_React$Component) {
     inherits(PDFViewer, _React$Component);

@@ -627,6 +627,26 @@ select{
     transform: translate(-50%,-50%);
     max-width: 150px;
 }
+.cf-itemDoc_preview_staticImg{
+    width: 75px;
+    height: 100px;
+    object-fit: contain;
+    max-width: 150px;
+    align-self: center;
+    justify-content: center;
+    margin-top: -50px;
+    position: absolute;
+    top: 95px;
+}
+.cf-itemDoc_preview_staticImgUploaded{
+    width: 75px;
+    height: 100px;
+    object-fit: contain;
+    max-width: 150px;
+    align-self: center;
+    justify-content: center;
+    position: absolute;
+}
 .cf_itemDoc_preview_details{
     position: relative;
     z-index: 1;

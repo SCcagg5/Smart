@@ -6,9 +6,10 @@ import TreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
 import Typography from '@material-ui/core/Typography';
 import FolderIcon from '@material-ui/icons/Folder';
-import PdfIcon from '@material-ui/icons/PictureAsPdf';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const useTreeItemStyles = makeStyles((theme) => ({
     root: {
@@ -64,35 +65,64 @@ const useTreeItemStyles = makeStyles((theme) => ({
 function StyledTreeItem(props) {
     const classes = useTreeItemStyles();
     const {labelText, labelIcon: LabelIcon, labelInfo, color, bgColor, ...other} = props;
+    const [anchorEl, setAnchorEl] = React.useState(null);
+
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     return (
-        <TreeItem
-            onClick={props.onClick}
-            label={
-                <div className={classes.labelRoot}>
-                    <LabelIcon color="inherit" className={classes.labelIcon}/>
-                    <Typography variant="body2" className={classes.labelText}>
-                        {labelText}
-                    </Typography>
-                    <Typography variant="caption" color="inherit">
-                        {labelInfo}
-                    </Typography>
-                </div>
-            }
-            style={{
-                '--tree-view-color': color,
-                '--tree-view-bg-color': bgColor,
-            }}
-            classes={{
-                root: classes.root,
-                content: classes.content,
-                expanded: classes.expanded,
-                selected: classes.selected,
-                group: classes.group,
-                label: classes.label,
-            }}
-            {...other}
-        />
+        <div>
+            <TreeItem
+                aria-controls="simple-menu"
+                onClick={props.onClick}
+                /*onContextMenu={event => {
+                    event.preventDefault()
+                    handleClick(event)
+                    //props.onContextMenu(event)
+                }}*/
+                label={
+                    <div className={classes.labelRoot}>
+                        <LabelIcon color="inherit" className={classes.labelIcon}/>
+                        <Typography variant="body2" className={classes.labelText}>
+                            {labelText}
+                        </Typography>
+                        <Typography variant="caption" color="inherit">
+                            {labelInfo}
+                        </Typography>
+                    </div>
+                }
+                style={{
+                    '--tree-view-color': color,
+                    '--tree-view-bg-color': bgColor,
+                }}
+                classes={{
+                    root: classes.root,
+                    content: classes.content,
+                    expanded: classes.expanded,
+                    selected: classes.selected,
+                    group: classes.group,
+                    label: classes.label,
+                }}
+                {...other}
+            />
+            <Menu
+                id="simple-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+            >
+                <MenuItem onClick={handleClose}>Profile</MenuItem>
+                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleClose}>Logout</MenuItem>
+            </Menu>
+        </div>
+
     );
 }
 
@@ -123,10 +153,15 @@ function SubFolder(props) {
                             color="#1a73e8"
                             bgColor="#e8f0fe"
                             onClick={() => {
+                                props.getFolderName(item.name)
+                                props.getFolderId(item.id)
                                 if(item.Content.files.length > 0){
-                                    console.log(item.Content.files)
+                                    //console.log(item.Content.files)
+                                    props.getSelectedFolderFiles(item.Content.files)
                                 }
+                                else props.getSelectedFolderFiles([])
                             }}
+                            //onContextMenu={(event) => props.onContextMenu(event)}
             >
                 {
                     item.Content.folders.length > 0 &&
@@ -143,7 +178,6 @@ export default function GmailCloneTree(props) {
     const classes = useStyles();
     return (
         <TreeView
-            onAuxClick={event => event.preventDefault()}
             className={classes.root}
             //defaultExpanded={['3']}
             defaultCollapseIcon={<ArrowDropDownIcon/>}
@@ -155,39 +189,28 @@ export default function GmailCloneTree(props) {
                     <StyledTreeItem key={key} nodeId={item.id} labelText={item.name}
                                     labelIcon={FolderIcon} //labelInfo={item.Content.folders.length || "0"}
                                     onClick={() => {
+                                        props.getFolderName(item.name)
+                                        props.getFolderId(item.id)
+
                                         if(item.Content.files.length > 0){
-                                            console.log(item.Content.files)
+                                            //console.log(item.Content.files)
+                                            props.getSelectedFolderFiles(item.Content.files)
                                         }
+                                        else props.getSelectedFolderFiles([])
 
                                     }}
+                                    //onContextMenu={(event) => props.onContextMenu(event)}
                     >
                         {
                             item.Content.folders.length > 0 &&
-                            <SubFolder items={item.Content.folders}/>
+                            <SubFolder items={item.Content.folders} getFolderName={(name) => props.getFolderName(name)}
+                                       getFolderId={(id) => props.getFolderId(id)}
+                                       getSelectedFolderFiles={(files) => props.getSelectedFolderFiles(files)} />
                         }
 
                     </StyledTreeItem>
                 )
             }
-
-            {/*<StyledTreeItem nodeId="7" labelText="CLIENTS" labelIcon={FolderIcon} >
-                <StyledTreeItem
-                    nodeId="8"
-                    labelText="Nom du client (corporate)**"
-                    labelIcon={FolderIcon}
-                    labelInfo="10"
-                    color="#1a73e8"
-                    bgColor="#e8f0fe"
-                />
-                <StyledTreeItem
-                    nodeId="9"
-                    labelText="Nom du client (litigation)**"
-                    labelIcon={FolderIcon}
-                    labelInfo="15"
-                    color="#1a73e8"
-                    bgColor="#e8f0fe"
-                />
-            </StyledTreeItem>*/}
         </TreeView>
     );
 

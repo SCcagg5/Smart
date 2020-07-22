@@ -4,7 +4,7 @@ import {Link} from "react-router-dom";
 import firebase from "firebase/app";
 import "firebase/database"
 import TopBar from "../../components/TopBar/TopBar";
-import logo from "../../assets/images/logos/logoSmartCo.jpeg";
+import logo from "../../assets/images/logos/logo-OA-dark.png";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import data from "../../data/data";
 import SideBar from "../../components/SideBar/SideBar";
@@ -40,7 +40,7 @@ class listAvocats extends Component {
     render() {
         return (
             <div>
-                <TopBar logo={logo} height={90} onClickMenuIcon={() => this.setState({openSideMenu: true})}/>
+                <TopBar logo={logo} height={90} onClickMenuIcon={() => this.setState({openSideMenu:true})}/>
                 <SideMenu logo={logo} items={data.sideBarItems} iconColor={"blue"} textColor={"#65728E"}
                           history={this.props.history}
                           opened={this.state.openSideMenu} onClose={() => this.setState({openSideMenu: false})}/>
@@ -61,7 +61,7 @@ class listAvocats extends Component {
                                     {
                                         this.state.listAvocats.map((item, key) => (
 
-                                            <div className="card-box mb-2">
+                                            <div className="card-box mb-2" key={key}>
                                                 <div className="row align-items-center">
                                                     <div className="col-sm-5">
                                                         <div className="media">
@@ -79,10 +79,10 @@ class listAvocats extends Component {
                                                     </div>
                                                     <div className="col-sm-4">
                                                         <p className="mb-1 mt-3 mt-sm-0"><i
-                                                            className="mdi mdi-email mr-1"></i> {item.email}
+                                                            className="mdi mdi-email mr-1"/> {item.email}
                                                         </p>
                                                         <p className="mb-0"><i
-                                                            className="mdi mdi-phone-classic mr-1"></i> {item.phone}</p>
+                                                            className="mdi mdi-phone-classic mr-1"/> {item.phone}</p>
                                                     </div>
                                                     <div className="col-sm-2">
                                                         <div className="text-center mt-3 mt-sm-0">

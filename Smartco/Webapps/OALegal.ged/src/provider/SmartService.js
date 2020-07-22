@@ -68,8 +68,8 @@ let SmartService = {
             console.log(error);
         });
     },
-    getFolder(folderId,token,usrtoken){
-        return fetch(endpoint + '/ged/'+folderId, {
+    getFile(fileId,token,usrtoken){
+        return fetch(endpoint + '/ged/'+fileId, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -89,7 +89,7 @@ let SmartService = {
         return fetch(endpoint + '/ged/addfile', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
-            body:JSON.stringify(data)
+            body:data,
         }).then(response => response.json()).catch(error => {
             console.log(error);
         });

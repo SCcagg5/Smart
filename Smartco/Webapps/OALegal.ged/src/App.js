@@ -9,6 +9,8 @@ import firebase from "firebase/app";
 import Dash from "./Dashboard";
 import CoffreFortNewVersion from "./pages/coffreFort/CoffreFortNewVersion";
 import Meeting from "./pages/Meet/Meeting";
+import Rooms from "./pages/Rooms/Rooms";
+import Chat from "./pages/Chat/chat";
 
 
 
@@ -42,6 +44,8 @@ class App extends Component{
           <Route exact path="/" component={Redirect}/>
           <Route exact path="/dashboard" component={Dash}/>
           <Route exact path="/coffre-fort" component={CoffreFortNewVersion}/>
+          <Route exact path="/rooms" component={Rooms}/>
+          <Route exact path="/Chat" component={Chat}/>
           <Route exact path="/meet" component={Meeting}/>
           <Route exact path="/login" name="login" component={Login}/>
           <Route exact path="/logout" name="logout" component={Logout}/>
