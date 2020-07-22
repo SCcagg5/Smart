@@ -48,7 +48,7 @@ class folder:
             (self.usr_id, ))
         print(folders, folder_id, self.usr_id)
         for i2 in folders:
-            res["Content"]["folders"].append(self.__content(i2[0], i2[1], i2[2], i))
+            res["Content"]["folders"].append(self.content(i2[0], i2[1], i2[2], i))
         return res
 
 class file:
@@ -56,25 +56,25 @@ class file:
         self.usr_id = str(usr_id)
 
     def new(self, file, folder_id):
-        id = str(uuid.uuid4())
+        file_id = str(uuid.uuid4())
         date = str(int(round(time.time() * 1000)))
         name, ext = os.path.splitext(file.filename)
         if ext not in ('.pdf', ):
             return [False, "File extension not allowed.", 401]
         if folder_id is not None and not folder(self.usr_id).exist(folder_id):
             return [False, "folder_id does not exist", 400]
-        file.save(self.path(id))
+        file.save(self.path(file_id))
         succes = sql.input("INSERT INTO `file` (`id`,`user_id`, `name`, `type`, `inside`, `date`) VALUES (%s, %s, %s, %s, %s, %s)", \
-        (id, self.usr_id, name, ext[1:], folder_id, date))
+        (file_id, self.usr_id, name, ext[1:], folder_id, date))
         if not succes:
             return [False, "data input error", 500]
-        return [True, {"id": id}, None]
+        return [True, {"file_id": file_id}, None]
 
     def path(self, file_id):
-        save_path = "/home/ged/{user_id}/".format(user_id=self.usr_id)
+        save_path = "/home/ged/{user_id}".format(user_id=self.usr_id)
         if not os.path.exists(save_path):
             os.makedirs(save_path)
-        file_path = "{path}/{file}".format(path=save_path, file=id)
+        file_path = "{path}/{file}".format(path=save_path, file=file_id)
         return file_path
 
     def exist(self, file_id):
@@ -84,11 +84,12 @@ class file:
 
     def content(self, file_id):
         ret = None
-        res = sql.get("SELECT `id`, `name`, `date`, `type`, `inside` FROM `folder` WHERE id = %s AND user_id = %s",
+        res = sql.get("SELECT `id`, `name`, `date`, `type`, `inside` FROM `file` WHERE id = %s AND user_id = %s",
         (file_id, self.usr_id,))
         if len(res) != 0:
-            file = open(self.path(file_id), "r").read()
-            data = base64.b64encode(file)
+            with open(self.path(file_id), 'rb') as f:
+                data = f.read()
+            data =  base64.encodestring(data).decode("utf-8")
             ret = {
                      "name": res[0][1],
                      "date": res[0][2],
