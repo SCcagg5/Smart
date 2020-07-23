@@ -58,7 +58,7 @@ services:
       - proxy
     volumes:
       - ../Smartco/Webapps/api.smartco:/home/api/
-      - ../Smartco/Webapps/ged.smartco:/home/ged/
+      - ../Smartco/Webapps/doc.smartco:/home/ged/
     environment:
       VIRTUAL_HOST: api.${SMARTCO_DOMAIN}
       VIRTUAL_PORT: 8080
