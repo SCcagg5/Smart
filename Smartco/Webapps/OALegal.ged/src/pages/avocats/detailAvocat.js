@@ -44,9 +44,9 @@ class detailAvocat extends Component {
             ". Ci-dessous le lien du document à discuter" +
             "  "+localStorage.getItem('docURL');*/
 
-        let data = "https://calendly.com/smartco_calendar?full_name=JeanHuguesLauret&email=jhlauret@yopmail.com&a1=" +
+        /*let data = "https://calendly.com/smartco_calendar?full_name=JeanHuguesLauret&email=jhlauret@yopmail.com&a1=" +
             "Réunion avec Zoom pour la finalisation d’un plan de stock option pour " +
-            "Monsieur Babba Amine\r" + " Lien du document:\r "+" http://51.158.97.220:3002/api/creationBSASuisseGET/DBP60xIusEcul000TBtXlpG9wX93Suisse/0/0"
+            "Monsieur Babba Amine\r" + " Lien du document:\r "+" http://51.158.97.220:3002/api/creationBSASuisseGET/DBP60xIusEcul000TBtXlpG9wX93Suisse/0/0"*/
 
         /*let data = "https://www.vyte.in/smartCo/30?embed";*/
 
@@ -65,7 +65,7 @@ class detailAvocat extends Component {
                          history={this.props.history}/>
                 <div style={{paddingLeft:"10%",marginRight:50,marginTop:50}}>
 
-                    <a style={{color: 'hover: #21a5c2 !important', cursor: 'pointer'}}
+                    <a href="" style={{color: 'hover: #21a5c2 !important', cursor: 'pointer'}}
                        onClick={() => this.props.history.goBack()}
                        className="float-right text-info">Retour</a>
                     <h4 className="mt-0 mb-2">

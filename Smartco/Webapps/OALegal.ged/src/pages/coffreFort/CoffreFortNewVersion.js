@@ -739,6 +739,7 @@ class CoffreFortNewVersion extends React.Component {
                                                                                                         signed_at: "",
                                                                                                         key: this.state.signMySelf === true ? key + 2 : key + 1
                                                                                                     })
+                                                                                                    return null;
                                                                                                 })
 
                                                                                                 docs.push({

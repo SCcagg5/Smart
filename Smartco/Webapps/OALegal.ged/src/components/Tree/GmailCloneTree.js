@@ -1,5 +1,4 @@
 import React from "react";
-
 import PropTypes from 'prop-types';
 import {makeStyles} from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
@@ -67,9 +66,6 @@ function StyledTreeItem(props) {
     const {labelText, labelIcon: LabelIcon, labelInfo, color, bgColor, ...other} = props;
     const [anchorEl, setAnchorEl] = React.useState(null);
 
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
 
     const handleClose = () => {
         setAnchorEl(null);
