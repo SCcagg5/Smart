@@ -74,6 +74,38 @@ services:
       WEB3_INFURA_API_KEY: ${WEB3_INFURA_PROJECT_ID}
       ETH_ADM_MNEMONIC: ${SMARTCO_ETH_ADM_MNEMONIC}
 
+  smartco-dashboard:
+     build: ../Smartco/Webapps/dashboard.smartco/
+     container_name: smartco-dashboard-nginx
+     restart: always
+     tty: true
+     stdin_open: true
+     expose:
+      - 80
+     networks:
+       - proxy
+     environment:
+       VIRTUAL_HOST: dashboard.${SMARTCO_DOMAIN}
+       VIRTUAL_PORT: 80
+       LETSENCRYPT_HOST: dashboard.${SMARTCO_DOMAIN}
+       LETSENCRYPT_EMAIL: ${SMARTCO_EMAIL}
+
+  smartco-ged:
+     build: ../Smartco/Webapps/ged.smartco/
+     container_name: smartco-ged-nginx
+     restart: always
+     tty: true
+     stdin_open: true
+     expose:
+      - 80
+     networks:
+       - proxy
+     environment:
+       VIRTUAL_HOST: ged.${SMARTCO_DOMAIN}
+       VIRTUAL_PORT: 80
+       LETSENCRYPT_HOST: ged.${SMARTCO_DOMAIN}
+       LETSENCRYPT_EMAIL: ${SMARTCO_EMAIL}
+
   db-smartco:
     container_name: smartco-wp-sql
     image: mariadb:latest
@@ -102,7 +134,7 @@ services:
       WORDPRESS_DB_USER: ${SMARTCO_DB_USER}
       WORDPRESS_DB_PASSWORD: ${SMARTCO_DB_PASS}
       WORDPRESS_TABLE_PREFIX: wp
-      VIRTUAL_HOST: ${SMARTCO_DOMAIN}
+      VIRTUAL_HOST: ${SMARTCO_DOMAIN},www.${SMARTCO_DOMAIN}
       VIRTUAL_PORT: 80
       LETSENCRYPT_HOST: ${SMARTCO_DOMAIN}
       LETSENCRYPT_EMAIL: ${SMARTCO_EMAIL}

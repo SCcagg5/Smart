@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  build-assembly:
+    build: .
+    container_name: build-dashboard
+    volumes:
+      - ../../Smartco/Webapps/dashboard.smartco:/app/
+
+  build-quinsac:
+    build: .
+    container_name: build-ged
+    volumes:
+      - ../../Smartco/Webapps/ged.smartco:/app/
