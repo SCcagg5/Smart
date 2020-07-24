@@ -3,7 +3,6 @@ import { Modal, ModalBody, ModalHeader} from "reactstrap";
 import moment from "moment";
 import PDFViewer from "../../customComponents/pdf-viewer-reactjs";
 import SearchResults from "../../components/Search/SearchResults";
-import DocSearchService from "../../provider/DocSearchService";
 import '../../assets/css/multiEmail.css';
 import swissImg from "../../assets/images/flags/swiss.svg"
 import ReactLoading from "react-loading";
@@ -26,7 +25,6 @@ import MySnackbarContentWrapper from "../../tools/customSnackBar";
 import Snackbar from "@material-ui/core/Snackbar";
 
 
-const endpoint = "http://51.158.97.220:3001/api";
 
 
 

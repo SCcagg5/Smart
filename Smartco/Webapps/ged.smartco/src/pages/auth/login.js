@@ -1,9 +1,8 @@
 import React, {Component} from "react";
-import {Container, Row, Col, Card, CardBody, Label, FormGroup, Button, Alert} from 'reactstrap';
+import {Container, Row, Col, Card, CardBody, Label, FormGroup, Alert} from 'reactstrap';
 import {AvForm, AvGroup, AvInput, AvFeedback} from 'availity-reactstrap-validation';
 import Loader from '../../components/Loaders/Loader';
 import logo from "../../assets/images/logos/logo-OA.png"
-import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database"
 import Snackbar from '@material-ui/core/Snackbar';

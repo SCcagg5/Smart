@@ -1,6 +1,10 @@
-Install:
+# OA Legal Ged
 
-1 yarn install  /  npm i 
-2 yarn start
-3 yarn build => pour générer le dossier build et le mettre en production sur serveur
 
+
+## Installation
+
+```bash
+yarn install
+yarn start (to execute the project in localhost)  ||  yarn build (to generate the build folder)
+```

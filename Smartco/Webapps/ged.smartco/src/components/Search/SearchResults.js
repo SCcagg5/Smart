@@ -26,10 +26,13 @@ class SearchResults extends React.Component {
             item.match.perfect ?
                 (item.match.perfect.data || []).map((text, k) => {
                     textToSearch = textToSearch.concat(text).concat(". ... ");
+                    return null;
                 }) :
                 (item.match.fuzzy.data || []).map((text, k) => {
                     textToSearch =  textToSearch.concat(text).concat(". ... ");
+                    return null;
                 })
+            return null;
         });
 
         return (
@@ -38,7 +41,7 @@ class SearchResults extends React.Component {
             <div className="card">
                 <div className="card-body">
 
-                    <a style={{color: 'hover: #21a5c2 !important', cursor: 'pointer'}}
+                    <a href="" style={{color: 'hover: #21a5c2 !important', cursor: 'pointer'}}
                        onClick={() => this.setState({showResultsContainer: false})}
                        className="float-right text-info">
                         <i className="far fa-window-close font-18"/>
