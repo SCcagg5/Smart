@@ -44,8 +44,9 @@ services:
     networks:
       - db-net
 
-  map_bck-end:
+  smartdom_bck-end:
     build: ../Smartdom/Webapps/api.smartdom
+    container_name: smartdom-bck-end
     expose:
       - 8080
     tty: true

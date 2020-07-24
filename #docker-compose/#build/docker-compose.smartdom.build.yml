@@ -13,7 +13,7 @@ services:
     volumes:
       - ../../Smartdom/Webapps/quinsac.smartdom:/app/
 
-  build-assembly:
+  build-smartdom:
     build: .
     container_name: build-smartdom
     volumes:
