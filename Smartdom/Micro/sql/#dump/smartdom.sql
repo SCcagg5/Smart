@@ -24,8 +24,39 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `file`
+--
+
+CREATE TABLE `file` (
+  `id` varchar(38) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `name` varchar(127) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `inside` varchar(36) DEFAULT NULL,
+  `date` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `folder`
+--
+
+CREATE TABLE `folder` (
+  `id` varchar(38) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `name` varchar(127) NOT NULL,
+  `inside` varchar(36) DEFAULT NULL,
+  `date` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `orderdetails`
 --
+
+
 
 CREATE TABLE `orderdetails` (
   `id` int(11) NOT NULL,
@@ -116,6 +147,18 @@ CREATE TABLE `wallet` (
 --
 -- Index pour les tables déchargées
 --
+
+--
+-- Index pour la table `file`
+--
+ALTER TABLE `file`
+  ADD UNIQUE KEY `id` (`id`);
+
+--
+-- Index pour la table `folder`
+--
+ALTER TABLE `folder`
+  ADD UNIQUE KEY `id` (`id`);
 
 --
 -- Index pour la table `orderdetails`
