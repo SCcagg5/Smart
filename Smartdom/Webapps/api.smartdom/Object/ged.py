@@ -4,7 +4,7 @@ import uuid
 import time
 import base64
 from .sql import sql
-from .user import user
+from .users import user
 
 class folder:
     def __init__(self, usr_id = -1):
@@ -25,7 +25,7 @@ class folder:
         if not self.is_proprietary(folder_id):
             return [False, "Can't share this folder, you're not proprietary or moderator", 403]
         if "moderator" not in access or "editor" not in access or "reader" not in access or "representative" not in access:
-            return [False, "Invalid access, should contain 'moderator', 'representative', 'editor' and 'reader'"]
+            return [False, "Invalid access, should contain 'moderator', 'representative', 'editor' and 'reader'", 400]
         if not isinstance(access["moderator"], bool) or not isinstance(access["editor"], bool) or not isinstance(access["reader"], bool) or not isinstance(access["representative"], bool):
             return [False, "Value of index contained in access should be boolean", 400]
         user_id = user.fromemail(email)
@@ -37,9 +37,9 @@ class folder:
             return [False, "Can't share to yourself", 401]
         share_id = str(uuid.uuid4())
         date = str(int(round(time.time() * 1000)))
-        succes = sql.input("INSERT INTO `" + table + "` (`id`,`user_id`, `folder_id`, `moderator`, `representative`, `editor`, `reader`, `date`, `by`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", \
-        (share_id, user_id, folder_id, access["moderator"], acces["representative"], access["editor"], access["reader"], date, self.usr_id))
-        if not success:
+        succes = sql.input("INSERT INTO `" + table + "` (`id`,`user_id`, `folder_id`, `moderator`, `representative`, `editor`, `reader`, `date`, `shared_by`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", \
+        (share_id, user_id, folder_id, access["moderator"], access["representative"], access["editor"], access["reader"], date, self.usr_id))
+        if not succes:
             return [False, "data input error", 500]
         return [True, {}, None]
 
@@ -48,7 +48,7 @@ class folder:
         (folder_id, ))
         return True if len(res) > 0 else False
 
-    def is_proprietary(id_folder):
+    def is_proprietary(self, id_folder):
         res = sql.get("SELECT `id`, `name`, `date`, `inside` FROM `folder` WHERE id = %s AND user_id = %s", (id_folder, self.usr_id))
         return True if len(res) > 0 else False
 
@@ -100,7 +100,7 @@ class file:
         if not self.is_proprietary(file_id):
             return [False, "Can't share this file, you're not proprietary or moderator", 403]
         if "moderator" not in access or "editor" not in access or "reader" not in access or "representative" not in access:
-            return [False, "Invalid access, should contain 'moderator', 'representative', 'editor' and 'reader'"]
+            return [False, "Invalid access, should contain 'moderator', 'representative', 'editor' and 'reader'", 400]
         if not isinstance(access["moderator"], bool) or not isinstance(access["editor"], bool) or not isinstance(access["reader"], bool) or not isinstance(access["representative"], bool):
             return [False, "Value of index contained in access should be boolean", 400]
         user_id = user.fromemail(email)
@@ -112,9 +112,9 @@ class file:
             return [False, "Can't share to yourself", 401]
         share_id = str(uuid.uuid4())
         date = str(int(round(time.time() * 1000)))
-        succes = sql.input("INSERT INTO `" + table + "` (`id`,`user_id`, `file_id`, `moderator`, `representative`, `editor`, `reader`, `date`, `by`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", \
-        (share_id, user_id, file_id, access["moderator"], acces["representative"], access["editor"], access["reader"], date, self.usr_id))
-        if not success:
+        succes = sql.input("INSERT INTO `" + table + "` (`id`,`user_id`, `file_id`, `moderator`, `representative`, `editor`, `reader`, `date`, `shared_by`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", \
+        (share_id, user_id, file_id, access["moderator"], access["representative"], access["editor"], access["reader"], date, self.usr_id))
+        if not succes:
             return [False, "data input error", 500]
         return [True, {}, None]
 
@@ -153,7 +153,7 @@ class file:
                    }
         return ret
 
-    def is_proprietary(id_file):
+    def is_proprietary(self, id_file):
         res = sql.get("SELECT `id`, `name`, `date`, `type`, `inside` FROM `file` WHERE id = %s AND user_id = %s", (id_file, self.usr_id))
         return True if len(res) > 0 else False
 
@@ -175,5 +175,5 @@ class ged:
         elif file(self.usr_id).exist(doc_id):
             ret = file(self.usr_id).share(email, doc_id, access)
         else:
-            ret = [False, "Doc_id isn't a valid file_id or folder_id"]
+            ret = [False, "Doc_id isn't a valid file_id or folder_id", 404]
         return ret
