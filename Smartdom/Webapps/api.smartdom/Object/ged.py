@@ -64,7 +64,7 @@ class folder:
                              "share": self.is_sharer(folder_id),
                              "administrate": self.is_admin(folder_id)
                              }
-            if not self.is_reader(folder_id)
+            if not self.is_reader(folder_id):
                 return res
             files = sql.get("SELECT `id`, `name`, `type`, `date` FROM `file` WHERE inside = %s", \
             (folder_id, ))
@@ -83,7 +83,7 @@ class folder:
             for i2 in folders:
                 res["Content"]["folders"].append(self.sharedcontent(i2[0], i2[1], i2[2]))
         else:
-            files = sql.get("SELECT file.`id`, `name`, file.`date`, user.`email`, share_file.`date` FROM `file` INNER JOIN `share_file` ON `share_file`.user_id = %s LEFT JOIN `user` ON user.id = %s WHERE valid IS TRUE", \
+            files = sql.get("SELECT file.`id`, `name`, file.`date`, user.`email`, share_file.`date` FROM `file` INNER JOIN `share_file` ON `share_file`.user_id = %s LEFT JOIN `user` ON user.id = %s WHERE active IS TRUE", \
             (self.usr_id, self.usr_id))
             for i2 in files:
                 res["Content"]["files"].append({
@@ -95,7 +95,7 @@ class folder:
                         "administrate": file(self.usr_id).is_admin(i2[0])
                         }
                 })
-            folders = sql.get("SELECT folder.`id`, `name`, folder.`date`, user.`email`, share_folder.`date` FROM `folder` INNER JOIN `share_folder` ON `share_folder`.user_id = %s LEFT JOIN `user` ON user.id = %s WHERE valid IS TRUE", \
+            folders = sql.get("SELECT folder.`id`, `name`, folder.`date`, user.`email`, share_folder.`date` FROM `folder` INNER JOIN `share_folder` ON `share_folder`.user_id = %s LEFT JOIN `user` ON user.id = %s WHERE active IS TRUE", \
             (self.usr_id, self.usr_id))
             for i2 in folders:
                 res["Content"]["folders"].append({
@@ -114,8 +114,8 @@ class folder:
         if folder_id is not None and name is None:
             folder = sql.get("SELECT `name`, `date` FROM `folder` WHERE id = %s AND user_id = %s", \
             (folder_id, self.usr_id))
-            res["name"] = res[0]
-            res["date"] = res[1]
+            res["name"] = folder[0][0]
+            res["date"] = folder[0][1]
         if folder_id is not None:
             files = sql.get("SELECT `id`, `name`, `type`, `date` FROM `file` WHERE inside = %s AND user_id = %s", \
             (folder_id, self.usr_id))
@@ -340,7 +340,7 @@ class ged:
     def get(self, doc_id):
         ret = None
         if doc_id is None:
-            ret = folder(self.usr_id).content(doc_id) + folder(self.usr_id).sharedcontent(doc_id)
+            ret = {"Proprietary": folder(self.usr_id).content(doc_id), "Shared": folder(self.usr_id).sharedcontent(doc_id)}
         elif folder(self.usr_id).exist(doc_id):
             if folder(self.usr_id).is_proprietary(doc_id):
                 ret = folder(self.usr_id).content(doc_id)
