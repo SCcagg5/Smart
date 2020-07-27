@@ -7,8 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import FolderIcon from '@material-ui/icons/Folder';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import AddIcon from '@material-ui/icons/AddOutlined';
 
 const useTreeItemStyles = makeStyles((theme) => ({
     root: {
@@ -58,29 +57,27 @@ const useTreeItemStyles = makeStyles((theme) => ({
         fontWeight: 'inherit',
         flexGrow: 1,
     },
+    endIcon: {
+        fontSize:14,
+        marginRight: theme.spacing(1),
+        //color:"transparent",
+        '&:hover': {
+            color:"#000",
+            fontSize:18
+        },
+    }
 }));
 
 
 function StyledTreeItem(props) {
     const classes = useTreeItemStyles();
-    const {labelText, labelIcon: LabelIcon, labelInfo, color, bgColor, ...other} = props;
-    const [anchorEl, setAnchorEl] = React.useState(null);
-
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+    const {labelText, labelIcon: LabelIcon, labelInfo,endIcon:EndIcon, color, bgColor, ...other} = props;
 
     return (
         <div>
             <TreeItem
                 aria-controls="simple-menu"
                 onClick={props.onClick}
-                /*onContextMenu={event => {
-                    event.preventDefault()
-                    handleClick(event)
-                    //props.onContextMenu(event)
-                }}*/
                 label={
                     <div className={classes.labelRoot}>
                         <LabelIcon color="inherit" className={classes.labelIcon}/>
@@ -90,6 +87,7 @@ function StyledTreeItem(props) {
                         <Typography variant="caption" color="inherit">
                             {labelInfo}
                         </Typography>
+                        <EndIcon color="inherit" className={classes.endIcon} onClick={(event) => props.onEndIconClick(event)} />
                     </div>
                 }
                 style={{
@@ -106,17 +104,6 @@ function StyledTreeItem(props) {
                 }}
                 {...other}
             />
-            <Menu
-                id="simple-menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-            >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
-                <MenuItem onClick={handleClose}>Logout</MenuItem>
-            </Menu>
         </div>
 
     );
@@ -124,7 +111,7 @@ function StyledTreeItem(props) {
 
 const useStyles = makeStyles({
     root: {
-        height: 264,
+        //height: 264,
         flexGrow: 1,
         maxWidth: 400,
     },
@@ -145,6 +132,7 @@ function SubFolder(props) {
                             nodeId={item.id}
                             labelText={item.name}
                             labelIcon={FolderIcon}
+                            endIcon={AddIcon}
                 //labelInfo={item.Content.folders.length || "0"}
                             color="#1a73e8"
                             bgColor="#e8f0fe"
@@ -157,11 +145,13 @@ function SubFolder(props) {
                                 }
                                 else props.getSelectedFolderFiles([])
                             }}
-                            //onContextMenu={(event) => props.onContextMenu(event)}
+                            onEndIconClick={(event) => props.onEndIconClick(event)}
             >
                 {
                     item.Content.folders.length > 0 &&
-                    <SubFolder items={item.Content.folders}/>
+                    <SubFolder items={item.Content.folders} getFolderName={(name) => props.getFolderName(name)}
+                               getFolderId={(id) => props.getFolderId(id)} onEndIconClick={(event) => props.onEndIconClick(event)}
+                               getSelectedFolderFiles={(files) => props.getSelectedFolderFiles(files)} />
                 }
             </StyledTreeItem>
         )
@@ -179,11 +169,13 @@ export default function GmailCloneTree(props) {
             defaultCollapseIcon={<ArrowDropDownIcon/>}
             defaultExpandIcon={<ArrowRightIcon/>}
             defaultEndIcon={<div style={{width: 32}}/>}
+            selected={props.selectedDriveItem}
         >
             {
                 (props.data || []).map((item, key) =>
                     <StyledTreeItem key={key} nodeId={item.id} labelText={item.name}
                                     labelIcon={FolderIcon} //labelInfo={item.Content.folders.length || "0"}
+                                    endIcon={AddIcon}
                                     onClick={() => {
                                         props.getFolderName(item.name)
                                         props.getFolderId(item.id)
@@ -195,12 +187,14 @@ export default function GmailCloneTree(props) {
                                         else props.getSelectedFolderFiles([])
 
                                     }}
-                                    //onContextMenu={(event) => props.onContextMenu(event)}
+                                    onEndIconClick={(event) => props.onEndIconClick(event)}
+                                    color="#1a73e8"
+                                    bgColor="#e8f0fe"
                     >
                         {
                             item.Content.folders.length > 0 &&
                             <SubFolder items={item.Content.folders} getFolderName={(name) => props.getFolderName(name)}
-                                       getFolderId={(id) => props.getFolderId(id)}
+                                       getFolderId={(id) => props.getFolderId(id)} onEndIconClick={(event) => props.onEndIconClick(event)}
                                        getSelectedFolderFiles={(files) => props.getSelectedFolderFiles(files)} />
                         }
 
