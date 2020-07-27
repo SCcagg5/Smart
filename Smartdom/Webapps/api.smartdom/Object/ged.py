@@ -24,9 +24,9 @@ class folder:
     def share(self, email, folder_id, access):
         if not self.is_proprietary(folder_id):
             return [False, "Can't share this folder, you're not proprietary or moderator", 403]
-        if "moderator" not in access or "editor" not in access or "reader" not in access or "representative" not in access:
-            return [False, "Invalid access, should contain 'moderator', 'representative', 'editor' and 'reader'", 400]
-        if not isinstance(access["moderator"], bool) or not isinstance(access["editor"], bool) or not isinstance(access["reader"], bool) or not isinstance(access["representative"], bool):
+        if "administrate" not in access or "share" not in access or "edit" not in access or "read" not in access:
+            return [False, "Invalid access, should contain 'share', 'edit', 'read', 'administrate'", 400]
+        if not isinstance(access["administrate"], bool) or not isinstance(access["edit"], bool) or not isinstance(access["read"], bool) or not isinstance(access["administrate"], bool):
             return [False, "Value of index contained in access should be boolean", 400]
         user_id = user.fromemail(email)
         table = "share_folder"
@@ -37,8 +37,8 @@ class folder:
             return [False, "Can't share to yourself", 401]
         share_id = str(uuid.uuid4())
         date = str(int(round(time.time() * 1000)))
-        succes = sql.input("INSERT INTO `" + table + "` (`id`,`user_id`, `folder_id`, `moderator`, `representative`, `editor`, `reader`, `date`, `shared_by`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", \
-        (share_id, user_id, folder_id, access["moderator"], access["representative"], access["editor"], access["reader"], date, self.usr_id))
+        succes = sql.input("INSERT INTO `" + table + "` (`id`,`user_id`, `folder_id`, `can_administrate`, `can_share`, `can_edit`, `can_read`, `date`, `shared_by`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", \
+        (share_id, user_id, folder_id, access["administrate"], access["share"], access["edit"], access["read"], date, self.usr_id))
         if not succes:
             return [False, "data input error", 500]
         return [True, {}, None]
@@ -99,9 +99,9 @@ class file:
     def share(self, email, file_id, access):
         if not self.is_proprietary(file_id):
             return [False, "Can't share this file, you're not proprietary or moderator", 403]
-        if "moderator" not in access or "editor" not in access or "reader" not in access or "representative" not in access:
-            return [False, "Invalid access, should contain 'moderator', 'representative', 'editor' and 'reader'", 400]
-        if not isinstance(access["moderator"], bool) or not isinstance(access["editor"], bool) or not isinstance(access["reader"], bool) or not isinstance(access["representative"], bool):
+        if "administrate" not in access or "share" not in access or "edit" not in access or "read" not in access:
+            return [False, "Invalid access, should contain 'share', 'edit', 'read', 'administrate'", 400]
+        if not isinstance(access["administrate"], bool) or not isinstance(access["edit"], bool) or not isinstance(access["read"], bool) or not isinstance(access["administrate"], bool):
             return [False, "Value of index contained in access should be boolean", 400]
         user_id = user.fromemail(email)
         table = "share_file"
@@ -112,8 +112,8 @@ class file:
             return [False, "Can't share to yourself", 401]
         share_id = str(uuid.uuid4())
         date = str(int(round(time.time() * 1000)))
-        succes = sql.input("INSERT INTO `" + table + "` (`id`,`user_id`, `file_id`, `moderator`, `representative`, `editor`, `reader`, `date`, `shared_by`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", \
-        (share_id, user_id, file_id, access["moderator"], access["representative"], access["editor"], access["reader"], date, self.usr_id))
+        succes = sql.input("INSERT INTO `" + table + "` (`id`,`user_id`, `file_id`, `can_administrate`, `can_share`, `can_edit`, `can_read`, `date`, `shared_by`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", \
+        (share_id, user_id, file_id, access["administrate"], access["share"], access["edit"], access["read"], date, self.usr_id))
         if not succes:
             return [False, "data input error", 500]
         return [True, {}, None]
