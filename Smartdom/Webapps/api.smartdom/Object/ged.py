@@ -168,3 +168,12 @@ class ged:
         elif file(self.usr_id).exist(doc_id):
             ret = file(self.usr_id).content(doc_id)
         return [True, ret, None]
+
+    def share(self, doc_id, email, access):
+        if folder(self.usr_id).exist(doc_id):
+            ret = folder(self.usr_id).share(email, doc_id, access)
+        elif file(self.usr_id).exist(doc_id):
+            ret = file(self.usr_id).share(email, doc_id, access)
+        else:
+            ret = [False, "Doc_id isn't a valid file_id or folder_id"]
+        return ret

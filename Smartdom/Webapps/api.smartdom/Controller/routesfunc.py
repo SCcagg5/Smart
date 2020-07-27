@@ -205,6 +205,17 @@ def ged_get_content(cn, nextc):
     err = ged(usr_id=cn.private["user"].id).get(folder_id)
     return cn.call_next(nextc, err)
 
+def ged_share(cn, nextc):
+    err = check.contain(cn.pr, ["to", "access"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    folder_id = cn.rt["ged"] if "ged" in cn.rt else None
+    err = ged(usr_id=cn.private["user"].id).share(folder_id, cn.pr["to"], cn.pr["access"])
+    return cn.call_next(nextc, err)
+
+
+
 def wallet_check(cn, nextc):
     err = check.contain(cn.pr, ["to_wallet"])
     if not err[0]:
