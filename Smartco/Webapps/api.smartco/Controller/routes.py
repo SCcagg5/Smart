@@ -24,21 +24,21 @@ def setuproute(app, call):
     @app.route('/payments',    	           ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, payments])                  )
     @app.route('/paymentdetails',          ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, paymentdetails])            )
 
-    @app.route('/ged',                     ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, ged_get_content])            )
-    @app.route('/ged/<>',                  ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, ged_get_content])            )
-    @app.route('/ged/addfolder',           ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, ged_add_folder])             )
-    @app.route('/ged/addfile',             ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, ged_add_file])               )
+    # @app.route('/ged',                     ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, ged_get_content])            )
+    # @app.route('/ged/<>',                  ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, ged_get_content])            )
+    # @app.route('/ged/addfolder',           ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, ged_add_folder])             )
+    # @app.route('/ged/addfile',             ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, ged_add_file])               )
 
 
-    #@app.route('/wallet/create/',           ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, wallet_create])             )
-    #@app.route('/wallets',                  ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, wallets])                   )
-    #@app.route('/wallet/<>',                ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, wallet_balance])            )
+    # @app.route('/wallet/create/',           ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, wallet_create])             )
+    # @app.route('/wallets',                  ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, wallets])                   )
+    # @app.route('/wallet/<>',                ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, wallet_balance])            )
 
-    #@app.route('/wallet/<>/token/<>',       ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, wallet_token])              )
-    #@app.route('/wallet/<>/token/<>/send',  ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, wallet_send])               )
-    #@app.route('/wallet/<>/token/<>/fund',  ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, wallet_fund])               )
+    # @app.route('/wallet/<>/token/<>',       ['OPTIONS', 'GET'],         lambda x = None: call([myauth, authuser, wallet_token])              )
+    # @app.route('/wallet/<>/token/<>/send',  ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, wallet_send])               )
+    # @app.route('/wallet/<>/token/<>/fund',  ['OPTIONS', 'POST'],        lambda x = None: call([myauth, authuser, wallet_fund])               )
 
-    #@app.route('/token/new',                ['OPTIONS', 'POST'],        lambda x = None: call([myauth, token_create])                         )
+    # @app.route('/token/new',                ['OPTIONS', 'POST'],        lambda x = None: call([myauth, token_create])                         )
 
     @app.route('/admin/login/',             ['OPTIONS', 'POST'],        lambda x = None: call([admtoken])                                    )
     @app.route('/admin/allusers/',          ['OPTIONS', 'GET'],         lambda x = None: call([authadmin, all_users])                        )

@@ -44,7 +44,7 @@ services:
     networks:
       - db-net
 
-  map_bck-end:
+  smartdom_bck-end:
     build: ../Smartdom/Webapps/api.smartdom
     expose:
       - 8080
@@ -57,6 +57,7 @@ services:
       - proxy
     volumes:
       - ../Smartdom/Webapps/api.smartdom:/home/api/
+      - ../Smartdom/Webapps/doc.smartdom:/home/ged/
     environment:
       VIRTUAL_HOST: api.${SMARTDOM_DOMAIN}
       VIRTUAL_PORT: 8080
