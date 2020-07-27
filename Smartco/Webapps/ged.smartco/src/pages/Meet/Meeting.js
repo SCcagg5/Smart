@@ -2,7 +2,6 @@ import React from "react";
 import { Modal, ModalBody, ModalHeader} from "reactstrap";
 import moment from "moment";
 import PDFViewer from "../../customComponents/pdf-viewer-reactjs";
-import SearchResults from "../../components/Search/SearchResults";
 import '../../assets/css/multiEmail.css';
 import swissImg from "../../assets/images/flags/swiss.svg"
 import ReactLoading from "react-loading";
@@ -18,11 +17,12 @@ import TopBar from "../../components/TopBar/TopBar";
 import logo from "../../assets/images/logos/logo-OA-dark.png";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import data from "../../data/data";
-import SideBar from "../../components/SideBar/SideBar";
 import {isEmail, ReactMultiEmail} from "react-multi-email";
 import emailService from "../../provider/emailService";
 import MySnackbarContentWrapper from "../../tools/customSnackBar";
 import Snackbar from "@material-ui/core/Snackbar";
+import MuiBackdrop from "../../components/Loading/MuiBackdrop";
+import LeftMenu from "../../components/Menu/LeftMenu";
 
 
 
@@ -76,7 +76,11 @@ class Meeting extends React.Component {
             showInviteModal:false,
             showCodeMeetModal:false,
             meetUrl:"",
-            meetCode:""
+            meetCode:"",
+
+            openDriveMenuItem:false,
+            openMeetMenuItem:false,
+            openRoomMenuItem:true
         }
     }
 
@@ -130,28 +134,34 @@ class Meeting extends React.Component {
                 <TopBar logo={logo} height={90} onClickMenuIcon={() => this.setState({openSideMenu:true})}/>
                 <SideMenu logo={logo} items={data.sideBarItems} iconColor={"blue"} textColor={"#65728E"} history={this.props.history}
                           opened={this.state.openSideMenu} onClose={() => this.setState({openSideMenu:false})} />
-                <SideBar items={data.sideBarItems} width={100} selectedItem={this.state.selectedSieMenuItem} activeColor={"blue"} disabledColor={"#65728E"}
-                         updateSelected={(item) => this.setState({selectedSieMenuItem:item})} history={this.props.history} />
-                {
-                    this.state.loading === true ?
-                        <div className="centered-text">
-                            <ReactLoading type={"bars"} color={"red"}/>
-                        </div> :
+                <MuiBackdrop open={this.state.loading}/>
 
-                        <div style={{paddingLeft:100,marginRight:50}}>
-
-                            {
-                                this.state.resultData !== "" &&
-                                <SearchResults data={this.state.resultData} textSearch={this.state.textSearch}/>
-                            }
-
+                <div style={{marginRight:50}}>
 
                             <div>
                                 <div style={{display:"flex"}}>
                                     {
                                         this.state.showUploadStep === "" &&
                                         <div style={{height:"100%"}}>
-                                            <div >
+
+                                            <div>
+                                                <LeftMenu  openNewFolderModalFromRacine={() => this.setState({newFolderModal:true,newFolderFromRacine:true})}
+                                                           openNewFolderModal={() => this.setState({newFolderModal:true}) }
+                                                           showNewFileScreen={() => this.setState({showNewDocScreen:true,showUploadStep:"upload"})}
+                                                           showDriveMenuItems={this.state.openDriveMenuItem} setShowDriveMenuItems={() => this.setState({openDriveMenuItem:!this.state.openDriveMenuItem})}
+                                                           showRoomsMenuItems={this.state.openRoomMenuItem} setShowRoomsMenuItems={() => this.setState({openRoomMenuItem:!this.state.openRoomMenuItem})}
+                                                           showMeetMenuItems={this.state.openMeetMenuItem} setShowMeetMenuItems={() => this.setState({openMeetMenuItem:!this.state.openMeetMenuItem})}
+                                                           driveFolders={this.state.folders || [] }
+                                                           setFolderName={(name) => this.setState({selectedFoldername:name})}
+                                                           setFolderId={(id) => this.setState({selectedFolderId:id})}
+                                                           setSelectedFolderFiles={(files) => this.setState({selectedFolderFiles:files})}
+                                                           selectedDriveItem={[this.state.selectedFolderId === "" ? this.state.folders.length > 0 ? this.state.folders[0].id : "" : this.state.selectedFolderId] }
+                                                           selectedMeetItem={[]}
+                                                />
+
+                                            </div>
+
+                                            {/*<div >
                                                 <div style={{width:240,marginLeft:20,marginTop:40}}>
                                                     <div className="cf_item">
                                                         <div onClick={()=> {
@@ -168,7 +178,7 @@ class Meeting extends React.Component {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>*/}
 
                                         </div>
 
@@ -196,7 +206,10 @@ class Meeting extends React.Component {
                                                                 </button>
                                                             </div>
 
-                                                        </div> :
+                                                        </div>
+
+                                                          :
+
                                                         <div align="center" style={{marginTop:200}}>
                                                             <h3>Vous avez un code de réunion ?</h3>
                                                             <p style={{fontFamily:"sans-serif"}}>
@@ -444,7 +457,7 @@ class Meeting extends React.Component {
                             </Snackbar>
 
                         </div>
-                }
+
             </div>
         )
     }
