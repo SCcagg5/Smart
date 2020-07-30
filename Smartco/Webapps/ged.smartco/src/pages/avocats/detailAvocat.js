@@ -6,7 +6,7 @@ import TopBar from "../../components/TopBar/TopBar";
 import logo from "../../assets/images/logos/logo-OA-dark.png";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import SideBar from "../../components/SideBar/SideBar";
-import dataC from "../../data/data";
+import dataC from "../../data/Data";
 moment.locale('fr');
 
 

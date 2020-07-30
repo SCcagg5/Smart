@@ -100,7 +100,12 @@ export default function LeftMenu(props) {
                                     getFolderName={(name) => props.setFolderName(name)}
                                     getFolderId={(id) => props.setFolderId(id)}
                                     getSelectedFolderFiles={(files) => props.setSelectedFolderFiles(files)}
-                                    onEndIconClick={(event) => setAnchorElMenu(event.currentTarget)}
+                                    onEndIconClick={(event) => {
+                                      if(event){
+                                          event.preventDefault();
+                                          setAnchorElMenu(event.currentTarget)
+                                      }
+                                    }}
                                     selectedDriveItem={props.selectedDriveItem}
                     />
 
@@ -168,6 +173,17 @@ export default function LeftMenu(props) {
                     </div>
 
                 }
+                <div style={{cursor:"pointer"}} onClick={() => props.setShowContacts()}>
+                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                    <div style={{display:"flex"}}>
+                        {
+                            props.showContacts === true ?
+                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                        }
+                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Contacts</Typography>
+                    </div>
+                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                </div>
 
             </div>
 
