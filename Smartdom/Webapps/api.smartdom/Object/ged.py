@@ -15,7 +15,7 @@ class folder:
         date = str(int(round(time.time() * 1000)))
         if folder_id is not None and not self.exist(folder_id):
             return [False, "folder_id does not exist", 400]
-        if not self.is_proprietary(folder_id):
+        if not self.is_proprietary(folder_id) and folder_id is not None:
             return [False, "Invalid rights", 403]
         succes = sql.input("INSERT INTO `folder` (`id`,`user_id`, `name`, `inside`, `date`) VALUES (%s, %s, %s, %s, %s)", \
         (id, self.usr_id, name, folder_id, date))
@@ -197,7 +197,7 @@ class file:
             return [False, "File extension not allowed.", 401]
         if folder_id is not None and not folder(self.usr_id).exist(folder_id):
             return [False, "folder_id does not exist", 400]
-        if not self.is_proprietary(folder_id):
+        if not self.is_proprietary(folder_id) and folder_id is not None:
             return [False, "Invalid rights", 403]
         file.save(self.path(file_id))
         succes = sql.input("INSERT INTO `file` (`id`,`user_id`, `name`, `type`, `inside`, `date`) VALUES (%s, %s, %s, %s, %s, %s)", \
