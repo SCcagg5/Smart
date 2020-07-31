@@ -87,7 +87,7 @@ function StyledTreeItem(props) {
                         <Typography variant="caption" color="inherit">
                             {labelInfo}
                         </Typography>
-                        <EndIcon color="inherit" className={classes.endIcon} onClick={(event) => props.onEndIconClick(event)} />
+                        <EndIcon color="inherit" className={classes.endIcon} onClick={ event => props.onEndIconClick(event)} />
                     </div>
                 }
                 style={{
@@ -145,12 +145,12 @@ function SubFolder(props) {
                                 }
                                 else props.getSelectedFolderFiles([])
                             }}
-                            onEndIconClick={(event) => props.onEndIconClick(event)}
+                            onEndIconClick={props.onEndIconClick}
             >
                 {
                     item.Content.folders.length > 0 &&
                     <SubFolder items={item.Content.folders} getFolderName={(name) => props.getFolderName(name)}
-                               getFolderId={(id) => props.getFolderId(id)} onEndIconClick={(event) => props.onEndIconClick(event)}
+                               getFolderId={(id) => props.getFolderId(id)} onEndIconClick={props.onEndIconClick}
                                getSelectedFolderFiles={(files) => props.getSelectedFolderFiles(files)} />
                 }
             </StyledTreeItem>
@@ -169,7 +169,7 @@ export default function GmailCloneTree(props) {
             defaultCollapseIcon={<ArrowDropDownIcon/>}
             defaultExpandIcon={<ArrowRightIcon/>}
             defaultEndIcon={<div style={{width: 32}}/>}
-            selected={props.selectedDriveItem}
+            //selected={props.selectedDriveItem}
         >
             {
                 (props.data || []).map((item, key) =>
@@ -187,14 +187,14 @@ export default function GmailCloneTree(props) {
                                         else props.getSelectedFolderFiles([])
 
                                     }}
-                                    onEndIconClick={(event) => props.onEndIconClick(event)}
+                                    onEndIconClick={props.onEndIconClick}
                                     color="#1a73e8"
                                     bgColor="#e8f0fe"
                     >
                         {
                             item.Content.folders.length > 0 &&
                             <SubFolder items={item.Content.folders} getFolderName={(name) => props.getFolderName(name)}
-                                       getFolderId={(id) => props.getFolderId(id)} onEndIconClick={(event) => props.onEndIconClick(event)}
+                                       getFolderId={(id) => props.getFolderId(id)} onEndIconClick={props.onEndIconClick}
                                        getSelectedFolderFiles={(files) => props.getSelectedFolderFiles(files)} />
                         }
 

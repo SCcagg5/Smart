@@ -6,7 +6,7 @@ import "firebase/database"
 import TopBar from "../../components/TopBar/TopBar";
 import logo from "../../assets/images/logos/logo-OA-dark.png";
 import SideMenu from "../../components/SideMenu/SideMenu";
-import data from "../../data/data";
+import data from "../../data/Data";
 import SideBar from "../../components/SideBar/SideBar";
 import ReactLoading from "react-loading";
 

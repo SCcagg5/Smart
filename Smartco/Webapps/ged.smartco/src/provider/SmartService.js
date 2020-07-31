@@ -1,6 +1,6 @@
 
-const endpoint = "http://51.210.4.161:8080"
-const password = "1q2W3e4R%T^Y"
+const endpoint = "https://api.smartdom.ch"
+const password = "password"
 const contractAdr = "0x9520c239bae78a4a672a70370d85051fcd8dd6c9"
 
 let SmartService = {

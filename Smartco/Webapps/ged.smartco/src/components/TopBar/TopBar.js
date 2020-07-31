@@ -8,10 +8,10 @@ import React from "react";
 export default function TopBar(props) {
 
     return(
-        <AppBar position="static" color="transparent" className="fe-ai" >
+        <AppBar position="fixed" color="default" className="fe-ai" >
             <Toolbar style={{height:props.height}} onAuxClick={event => event.preventDefault()}>
-                <IconButton edge="start" aria-label="menu" style={{marginTop:15}} onClick={props.onClickMenuIcon}>
-                    <MenuIcon style={{fontSize:38}} />
+                <IconButton edge="start" aria-label="menu" onClick={props.onClickMenuIcon}>
+                    <MenuIcon style={{fontSize:30}} />
                 </IconButton>
                 <img alt="" src={props.logo} style={{height:60,marginLeft:10}}/>
                 {

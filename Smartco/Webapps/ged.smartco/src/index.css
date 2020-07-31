@@ -9,13 +9,25 @@
   url('assets/fonts/Baloo2-Bold.woff') format('woff'), /* Modern Browsers */
   url('assets/fonts/Baloo2-Bold.ttf') format('truetype'); /* Safari, Android, iOS */
 }
+@font-face {
+  font-family: 'Halvetica';
+  font-style: normal;
+  font-weight: normal;
+  src: url('assets/fonts/Helvetica.ttf'); /* IE9 Compat Modes */
+  src: local('Open Sans'), local('OpenSans'),
+  url('assets/fonts/Helvetica.ttf') format('truetype'); /* Safari, Android, iOS */
+}
+@font-face {
+  font-family: "MyriadPro";
+  src: url('./assets/fonts/MyriadProRegular.ttf');
+}
 body {
   margin: 0;
-  font-family: "Baloo2-Bold", sans-serif!important;
+  font-family: "MyriadPro", sans-serif!important;
 }
 
 code {
-  font-family: "Baloo2-Bold", sans-serif!important;
+  font-family: "MyriadPro", sans-serif!important;
 }
 
 .webviewer {

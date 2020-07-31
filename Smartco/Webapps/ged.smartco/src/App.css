@@ -13,13 +13,21 @@
     url('assets/fonts/Baloo2-Bold.woff') format('woff'), /* Modern Browsers */
     url('assets/fonts/Baloo2-Bold.ttf') format('truetype'); /* Safari, Android, iOS */
 }
+@font-face {
+    font-family: 'Halvetica';
+    font-style: normal;
+    font-weight: normal;
+    src: url('assets/fonts/Helvetica.ttf'); /* IE9 Compat Modes */
+    src: local('Open Sans'), local('OpenSans'),
+    url('assets/fonts/Helvetica.ttf') format('truetype'); /* Safari, Android, iOS */
+}
 
 .App {
     text-align: center;
-    font-family: "Baloo2-Bold",sans-serif!important;
+    font-family: "MyriadPro", sans-serif!important;
 }
 body{
-    font-family: "Baloo2-Bold", sans-serif!important;
+    font-family: "MyriadPro", sans-serif!important;
 }
 
 .App-logo {
@@ -194,37 +202,37 @@ input[type="text"]{
     height: 33px!important;
     border-radius: 0px!important;
     color: #000!important;
-    font-weight: bold!important;
+    /*font-weight: bold!important;*/
 }
 input[type="number"]{
     height: 33px!important;
     border-radius: 0px!important;
     color: #000!important;
-    font-weight: bold!important;
+    /*font-weight: bold!important;*/
 }
 input[type="password"]{
     height: 45px!important;
     border-radius: 0px!important;
     color: #000!important;
-    font-weight: bold!important;
+    /*font-weight: bold!important;*/
 }
 input[type="email"]{
     height: 45px!important;
     border-radius: 0px!important;
     color: #000!important;
-    font-weight: bold!important;
+    /*font-weight: bold!important;*/
 }
 input[type="select"]{
     height: 33px!important;
     border-radius: 0px!important;
     color: #000!important;
-    font-weight: bold!important;
+    /*font-weight: bold!important;*/
 }
 select{
     height: 33px!important;
     border-radius: 0px!important;
     color: #000!important;
-    font-weight: bold!important;
+    /*font-weight: bold!important;*/
 }
 .react-tel-input .form-control{
     height:33px!important;

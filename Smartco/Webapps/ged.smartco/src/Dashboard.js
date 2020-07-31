@@ -4,7 +4,7 @@ import TopBar from "./components/TopBar/TopBar";
 import SideBar from "./components/SideBar/SideBar";
 import SideMenu from "./components/SideMenu/SideMenu";
 import CoffreFortNewVersion from "./pages/coffreFort/CoffreFortNewVersion";
-import data from "./data/data";
+import data from "./data/Data";
 
 
 export default class Dashboard extends Component{

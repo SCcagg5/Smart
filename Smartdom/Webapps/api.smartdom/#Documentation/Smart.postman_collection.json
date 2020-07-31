@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "dfe4db4c-9ab2-480c-925b-b3e73d047a48",
-		"name": "Smart",
+		"_postman_id": "446ebe4c-4a02-4aaf-8db7-005e715eb7e2",
+		"name": "Smartdom",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -93,7 +93,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "04889bf5-bcf7-4c7b-bf9e-521ad114222d",
+						"id": "a7676263-c6d7-41d9-8ea5-3ebe5c47b58f",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -103,7 +103,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "072fe512-9d6e-4e5a-b4f4-c0323fd25999",
+						"id": "f88e07c6-4dfd-43cf-ae71-a5845daa55e6",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -292,7 +292,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "a0bcfb3c-957d-4e4b-83e0-c15f157550bd",
+						"id": "c66e3437-57da-4db3-a347-dab4ca63f071",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -302,7 +302,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "63f7e08b-37fe-47d9-a799-3be4f09b791d",
+						"id": "b38d7879-3b8a-4190-87c9-de55f237a957",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -850,7 +850,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "28b33a12-7301-477f-a44f-5a02369ae811",
+						"id": "be64fcee-6204-4bdd-932e-1d38b1386128",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -860,7 +860,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c1d125af-fd19-4418-a028-71dbcce8c954",
+						"id": "bff3ac64-503d-424c-a1cd-9be6b27ff43c",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -1375,6 +1375,62 @@
 					},
 					"response": [
 						{
+							"name": "/listcard/",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/listcard/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"listcard",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:22:13 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1139"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/listcard/\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"627e1cb6-7327-47da-8306-cb333e756a92\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"cards\": [\n            {\n                \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\",\n                \"brand\": \"Visa\",\n                \"country\": \"US\",\n                \"exp_month\": 7,\n                \"exp_year\": 2021,\n                \"last4\": \"4242\"\n            }\n        ]\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						},
+						{
 							"name": "/addcard/",
 							"originalRequest": {
 								"method": "POST",
@@ -1438,62 +1494,6 @@
 							],
 							"cookie": [],
 							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/addcard/\",\n        \"params\": {\n            \"crd_token\": \"tok_visa\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"2b991120-c9f3-45b1-90c1-40b8ed6c74c9\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"card\": {\n            \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\",\n            \"brand\": \"Visa\",\n            \"country\": \"US\",\n            \"exp_month\": 7,\n            \"exp_year\": 2021,\n            \"last4\": \"4242\"\n        }\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
-						},
-						{
-							"name": "/listcard/",
-							"originalRequest": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{method}}{{url}}/listcard/",
-									"host": [
-										"{{method}}{{url}}"
-									],
-									"path": [
-										"listcard",
-										""
-									]
-								}
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "Server",
-									"value": "nginx/1.17.6"
-								},
-								{
-									"key": "Date",
-									"value": "Thu, 02 Jul 2020 15:22:13 GMT"
-								},
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								},
-								{
-									"key": "Content-Length",
-									"value": "1139"
-								},
-								{
-									"key": "Connection",
-									"value": "keep-alive"
-								},
-								{
-									"key": "Access-Control-Allow-Origin",
-									"value": "*"
-								},
-								{
-									"key": "Access-Control-Allow-Methods",
-									"value": "GET, POST, OPTIONS"
-								},
-								{
-									"key": "Access-Control-Allow-Headers",
-									"value": "*"
-								}
-							],
-							"cookie": [],
-							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/listcard/\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"627e1cb6-7327-47da-8306-cb333e756a92\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"cards\": [\n            {\n                \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\",\n                \"brand\": \"Visa\",\n                \"country\": \"US\",\n                \"exp_month\": 7,\n                \"exp_year\": 2021,\n                \"last4\": \"4242\"\n            }\n        ]\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
 						}
 					]
 				}
@@ -1783,7 +1783,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "2b6906f8-e2fc-4041-b728-ba198b537164",
+						"id": "e784d608-7177-4f6b-8af1-a3925415a521",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -1793,7 +1793,501 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "36b4e5df-96af-4392-a3b5-8c14bc8202d4",
+						"id": "0e24064e-5798-4d1a-b395-f1d5ed7c8e56",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Ged",
+			"item": [
+				{
+					"name": "/ged",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/ged",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/website/<website>/items",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/website/quinsac/items",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"website",
+										"quinsac",
+										"items"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 07 Jul 2020 13:47:31 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1615"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/website/quinsac/items\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTYwNDksInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.6wwiQU-36mM-vJeoFbv8PJoIw9c_uvnmG-qX3xRnchQ\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"17ce248c-99c4-4f85-bb21-b7231d2a57a2\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": [\n        {\n            \"id\": \"1\",\n            \"title\": \"Une bouteille\",\n            \"description\": null,\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 1,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"30.00\",\n                \"currency\": \"Eur\"\n            }\n        },\n        {\n            \"id\": \"2\",\n            \"title\": \"Quatre bouteilles\",\n            \"description\": null,\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 4,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"120.00\",\n                \"currency\": \"Eur\"\n            }\n        },\n        {\n            \"id\": \"3\",\n            \"title\": \"Caisse de bouteilles\",\n            \"description\": \"12 bouteilles\",\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 12,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"360.00\",\n                \"currency\": \"Eur\"\n            }\n        },\n        {\n            \"id\": \"4\",\n            \"title\": \"Palette de bouteilles\",\n            \"description\": \"600 bouteilles\",\n            \"token\": {\n                \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                \"ind_value\": 3\n            },\n            \"assets\": {\n                \"number\": 600,\n                \"uuid\": [],\n                \"name\": \"bouteille\"\n            },\n            \"price\": {\n                \"amount\": \"15000.00\",\n                \"currency\": \"Eur\"\n            }\n        }\n    ],\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "ged/<folder_id or file_id>",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/ged/417c9094-f7d1-4043-87ac-2ba4fb6d3105",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"417c9094-f7d1-4043-87ac-2ba4fb6d3105"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/website/<website>/cart/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"command\": [{\"id\": \"1\", \"number\": 2}]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/website/quinsac/cart/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"website",
+										"quinsac",
+										"cart",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 07 Jul 2020 13:48:40 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1967"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/website/quinsac/cart/\",\n        \"params\": {\n            \"command\": [\n                {\n                    \"id\": \"1\",\n                    \"number\": 2\n                }\n            ]\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTYwNDksInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.6wwiQU-36mM-vJeoFbv8PJoIw9c_uvnmG-qX3xRnchQ\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQzMDI0OTcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOjIwOTk3MzE1MzM5Mjk0Nzg0Njl9.jZKVSKiNOVT88fgFlei4wyzwH9qySNI5CbtzDI7OrD4\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"2699d667-7d0e-4e7b-b115-360343000fcf\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"cart\": [\n            {\n                \"id\": \"1\",\n                \"title\": \"Une bouteille\",\n                \"description\": null,\n                \"token\": {\n                    \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                    \"ind_value\": 3\n                },\n                \"assets\": {\n                    \"number\": 1,\n                    \"uuid\": [\n                        \"aedf8cbb-e6db-4bbf-a544-710b9597bbee\",\n                        \"f3d5adbe-8792-47d7-b585-caab83619052\"\n                    ],\n                    \"name\": \"bouteille\"\n                },\n                \"price\": {\n                    \"amount\": \"30.00\",\n                    \"currency\": \"Eur\"\n                },\n                \"number\": 2\n            }\n        ],\n        \"price\": 60,\n        \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjo2MC4wLCJjYXJ0IjpbeyJpZCI6IjEiLCJ0aXRsZSI6IlVuZSBib3V0ZWlsbGUiLCJkZXNjcmlwdGlvbiI6bnVsbCwidG9rZW4iOnsiYWRkcmVzcyI6IjB4OTUyMEMyMzliYUU3OGE0YTY3MmE3MDM3MGQ4NTA1MUZDRDhERDZjOSIsImluZF92YWx1ZSI6M30sImFzc2V0cyI6eyJudW1iZXIiOjEsInV1aWQiOlsiYWVkZjhjYmItZTZkYi00YmJmLWE1NDQtNzEwYjk1OTdiYmVlIiwiZjNkNWFkYmUtODc5Mi00N2Q3LWI1ODUtY2FhYjgzNjE5MDUyIl0sIm5hbWUiOiJib3V0ZWlsbGUifSwicHJpY2UiOnsiYW1vdW50IjoiMzAuMDAiLCJjdXJyZW5jeSI6IkV1ciJ9LCJudW1iZXIiOjJ9XX19.bbglO3y9uojetxABpiEkK5-54jjTSTgfRB3ynnu9nL8\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "ged/<folder_id or file_id>/share",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"to\": \"eliot.courtel@gmail.com\",\r\n    \"access\": {\"administrate\": true, \"share\": false, \"edit\": false, \"read\": false}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/417c9094-f7d1-4043-87ac-2ba4fb6d3105/share",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"417c9094-f7d1-4043-87ac-2ba4fb6d3105",
+								"share"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/website/<website>/cart/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"command\": [{\"id\": \"1\", \"number\": 2}]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/website/quinsac/cart/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"website",
+										"quinsac",
+										"cart",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 07 Jul 2020 13:48:40 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1967"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/website/quinsac/cart/\",\n        \"params\": {\n            \"command\": [\n                {\n                    \"id\": \"1\",\n                    \"number\": 2\n                }\n            ]\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQyMTYwNDksInBhc3N3b3JkIjozMTY1MzU5MTQ1MTUxNDE1OTB9.6wwiQU-36mM-vJeoFbv8PJoIw9c_uvnmG-qX3xRnchQ\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTQzMDI0OTcsImlkIjoiZjQxNTkzNzItZjQ4YS00YzkxLWI0M2ItNjFkODRmYjU1ODEyIiwicGFzc3dvcmQiOjIwOTk3MzE1MzM5Mjk0Nzg0Njl9.jZKVSKiNOVT88fgFlei4wyzwH9qySNI5CbtzDI7OrD4\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"2699d667-7d0e-4e7b-b115-360343000fcf\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"cart\": [\n            {\n                \"id\": \"1\",\n                \"title\": \"Une bouteille\",\n                \"description\": null,\n                \"token\": {\n                    \"address\": \"0x9520C239baE78a4a672a70370d85051FCD8DD6c9\",\n                    \"ind_value\": 3\n                },\n                \"assets\": {\n                    \"number\": 1,\n                    \"uuid\": [\n                        \"aedf8cbb-e6db-4bbf-a544-710b9597bbee\",\n                        \"f3d5adbe-8792-47d7-b585-caab83619052\"\n                    ],\n                    \"name\": \"bouteille\"\n                },\n                \"price\": {\n                    \"amount\": \"30.00\",\n                    \"currency\": \"Eur\"\n                },\n                \"number\": 2\n            }\n        ],\n        \"price\": 60,\n        \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjo2MC4wLCJjYXJ0IjpbeyJpZCI6IjEiLCJ0aXRsZSI6IlVuZSBib3V0ZWlsbGUiLCJkZXNjcmlwdGlvbiI6bnVsbCwidG9rZW4iOnsiYWRkcmVzcyI6IjB4OTUyMEMyMzliYUU3OGE0YTY3MmE3MDM3MGQ4NTA1MUZDRDhERDZjOSIsImluZF92YWx1ZSI6M30sImFzc2V0cyI6eyJudW1iZXIiOjEsInV1aWQiOlsiYWVkZjhjYmItZTZkYi00YmJmLWE1NDQtNzEwYjk1OTdiYmVlIiwiZjNkNWFkYmUtODc5Mi00N2Q3LWI1ODUtY2FhYjgzNjE5MDUyIl0sIm5hbWUiOiJib3V0ZWlsbGUifSwicHJpY2UiOnsiYW1vdW50IjoiMzAuMDAiLCJjdXJyZW5jeSI6IkV1ciJ9LCJudW1iZXIiOjJ9XX19.bbglO3y9uojetxABpiEkK5-54jjTSTgfRB3ynnu9nL8\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/ged/addfile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/eliot/Downloads/D_Vertrag.pdf"
+								},
+								{
+									"key": "folder_id",
+									"value": "52dcb300-b48a-4002-9be3-51bf736a217f",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/addfile",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"addfile"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "{{method}}{{url}}/order/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjoyMC4wLCJjYXJ0IjpbeyJpZCI6IjEyMzQiLCJ0aXRsZSI6InZlbG9vbmVfdG9rZW4iLCJhZGRyZXNzIjoiIiwiZGVzY3JpcHRpb24iOm51bGwsInByaWNlIjp7ImFtb3VudCI6IjEwLjAwIiwiY3VycmVuY3kiOiJFdXIifSwibnVtYmVyIjoyfV19fQ.nA2iMK_OKXp-FXHsb3Odq_Eb62kglTIrvxITCkD_q9s\",\r\n    \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/order/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"order",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:15:29 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1359"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/order/\",\n        \"params\": {\n            \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjoyMC4wLCJjYXJ0IjpbeyJpZCI6IjEyMzQiLCJ0aXRsZSI6InZlbG9vbmVfdG9rZW4iLCJhZGRyZXNzIjoiIiwiZGVzY3JpcHRpb24iOm51bGwsInByaWNlIjp7ImFtb3VudCI6IjEwLjAwIiwiY3VycmVuY3kiOiJFdXIifSwibnVtYmVyIjoyfV19fQ.nA2iMK_OKXp-FXHsb3Odq_Eb62kglTIrvxITCkD_q9s\",\n            \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"5b0e56a3-b4a4-470e-8410-ad3bdbfe0568\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"order_id\": \"1\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "/ged/addfolder",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"test\",\r\n    \"folder_id\": \"52dcb300-b48a-4002-9be3-51bf736a217f\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/addfolder",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"addfolder"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "{{method}}{{url}}/order/",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjoyMC4wLCJjYXJ0IjpbeyJpZCI6IjEyMzQiLCJ0aXRsZSI6InZlbG9vbmVfdG9rZW4iLCJhZGRyZXNzIjoiIiwiZGVzY3JpcHRpb24iOm51bGwsInByaWNlIjp7ImFtb3VudCI6IjEwLjAwIiwiY3VycmVuY3kiOiJFdXIifSwibnVtYmVyIjoyfV19fQ.nA2iMK_OKXp-FXHsb3Odq_Eb62kglTIrvxITCkD_q9s\",\r\n    \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/order/",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"order",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 02 Jul 2020 15:15:29 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1359"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/order/\",\n        \"params\": {\n            \"cmd_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InByaWNlIjoyMC4wLCJjYXJ0IjpbeyJpZCI6IjEyMzQiLCJ0aXRsZSI6InZlbG9vbmVfdG9rZW4iLCJhZGRyZXNzIjoiIiwiZGVzY3JpcHRpb24iOm51bGwsInByaWNlIjp7ImFtb3VudCI6IjEwLjAwIiwiY3VycmVuY3kiOiJFdXIifSwibnVtYmVyIjoyfV19fQ.nA2iMK_OKXp-FXHsb3Odq_Eb62kglTIrvxITCkD_q9s\",\n            \"crd_token\": \"card_1H0U7jEQJBMo0CQbgSZme0ux\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM3ODkxNjcsInBhc3N3b3JkIjotNzE2NjEzMTE1MDc0NjYzODQ5MH0.VKnbOdAXK2nGV6Pi8uh8dXy_pTamHDROXUOIPCqWCIw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM4NzU2ODEsImlkIjoiODZjNjllMjMtYmI5ZC00YWJjLTk3MTItZGE3NmJkNWJiYTQ1IiwicGFzc3dvcmQiOjI3MTAwOTU2MzcwODE4MjQ3Nzd9.JkPulXdDXyCWVPQBqqJInDO1fp0zmGnpZbxQFZw3HC0\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"5b0e56a3-b4a4-470e-8410-ad3bdbfe0568\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"order_id\": \"1\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "36370a35-387d-4f2f-a04c-d68304f16393",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "87024c6f-2ec3-4e0f-8e82-f85973587603",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -1991,7 +2485,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "cd18d4ae-bc38-4c94-8bc4-de4d1f1e090f",
+						"id": "90b70a8e-d17a-4d6b-b66a-b27128ee46ca",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -2001,7 +2495,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b16b9977-4b43-4bed-948e-2484af031d91",
+						"id": "1f34f844-ae65-4a8b-a4b6-5df19739cd5f",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -2372,7 +2866,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "069dd6c2-f219-4738-bbf9-90c2942d5cff",
+				"id": "ca802e6b-cae8-4805-8a07-3cf0e27fdd30",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -2382,7 +2876,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "4c702fad-bf1b-41f3-af61-3e1577e3f0a5",
+				"id": "ddc813bd-0a1f-49fb-b15d-6d1a5af2ec6d",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -2392,17 +2886,17 @@
 	],
 	"variable": [
 		{
-			"id": "6e32af27-aa81-47de-8912-900433e948a2",
+			"id": "94a583e1-c121-4dfa-8e32-d8a94cfc3181",
 			"key": "url",
 			"value": "api.localhost"
 		},
 		{
-			"id": "c631b5b1-c1c9-4ec0-afcf-ec9f76c4054b",
+			"id": "aa49e115-6aeb-4961-bd7f-2b95df208ecb",
 			"key": "password",
 			"value": "password"
 		},
 		{
-			"id": "59462b60-5d7f-4f7c-b740-df0f456cb294",
+			"id": "faa2446a-fd6d-4292-882f-36b8945a9d0d",
 			"key": "method",
 			"value": "http://"
 		}
