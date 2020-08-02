@@ -62,22 +62,22 @@ const styles = StyleSheet.create({
   },
 });
 
-const ExperienceEntry = ({ company, details, position, date }) => {
-  const title = `${company} | ${position}`;
+const ExperienceEntry = (props) => {
+  //const title = `${company} | ${position}`;
   return (
     <View style={styles.entryContainer}>
-      <View style={styles.headerContainer}>
+      {/*<View style={styles.headerContainer}>
         <View style={styles.leftColumn}>
           <Text style={styles.title}>{title}</Text>
         </View>
         <View style={styles.rightColumn}>
           <Text style={styles.date}>{date}</Text>
         </View>
-      </View>
+      </View>*/}
       <List>
-        {details.map((detail, i) => (
+        {(props.parcoursP || []).map((parcour, i) => (
           <Item key={i} style={styles.detailContainer}>
-            {detail}
+            {parcour}
           </Item>
         ))}
       </List>
@@ -128,18 +128,27 @@ const experienceData = [
   },
 ];
 
-const Experience = () => (
+const Experience = (props) => (
   <View style={styles.container}>
-    <Title>Experience</Title>
-    {experienceData.map(({ company, date, details, position }) => (
-      <ExperienceEntry
-        company={company}
-        date={date}
-        details={details}
-        key={company + position}
-        position={position}
-      />
-    ))}
+    <Title>Parcours professionnel</Title>
+    <List>
+      {(props.parcoursP  || []).map((item, i) => (
+          <Item key={i} style={styles.detailContainer}>
+            {item}
+          </Item>
+      ))}
+    </List>
+    <View style={{marginTop:30}}>
+      <Title>Formations</Title>
+      <List>
+        {(props.formations || []).map((item, i) => (
+            <Item key={i} style={styles.detailContainer}>
+              {item}
+            </Item>
+        ))}
+      </List>
+    </View>
+
   </View>
 );
 

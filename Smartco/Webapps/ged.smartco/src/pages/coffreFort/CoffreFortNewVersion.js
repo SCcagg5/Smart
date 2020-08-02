@@ -31,6 +31,10 @@ import DateRangeOutlinedIcon from '@material-ui/icons/DateRangeOutlined';
 import CreateOutlinedIcon from '@material-ui/icons/CreateOutlined';
 import FindInPageOutlinedIcon from '@material-ui/icons/FindInPageOutlined';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
+import LanguageIcon from '@material-ui/icons/Language';
+import CheckCircle from '@material-ui/icons/CheckCircle';
+import Staricon from '@material-ui/icons/Star';
+import MoodIcon from '@material-ui/icons/Mood';
 import TopBar from "../../components/TopBar/TopBar";
 import logo from "../../assets/images/logos/logo-OA-dark.png";
 import SideMenu from "../../components/SideMenu/SideMenu";
@@ -49,14 +53,24 @@ import {
     MenuItem,
     Select as MuiSelect,
     InputLabel,
-    Input, Chip
+    Input, Chip,
+    Button as MuiButton
 } from '@material-ui/core';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import Resume from "../../components/Pdf/Resume";
-import { PDFViewer as PdfView } from '@react-pdf/renderer';
-import Header from "../../components/Pdf/Header";
+import { PDFViewer as PdfView} from '@react-pdf/renderer';
+import countryList from "../../tools/countryList";
+import FlipPage from "react-flip-page"
+import FHeader from "../../components/FlipPages/FHeader";
+import FTitle from "../../components/FlipPages/FTitle";
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Chips from 'react-email-chips';
 
+const pattern = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
 
 const getLabel = ({option}) => {
     return (
@@ -173,7 +187,17 @@ class CoffreFortNewVersion extends React.Component {
         },
         formationTmp: '',
         fonctionTmp: '',
+        parcourTmp:'',
+        langueTmp:'',
+        hobbiesTmp:'',
         affiliationTmp: '',
+
+        showPdfPreviewModal:false,
+        isDocPreviewReady:false,
+
+        showPdfFlipModal:false,
+
+        openShareDocModal:false
 
     }
 
@@ -410,6 +434,72 @@ class CoffreFortNewVersion extends React.Component {
                 })
             }
         }
+        if (type === 'parcour') {
+            let selectedContact = this.state.selectedContact;
+
+            if (selectedContact.parcoursP === undefined) {
+                let parcoursP = []
+                parcoursP.push(this.state.parcourTmp)
+                selectedContact.parcoursP = parcoursP;
+                this.setState({
+                    selectedContact: selectedContact,
+                    parcourTmp: '',
+                    showModalAdd: false,
+                })
+            } else {
+
+                selectedContact.parcoursP.push(this.state.parcourTmp);
+                this.setState({
+                    selectedContact: selectedContact,
+                    parcourTmp: '',
+                    showModalAdd: false,
+                })
+            }
+        }
+        if (type === 'langue') {
+            let selectedContact = this.state.selectedContact;
+
+            if (selectedContact.langues === undefined) {
+                let langues = []
+                langues.push(this.state.langueTmp)
+                selectedContact.langues = langues;
+                this.setState({
+                    selectedContact: selectedContact,
+                    langueTmp: '',
+                    showModalAdd: false,
+                })
+            } else {
+
+                selectedContact.langues.push(this.state.langueTmp);
+                this.setState({
+                    selectedContact: selectedContact,
+                    langueTmp: '',
+                    showModalAdd: false,
+                })
+            }
+        }
+        if (type === 'hobbies') {
+            let selectedContact = this.state.selectedContact;
+
+            if (selectedContact.hobbies === undefined) {
+                let hobbies = []
+                hobbies.push(this.state.hobbiesTmp)
+                selectedContact.hobbies = hobbies;
+                this.setState({
+                    selectedContact: selectedContact,
+                    hobbiesTmp: '',
+                    showModalAdd: false,
+                })
+            } else {
+
+                selectedContact.hobbies.push(this.state.hobbiesTmp);
+                this.setState({
+                    selectedContact: selectedContact,
+                    hobbiesTmp: '',
+                    showModalAdd: false,
+                })
+            }
+        }
     };
 
     removeItem = (type, index) => event => {
@@ -440,7 +530,28 @@ class CoffreFortNewVersion extends React.Component {
             let selectedContact = this.state.selectedContact;
             selectedContact.affiliations.splice(index, 1);
             this.setState({
-                fiducaire: selectedContact
+                selectedContact: selectedContact
+            })
+        }
+        if (type === 'parcour') {
+            let selectedContact = this.state.selectedContact;
+            selectedContact.parcoursP.splice(index, 1);
+            this.setState({
+                selectedContact: selectedContact
+            })
+        }
+        if (type === 'langue') {
+            let selectedContact = this.state.selectedContact;
+            selectedContact.langues.splice(index, 1);
+            this.setState({
+                selectedContact: selectedContact
+            })
+        }
+        if (type === 'hobbies') {
+            let selectedContact = this.state.selectedContact;
+            selectedContact.hobbies.splice(index, 1);
+            this.setState({
+                selectedContact: selectedContact
             })
         }
     };
@@ -1862,56 +1973,50 @@ class CoffreFortNewVersion extends React.Component {
                                                                             <i className="fe-edit"/>&nbsp;&nbsp;
                                                                             Enregistrer
                                                                         </button>
-                                                                        <button type="button" onClick={() => {}}
+                                                                        <button type="button" onClick={() => {
+                                                                            this.setState({showPdfPreviewModal:true})
+                                                                            setTimeout(() => {
+                                                                                this.setState({isDocPreviewReady:true})
+                                                                            },1000)
+                                                                        }}
                                                                                 className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
                                                                             <i className="fe-printer"/>&nbsp;&nbsp;
-                                                                            Imprimer
+                                                                            Aperçu
+                                                                        </button>
+                                                                        <button type="button" onClick={() => {
+                                                                            this.setState({showPdfFlipModal:true})
+                                                                        }}
+                                                                                className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
+                                                                            <i className="fe-printer"/>&nbsp;&nbsp;
+                                                                            Book
                                                                         </button>
                                                                     </div>
-
-                                                                    {/*<div className="text-left mt-3">
-                                                                        <h4 className="font-13 text-uppercase">Aparté
-                                                                            :</h4>
-                                                                        <p className="text-muted font-13 mb-3">
-                                                                            {this.state.selectedContact.aparte}
-                                                                        </p>
-                                                                        <p className="text-muted mb-2 font-13"><strong
-                                                                            style={{color: "#000"}}>Langues :</strong>
-                                                                            <span
-                                                                                className="ml-2">{this.state.selectedContact.langues} </span>
-                                                                        </p>
-
-                                                                        <p className="text-muted mb-2 font-13"><strong
-                                                                            style={{color: "#000"}}>Numéro de téléphone
-                                                                            :</strong>
-                                                                            <span
-                                                                                className="ml-2">{this.state.selectedContact.phone}</span>
-                                                                        </p>
-
-                                                                        <p className="text-muted mb-2 font-13"><strong
-                                                                            style={{color: "#000"}}>Email :</strong>
-                                                                            <span
-                                                                                className="ml-2 ">{this.state.selectedContact.email}</span>
-                                                                        </p>
-
-                                                                        <p className="text-muted mb-1 font-13"><strong
-                                                                            style={{color: "#000"}}>Pays :</strong>
-                                                                            <span className="ml-2 text-capitalize">{this.state.selectedContact.pays}</span></p>
-                                                                    </div>*/}
 
                                                                     <div style={{marginTop:30}} className="text-left">
                                                                         <Tabs>
                                                                             <TabList>
                                                                                 <Tab>Informations générales</Tab>
-                                                                                <Tab >Famille</Tab>
+                                                                                <Tab >Famille & Vie privée</Tab>
                                                                                 <Tab>Parcours professionnel</Tab>
-                                                                                <Tab>Travail & Publication</Tab>
-                                                                                <Tab>Associations et clubs</Tab>
-                                                                                <Tab>Adhésions professionnelles</Tab>
+                                                                                <Tab>Formations</Tab>
+                                                                                <Tab>Langues</Tab>
                                                                                 <Tab>Domaines d'intérêt, loisirs et sports</Tab>
-                                                                                <Tab>Preview</Tab>
                                                                             </TabList>
+
                                                                             <TabPanel>
+                                                                                <h5 style={{marginTop:20}}>Informations générales</h5>
+                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                    <div className="col-md-12">
+                                                                                        <p style={{marginBottom: 10}}>À propos</p>
+                                                                                        <textarea
+                                                                                            rows={7}
+                                                                                            className="form-control"
+                                                                                            id="about"
+                                                                                            name="about"
+                                                                                            value={this.state.selectedContact.about}
+                                                                                            onChange={this.handleChange('selectedContact', 'about')}/>
+                                                                                    </div>
+                                                                                </div>
                                                                                 <div className="row" style={{marginTop: 35}}>
                                                                                     <div className="col-md-6">
                                                                                         <p style={{marginBottom: 10}}>Nom</p>
@@ -1960,8 +2065,7 @@ class CoffreFortNewVersion extends React.Component {
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="row" style={{marginTop: 20}}>
-                                                                                    <div
-                                                                                        className="col-sm-12">
+                                                                                    <div className="col-sm-6">
                                                                                         <p style={{marginBottom: 10}}>Fax</p>
                                                                                         <input
                                                                                             className="form-control"
@@ -1972,27 +2076,189 @@ class CoffreFortNewVersion extends React.Component {
                                                                                             value={this.state.selectedContact.fax}
                                                                                             onChange={this.handleChange('selectedContact', 'fax')}/>
                                                                                     </div>
+                                                                                    <div className="col-sm-6">
+                                                                                        <p style={{marginBottom: 10}}>Pays</p>
+                                                                                        <select
+                                                                                            className="form-control custom-select"
+                                                                                            id="pays"
+                                                                                            name="pays"
+                                                                                            placeholder="Pays"
+                                                                                            value={this.state.selectedContact.pays }
+                                                                                            onChange={this.handleChange('selectedContact', 'pays')}>
+                                                                                            {
+                                                                                                countryList.map((country,key) =>
+                                                                                                    <option key={key}  value={country.Name} label={country.Name} />
+                                                                                                )
+                                                                                            }
+
+                                                                                        </select>
+                                                                                    </div>
                                                                                 </div>
                                                                             </TabPanel>
+
                                                                             <TabPanel>
+                                                                                <h5 style={{marginTop:20}}>Famille & Vie privée</h5>
+                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                    <div className="col-md-12">
+                                                                                        <p style={{marginBottom: 10}}>Décrire en quelques lignes </p>
+                                                                                        <textarea
+                                                                                            rows={10}
+                                                                                            className="form-control"
+                                                                                            id="about"
+                                                                                            name="about"
+                                                                                            value={this.state.selectedContact.personalLife}
+                                                                                            onChange={this.handleChange('selectedContact', 'personalLife')}/>
+                                                                                    </div>
+                                                                                </div>
                                                                             </TabPanel>
+
                                                                             <TabPanel>
+                                                                                <h5 style={{marginTop:20}}>Parcours professionnel</h5>
+                                                                                <div style={{display: 'flex', flexWrap: 'wrap',marginTop:10}}>
+                                                                                    {
+                                                                                        (this.state.selectedContact.parcoursP || []).map((item, key) => (
+                                                                                            <div key={key} style={{margin:3}}>
+                                                                                                <Chip
+                                                                                                    icon={<Staricon/>}
+                                                                                                    label={item}
+                                                                                                    color="secondary"
+                                                                                                    onDelete={this.removeItem('parcour', key)}
+                                                                                                    style={{fontWeight:"bold",backgroundColor:"cornflowerblue"}}
+                                                                                                />
+                                                                                            </div>
+                                                                                        ))
+                                                                                    }
+                                                                                </div>
+                                                                                <div className="row" style={{marginTop: 10}}>
+                                                                                    <div
+                                                                                        className="col-sm-12">
+                                                                                        <a style={{
+                                                                                            cursor: 'pointer',
+                                                                                            fontSize: "medium",
+                                                                                            fontWeight: "bold"
+                                                                                        }}
+                                                                                           onClick={this.openAddModal('parcour')}>
+                                                                                            <span className="btn__text"
+                                                                                                  id="btn-add-child">
+                                                                                                <i className="fe-plus-square"/> Ajouter un parcour
+                                                                                            </span>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </div>
                                                                             </TabPanel>
+
                                                                             <TabPanel>
+                                                                                <h5 style={{marginTop:20}}>Formation</h5>
+                                                                                <div style={{flexWrap: 'wrap',marginTop:10}}>
+                                                                                    {
+                                                                                        (this.state.selectedContact.formations || []).map((item, key) => (
+                                                                                            <div key={key} style={{margin:3,marginBottom:6}}>
+                                                                                                <Chip
+                                                                                                    icon={<CheckCircle/>}
+                                                                                                    label={item}
+                                                                                                    color="primary"
+                                                                                                    onDelete={this.removeItem('formation', key)}
+                                                                                                    style={{fontWeight:"bold",backgroundColor:"lightseagreen"}}
+                                                                                                />
+                                                                                            </div>
+                                                                                        ))
+                                                                                    }
+                                                                                </div>
+                                                                                <div className="row" style={{marginTop: 10}}>
+                                                                                    <div
+                                                                                        className="col-sm-12">
+                                                                                        <a style={{
+                                                                                            cursor: 'pointer',
+                                                                                            fontSize: "medium",
+                                                                                            fontWeight: "bold"
+                                                                                        }}
+                                                                                           onClick={this.openAddModal('formation')}>
+                                                                                            <span className="btn__text"
+                                                                                                  id="btn-add-child">
+                                                                                                <i className="fe-plus-square"/> Ajouter une formation
+                                                                                            </span>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </div>
                                                                             </TabPanel>
+
                                                                             <TabPanel>
+                                                                                <h5 style={{marginTop:20}}>Langues</h5>
+                                                                                <div style={{display: 'flex', flexWrap: 'wrap',marginTop:10}}>
+                                                                                    {
+                                                                                        (this.state.selectedContact.langues || []).map((item, key) => (
+                                                                                            <div key={key} style={{margin:3}}>
+                                                                                                <Chip
+                                                                                                    icon={<LanguageIcon/>}
+                                                                                                    label={item}
+                                                                                                    color="secondary"
+                                                                                                    onDelete={this.removeItem('langue', key)}
+                                                                                                    style={{fontWeight:"bold",backgroundColor:"steelblue"}}
+                                                                                                />
+                                                                                            </div>
+                                                                                        ))
+                                                                                    }
+                                                                                </div>
+                                                                                <div className="row" style={{marginTop: 20}}>
+                                                                                    <div
+                                                                                        className="col-sm-12">
+                                                                                        <a style={{
+                                                                                            cursor: 'pointer',
+                                                                                            fontSize: "medium",
+                                                                                            fontWeight: "bold"
+                                                                                        }}
+                                                                                           onClick={this.openAddModal('langue')}>
+                                                                                            <span className="btn__text"
+                                                                                                  id="btn-add-child">
+                                                                                                <i className="fe-plus-square"/> Ajouter une langue
+                                                                                            </span>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </div>
+
                                                                             </TabPanel>
+
                                                                             <TabPanel>
-                                                                            </TabPanel>
-                                                                            <TabPanel>
-                                                                            </TabPanel>
-                                                                            <TabPanel>
-                                                                                <PdfView width={800} height={800} >
-                                                                                    <Resume title={"Resume of "+ this.state.selectedContact.nom} name={this.state.selectedContact.nom}
-                                                                                            speciality={this.state.selectedContact.specialite} email={this.state.selectedContact.email}
-                                                                                            image={this.state.selectedContact.imageUrl}
-                                                                                    />
-                                                                                </PdfView>
+
+                                                                                <h5 style={{marginTop:20}}>Domaines d'intérêt, loisirs et sports</h5>
+                                                                                <div className="row">
+                                                                                    <div className="col-md-8">
+                                                                                        <div style={{display: 'flex', flexWrap: 'wrap',marginTop:10}}>
+                                                                                            {
+                                                                                                (this.state.selectedContact.hobbies || []).map((item, key) => (
+                                                                                                    <div key={key} style={{margin:3}}>
+                                                                                                        <Chip
+                                                                                                            icon={<MoodIcon/>}
+                                                                                                            label={item}
+                                                                                                            color="secondary"
+                                                                                                            onDelete={this.removeItem('hobbies', key)}
+                                                                                                            style={{fontWeight:"bold",backgroundColor:"lightpink"}}
+                                                                                                        />
+                                                                                                    </div>
+                                                                                                ))
+                                                                                            }
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                </div>
+
+                                                                                <div className="row" style={{marginTop: 20}}>
+                                                                                    <div
+                                                                                        className="col-sm-12">
+                                                                                        <a style={{
+                                                                                            cursor: 'pointer',
+                                                                                            fontSize: "medium",
+                                                                                            fontWeight: "bold"
+                                                                                        }}
+                                                                                           onClick={this.openAddModal('hobbies')}>
+                                                                                            <span className="btn__text"
+                                                                                                  id="btn-add-child">
+                                                                                                <i className="fe-plus-square"/> Ajouter un centre d'intérêt, loisir ou sport
+                                                                                            </span>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </div>
+
                                                                             </TabPanel>
                                                                         </Tabs>
                                                                     </div>
@@ -2017,422 +2283,6 @@ class CoffreFortNewVersion extends React.Component {
                                                                     </ul>*/}
                                                                 </div>
                                                             </div>
-
-                                                            {/*<div className="col-lg-12">
-                                                                <div className="card" style={{marginTop: 15}}>
-                                                                    <div className="card-body">
-                                                                        <section style={{
-                                                                            marginTop: '25px',
-                                                                            marginLeft: '20px',
-                                                                            marginRight: '20px'
-                                                                        }}>
-
-                                                                            <div className="row">
-                                                                                <div className="col-sm-12">
-                                                                                    <div>
-                                                                                        <div className="row"
-                                                                                             style={{marginTop: 20}}>
-                                                                                            <div className="col-sm-4">
-                                                                                                <div
-                                                                                                    className="feature-box">
-                                                                                                    <h3>Informations personnelles</h3>
-                                                                                                    <div className="row" style={{marginTop: 20}}>
-                                                                                                        <div
-                                                                                                            className="col-sm-8">
-                                                                                                            <p style={{marginBottom: 10}}>Nom</p>
-                                                                                                            <input
-                                                                                                                className="form-control"
-                                                                                                                type="text"
-                                                                                                                id="nom"
-                                                                                                                name="nom"
-                                                                                                                value={this.state.selectedContact.nom}
-                                                                                                                onChange={this.handleChange('selectedContact', 'nom')}/>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                    <div className="row" style={{marginTop: 20}}>
-                                                                                                        <div
-                                                                                                            className="col-sm-8">
-                                                                                                            <p style={{marginBottom: 10}}>Prénom</p>
-                                                                                                            <input
-                                                                                                                className="form-control"
-                                                                                                                type="text"
-                                                                                                                id="prenom"
-                                                                                                                name="prenom"
-                                                                                                                value={this.state.selectedContact.prenom}
-                                                                                                                onChange={this.handleChange('selectedContact', 'prenom')}/>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                    <div className="row" style={{marginTop: 20}}>
-                                                                                                        <div
-                                                                                                            className="col-sm-8">
-                                                                                                            <p style={{marginBottom: 10}}>Email</p>
-                                                                                                            <input
-                                                                                                                className="form-control"
-                                                                                                                type="text"
-                                                                                                                id="email"
-                                                                                                                name="email"
-                                                                                                                readOnly={true}
-                                                                                                                value={this.state.selectedContact.email}
-                                                                                                                onChange={this.handleChange('selectedContact', 'email')}/>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                    <div className="row" style={{marginTop: 20}}>
-                                                                                                        <div
-                                                                                                            className="col-sm-8">
-                                                                                                            <p style={{marginBottom: 10}}>Téléphone</p>
-                                                                                                            <input
-                                                                                                                className="form-control"
-                                                                                                                type="text"
-                                                                                                                id="phone"
-                                                                                                                name="phone"
-                                                                                                                value={this.state.selectedContact.phone}
-                                                                                                                onChange={this.handleChange('selectedContact', 'phone')}/>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                    <div className="row" style={{marginTop: 20}}>
-                                                                                                        <div
-                                                                                                            className="col-sm-8">
-                                                                                                            <p style={{marginBottom: 10}}>Fax</p>
-                                                                                                            <input
-                                                                                                                className="form-control"
-                                                                                                                type="text"
-                                                                                                                id="fax"
-                                                                                                                name="fax"
-                                                                                                                placeholder="Fax"
-                                                                                                                value={this.state.selectedContact.fax}
-                                                                                                                onChange={this.handleChange('selectedContact', 'fax')}/>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                    <div className="row" style={{marginTop: 20}}>
-
-                                                                                                        <h3>Domaines</h3>
-
-                                                                                                        {
-                                                                                                            this.state.selectedContact.domaine !== undefined &&
-                                                                                                            (this.state.selectedContact.domaine || []).map((item, key) => (
-                                                                                                                <div
-                                                                                                                    className="w-100 mt-2"
-                                                                                                                    key={key}>
-                                                                                                                    <FormControl>
-                                                                                                                        <MuiSelect
-                                                                                                                            inputProps={{ readOnly: true }}
-                                                                                                                            style={{width: "100%"}}
-                                                                                                                            labelId="demo-simple-select-placeholder-label-label"
-                                                                                                                            id="demo-simple-select-placeholder-label"
-                                                                                                                            value={item.domaine}
-                                                                                                                            disableUnderline={true}
-                                                                                                                        >
-                                                                                                                            <MenuItem
-                                                                                                                                value={"COMPTABILITE"}>COMPTABILITÉ</MenuItem>
-                                                                                                                            <MenuItem
-                                                                                                                                value={"SALAIRES"}>SALAIRES</MenuItem>
-                                                                                                                            <MenuItem
-                                                                                                                                value={"TVA"}>TVA</MenuItem>
-                                                                                                                            <MenuItem
-                                                                                                                                value={"IMPOTS"}>IMPOTS</MenuItem>
-
-                                                                                                                        </MuiSelect>
-
-                                                                                                                    </FormControl>
-
-                                                                                                                    <FormControl>
-                                                                                                                        <InputLabel
-                                                                                                                            style={{fontSize: "100%"}}
-                                                                                                                            id="demo-mutiple-chip-label">Les
-                                                                                                                            spécialités recherchées  </InputLabel>
-                                                                                                                        <MuiSelect
-                                                                                                                            disableUnderline={true}
-                                                                                                                            inputProps={{ readOnly: true }}
-                                                                                                                            labelId="demo-mutiple-chip-label"
-                                                                                                                            id="demo-mutiple-chip"
-                                                                                                                            multiple
-                                                                                                                            value={item.specialite}
-                                                                                                                            onChange={(e) => {
-                                                                                                                                this.handleChangeSpecialite(e)
-                                                                                                                            }}
-                                                                                                                            input={
-                                                                                                                                <Input
-                                                                                                                                    id="select-multiple-chip"/>}
-                                                                                                                            renderValue={(selected) => (
-                                                                                                                                <div
-                                                                                                                                    style={{
-                                                                                                                                        display: 'flex',
-                                                                                                                                        flexWrap: 'wrap'
-                                                                                                                                    }}>
-                                                                                                                                    {item.specialite.map((value) => (
-                                                                                                                                        <Chip
-                                                                                                                                            style={{margin: "2%"}}
-                                                                                                                                            key={value}
-                                                                                                                                            label={value}/>
-                                                                                                                                    ))}
-                                                                                                                                </div>
-                                                                                                                            )}
-                                                                                                                        >
-                                                                                                                        </MuiSelect>
-                                                                                                                    </FormControl>
-
-                                                                                                                    <div
-                                                                                                                        className="row">
-                                                                                                                        <div
-                                                                                                                            className="col-sm-7">
-                                                                                                                            <div
-                                                                                                                                className="text--right">
-                                                                                                                                <a className="color--primary-2"
-                                                                                                                                   onClick={this.removeItem('domaine', key)}
-                                                                                                                                   style={{
-                                                                                                                                       cursor: 'pointer',
-                                                                                                                                       color: "red"
-                                                                                                                                   }}>
-                                                                                                                                    <span
-                                                                                                                                        className="btn__text"
-                                                                                                                                        id={'btn-remove-child' + key}>
-                                                                                                                                        <i className="fe-minus"/> Enlever cet Domaine
-                                                                                                                                    </span>
-                                                                                                                                </a>
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                    </div>
-
-                                                                                                                </div>
-                                                                                                            ))}
-                                                                                                    </div>
-
-                                                                                                    <div className="row"
-                                                                                                         style={{marginTop: 20}}>
-                                                                                                        <div
-                                                                                                            className="col-sm-12 ">
-                                                                                                            <a style={{
-                                                                                                                cursor: 'pointer',
-                                                                                                                fontSize: "medium",
-                                                                                                                fontWeight: "bold"
-                                                                                                            }}
-                                                                                                               onClick={this.openAddModal('domaine')}>
-                                                                                                                    <span
-                                                                                                                        className="btn__text"
-                                                                                                                        id="btn-add-child">
-                                                                                                                        <i className="fe-plus-square"/> Ajouter un domaine
-                                                                                                                    </span>
-                                                                                                            </a>
-                                                                                                        </div>
-                                                                                                    </div>
-
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div className="col-sm-4">
-                                                                                                <div
-                                                                                                    className="feature-box">
-                                                                                                    <h3>Langues</h3>
-                                                                                                    <div className="row"
-                                                                                                         style={{marginTop: 20}}>
-                                                                                                        <div
-                                                                                                            className="col-sm-8">
-
-                                                                                                            <input
-                                                                                                                className="form-control"
-                                                                                                                type="text"
-                                                                                                                id="langues"
-                                                                                                                name="langues"
-                                                                                                                value={this.state.selectedContact.langues}
-                                                                                                                onChange={this.handleChange('selectedContact', 'langues')}/>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    style={{marginTop: 30}}
-                                                                                                    className="feature-box">
-                                                                                                    <h3>Formation</h3>
-                                                                                                    {
-                                                                                                        (this.state.selectedContact.formations || []).map((item, key) => (
-                                                                                                            <div
-                                                                                                                key={key}>
-                                                                                                                <p style={{marginTop: 10}}>• {item}</p>
-
-                                                                                                                <div
-                                                                                                                    className="row">
-                                                                                                                    <div
-                                                                                                                        className="col-sm-7">
-                                                                                                                        <div
-                                                                                                                            className="text--right">
-                                                                                                                            <a className="color--primary-2"
-                                                                                                                               onClick={this.removeItem('formation', key)}
-                                                                                                                               style={{
-                                                                                                                                   cursor: 'pointer',
-                                                                                                                                   color: "red"
-                                                                                                                               }}>
-                                                                                                                                    <span
-                                                                                                                                        className="btn__text"
-                                                                                                                                        id={'btn-remove-child' + key}>
-                                                                                                                                        <i className="fe-minus"/> Enlever cet formation
-                                                                                                                                    </span>
-                                                                                                                            </a>
-                                                                                                                        </div>
-                                                                                                                    </div>
-                                                                                                                </div>
-                                                                                                            </div>
-
-
-                                                                                                        ))
-                                                                                                    }
-                                                                                                    <div className="row"
-                                                                                                         style={{marginTop: 10}}>
-                                                                                                        <div
-                                                                                                            className="col-sm-12">
-                                                                                                            <a style={{
-                                                                                                                cursor: 'pointer',
-                                                                                                                fontSize: "medium",
-                                                                                                                fontWeight: "bold"
-                                                                                                            }}
-                                                                                                               onClick={this.openAddModal('formation')}>
-                                                                                                                        <span
-                                                                                                                            className="btn__text"
-                                                                                                                            id="btn-add-child">
-                                                                                                                                <i className="fe-plus-square"/> Ajouter une formation
-                                                                                                                         </span>
-                                                                                                            </a>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    style={{marginTop: 30}}
-                                                                                                    className="feature-box">
-                                                                                                    <h3>En aparté</h3>
-                                                                                                    <div className="row"
-                                                                                                         style={{marginTop: 20}}>
-                                                                                                        <div
-                                                                                                            className="col-sm-10">
-                                                                                                                    <textarea
-                                                                                                                        className="form-control"
-                                                                                                                        id="aparte"
-                                                                                                                        name="aparte"
-                                                                                                                        rows={6}
-                                                                                                                        value={this.state.selectedContact.aparte}
-                                                                                                                        onChange={this.handleChange('selectedContact', 'aparte')}/>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div className="col-sm-4">
-                                                                                                <div
-                                                                                                    className="feature-box">
-                                                                                                    <h3>Fonctions</h3>
-                                                                                                    {
-                                                                                                        (this.state.selectedContact.fonctions || []).map((item, key) => (
-                                                                                                            <div
-                                                                                                                key={key}>
-                                                                                                                <p style={{marginTop: 10}}>• {item}</p>
-
-                                                                                                                <div
-                                                                                                                    className="row">
-                                                                                                                    <div
-                                                                                                                        className="col-sm-7">
-                                                                                                                        <div
-                                                                                                                            className="text--right">
-                                                                                                                            <a className="color--primary-2"
-                                                                                                                               onClick={this.removeItem('fonction', key)}
-                                                                                                                               style={{
-                                                                                                                                   cursor: 'pointer',
-                                                                                                                                   color: "red"
-                                                                                                                               }}>
-                                                                                                                            <span
-                                                                                                                                className="btn__text"
-                                                                                                                                id={'btn-remove-child' + key}>
-                                                                                                                                 <i className="fe-minus"/> Enlever cette fonction
-                                                                                                                            </span>
-                                                                                                                            </a>
-                                                                                                                        </div>
-                                                                                                                    </div>
-                                                                                                                </div>
-                                                                                                            </div>
-                                                                                                        ))
-                                                                                                    }
-
-                                                                                                    <div className="row"
-                                                                                                         style={{marginTop: 10}}>
-                                                                                                        <div
-                                                                                                            className="col-sm-12">
-                                                                                                            <a style={{
-                                                                                                                cursor: 'pointer',
-                                                                                                                fontSize: "medium",
-                                                                                                                fontWeight: "bold"
-                                                                                                            }}
-                                                                                                               onClick={this.openAddModal('fonction')}>
-                                                                                                                        <span
-                                                                                                                            className="btn__text"
-                                                                                                                            id="btn-add-child">
-                                                                                                                            <i className="fe-plus-square"/> Ajouter une fonction
-                                                                                                                        </span>
-                                                                                                            </a>
-                                                                                                        </div>
-                                                                                                    </div>
-
-
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    style={{marginTop: 30}}
-                                                                                                    className="feature-box">
-                                                                                                    <h3>Affiliations</h3>
-                                                                                                    {
-                                                                                                        (this.state.selectedContact.affiliations || []).map((item, key) => (
-                                                                                                            <div
-                                                                                                                key={key}>
-                                                                                                                <p style={{marginTop: 10}}>• {item}</p>
-
-                                                                                                                <div
-                                                                                                                    className="row">
-                                                                                                                    <div
-                                                                                                                        className="col-sm-7">
-                                                                                                                        <div
-                                                                                                                            className="text--right">
-                                                                                                                            <a className="color--primary-2"
-                                                                                                                               onClick={this.removeItem('affiliation', key)}
-                                                                                                                               style={{
-                                                                                                                                   cursor: 'pointer',
-                                                                                                                                   color: "red"
-                                                                                                                               }}>
-                                                                                                                            <span
-                                                                                                                                className="btn__text"
-                                                                                                                                id={'btn-remove-child' + key}>
-                                                                                                                                 <i className="fe-minus"/> Enlever cette affiliation
-                                                                                                                            </span>
-                                                                                                                            </a>
-                                                                                                                        </div>
-                                                                                                                    </div>
-                                                                                                                </div>
-                                                                                                            </div>
-                                                                                                        ))
-                                                                                                    }
-                                                                                                    <div className="row"
-                                                                                                         style={{marginTop: 10}}>
-                                                                                                        <div
-                                                                                                            className="col-sm-12">
-                                                                                                            <a style={{
-                                                                                                                cursor: 'pointer',
-                                                                                                                fontSize: "medium",
-                                                                                                                fontWeight: "bold"
-                                                                                                            }}
-                                                                                                               onClick={this.openAddModal('affiliation')}>
-                                                                                                                    <span
-                                                                                                                        className="btn__text"
-                                                                                                                        id="btn-add-child">
-                                                                                                                            <i className="fe-plus-square"/> Ajouter une affiliation
-                                                                                                                    </span>
-                                                                                                            </a>
-                                                                                                        </div>
-                                                                                                    </div>
-
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-
-                                                                                </div>
-                                                                            </div>
-
-
-                                                                        </section>
-                                                                    </div>
-                                                                </div>
-                                                            </div>*/}
 
                                                         </div>
 
@@ -2655,12 +2505,115 @@ class CoffreFortNewVersion extends React.Component {
                         </ModalBody>
                     </Modal>
 
+                    <Modal isOpen={this.state.showPdfPreviewModal} size="lg" zIndex={1500}
+                           toggle={() => this.setState({showPdfPreviewModal: !this.state.showPdfPreviewModal,isDocPreviewReady:false})}>
+                        <ModalHeader toggle={() => this.setState({showPdfPreviewModal: !this.state.showPdfPreviewModal,isDocPreviewReady:false})}>
+                            Document
+                        </ModalHeader>
+                        <ModalBody>
+                            {
+                                this.state.isDocPreviewReady === true && (
+                                    <PdfView width={"100%"} height={800} >
+                                        <Resume title={"Resume of "+ this.state.selectedContact.nom} name={this.state.selectedContact.nom}
+                                                speciality={this.state.selectedContact.specialite+"("+this.state.selectedContact.pays+")"} email={this.state.selectedContact.email}
+                                                image={this.state.selectedContact.imageUrl} about={this.state.selectedContact.about}
+                                                personalLife={this.state.selectedContact.personalLife}
+                                                parcoursP={this.state.selectedContact.parcoursP || []}
+                                                langues={this.state.selectedContact.langues || []} hobbies={this.state.selectedContact.hobbies || []}
+                                                formations={this.state.selectedContact.formations || []}
+                                                firstPageImage={require("../../assets/images/SwissWhoWho.jpeg")}
+                                        />
+                                    </PdfView>
+                                )
+
+                            }
+                        </ModalBody>
+                    </Modal>
+
+                    <Modal isOpen={this.state.showPdfFlipModal} size="lg" zIndex={1500}
+                           toggle={() => this.setState({showPdfFlipModal: !this.state.showPdfFlipModal})}>
+                        <ModalHeader toggle={() => this.setState({showPdfFlipModal: !this.state.showPdfFlipModal})}>
+                            Document
+                        </ModalHeader>
+                        <ModalBody>
+                            <FlipPage orientation="horizontal" uncutPages={true} width={"100%"} height={800}
+                                      showSwipeHint={true} showHint={true} showTouchHint={true}
+                            >
+                                <article>
+                                    <img alt="" src={require("../../assets/images/SwissWhoWho.jpeg")} style={{width:"100%",height:750,objectFit:"contain"}}/>
+                                </article>
+                                <article style={{padding:30}}>
+
+                                    <FHeader name={this.state.selectedContact.nom} speciality={this.state.selectedContact.speciality}
+                                             email={this.state.selectedContact.email} />
+                                    <div>
+                                        <img alt=""
+                                            src={this.state.selectedContact.imageUrl} style={{ marginTop:20, marginBottom: 10,
+                                            width:200,height:200,objectFit:"cover"}}
+                                        />
+                                    </div>
+                                    <div style={{marginTop:40}}>
+                                        <FTitle>À propos</FTitle>
+                                        <div style={{fontSize: 13,color:"#000"}}>{this.state.selectedContact.about || ""}</div>
+                                    </div>
+                                    <div style={{marginTop:40}}>
+                                        <FTitle>Famille & Vie privée</FTitle>
+                                        <div style={{fontSize: 13,color:"#000"}}>{this.state.selectedContact.personalLife || ""}</div>
+                                    </div>
+
+                                </article>
+                                <article style={{padding:30}}>
+                                    <div className="row">
+                                        <div className="col-md-4">
+                                            <div style={{marginTop:40}}>
+                                                <FTitle>Langues</FTitle>
+                                                <ul>
+                                                    {(this.state.selectedContact.langues || []).map((item, i) => (
+                                                        <li key={i} style={{color:"#000"}}>{item}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            <div style={{marginTop:55}}>
+                                                <FTitle>Domaines d'intérêt, loisirs et sports</FTitle>
+                                                <ul>
+                                                    {(this.state.selectedContact.hobbies || []).map((item, i) => (
+                                                        <li key={i} style={{color:"#000"}}>{item}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-8">
+                                            <div style={{marginTop:40}}>
+                                                <FTitle>Parcour professionnel</FTitle>
+                                                <ul>
+                                                    {(this.state.selectedContact.parcoursP || []).map((item, i) => (
+                                                        <li key={i} style={{color:"#000"}}>{item}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            <div style={{marginTop:55}}>
+                                                <FTitle>Formations</FTitle>
+                                                <ul>
+                                                    {(this.state.selectedContact.formations || []).map((item, i) => (
+                                                        <li key={i} style={{color:"#000"}}>{item}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </article>
+                            </FlipPage>
+                        </ModalBody>
+                    </Modal>
+
 
                     <Modal isOpen={this.state.newFolderModal} size="md" centered={true}
                            toggle={() => this.setState({
                                newFolderModal: !this.state.newFolderModal,
                                newFolderFromRacine: false
-                           })}>
+                           })}
+                    >
                         <ModalHeader toggle={() => this.setState({
                             newFolderModal: !this.state.newFolderModal,
                             newFolderFromRacine: false
@@ -2793,7 +2746,10 @@ class CoffreFortNewVersion extends React.Component {
                                 this.state.add === "formation" ? "Ajouter une formation" :
                                     this.state.add === "fonction" ? "Ajouter une fonction" :
                                         this.state.add === "domaine" ? "Ajouter un domaine" :
-                                            this.state.add === "affiliation" ? "Ajouter une affiliation" : null
+                                            this.state.add === "affiliation" ? "Ajouter une affiliation" :
+                                                this.state.add === "parcour" ? "Ajouter un parcour" :
+                                                    this.state.add === "langue" ? "Ajouter une langue" :
+                                                        this.state.add === "hobbies" ? "Ajouter un centre d'intérêt, loisir ou sport" : null
                             }
                         </ModalHeader>
                         <ModalBody>
@@ -2802,20 +2758,27 @@ class CoffreFortNewVersion extends React.Component {
                                     this.state.add === "formation" ? "Formation" :
                                         this.state.add === "fonction" ? "Fonction" :
                                             this.state.add === "domaine" ? "Domaine" :
+                                                this.state.add === "affiliation" ? "Affiliation" :
+                                                    this.state.add === "parcour" ? "Parcour" :
+                                                        this.state.add === "langue" ? "Langue" :
+                                                            this.state.add === "hobbies" ? "Centre d'intérêt" : null
 
-                                                this.state.add === "affiliation" ? "Affiliation" : null
 
                                 }
                             </p>
                             {
-                                (this.state.add === "formation" || this.state.add === "fonction" || this.state.add === "formation" || this.state.add === "affiliation") &&
+                                (this.state.add === "formation" || this.state.add === "fonction" || this.state.add === "formation"
+                                    || this.state.add === "affiliation" || this.state.add === "parcour"|| this.state.add === "langue" || this.state.add === "hobbies") &&
                                 <textarea className="form-control" id="inputText"
                                           name="inputText"
                                           style={{width: 400}}
                                           value={
                                               this.state.add === "formation" ? this.state.formationTmp :
                                                   this.state.add === "fonction" ? this.state.fonctionTmp :
-                                                      this.state.add === "affiliation" ? this.state.affiliationTmp : null
+                                                      this.state.add === "affiliation" ? this.state.affiliationTmp :
+                                                          this.state.add === "parcour" ? this.state.parcourTmp :
+                                                              this.state.add === "langue" ? this.state.langueTmp :
+                                                                  this.state.add === "hobbies" ? this.state.hobbiesTmp : null
 
                                           }
                                           onChange={(event) =>
@@ -2824,7 +2787,14 @@ class CoffreFortNewVersion extends React.Component {
                                                   this.state.add === "fonction" ?
                                                       this.setState({fonctionTmp: event.target.value}) :
                                                       this.state.add === "affiliation" ?
-                                                          this.setState({affiliationTmp: event.target.value}) : null
+                                                          this.setState({affiliationTmp: event.target.value}) :
+                                                          this.state.add === "parcour" ?
+                                                              this.setState({parcourTmp: event.target.value}) :
+                                                              this.state.add === "langue" ?
+                                                                  this.setState({langueTmp: event.target.value}) :
+                                                                  this.state.add === "hobbies" ?
+                                                                      this.setState({hobbiesTmp: event.target.value}) : null
+
                                           }
                                 />
                             }
@@ -2906,7 +2876,10 @@ class CoffreFortNewVersion extends React.Component {
                                     this.state.add === "formation" ? this.addItem('formation') :
                                         this.state.add === "fonction" ? this.addItem('fonction') :
                                             this.state.add === "domaine" ? this.addItem('domaine') :
-                                                this.state.add === "affiliation" ? this.addItem('affiliation') : null
+                                                this.state.add === "affiliation" ? this.addItem('affiliation') :
+                                                    this.state.add === "parcour" ? this.addItem('parcour') :
+                                                        this.state.add === "langue" ? this.addItem('langue') :
+                                                            this.state.add === "hobbies" ? this.addItem('hobbies') : null
                                 }
                                         className="btn btn-success btn waves-effect mb-2 waves-light">
                                     Valider
@@ -2914,6 +2887,40 @@ class CoffreFortNewVersion extends React.Component {
                             </div>
                         </ModalBody>
                     </Modal>
+
+
+                    <Dialog open={this.state.openShareDocModal} onClose={() => {this.setState({openShareDocModal:!this.state.openShareDocModal})}}
+                            aria-labelledby="form-dialog-title">
+                        <DialogTitle id="form-dialog-title">Partager avec des personnes</DialogTitle>
+                        <DialogContent>
+                            <div className="row">
+                                <div className="col-md-9">
+                                    <Chips
+                                        chips={[{ email: 'react@gmail.com', valid: true, key: '1' }, { email: 'javascript@gmail.com', valid: true, key: '2' }, { email: 'scss@gmail.com', valid: true, key: '3' }]}
+                                        placeholder='Ajouter des personnes'
+                                        save={data => console.log('new data', data)}
+                                        pattern={pattern}
+                                        requiredMessage={"Email incorrect"}
+                                        required={true}
+                                        title=''
+                                        limit={20}
+                                        limitMessage="Vous avez atteint le nombre maximal d'e-mails"/>
+                                </div>
+                                <div className="col-md-3">
+
+                                </div>
+                            </div>
+
+                        </DialogContent>
+                        <DialogActions>
+                            <MuiButton onClick={() => {this.setState({openShareDocModal:false})}} color="primary">
+                                Annuler
+                            </MuiButton>
+                            <MuiButton onClick={() => {}} color="primary" variant="contained">
+                                Envoyer
+                            </MuiButton>
+                        </DialogActions>
+                    </Dialog>
 
 
                     <Snackbar

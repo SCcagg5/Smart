@@ -1,7 +1,8 @@
-const contreyList = [{"Code": "AF", "Name": "Afghanistan"}, {"Code": "AX", "Name": "\u00c5land Islands"}, {
+const countryList = [
+    {"Code": "AX", "Name": "\u00c5land Islands"}, {
     "Code": "AL",
-    "Name": "Albania"
-}, {"Code": "DZ", "Name": "Algeria"}, {"Code": "AS", "Name": "American Samoa"}, {
+    "Name": "Albania"},
+    {"Code": "DZ", "Name": "Algeria"}, {"Code": "AS", "Name": "American Samoa"}, {
     "Code": "AD",
     "Name": "Andorra"
 }, {"Code": "AO", "Name": "Angola"}, {"Code": "AI", "Name": "Anguilla"}, {
@@ -246,4 +247,4 @@ const contreyList = [{"Code": "AF", "Name": "Afghanistan"}, {"Code": "AX", "Name
     "Name": "Western Sahara"
 }, {"Code": "YE", "Name": "Yemen"}, {"Code": "ZM", "Name": "Zambia"}, {"Code": "ZW", "Name": "Zimbabwe"}];
 
-export default contreyList;
+export default countryList;
