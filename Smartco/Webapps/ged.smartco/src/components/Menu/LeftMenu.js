@@ -100,7 +100,7 @@ export default function LeftMenu(props) {
                                     getFolderName={(name) => props.setFolderName(name)}
                                     getFolderId={(id) => props.setFolderId(id)}
                                     getSelectedFolderFiles={(files) => props.setSelectedFolderFiles(files)}
-                                    onEndIconClick={(event) => {
+                                    onEndIconClick={ event => {
                                       if(event){
                                           event.preventDefault();
                                           setAnchorElMenu(event.currentTarget)

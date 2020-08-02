@@ -12,6 +12,7 @@ import Header from './Header';
 import Education from './Education';
 import Experience from './Experience';
 import Skills from './Skills';
+import Title from "./Title";
 
 const styles = StyleSheet.create({
     page: {
@@ -25,7 +26,9 @@ const styles = StyleSheet.create({
         },
     },
     image: {
+        marginTop:20,
         marginBottom: 10,
+        width:200,height:200,objectFit:"cover"
     },
     leftColumn: {
         flexDirection: 'column',
@@ -73,19 +76,33 @@ Font.register( {
 });*/
 
 const Content = props => (
-    <Page {...props} style={styles.page}>
+    <Page key={2} {...props} style={styles.page}>
         <Header name={props.name} speciality={props.speciality} email={props.email} />
+        <View>
+            <Image
+            src={props.image}
+            style={styles.image}
+            />
+        </View>
+        <View style={{marginTop:30}}>
+            <Title>À propos</Title>
+            <Text style={{fontSize: 10}}>{props.about || ""}</Text>
+        </View>
+        <View style={{marginTop:30}}>
+            <Title>Famille & Vie privée</Title>
+            <Text style={{fontSize: 10}}>{props.personalLife || ""}</Text>
+        </View>
         <View style={styles.container}>
             <View style={styles.leftColumn}>
-                <Image
+                {/*<Image
                     src={props.image}
                     style={styles.image}
 
-                />
-                <Education />
-                <Skills />
+                />*/}
+                <Education langues={props.langues} />
+                <Skills hobbies={props.hobbies} />
             </View>
-            <Experience />
+            <Experience parcoursP={props.parcoursP} formations={props.formations} />
         </View>
         {/*<Text style={styles.footer}>This IS the candidate you are looking for</Text>*/}
     </Page>
@@ -94,12 +111,21 @@ const Content = props => (
 const Resume = (props) => (
     console.log(props),
     <Document
+
         author={props.author || ""}
         keywords=""
         subject={props.subject || ""}
         title={props.title || ""}
     >
-        <Content size="A4" name={props.name} speciality={props.speciality} email={props.email} image={props.image}/>
+        <Page key={1} {...props} style={{padding: 15}}>
+            <View>
+                <Image src={props.firstPageImage}/>
+            </View>
+        </Page>
+        <Content size="A4" name={props.name} speciality={props.speciality} email={props.email} image={props.image}
+                 about={props.about} personalLife={props.personalLife} parcoursP={props.parcoursP}
+                 langues={props.langues} hobbies={props.hobbies} formations={props.formations}
+        />
         {/*<Resume orientation="landscape" size="A4" />
         <Resume size={[380, 1250]} />*/}
     </Document>

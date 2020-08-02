@@ -123,6 +123,7 @@ StyledTreeItem.propTypes = {
     labelIcon: PropTypes.elementType.isRequired,
     labelInfo: PropTypes.string,
     labelText: PropTypes.string.isRequired,
+    onEndIconClick: PropTypes.func
 };
 
 function SubFolder(props) {

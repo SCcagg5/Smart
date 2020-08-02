@@ -5,7 +5,7 @@ import Title from './Title';
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 10,
+    marginTop: 20,
   },
   school: {
     //fontFamily: 'Lato Bold',
@@ -21,11 +21,13 @@ const styles = StyleSheet.create({
   },
 });
 
-export default () => (
+export default (props) => (
   <View style={styles.container}>
-    <Title>Education</Title>
-    <Text style={styles.school}>Jedi Academy</Text>
-    <Text style={styles.degree}>Jedi Master</Text>
-    <Text style={styles.candidate}>A long, long time ago</Text>
+    <Title>Langues</Title>
+      {
+          (props.langues || []).map((item,key) =>
+              <Text key={key} style={styles.school}>{item}</Text>
+          )
+      }
   </View>
 );
