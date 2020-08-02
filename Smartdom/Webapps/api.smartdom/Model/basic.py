@@ -91,6 +91,7 @@ class ret:
         self.data['data'] = data
         self.set_code(200)
         if data is None:
+            raise
             self.add_error("Bad data input", 500)
             return 1
         return 0

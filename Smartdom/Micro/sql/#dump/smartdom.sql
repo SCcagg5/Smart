@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : mer. 01 juil. 2020 à 11:32
+-- Généré le : Dim 02 août 2020 à 10:02
 -- Version du serveur :  5.7.30
 -- Version de PHP : 7.4.6
 
@@ -20,6 +20,24 @@ SET time_zone = "+00:00";
 --
 -- Base de données : `smartdom`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `assets`
+--
+
+CREATE TABLE `assets` (
+  `id` int(11) NOT NULL,
+  `asset_id` varchar(36) NOT NULL,
+  `asset_name` varchar(60) NOT NULL,
+  `token_val` text NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `order_id` varchar(36) DEFAULT NULL,
+  `pay_id` varchar(36) DEFAULT NULL,
+  `date` varchar(15) NOT NULL,
+  `active` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -56,8 +74,6 @@ CREATE TABLE `folder` (
 -- Structure de la table `orderdetails`
 --
 
-
-
 CREATE TABLE `orderdetails` (
   `id` int(11) NOT NULL,
   `order_id` int(11) NOT NULL,
@@ -89,6 +105,82 @@ CREATE TABLE `paymentstripe` (
   `chr_token` varchar(64) NOT NULL,
   `amount` float NOT NULL,
   `date` varchar(64) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `share_file`
+--
+
+CREATE TABLE `share_file` (
+  `id` varchar(40) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `file_id` varchar(40) NOT NULL,
+  `can_administrate` tinyint(1) NOT NULL,
+  `can_share` tinyint(1) NOT NULL,
+  `can_edit` tinyint(1) NOT NULL,
+  `can_read` tinyint(1) NOT NULL,
+  `date` varchar(20) NOT NULL,
+  `shared_by` varchar(40) NOT NULL,
+  `active` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `share_file_buff`
+--
+
+CREATE TABLE `share_file_buff` (
+  `id` varchar(40) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `file_id` varchar(40) NOT NULL,
+  `can_administrate` tinyint(1) NOT NULL,
+  `can_share` tinyint(1) NOT NULL,
+  `can_edit` tinyint(1) NOT NULL,
+  `can_read` tinyint(1) NOT NULL,
+  `date` varchar(20) NOT NULL,
+  `shared_by` varchar(40) NOT NULL,
+  `active` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `share_folder`
+--
+
+CREATE TABLE `share_folder` (
+  `id` varchar(40) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `folder_id` varchar(40) NOT NULL,
+  `can_administrate` tinyint(1) NOT NULL,
+  `can_share` tinyint(1) NOT NULL,
+  `can_edit` tinyint(1) NOT NULL,
+  `can_read` tinyint(1) NOT NULL,
+  `date` varchar(20) NOT NULL,
+  `shared_by` varchar(40) NOT NULL,
+  `active` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `share_folder_buff`
+--
+
+CREATE TABLE `share_folder_buff` (
+  `id` varchar(40) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `folder_id` varchar(40) NOT NULL,
+  `can_administrate` tinyint(1) NOT NULL,
+  `can_share` tinyint(1) NOT NULL,
+  `can_edit` tinyint(1) NOT NULL,
+  `can_read` tinyint(1) NOT NULL,
+  `date` varchar(20) NOT NULL,
+  `shared_by` varchar(40) NOT NULL,
+  `active` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -149,6 +241,12 @@ CREATE TABLE `wallet` (
 --
 
 --
+-- Index pour la table `assets`
+--
+ALTER TABLE `assets`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Index pour la table `file`
 --
 ALTER TABLE `file`
@@ -177,6 +275,30 @@ ALTER TABLE `orders`
 --
 ALTER TABLE `paymentstripe`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Index pour la table `share_file`
+--
+ALTER TABLE `share_file`
+  ADD UNIQUE KEY `id` (`id`);
+
+--
+-- Index pour la table `share_file_buff`
+--
+ALTER TABLE `share_file_buff`
+  ADD UNIQUE KEY `id` (`id`);
+
+--
+-- Index pour la table `share_folder`
+--
+ALTER TABLE `share_folder`
+  ADD UNIQUE KEY `id` (`id`);
+
+--
+-- Index pour la table `share_folder_buff`
+--
+ALTER TABLE `share_folder_buff`
+  ADD UNIQUE KEY `id` (`id`);
 
 --
 -- Index pour la table `user`
@@ -208,6 +330,12 @@ ALTER TABLE `wallet`
 --
 -- AUTO_INCREMENT pour les tables déchargées
 --
+
+--
+-- AUTO_INCREMENT pour la table `assets`
+--
+ALTER TABLE `assets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `orderdetails`
