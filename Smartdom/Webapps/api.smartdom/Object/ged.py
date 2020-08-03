@@ -56,26 +56,28 @@ class folder:
         return True if len(res) > 0 else False
 
     def sharedcontent(self, folder_id = None, name = None, date = None):
-        res = {"id": folder_id, "name": name, "date": date, "Content": {"files": [], "folders": []}}
+        ret = {"id": folder_id, "name": name, "date": date, "Content": {"files": [], "folders": []}}
         if folder_id is not None:
-            i2 = sql.get("SELECT folder.`id`, `name`, folder.`date`, user.`email`, share_folder.`date` FROM `share_folder` INNER JOIN `folder` ON `share_folder`.`folder_id` = `folder`.`id` INNER JOIN `user` ON `folder`.`user_id` = `user`.id WHERE `share_folder`.`folder_id` = %s", (folder_id,))
-            if len(i2) != 1:
-                return {}
-            i2 = i2[0]
-            res = {"id": i2[0], "name": i2[1], "date": i2[2], "proprietary": i2[3], "sharing_date": i2[4], "Content": {"files": [], "folders": []},
-            "rights": {
-                    "read": self.is_reader(i2[0]),
-                    "edit": self.is_editor(i2[0]),
-                    "share": self.is_sharer(i2[0]),
-                    "administrate": self.is_admin(i2[0])
-                    }
-            }
             if not self.is_reader(folder_id):
                 return {}
+            res = sql.get("SELECT id, name, date, user.`email`, user.`id` FROM `folder` INNER JOIN `user` ON `folder`.`user_id` = `user`.id WHERE folder.id = %s", \
+            (folder_id, ))
+            if len(res) != 0:
+                with open(self.path(file_id, res[0][5]), 'rb') as f:
+                    data = f.read()
+                data =  base64.encodestring(data).decode("utf-8")
+                ret = {"id": res[0][0], "name": res[0][1], "date": res[0][2], "proprietary": res[0][3], "sharing_date": None, "Content": {"files": [], "folders": []},
+                "rights": {
+                        "read": self.is_reader(res[0][0]),
+                        "edit": self.is_editor(res[0][0]),
+                        "share": self.is_sharer(res[0][0]),
+                        "administrate": self.is_admin(res[0][0])
+                        }
+                }
             files = sql.get("SELECT `id`, `name`, `type`, `date` FROM `file` WHERE inside = %s", \
             (folder_id, ))
             for i2 in files:
-                res["Content"]["files"].append({
+                ret["Content"]["files"].append({
                 "id": i2[0], "name": i2[1], "type": i2[2], "date": i2[3],
                 "rights": {
                         "read": file(self.usr_id).is_reader(i2[0]),
@@ -87,7 +89,7 @@ class folder:
             folders = sql.get("SELECT `id`, `name`, `date` FROM `folder` WHERE inside = %s", \
             (folder_id, ))
             for i2 in folders:
-                res["Content"]["folders"].append({
+                ret["Content"]["folders"].append({
                 "id": i2[0], "name": i2[1], "date": i2[2],
                 "rights": {
                         "read": self.is_reader(i2[0]),
@@ -96,6 +98,7 @@ class folder:
                         "administrate": self.is_admin(i2[0])
                         }
                 })
+            return ret
         else:
             files = sql.get("SELECT file.`id`, `name`, file.type, file.`date`, user.`email`, share_file.`date` FROM `share_file` INNER JOIN `file` ON `share_file`.`file_id` = `file`.`id` INNER JOIN `user` ON `file`.`user_id` = `user`.id WHERE active IS TRUE AND share_file.user_id = %s", \
             (self.usr_id, ))
@@ -298,6 +301,25 @@ class file:
                         "administrate": file(self.usr_id).is_admin(res[0][0])
                         }
                 }
+            else:
+                res = sql.get("SELECT id, name, type, date, user.`email`, user.`id` FROM `file` INNER JOIN `user` ON `file`.`user_id` = `user`.id WHERE active IS TRUE AND file.id = %s", \
+                (file_id, ))
+                if len(res) != 0:
+                    with open(self.path(file_id, res[0][5]), 'rb') as f:
+                        data = f.read()
+                    data =  base64.encodestring(data).decode("utf-8")
+                    ret = {
+                    "id": res[0][0], "name": res[0][1], "type": res[0][2], "date": res[0][3], "proprietary": res[0][4], "sharing_date": None,
+                    "Content": {"Encode": "base64", "Data": data},
+                    "rights": {
+                            "read": file(self.usr_id).is_reader(res[0][0]),
+                            "edit": file(self.usr_id).is_editor(res[0][0]),
+                            "share": file(self.usr_id).is_sharer(res[0][0]),
+                            "administrate": file(self.usr_id).is_admin(res[0][0])
+                            }
+                    }
+                else:
+                    return [False, "error", 500]
             return [True, ret, None]
         return [False, "Invalid rights", 403]
 
