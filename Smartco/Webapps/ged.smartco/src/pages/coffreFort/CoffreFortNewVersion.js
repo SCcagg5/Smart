@@ -34,6 +34,8 @@ import AutorenewIcon from '@material-ui/icons/Autorenew';
 import LanguageIcon from '@material-ui/icons/Language';
 import CheckCircle from '@material-ui/icons/CheckCircle';
 import Staricon from '@material-ui/icons/Star';
+import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
+import FolderIcon from '@material-ui/icons/Folder';
 import MoodIcon from '@material-ui/icons/Mood';
 import TopBar from "../../components/TopBar/TopBar";
 import logo from "../../assets/images/logos/logo-OA-dark.png";
@@ -54,7 +56,8 @@ import {
     Select as MuiSelect,
     InputLabel,
     Input, Chip,
-    Button as MuiButton
+    Button as MuiButton,
+    Checkbox as MuiCheckbox,
 } from '@material-ui/core';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
@@ -65,12 +68,22 @@ import FlipPage from "react-flip-page"
 import FHeader from "../../components/FlipPages/FHeader";
 import FTitle from "../../components/FlipPages/FTitle";
 import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
+import DialogActions from '@material-ui/core/DialogActions';  
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Chips from 'react-email-chips';
+import Chips from '../../components/EmailsInputChips/Chips';
+import PersonAddIcon from "@material-ui/icons/PersonAdd"
+import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import Alert from '@material-ui/lab/Alert';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 const pattern = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 const getLabel = ({option}) => {
     return (
@@ -133,6 +146,7 @@ class CoffreFortNewVersion extends React.Component {
         selectedDoc: "",
 
         folders: [],
+        sharedDrive:[],
 
         selectedFoldername: "",
         selectedFolderId: "",
@@ -197,7 +211,10 @@ class CoffreFortNewVersion extends React.Component {
 
         showPdfFlipModal:false,
 
-        openShareDocModal:false
+        openShareDocModal:false,
+        checkedNotif:true,
+        msgNotif:"",
+        emailsDriveShare:[]
 
     }
 
@@ -257,6 +274,7 @@ class CoffreFortNewVersion extends React.Component {
 
     componentDidMount() {
 
+        let sharedDrive = [];
 
         if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
             this.props.history.push('/login')
@@ -264,23 +282,42 @@ class CoffreFortNewVersion extends React.Component {
             this.setState({loading: true});
             setTimeout(() => {
                 SmartService.getGed(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(gedRes => {
-                    console.log(gedRes)
+                    //console.log(gedRes)
                     if (gedRes.succes === true && gedRes.status === 200) {
 
                         let meeturl = "https://meet.smartdom.ch/meet_" + moment().format("DDMMYYYYHHmmss")
 
                         firebase.database().ref('/contacts').on('value', (snapshot) => {
                             const contacts = snapshot.val() || [];
-                            //console.log(contacts)
-                            this.setState({
-                                folders: gedRes.data.Proprietary.Content.folders || [],
-                                selectedFoldername: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].name :  "",
-                                selectedFolderId: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].id : "",
-                                meeturl: meeturl,
-                                contacts: contacts,
-                                selectedFolderFiles: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].Content.files : [],
-                                loading: false
-                            })
+                            let sharedFolders = gedRes.data.Shared.Content.folders || [];
+                            console.log(sharedFolders)
+
+                            for (let i = 0 ; i < sharedFolders.length ; i++ ){
+                                SmartService.getFile(sharedFolders[i].id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( det => {
+                                    console.log(det)
+                                    if (det.succes === true && det.status === 200) {
+                                        let details = det.data;
+                                        sharedDrive.push(details);
+                                    }else{
+                                        console.log(det.error)
+                                    }
+                                }).catch( err => {
+                                    console.log(err)
+                                })
+                            }
+                            setTimeout(() => {
+                                this.setState({
+                                    folders: gedRes.data.Proprietary.Content.folders || [],
+                                    sharedDrive: sharedDrive,
+                                    selectedFoldername: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].name :  "",
+                                    selectedFolderId: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].id : "",
+                                    meeturl: meeturl,
+                                    contacts: contacts,
+                                    selectedFolderFiles: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].Content.files : [],
+                                    loading: false
+                                })
+                            },1500);
+
                         });
 
                     } else {
@@ -625,6 +662,7 @@ class CoffreFortNewVersion extends React.Component {
                                                   showNewDocScreen: true,
                                                   showUploadStep: "upload"
                                               })}
+                                              openShareModal={() => {this.setState({openShareDocModal:true})}}
                                               showDriveMenuItems={this.state.openDriveMenuItem}
                                               setShowDriveMenuItems={() => this.setState({openDriveMenuItem: !this.state.openDriveMenuItem})}
                                               showRoomsMenuItems={this.state.openRoomMenuItem}
@@ -660,6 +698,7 @@ class CoffreFortNewVersion extends React.Component {
                                               setShowContacts={() => {
                                                   this.setState({showContainerSection: "Contacts"})
                                               }}
+                                              sharedDrive={this.state.sharedDrive || []}
                                     />
 
                                 </div>
@@ -754,8 +793,7 @@ class CoffreFortNewVersion extends React.Component {
                                                                         </button>
                                                                     </div>
                                                                     <div align="center" className="mt-5">
-                                                                        <h1 className="skh1">Télécharger un
-                                                                            document</h1>
+                                                                        <h1 className="skh1">Télécharger un document</h1>
                                                                         <p style={{fontSize: "1rem"}} className="mt-2">
                                                                             Faites glisser et déposez un documents PDF
                                                                             sur le
@@ -2481,7 +2519,7 @@ class CoffreFortNewVersion extends React.Component {
                     </Drawer>
 
 
-                    <Modal isOpen={this.state.showPDFModal} size="lg"
+                    <Modal isOpen={this.state.showPDFModal} size="lg" zIndex={1500}
                            toggle={() => this.setState({showPDFModal: !this.state.showPDFModal})}>
                         <ModalHeader toggle={() => this.setState({showPDFModal: !this.state.showPDFModal})}>
                             Document
@@ -2891,32 +2929,114 @@ class CoffreFortNewVersion extends React.Component {
 
                     <Dialog open={this.state.openShareDocModal} onClose={() => {this.setState({openShareDocModal:!this.state.openShareDocModal})}}
                             aria-labelledby="form-dialog-title">
-                        <DialogTitle id="form-dialog-title">Partager avec des personnes</DialogTitle>
+                        <DialogTitle id="form-dialog-title" style={{marginLeft:-22,marginBottom:-10}}>
+                            <IconButton aria-label="Partager" color="primary">
+                                <PersonAddIcon />
+                            </IconButton>
+                            Partager avec des personnes et des groupes
+                        </DialogTitle>
                         <DialogContent>
                             <div className="row">
-                                <div className="col-md-9">
-                                    <Chips
-                                        chips={[{ email: 'react@gmail.com', valid: true, key: '1' }, { email: 'javascript@gmail.com', valid: true, key: '2' }, { email: 'scss@gmail.com', valid: true, key: '3' }]}
-                                        placeholder='Ajouter des personnes'
-                                        save={data => console.log('new data', data)}
-                                        pattern={pattern}
-                                        requiredMessage={"Email incorrect"}
-                                        required={true}
-                                        title=''
-                                        limit={20}
-                                        limitMessage="Vous avez atteint le nombre maximal d'e-mails"/>
+                                <div className="col-md-12">
+                                    <div style={{marginLeft:11}}>
+                                        <Chips
+                                            chips={[]}
+                                            placeholder='Ajouter des personnes'
+                                            save={data => {
+                                                console.log(data)
+                                                this.setState({emailsDriveShare:data})
+                                            }}
+                                            pattern={pattern}
+                                            requiredMessage={"Email incorrect"}
+                                            required={true}
+                                            limit={20}
+                                            limitMessage="Vous avez atteint le nombre maximal d'e-mails"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="col-md-3">
+                                <div className="col-md-12">
+                                        <h5>Droits d'accès</h5>
+                                        <Autocomplete
+                                            title={"Droits d'accès"}
+                                            multiple
+                                            id="checkboxes-tags-demo"
+                                            options={data.Acces}
+                                            disableCloseOnSelect
+                                            getOptionLabel={(option) => option}
+                                            renderOption={(option, { selected }) => (
+                                                <React.Fragment>
+                                                    <MuiCheckbox
+                                                        icon={icon}
+                                                        checkedIcon={checkedIcon}
+                                                        style={{ marginRight: 8 }}
+                                                        checked={selected}
+                                                    />
+                                                    {option}
+                                                </React.Fragment>
+                                            )}
+                                            style={{ width: 500,marginLeft:10,borderColor:"#f0f0f0" }}
+                                            renderInput={(params) => (
+                                                <TextField {...params} variant="outlined" placeholder="" />
+                                            )}
+                                        />
 
+                                </div>
+
+                                <div className="col-md-12" style={{marginTop:20}}>
+                                    <FormControlLabel
+                                        control={<MuiCheckbox checked={this.state.checkedNotif} onChange={() => this.setState({checkedNotif:!this.state.checkedNotif})}
+                                                              name="checkedNotif"
+                                        />}
+                                        label="Envoyer une notification"
+                                    />
+                                </div>
+                                {
+                                    this.state.checkedNotif === true &&
+                                    <div className="col-md-12">
+                                        <TextField id="msg-notif" label="Message" variant="filled" value={this.state.msgNotif}
+                                                   onChange={(event)=> this.setState({msgNotif:event.target.value})}
+                                                   multiline rows={5} style={{width:500,marginLeft:8}}
+                                        />
+                                    </div>
+                                }
+                                <div className="col-md-12" style={{marginTop:15}}>
+                                    <Chip icon={<FolderIcon />}
+                                        label={this.state.selectedFoldername}
+                                          style={{fontWeight:"bold",backgroundColor:"white",border:"1px solid #c0c0c0"}}
+                                    />
                                 </div>
                             </div>
 
                         </DialogContent>
-                        <DialogActions>
-                            <MuiButton onClick={() => {this.setState({openShareDocModal:false})}} color="primary">
+                        <DialogActions style={{padding:20}}>
+                            <MuiButton onClick={() => {this.setState({openShareDocModal:false})}} color="primary" style={{textTransform:"capitalize"}}>
                                 Annuler
                             </MuiButton>
-                            <MuiButton onClick={() => {}} color="primary" variant="contained">
+                            <MuiButton disabled={(this.state.checkedNotif === true && this.state.msgNotif === "") || this.state.emailsDriveShare.length === 0 }
+                                       onClick={() => {
+                                           this.setState({loading:true,openShareDocModal:false})
+                                           SmartService.share(this.state.selectedFolderId,
+                                               {
+                                                   to:this.state.emailsDriveShare[0].email,
+                                                   access: {administrate: true, share: true, edit: false, read: true}
+                                                   },
+                                               localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( share => {
+                                               if(share.succes === true && share.status === 200){
+                                                   this.setState({loading:false,openShareDocModal:false})
+                                                   this.openSnackbar("success","Le partage du dossier est effectué avec succès, Un mail d'invitation à été envoyé au personnes ajoutées")
+                                               }else{
+                                                   console.log(share.error)
+                                                   this.setState({loading:false})
+                                                   this.openSnackbar("error",share.error)
+                                               }
+
+                                           }).catch(err => {
+                                               this.setState({loading:false})
+                                               console.log(err)
+                                           })
+
+                            }}
+                                       color="primary" variant="contained" style={{textTransform:"capitalize"}}>
                                 Envoyer
                             </MuiButton>
                         </DialogActions>
@@ -2924,19 +3044,13 @@ class CoffreFortNewVersion extends React.Component {
 
 
                     <Snackbar
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'left',
-                        }}
                         open={this.state.openAlert}
-                        autoHideDuration={5000}
+                        autoHideDuration={7000}
                         onClose={this.closeSnackbar}
                     >
-                        <MySnackbarContentWrapper
-                            onClose={this.closeSnackbar}
-                            variant={this.state.alertType}
-                            message={this.state.alertMessage}
-                        />
+                        <Alert elevation={6} variant="filled" onClose={this.closeSnackbar} severity={this.state.alertType}>
+                            {this.state.alertMessage}
+                        </Alert>
                     </Snackbar>
 
                 </div>

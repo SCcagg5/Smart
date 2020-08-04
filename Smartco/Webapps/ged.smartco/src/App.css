@@ -765,11 +765,48 @@ select{
     padding-left: 15px;
     padding-right: 7.5px;
     background: #f3f3f3;
-    color: cornflowerblue;
+    color: steelblue;
     font-weight: bold;
     border-radius: 15px 0 0 15px;
     font-size: 14px;
 }
-
+.chips {
+    border: 1px solid #d3d3d3;
+    border-radius: 8px;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 8px;
+    padding-bottom: 3px;
+    line-height: 1;
+    font-size: 12px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    min-height: 40px;
+    width: 500px;
+}
+.chips-header {
+    display: flex;
+    padding-left: 7px;
+    margin-bottom: 0;
+}
+.MuiDialogTitle-root {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 16px 24px;
+    padding-bottom: 0;
+}
+.MuiDialogContent-root {
+    flex: 1 1 auto;
+    padding: 8px 24px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 0;
+}
+.MuiAlert-message {
+    padding: 8px 0;
+    font-weight: 700;
+}
 
 

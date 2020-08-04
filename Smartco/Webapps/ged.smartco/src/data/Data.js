@@ -1,7 +1,9 @@
 import FireplaceIcon from "@material-ui/icons/Fireplace";
+import VideoCallIcon from "@material-ui/icons/VideoCall";
+import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
 
 let Data = {
-    endpoint : "http://51.210.4.161:8080",
+    endpoint : "https://api.smartdom.ch",
 
     sideBarItems: [
         {key: "coffre", title: "Coffre-fort", icon: "fe-folder", to: "/coffre-fort"},
@@ -9,6 +11,19 @@ let Data = {
         {key: "Meet", title: "Meet", icon: "fe-video", to: "/meet"},
         {key: "Chat", title: "Chat", icon: "fe-message-circle", to: "/chat"},
         {key: "avocat", title: "Avocats", icon: "fe-users", to: "/avocats"},
+    ],
+
+    MeetMenuItem : [
+        {
+            nodeId:"01",
+            title:"Démarer une réunion",
+            icon:VideoCallIcon
+        },
+        {
+            nodeId:"02",
+            title:"Réjoindre une réunion",
+            icon:MeetingRoomIcon
+        },
     ],
 
     rooms:[
@@ -81,6 +96,13 @@ let Data = {
         'Implémentation régimes fiscal ',
         'Déclaration impôt anticipé divident',
         'Déclaration droit de timbre augumentation capital'
+    ],
+
+    Acces: [
+        'Lire',
+        'Editer',
+        'Administrateur',
+        'Partager',
     ]
 }
 export default Data;

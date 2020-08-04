@@ -11,22 +11,14 @@ import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import ArrowRightIcon from "@material-ui/icons/ArrowRight";
 import GmailCloneTree from "../Tree/GmailCloneTree";
 import MeetMenuItems from "./MeetMenuItems";
-import VideoCallIcon from "@material-ui/icons/VideoCall";
-import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
-import RoomsMenuItems from "./RoomsMenuItems";
+import StarBorderIcon from "@material-ui/icons/StarBorder";
+import EditIcon from "@material-ui/icons/Edit";
+import GetAppIcon from "@material-ui/icons/GetApp";
+import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 
-const MeetMenuItem = [
-    {
-        nodeId:"01",
-        title:"Démarer une réunion",
-        icon:VideoCallIcon
-    },
-    {
-        nodeId:"02",
-        title:"Réjoindre une réunion",
-        icon:MeetingRoomIcon
-    },
-];
+import RoomsMenuItems from "./RoomsMenuItems";
+import PersonAddIcon from "@material-ui/icons/PersonAdd"
+import data from "../../data/Data"
 
 
 
@@ -69,8 +61,6 @@ export default function LeftMenu(props) {
                         <Typography variant="inherit">Nouveau dossier</Typography>
                     </MenuItem>
                     <MenuItem key={2}  onClick={() => {
-                        //setAnchorEl(null);
-                        //props.showNewFileScreen()
                     }}>
                         <ListItemIcon>
                             <NewFileIcon fontSize="small" />
@@ -107,6 +97,7 @@ export default function LeftMenu(props) {
                                       }
                                     }}
                                     selectedDriveItem={props.selectedDriveItem}
+                                    sharedDrive={props.sharedDrive}
                     />
 
                 }
@@ -134,6 +125,47 @@ export default function LeftMenu(props) {
                             <NewFileIcon fontSize="small" />
                         </ListItemIcon>
                         <Typography variant="inherit">Nouveau fichier</Typography>
+                    </MenuItem>
+                    <MenuItem key={3}  onClick={() => {
+                        setAnchorElMenu(null);
+                        props.openShareModal()
+                    }}>
+                        <ListItemIcon>
+                            <PersonAddIcon fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="inherit">Partager</Typography>
+                    </MenuItem>
+                    <MenuItem key={4}  onClick={() => {
+
+                    }}>
+                        <ListItemIcon>
+                            <StarBorderIcon fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="inherit">Ajouter aux favoris</Typography>
+                    </MenuItem>
+                    <MenuItem key={5}  onClick={() => {
+
+                    }}>
+                        <ListItemIcon>
+                            <EditIcon fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="inherit">Rennomer</Typography>
+                    </MenuItem>
+                    <MenuItem key={6}  onClick={() => {
+
+                    }}>
+                        <ListItemIcon>
+                            <GetAppIcon fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="inherit">Télécharger</Typography>
+                    </MenuItem>
+                    <MenuItem key={7}  onClick={() => {
+
+                    }}>
+                        <ListItemIcon>
+                            <DeleteOutlineIcon fontSize="small" />
+                        </ListItemIcon>
+                        <Typography variant="inherit">Supprimer</Typography>
                     </MenuItem>
                 </Menu>
 
@@ -169,7 +201,7 @@ export default function LeftMenu(props) {
                 {
                     props.showMeetMenuItems === true &&
                     <div>
-                        <MeetMenuItems items={MeetMenuItem} selectedMeetItem={props.selectedMeetItem} onClick={(nodeId) => {props.onMeetItemClick(nodeId)}} />
+                        <MeetMenuItems items={data.MeetMenuItem} selectedMeetItem={props.selectedMeetItem} onClick={(nodeId) => {props.onMeetItemClick(nodeId)}} />
                     </div>
 
                 }

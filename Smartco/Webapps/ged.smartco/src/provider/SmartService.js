@@ -1,4 +1,3 @@
-
 const endpoint = "https://api.smartdom.ch"
 const password = "password"
 const contractAdr = "0x9520c239bae78a4a672a70370d85051fcd8dd6c9"
@@ -94,6 +93,18 @@ let SmartService = {
             console.log(error);
         });
     },
+    share(id,data,token,usrtoken){
+        console.log(id)
+        console.log(data)
+        return fetch(endpoint + '/ged/'+id+'/share', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
 
 
 

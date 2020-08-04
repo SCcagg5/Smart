@@ -31,7 +31,10 @@ export default function SideMenu(props) {
                 <hr style={{border:"1px solid #f0f0f0"}}/>
                 <div className="menu-item">
                     <i className="fe-user" style={{fontSize:24,color:"blue",marginLeft:20}}/>
-                    <div style={{color:"#000",fontSize:"1.05rem",fontWeight:700,marginLeft:25}}>{"Mon profil"}</div>
+                    <div style={{color:"#000",fontSize:"1.05rem",fontWeight:"normal",marginLeft:25}}>
+                        {"Mon profil"}
+                        <p style={{color:"grey"}}>{localStorage.getItem("email")}</p>
+                    </div>
                 </div>
                 <hr style={{border:"1px solid #f0f0f0"}}/>
                 <div className="menu-item" onClick={()=> {

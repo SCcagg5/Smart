@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Container, Row, Col, Card, CardBody, Label, FormGroup, Alert} from 'reactstrap';
+import {Container, Row, Col, Card, CardBody, Label, FormGroup} from 'reactstrap';
 import {AvForm, AvGroup, AvInput, AvFeedback} from 'availity-reactstrap-validation';
 import Loader from '../../components/Loaders/Loader';
 import logo from "../../assets/images/logos/logo-OA.png"
@@ -8,6 +8,7 @@ import "firebase/database"
 import Snackbar from '@material-ui/core/Snackbar';
 import MySnackbarContentWrapper from "../../tools/customSnackBar"
 import SmartService from "../../provider/SmartService";
+import Alert from '@material-ui/lab/Alert';
 
 class login extends Component {
 
@@ -210,12 +211,6 @@ class login extends Component {
                                             <img style={{width:350,objectFit:"contain"}} src={logo} alt=""/>
                                         </div>
 
-
-                                        {this.state.error &&
-                                        <Alert color="danger" isOpen={!!this.state.error}>
-                                            <div>{this.state.error}</div>
-                                        </Alert>}
-
                                         <AvForm onValidSubmit={this.login}>
 
                                             <AvGroup className="mb-3 mt-5">
@@ -266,19 +261,18 @@ class login extends Component {
                 </footer>
 
                 <Snackbar
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                    }}
                     open={this.state.openAlert}
-                    autoHideDuration={3000}
+                    autoHideDuration={7000}
                     onClose={this.closeSnackbar}
                 >
-                    <MySnackbarContentWrapper
-                        onClose={this.closeSnackbar}
-                        variant={this.state.alertType}
-                        message={this.state.alertMessage}
-                    />
+                    <Alert elevation={6} variant="filled" onClose={this.closeSnackbar} severity={this.state.alertType}>
+                        {this.state.alertMessage}
+                    </Alert>
+                    {/*<MySnackbarContentWrapper
+                            onClose={this.closeSnackbar}
+                            variant={this.state.alertType}
+                            message={this.state.alertMessage}
+                        />*/}
                 </Snackbar>
 
 

@@ -52,7 +52,8 @@
     "reactstrap": "^8.0.0",
     "styled-components": "^4.4.1",
     "styletron-engine-atomic": "^1.4.6",
-    "styletron-react": "^5.2.7"
+    "styletron-react": "^5.2.7",
+    "classnames": "^2.2.6"
   },
   "scripts": {
     "start": "react-scripts start",
