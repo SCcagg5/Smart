@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import classNames from 'classnames';
 import WarningIcon from "@material-ui/icons/Warning";
 import {Chip} from "@material-ui/core";
 import Avatar from '@material-ui/core/Avatar';
@@ -15,16 +14,6 @@ class ChipsList extends Component {
         return (
             <Fragment>
                 {this.props.chips.map(chip => (
-                    /*<span className={classNames({ chip: true, 'not-valid': !chip.valid })} key={chip.key}>
-						<span className="chip-value">{chip.email}</span>
-						<button
-                            type="button"
-                            className="chip-delete-button"
-                            onClick={e => this.props.onChipClick(e, chip)}
-                        >
-							<span>x</span>
-						</button>
-					</span>*/
                     <Chip key={chip.key}
                           avatar={<Avatar  style={{backgroundColor:chip.valid === true ? utilFunctions.getCharColor(chip.email.charAt(0)) : "#fff" ,
                               color:chip.valid === true ? "#fff":"red"}} >

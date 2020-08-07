@@ -11,21 +11,11 @@ import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { makeStyles } from '@material-ui/core/styles';
 import SearchBar from "material-ui-search-bar";
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        display: 'flex',
-    },
-    paper: {
-        marginRight: theme.spacing(2),
-    },
-}));
 
 export default function TopBar(props) {
 
-    const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
 
@@ -69,7 +59,7 @@ export default function TopBar(props) {
                             {...TransitionProps}
                             style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
                         >
-                            <Paper style={{width:220}}>
+                            <Paper style={{width:170}}>
                                 <div align="center" style={{marginTop:10}}>
                                     <Avatar  style={{fontWeight:"bold",width:45,height:45,top:15,marginBottom:15,
                                         backgroundColor:utilFunctions.getCharColor(localStorage.getItem("email").charAt(0))}}>

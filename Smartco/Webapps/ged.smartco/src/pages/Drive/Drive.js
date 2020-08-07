@@ -78,7 +78,7 @@ import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-const pattern = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/);
+const pattern = new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/);
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -95,16 +95,14 @@ const getLabel = ({option}) => {
 let expanded = [];
 let index = {}
 
-function callback(item) {
-    console.log('item clicked', item);
-}
+function callback(item) {}
 
 
-class Drive extends React.Component {
+
+export default class Drive extends React.Component {
 
 
     state = {
-
         openAlert: false,
         alertMessage: '',
         alertType: '',
@@ -150,6 +148,7 @@ class Drive extends React.Component {
         folders: [],
         sharedDrive:[],
         rootFiles:[],
+        sharedRootFiles:[],
 
         selectedFoldername: "",
         breadcrumbs:"",
@@ -175,6 +174,7 @@ class Drive extends React.Component {
 
         newFolderName: "",
         newFolderFromRacine: false,
+        newFileFromRacine:false,
         loadDocSpinner: false,
 
         openDriveMenuItem: true,
@@ -300,12 +300,13 @@ class Drive extends React.Component {
                         firebase.database().ref('/contacts').on('value', (snapshot) => {
                             const contacts = snapshot.val() || [];
                             let sharedFolders = gedRes.data.Shared.Content.folders || [];
+                            let sharedFiles = gedRes.data.Shared.Content.files || [];
                             let calls = [];
                             for(let i = 0 ; i < sharedFolders.length ; i++){
                                 calls.push(SmartService.getFile(sharedFolders[i].id,localStorage.getItem("token"),localStorage.getItem("usrtoken")))
                             }
                             Promise.all(calls).then( response => {
-                                console.log(response)
+                                //console.log(response)
                                 response.map((item,key) => {
                                     sharedDrive.push(item.data)
                                 })
@@ -314,17 +315,32 @@ class Drive extends React.Component {
                                         rootFiles: gedRes.data.Proprietary.Content.files || [],
                                         folders: gedRes.data.Proprietary.Content.folders || [],
                                         sharedDrive: sharedDrive,
+                                        sharedRootFiles:sharedFiles,
                                         meeturl: meeturl,
                                         contacts: contacts,
                                         loading: false
 
                                     })
-                                }else{
+                                }else if(this.props.match.params.folder_id === "shared"){
+                                    this.setState({
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        folders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles:sharedFiles,
+                                        expanded:["shared"],
+                                        breadcrumbs:"Mon drive / paratgés avec moi",
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        loading: false
+                                    })
+                                }
+                                else{
                                     let folders = gedRes.data.Proprietary.Content.folders || [];
                                     let folder_name = this.getFolderNameById(this.props.match.params.folder_id,folders.concat(sharedDrive));
                                     this.setState({
                                         folders: folders,
                                         rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        sharedRootFiles:sharedFiles,
                                         expanded:this.expandAll(this.props.match.params.folder_id,folders.concat(sharedDrive)).concat(["shared"]),
                                         sharedDrive: sharedDrive,
                                         selectedFoldername: folder_name ,
@@ -340,22 +356,6 @@ class Drive extends React.Component {
                             }).catch( err => {
                                 console.log(err);
                             })
-                            /*for (let i = 0 ; i < sharedFolders.length ; i++ ){
-                                SmartService.getFile(sharedFolders[i].id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( det => {
-                                    //console.log(det)
-                                    if (det.succes === true && det.status === 200) {
-                                        let details = det.data;
-                                        sharedDrive.push(details);
-                                    }else{
-                                        console.log(det.error)
-                                    }
-                                }).catch( err => {
-                                    console.log(err)
-                                })
-                            }*/
-
-
-
                         });
 
                     } else {
@@ -378,18 +378,28 @@ class Drive extends React.Component {
         setTimeout(() => {
             SmartService.getGed(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(gedRes => {
                 if (gedRes.succes === true && gedRes.status === 200) {
-                    let folder_name = this.getFolderNameById(this.props.match.params.folder_id,gedRes.data.Proprietary.Content.folders || []);
-                    this.setState({
-                        folders: gedRes.data.Proprietary.Content.folders || [],
-                        rootFiles: gedRes.data.Proprietary.Content.files || [],
-                        expanded:this.expandAll(this.props.match.params.folder_id,gedRes.data.Proprietary.Content.folders),
-                        selectedFoldername: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].name :  "",
-                        selectedFolderId: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].id : "",
-                        selectedFolderFiles: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].Content.files : [],
-                        loading: false
-                    })
+                    if(this.props.match.params.folder_id === "0" ){
+                        this.setState({
+                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                            folders: gedRes.data.Proprietary.Content.folders || [],
+                            loading: false
+                        })
+                    }else{
+                        let folders = gedRes.data.Proprietary.Content.folders || [];
+                        let folder_name = this.getFolderNameById(this.props.match.params.folder_id,folders);
+                        this.setState({
+                            folders: folders,
+                            expanded:this.expandAll(this.props.match.params.folder_id,folders),
+                            selectedFoldername: folder_name,
+                            breadcrumbs:this.getBreadcumpsPath(this.props.match.params.folder_id,folders),
+                            selectedFolderId:this.props.match.params.folder_id ,
+                            selectedFolderFiles: this.getFolderFilesById(this.props.match.params.folder_id,folders),
+                            loading: false
+                        })
+                    }
+
                 } else {
-                    this.setState({loading: true});
+                    this.setState({loading: false});
                     localStorage.clear();
                     this.props.history.push("/login")
                 }
@@ -439,8 +449,6 @@ class Drive extends React.Component {
                     },
                     showModalAdd: false,
                 })
-
-                console.log("test")
             }
         }
 
@@ -464,8 +472,6 @@ class Drive extends React.Component {
                     showModalAdd: false,
                 })
             }
-
-            console.log(this.s)
         }
         if (type === 'fonction') {
             let selectedContact = this.state.selectedContact;
@@ -642,8 +648,6 @@ class Drive extends React.Component {
     };
 
     saveChanges = () => {
-
-        console.log(this.state.selectedContactKey)
         firebase.database().ref('contacts/' + this.state.selectedContactKey).set(
             this.state.selectedContact
         ).then(res => {
@@ -696,7 +700,16 @@ class Drive extends React.Component {
                 if(found) return found
             }
             else return drive[i].name
+        }
+    }
 
+    getFolderTypeById = (id,drive) => {
+        for(let i = 0; i < drive.length; i++) {
+            if (drive[i].id !== id) {
+                let found = this.getFolderNameById(id,drive[i].Content.folders)
+                if(found) return found
+            }
+            else return drive[i].proprietary ? "shared" : "proprietary"
         }
     }
 
@@ -708,7 +721,6 @@ class Drive extends React.Component {
             } else return drive[i].Content.files
         }
     }
-
 
     buildIndex = (root, children) => {
         for(let i in children) {
@@ -722,20 +734,21 @@ class Drive extends React.Component {
         return index[id] ? this.getPath(index[id]).concat([id]) : [id];
     }
 
-
     getBreadcumpsPath = (idFolder,drive) => {
+        console.log(drive)
         let breadCrumbArray = this.getPath(idFolder,drive)
         let breadcrumbs = [];
         breadCrumbArray.map((id,key) => {
             if(id !== "Mon drive"){
                 let name = this.getFolderNameById(id,drive)
+                if(this.getFolderTypeById(id,drive) === "shared") breadcrumbs.push("Partagés avec moi")
                 breadcrumbs.push(name)
-            }else breadcrumbs.push(id)
+            }else{
+                breadcrumbs.push(id)
+            }
         });
         return breadcrumbs.join(" / ");
     }
-
-
 
 
     render() {
@@ -824,9 +837,18 @@ class Drive extends React.Component {
                                               }}
 
                                               sharedDrive={this.state.sharedDrive || []}
+                                              sharedRootFiles={this.state.sharedRootFiles}
+                                              onClickSharedRootItem={() => {
+                                                  this.props.history.replace({pathname:'/drive/shared'});
+                                                  this.setState({breadcrumbs:"Mon drive / Partagés avec moi"})
+                                              }}
 
                                               handleToggle={(event, nodeIds)=> {
                                                   this.setState({expanded:nodeIds})
+                                              }}
+
+                                              onClickNewFileFromRacine={() => {
+                                                  this.setState({newFileFromRacine:true,showNewDocScreen: true,showUploadStep: "upload"})
                                               }}
                                     />
 
@@ -857,13 +879,16 @@ class Drive extends React.Component {
                                                                             this.state.viewMode === "list" ? this.setState({viewMode:"grid"}) : this.setState({viewMode:"list"})
                                                                         }}
                                                                                     title={this.state.viewMode === "list" ? "Vue liste" : "Vue grille"} color="default">
-                                                                            {this.state.viewMode === "list" ? <ListIcon/> : <ViewComfyIcon/>}
+                                                                            {this.state.viewMode === "list" ? <ViewComfyIcon/> : <ListIcon/>}
                                                                         </IconButton>
                                                                     </div>
                                                                     <div style={{height:1,backgroundColor:"#dadce0",marginBottom:15,marginTop:15}}/>
                                                                     <h6><i className="fa fa-paperclip mb-1"/> Documents
-                                                                        <span>(
-                                                                            { this.props.match.params.folder_id && this.props.match.params.folder_id === '0' ? this.state.rootFiles.length : this.state.selectedFolderFiles.length})
+                                                                        <span>({
+                                                                            (this.props.match.params.folder_id && this.props.match.params.folder_id === '0') ?
+                                                                                this.state.rootFiles.length : (this.props.match.params.folder_id && this.props.match.params.folder_id === 'shared') ?
+                                                                                this.state.sharedRootFiles.length : this.state.selectedFolderFiles.length
+                                                                            })
                                                                         </span>
                                                                     </h6>
                                                                 </div>
@@ -894,37 +919,161 @@ class Drive extends React.Component {
                                                                         this.props.match.params.folder_id && this.props.match.params.folder_id === '0' ?
                                                                             <div>
                                                                                 {
-                                                                                    (this.state.rootFiles || []).map((item, key) =>
-                                                                                        <div key={key} className="cf_itemDoc">
-                                                                                            <span
-                                                                                                className="cf-itemDoc_preview"
-                                                                                                onClick={() => {
-                                                                                                    this.setState({
-                                                                                                        selectedDoc: item,
-                                                                                                        openRightMenu: true
-                                                                                                    })
-                                                                                                }}>
-                                                                                                <img alt=""
-                                                                                                     src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
-                                                                                                     className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
-                                                                                                <div
-                                                                                                    className="cf_itemDoc_preview_details">
-                                                                                                    <div
-                                                                                                        className="cf_itemDoc_preview_details_title">
-                                                                                                        {item.name + ".pdf"}
-                                                                                                    </div>
-                                                                                                    <span
-                                                                                                        className="badge bg-soft-warning text-warning font-weight-bolder p-1">En
-                                                                                                        attente</span>
-                                                                                                </div>
-
-                                                                                            </span>
+                                                                                    this.state.viewMode === "list" &&
+                                                                                    <div className="list_view_item">
+                                                                                        <div style={{width:56}}>
+                                                                                            <h6 style={{color:"#000"}}>Type</h6>
                                                                                         </div>
+                                                                                        <div style={{width:300}}>
+                                                                                            <h6 style={{color:"#000"}}>Nom</h6>
+                                                                                        </div>
+                                                                                        <div style={{width:215}}>
+                                                                                            <h6 style={{color:"#000"}}>Propriétaire</h6>
+                                                                                        </div>
+                                                                                        <div style={{width:200}}>
+                                                                                            <h6 style={{color:"#000"}}>Date de création</h6>
+                                                                                        </div>
+                                                                                        <div style={{width:150}}>
+                                                                                            <h6 style={{color:"#000"}}>Taille</h6>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                }
+                                                                                {
+                                                                                    (this.state.rootFiles || []).map((item, key) =>
+                                                                                        this.state.viewMode === "grid" ?
+                                                                                            <div key={key} className="cf_itemDoc">
+                                                                                                <span
+                                                                                                    className="cf-itemDoc_preview"
+                                                                                                    onClick={() => {
+                                                                                                        this.setState({
+                                                                                                            selectedDoc: item,
+                                                                                                            openRightMenu: true
+                                                                                                        })
+                                                                                                    }}>
+                                                                                                    <img alt=""
+                                                                                                         src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
+                                                                                                         className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
+                                                                                                    <div
+                                                                                                        className="cf_itemDoc_preview_details">
+                                                                                                        <div
+                                                                                                            className="cf_itemDoc_preview_details_title">
+                                                                                                            {item.name + ".pdf"}
+                                                                                                        </div>
+                                                                                                        <span
+                                                                                                            className="badge bg-soft-warning text-warning font-weight-bolder p-1">En
+                                                                                                            attente</span>
+                                                                                                    </div>
+
+                                                                                                </span>
+                                                                                            </div> :
+                                                                                            <div key={key} className="list_view_item" onClick={() => {
+                                                                                                this.setState({
+                                                                                                    selectedDoc: item,
+                                                                                                    openRightMenu: true
+                                                                                                })
+                                                                                            }}>
+                                                                                                <div style={{width:56}}>
+                                                                                                    <IconButton color="default">
+                                                                                                        <PictureAsPdfIcon style={{color:"red",backgroundColor:"#fff"}}/>
+                                                                                                    </IconButton>
+                                                                                                </div>
+                                                                                                <div style={{width:300}}>
+                                                                                                    <h6>{item.name + ".pdf"}</h6>
+                                                                                                </div>
+                                                                                                <div style={{width:215}}>
+                                                                                                    <h6 style={{color:"grey"}}>Moi</h6>
+                                                                                                </div>
+                                                                                                <div style={{width:200}}>
+                                                                                                    <h6 style={{color:"grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
+                                                                                                </div>
+                                                                                                <div style={{width:150}}>
+                                                                                                    <h6 style={{color:"grey"}}>50 Ko</h6>
+                                                                                                </div>
+                                                                                            </div>
                                                                                     )
                                                                                 }
 
 
                                                                             </div> :
+                                                                            this.props.match.params.folder_id && this.props.match.params.folder_id === 'shared' ?
+                                                                                <div style={{marginTop:15}}>
+                                                                                    {
+                                                                                        this.state.viewMode === "list" &&
+                                                                                        <div className="list_view_item">
+                                                                                            <div style={{width:56}}>
+                                                                                                <h6 style={{color:"#000"}}>Type</h6>
+                                                                                            </div>
+                                                                                            <div style={{width:300}}>
+                                                                                                <h6 style={{color:"#000"}}>Nom</h6>
+                                                                                            </div>
+                                                                                            <div style={{width:215}}>
+                                                                                                <h6 style={{color:"#000"}}>Propriétaire</h6>
+                                                                                            </div>
+                                                                                            <div style={{width:200}}>
+                                                                                                <h6 style={{color:"#000"}}>Date de création</h6>
+                                                                                            </div>
+                                                                                            <div style={{width:150}}>
+                                                                                                <h6 style={{color:"#000"}}>Taille</h6>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    }
+                                                                                    {
+                                                                                        (this.state.sharedRootFiles || []).map((item, key) =>
+                                                                                            this.state.viewMode === "grid" ?
+                                                                                                <div key={key} className="cf_itemDoc">
+                                                                                                    <span
+                                                                                                        className="cf-itemDoc_preview"
+                                                                                                        onClick={() => {
+                                                                                                            this.setState({
+                                                                                                                selectedDoc: item,
+                                                                                                                openRightMenu: true
+                                                                                                            })
+                                                                                                        }}>
+                                                                                                        <img alt=""
+                                                                                                             src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
+                                                                                                             className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
+                                                                                                        <div
+                                                                                                            className="cf_itemDoc_preview_details">
+                                                                                                            <div
+                                                                                                                className="cf_itemDoc_preview_details_title">
+                                                                                                                {item.name + ".pdf"}
+                                                                                                            </div>
+                                                                                                            <span
+                                                                                                                className="badge bg-soft-warning text-warning font-weight-bolder p-1">En
+                                                                                                                attente</span>
+                                                                                                        </div>
+
+                                                                                                    </span>
+                                                                                                </div> :
+                                                                                                <div key={key} className="list_view_item" onClick={() => {
+                                                                                                    this.setState({
+                                                                                                        selectedDoc: item,
+                                                                                                        openRightMenu: true
+                                                                                                    })
+                                                                                                }}>
+                                                                                                    <div style={{width:56}}>
+                                                                                                        <IconButton color="default">
+                                                                                                            <PictureAsPdfIcon style={{color:"red",backgroundColor:"#fff"}}/>
+                                                                                                        </IconButton>
+                                                                                                    </div>
+                                                                                                    <div style={{width:300}}>
+                                                                                                        <h6>{item.name + ".pdf"}</h6>
+                                                                                                    </div>
+                                                                                                    <div style={{width:215}}>
+                                                                                                        <h6 style={{color:"grey"}}>Moi</h6>
+                                                                                                    </div>
+                                                                                                    <div style={{width:200}}>
+                                                                                                        <h6 style={{color:"grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
+                                                                                                    </div>
+                                                                                                    <div style={{width:150}}>
+                                                                                                        <h6 style={{color:"grey"}}>50 Ko</h6>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                        )
+                                                                                    }
+
+                                                                                </div>  :
+
                                                                             <div style={{marginTop:15}}>
                                                                                 {
                                                                                     this.state.viewMode === "list" &&
@@ -949,8 +1098,7 @@ class Drive extends React.Component {
                                                                                 {
                                                                                     (this.state.selectedFolderFiles || []).map((item, key) =>
                                                                                         this.state.viewMode === "grid" ?
-                                                                                        <div key={key}
-                                                                                             className="cf_itemDoc">
+                                                                                        <div key={key} className="cf_itemDoc">
                                                                                             <span
                                                                                                 className="cf-itemDoc_preview"
                                                                                                 onClick={() => {
@@ -1015,7 +1163,7 @@ class Drive extends React.Component {
                                                                 <div>
                                                                     <div className="">
                                                                         <button className="btn btn-sm btn-light"
-                                                                                onClick={() => this.setState({showNewDocScreen: false})}>
+                                                                                onClick={() => this.setState({showNewDocScreen: false,newFileFromRacine:false})}>
                                                                             <i className="mdi mdi-arrow-left font-16"
                                                                                style={{
                                                                                    color: "#000",
@@ -1028,8 +1176,7 @@ class Drive extends React.Component {
                                                                         <h1 className="skh1">Télécharger un document</h1>
                                                                         <p style={{fontSize: "1rem"}} className="mt-2">
                                                                             Faites glisser et déposez un documents PDF
-                                                                            sur le
-                                                                            terrain ou sélectionnez un fichier
+                                                                            sur le terrain ou sélectionnez un fichier
                                                                             depuis votre ordinateur.</p>
 
                                                                         <div className="sk_elupload_drag">
@@ -1038,12 +1185,9 @@ class Drive extends React.Component {
                                                                                 }}
 
                                                                                 onDrop={(acceptedFiles, rejectedFiles) => {
-                                                                                    console.log(acceptedFiles[0])
-                                                                                    console.log(this.state.selectedFolderId)
-                                                                                    console.log(this.state.selectedFoldername)
                                                                                     let formData = new FormData();
                                                                                     formData.append("file", acceptedFiles[0])
-                                                                                    this.state.selectedFolderId !== "" && formData.append("folder_id", this.state.selectedFolderId)
+                                                                                    this.state.selectedFolderId !== "" && this.state.newFileFromRacine === false && formData.append("folder_id", this.state.selectedFolderId)
                                                                                     axios.request({
                                                                                         method: "POST",
                                                                                         url: data.endpoint + "/ged/addfile",
@@ -1054,7 +1198,6 @@ class Drive extends React.Component {
                                                                                             'usrtoken': localStorage.getItem('usrtoken')
                                                                                         },
                                                                                         onUploadProgress: (p) => {
-                                                                                            console.log(p);
                                                                                             this.setState({
                                                                                                 progressUpload: (p.loaded / p.total) * 100
                                                                                             })
@@ -1067,6 +1210,7 @@ class Drive extends React.Component {
                                                                                                 if (fileRes.succes === true && fileRes.status === 200) {
 
                                                                                                     this.setState({
+                                                                                                        newFileFromRacine:false,
                                                                                                         progressUpload: undefined,
                                                                                                         showUploadStep: "upload_succes",
                                                                                                         uploadedName: fileRes.data.name + ".pdf",
@@ -1634,7 +1778,6 @@ class Drive extends React.Component {
                                                                             style={{marginTop: -17}}
                                                                             onClick={() => {
                                                                                 let meeturl = "https://meet.smartdom.ch/meet_" + moment().format("DDMMYYYYHHmmss")
-                                                                                console.log(Math.random(10))
                                                                                 this.setState({meeturl: meeturl})
                                                                             }}>
                                                                     <AutorenewIcon/>
@@ -2586,7 +2729,6 @@ class Drive extends React.Component {
                                                 onClick={() => {
                                                     this.setState({loadDocSpinner: true})
                                                     SmartService.getFile(this.state.selectedDoc.id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(fileRes => {
-                                                        console.log(fileRes)
                                                         if (fileRes.succes === true && fileRes.status === 200) {
                                                             this.setState({loadDocSpinner: false})
                                                             this.showDocInPdfModal(fileRes.data.Content.Data)
@@ -2904,7 +3046,6 @@ class Drive extends React.Component {
                                                 name: this.state.newFolderName,
                                                 folder_id: this.state.newFolderFromRacine === true ? null : this.state.selectedFolderId
                                             }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addfolderRes => {
-                                                console.log(addfolderRes)
                                                 if (addfolderRes.succes === true && addfolderRes.status === 200) {
                                                     this.reloadGed();
                                                     setTimeout(() => {
@@ -3175,7 +3316,6 @@ class Drive extends React.Component {
                                             chips={[]}
                                             placeholder='Ajouter des personnes'
                                             save={data => {
-                                                console.log(data)
                                                 this.setState({emailsDriveShare:data})
                                             }}
                                             pattern={pattern}
@@ -3291,6 +3431,3 @@ class Drive extends React.Component {
     }
 
 }
-
-
-export default Drive;

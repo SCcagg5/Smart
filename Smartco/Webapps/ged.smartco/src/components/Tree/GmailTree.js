@@ -191,9 +191,10 @@ export default function GmailTree(props) {
             <StyledTreeItem nodeId={"shared"} labelText={"Partagés avec moi"}
                             labelIcon={PersonAddIcon}
                             onClick={() => {
-                                if(props.sharedDrive.length === 0 ){
-                                    props.getFolderName("Partagés avec moi")
-                                    props.getSelectedFolderFiles([])
+                                props.onClickSharedRootItem();
+                                if(props.sharedRootFiles.length > 0 ){
+                                    console.log(props.sharedRootFiles)
+                                    props.getSelectedFolderFiles(props.sharedRootFiles)
                                 }
                             }}
                             color="#e3742f"

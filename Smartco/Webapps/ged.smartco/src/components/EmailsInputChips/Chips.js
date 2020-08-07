@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import ChipsList from './ChipsList';
 import './chips.scss';
 
@@ -131,21 +130,6 @@ class Chips extends Component {
             !this.props.max || this.state.chips.length < this.props.max ? this.props.placeholder : '';
         return (
             <div>
-                {/*<div className="chips-header">
-                    <span className="chips-title">{this.props.title}</span>
-
-                    <span className="chips-validation-message">
-						<span
-                            className={classNames({visible: this.state.requiredValidation,
-                                hidden: !this.state.requiredValidation
-                            })}
-                        >
-							{this.props.requiredMessage}
-						</span>
-
-					</span>
-                </div>*/}
-
                 <div className="chips" onClick={() => this.focusInput()}>
                     <ChipsList chips={this.state.chips} onChipClick={(event, chip) => {event.stopPropagation(); this.deleteChip(chip)}} />
                     { !this.state.disableInput && <input
@@ -157,17 +141,6 @@ class Chips extends Component {
                         ref={this.inputRef}
                     />}
                 </div>
-                {/*<div className="chips-warning-message">
-
-				<span
-                    className={classNames({
-                        visible: this.state.limitValidation,
-                        hidden: !this.state.limitValidation
-                    })}
-                >
-						<span className='mark'>!</span>	{this.props.limitMessage}
-						</span>
-                </div>*/}
             </div>
         );
     }

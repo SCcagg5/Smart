@@ -1,6 +1,5 @@
 import React from 'react';
-
-import ReactPDF, {
+import{
     Text,
     Document,
     Page,
@@ -45,7 +44,6 @@ const styles = StyleSheet.create({
     },
     footer: {
         fontSize: 12,
-        //fontFamily: 'Lato Bold',
         textAlign: 'center',
         marginTop: 25,
         paddingTop: 10,
@@ -57,23 +55,6 @@ const styles = StyleSheet.create({
         },
     },
 });
-
-/*Font.register( {
-    family: 'Open Sans',
-    src: `./fonts/fonts/Open_Sans/OpenSans-Regular.ttf`,
-});
-Font.register( {
-    family: 'Lato',
-    src: `./fonts/fonts/Lato/Lato-Regular.ttf`,
-});
-Font.register( {
-    family: 'Lato Italic',
-    src: `./fonts/fonts/Lato/Lato-Italic.ttf`,
-});
-Font.register( {
-    family: 'Lato Bold',
-    src: `./fonts/fonts/Lato/Lato-Bold.ttf`,
-});*/
 
 const Content = props => (
     <Page key={2} {...props} style={styles.page}>
@@ -94,24 +75,17 @@ const Content = props => (
         </View>
         <View style={styles.container}>
             <View style={styles.leftColumn}>
-                {/*<Image
-                    src={props.image}
-                    style={styles.image}
-
-                />*/}
                 <Education langues={props.langues} />
                 <Skills hobbies={props.hobbies} />
             </View>
             <Experience parcoursP={props.parcoursP} formations={props.formations} />
         </View>
-        {/*<Text style={styles.footer}>This IS the candidate you are looking for</Text>*/}
     </Page>
 );
 
 const Resume = (props) => (
     console.log(props),
     <Document
-
         author={props.author || ""}
         keywords=""
         subject={props.subject || ""}
@@ -126,9 +100,6 @@ const Resume = (props) => (
                  about={props.about} personalLife={props.personalLife} parcoursP={props.parcoursP}
                  langues={props.langues} hobbies={props.hobbies} formations={props.formations}
         />
-        {/*<Resume orientation="landscape" size="A4" />
-        <Resume size={[380, 1250]} />*/}
     </Document>
 );
-
 export default Resume;

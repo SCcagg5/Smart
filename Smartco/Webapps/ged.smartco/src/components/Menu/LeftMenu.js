@@ -9,7 +9,6 @@ import Typography from "@material-ui/core/Typography";
 import NewFileIcon from "@material-ui/icons/AttachFile";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import ArrowRightIcon from "@material-ui/icons/ArrowRight";
-import GmailCloneTree from "../Tree/GmailCloneTree";
 import MeetMenuItems from "./MeetMenuItems";
 import StarBorderIcon from "@material-ui/icons/StarBorder";
 import EditIcon from "@material-ui/icons/Edit";
@@ -27,7 +26,6 @@ export default function LeftMenu(props) {
     const [anchorEl, setAnchorEl] = useState(null);
     const [anchorElMenu, setAnchorElMenu] = useState(null);
 
-    //console.log(props.driveFolders)
     return(
 
 
@@ -62,6 +60,8 @@ export default function LeftMenu(props) {
                         <Typography variant="inherit">Nouveau dossier</Typography>
                     </MenuItem>
                     <MenuItem key={2}  onClick={() => {
+                        setAnchorEl(null);
+                        props.onClickNewFileFromRacine()
                     }}>
                         <ListItemIcon>
                             <NewFileIcon fontSize="small" />
@@ -105,6 +105,8 @@ export default function LeftMenu(props) {
                                     getSubfolders={(node) => props.getSubfolders(node)}
                                     handleToggle={props.handleToggle}
                                     sharedDrive={props.sharedDrive}
+                                    sharedRootFiles={props.sharedRootFiles}
+                                    onClickSharedRootItem={props.onClickSharedRootItem}
                     />
 
                 }
