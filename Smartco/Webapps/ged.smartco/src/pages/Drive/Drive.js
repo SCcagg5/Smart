@@ -22,6 +22,7 @@ import Drawer from "@material-ui/core/Drawer";
 import IconButton from '@material-ui/core/IconButton';
 import CloudDownloadOutlinedIcon from '@material-ui/icons/CloudDownloadOutlined';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
+import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import DateRangeOutlinedIcon from '@material-ui/icons/DateRangeOutlined';
 import CreateOutlinedIcon from '@material-ui/icons/CreateOutlined';
@@ -221,7 +222,9 @@ class Drive extends React.Component {
 
 
         focusedItem:"Drive",  // => Drive || Rooms || Meet || Contacts
-        expanded:[]
+        expanded:[],
+
+        viewMode:"list"
 
     }
 
@@ -850,8 +853,11 @@ class Drive extends React.Component {
                                                                         {this.props.match.params.folder_id && this.props.match.params.folder_id === '0' ? "Mon drive" : this.state.breadcrumbs}
                                                                     </h5>
                                                                     <div style={{position:"absolute",right:25,marginTop:-44}}>
-                                                                        <IconButton aria-label="Vue liste" title="Vue liste" color="default">
-                                                                            <ListIcon />
+                                                                        <IconButton aria-label={this.state.viewMode === "list" ? "Vue liste" : "Vue grille"} onClick={() => {
+                                                                            this.state.viewMode === "list" ? this.setState({viewMode:"grid"}) : this.setState({viewMode:"list"})
+                                                                        }}
+                                                                                    title={this.state.viewMode === "list" ? "Vue liste" : "Vue grille"} color="default">
+                                                                            {this.state.viewMode === "list" ? <ListIcon/> : <ViewComfyIcon/>}
                                                                         </IconButton>
                                                                     </div>
                                                                     <div style={{height:1,backgroundColor:"#dadce0",marginBottom:15,marginTop:15}}/>
@@ -889,59 +895,110 @@ class Drive extends React.Component {
                                                                             <div>
                                                                                 {
                                                                                     (this.state.rootFiles || []).map((item, key) =>
-                                                                                            <div key={key} className="cf_itemDoc">
-                                                                            <span className="cf-itemDoc_preview"
-                                                                                  onClick={() => {
-                                                                                      this.setState({
-                                                                                          selectedDoc: item,
-                                                                                          openRightMenu: true
-                                                                                      })
-                                                                                  }}>
-                                                                            <img alt=""
-                                                                                 src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
-                                                                                 className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
-                                                                            <div className="cf_itemDoc_preview_details">
-                                                                                <div
-                                                                                    className="cf_itemDoc_preview_details_title">
-                                                                                    {item.name + ".pdf"}
-                                                                                </div>
-                                                                                <span
-                                                                                    className="badge bg-soft-warning text-warning font-weight-bolder p-1">En attente</span>
-                                                                            </div>
+                                                                                        <div key={key} className="cf_itemDoc">
+                                                                                            <span
+                                                                                                className="cf-itemDoc_preview"
+                                                                                                onClick={() => {
+                                                                                                    this.setState({
+                                                                                                        selectedDoc: item,
+                                                                                                        openRightMenu: true
+                                                                                                    })
+                                                                                                }}>
+                                                                                                <img alt=""
+                                                                                                     src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
+                                                                                                     className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
+                                                                                                <div
+                                                                                                    className="cf_itemDoc_preview_details">
+                                                                                                    <div
+                                                                                                        className="cf_itemDoc_preview_details_title">
+                                                                                                        {item.name + ".pdf"}
+                                                                                                    </div>
+                                                                                                    <span
+                                                                                                        className="badge bg-soft-warning text-warning font-weight-bolder p-1">En
+                                                                                                        attente</span>
+                                                                                                </div>
 
-                                                                        </span>
-                                                                                            </div>
+                                                                                            </span>
+                                                                                        </div>
                                                                                     )
                                                                                 }
 
 
                                                                             </div> :
-                                                                            <div>
+                                                                            <div style={{marginTop:15}}>
+                                                                                {
+                                                                                    this.state.viewMode === "list" &&
+                                                                                    <div className="list_view_item">
+                                                                                        <div style={{width:56}}>
+                                                                                            <h6 style={{color:"#000"}}>Type</h6>
+                                                                                        </div>
+                                                                                        <div style={{width:300}}>
+                                                                                            <h6 style={{color:"#000"}}>Nom</h6>
+                                                                                        </div>
+                                                                                        <div style={{width:215}}>
+                                                                                            <h6 style={{color:"#000"}}>Propriétaire</h6>
+                                                                                        </div>
+                                                                                        <div style={{width:200}}>
+                                                                                            <h6 style={{color:"#000"}}>Date de création</h6>
+                                                                                        </div>
+                                                                                        <div style={{width:150}}>
+                                                                                            <h6 style={{color:"#000"}}>Taille</h6>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                }
                                                                                 {
                                                                                     (this.state.selectedFolderFiles || []).map((item, key) =>
-                                                                                            <div key={key} className="cf_itemDoc">
-                                                                        <span
-                                                                            className="cf-itemDoc_preview"
-                                                                            onClick={() => {
-                                                                                this.setState({
-                                                                                    selectedDoc: item,
-                                                                                    openRightMenu: true
-                                                                                })
-                                                                            }}>
-                                                                            <img alt=""
-                                                                                 src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
-                                                                                 className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
-                                                                            <div className="cf_itemDoc_preview_details">
-                                                                                <div
-                                                                                    className="cf_itemDoc_preview_details_title">
-                                                                                    {item.name + ".pdf"}
-                                                                                </div>
-                                                                                <span
-                                                                                    className="badge bg-soft-warning text-warning font-weight-bolder p-1">En attente</span>
-                                                                            </div>
+                                                                                        this.state.viewMode === "grid" ?
+                                                                                        <div key={key}
+                                                                                             className="cf_itemDoc">
+                                                                                            <span
+                                                                                                className="cf-itemDoc_preview"
+                                                                                                onClick={() => {
+                                                                                                    this.setState({
+                                                                                                        selectedDoc: item,
+                                                                                                        openRightMenu: true
+                                                                                                    })
+                                                                                                }}>
+                                                                                                <img alt=""
+                                                                                                     src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
+                                                                                                     className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
+                                                                                                <div
+                                                                                                    className="cf_itemDoc_preview_details">
+                                                                                                    <div
+                                                                                                        className="cf_itemDoc_preview_details_title">
+                                                                                                        {item.name + ".pdf"}
+                                                                                                    </div>
+                                                                                                    <span
+                                                                                                        className="badge bg-soft-warning text-warning font-weight-bolder p-1">En
+                                                                                                        attente</span>
+                                                                                                </div>
 
-                                                                        </span>
-                                                                                            </div>  
+                                                                                            </span>
+                                                                                        </div> :
+                                                                                        <div key={key} className="list_view_item" onClick={() => {
+                                                                                            this.setState({
+                                                                                                selectedDoc: item,
+                                                                                                openRightMenu: true
+                                                                                            })
+                                                                                        }}>
+                                                                                            <div style={{width:56}}>
+                                                                                                <IconButton color="default">
+                                                                                                    <PictureAsPdfIcon style={{color:"red",backgroundColor:"#fff"}}/>
+                                                                                                </IconButton>
+                                                                                            </div>
+                                                                                            <div style={{width:300}}>
+                                                                                                <h6>{item.name + ".pdf"}</h6>
+                                                                                            </div>
+                                                                                            <div style={{width:215}}>
+                                                                                                <h6 style={{color:"grey"}}>Moi</h6>
+                                                                                            </div>
+                                                                                            <div style={{width:200}}>
+                                                                                                <h6 style={{color:"grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
+                                                                                            </div>
+                                                                                            <div style={{width:150}}>
+                                                                                                <h6 style={{color:"grey"}}>50 Ko</h6>
+                                                                                            </div>
+                                                                                        </div>
                                                                                     )
                                                                                 }
 
