@@ -6,7 +6,6 @@ import logo from "../../assets/images/logos/logo-OA.png"
 import "firebase/auth";
 import "firebase/database"
 import Snackbar from '@material-ui/core/Snackbar';
-import MySnackbarContentWrapper from "../../tools/customSnackBar"
 import SmartService from "../../provider/SmartService";
 import Alert from '@material-ui/lab/Alert';
 
@@ -69,7 +68,7 @@ class login extends Component {
                                     localStorage.setItem("usrtoken",loginRes.data.usrtoken)
                                     localStorage.setItem("email",infoRes.data.email)
                                     this.setState({loading:false})
-                                    this.props.history.push('/coffre-fort');
+                                    this.props.history.push('/drive/0');
 
                                 }else{
                                     this.openSnackbar('error', infoRes.error);
@@ -99,93 +98,6 @@ class login extends Component {
                 this.openSnackbar('error', err);
                 this.setState({loading: false})
             })
-
-           /* firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then(res => {
-
-                firebase.database().ref('/users/' + res.user.uid).on('value', (snapshot) => {
-
-                    const user = snapshot.val();
-                    localStorage.setItem('username',user.displayName)
-
-                    if (user.coupon) {
-                        if(user.firstAcces === "true"){
-                            if(this.state.showCouponInput === false){
-                                this.setState({showCouponInput: true,loading:false});
-                                this.openSnackbar('error', "Vous devez saisir votre coupon LePerray pour accéder à notre platforme");
-                            }else{
-
-                                if(this.state.coupon === user.coupon.value){
-                                    localStorage.setItem('uid', res.user.uid);
-                                    localStorage.setItem('email', res.user.email);
-                                    localStorage.setItem('user', JSON.stringify(user));
-                                    localStorage.setItem('role', user.role);
-
-                                    firebase.database().ref("/users/" + res.user.uid).update({
-                                        "firstAcces": "false"
-                                    }).then(r => {
-                                        setTimeout(() => {
-                                            this.props.history.push('/');
-                                            this.setState({
-                                                loading: false
-                                            });
-                                        }, 600);
-                                    })
-                                }else{
-                                    this.setState({loading:false});
-                                    this.openSnackbar('error', "Coupon invalide");
-                                }
-                            }
-                        }else{
-
-                            localStorage.setItem('uid', res.user.uid);
-                            localStorage.setItem('email', res.user.email);
-                            localStorage.setItem('user', JSON.stringify(user));
-                            localStorage.setItem('role', user.role);
-
-                            setTimeout(() => {
-                                this.props.history.push('/');
-                                this.setState({
-                                    loading: false
-                                });
-                            }, 600);
-
-                        }
-
-
-                    }else {
-
-                        localStorage.setItem('uid', res.user.uid);
-                        localStorage.setItem('email', res.user.email);
-                        localStorage.setItem('user', JSON.stringify(user));
-                        localStorage.setItem('role', user.role);
-
-                        setTimeout(() => {
-                            this.props.history.push('/');
-                            this.setState({
-                                loading: false
-                            });
-                        }, 600);
-
-
-                    }
-
-                });
-            }).catch(err => {
-                console.log(err);
-                if (err.code === "auth/invalid-email") {
-                    this.openSnackbar('error', "Adresse mail incorrect !");
-                    this.setState({loading: false})
-                }
-                if (err.code === "auth/wrong-password") {
-                    this.openSnackbar('error', "Mot de passe incorrect !");
-                    this.setState({loading: false})
-                }
-                if (err.code === "auth/user-not-found") {
-                    this.openSnackbar('error', "Utilisateur non trouvé !");
-                    this.setState({loading: false})
-                }
-            });*/
-
 
     };
 

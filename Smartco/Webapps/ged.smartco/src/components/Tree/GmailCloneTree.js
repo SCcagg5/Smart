@@ -176,20 +176,19 @@ export default function GmailCloneTree(props) {
             defaultCollapseIcon={<ArrowDropDownIcon/>}
             defaultExpandIcon={<ArrowRightIcon/>}
             defaultEndIcon={<div style={{width: 32}}/>}
-            //selected={props.selectedDriveItem}
+            selected={props.selectedDriveItem}
         >
             {
                 (props.data || []).map((item, key) =>
                     <div key={key}>
                         <StyledTreeItem  nodeId={item.id} labelText={item.name}
-                                        labelIcon={FolderIcon} //labelInfo={item.Content.folders.length || "0"}
+                                        labelIcon={FolderIcon}
                                         endIcon={AddIcon}
                                         onClick={() => {
                                             props.getFolderName(item.name)
                                             props.getFolderId(item.id)
 
                                             if(item.Content && item.Content.files.length > 0){
-                                                //console.log(item.Content.files)
                                                 props.getSelectedFolderFiles(item.Content.files)
                                             }
                                             else props.getSelectedFolderFiles([])
@@ -199,21 +198,21 @@ export default function GmailCloneTree(props) {
                                         color="#1a73e8"
                                         bgColor="#e8f0fe"
                         >
-                            {
+                            {/*{
                                 item.Content.folders.length > 0 &&
                                 <SubFolder items={item.Content.folders} getFolderName={(name) => props.getFolderName(name)}
                                            getFolderId={(id) => props.getFolderId(id)} onEndIconClick={props.onEndIconClick}
                                            getSelectedFolderFiles={(files) => props.getSelectedFolderFiles(files)}
                                            showEndIcon={true}
                                 />
-                            }
+                            }*/}
 
                         </StyledTreeItem>
                     </div>
 
                 )
             }
-            <StyledTreeItem  nodeId={"00002"} labelText={"Partagés avec moi"}
+            {/*<StyledTreeItem  nodeId={"00002"} labelText={"Partagés avec moi"}
                              labelIcon={PersonAddIcon} //labelInfo={item.Content.folders.length || "0"}
                              onClick={() => {
                                  if(props.sharedDrive.length === 0 ){
@@ -260,7 +259,7 @@ export default function GmailCloneTree(props) {
 
                     )
                 }
-            </StyledTreeItem>
+            </StyledTreeItem>*/}
         </TreeView>
     );
 

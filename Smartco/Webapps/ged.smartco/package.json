@@ -12,10 +12,12 @@
     "axios": "^0.19.2",
     "baseui": "^9.78.0",
     "bootstrap": "^4.2.1",
+    "classnames": "^2.2.6",
     "firebase": "^7.17.1",
     "html-to-image": "^0.1.1",
     "immutability-helper": "^3.1.1",
     "jquery": "^3.4.1",
+    "material-ui-search-bar": "^1.0.0",
     "mgr-pdf-viewer-react": "^1.0.3",
     "moment": "^2.24.0",
     "node-sass": "^4.11.0",
@@ -52,8 +54,7 @@
     "reactstrap": "^8.0.0",
     "styled-components": "^4.4.1",
     "styletron-engine-atomic": "^1.4.6",
-    "styletron-react": "^5.2.7",
-    "classnames": "^2.2.6"
+    "styletron-react": "^5.2.7"
   },
   "scripts": {
     "start": "react-scripts start",

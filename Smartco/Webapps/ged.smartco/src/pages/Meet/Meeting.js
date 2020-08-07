@@ -4,7 +4,6 @@ import moment from "moment";
 import PDFViewer from "../../customComponents/pdf-viewer-reactjs";
 import '../../assets/css/multiEmail.css';
 import swissImg from "../../assets/images/flags/swiss.svg"
-import ReactLoading from "react-loading";
 import Drawer from "@material-ui/core/Drawer";
 import IconButton from '@material-ui/core/IconButton';
 import CloudDownloadOutlinedIcon from '@material-ui/icons/CloudDownloadOutlined';

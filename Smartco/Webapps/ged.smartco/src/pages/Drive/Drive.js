@@ -6,14 +6,10 @@ import {FileUploader} from "baseui/file-uploader";
 import axios from 'axios';
 import {Button, SHAPE, SIZE} from 'baseui/button';
 import Delete from 'baseui/icon/delete';
-import {RadioGroup, Radio, ALIGN} from "baseui/radio";
+import {ALIGN, Radio, RadioGroup} from "baseui/radio";
 import "firebase/database"
-import {
-    Checkbox,
-    STYLE_TYPE,
-    LABEL_PLACEMENT
-} from "baseui/checkbox";
-import {ReactMultiEmail, isEmail} from 'react-multi-email';
+import {Checkbox, LABEL_PLACEMENT, STYLE_TYPE} from "baseui/checkbox";
+import {isEmail, ReactMultiEmail} from 'react-multi-email';
 import '../../assets/css/multiEmail.css';
 import {Select} from 'baseui/select';
 import swissImg from "../../assets/images/flags/swiss.svg"
@@ -31,10 +27,11 @@ import DateRangeOutlinedIcon from '@material-ui/icons/DateRangeOutlined';
 import CreateOutlinedIcon from '@material-ui/icons/CreateOutlined';
 import FindInPageOutlinedIcon from '@material-ui/icons/FindInPageOutlined';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
+import ListIcon from '@material-ui/icons/List';
+import ViewComfyIcon from '@material-ui/icons/ViewComfy';
 import LanguageIcon from '@material-ui/icons/Language';
 import CheckCircle from '@material-ui/icons/CheckCircle';
 import Staricon from '@material-ui/icons/Star';
-import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import FolderIcon from '@material-ui/icons/Folder';
 import MoodIcon from '@material-ui/icons/Mood';
 import TopBar from "../../components/TopBar/TopBar";
@@ -46,29 +43,29 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import LeftMenu from "../../components/Menu/LeftMenu";
 import MuiBackdrop from "../../components/Loading/MuiBackdrop";
 import emailService from "../../provider/emailService";
-import MySnackbarContentWrapper from "../../tools/customSnackBar";
 import Snackbar from "@material-ui/core/Snackbar";
 import firebase from "firebase";
 import defaultAvatar from "../../assets/images/users/default_avatar.jpg";
 import {
-    FormControl,
-    MenuItem,
-    Select as MuiSelect,
-    InputLabel,
-    Input, Chip,
     Button as MuiButton,
     Checkbox as MuiCheckbox,
+    Chip,
+    FormControl,
+    Input,
+    InputLabel,
+    MenuItem,
+    Select as MuiSelect,
 } from '@material-ui/core';
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import {Tab, TabList, TabPanel, Tabs} from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import Resume from "../../components/Pdf/Resume";
-import { PDFViewer as PdfView} from '@react-pdf/renderer';
+import {PDFViewer as PdfView} from '@react-pdf/renderer';
 import countryList from "../../tools/countryList";
 import FlipPage from "react-flip-page"
 import FHeader from "../../components/FlipPages/FHeader";
 import FTitle from "../../components/FlipPages/FTitle";
 import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';  
+import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Chips from '../../components/EmailsInputChips/Chips';
@@ -94,15 +91,19 @@ const getLabel = ({option}) => {
     );
 };
 
+let expanded = [];
+let index = {}
+
 function callback(item) {
     console.log('item clicked', item);
 }
 
 
-class CoffreFortNewVersion extends React.Component {
+class Drive extends React.Component {
 
 
     state = {
+
         openAlert: false,
         alertMessage: '',
         alertType: '',
@@ -147,8 +148,10 @@ class CoffreFortNewVersion extends React.Component {
 
         folders: [],
         sharedDrive:[],
+        rootFiles:[],
 
         selectedFoldername: "",
+        breadcrumbs:"",
         selectedFolderId: "",
         selectedFolderFiles: [],
         position: {
@@ -214,7 +217,11 @@ class CoffreFortNewVersion extends React.Component {
         openShareDocModal:false,
         checkedNotif:true,
         msgNotif:"",
-        emailsDriveShare:[]
+        emailsDriveShare:[],
+
+
+        focusedItem:"Drive",  // => Drive || Rooms || Meet || Contacts
+        expanded:[]
 
     }
 
@@ -282,7 +289,7 @@ class CoffreFortNewVersion extends React.Component {
             this.setState({loading: true});
             setTimeout(() => {
                 SmartService.getGed(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(gedRes => {
-                    //console.log(gedRes)
+
                     if (gedRes.succes === true && gedRes.status === 200) {
 
                         let meeturl = "https://meet.smartdom.ch/meet_" + moment().format("DDMMYYYYHHmmss")
@@ -290,11 +297,49 @@ class CoffreFortNewVersion extends React.Component {
                         firebase.database().ref('/contacts').on('value', (snapshot) => {
                             const contacts = snapshot.val() || [];
                             let sharedFolders = gedRes.data.Shared.Content.folders || [];
-                            console.log(sharedFolders)
+                            let calls = [];
+                            for(let i = 0 ; i < sharedFolders.length ; i++){
+                                calls.push(SmartService.getFile(sharedFolders[i].id,localStorage.getItem("token"),localStorage.getItem("usrtoken")))
+                            }
+                            Promise.all(calls).then( response => {
+                                console.log(response)
+                                response.map((item,key) => {
+                                    sharedDrive.push(item.data)
+                                })
+                                if(this.props.match.params.folder_id === "0" ){
+                                    this.setState({
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        folders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        loading: false
 
-                            for (let i = 0 ; i < sharedFolders.length ; i++ ){
+                                    })
+                                }else{
+                                    let folders = gedRes.data.Proprietary.Content.folders || [];
+                                    let folder_name = this.getFolderNameById(this.props.match.params.folder_id,folders.concat(sharedDrive));
+                                    this.setState({
+                                        folders: folders,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        expanded:this.expandAll(this.props.match.params.folder_id,folders.concat(sharedDrive)).concat(["shared"]),
+                                        sharedDrive: sharedDrive,
+                                        selectedFoldername: folder_name ,
+                                        breadcrumbs:this.getBreadcumpsPath(this.props.match.params.folder_id,folders.concat(sharedDrive)),
+                                        selectedFolderId:this.props.match.params.folder_id ,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        selectedFolderFiles: this.getFolderFilesById(this.props.match.params.folder_id,folders.concat(sharedDrive)),
+                                        loading: false
+                                    })
+                                }
+
+                            }).catch( err => {
+                                console.log(err);
+                            })
+                            /*for (let i = 0 ; i < sharedFolders.length ; i++ ){
                                 SmartService.getFile(sharedFolders[i].id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( det => {
-                                    console.log(det)
+                                    //console.log(det)
                                     if (det.succes === true && det.status === 200) {
                                         let details = det.data;
                                         sharedDrive.push(details);
@@ -304,19 +349,9 @@ class CoffreFortNewVersion extends React.Component {
                                 }).catch( err => {
                                     console.log(err)
                                 })
-                            }
-                            setTimeout(() => {
-                                this.setState({
-                                    folders: gedRes.data.Proprietary.Content.folders || [],
-                                    sharedDrive: sharedDrive,
-                                    selectedFoldername: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].name :  "",
-                                    selectedFolderId: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].id : "",
-                                    meeturl: meeturl,
-                                    contacts: contacts,
-                                    selectedFolderFiles: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].Content.files : [],
-                                    loading: false
-                                })
-                            },1500);
+                            }*/
+
+
 
                         });
 
@@ -340,9 +375,11 @@ class CoffreFortNewVersion extends React.Component {
         setTimeout(() => {
             SmartService.getGed(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(gedRes => {
                 if (gedRes.succes === true && gedRes.status === 200) {
-                    //console.log(gedRes)
+                    let folder_name = this.getFolderNameById(this.props.match.params.folder_id,gedRes.data.Proprietary.Content.folders || []);
                     this.setState({
                         folders: gedRes.data.Proprietary.Content.folders || [],
+                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                        expanded:this.expandAll(this.props.match.params.folder_id,gedRes.data.Proprietary.Content.folders),
                         selectedFoldername: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].name :  "",
                         selectedFolderId: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].id : "",
                         selectedFolderFiles: gedRes.data.Proprietary.Content.folders[0] ? gedRes.data.Proprietary.Content.folders[0].Content.files : [],
@@ -637,17 +674,81 @@ class CoffreFortNewVersion extends React.Component {
             })
     }*/
 
+    expandAll = (id,drive) => {
+        for (let i = 0; i < drive.length; i++) {
+            expanded.push(drive[i].id)
+            if (drive[i].id === id) {
+                return expanded;
+            }
+            var found = this.expandAll(id,drive[i].Content.folders);
+            if (found) return expanded;
+        }
+
+    }
+
+    getFolderNameById = (id,drive) => {
+        for(let i = 0; i < drive.length; i++) {
+            if (drive[i].id !== id) {
+                let found = this.getFolderNameById(id,drive[i].Content.folders)
+                if(found) return found
+            }
+            else return drive[i].name
+
+        }
+    }
+
+    getFolderFilesById = (id,drive) => {
+        for (let i = 0; i < drive.length; i++) {
+            if (drive[i].id !== id) {
+                let found = this.getFolderFilesById(id, drive[i].Content.folders);
+                if (found) return found;
+            } else return drive[i].Content.files
+        }
+    }
+
+
+    buildIndex = (root, children) => {
+        for(let i in children) {
+            index[children[i].id] = root;
+            this.buildIndex(children[i].id,children[i].Content ? children[i].Content.folders : []);
+        }
+    }
+
+    getPath = (id,drive) => {
+        if(drive) this.buildIndex("Mon drive", drive);
+        return index[id] ? this.getPath(index[id]).concat([id]) : [id];
+    }
+
+
+    getBreadcumpsPath = (idFolder,drive) => {
+        let breadCrumbArray = this.getPath(idFolder,drive)
+        let breadcrumbs = [];
+        breadCrumbArray.map((id,key) => {
+            if(id !== "Mon drive"){
+                let name = this.getFolderNameById(id,drive)
+                breadcrumbs.push(name)
+            }else breadcrumbs.push(id)
+        });
+        return breadcrumbs.join(" / ");
+    }
+
+
+
+
     render() {
 
         return (
             <div>
-                <TopBar logo={logo} height={80} onClickMenuIcon={() => this.setState({openSideMenu: true})}/>
+                <TopBar logo={logo} height={70} onClickMenuIcon={() => this.setState({openSideMenu: true})} onLogoutClick={() => {
+                    localStorage.clear();
+                    this.props.history.push("/login")
+                }}/>
                 <SideMenu logo={logo} items={data.sideBarItems} iconColor={"blue"} textColor={"#65728E"}
                           history={this.props.history}
                           opened={this.state.openSideMenu} onClose={() => this.setState({openSideMenu: false})}/>
                 <MuiBackdrop open={this.state.loading}/>
 
-                <div style={{marginRight: 50, marginTop: 100, marginLeft: 5}}>
+                <div style={{marginRight: 50, marginTop: 75, marginLeft: 5}}>
                     <div>
                         <div style={{display: "flex"}}>
 
@@ -657,27 +758,51 @@ class CoffreFortNewVersion extends React.Component {
                                         newFolderModal: true,
                                         newFolderFromRacine: true
                                     })}
+                                              focusedItem={this.state.focusedItem}
+                                              setFocusedItem={(item)=> {
+                                                  this.props.history.replace({pathname:'/drive/0'});
+                                                  this.setState({focusedItem:item,showContainerSection:item})
+                                              }}
+
+                                              showDriveMenuItems={this.state.openDriveMenuItem}
+                                              setShowDriveMenuItems={() => this.setState({openDriveMenuItem: !this.state.openDriveMenuItem})}
+
+                                              showRoomsMenuItems={this.state.openRoomMenuItem}
+                                              setShowRoomsMenuItems={() => this.setState({openRoomMenuItem: !this.state.openRoomMenuItem})}
+
+                                              showMeetMenuItems={this.state.openMeetMenuItem}
+                                              setShowMeetMenuItems={() => this.setState({openMeetMenuItem: !this.state.openMeetMenuItem})}
+
+                                              showContacts={this.state.openContactsMenu}
+                                              setShowContacts={() => {
+                                                  this.setState({showContainerSection: "Contacts"})
+                                              }}
+
                                               openNewFolderModal={() => this.setState({newFolderModal: true})}
                                               showNewFileScreen={() => this.setState({
                                                   showNewDocScreen: true,
                                                   showUploadStep: "upload"
                                               })}
                                               openShareModal={() => {this.setState({openShareDocModal:true})}}
-                                              showDriveMenuItems={this.state.openDriveMenuItem}
-                                              setShowDriveMenuItems={() => this.setState({openDriveMenuItem: !this.state.openDriveMenuItem})}
-                                              showRoomsMenuItems={this.state.openRoomMenuItem}
-                                              setShowRoomsMenuItems={() => this.setState({openRoomMenuItem: !this.state.openRoomMenuItem})}
+
+
                                               rooms={data.rooms}
-                                              showMeetMenuItems={this.state.openMeetMenuItem}
-                                              setShowMeetMenuItems={() => this.setState({openMeetMenuItem: !this.state.openMeetMenuItem})}
+
                                               driveFolders={this.state.folders || []}
+
                                               setFolderName={(name) => this.setState({selectedFoldername: name})}
-                                              setFolderId={(id) => this.setState({
-                                                  selectedFolderId: id,
-                                                  showContainerSection: "Drive"
-                                              })}
+                                              setFolderId={(id) => {
+                                                  this.props.history.replace({pathname:'/drive/'+id});
+                                                  this.setState({
+                                                      breadcrumbs:this.getBreadcumpsPath(id,this.state.folders.concat(this.state.sharedDrive)),
+                                                      selectedFolderId: id,
+                                                      showContainerSection: "Drive"
+                                                  })
+                                              }}
                                               setSelectedFolderFiles={(files) => this.setState({selectedFolderFiles: files})}
-                                              selectedDriveItem={this.state.showContainerSection === "Drive" && [this.state.selectedFolderId === "" ? this.state.folders.length > 0 ? this.state.folders[0].id : "" : this.state.selectedFolderId]}
+                                              //selectedDriveItem={this.state.showContainerSection === "Drive" && [this.state.selectedFolderId === "" ? this.state.folders.length > 0 ? this.state.folders[0].id : "" : this.state.selectedFolderId]}
+                                              selectedDriveItem={this.state.showContainerSection === "Drive" && (this.props.match.params.folder_id ? [this.props.match.params.folder_id] :[] )}
+                                              expandedDriveItems={this.state.showContainerSection === "Drive" && this.state.expanded}
                                               selectedMeetItem={this.state.showContainerSection === "Meet" ? this.state.selectedMeetMenuItem === "nm" ? ["01"] : ["02"] : []}
                                               selectedRoomsItem={this.state.showContainerSection === "Rooms" ? ["1"] : []}
                                               onMeetItemClick={(nodeId) => {
@@ -694,11 +819,12 @@ class CoffreFortNewVersion extends React.Component {
                                                   } else {
                                                   }
                                               }}
-                                              showContacts={this.state.openContactsMenu}
-                                              setShowContacts={() => {
-                                                  this.setState({showContainerSection: "Contacts"})
-                                              }}
+
                                               sharedDrive={this.state.sharedDrive || []}
+
+                                              handleToggle={(event, nodeIds)=> {
+                                                  this.setState({expanded:nodeIds})
+                                              }}
                                     />
 
                                 </div>
@@ -710,7 +836,7 @@ class CoffreFortNewVersion extends React.Component {
                                     <div className="card-body" style={{minHeight: 750}}>
 
                                         {
-                                            this.state.showContainerSection === "Drive" &&
+                                            this.state.showContainerSection === "Drive" && this.state.loading === false &&
                                             <div>
                                                 {
                                                     this.state.showNewDocScreen === false ?
@@ -719,10 +845,20 @@ class CoffreFortNewVersion extends React.Component {
                                                                 display: "flex",
                                                                 justifyContent: "space-between"
                                                             }}>
-                                                                <div>
-                                                                    <h4 className="mt-0 mb-1">{this.state.selectedFoldername === "" ? "Mon drive" : this.state.selectedFoldername}</h4>
-                                                                    <h6><i
-                                                                        className="fa fa-paperclip mb-1"/> Documents <span>({this.state.selectedFolderFiles.length})</span>
+                                                                <div style={{width:"100%"}}>
+                                                                    <h5 className="mt-0 mb-1">
+                                                                        {this.props.match.params.folder_id && this.props.match.params.folder_id === '0' ? "Mon drive" : this.state.breadcrumbs}
+                                                                    </h5>
+                                                                    <div style={{position:"absolute",right:25,marginTop:-44}}>
+                                                                        <IconButton aria-label="Vue liste" title="Vue liste" color="default">
+                                                                            <ListIcon />
+                                                                        </IconButton>
+                                                                    </div>
+                                                                    <div style={{height:1,backgroundColor:"#dadce0",marginBottom:15,marginTop:15}}/>
+                                                                    <h6><i className="fa fa-paperclip mb-1"/> Documents
+                                                                        <span>(
+                                                                            { this.props.match.params.folder_id && this.props.match.params.folder_id === '0' ? this.state.rootFiles.length : this.state.selectedFolderFiles.length})
+                                                                        </span>
                                                                     </h6>
                                                                 </div>
                                                             </div>
@@ -730,7 +866,7 @@ class CoffreFortNewVersion extends React.Component {
                                                             <div style={{flexWrap: "wrap", display: "flex"}}>
 
                                                                 {
-                                                                    this.state.folders.length === 0 ?
+                                                                    this.state.folders.length === 0 && this.state.rootFiles.length === 0  ?
                                                                         <div style={{marginTop: 25, display: "flex"}}>
                                                                             <h5 style={{
                                                                                 fontSize: 16,
@@ -748,8 +884,42 @@ class CoffreFortNewVersion extends React.Component {
                                                                             }}>
                                                                                 Ajouter un dossier</h6>
                                                                         </div> :
-                                                                        (this.state.selectedFolderFiles || []).map((item, key) =>
-                                                                                <div key={key} className="cf_itemDoc">
+
+                                                                        this.props.match.params.folder_id && this.props.match.params.folder_id === '0' ?
+                                                                            <div>
+                                                                                {
+                                                                                    (this.state.rootFiles || []).map((item, key) =>
+                                                                                            <div key={key} className="cf_itemDoc">
+                                                                            <span className="cf-itemDoc_preview"
+                                                                                  onClick={() => {
+                                                                                      this.setState({
+                                                                                          selectedDoc: item,
+                                                                                          openRightMenu: true
+                                                                                      })
+                                                                                  }}>
+                                                                            <img alt=""
+                                                                                 src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
+                                                                                 className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
+                                                                            <div className="cf_itemDoc_preview_details">
+                                                                                <div
+                                                                                    className="cf_itemDoc_preview_details_title">
+                                                                                    {item.name + ".pdf"}
+                                                                                </div>
+                                                                                <span
+                                                                                    className="badge bg-soft-warning text-warning font-weight-bolder p-1">En attente</span>
+                                                                            </div>
+
+                                                                        </span>
+                                                                                            </div>
+                                                                                    )
+                                                                                }
+
+
+                                                                            </div> :
+                                                                            <div>
+                                                                                {
+                                                                                    (this.state.selectedFolderFiles || []).map((item, key) =>
+                                                                                            <div key={key} className="cf_itemDoc">
                                                                         <span
                                                                             className="cf-itemDoc_preview"
                                                                             onClick={() => {
@@ -771,8 +941,13 @@ class CoffreFortNewVersion extends React.Component {
                                                                             </div>
 
                                                                         </span>
-                                                                                </div>
-                                                                        )
+                                                                                            </div>  
+                                                                                    )
+                                                                                }
+
+                                                                            </div>
+
+
                                                                 }
                                                             </div>
                                                         </div>
@@ -3061,4 +3236,4 @@ class CoffreFortNewVersion extends React.Component {
 }
 
 
-export default CoffreFortNewVersion;
+export default Drive;

@@ -19,7 +19,7 @@ import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import RoomsMenuItems from "./RoomsMenuItems";
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import data from "../../data/Data"
-
+import GmailTree from "../Tree/GmailTree";
 
 
 export default function LeftMenu(props) {
@@ -27,6 +27,7 @@ export default function LeftMenu(props) {
     const [anchorEl, setAnchorEl] = useState(null);
     const [anchorElMenu, setAnchorElMenu] = useState(null);
 
+    //console.log(props.driveFolders)
     return(
 
 
@@ -73,7 +74,10 @@ export default function LeftMenu(props) {
 
             <div style={{marginTop:25, marginLeft: 20}}>
 
-                <div style={{cursor:"pointer"}} onClick={() => props.setShowDriveMenuItems()}>
+                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Drive" ? "aliceblue":""}} onDoubleClick={() => {
+                    props.setShowDriveMenuItems()
+                }} onClick={() => {props.setFocusedItem("Drive")}}
+                >
                     <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
                     <div style={{display:"flex"}}>
                         {
@@ -86,17 +90,20 @@ export default function LeftMenu(props) {
                 </div>
                 {
                     props.showDriveMenuItems === true &&
-                    <GmailCloneTree data={props.driveFolders || []}
+                    <GmailTree      data={props.driveFolders || []}
                                     getFolderName={(name) => props.setFolderName(name)}
                                     getFolderId={(id) => props.setFolderId(id)}
                                     getSelectedFolderFiles={(files) => props.setSelectedFolderFiles(files)}
                                     onEndIconClick={ event => {
-                                      if(event){
-                                          event.preventDefault();
-                                          setAnchorElMenu(event.currentTarget)
-                                      }
+                                        if(event){
+                                            event.preventDefault();
+                                            setAnchorElMenu(event.currentTarget)
+                                        }
                                     }}
                                     selectedDriveItem={props.selectedDriveItem}
+                                    expandedDriveItems={props.expandedDriveItems}
+                                    getSubfolders={(node) => props.getSubfolders(node)}
+                                    handleToggle={props.handleToggle}
                                     sharedDrive={props.sharedDrive}
                     />
 
@@ -169,7 +176,11 @@ export default function LeftMenu(props) {
                     </MenuItem>
                 </Menu>
 
-                <div style={{cursor:"pointer"}} onClick={() => props.setShowRoomsMenuItems()}>
+                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Rooms" ? "aliceblue":""}} onClick={() => {
+                    props.setShowRoomsMenuItems()
+                    props.setFocusedItem("Rooms")
+                }}
+                >
                     <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
                     <div style={{display:"flex"}}>
                         {
@@ -187,7 +198,11 @@ export default function LeftMenu(props) {
                     </div>
                 }
 
-                <div style={{cursor:"pointer"}} onClick={() => props.setShowMeetMenuItems()}>
+                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Meet" ? "aliceblue":""}} onClick={() => {
+                    props.setShowMeetMenuItems()
+                    props.setFocusedItem("Meet")
+                }}
+                >
                     <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
                     <div style={{display:"flex"}}>
                         {
@@ -205,7 +220,11 @@ export default function LeftMenu(props) {
                     </div>
 
                 }
-                <div style={{cursor:"pointer"}} onClick={() => props.setShowContacts()}>
+                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Contacts" ? "aliceblue":""}} onClick={() => {
+                    props.setFocusedItem("Contacts")
+                    props.setShowContacts()
+                }}
+                >
                     <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
                     <div style={{display:"flex"}}>
                         {

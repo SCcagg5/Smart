@@ -7,7 +7,7 @@ import ListAvocats from "./pages/avocats/listAvocats";
 import DetailAvocat from "./pages/avocats/detailAvocat";
 import firebase from "firebase/app";
 import Dash from "./Dashboard";
-import CoffreFortNewVersion from "./pages/coffreFort/CoffreFortNewVersion";
+import Drive from "./pages/Drive/Drive";
 import Meeting from "./pages/Meet/Meeting";
 import Rooms from "./pages/Rooms/Rooms";
 import Chat from "./pages/Chat/chat";
@@ -43,7 +43,8 @@ class App extends Component{
         <Router>
           <Route exact path="/" component={Redirect}/>
           <Route exact path="/dashboard" component={Dash}/>
-          <Route exact path="/coffre-fort" component={CoffreFortNewVersion}/>
+          <Route exact path="/drive/:folder_id" component={Drive}/>
+          {/*<Route exact path="/drive/:folder_id" component={Drive}/>*/}
           <Route exact path="/rooms" component={Rooms}/>
           <Route exact path="/Chat" component={Chat}/>
           <Route exact path="/meet" component={Meeting}/>

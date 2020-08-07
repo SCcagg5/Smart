@@ -3,7 +3,7 @@ import logo from "./assets/images/logos/logoSmartCo.jpeg"
 import TopBar from "./components/TopBar/TopBar";
 import SideBar from "./components/SideBar/SideBar";
 import SideMenu from "./components/SideMenu/SideMenu";
-import CoffreFortNewVersion from "./pages/coffreFort/CoffreFortNewVersion";
+import Drive from "./pages/Drive/Drive";
 import data from "./data/Data";
 
 
@@ -28,7 +28,7 @@ export default class Dashboard extends Component{
 
 
                 <div style={{paddingLeft:100,marginRight:50}}>
-                    <CoffreFortNewVersion/>
+                    <Drive/>
                 </div>
 
             </div>

@@ -6,7 +6,7 @@ let Data = {
     endpoint : "https://api.smartdom.ch",
 
     sideBarItems: [
-        {key: "coffre", title: "Coffre-fort", icon: "fe-folder", to: "/coffre-fort"},
+        {key: "coffre", title: "Drive", icon: "fe-folder", to: "/drive"},
         {key: "rooms", title: "Rooms", icon: "fe-grid", to: "/rooms"},
         {key: "Meet", title: "Meet", icon: "fe-video", to: "/meet"},
         {key: "Chat", title: "Chat", icon: "fe-message-circle", to: "/chat"},
