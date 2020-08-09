@@ -182,6 +182,27 @@ def cart(cn, nextc):
     err = item.panier(cn.rt["website"], cn.pr["command"])
     return cn.call_next(nextc, err)
 
+def ged_check(cn, nextc):
+    ged_id = cn.rt["ged"] if "ged" in cn.rt else None
+    cn.private["ged"] = ged(usr_id=cn.private["user"].id, ged_id=ged_id)
+    err = cn.private["ged"].check_exist()
+    return cn.call_next(nextc, err)
+
+def ged_check_user(cn, nextc):
+    err = cn.private["ged"].check_user()
+    return cn.call_next(nextc, err)
+
+def ged_infos(cn, nextc):
+    err = cn.private["ged"].infos()
+    return cn.call_next(nextc, err)
+
+def ged_add_user(cn, nextc):
+    err = check.contain(cn.pr, ["email", "role"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = cn.private["ged"].create_user(cn.pr["email"], cn.pr["role"])
+    return cn.call_next(nextc, err)
 
 def ged_add_folder(cn, nextc):
     err = check.contain(cn.pr, ["name"])
@@ -189,7 +210,7 @@ def ged_add_folder(cn, nextc):
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
     cn.pr = check.setnoneopt(cn.pr, ["folder_id"])
-    err = folder(usr_id=cn.private["user"].id).new(cn.pr["name"], cn.pr["folder_id"])
+    err = folder(usr_id=cn.private["user"].id, ged_id=cn.private["ged"].ged_id).new(cn.pr["name"], cn.pr["folder_id"])
     return cn.call_next(nextc, err)
 
 def ged_add_file(cn, nextc):
@@ -197,12 +218,12 @@ def ged_add_file(cn, nextc):
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = check.setnoneopt(cn.req.forms, ["folder_id"])
-    err = file(usr_id=cn.private["user"].id).new(cn.req.files["file"], cn.req.forms["folder_id"])
+    err = file(usr_id=cn.private["user"].id,  ged_id=cn.private["ged"].ged_id).new(cn.req.files["file"], cn.req.forms["folder_id"])
     return cn.call_next(nextc, err)
 
 def ged_get_content(cn, nextc):
-    folder_id = cn.rt["ged"] if "ged" in cn.rt else None
-    err = ged(usr_id=cn.private["user"].id).get(folder_id)
+    folder_id = cn.rt["doc"] if "doc" in cn.rt else None
+    err = cn.private["ged"].get(folder_id)
     return cn.call_next(nextc, err)
 
 def ged_share(cn, nextc):
@@ -210,11 +231,9 @@ def ged_share(cn, nextc):
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
-    folder_id = cn.rt["ged"] if "ged" in cn.rt else None
-    err = ged(usr_id=cn.private["user"].id).share(folder_id, cn.pr["to"], cn.pr["access"])
+    folder_id = cn.rt["doc"] if "doc" in cn.rt else None
+    err = cn.private["ged"].share(folder_id, cn.pr["to"], cn.pr["access"])
     return cn.call_next(nextc, err)
-
-
 
 def wallet_check(cn, nextc):
     err = check.contain(cn.pr, ["to_wallet"])

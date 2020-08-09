@@ -6,7 +6,7 @@ db_pass =   str(os.getenv('DB_PASS', 'password'))
 
 class sql:
     def cred():
-        return pymysql.connect("smartdom-web-sql", db_user, db_pass,"smartdom" )
+        return pymysql.connect("smartdom-web-sql", db_user, db_pass, "smartdom")
 
     def get(query, data):
         db = sql.cred()

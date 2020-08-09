@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 5.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db
--- Généré le : Dim 02 août 2020 à 10:02
--- Version du serveur :  5.7.30
--- Version de PHP : 7.4.6
+-- Généré le : Dim 09 août 2020 à 10:49
+-- Version du serveur :  5.7.29
+-- Version de PHP : 7.4.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -42,11 +43,25 @@ CREATE TABLE `assets` (
 -- --------------------------------------------------------
 
 --
--- Structure de la table `file`
+-- Structure de la table `ged`
 --
 
-CREATE TABLE `file` (
+CREATE TABLE `ged` (
+  `id` varchar(40) NOT NULL,
+  `name` varchar(120) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `date` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ged_file`
+--
+
+CREATE TABLE `ged_file` (
   `id` varchar(38) NOT NULL,
+  `ged_id` varchar(40) NOT NULL,
   `user_id` varchar(36) NOT NULL,
   `name` varchar(127) NOT NULL,
   `type` varchar(20) NOT NULL,
@@ -57,14 +72,125 @@ CREATE TABLE `file` (
 -- --------------------------------------------------------
 
 --
--- Structure de la table `folder`
+-- Structure de la table `ged_folder`
 --
 
-CREATE TABLE `folder` (
+CREATE TABLE `ged_folder` (
   `id` varchar(38) NOT NULL,
+  `ged_id` varchar(40) NOT NULL,
   `user_id` varchar(36) NOT NULL,
   `name` varchar(127) NOT NULL,
   `inside` varchar(36) DEFAULT NULL,
+  `date` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ged_share_file`
+--
+
+CREATE TABLE `ged_share_file` (
+  `id` varchar(40) NOT NULL,
+  `ged_id` varchar(40) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `file_id` varchar(40) NOT NULL,
+  `can_administrate` tinyint(1) NOT NULL,
+  `can_share` tinyint(1) NOT NULL,
+  `can_edit` tinyint(1) NOT NULL,
+  `can_read` tinyint(1) NOT NULL,
+  `date` varchar(20) NOT NULL,
+  `shared_by` varchar(40) NOT NULL,
+  `active` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ged_share_file_buff`
+--
+
+CREATE TABLE `ged_share_file_buff` (
+  `id` varchar(40) NOT NULL,
+  `ged_id` varchar(40) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `file_id` varchar(40) NOT NULL,
+  `can_administrate` tinyint(1) NOT NULL,
+  `can_share` tinyint(1) NOT NULL,
+  `can_edit` tinyint(1) NOT NULL,
+  `can_read` tinyint(1) NOT NULL,
+  `date` varchar(20) NOT NULL,
+  `shared_by` varchar(40) NOT NULL,
+  `active` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ged_share_folder`
+--
+
+CREATE TABLE `ged_share_folder` (
+  `id` varchar(40) NOT NULL,
+  `ged_id` varchar(40) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `folder_id` varchar(40) NOT NULL,
+  `can_administrate` tinyint(1) NOT NULL,
+  `can_share` tinyint(1) NOT NULL,
+  `can_edit` tinyint(1) NOT NULL,
+  `can_read` tinyint(1) NOT NULL,
+  `date` varchar(20) NOT NULL,
+  `shared_by` varchar(40) NOT NULL,
+  `active` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ged_share_folder_buff`
+--
+
+CREATE TABLE `ged_share_folder_buff` (
+  `id` varchar(40) NOT NULL,
+  `ged_id` varchar(40) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `folder_id` varchar(40) NOT NULL,
+  `can_administrate` tinyint(1) NOT NULL,
+  `can_share` tinyint(1) NOT NULL,
+  `can_edit` tinyint(1) NOT NULL,
+  `can_read` tinyint(1) NOT NULL,
+  `date` varchar(20) NOT NULL,
+  `shared_by` varchar(40) NOT NULL,
+  `active` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ged_user`
+--
+
+CREATE TABLE `ged_user` (
+  `id` varchar(40) NOT NULL,
+  `ged_id` varchar(40) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `role` tinyint(4) NOT NULL DEFAULT '0',
+  `shared_by` varchar(40) NOT NULL,
+  `date` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ged_user_buff`
+--
+
+CREATE TABLE `ged_user_buff` (
+  `id` varchar(40) NOT NULL,
+  `ged_id` varchar(40) NOT NULL,
+  `user_id` varchar(40) NOT NULL,
+  `role` tinyint(4) NOT NULL DEFAULT '0',
+  `shared_by` varchar(40) NOT NULL,
   `date` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -105,82 +231,6 @@ CREATE TABLE `paymentstripe` (
   `chr_token` varchar(64) NOT NULL,
   `amount` float NOT NULL,
   `date` varchar(64) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `share_file`
---
-
-CREATE TABLE `share_file` (
-  `id` varchar(40) NOT NULL,
-  `user_id` varchar(40) NOT NULL,
-  `file_id` varchar(40) NOT NULL,
-  `can_administrate` tinyint(1) NOT NULL,
-  `can_share` tinyint(1) NOT NULL,
-  `can_edit` tinyint(1) NOT NULL,
-  `can_read` tinyint(1) NOT NULL,
-  `date` varchar(20) NOT NULL,
-  `shared_by` varchar(40) NOT NULL,
-  `active` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `share_file_buff`
---
-
-CREATE TABLE `share_file_buff` (
-  `id` varchar(40) NOT NULL,
-  `user_id` varchar(40) NOT NULL,
-  `file_id` varchar(40) NOT NULL,
-  `can_administrate` tinyint(1) NOT NULL,
-  `can_share` tinyint(1) NOT NULL,
-  `can_edit` tinyint(1) NOT NULL,
-  `can_read` tinyint(1) NOT NULL,
-  `date` varchar(20) NOT NULL,
-  `shared_by` varchar(40) NOT NULL,
-  `active` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `share_folder`
---
-
-CREATE TABLE `share_folder` (
-  `id` varchar(40) NOT NULL,
-  `user_id` varchar(40) NOT NULL,
-  `folder_id` varchar(40) NOT NULL,
-  `can_administrate` tinyint(1) NOT NULL,
-  `can_share` tinyint(1) NOT NULL,
-  `can_edit` tinyint(1) NOT NULL,
-  `can_read` tinyint(1) NOT NULL,
-  `date` varchar(20) NOT NULL,
-  `shared_by` varchar(40) NOT NULL,
-  `active` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Structure de la table `share_folder_buff`
---
-
-CREATE TABLE `share_folder_buff` (
-  `id` varchar(40) NOT NULL,
-  `user_id` varchar(40) NOT NULL,
-  `folder_id` varchar(40) NOT NULL,
-  `can_administrate` tinyint(1) NOT NULL,
-  `can_share` tinyint(1) NOT NULL,
-  `can_edit` tinyint(1) NOT NULL,
-  `can_read` tinyint(1) NOT NULL,
-  `date` varchar(20) NOT NULL,
-  `shared_by` varchar(40) NOT NULL,
-  `active` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -247,15 +297,45 @@ ALTER TABLE `assets`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `file`
+-- Index pour la table `ged`
 --
-ALTER TABLE `file`
+ALTER TABLE `ged`
   ADD UNIQUE KEY `id` (`id`);
 
 --
--- Index pour la table `folder`
+-- Index pour la table `ged_file`
 --
-ALTER TABLE `folder`
+ALTER TABLE `ged_file`
+  ADD UNIQUE KEY `id` (`id`);
+
+--
+-- Index pour la table `ged_folder`
+--
+ALTER TABLE `ged_folder`
+  ADD UNIQUE KEY `id` (`id`);
+
+--
+-- Index pour la table `ged_share_file`
+--
+ALTER TABLE `ged_share_file`
+  ADD UNIQUE KEY `id` (`id`);
+
+--
+-- Index pour la table `ged_share_file_buff`
+--
+ALTER TABLE `ged_share_file_buff`
+  ADD UNIQUE KEY `id` (`id`);
+
+--
+-- Index pour la table `ged_share_folder`
+--
+ALTER TABLE `ged_share_folder`
+  ADD UNIQUE KEY `id` (`id`);
+
+--
+-- Index pour la table `ged_share_folder_buff`
+--
+ALTER TABLE `ged_share_folder_buff`
   ADD UNIQUE KEY `id` (`id`);
 
 --
@@ -275,30 +355,6 @@ ALTER TABLE `orders`
 --
 ALTER TABLE `paymentstripe`
   ADD PRIMARY KEY (`id`);
-
---
--- Index pour la table `share_file`
---
-ALTER TABLE `share_file`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Index pour la table `share_file_buff`
---
-ALTER TABLE `share_file_buff`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Index pour la table `share_folder`
---
-ALTER TABLE `share_folder`
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Index pour la table `share_folder_buff`
---
-ALTER TABLE `share_folder_buff`
-  ADD UNIQUE KEY `id` (`id`);
 
 --
 -- Index pour la table `user`

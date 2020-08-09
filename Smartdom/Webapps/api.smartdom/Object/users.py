@@ -15,7 +15,7 @@ class user:
             id = str(res[0][0])
             return id
         return False
-        
+
     def __init__(self, id = -1):
         self.id = str(id)
 

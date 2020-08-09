@@ -128,7 +128,6 @@ Arch and `docker-compose.*.*.yml` usage:
         cd \#docker-compose/; \
         docker-compose -f docker-compose.reverse.proxy.yml      up -d --build; \
         docker-compose -f docker-compose.smartdom.web.micro.yml up -d --build; \
-        docker-compose -f docker-compose.smartdom.services.yml  up -d --build; \
         docker-compose -f docker-compose.smartdom.admin.yml     up -d --build;
         ```
     * for full support on `${SMARTCO_DOMAIN}` and `${SMARTDOM_DOMAIN}`:
