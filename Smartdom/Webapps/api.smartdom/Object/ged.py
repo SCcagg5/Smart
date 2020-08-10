@@ -3,8 +3,12 @@ import os
 import uuid
 import time
 import base64
+import re
+from datetime import date
 from .sql import sql
 from .users import user
+from .pdf import pdf
+from .elastic import es, elastic
 
 class folder:
     def __init__(self, usr_id = -1, ged_id = -1):
@@ -209,7 +213,7 @@ class file:
 
     def new(self, file, folder_id):
         file_id = str(uuid.uuid4())
-        date = str(int(round(time.time() * 1000)))
+        timestamp = str(int(round(time.time() * 1000)))
         name, ext = os.path.splitext(file.filename)
         if ext not in ('.pdf', ):
             return [False, "File extension not allowed.", 401]
@@ -217,11 +221,26 @@ class file:
             return [False, "folder_id does not exist", 400]
         if not folder(self.usr_id).is_proprietary(folder_id) and folder_id is not None:
             return [False, "Invalid rights", 403]
-        file.save(self.path(file_id))
+        path = self.path(file_id)
+        file.save(path)
+        ext = ext[1:]
         succes = sql.input("INSERT INTO `ged_file` (`id`, `ged_id`, `user_id`, `name`, `type`, `inside`, `date`) VALUES (%s, %s, %s, %s, %s, %s, %s)", \
-        (file_id, self.ged_id, self.usr_id, name, ext[1:], folder_id, date))
+        (file_id, self.ged_id, self.usr_id, name, ext, folder_id, timestamp))
         if not succes:
             return [False, "data input error", 500]
+        input = {"name": name, "ext": ext, "date": timestamp, "file_id": file_id}
+        if ext == 'pdf':
+            res = pdf.get_text(path)
+            if res[0]:
+                input["text"] = res[1]["text"]
+                input["map"] = res[1]["map"]
+                input["lexiq"] = res[1]["lexiq"]
+        index = "ged_search_" + self.ged_id + "_" + date.today().strftime("%m%Y")
+        if es.indices.exists(index=index):
+            es.indices.refresh(index=index)
+        else:
+            es.indices.create(index=index, body=elastic.doc_mapping)
+        es.index(index=index, body=input, request_timeout=30)
         return [True, {"file_id": file_id}, None]
 
     def share(self, email, file_id, access):
@@ -488,3 +507,34 @@ class ged:
         else:
             ret = [False, "Doc_id isn't a valid file_id or folder_id", 404]
         return ret
+
+    def search(self, word, type, date_from, date_to, page = 1, size = 20):
+        query, regex, limit = pdf.query(word, date_from, date_to, page, size)
+        index_template = "ged_search_" + self.ged_id + "_"
+        res = es.search(index=re.findall(r''+index_template+'[0-9]*', es.cat.indices()),
+                        body=query,
+                        request_timeout=600)["hits"]["hits"]
+        ret = []
+        pos = []
+        i = 0
+        while i < len(res):
+            i2 = 0
+            input = res[i]["_source"]
+            match = res[i]["fields"]["match"][0]
+            input["score"] = res[i]["_score"]
+            input["match"] = {"perfect": int(match[limit]), "partial":  int(match[limit + 1]) , "text": []}
+            while i2 < limit and match[i2] != None:
+                input["match"]["text"].append(match[i2].replace('\n', ' '))
+                i2 += 1
+            input["match"]["text"] = list(dict.fromkeys(input["match"]["text"]))
+            if True:
+              if input["match"]["perfect"] == 0 and input["match"]["partial"] == 0:
+                  del input["match"]
+                  if re.compile(r'.*' +regex+'.*', flags=re.IGNORECASE).search(str(input['name'])) is not None:
+                    ret.append(input)
+                  else:
+                    pos.append(input)
+              else:
+                  ret.append(input)
+            i += 1
+        return [True, {"result": ret, "possible": pos}, None]

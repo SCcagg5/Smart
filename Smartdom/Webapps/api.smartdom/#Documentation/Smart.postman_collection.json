@@ -2353,6 +2353,113 @@
 							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfolder\",\n        \"params\": {\n            \"name\": \"test\",\n            \"folder_id\": null\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTcwNTI0NTgsInBhc3N3b3JkIjo4NjM0MDI1MTk3MzA4MTUwOTcyfQ.oSdwoUiwFjzAeKYs4QU3nLvSa5NyggDx3UH6--SeNt4\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTcxMzg4NjEsImlkIjoiNmFlY2RhNWQtOWI1MS00ZmI3LWE1Y2UtMDUyYWE3NWE5ZDU0IiwicGFzc3dvcmQiOi04NTE0NzgxNTQwNTA4NTY4NzcwfQ.UC14NwlyDnS2f979FWosiT_XvGQQou8OiBvyCWZjpPk\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"1c025fc8-8b26-418b-8063-8c4833079c43\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTcwNTI0NTgsInBhc3N3b3JkIjo4NjM0MDI1MTk3MzA4MTUwOTcyfQ.oSdwoUiwFjzAeKYs4QU3nLvSa5NyggDx3UH6--SeNt4\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTcxMzg4NjEsImlkIjoiNmFlY2RhNWQtOWI1MS00ZmI3LWE1Y2UtMDUyYWE3NWE5ZDU0IiwicGFzc3dvcmQiOi04NTE0NzgxNTQwNTA4NTY4NzcwfQ.UC14NwlyDnS2f979FWosiT_XvGQQou8OiBvyCWZjpPk\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {},\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
 						}
 					]
+				},
+				{
+					"name": "/ged/<ged_id>/doc/search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{method}}{{url}}/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/search?search=test&page=1&size=20",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9",
+								"doc",
+								"search"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "test"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/ged/<ged_id>/doc/search",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{method}}{{url}}/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/search?search=test&page=1&size=20",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"ged",
+										"896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9",
+										"doc",
+										"search"
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": "test"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "size",
+											"value": "20"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Aug 2020 09:19:38 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1884"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/search\",\n        \"params\": null,\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTcxMzc1NzUsInBhc3N3b3JkIjo1ODA3ODQ1ODE3MDg1OTY1NzYxfQ.ObXrRjfqyPQLLTt5bBHeYPNCf83eWQWBTiugo7Jtsyw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTcyMjM5NzcsImlkIjoiNmFlY2RhNWQtOWI1MS00ZmI3LWE1Y2UtMDUyYWE3NWE5ZDU0IiwicGFzc3dvcmQiOjc1NDcwMzE4MzMzOTAwNjIzOTB9.2eWcOH9WobAcDLEJxLe3lBi_NGnTF1huLDiOXR-wq64\",\n            \"host\": \"api.localhost\",\n            \"postman-token\": \"0683801a-c317-499a-b034-58250b3535f4\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTcxMzc1NzUsInBhc3N3b3JkIjo1ODA3ODQ1ODE3MDg1OTY1NzYxfQ.ObXrRjfqyPQLLTt5bBHeYPNCf83eWQWBTiugo7Jtsyw\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTcyMjM5NzcsImlkIjoiNmFlY2RhNWQtOWI1MS00ZmI3LWE1Y2UtMDUyYWE3NWE5ZDU0IiwicGFzc3dvcmQiOjc1NDcwMzE4MzMzOTAwNjIzOTB9.2eWcOH9WobAcDLEJxLe3lBi_NGnTF1huLDiOXR-wq64\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"result\": [\n            {\n                \"ext\": \"pdf\",\n                \"date\": \"1597048743264\",\n                \"file_id\": \"5e2b9cc2-55fc-454c-ae97-ce0c4cc555f7\",\n                \"name\": \"D_Vertrag\",\n                \"score\": 1.9158329,\n                \"match\": {\n                    \"perfect\": 20,\n                    \"partial\": 38,\n                    \"text\": [\n                        \"for Test Account         \",\n                        \"for Test Account All-in Signing\",\n                        \"a test account for Swisscom's\",\n                        \"to test the interaction of its\",\n                        \"several test accounts The structure of\",\n                        \"and Test Scenarios (Claimed ID) Please\",\n                        \"All test certificates are in principle\",\n                        \"as test certificates. These cannot therefore\",\n                        \"your test account for personal signatures\",\n                        \"can test your subscriber application depending\",\n                        \"the test situation. These also differ\",\n                        \"the test account jurisdiction CH (ZertES\",\n                        \"the test account jurisdiction EU (eIDAS\",\n                        \"want test without identification of the\",\n                        \"the test phase but first test\",\n                        \"to test the connection to the\"\n                    ]\n                }\n            }\n        ],\n        \"possible\": []\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
 				}
 			],
 			"event": [
@@ -2968,17 +3075,17 @@
 	],
 	"variable": [
 		{
-			"id": "a4838f3a-1a19-4899-9733-464ea6c0d10f",
+			"id": "151361cf-73d8-4146-bb10-33a1f189bd2a",
 			"key": "url",
 			"value": "api.localhost"
 		},
 		{
-			"id": "278a66f1-5872-40b7-a4d2-0594ca405f66",
+			"id": "388f19c0-5b3c-46a8-9876-5a76e7388e59",
 			"key": "password",
 			"value": "password"
 		},
 		{
-			"id": "643f1e88-0824-411d-b970-cc5676c8ee05",
+			"id": "3327890a-6a39-4144-b82e-d14366f690dc",
 			"key": "method",
 			"value": "http://"
 		}

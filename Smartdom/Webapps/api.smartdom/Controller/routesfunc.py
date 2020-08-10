@@ -213,6 +213,21 @@ def ged_add_folder(cn, nextc):
     err = folder(usr_id=cn.private["user"].id, ged_id=cn.private["ged"].ged_id).new(cn.pr["name"], cn.pr["folder_id"])
     return cn.call_next(nextc, err)
 
+def ged_search(cn, nextc):
+    err = check.contain(cn.get, ["search"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.get = check.setnoneopt(cn.get, ["search", "ext", "datef", "datet", "page", "size"])
+    err = cn.private["ged"].search(
+                     word=cn.get["search"],
+                     type=cn.get["ext"],
+                     date_from=cn.get["datef"],
+                     date_to=cn.get["datet"],
+                     page=cn.get["page"],
+                     size=cn.get["size"]
+                     )
+    return cn.call_next(nextc, err)
+
 def ged_add_file(cn, nextc):
     err = check.contain(cn.req.files, ["file"])
     if not err[0]:

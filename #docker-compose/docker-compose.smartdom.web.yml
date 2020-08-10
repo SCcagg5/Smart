@@ -41,6 +41,7 @@ services:
         hard: -1
     volumes:
       - ../Smartdom/Micro/elasticsearch/data:/usr/share/elasticsearch/data
+      - ../Smartdom/Micro/elasticsearch/conf.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     networks:
       - db-net
 

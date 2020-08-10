@@ -1,11 +1,70 @@
 from elasticsearch import Elasticsearch
 
 
-es = Elasticsearch(["http://elasticsearch:9200"])
-try:
-    es.indices.create(index = 'point_test')
-except:
-    try:
-        es.indices.refresh(index="point_test")
-    except:
-        print("Missing 'point_test' index in elasticsearch")
+es = Elasticsearch(["http://smartdom-web-elasticsearch:9200"])
+
+class elastic:
+    doc_mapping = {
+        "mappings" : {
+          "properties" : {
+            "date" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
+                }
+              }
+            },
+            "ext" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
+                }
+              }
+            },
+            "file_id" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
+                }
+              }
+            },
+            "lexiq" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
+                }
+              }
+            },
+            "map" : {
+              "type" : "object",
+              "enabled" : False
+            },
+            "name" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
+                }
+              }
+            },
+            "text" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
+                }
+              }
+            }
+          }
+        }
+      }

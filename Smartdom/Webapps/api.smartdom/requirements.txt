@@ -8,3 +8,5 @@ elasticsearch
 uuid
 web3
 eth_account
+pdftotext
+unidecode
