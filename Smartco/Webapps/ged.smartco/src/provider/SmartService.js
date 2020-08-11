@@ -1,5 +1,6 @@
 const endpoint = "https://api.smartdom.ch"
 const password = "password"
+const OALegalGedId = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
 const contractAdr = "0x9520c239bae78a4a672a70370d85051fcd8dd6c9"
 
 let SmartService = {
@@ -60,7 +61,7 @@ let SmartService = {
         });
     },
     getGed(token,usrtoken){
-        return fetch(endpoint + '/ged', {
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/doc', {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -68,7 +69,7 @@ let SmartService = {
         });
     },
     getFile(fileId,token,usrtoken){
-        return fetch(endpoint + '/ged/'+fileId, {
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/doc/'+ fileId, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -76,7 +77,7 @@ let SmartService = {
         });
     },
     addFolder(data,token,usrtoken){
-        return fetch(endpoint + '/ged/addfolder', {
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/doc/addfolder', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data)
@@ -85,7 +86,7 @@ let SmartService = {
         });
     },
     addFile(data,token,usrtoken){
-        return fetch(endpoint + '/ged/addfile', {
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/doc/addfile', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:data,
@@ -96,10 +97,19 @@ let SmartService = {
     share(id,data,token,usrtoken){
         console.log(id)
         console.log(data)
-        return fetch(endpoint + '/ged/'+id+'/share', {
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/doc/'+id+'/share', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    search(text,token,usrtoken){
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/doc/search?search='+ text, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
             console.log(error);
         });

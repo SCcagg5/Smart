@@ -65,26 +65,37 @@ const Content = props => (
             style={styles.image}
             />
         </View>
-        <View style={{marginTop:30}}>
-            <Title>À propos</Title>
-            <Text style={{fontSize: 10}}>{props.about || ""}</Text>
-        </View>
-        <View style={{marginTop:30}}>
-            <Title>Famille & Vie privée</Title>
-            <Text style={{fontSize: 10}}>{props.personalLife || ""}</Text>
-        </View>
+        {
+            props.about &&
+            <View style={{marginTop:30}}>
+                <Title>À propos</Title>
+                <Text style={{fontSize: 10}}>{props.about || ""}</Text>
+            </View>
+        }
+        {
+            props.personalLife &&
+            <View style={{marginTop:30}}>
+                <Title>Famille & Vie privée</Title>
+                <Text style={{fontSize: 10}}>{props.personalLife || ""}</Text>
+            </View>
+        }
         <View style={styles.container}>
             <View style={styles.leftColumn}>
-                <Education langues={props.langues} />
-                <Skills hobbies={props.hobbies} />
+                {
+                    props.langues.length > 0 &&
+                    <Education langues={props.langues} />
+                }
+                {
+                    props.hobbies.length > 0 &&
+                    <Skills hobbies={props.hobbies} />
+                }
             </View>
-            <Experience parcoursP={props.parcoursP} formations={props.formations} />
+            <Experience parcoursP={props.parcoursP} formations={props.formations} affiliations={props.affiliations} domainesAct={props.domainesAct} />
         </View>
     </Page>
 );
 
 const Resume = (props) => (
-    console.log(props),
     <Document
         author={props.author || ""}
         keywords=""
@@ -99,6 +110,8 @@ const Resume = (props) => (
         <Content size="A4" name={props.name} speciality={props.speciality} email={props.email} image={props.image}
                  about={props.about} personalLife={props.personalLife} parcoursP={props.parcoursP}
                  langues={props.langues} hobbies={props.hobbies} formations={props.formations}
+                 affiliations={props.affiliations}
+                 domainesAct={props.domainesAct}
         />
     </Document>
 );

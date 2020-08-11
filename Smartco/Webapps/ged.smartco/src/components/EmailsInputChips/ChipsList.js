@@ -6,9 +6,9 @@ import utilFunctions from "../../tools/functions";
 
 
 class ChipsList extends Component {
-    shouldComponentUpdate(nextProps) {
+    /*shouldComponentUpdate(nextProps) {
         return this.props.chips.length !== nextProps.chips.length;
-    }
+    }*/
 
     render() {
         return (
@@ -26,6 +26,7 @@ class ChipsList extends Component {
                         label={chip.email}
                         onDelete={e => this.props.onChipClick(e, chip)}
                         style={{fontWeight:"bold",backgroundColor:"#fff",border:"1px solid #c0c0c0",color:"gray",margin:5}}
+
                     />
                 ))}
             </Fragment>

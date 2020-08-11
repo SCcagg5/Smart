@@ -199,37 +199,37 @@ body{
 
 
 input[type="text"]{
-    height: 40px!important;
+    /*height: 40px!important;*/
     border-radius: 0px!important;
     color: #000!important;
     /*font-weight: bold!important;*/
 }
 input[type="number"]{
-    height: 40px!important;
+    /*height: 40px!important;*/
     border-radius: 0px!important;
     color: #000!important;
     /*font-weight: bold!important;*/
 }
 input[type="password"]{
-    height: 45px!important;
+    /*height: 45px!important;*/
     border-radius: 0px!important;
     color: #000!important;
     /*font-weight: bold!important;*/
 }
 input[type="email"]{
-    height: 45px!important;
+    /*height: 45px!important;*/
     border-radius: 0px!important;
     color: #000!important;
     /*font-weight: bold!important;*/
 }
 input[type="select"]{
-    height: 40px!important;
+    /*height: 40px!important;*/
     border-radius: 0px!important;
     color: #000!important;
     /*font-weight: bold!important;*/
 }
 select{
-    height: 40px!important;
+    /*height: 40px!important;*/
     border-radius: 0px!important;
     color: #000!important;
     /*font-weight: bold!important;*/
@@ -693,7 +693,7 @@ select{
 }
 .rs_header_title{
     margin-top: 0;
-    font-size: 1.9rem;
+    font-size: 1.5rem;
     line-height: 1.14286;
     color: #293d66;
     font-weight: 700;
@@ -826,6 +826,16 @@ select{
     cursor: pointer;
     background-color: #e8f0fe;
     color: #1967d2;
+}
+
+.MuiFilledInput-root{
+    background-color: #f0f0f0!important;
+}
+.MuiFilledInput-root:hover{
+    background-color: #f0f0f0!important;
+}
+.MuiFilledInput-root.Mui-focused{
+    background-color: #f0f0f0!important;
 }
 
 

@@ -14,6 +14,7 @@ import StarBorderIcon from "@material-ui/icons/StarBorder";
 import EditIcon from "@material-ui/icons/Edit";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
+import IconButton from "@material-ui/core/IconButton";
 
 import RoomsMenuItems from "./RoomsMenuItems";
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
@@ -190,15 +191,29 @@ export default function LeftMenu(props) {
                                 <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
                         }
                         <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Rooms</Typography>
+
+                        <IconButton style={{marginLeft:100,marginTop:-10}} onClick={(event) => {
+                            event.stopPropagation()
+                            props.onClickAddRoomBtn()
+                        }}>
+                            <AddIcon />
+                        </IconButton>
+
                     </div>
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                    <div style={{height:1,backgroundColor:"#f0f0f0",marginBottom:10}}/>
                 </div>
                 {
                     props.showRoomsMenuItems === true &&
                     <div>
-                        <RoomsMenuItems items={props.rooms} selectedRoomsItem={props.selectedRoomsItem} onClick={(nodeId) => {props.onRoomsItemClick(nodeId)}} />
+                        <RoomsMenuItems items={props.rooms} selectedRoomItems={props.selectedRoomItems}
+                                        expandedRoomItems={props.expandedRoomItems} handleToggleRoomsMenu={props.handleToggleRoomsMenu}
+                                        handleSelectRoomsMenu={props.handleSelectRoomsMenu}
+                                        setSelectedRoom={(room,roomId) => props.setSelectedRoom(room,roomId)}
+                        />
                     </div>
                 }
+
+
 
                 <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Meet" ? "aliceblue":""}} onClick={() => {
                     props.setShowMeetMenuItems()

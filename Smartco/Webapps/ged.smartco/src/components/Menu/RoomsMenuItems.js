@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import ArrowRightIcon from "@material-ui/icons/ArrowRight";
 import TreeView from "@material-ui/lab/TreeView";
-
+import FireplaceIcon from "@material-ui/icons/Fireplace";
 const useTreeItemStyles = makeStyles((theme) => ({
     root: {
         color: theme.palette.text.secondary,
@@ -65,8 +65,6 @@ function StyledTreeItem(props) {
     return (
         <div>
             <TreeItem
-                onLabelClick={event => event.preventDefault()}
-                onIconClick={event => event.preventDefault()}
                 nodeId={props.nodeId}
                 aria-controls={props.nodeId}
                 label={
@@ -92,7 +90,7 @@ function StyledTreeItem(props) {
                     group: classes.group,
                     label: classes.label,
                 }}
-                onClick={() => props.onClick(props.nodeId)}
+                onClick={() => props.setSelectedRoom(props.room,props.roomId)}
             />
         </div>
 
@@ -123,15 +121,18 @@ export default function RoomsMenuItems(props) {
             defaultCollapseIcon={<ArrowDropDownIcon/>}
             defaultExpandIcon={<ArrowRightIcon/>}
             defaultEndIcon={<div style={{width: 32}}/>}
-            selected={props.selectedMeetItem}
+            selected={props.selectedRoomItems}
+            expanded={props.expandedRoomItems}
+            onNodeToggle={props.handleToggleRoomsMenu}
+            onNodeSelect={props.handleSelectRoomsMenu}
         >
             {
                 props.items.map((item,key) =>
-                    <StyledTreeItem key={key} nodeId={item.nodeId} labelText={item.title}
-                                    labelIcon={item.icon}
+                    <StyledTreeItem key={key} nodeId={key.toString()} labelText={item.title}
+                                    labelIcon={FireplaceIcon} room={item} roomId={key}
                                     color="#1a73e8"
                                     bgColor="#e8f0fe"
-                                    onClick={(nodeId) => props.onClick(nodeId)}
+                                    setSelectedRoom={(room,roomId) => {props.setSelectedRoom(room,roomId)}}
                     />
                 )
             }

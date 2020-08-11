@@ -39,10 +39,10 @@ export default function TopBar(props) {
                 </IconButton>
                 <img alt="" src={props.logo} style={{height:50,marginLeft:10}}/>
                 <SearchBar style={{marginLeft:110,width:700,marginTop:3}}
-                    value={""}
+                    value={props.searchText}
                            placeholder="Rechercher"
-                    onChange={(newValue) => {}}
-                    onRequestSearch={() => {}}
+                    onChange={(newValue) => {props.onChangeSearch(newValue)}}
+                    onRequestSearch={() => {props.onRequestSearch()}}
                 />
                 <div style={{position:"absolute",right:10}}>
                     <Avatar onClick={handleToggle} ref={anchorRef}

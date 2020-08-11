@@ -139,6 +139,7 @@ class Chips extends Component {
                         placeholder={placeholder}
                         onKeyDown={e => this.onKeyDown(e)}
                         ref={this.inputRef}
+                        onClick={(event) => this.props.onInputClick && this.props.onInputClick(event)}
                     />}
                 </div>
             </div>

@@ -11,30 +11,23 @@ import Drive from "./pages/Drive/Drive";
 import Meeting from "./pages/Meet/Meeting";
 import Rooms from "./pages/Rooms/Rooms";
 import Chat from "./pages/Chat/chat";
-
-
+import DriveV2 from "./pages/Drive/DriveV2";
 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyB36i6XUg4UFhMRNw12cf5VqlrIvAyvxdI",
-    authDomain: "smartcofrance.firebaseapp.com",
-    databaseURL: "https://smartcofrance.firebaseio.com",
-    projectId: "smartcofrance",
-    storageBucket: "smartcofrance.appspot.com",
-    messagingSenderId: "482572690350",
-    appId: "1:482572690350:web:227e8392adc52f86"
+    apiKey: "AIzaSyD0j29IhymwdAVupPNd0u9NiCfMpQHz2yM",
+    authDomain: "oaged-4977b.firebaseapp.com",
+    databaseURL: "https://oaged-4977b.firebaseio.com",
+    projectId: "oaged-4977b",
+    storageBucket: "oaged-4977b.appspot.com",
+    messagingSenderId: "630942407293",
+    appId: "1:630942407293:web:f57beb45a588e2e67caf14"
 };
 
 
 firebase.initializeApp(firebaseConfig);
 
-class App extends Component{
-
-
-  componentDidMount() {
-
-  }
-
+export default class App extends Component{
 
     render() {
 
@@ -43,8 +36,7 @@ class App extends Component{
         <Router>
           <Route exact path="/" component={Redirect}/>
           <Route exact path="/dashboard" component={Dash}/>
-          <Route exact path="/drive/:folder_id" component={Drive}/>
-          {/*<Route exact path="/drive/:folder_id" component={Drive}/>*/}
+          <Route exact path="/:section/:section_id" component={DriveV2}/>
           <Route exact path="/rooms" component={Rooms}/>
           <Route exact path="/Chat" component={Chat}/>
           <Route exact path="/meet" component={Meeting}/>
@@ -57,8 +49,6 @@ class App extends Component{
   }
 
 }
-
-export default App;
 
 
 
