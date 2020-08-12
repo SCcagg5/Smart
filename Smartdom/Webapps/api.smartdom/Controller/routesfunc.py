@@ -7,6 +7,7 @@ from Object.admin import admin
 from Object.asset import asset
 from Object.ether import eth_contract
 from Object.ged import folder, file, ged
+from Object.contacter import contacter
 import json
 
 def getauth(cn, nextc):
@@ -248,6 +249,28 @@ def ged_share(cn, nextc):
     cn.pr = err[1]
     folder_id = cn.rt["doc"] if "doc" in cn.rt else None
     err = cn.private["ged"].share(folder_id, cn.pr["to"], cn.pr["access"])
+    return cn.call_next(nextc, err)
+
+def contacter_check(cn, nextc):
+    contacter_id = cn.rt["contacter"] if "contacter" in cn.rt else None
+    cn.private["contacter"] = contacter(usr_id=cn.private["user"].id, contacter_id=contacter_id)
+    err = cn.private["ged"].check_exist()
+    return cn.call_next(nextc, err)
+
+def contacter_check_user(cn, nextc):
+    err = cn.private["contacter"].check_user()
+    return cn.call_next(nextc, err)
+
+def contacter_infos(cn, nextc):
+    err = cn.private["contacter"].infos()
+    return cn.call_next(nextc, err)
+
+def contacter_add_user(cn, nextc):
+    err = check.contain(cn.pr, ["email", "role"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = cn.private["contacter"].create_user(cn.pr["email"], cn.pr["role"])
     return cn.call_next(nextc, err)
 
 def wallet_check(cn, nextc):
