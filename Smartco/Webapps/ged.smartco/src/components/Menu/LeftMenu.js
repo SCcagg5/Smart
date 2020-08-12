@@ -233,7 +233,9 @@ export default function LeftMenu(props) {
                 {
                     props.showMeetMenuItems === true &&
                     <div>
-                        <MeetMenuItems items={data.MeetMenuItem} selectedMeetItem={props.selectedMeetItem} onClick={(nodeId) => {props.onMeetItemClick(nodeId)}} />
+                        <MeetMenuItems items={data.MeetMenuItem} selectedMeetItem={props.selectedMeetItem}
+                                       onClick={(nodeId) => {props.onMeetItemClick(nodeId)}} handleSelectMeetMenu={props.handleSelectMeetMenu}
+                        />
                     </div>
 
                 }

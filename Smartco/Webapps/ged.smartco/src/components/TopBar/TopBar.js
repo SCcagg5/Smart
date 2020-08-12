@@ -39,7 +39,7 @@ export default function TopBar(props) {
                 </IconButton>
                 <img alt="" src={props.logo} style={{height:50,marginLeft:10}}/>
                 <SearchBar style={{marginLeft:110,width:700,marginTop:3}}
-                    value={props.searchText}
+                    value={props.textSearch}
                            placeholder="Rechercher"
                     onChange={(newValue) => {props.onChangeSearch(newValue)}}
                     onRequestSearch={() => {props.onRequestSearch()}}

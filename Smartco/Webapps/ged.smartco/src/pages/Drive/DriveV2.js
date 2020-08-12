@@ -84,8 +84,8 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Menu from "@material-ui/core/Menu";
 import SearchResults from "../../components/Search/SearchResults";
 
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
+const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
+const checkedIcon = <CheckBoxIcon fontSize="small"/>;
 const getLabel = ({option}) => {
     return (
         <React.Fragment>
@@ -111,7 +111,7 @@ export default class DriveV2 extends React.Component {
 
         anchorEl: null,
         anchorElMenu: null,
-        anchorElContactsMenu:null,
+        anchorElContactsMenu: null,
         openRightMenu: false,
 
         selectedSieMenuItem: "coffre",
@@ -136,12 +136,12 @@ export default class DriveV2 extends React.Component {
         selectedDoc: "",
 
         folders: [],
-        sharedDrive:[],
-        rootFiles:[],
-        sharedRootFiles:[],
+        sharedDrive: [],
+        rootFiles: [],
+        sharedRootFiles: [],
 
         selectedFoldername: "",
-        breadcrumbs:"",
+        breadcrumbs: "",
         selectedFolderId: "",
         selectedFolderFiles: [],
 
@@ -151,7 +151,7 @@ export default class DriveV2 extends React.Component {
 
         newFolderName: "",
         newFolderFromRacine: false,
-        newFileFromRacine:false,
+        newFileFromRacine: false,
         loadDocSpinner: false,
 
         openDriveMenuItem: true,
@@ -160,57 +160,57 @@ export default class DriveV2 extends React.Component {
         openContactsMenu: false,
 
         showContainerSection: "Drive",
-        selectedMeetMenuItem: "",
+        selectedMeetMenuItem: ["new"],
 
         showInviteModal: false,
         meetCode: "",
 
         contacts: [],
-        rooms:[],
+        rooms: [],
         openRightContactModalDetail: false,
         selectedContact: "",
         selectedContactKey: "",
         editContactForm: false,
         showModalAdd: false,
         add: "",
-        domaine:{
-            domaine:"",
-            specialite:[],
+        domaine: {
+            domaine: "",
+            specialite: [],
         },
         formationTmp: '',
         fonctionTmp: '',
-        parcourTmp:'',
-        langueTmp:'',
-        hobbiesTmp:'',
+        parcourTmp: '',
+        langueTmp: '',
+        hobbiesTmp: '',
         affiliationTmp: '',
 
-        showPdfPreviewModal:false,
-        isDocPreviewReady:false,
+        showPdfPreviewModal: false,
+        isDocPreviewReady: false,
 
-        showPdfFlipModal:false,
+        showPdfFlipModal: false,
 
-        openShareDocModal:false,
-        checkedNotif:true,
-        msgNotif:"",
-        emailsDriveShare:[],
+        openShareDocModal: false,
+        checkedNotif: true,
+        msgNotif: "",
+        emailsDriveShare: [],
 
 
-        focusedItem:"Drive",  // => Drive || Rooms || Meet || Contacts
-        expanded:[],
-        expandedRoomItems:[],
+        focusedItem: "Drive",  // => Drive || Rooms || Meet || Contacts
+        expanded: [],
+        expandedRoomItems: [],
 
-        viewMode:"list",
+        viewMode: "list",
 
-        selectedRoomItems:["0"],
-        openNewRoomModal:false,
-        newRoomTitle:"",
-        newRoomCheck1:false,
-        newRoomCheck2:true,
-        NewRoomEmails:[],
-        selectedRoom:"",
-        selectedRoomKey:0,
+        selectedRoomItems: ["0"],
+        openNewRoomModal: false,
+        newRoomTitle: "",
+        newRoomCheck1: false,
+        newRoomCheck2: true,
+        NewRoomEmails: [],
+        selectedRoom: "",
+        selectedRoomKey: 0,
 
-        textSearch:""
+        textSearch: ""
 
     }
 
@@ -230,72 +230,203 @@ export default class DriveV2 extends React.Component {
                         let meeturl = "https://meet.smartdom.ch/meet_" + moment().format("DDMMYYYYHHmmss")
 
                         firebase.database().ref('/').on('value', (snapshot) => {
+
                             const data = snapshot.val() || [];
                             let contacts = data.contacts || [];
                             let rooms = data.rooms || [];
+
                             let sharedFolders = gedRes.data.Shared.Content.folders || [];
                             let sharedFiles = gedRes.data.Shared.Content.files || [];
                             let calls = [];
-                            for(let i = 0 ; i < sharedFolders.length ; i++){
-                                calls.push(SmartService.getFile(sharedFolders[i].id,localStorage.getItem("token"),localStorage.getItem("usrtoken")))
+                            for (let i = 0; i < sharedFolders.length; i++) {
+                                calls.push(SmartService.getFile(sharedFolders[i].id, localStorage.getItem("token"), localStorage.getItem("usrtoken")))
                             }
-                            Promise.all(calls).then( response => {
+                            Promise.all(calls).then(response => {
                                 //console.log(response)
-                                response.map((item,key) => {
+                                response.map((item, key) => {
                                     sharedDrive.push(item.data)
                                 })
-                                if(this.props.match.params.section === "drive" && this.props.match.params.section_id === "0" ){
-                                    console.log("1")
-                                    this.setState({
-                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                        folders: gedRes.data.Proprietary.Content.folders || [],
-                                        sharedDrive: sharedDrive,
-                                        sharedRootFiles:sharedFiles,
-                                        meeturl: meeturl,
-                                        contacts: contacts,
-                                        rooms: rooms,
-                                        selectedRoom:rooms.length > 0 ? rooms[0] : "",
-                                        loading: false
-                                    })
-                                }else if(this.props.match.params.section === "drive" && this.props.match.params.section_id === "shared"){
-                                    console.log("2")
-                                    this.setState({
-                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                        folders: gedRes.data.Proprietary.Content.folders || [],
-                                        sharedDrive: sharedDrive,
-                                        sharedRootFiles:sharedFiles,
-                                        expanded:["shared"],
-                                        breadcrumbs:"Mon drive / paratgés avec moi",
-                                        meeturl: meeturl,
-                                        contacts: contacts,
-                                        rooms: rooms,
-                                        selectedRoom:rooms.length > 0 ? rooms[0] : "",
-                                        loading: false
-                                    })
-                                }
-                                else{
-                                    console.log("3")
-                                    let folders = gedRes.data.Proprietary.Content.folders || [];
-                                    let folder_name = this.getFolderNameById(this.props.match.params.folder_id,folders.concat(sharedDrive));
-                                    this.setState({
-                                        folders: folders,
-                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                        sharedRootFiles:sharedFiles,
-                                        expanded:this.expandAll(this.props.match.params.section_id,folders.concat(sharedDrive)).concat(["shared"]),
-                                        sharedDrive: sharedDrive,
-                                        selectedFoldername: folder_name ,
-                                        breadcrumbs:this.getBreadcumpsPath(this.props.match.params.section_id,folders.concat(sharedDrive)),
-                                        selectedFolderId:this.props.match.params.section_id ,
-                                        meeturl: meeturl,
-                                        contacts: contacts,
-                                        rooms: rooms,
-                                        selectedRoom:rooms.length > 0 ? rooms[0] : "",
-                                        selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id,folders.concat(sharedDrive)),
-                                        loading: false
-                                    })
+                                if(this.props.match.params.section === "drive"){
+
+                                    if (this.props.match.params.section_id === "0") {
+                                        this.setState({
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedDrive: sharedDrive,
+                                            sharedRootFiles: sharedFiles,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            loading: false
+                                        })
+                                    } else if (this.props.match.params.section_id === "shared") {
+                                        this.setState({
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedDrive: sharedDrive,
+                                            sharedRootFiles: sharedFiles,
+                                            expanded: ["shared"],
+                                            breadcrumbs: "Mon drive / paratgés avec moi",
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            loading: false
+                                        })
+                                    } else {
+                                        let folders = gedRes.data.Proprietary.Content.folders || [];
+                                        let folder_name = this.getFolderNameById(this.props.match.params.folder_id, folders.concat(sharedDrive));
+                                        this.setState({
+                                            folders: folders,
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            sharedRootFiles: sharedFiles,
+                                            expanded: this.expandAll(this.props.match.params.section_id, folders.concat(sharedDrive)).concat(["shared"]),
+                                            sharedDrive: sharedDrive,
+                                            selectedFoldername: folder_name,
+                                            breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders.concat(sharedDrive)),
+                                            selectedFolderId: this.props.match.params.section_id,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders.concat(sharedDrive)),
+                                            loading: false
+                                        })
+                                    }
+
+                                }else if(this.props.match.params.section === "rooms"){
+
+                                    if(this.props.match.params.section_id === "all"){
+                                        if(rooms.length > 0 ) this.props.history.replace({pathname: '/rooms/0'});
+                                        this.setState({
+                                            showContainerSection:"Rooms",
+                                            focusedItem:"Rooms",
+                                            selectedRoomItems:rooms.length > 0 ? ["0"]:[],
+                                            openRoomMenuItem:true,
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedDrive: sharedDrive,
+                                            sharedRootFiles: sharedFiles,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            loading: false
+                                        })
+                                    }else if( (typeof parseInt(this.props.match.params.section_id)) === "number" ){
+                                        if(rooms[parseInt(this.props.match.params.section_id)]){
+                                            this.setState({
+                                                showContainerSection:"Rooms",
+                                                focusedItem:"Rooms",
+                                                selectedRoomItems:[this.props.match.params.section_id],
+                                                openRoomMenuItem:true,
+                                                rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                                folders: gedRes.data.Proprietary.Content.folders || [],
+                                                sharedDrive: sharedDrive,
+                                                sharedRootFiles: sharedFiles,
+                                                meeturl: meeturl,
+                                                contacts: contacts,
+                                                rooms: rooms,
+                                                selectedRoom: rooms[parseInt(this.props.match.params.section_id)],
+                                                selectedRoomKey:parseInt(this.props.match.params.section_id),
+                                                loading: false
+                                            })
+                                        }else{
+                                            console.log("URL ERROR")
+                                        }
+                                    }else{
+                                        console.log("URL ERROR")
+                                    }
+
+                                }else if(this.props.match.params.section === "meet"){
+
+                                    if(this.props.match.params.section_id === "new"){
+                                        this.setState({
+                                            showContainerSection:"Meet",
+                                            focusedItem:"Meet",
+                                            selectedMeetMenuItem:["new"],
+                                            openMeetMenuItem:true,
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedDrive: sharedDrive,
+                                            sharedRootFiles: sharedFiles,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            loading: false
+                                        })
+                                    }else if(this.props.match.params.section_id === "rejoin"){
+                                        this.setState({
+                                            showContainerSection:"Meet",
+                                            focusedItem:"Meet",
+                                            selectedMeetMenuItem:["rejoin"],
+                                            openMeetMenuItem:true,
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedDrive: sharedDrive,
+                                            sharedRootFiles: sharedFiles,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            loading: false
+                                        })
+                                    }else{
+                                        console.log("URL ERROR")
+                                    }
+                                }else if(this.props.match.params.section === "contacts"){
+                                    if(this.props.match.params.section_id === "all"){
+                                        this.setState({
+                                            showContainerSection:"Contacts",
+                                            focusedItem:"Contacts",
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedDrive: sharedDrive,
+                                            sharedRootFiles: sharedFiles,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            loading: false
+                                        })
+                                    }else{
+                                        console.log("URL ERROR")
+                                    }
+
+                                }else if(this.props.match.params.section === "search"){
+                                    if(this.props.match.params.section_id){
+                                        let textToSearch = this.props.match.params.section_id;
+                                        SmartService.search(textToSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
+                                            if (searchRes.succes === true && searchRes.status === 200) {
+                                                this.setState({
+                                                    searchResult: searchRes.data,
+                                                    textSearch:textToSearch,
+                                                    rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                                    folders: gedRes.data.Proprietary.Content.folders || [],
+                                                    sharedDrive: sharedDrive,
+                                                    sharedRootFiles: sharedFiles,
+                                                    meeturl: meeturl,
+                                                    contacts: contacts,
+                                                    rooms: rooms,
+                                                    selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                                    loading: false
+                                                })
+                                            } else {
+                                                console.log(searchRes.error)
+                                            }
+                                        }).catch(err => {
+                                            console.log(err)
+                                        })
+
+                                    }
+                                }else{
+                                    console.log("URL ERROR")
                                 }
 
-                            }).catch( err => {
+
+                            }).catch(err => {
                                 console.log(err);
                             })
                         });
@@ -338,7 +469,7 @@ export default class DriveV2 extends React.Component {
     };
 
     uploadImage = (image) => {
-        this.setState({loading:true})
+        this.setState({loading: true})
         let imgToUpload = image.target.files[0];
         var reader = new FileReader();
         reader.onloadend = () => {
@@ -347,8 +478,8 @@ export default class DriveV2 extends React.Component {
 
             firebase.database().ref('contacts/' + this.state.selectedContactKey).set(
                 this.state.selectedContact
-            ).then( res => {
-                this.setState({loading:false})
+            ).then(res => {
+                this.setState({loading: false})
                 this.openSnackbar('success', "Modification effectuée avec succès");
             });
         }
@@ -361,22 +492,22 @@ export default class DriveV2 extends React.Component {
         setTimeout(() => {
             SmartService.getGed(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(gedRes => {
                 if (gedRes.succes === true && gedRes.status === 200) {
-                    if(this.props.match.params.section === "drive" && this.props.match.params.section_id === "0" ){
+                    if (this.props.match.params.section === "drive" && this.props.match.params.section_id === "0") {
                         this.setState({
                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                             folders: gedRes.data.Proprietary.Content.folders || [],
                             loading: false
                         })
-                    }else{
+                    } else {
                         let folders = gedRes.data.Proprietary.Content.folders || [];
-                        let folder_name = this.getFolderNameById(this.props.match.params.section_id,folders);
+                        let folder_name = this.getFolderNameById(this.props.match.params.section_id, folders);
                         this.setState({
                             folders: folders,
-                            expanded:this.expandAll(this.props.match.params.section_id,folders),
+                            expanded: this.expandAll(this.props.match.params.section_id, folders),
                             selectedFoldername: folder_name,
-                            breadcrumbs:this.getBreadcumpsPath(this.props.match.params.section_id,folders),
-                            selectedFolderId:this.props.match.params.section_id ,
-                            selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id,folders),
+                            breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders),
+                            selectedFolderId: this.props.match.params.section_id,
+                            selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders),
                             loading: false
                         })
                     }
@@ -618,12 +749,12 @@ export default class DriveV2 extends React.Component {
     };
 
     saveChanges = () => {
-        this.setState({loading:true})
-        let key = this.findContactByEmail(this.state.selectedContact.email,this.state.contacts);
+        this.setState({loading: true})
+        let key = this.findContactByEmail(this.state.selectedContact.email, this.state.contacts);
         firebase.database().ref('contacts/' + key).set(
             this.state.selectedContact
         ).then(res => {
-            this.setState({loading:false})
+            this.setState({loading: false})
             this.openSnackbar('success', "Modification effectuée avec succès");
         });
     };
@@ -635,51 +766,52 @@ export default class DriveV2 extends React.Component {
         })
     };
 
-    handleChangeDomaine=(event)=>{
-        this.setState({domaine:{domaine:event.target.value,
-                specialite:[]},
+    handleChangeDomaine = (event) => {
+        this.setState({
+            domaine: {
+                domaine: event.target.value,
+                specialite: []
+            },
         })
     }
 
-    handleChangeSpecialite=(event)=>{
+    handleChangeSpecialite = (event) => {
         let domaine = this.state.domaine
-        domaine.specialite=event.target.value
-        this.setState({domaine:domaine})
+        domaine.specialite = event.target.value
+        this.setState({domaine: domaine})
     }
 
-    expandAll = (id,drive) => {
+    expandAll = (id, drive) => {
         for (let i = 0; i < drive.length; i++) {
             expanded.push(drive[i].id)
             if (drive[i].id === id) {
                 return expanded;
             }
-            var found = this.expandAll(id,drive[i].Content.folders);
+            var found = this.expandAll(id, drive[i].Content.folders);
             if (found) return expanded;
         }
 
     }
 
-    getFolderNameById = (id,drive) => {
-        for(let i = 0; i < drive.length; i++) {
+    getFolderNameById = (id, drive) => {
+        for (let i = 0; i < drive.length; i++) {
             if (drive[i].id !== id) {
-                let found = this.getFolderNameById(id,drive[i].Content.folders)
-                if(found) return found
-            }
-            else return drive[i].name
+                let found = this.getFolderNameById(id, drive[i].Content.folders)
+                if (found) return found
+            } else return drive[i].name
         }
     }
 
-    getFolderTypeById = (id,drive) => {
-        for(let i = 0; i < drive.length; i++) {
+    getFolderTypeById = (id, drive) => {
+        for (let i = 0; i < drive.length; i++) {
             if (drive[i].id !== id) {
-                let found = this.getFolderNameById(id,drive[i].Content.folders)
-                if(found) return found
-            }
-            else return drive[i].proprietary ? "shared" : "proprietary"
+                let found = this.getFolderNameById(id, drive[i].Content.folders)
+                if (found) return found
+            } else return drive[i].proprietary ? "shared" : "proprietary"
         }
     }
 
-    getFolderFilesById = (id,drive) => {
+    getFolderFilesById = (id, drive) => {
         for (let i = 0; i < drive.length; i++) {
             if (drive[i].id !== id) {
                 let found = this.getFolderFilesById(id, drive[i].Content.folders);
@@ -689,51 +821,64 @@ export default class DriveV2 extends React.Component {
     }
 
     buildIndex = (root, children) => {
-        for(let i in children) {
+        for (let i in children) {
             index[children[i].id] = root;
-            this.buildIndex(children[i].id,children[i].Content ? children[i].Content.folders : []);
+            this.buildIndex(children[i].id, children[i].Content ? children[i].Content.folders : []);
         }
     }
 
-    getPath = (id,drive) => {
-        if(drive) this.buildIndex("Mon drive", drive);
+    getPath = (id, drive) => {
+        if (drive) this.buildIndex("Mon drive", drive);
         return index[id] ? this.getPath(index[id]).concat([id]) : [id];
     }
 
-    getBreadcumpsPath = (idFolder,drive) => {
+    getBreadcumpsPath = (idFolder, drive) => {
         console.log(drive)
-        let breadCrumbArray = this.getPath(idFolder,drive)
+        let breadCrumbArray = this.getPath(idFolder, drive)
         let breadcrumbs = [];
-        breadCrumbArray.map((id,key) => {
-            if(id !== "Mon drive"){
-                let name = this.getFolderNameById(id,drive)
-                if(this.getFolderTypeById(id,drive) === "shared") breadcrumbs.push("Partagés avec moi")
+        breadCrumbArray.map((id, key) => {
+            if (id !== "Mon drive") {
+                let name = this.getFolderNameById(id, drive)
+                if (this.getFolderTypeById(id, drive) === "shared") breadcrumbs.push("Partagés avec moi")
                 breadcrumbs.push(name)
-            }else{
+            } else {
                 breadcrumbs.push(id)
             }
         });
         return breadcrumbs.join(" / ");
     }
 
-    findContactByEmail = (email,contacts) => {
-        let index ;
-        contacts.map((contact,key) => {
-            if(contact.email && contact.email === email) index = key
+    findContactByEmail = (email, contacts) => {
+        let index;
+        contacts.map((contact, key) => {
+            if (contact.email && contact.email === email) index = key
         })
         return index
     }
 
     addNewRoom = (room) => {
-        this.setState({loading:true,openNewRoomModal:false})
+        this.setState({loading: true, openNewRoomModal: false})
         let rooms = this.state.rooms;
         rooms.push(room);
         firebase.database().ref('/rooms').set(
             rooms
         ).then(res => {
-            this.setState({loading:false,newRoomTitle:"",NewRoomEmails:[]})
+            this.props.history.replace({pathname: '/rooms/' + (rooms.length -1)});
+            this.setState({loading: false, newRoomTitle: "", NewRoomEmails: [],
+                selectedRoom:room,selectedRoomKey:(rooms.length -1),selectedRoomItems:[(rooms.length -1).toString()]})
             this.openSnackbar('success', "Room ajouté avec succès");
         });
+    }
+
+
+    base64ToSize = (base64) => {
+        if(base64.endsWith("==")){
+            return (base64.length * (3/4)) - 2
+        }else if(base64.endsWith("=")) {
+            return (base64.length * (3/4)) - 1
+        }else {
+            return (base64.length * (3/4))
+        }
     }
 
 
@@ -743,19 +888,26 @@ export default class DriveV2 extends React.Component {
             <div>
                 <MuiBackdrop open={this.state.loading}/>
                 <TopBar logo={logo} height={70} onClickMenuIcon={() => this.setState({openSideMenu: true})}
-                        onLogoutClick={() => {localStorage.clear();this.props.history.push("/login")}}
-                        textSearch={this.state.textSearch} onChangeSearch={(value) => {this.setState({textSearch:value})}}
+                        onLogoutClick={() => {
+                            localStorage.clear();
+                            this.props.history.push("/login")
+                        }}
+                        textSearch={this.state.textSearch} onChangeSearch={(value) => {
+                    this.setState({textSearch: value})
+                }}
                         onRequestSearch={() => {
-                            this.setState({loading:true})
-                            this.props.history.replace({pathname:'/search/'+this.state.textSearch});
-                            SmartService.search(this.state.textSearch,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( searchRes => {
+                            this.setState({loading: true,showContainerSection:"Drive",focusedItem:"Drive"})
+                            this.props.history.replace({pathname: '/search/' + this.state.textSearch});
+                            SmartService.search(this.state.textSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
                                 console.log(searchRes);
-                                if(searchRes.succes === true && searchRes.status === 200){
-                                    this.setState({loading:false,searchResult:searchRes.data})
-                                }else{
+                                if (searchRes.succes === true && searchRes.status === 200) {
+                                    this.setState({loading: false, searchResult: searchRes.data})
+                                } else {
                                     console.log(searchRes.error)
                                 }
-                            }).catch(err => {console.log(err)})
+                            }).catch(err => {
+                                console.log(err)
+                            })
                         }}
                 />
                 <SideMenu logo={logo} items={data.sideBarItems} iconColor={"blue"} textColor={"#65728E"}
@@ -773,9 +925,12 @@ export default class DriveV2 extends React.Component {
                                         newFolderFromRacine: true
                                     })}
                                               focusedItem={this.state.focusedItem}
-                                              setFocusedItem={(item)=> {
-                                                  this.props.history.replace({pathname:'/drive/0'});
-                                                  this.setState({focusedItem:item,showContainerSection:item})
+                                              setFocusedItem={(item) => {
+                                                  item === "Drive" ? this.props.history.replace({pathname: '/drive/0'}) :
+                                                      item === "Rooms" ? this.state.rooms.length > 0 ? this.props.history.replace({pathname: '/rooms/0'}) : this.props.history.replace({pathname: '/rooms/all'}) :
+                                                          item === "Meet" ? this.props.history.replace({pathname: '/meet/new'}) :
+                                                              this.props.history.replace({pathname: '/contacts/all'})
+                                                  this.setState({focusedItem: item, showContainerSection: item})
                                               }}
 
                                               showDriveMenuItems={this.state.openDriveMenuItem}
@@ -797,35 +952,43 @@ export default class DriveV2 extends React.Component {
                                                   showNewDocScreen: true,
                                                   showUploadStep: "upload"
                                               })}
-                                              openShareModal={() => {this.setState({openShareDocModal:true})}}
+                                              openShareModal={() => {
+                                                  this.setState({openShareDocModal: true})
+                                              }}
 
                                               driveFolders={this.state.folders || []}
 
                                               setFolderName={(name) => this.setState({selectedFoldername: name})}
                                               setFolderId={(id) => {
-                                                  this.props.history.replace({pathname:'/drive/'+id});
+                                                  this.props.history.replace({pathname: '/drive/' + id});
                                                   this.setState({
-                                                      breadcrumbs:this.getBreadcumpsPath(id,this.state.folders.concat(this.state.sharedDrive)),
+                                                      focusedItem: "Drive",
+                                                      breadcrumbs: this.getBreadcumpsPath(id, this.state.folders.concat(this.state.sharedDrive)),
                                                       selectedFolderId: id,
                                                       showContainerSection: "Drive"
                                                   })
                                               }}
                                               setSelectedFolderFiles={(files) => this.setState({selectedFolderFiles: files})}
                                         //selectedDriveItem={this.state.showContainerSection === "Drive" && [this.state.selectedFolderId === "" ? this.state.folders.length > 0 ? this.state.folders[0].id : "" : this.state.selectedFolderId]}
-                                              selectedDriveItem={this.state.showContainerSection === "Drive" && (this.props.match.params.section_id ? [this.props.match.params.section_id] :[] )}
+                                              selectedDriveItem={this.state.showContainerSection === "Drive" && (this.props.match.params.section_id ? [this.props.match.params.section_id] : [])}
                                               expandedDriveItems={this.state.showContainerSection === "Drive" && this.state.expanded}
-                                              selectedMeetItem={this.state.showContainerSection === "Meet" ? this.state.selectedMeetMenuItem === "nm" ? ["01"] : ["02"] : []}
-
+                                              selectedMeetItem={this.state.showContainerSection === "Meet" ? this.state.selectedMeetMenuItem : []}
+                                              handleSelectMeetMenu={(event, nodeIds) => {
+                                                  this.setState({selectedMeetMenuItem: nodeIds})
+                                              }}
                                               onMeetItemClick={(nodeId) => {
-                                                  if (nodeId === "01") {
+                                                  this.props.history.replace({pathname: '/meet/' + nodeId});
+                                                  if (nodeId === "new") {
                                                       this.setState({
+                                                          focusedItem: "Meet",
                                                           showContainerSection: "Meet",
-                                                          selectedMeetMenuItem: "nm"
+                                                          selectedMeetMenuItem: "new"
                                                       })
-                                                  } else if (nodeId === "02") {
+                                                  } else if (nodeId === "rejoin") {
                                                       this.setState({
+                                                          focusedItem: "Meet",
                                                           showContainerSection: "Meet",
-                                                          selectedMeetMenuItem: "rm"
+                                                          selectedMeetMenuItem: "rejoin"
                                                       })
                                                   } else {
                                                   }
@@ -834,32 +997,45 @@ export default class DriveV2 extends React.Component {
                                               sharedDrive={this.state.sharedDrive || []}
                                               sharedRootFiles={this.state.sharedRootFiles}
                                               onClickSharedRootItem={() => {
-                                                  this.props.history.replace({pathname:'/drive/shared'});
-                                                  this.setState({breadcrumbs:"Mon drive / Partagés avec moi"})
+                                                  this.props.history.replace({pathname: '/drive/shared'});
+                                                  this.setState({
+                                                      breadcrumbs: "Mon drive / Partagés avec moi",
+                                                      focusedItem: "Drive",
+                                                      showContainerSection: "Drive"
+                                                  })
                                               }}
 
-                                              handleToggle={(event, nodeIds)=> {
-                                                  this.setState({expanded:nodeIds})
+                                              handleToggle={(event, nodeIds) => {
+                                                  this.setState({expanded: nodeIds})
                                               }}
                                               onClickNewFileFromRacine={() => {
-                                                  this.setState({newFileFromRacine:true,showNewDocScreen: true,showUploadStep: "upload"})
+                                                  this.setState({
+                                                      newFileFromRacine: true,
+                                                      showNewDocScreen: true,
+                                                      showUploadStep: "upload"
+                                                  })
                                               }}
 
                                               rooms={this.state.rooms}
-                                              setSelectedRoom={(room,roomId) => {
-                                                  console.log(roomId)
-                                                  this.setState({selectedRoom: room,selectedRoomKey:roomId})
+                                              setSelectedRoom={(room, roomId) => {
+                                                  this.props.history.replace({pathname: '/rooms/' + roomId});
+                                                  this.setState({
+                                                      selectedRoom: room,
+                                                      selectedRoomKey: roomId,
+                                                      showContainerSection: "Rooms",
+                                                      focusedItem: "Rooms"
+                                                  })
                                               }}
                                               selectedRoomItems={this.state.showContainerSection === "Rooms" && this.state.selectedRoomItems}
                                               expandedRoomItems={this.state.expandedRoomItems}
                                               onClickAddRoomBtn={() => {
-                                                  this.setState({openNewRoomModal:true})
+                                                  this.setState({openNewRoomModal: true})
                                               }}
-                                              handleToggleRoomsMenu={(event, nodeIds)=> {
-                                                  this.setState({expandedRoomItems:nodeIds})
+                                              handleToggleRoomsMenu={(event, nodeIds) => {
+                                                  this.setState({expandedRoomItems: nodeIds})
                                               }}
-                                              handleSelectRoomsMenu={(event,nodeIds) => {
-                                                  this.setState({selectedRoomItems:nodeIds})
+                                              handleSelectRoomsMenu={(event, nodeIds) => {
+                                                  this.setState({selectedRoomItems: nodeIds})
                                               }}
                                     />
 
@@ -881,22 +1057,35 @@ export default class DriveV2 extends React.Component {
                                                                 display: "flex",
                                                                 justifyContent: "space-between"
                                                             }}>
-                                                                <div style={{width:"100%"}}>
+                                                                <div style={{width: "100%"}}>
                                                                     <h5 className="mt-0 mb-1">
                                                                         {
                                                                             this.props.match.params.section === "search" ? "Résultats de recherche" :
                                                                                 (this.props.match.params.section_id && this.props.match.params.section_id === '0') ? "Mon drive" : this.state.breadcrumbs
                                                                         }
                                                                     </h5>
-                                                                    <div style={{position:"absolute",right:25,marginTop:-44}}>
-                                                                        <IconButton aria-label={this.state.viewMode === "list" ? "Vue liste" : "Vue grille"} onClick={() => {
-                                                                            this.state.viewMode === "list" ? this.setState({viewMode:"grid"}) : this.setState({viewMode:"list"})
-                                                                        }}
-                                                                                    title={this.state.viewMode === "list" ? "Vue liste" : "Vue grille"} color="default">
-                                                                            {this.state.viewMode === "list" ? <ViewComfyIcon/> : <ListIcon/>}
+                                                                    <div style={{
+                                                                        position: "absolute",
+                                                                        right: 25,
+                                                                        marginTop: -44
+                                                                    }}>
+                                                                        <IconButton
+                                                                            aria-label={this.state.viewMode === "list" ? "Vue liste" : "Vue grille"}
+                                                                            onClick={() => {
+                                                                                this.state.viewMode === "list" ? this.setState({viewMode: "grid"}) : this.setState({viewMode: "list"})
+                                                                            }}
+                                                                            title={this.state.viewMode === "list" ? "Vue liste" : "Vue grille"}
+                                                                            color="default">
+                                                                            {this.state.viewMode === "list" ?
+                                                                                <ViewComfyIcon/> : <ListIcon/>}
                                                                         </IconButton>
                                                                     </div>
-                                                                    <div style={{height:1,backgroundColor:"#dadce0",marginBottom:15,marginTop:15}}/>
+                                                                    <div style={{
+                                                                        height: 1,
+                                                                        backgroundColor: "#dadce0",
+                                                                        marginBottom: 15,
+                                                                        marginTop: 15
+                                                                    }}/>
                                                                     {
                                                                         this.props.match.params.section !== "search" &&
                                                                         <h6>
@@ -918,18 +1107,28 @@ export default class DriveV2 extends React.Component {
                                                                 {
                                                                     this.props.match.params.section === "search" ?
                                                                         <div>
-                                                                            <SearchResults textSearch={this.state.textSearch} data={this.state.searchResult} viewMode={this.state.viewMode}
-                                                                                           onClickDoc={(item) => this.setState({selectedDoc: item, openRightMenu: true})}
+                                                                            <SearchResults
+                                                                                textSearch={this.state.textSearch}
+                                                                                data={this.state.searchResult}
+                                                                                viewMode={this.state.viewMode}
+                                                                                onClickDoc={(item) => this.setState({
+                                                                                    selectedDoc: item,
+                                                                                    openRightMenu: true
+                                                                                })}
                                                                             />
                                                                         </div> :
 
                                                                         this.props.match.params.section === "drive" ?
-                                                                            this.state.folders.length === 0 && this.state.rootFiles.length === 0  ?
-                                                                                <div style={{marginTop: 25, display: "flex"}}>
+                                                                            this.state.folders.length === 0 && this.state.rootFiles.length === 0 ?
+                                                                                <div style={{
+                                                                                    marginTop: 25,
+                                                                                    display: "flex"
+                                                                                }}>
                                                                                     <h5 style={{
                                                                                         fontSize: 16,
                                                                                         color: "gray"
-                                                                                    }}>Aucun dossier encore ajouté ! </h5>&nbsp;&nbsp;
+                                                                                    }}>Aucun dossier encore ajouté
+                                                                                        ! </h5>&nbsp;&nbsp;
                                                                                     <h6 style={{
                                                                                         cursor: "pointer",
                                                                                         color: "#000",
@@ -947,28 +1146,36 @@ export default class DriveV2 extends React.Component {
                                                                                     <div>
                                                                                         {
                                                                                             this.state.viewMode === "list" &&
-                                                                                            <div className="list_view_item">
-                                                                                                <div style={{width:56}}>
-                                                                                                    <h6 style={{color:"#000"}}>Type</h6>
+                                                                                            <div
+                                                                                                className="list_view_item">
+                                                                                                <div
+                                                                                                    style={{width: 56}}>
+                                                                                                    <h6 style={{color: "#000"}}>Type</h6>
                                                                                                 </div>
-                                                                                                <div style={{width:300}}>
-                                                                                                    <h6 style={{color:"#000"}}>Nom</h6>
+                                                                                                <div
+                                                                                                    style={{width: 300}}>
+                                                                                                    <h6 style={{color: "#000"}}>Nom</h6>
                                                                                                 </div>
-                                                                                                <div style={{width:215}}>
-                                                                                                    <h6 style={{color:"#000"}}>Propriétaire</h6>
+                                                                                                <div
+                                                                                                    style={{width: 215}}>
+                                                                                                    <h6 style={{color: "#000"}}>Propriétaire</h6>
                                                                                                 </div>
-                                                                                                <div style={{width:200}}>
-                                                                                                    <h6 style={{color:"#000"}}>Date de création</h6>
+                                                                                                <div
+                                                                                                    style={{width: 200}}>
+                                                                                                    <h6 style={{color: "#000"}}>Date
+                                                                                                        de création</h6>
                                                                                                 </div>
-                                                                                                <div style={{width:150}}>
-                                                                                                    <h6 style={{color:"#000"}}>Taille</h6>
+                                                                                                <div
+                                                                                                    style={{width: 150}}>
+                                                                                                    <h6 style={{color: "#000"}}>Taille</h6>
                                                                                                 </div>
                                                                                             </div>
                                                                                         }
                                                                                         {
                                                                                             (this.state.rootFiles || []).map((item, key) =>
                                                                                                 this.state.viewMode === "grid" ?
-                                                                                                    <div key={key} className="cf_itemDoc">
+                                                                                                    <div key={key}
+                                                                                                         className="cf_itemDoc">
                                                                                                         <span
                                                                                                             className="cf-itemDoc_preview"
                                                                                                             onClick={() => {
@@ -994,28 +1201,40 @@ export default class DriveV2 extends React.Component {
                                                                                                         </span>
                                                                                                     </div> :
 
-                                                                                                    <div key={key} className="list_view_item" onClick={() => {
-                                                                                                        this.setState({
-                                                                                                            selectedDoc: item,
-                                                                                                            openRightMenu: true
-                                                                                                        })
-                                                                                                    }}>
-                                                                                                        <div style={{width:56}}>
-                                                                                                            <IconButton color="default">
-                                                                                                                <PictureAsPdfIcon style={{color:"red",backgroundColor:"#fff"}}/>
+                                                                                                    <div key={key}
+                                                                                                         className="list_view_item"
+                                                                                                         onClick={() => {
+                                                                                                             this.setState({
+                                                                                                                 selectedDoc: item,
+                                                                                                                 openRightMenu: true
+                                                                                                             })
+                                                                                                         }}>
+                                                                                                        <div
+                                                                                                            style={{width: 56}}>
+                                                                                                            <IconButton
+                                                                                                                color="default">
+                                                                                                                <PictureAsPdfIcon
+                                                                                                                    style={{
+                                                                                                                        color: "red",
+                                                                                                                        backgroundColor: "#fff"
+                                                                                                                    }}/>
                                                                                                             </IconButton>
                                                                                                         </div>
-                                                                                                        <div style={{width:300}}>
+                                                                                                        <div
+                                                                                                            style={{width: 300}}>
                                                                                                             <h6>{item.name + ".pdf"}</h6>
                                                                                                         </div>
-                                                                                                        <div style={{width:215}}>
-                                                                                                            <h6 style={{color:"grey"}}>Moi</h6>
+                                                                                                        <div
+                                                                                                            style={{width: 215}}>
+                                                                                                            <h6 style={{color: "grey"}}>Moi</h6>
                                                                                                         </div>
-                                                                                                        <div style={{width:200}}>
-                                                                                                            <h6 style={{color:"grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
+                                                                                                        <div
+                                                                                                            style={{width: 200}}>
+                                                                                                            <h6 style={{color: "grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
                                                                                                         </div>
-                                                                                                        <div style={{width:150}}>
-                                                                                                            <h6 style={{color:"grey"}}>50 Ko</h6>
+                                                                                                        <div
+                                                                                                            style={{width: 150}}>
+                                                                                                            <h6 style={{color: "grey"}}>50 Ko</h6>
                                                                                                         </div>
                                                                                                     </div>
                                                                                             )
@@ -1024,31 +1243,40 @@ export default class DriveV2 extends React.Component {
 
                                                                                     </div> :
                                                                                     this.props.match.params.section_id && this.props.match.params.section_id === 'shared' ?
-                                                                                        <div style={{marginTop:15}}>
+                                                                                        <div style={{marginTop: 15}}>
                                                                                             {
                                                                                                 this.state.viewMode === "list" &&
-                                                                                                <div className="list_view_item">
-                                                                                                    <div style={{width:56}}>
-                                                                                                        <h6 style={{color:"#000"}}>Type</h6>
+                                                                                                <div
+                                                                                                    className="list_view_item">
+                                                                                                    <div
+                                                                                                        style={{width: 56}}>
+                                                                                                        <h6 style={{color: "#000"}}>Type</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:300}}>
-                                                                                                        <h6 style={{color:"#000"}}>Nom</h6>
+                                                                                                    <div
+                                                                                                        style={{width: 300}}>
+                                                                                                        <h6 style={{color: "#000"}}>Nom</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:215}}>
-                                                                                                        <h6 style={{color:"#000"}}>Propriétaire</h6>
+                                                                                                    <div
+                                                                                                        style={{width: 215}}>
+                                                                                                        <h6 style={{color: "#000"}}>Propriétaire</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:200}}>
-                                                                                                        <h6 style={{color:"#000"}}>Date de création</h6>
+                                                                                                    <div
+                                                                                                        style={{width: 200}}>
+                                                                                                        <h6 style={{color: "#000"}}>Date
+                                                                                                            de
+                                                                                                            création</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:150}}>
-                                                                                                        <h6 style={{color:"#000"}}>Taille</h6>
+                                                                                                    <div
+                                                                                                        style={{width: 150}}>
+                                                                                                        <h6 style={{color: "#000"}}>Taille</h6>
                                                                                                     </div>
                                                                                                 </div>
                                                                                             }
                                                                                             {
                                                                                                 (this.state.sharedRootFiles || []).map((item, key) =>
                                                                                                     this.state.viewMode === "grid" ?
-                                                                                                        <div key={key} className="cf_itemDoc">
+                                                                                                        <div key={key}
+                                                                                                             className="cf_itemDoc">
                                                                                                             <span
                                                                                                                 className="cf-itemDoc_preview"
                                                                                                                 onClick={() => {
@@ -1057,9 +1285,10 @@ export default class DriveV2 extends React.Component {
                                                                                                                         openRightMenu: true
                                                                                                                     })
                                                                                                                 }}>
-                                                                                                                <img alt=""
-                                                                                                                     src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
-                                                                                                                     className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
+                                                                                                                <img
+                                                                                                                    alt=""
+                                                                                                                    src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
+                                                                                                                    className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
                                                                                                                 <div
                                                                                                                     className="cf_itemDoc_preview_details">
                                                                                                                     <div
@@ -1073,60 +1302,82 @@ export default class DriveV2 extends React.Component {
 
                                                                                                             </span>
                                                                                                         </div> :
-                                                                                                        <div key={key} className="list_view_item" onClick={() => {
-                                                                                                            this.setState({
-                                                                                                                selectedDoc: item,
-                                                                                                                openRightMenu: true
-                                                                                                            })
-                                                                                                        }}>
-                                                                                                            <div style={{width:56}}>
-                                                                                                                <IconButton color="default">
-                                                                                                                    <PictureAsPdfIcon style={{color:"red",backgroundColor:"#fff"}}/>
+                                                                                                        <div key={key}
+                                                                                                             className="list_view_item"
+                                                                                                             onClick={() => {
+                                                                                                                 this.setState({
+                                                                                                                     selectedDoc: item,
+                                                                                                                     openRightMenu: true
+                                                                                                                 })
+                                                                                                             }}>
+                                                                                                            <div
+                                                                                                                style={{width: 56}}>
+                                                                                                                <IconButton
+                                                                                                                    color="default">
+                                                                                                                    <PictureAsPdfIcon
+                                                                                                                        style={{
+                                                                                                                            color: "red",
+                                                                                                                            backgroundColor: "#fff"
+                                                                                                                        }}/>
                                                                                                                 </IconButton>
                                                                                                             </div>
-                                                                                                            <div style={{width:300}}>
+                                                                                                            <div
+                                                                                                                style={{width: 300}}>
                                                                                                                 <h6>{item.name + ".pdf"}</h6>
                                                                                                             </div>
-                                                                                                            <div style={{width:215}}>
-                                                                                                                <h6 style={{color:"grey"}}>Moi</h6>
+                                                                                                            <div
+                                                                                                                style={{width: 215}}>
+                                                                                                                <h6 style={{color: "grey"}}>Moi</h6>
                                                                                                             </div>
-                                                                                                            <div style={{width:200}}>
-                                                                                                                <h6 style={{color:"grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
+                                                                                                            <div
+                                                                                                                style={{width: 200}}>
+                                                                                                                <h6 style={{color: "grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
                                                                                                             </div>
-                                                                                                            <div style={{width:150}}>
-                                                                                                                <h6 style={{color:"grey"}}>50 Ko</h6>
+                                                                                                            <div
+                                                                                                                style={{width: 150}}>
+                                                                                                                <h6 style={{color: "grey"}}>50
+                                                                                                                    Ko</h6>
                                                                                                             </div>
                                                                                                         </div>
                                                                                                 )
                                                                                             }
 
-                                                                                        </div>  :
+                                                                                        </div> :
 
-                                                                                        <div style={{marginTop:15}}>
+                                                                                        <div style={{marginTop: 15}}>
                                                                                             {
                                                                                                 this.state.viewMode === "list" &&
-                                                                                                <div className="list_view_item">
-                                                                                                    <div style={{width:56}}>
-                                                                                                        <h6 style={{color:"#000"}}>Type</h6>
+                                                                                                <div
+                                                                                                    className="list_view_item">
+                                                                                                    <div
+                                                                                                        style={{width: 56}}>
+                                                                                                        <h6 style={{color: "#000"}}>Type</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:300}}>
-                                                                                                        <h6 style={{color:"#000"}}>Nom</h6>
+                                                                                                    <div
+                                                                                                        style={{width: 300}}>
+                                                                                                        <h6 style={{color: "#000"}}>Nom</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:215}}>
-                                                                                                        <h6 style={{color:"#000"}}>Propriétaire</h6>
+                                                                                                    <div
+                                                                                                        style={{width: 215}}>
+                                                                                                        <h6 style={{color: "#000"}}>Propriétaire</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:200}}>
-                                                                                                        <h6 style={{color:"#000"}}>Date de création</h6>
+                                                                                                    <div
+                                                                                                        style={{width: 200}}>
+                                                                                                        <h6 style={{color: "#000"}}>Date
+                                                                                                            de
+                                                                                                            création</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:150}}>
-                                                                                                        <h6 style={{color:"#000"}}>Taille</h6>
+                                                                                                    <div
+                                                                                                        style={{width: 150}}>
+                                                                                                        <h6 style={{color: "#000"}}>Taille</h6>
                                                                                                     </div>
                                                                                                 </div>
                                                                                             }
                                                                                             {
                                                                                                 (this.state.selectedFolderFiles || []).map((item, key) =>
                                                                                                     this.state.viewMode === "grid" ?
-                                                                                                        <div key={key} className="cf_itemDoc">
+                                                                                                        <div key={key}
+                                                                                                             className="cf_itemDoc">
                                                                                                             <span
                                                                                                                 className="cf-itemDoc_preview"
                                                                                                                 onClick={() => {
@@ -1135,9 +1386,10 @@ export default class DriveV2 extends React.Component {
                                                                                                                         openRightMenu: true
                                                                                                                     })
                                                                                                                 }}>
-                                                                                                                <img alt=""
-                                                                                                                     src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
-                                                                                                                     className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
+                                                                                                                <img
+                                                                                                                    alt=""
+                                                                                                                    src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
+                                                                                                                    className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
                                                                                                                 <div
                                                                                                                     className="cf_itemDoc_preview_details">
                                                                                                                     <div
@@ -1151,34 +1403,47 @@ export default class DriveV2 extends React.Component {
 
                                                                                                             </span>
                                                                                                         </div> :
-                                                                                                        <div key={key} className="list_view_item" onClick={() => {
-                                                                                                            this.setState({
-                                                                                                                selectedDoc: item,
-                                                                                                                openRightMenu: true
-                                                                                                            })
-                                                                                                        }}>
-                                                                                                            <div style={{width:56}}>
-                                                                                                                <IconButton color="default">
-                                                                                                                    <PictureAsPdfIcon style={{color:"red",backgroundColor:"#fff"}}/>
+                                                                                                        <div key={key}
+                                                                                                             className="list_view_item"
+                                                                                                             onClick={() => {
+                                                                                                                 this.setState({
+                                                                                                                     selectedDoc: item,
+                                                                                                                     openRightMenu: true
+                                                                                                                 })
+                                                                                                             }}>
+                                                                                                            <div
+                                                                                                                style={{width: 56}}>
+                                                                                                                <IconButton
+                                                                                                                    color="default">
+                                                                                                                    <PictureAsPdfIcon
+                                                                                                                        style={{
+                                                                                                                            color: "red",
+                                                                                                                            backgroundColor: "#fff"
+                                                                                                                        }}/>
                                                                                                                 </IconButton>
                                                                                                             </div>
-                                                                                                            <div style={{width:300}}>
+                                                                                                            <div
+                                                                                                                style={{width: 300}}>
                                                                                                                 <h6>{item.name + ".pdf"}</h6>
                                                                                                             </div>
-                                                                                                            <div style={{width:215}}>
-                                                                                                                <h6 style={{color:"grey"}}>Moi</h6>
+                                                                                                            <div
+                                                                                                                style={{width: 215}}>
+                                                                                                                <h6 style={{color: "grey"}}>Moi</h6>
                                                                                                             </div>
-                                                                                                            <div style={{width:200}}>
-                                                                                                                <h6 style={{color:"grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
+                                                                                                            <div
+                                                                                                                style={{width: 200}}>
+                                                                                                                <h6 style={{color: "grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
                                                                                                             </div>
-                                                                                                            <div style={{width:150}}>
-                                                                                                                <h6 style={{color:"grey"}}>50 Ko</h6>
+                                                                                                            <div
+                                                                                                                style={{width: 150}}>
+                                                                                                                <h6 style={{color: "grey"}}>50
+                                                                                                                    Ko</h6>
                                                                                                             </div>
                                                                                                         </div>
                                                                                                 )
                                                                                             }
 
-                                                                                        </div>  : null
+                                                                                        </div> : null
 
 
                                                                 }
@@ -1191,7 +1456,10 @@ export default class DriveV2 extends React.Component {
                                                                 <div>
                                                                     <div className="">
                                                                         <button className="btn btn-sm btn-light"
-                                                                                onClick={() => this.setState({showNewDocScreen: false,newFileFromRacine:false})}>
+                                                                                onClick={() => this.setState({
+                                                                                    showNewDocScreen: false,
+                                                                                    newFileFromRacine: false
+                                                                                })}>
                                                                             <i className="mdi mdi-arrow-left font-16"
                                                                                style={{
                                                                                    color: "#000",
@@ -1201,7 +1469,8 @@ export default class DriveV2 extends React.Component {
                                                                         </button>
                                                                     </div>
                                                                     <div align="center" className="mt-5">
-                                                                        <h1 className="skh1">Télécharger un document</h1>
+                                                                        <h1 className="skh1">Télécharger un
+                                                                            document</h1>
                                                                         <p style={{fontSize: "1rem"}} className="mt-2">
                                                                             Faites glisser et déposez un documents PDF
                                                                             sur le terrain ou sélectionnez un fichier
@@ -1238,7 +1507,7 @@ export default class DriveV2 extends React.Component {
                                                                                                 if (fileRes.succes === true && fileRes.status === 200) {
 
                                                                                                     this.setState({
-                                                                                                        newFileFromRacine:false,
+                                                                                                        newFileFromRacine: false,
                                                                                                         progressUpload: undefined,
                                                                                                         showUploadStep: "upload_succes",
                                                                                                         uploadedName: fileRes.data.name + ".pdf",
@@ -1789,25 +2058,49 @@ export default class DriveV2 extends React.Component {
 
                                         }
                                         {
-                                            this.state.showContainerSection === "Rooms"  && this.state.selectedRoom !== "" && this.state.loading === false &&
+                                            this.state.showContainerSection === "Rooms" && this.state.loading === false &&
                                             <div>
-                                                <h4 className="mt-0 mb-1">{this.state.selectedRoom.title}</h4>
-                                                <p>{this.state.selectedRoom.members.length} membres</p>
-                                                <RoomTabs contacts={this.state.contacts} room={this.state.selectedRoom}
-                                                          addNewTask={(title,assignedTo) => {
-                                                              let room = this.state.selectedRoom;
-                                                              let tasks = room.tasks || [];
-                                                              tasks.push({title:title,assignedTo:assignedTo})
-                                                              room.tasks = tasks;
-                                                              console.log(this.state.selectedRoomKey)
-                                                              firebase.database().ref("rooms/"+this.state.selectedRoomKey).set(
-                                                                  room
-                                                              ).then( ok => {
-                                                                  this.setState({selectedRoom:room})
-                                                              })
+                                                {
+                                                    this.state.rooms.length === 0 ?
+                                                        <div>
+                                                            <h4 className="mt-0 mb-1">Rooms</h4>
+                                                            <div style={{marginTop:25,display:"flex"}}>
+                                                                <h5 style={{fontSize: 16, color: "gray"}}>
+                                                                    Aucune "Room" encore ajouté !</h5>&nbsp;&nbsp;
+                                                                <h6 style={{
+                                                                    cursor: "pointer",
+                                                                    color: "#000",
+                                                                    textDecoration: "underline",marginTop:12
+                                                                }} onClick={() => {
+                                                                    this.setState({
+                                                                        openNewRoomModal: true
+                                                                    })
+                                                                }}>
+                                                                    Ajouter une</h6>
+                                                            </div>
+                                                        </div> :
 
-                                                          }}
-                                                />
+                                                        <div>
+                                                            <h4 className="mt-0 mb-1">{this.state.selectedRoom.title}</h4>
+                                                            <p>{this.state.selectedRoom.members.length} membres</p>
+                                                            <RoomTabs contacts={this.state.contacts} room={this.state.selectedRoom}
+                                                                      addNewTask={(title, assignedTo) => {
+                                                                          let room = this.state.selectedRoom;
+                                                                          let tasks = room.tasks || [];
+                                                                          tasks.push({title: title, assignedTo: assignedTo})
+                                                                          room.tasks = tasks;
+                                                                          console.log(this.state.selectedRoomKey)
+                                                                          firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
+                                                                              room
+                                                                          ).then(ok => {
+                                                                              this.setState({selectedRoom: room})
+                                                                          })
+
+                                                                      }}
+                                                            />
+                                                        </div>
+                                                }
+
                                             </div>
                                         }
                                         {
@@ -1932,7 +2225,8 @@ export default class DriveV2 extends React.Component {
                                                                                 <div
                                                                                     className="col-md-2 bg-danger text-center "
                                                                                     style={{width: "10%"}}>
-                                                                                    <h4 style={{color: "white"}}>OA Legal</h4>
+                                                                                    <h4 style={{color: "white"}}>OA
+                                                                                        Legal</h4>
                                                                                 </div>
                                                                                 <hr style={{
                                                                                     backgroundColor: "#a6a6a6",
@@ -1951,11 +2245,17 @@ export default class DriveV2 extends React.Component {
                                                                     <div className="card-body">
                                                                         {
                                                                             this.state.contacts.length > 0 &&
-                                                                            <TableContact contacts={this.state.contacts.filter(x => x.role === "avocat")}
-                                                                                          onEditClick={(contact,key) => {
-                                                                                              this.setState({selectedContact: contact,selectedContactKey: key, openRightContactModalDetail: true}
-                                                                                              )}
-                                                                                          }/>
+                                                                            <TableContact
+                                                                                contacts={this.state.contacts.filter(x => x.role === "avocat")}
+                                                                                onEditClick={(contact, key) => {
+                                                                                    this.setState({
+                                                                                            selectedContact: contact,
+                                                                                            selectedContactKey: key,
+                                                                                            openRightContactModalDetail: true
+                                                                                        }
+                                                                                    )
+                                                                                }
+                                                                                }/>
                                                                         }
                                                                     </div>
                                                                 </div>
@@ -2332,11 +2632,15 @@ export default class DriveV2 extends React.Component {
                                                         <div className="row">
                                                             <div className="col-lg-12">
                                                                 <div style={{textAlign: "right"}}>
-                                                                    <button onClick={() => this.setState({editContactForm:false,showContainerSection:"Contacts"})}
+                                                                    <button onClick={() => this.setState({
+                                                                        editContactForm: false,
+                                                                        showContainerSection: "Contacts"
+                                                                    })}
                                                                             className="btn btn-sm btn-outline-info">Retour
                                                                     </button>
                                                                 </div>
-                                                                <div className="card-box text-center" style={{marginTop: 1}}>
+                                                                <div className="card-box text-center"
+                                                                     style={{marginTop: 1}}>
                                                                     <img onClick={() => this.imageUpload.click()}
                                                                          src={this.state.selectedContact.imageUrl || defaultAvatar}
                                                                          className="rounded-circle avatar-lg img-thumbnail"
@@ -2359,24 +2663,24 @@ export default class DriveV2 extends React.Component {
                                                                     <h4 className="mb-0">{this.state.selectedContact.prenom + ' ' + this.state.selectedContact.nom}</h4>
                                                                     <p className="text-muted">{this.state.selectedContact.specialite} </p>
 
-                                                                    <div style={{display:"contents"}}>
+                                                                    <div style={{display: "contents"}}>
                                                                         <button type="button" onClick={this.saveChanges}
                                                                                 className="btn btn-success btn-xs waves-effect mb-2 waves-light m-1">
                                                                             <i className="fe-edit"/>&nbsp;&nbsp;
                                                                             Enregistrer
                                                                         </button>
                                                                         <button type="button" onClick={() => {
-                                                                            this.setState({showPdfPreviewModal:true})
+                                                                            this.setState({showPdfPreviewModal: true})
                                                                             setTimeout(() => {
-                                                                                this.setState({isDocPreviewReady:true})
-                                                                            },1000)
+                                                                                this.setState({isDocPreviewReady: true})
+                                                                            }, 1000)
                                                                         }}
                                                                                 className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
                                                                             <i className="fe-printer"/>&nbsp;&nbsp;
                                                                             Aperçu
                                                                         </button>
                                                                         <button type="button" onClick={() => {
-                                                                            this.setState({showPdfFlipModal:true})
+                                                                            this.setState({showPdfFlipModal: true})
                                                                         }}
                                                                                 className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
                                                                             <i className="fe-printer"/>&nbsp;&nbsp;
@@ -2384,24 +2688,28 @@ export default class DriveV2 extends React.Component {
                                                                         </button>
                                                                     </div>
 
-                                                                    <div style={{marginTop:30}} className="text-left">
+                                                                    <div style={{marginTop: 30}} className="text-left">
                                                                         <Tabs>
                                                                             <TabList>
                                                                                 <Tab>Informations générales</Tab>
-                                                                                <Tab >Famille & Vie privée</Tab>
+                                                                                <Tab>Famille & Vie privée</Tab>
                                                                                 <Tab>Parcours professionnel</Tab>
                                                                                 <Tab>Formations</Tab>
                                                                                 <Tab>Affiliations</Tab>
                                                                                 <Tab>Domaine d'activités</Tab>
                                                                                 <Tab>Langues</Tab>
-                                                                                <Tab>Domaines d'intérêt, loisirs et sports</Tab>
+                                                                                <Tab>Domaines d'intérêt, loisirs et
+                                                                                    sports</Tab>
                                                                             </TabList>
 
                                                                             <TabPanel>
-                                                                                <h5 style={{marginTop:20}}>Informations générales</h5>
-                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                <h5 style={{marginTop: 20}}>Informations
+                                                                                    générales</h5>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 35}}>
                                                                                     <div className="col-md-12">
-                                                                                        <p style={{marginBottom: 10}}>À propos</p>
+                                                                                        <p style={{marginBottom: 10}}>À
+                                                                                            propos</p>
                                                                                         <textarea
                                                                                             rows={7}
                                                                                             className="form-control"
@@ -2411,7 +2719,8 @@ export default class DriveV2 extends React.Component {
                                                                                             onChange={this.handleChange('selectedContact', 'about')}/>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 35}}>
                                                                                     <div className="col-md-6">
                                                                                         <p style={{marginBottom: 10}}>Nom</p>
                                                                                         <input
@@ -2434,7 +2743,8 @@ export default class DriveV2 extends React.Component {
                                                                                             onChange={this.handleChange('selectedContact', 'prenom')}/>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="row" style={{marginTop: 20}}>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 20}}>
                                                                                     <div className="col-md-6">
                                                                                         <p style={{marginBottom: 10}}>Email</p>
                                                                                         <input
@@ -2458,7 +2768,8 @@ export default class DriveV2 extends React.Component {
                                                                                             onChange={this.handleChange('selectedContact', 'phone')}/>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="row" style={{marginTop: 20}}>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 20}}>
                                                                                     <div className="col-sm-6">
                                                                                         <p style={{marginBottom: 10}}>Titre</p>
                                                                                         <select
@@ -2470,8 +2781,10 @@ export default class DriveV2 extends React.Component {
                                                                                             onChange={this.handleChange('selectedContact', 'titre')}
                                                                                         >
                                                                                             {
-                                                                                                data.titres.map((titre,key) =>
-                                                                                                    <option key={key}  value={titre} label={titre} />
+                                                                                                data.titres.map((titre, key) =>
+                                                                                                    <option key={key}
+                                                                                                            value={titre}
+                                                                                                            label={titre}/>
                                                                                                 )
                                                                                             }
                                                                                         </select>
@@ -2483,11 +2796,13 @@ export default class DriveV2 extends React.Component {
                                                                                             id="pays"
                                                                                             name="pays"
                                                                                             placeholder="Pays"
-                                                                                            value={this.state.selectedContact.pays }
+                                                                                            value={this.state.selectedContact.pays}
                                                                                             onChange={this.handleChange('selectedContact', 'pays')}>
                                                                                             {
-                                                                                                countryList.map((country,key) =>
-                                                                                                    <option key={key}  value={country.Name} label={country.Name} />
+                                                                                                countryList.map((country, key) =>
+                                                                                                    <option key={key}
+                                                                                                            value={country.Name}
+                                                                                                            label={country.Name}/>
                                                                                                 )
                                                                                             }
 
@@ -2497,10 +2812,13 @@ export default class DriveV2 extends React.Component {
                                                                             </TabPanel>
 
                                                                             <TabPanel>
-                                                                                <h5 style={{marginTop:20}}>Famille & Vie privée</h5>
-                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                <h5 style={{marginTop: 20}}>Famille &
+                                                                                    Vie privée</h5>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 35}}>
                                                                                     <div className="col-md-12">
-                                                                                        <p style={{marginBottom: 10}}>Décrire en quelques lignes </p>
+                                                                                        <p style={{marginBottom: 10}}>Décrire
+                                                                                            en quelques lignes </p>
                                                                                         <textarea
                                                                                             rows={10}
                                                                                             className="form-control"
@@ -2513,23 +2831,33 @@ export default class DriveV2 extends React.Component {
                                                                             </TabPanel>
 
                                                                             <TabPanel>
-                                                                                <h5 style={{marginTop:20}}>Parcours professionnel</h5>
-                                                                                <div style={{display: 'flex', flexWrap: 'wrap',marginTop:10}}>
+                                                                                <h5 style={{marginTop: 20}}>Parcours
+                                                                                    professionnel</h5>
+                                                                                <div style={{
+                                                                                    display: 'flex',
+                                                                                    flexWrap: 'wrap',
+                                                                                    marginTop: 10
+                                                                                }}>
                                                                                     {
                                                                                         (this.state.selectedContact.parcoursP || []).map((item, key) => (
-                                                                                            <div key={key} style={{margin:3}}>
+                                                                                            <div key={key}
+                                                                                                 style={{margin: 3}}>
                                                                                                 <Chip
                                                                                                     icon={<Staricon/>}
                                                                                                     label={item}
                                                                                                     color="secondary"
                                                                                                     onDelete={this.removeItem('parcour', key)}
-                                                                                                    style={{fontWeight:"bold",backgroundColor:"cornflowerblue"}}
+                                                                                                    style={{
+                                                                                                        fontWeight: "bold",
+                                                                                                        backgroundColor: "cornflowerblue"
+                                                                                                    }}
                                                                                                 />
                                                                                             </div>
                                                                                         ))
                                                                                     }
                                                                                 </div>
-                                                                                <div className="row" style={{marginTop: 10}}>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 10}}>
                                                                                     <div
                                                                                         className="col-sm-12">
                                                                                         <a style={{
@@ -2540,7 +2868,8 @@ export default class DriveV2 extends React.Component {
                                                                                            onClick={this.openAddModal('parcour')}>
                                                                                             <span className="btn__text"
                                                                                                   id="btn-add-child">
-                                                                                                <i className="fe-plus-square"/> Ajouter un parcour
+                                                                                                <i className="fe-plus-square"/> Ajouter
+                                                                                                un parcour
                                                                                             </span>
                                                                                         </a>
                                                                                     </div>
@@ -2548,23 +2877,34 @@ export default class DriveV2 extends React.Component {
                                                                             </TabPanel>
 
                                                                             <TabPanel>
-                                                                                <h5 style={{marginTop:20}}>Formation</h5>
-                                                                                <div style={{flexWrap: 'wrap',marginTop:10}}>
+                                                                                <h5 style={{marginTop: 20}}>Formation</h5>
+                                                                                <div style={{
+                                                                                    flexWrap: 'wrap',
+                                                                                    marginTop: 10
+                                                                                }}>
                                                                                     {
                                                                                         (this.state.selectedContact.formations || []).map((item, key) => (
-                                                                                            <div key={key} style={{margin:3,marginBottom:6}}>
+                                                                                            <div key={key} style={{
+                                                                                                margin: 3,
+                                                                                                marginBottom: 6
+                                                                                            }}>
                                                                                                 <Chip
-                                                                                                    icon={<CheckCircle/>}
+                                                                                                    icon={
+                                                                                                        <CheckCircle/>}
                                                                                                     label={item}
                                                                                                     color="primary"
                                                                                                     onDelete={this.removeItem('formation', key)}
-                                                                                                    style={{fontWeight:"bold",backgroundColor:"lightseagreen"}}
+                                                                                                    style={{
+                                                                                                        fontWeight: "bold",
+                                                                                                        backgroundColor: "lightseagreen"
+                                                                                                    }}
                                                                                                 />
                                                                                             </div>
                                                                                         ))
                                                                                     }
                                                                                 </div>
-                                                                                <div className="row" style={{marginTop: 10}}>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 10}}>
                                                                                     <div
                                                                                         className="col-sm-12">
                                                                                         <a style={{
@@ -2575,7 +2915,8 @@ export default class DriveV2 extends React.Component {
                                                                                            onClick={this.openAddModal('formation')}>
                                                                                             <span className="btn__text"
                                                                                                   id="btn-add-child">
-                                                                                                <i className="fe-plus-square"/> Ajouter une formation
+                                                                                                <i className="fe-plus-square"/> Ajouter
+                                                                                                une formation
                                                                                             </span>
                                                                                         </a>
                                                                                     </div>
@@ -2583,14 +2924,14 @@ export default class DriveV2 extends React.Component {
                                                                             </TabPanel>
 
                                                                             <TabPanel>
-                                                                                <h5 style={{marginTop:20}}>Affiliations</h5>
-                                                                                <div style={{marginTop:15}}>
+                                                                                <h5 style={{marginTop: 20}}>Affiliations</h5>
+                                                                                <div style={{marginTop: 15}}>
                                                                                     <Autocomplete
                                                                                         value={this.state.selectedContact.affiliations || []}
-                                                                                        onChange={(event,values) => {
+                                                                                        onChange={(event, values) => {
                                                                                             let selectedContact = this.state.selectedContact;
                                                                                             selectedContact.affiliations = values;
-                                                                                            this.setState({selectedContact:selectedContact})
+                                                                                            this.setState({selectedContact: selectedContact})
                                                                                         }}
                                                                                         title={"Affiliations"}
                                                                                         multiple
@@ -2598,34 +2939,41 @@ export default class DriveV2 extends React.Component {
                                                                                         options={data.affiliations}
                                                                                         disableCloseOnSelect
                                                                                         getOptionLabel={(option) => option}
-                                                                                        renderOption={(option, { selected }) => (
+                                                                                        renderOption={(option, {selected}) => (
                                                                                             <React.Fragment>
                                                                                                 <MuiCheckbox
                                                                                                     icon={icon}
                                                                                                     checkedIcon={checkedIcon}
-                                                                                                    style={{ marginRight: 8 }}
+                                                                                                    style={{marginRight: 8}}
                                                                                                     checked={selected}
                                                                                                 />
                                                                                                 {option}
                                                                                             </React.Fragment>
                                                                                         )}
-                                                                                        style={{ width: 500,marginLeft:10,borderColor:"#f0f0f0" }}
+                                                                                        style={{
+                                                                                            width: 500,
+                                                                                            marginLeft: 10,
+                                                                                            borderColor: "#f0f0f0"
+                                                                                        }}
                                                                                         renderInput={(params) => (
-                                                                                            <TextField {...params} variant="outlined" placeholder="" />
+                                                                                            <TextField {...params}
+                                                                                                       variant="outlined"
+                                                                                                       placeholder=""/>
                                                                                         )}
                                                                                     />
                                                                                 </div>
                                                                             </TabPanel>
 
                                                                             <TabPanel>
-                                                                                <h5 style={{marginTop:20}}>Domaine d'activités</h5>
-                                                                                <div style={{marginTop:15}}>
+                                                                                <h5 style={{marginTop: 20}}>Domaine
+                                                                                    d'activités</h5>
+                                                                                <div style={{marginTop: 15}}>
                                                                                     <Autocomplete
                                                                                         value={this.state.selectedContact.domainesAct || []}
-                                                                                        onChange={(event,values) => {
+                                                                                        onChange={(event, values) => {
                                                                                             let selectedContact = this.state.selectedContact;
                                                                                             selectedContact.domainesAct = values;
-                                                                                            this.setState({selectedContact:selectedContact})
+                                                                                            this.setState({selectedContact: selectedContact})
                                                                                         }}
                                                                                         title={"Domaine d'activités"}
                                                                                         multiple
@@ -2633,20 +2981,26 @@ export default class DriveV2 extends React.Component {
                                                                                         options={data.domainesAct}
                                                                                         disableCloseOnSelect
                                                                                         getOptionLabel={(option) => option}
-                                                                                        renderOption={(option, { selected }) => (
+                                                                                        renderOption={(option, {selected}) => (
                                                                                             <React.Fragment>
                                                                                                 <MuiCheckbox
                                                                                                     icon={icon}
                                                                                                     checkedIcon={checkedIcon}
-                                                                                                    style={{ marginRight: 8 }}
+                                                                                                    style={{marginRight: 8}}
                                                                                                     checked={selected}
                                                                                                 />
                                                                                                 {option}
                                                                                             </React.Fragment>
                                                                                         )}
-                                                                                        style={{ width: 500,marginLeft:10,borderColor:"#f0f0f0" }}
+                                                                                        style={{
+                                                                                            width: 500,
+                                                                                            marginLeft: 10,
+                                                                                            borderColor: "#f0f0f0"
+                                                                                        }}
                                                                                         renderInput={(params) => (
-                                                                                            <TextField {...params} variant="outlined" placeholder="" />
+                                                                                            <TextField {...params}
+                                                                                                       variant="outlined"
+                                                                                                       placeholder=""/>
                                                                                         )}
                                                                                     />
                                                                                 </div>
@@ -2654,13 +3008,13 @@ export default class DriveV2 extends React.Component {
                                                                             </TabPanel>
 
                                                                             <TabPanel>
-                                                                                <h5 style={{marginTop:20}}>Langues</h5>
+                                                                                <h5 style={{marginTop: 20}}>Langues</h5>
                                                                                 <Autocomplete
                                                                                     value={this.state.selectedContact.langues || []}
-                                                                                    onChange={(event,values) => {
+                                                                                    onChange={(event, values) => {
                                                                                         let selectedContact = this.state.selectedContact;
                                                                                         selectedContact.langues = values;
-                                                                                        this.setState({selectedContact:selectedContact})
+                                                                                        this.setState({selectedContact: selectedContact})
                                                                                     }}
                                                                                     title={"langues"}
                                                                                     multiple
@@ -2668,20 +3022,26 @@ export default class DriveV2 extends React.Component {
                                                                                     options={data.langues}
                                                                                     disableCloseOnSelect
                                                                                     getOptionLabel={(option) => option}
-                                                                                    renderOption={(option, { selected }) => (
+                                                                                    renderOption={(option, {selected}) => (
                                                                                         <React.Fragment>
                                                                                             <MuiCheckbox
                                                                                                 icon={icon}
                                                                                                 checkedIcon={checkedIcon}
-                                                                                                style={{ marginRight: 8 }}
+                                                                                                style={{marginRight: 8}}
                                                                                                 checked={selected}
                                                                                             />
                                                                                             {option}
                                                                                         </React.Fragment>
                                                                                     )}
-                                                                                    style={{ width: 500,marginLeft:10,borderColor:"#f0f0f0" }}
+                                                                                    style={{
+                                                                                        width: 500,
+                                                                                        marginLeft: 10,
+                                                                                        borderColor: "#f0f0f0"
+                                                                                    }}
                                                                                     renderInput={(params) => (
-                                                                                        <TextField {...params} variant="outlined" placeholder="" />
+                                                                                        <TextField {...params}
+                                                                                                   variant="outlined"
+                                                                                                   placeholder=""/>
                                                                                     )}
                                                                                 />
 
@@ -2689,19 +3049,29 @@ export default class DriveV2 extends React.Component {
 
                                                                             <TabPanel>
 
-                                                                                <h5 style={{marginTop:20}}>Domaines d'intérêt, loisirs et sports</h5>
+                                                                                <h5 style={{marginTop: 20}}>Domaines
+                                                                                    d'intérêt, loisirs et sports</h5>
                                                                                 <div className="row">
                                                                                     <div className="col-md-8">
-                                                                                        <div style={{display: 'flex', flexWrap: 'wrap',marginTop:10}}>
+                                                                                        <div style={{
+                                                                                            display: 'flex',
+                                                                                            flexWrap: 'wrap',
+                                                                                            marginTop: 10
+                                                                                        }}>
                                                                                             {
                                                                                                 (this.state.selectedContact.hobbies || []).map((item, key) => (
-                                                                                                    <div key={key} style={{margin:3}}>
+                                                                                                    <div key={key}
+                                                                                                         style={{margin: 3}}>
                                                                                                         <Chip
-                                                                                                            icon={<MoodIcon/>}
+                                                                                                            icon={
+                                                                                                                <MoodIcon/>}
                                                                                                             label={item}
                                                                                                             color="secondary"
                                                                                                             onDelete={this.removeItem('hobbies', key)}
-                                                                                                            style={{fontWeight:"bold",backgroundColor:"lightpink"}}
+                                                                                                            style={{
+                                                                                                                fontWeight: "bold",
+                                                                                                                backgroundColor: "lightpink"
+                                                                                                            }}
                                                                                                         />
                                                                                                     </div>
                                                                                                 ))
@@ -2711,7 +3081,8 @@ export default class DriveV2 extends React.Component {
 
                                                                                 </div>
 
-                                                                                <div className="row" style={{marginTop: 20}}>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 20}}>
                                                                                     <div
                                                                                         className="col-sm-12">
                                                                                         <a style={{
@@ -2722,7 +3093,9 @@ export default class DriveV2 extends React.Component {
                                                                                            onClick={this.openAddModal('hobbies')}>
                                                                                             <span className="btn__text"
                                                                                                   id="btn-add-child">
-                                                                                                <i className="fe-plus-square"/> Ajouter un centre d'intérêt, loisir ou sport
+                                                                                                <i className="fe-plus-square"/> Ajouter
+                                                                                                un centre d'intérêt,
+                                                                                                loisir ou sport
                                                                                             </span>
                                                                                         </a>
                                                                                     </div>
@@ -2754,7 +3127,7 @@ export default class DriveV2 extends React.Component {
                             <div style={{padding: "1.6rem 2rem"}}>
                                 <div className="rs_header">
                                     <h2 className="rs_header_title">
-                                        {this.state.selectedDoc.name+".pdf"}
+                                        {this.state.selectedDoc.name + ".pdf"}
                                     </h2>
                                     <span className="badge bg-soft-warning text-warning p-1">En attente</span>
                                     <button className="btn btn-rounded btn-light btn-small rs_btn_close"
@@ -2765,7 +3138,7 @@ export default class DriveV2 extends React.Component {
                                     <IconButton aria-label="Visualiser" title="Visualiser" color="primary"
                                                 onClick={() => {
                                                     this.setState({loadDocSpinner: true})
-                                                    SmartService.getFile(this.state.selectedDoc.id ||  this.state.selectedDoc.file_id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(fileRes => {
+                                                    SmartService.getFile(this.state.selectedDoc.id || this.state.selectedDoc.file_id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(fileRes => {
                                                         if (fileRes.succes === true && fileRes.status === 200) {
                                                             this.setState({loadDocSpinner: false})
                                                             this.showDocInPdfModal(fileRes.data.Content.Data)
@@ -2955,18 +3328,26 @@ export default class DriveV2 extends React.Component {
                     </Modal>
 
                     <Modal isOpen={this.state.showPdfPreviewModal} size="lg" zIndex={1500}
-                           toggle={() => this.setState({showPdfPreviewModal: !this.state.showPdfPreviewModal,isDocPreviewReady:false})}>
-                        <ModalHeader toggle={() => this.setState({showPdfPreviewModal: !this.state.showPdfPreviewModal,isDocPreviewReady:false})}>
+                           toggle={() => this.setState({
+                               showPdfPreviewModal: !this.state.showPdfPreviewModal,
+                               isDocPreviewReady: false
+                           })}>
+                        <ModalHeader toggle={() => this.setState({
+                            showPdfPreviewModal: !this.state.showPdfPreviewModal,
+                            isDocPreviewReady: false
+                        })}>
                             Document
                         </ModalHeader>
                         <ModalBody>
                             {
                                 this.state.isDocPreviewReady === true && (
-                                    <PdfView width={"100%"} height={800} >
-                                        <Resume title={"Resume of "+ this.state.selectedContact.nom} name={this.state.selectedContact.nom}
-                                                speciality={this.state.selectedContact.specialite || this.state.selectedContact.titre +"("+this.state.selectedContact.pays+")"}
+                                    <PdfView width={"100%"} height={800}>
+                                        <Resume title={"Resume of " + this.state.selectedContact.nom}
+                                                name={this.state.selectedContact.nom}
+                                                speciality={this.state.selectedContact.specialite || this.state.selectedContact.titre + "(" + this.state.selectedContact.pays + ")"}
                                                 email={this.state.selectedContact.email}
-                                                image={this.state.selectedContact.imageUrl} about={this.state.selectedContact.about}
+                                                image={this.state.selectedContact.imageUrl}
+                                                about={this.state.selectedContact.about}
                                                 personalLife={this.state.selectedContact.personalLife}
                                                 parcoursP={this.state.selectedContact.parcoursP || []}
                                                 langues={this.state.selectedContact.langues || []}
@@ -2993,78 +3374,88 @@ export default class DriveV2 extends React.Component {
                                       showSwipeHint={true} showHint={true} showTouchHint={true}
                             >
                                 <article>
-                                    <img alt="" src={require("../../assets/images/SwissWhoWho.jpeg")} style={{width:"100%",height:750,objectFit:"contain"}}/>
+                                    <img alt="" src={require("../../assets/images/SwissWhoWho.jpeg")}
+                                         style={{width: "100%", height: 750, objectFit: "contain"}}/>
                                 </article>
-                                <article style={{padding:30}}>
+                                <article style={{padding: 30}}>
 
-                                    <FHeader name={this.state.selectedContact.nom} speciality={this.state.selectedContact.speciality}
-                                             email={this.state.selectedContact.email} />
+                                    <FHeader name={this.state.selectedContact.nom}
+                                             speciality={this.state.selectedContact.speciality}
+                                             email={this.state.selectedContact.email}/>
                                     <div>
                                         <img alt=""
-                                             src={this.state.selectedContact.imageUrl} style={{ marginTop:20, marginBottom: 10,
-                                            width:200,height:200,objectFit:"cover"}}
+                                             src={this.state.selectedContact.imageUrl} style={{
+                                            marginTop: 20, marginBottom: 10,
+                                            width: 200, height: 200, objectFit: "cover"
+                                        }}
                                         />
                                     </div>
-                                    <div style={{marginTop:40}}>
+                                    <div style={{marginTop: 40}}>
                                         <FTitle>À propos</FTitle>
-                                        <div style={{fontSize: 13,color:"#000"}}>{this.state.selectedContact.about || ""}</div>
+                                        <div style={{
+                                            fontSize: 13,
+                                            color: "#000"
+                                        }}>{this.state.selectedContact.about || ""}</div>
                                     </div>
-                                    <div style={{marginTop:40}}>
+                                    <div style={{marginTop: 40}}>
                                         <FTitle>Famille & Vie privée</FTitle>
-                                        <div style={{fontSize: 13,color:"#000"}}>{this.state.selectedContact.personalLife || ""}</div>
+                                        <div style={{
+                                            fontSize: 13,
+                                            color: "#000"
+                                        }}>{this.state.selectedContact.personalLife || ""}</div>
                                     </div>
 
                                 </article>
-                                <article style={{padding:30}}>
+                                <article style={{padding: 30}}>
                                     <div className="row">
                                         <div className="col-md-4">
-                                            <div style={{marginTop:40}}>
+                                            <div style={{marginTop: 40}}>
                                                 <FTitle>Langues</FTitle>
                                                 <ul>
                                                     {(this.state.selectedContact.langues || []).map((item, i) => (
-                                                        <li key={i} style={{color:"#000"}}>{item}</li>
+                                                        <li key={i} style={{color: "#000"}}>{item}</li>
                                                     ))}
                                                 </ul>
                                             </div>
-                                            <div style={{marginTop:55}}>
+                                            <div style={{marginTop: 55}}>
                                                 <FTitle>Domaines d'intérêt, loisirs et sports</FTitle>
                                                 <ul>
                                                     {(this.state.selectedContact.hobbies || []).map((item, i) => (
-                                                        <li key={i} style={{color:"#000"}}>{item}</li>
+                                                        <li key={i} style={{color: "#000"}}>{item}</li>
                                                     ))}
                                                 </ul>
                                             </div>
                                         </div>
                                         <div className="col-md-8">
-                                            <div style={{marginTop:40}}>
+                                            <div style={{marginTop: 40}}>
                                                 <FTitle>Parcour professionnel</FTitle>
                                                 <ul>
                                                     {(this.state.selectedContact.parcoursP || []).map((item, i) => (
-                                                        <li key={i} style={{color:"#000"}}>{item}</li>
+                                                        <li key={i} style={{color: "#000"}}>{item}</li>
                                                     ))}
                                                 </ul>
                                             </div>
-                                            <div style={{marginTop:55}}>
+                                            <div style={{marginTop: 55}}>
                                                 <FTitle>Formations</FTitle>
                                                 <ul>
                                                     {(this.state.selectedContact.formations || []).map((item, i) => (
-                                                        <li key={i} style={{color:"#000"}}>{item}</li>
+                                                        <li key={i} style={{color: "#000"}}>{item}</li>
                                                     ))}
                                                 </ul>
                                             </div>
-                                            <div style={{marginTop:55}}>
+                                            <div style={{marginTop: 55}}>
                                                 <FTitle>Affiliations</FTitle>
                                                 <ul>
                                                     {(this.state.selectedContact.affiliations || []).map((item, i) => (
-                                                        <li key={i} style={{color:"#000"}}>{item}</li>
+                                                        <li key={i} style={{color: "#000"}}>{item}</li>
                                                     ))}
                                                 </ul>
                                             </div>
-                                            <div style={{marginTop:55}}>
+                                            <div style={{marginTop: 55}}>
                                                 <FTitle>Domaines d'activités</FTitle>
                                                 <ul>
                                                     {(this.state.selectedContact.domainesAct || []).map((item, i) => (
-                                                        <li key={i} style={{color:"#000"}}>{item}</li>
+                                                        <li key={i} style={{color: "#000"}}>{item}</li>
                                                     ))}
                                                 </ul>
                                             </div>
@@ -3209,7 +3600,8 @@ export default class DriveV2 extends React.Component {
                     <Modal isOpen={this.state.showModalAdd} size="md" centered={true}
                            toggle={() => this.setState({showModalAdd: !this.state.showModalAdd})}>
                         <ModalHeader toggle={() => this.setState({
-                            showModalAdd: !this.state.showModalAdd})}>
+                            showModalAdd: !this.state.showModalAdd
+                        })}>
                             {
                                 this.state.add === "formation" ? "Ajouter une formation" :
                                     this.state.add === "fonction" ? "Ajouter une fonction" :
@@ -3236,7 +3628,7 @@ export default class DriveV2 extends React.Component {
                             </p>
                             {
                                 (this.state.add === "formation" || this.state.add === "fonction" || this.state.add === "formation"
-                                    || this.state.add === "affiliation" || this.state.add === "parcour"|| this.state.add === "langue" || this.state.add === "hobbies") &&
+                                    || this.state.add === "affiliation" || this.state.add === "parcour" || this.state.add === "langue" || this.state.add === "hobbies") &&
                                 <textarea className="form-control" id="inputText"
                                           name="inputText"
                                           style={{width: 400}}
@@ -3291,7 +3683,8 @@ export default class DriveV2 extends React.Component {
                                         </MuiSelect>
                                     </FormControl>
                                     <FormControl style={{width: "80%"}}>
-                                        <InputLabel style={{fontSize: "100%"}} id="demo-mutiple-chip-label">Les spécialités recherchées </InputLabel>
+                                        <InputLabel style={{fontSize: "100%"}} id="demo-mutiple-chip-label">Les
+                                            spécialités recherchées </InputLabel>
                                         <MuiSelect
                                             labelId="demo-mutiple-chip-label"
                                             id="demo-mutiple-chip"
@@ -3357,23 +3750,25 @@ export default class DriveV2 extends React.Component {
                     </Modal>
 
 
-                    <Dialog open={this.state.openShareDocModal} onClose={() => {this.setState({openShareDocModal:!this.state.openShareDocModal})}}
+                    <Dialog open={this.state.openShareDocModal} onClose={() => {
+                        this.setState({openShareDocModal: !this.state.openShareDocModal})
+                    }}
                             aria-labelledby="form-dialog-title">
-                        <DialogTitle id="form-dialog-title" style={{marginLeft:-22,marginBottom:-10}}>
+                        <DialogTitle id="form-dialog-title" style={{marginLeft: -22, marginBottom: -10}}>
                             <IconButton aria-label="Partager" color="primary">
-                                <PersonAddIcon />
+                                <PersonAddIcon/>
                             </IconButton>
                             Partager avec des personnes et des groupes
                         </DialogTitle>
                         <DialogContent>
                             <div className="row">
                                 <div className="col-md-12">
-                                    <div style={{marginLeft:11}}>
+                                    <div style={{marginLeft: 11}}>
                                         <Chips
                                             chips={[]}
                                             placeholder='Ajouter des personnes'
                                             save={data => {
-                                                this.setState({emailsDriveShare:data})
+                                                this.setState({emailsDriveShare: data})
                                             }}
                                             pattern={data.emailPatern}
                                             requiredMessage={"Email incorrect"}
@@ -3392,28 +3787,29 @@ export default class DriveV2 extends React.Component {
                                         options={data.Acces}
                                         disableCloseOnSelect
                                         getOptionLabel={(option) => option}
-                                        renderOption={(option, { selected }) => (
+                                        renderOption={(option, {selected}) => (
                                             <React.Fragment>
                                                 <MuiCheckbox
                                                     icon={icon}
                                                     checkedIcon={checkedIcon}
-                                                    style={{ marginRight: 8 }}
+                                                    style={{marginRight: 8}}
                                                     checked={selected}
                                                 />
                                                 {option}
                                             </React.Fragment>
                                         )}
-                                        style={{ width: 500,marginLeft:10,borderColor:"#f0f0f0" }}
+                                        style={{width: 500, marginLeft: 10, borderColor: "#f0f0f0"}}
                                         renderInput={(params) => (
-                                            <TextField {...params} variant="outlined" placeholder="" />
+                                            <TextField {...params} variant="outlined" placeholder=""/>
                                         )}
                                     />
 
                                 </div>
 
-                                <div className="col-md-12" style={{marginTop:20}}>
+                                <div className="col-md-12" style={{marginTop: 20}}>
                                     <FormControlLabel
-                                        control={<MuiCheckbox checked={this.state.checkedNotif} onChange={() => this.setState({checkedNotif:!this.state.checkedNotif})}
+                                        control={<MuiCheckbox checked={this.state.checkedNotif}
+                                                              onChange={() => this.setState({checkedNotif: !this.state.checkedNotif})}
                                                               name="checkedNotif"
                                         />}
                                         label="Envoyer une notification"
@@ -3422,63 +3818,76 @@ export default class DriveV2 extends React.Component {
                                 {
                                     this.state.checkedNotif === true &&
                                     <div className="col-md-12">
-                                        <TextField id="msg-notif" label="Message" variant="filled" value={this.state.msgNotif}
-                                                   onChange={(event)=> this.setState({msgNotif:event.target.value})}
-                                                   multiline rows={5} style={{width:500,marginLeft:8}}
+                                        <TextField id="msg-notif" label="Message" variant="filled"
+                                                   value={this.state.msgNotif}
+                                                   onChange={(event) => this.setState({msgNotif: event.target.value})}
+                                                   multiline rows={5} style={{width: 500, marginLeft: 8}}
                                         />
                                     </div>
                                 }
-                                <div className="col-md-12" style={{marginTop:15}}>
-                                    <Chip icon={<FolderIcon />}
+                                <div className="col-md-12" style={{marginTop: 15}}>
+                                    <Chip icon={<FolderIcon/>}
                                           label={this.state.selectedFoldername}
-                                          style={{fontWeight:"bold",backgroundColor:"white",border:"1px solid #c0c0c0"}}
+                                          style={{
+                                              fontWeight: "bold",
+                                              backgroundColor: "white",
+                                              border: "1px solid #c0c0c0"
+                                          }}
                                     />
                                 </div>
                             </div>
 
                         </DialogContent>
-                        <DialogActions style={{padding:20}}>
-                            <MuiButton onClick={() => {this.setState({openShareDocModal:false})}} color="primary" style={{textTransform:"capitalize"}}>
+                        <DialogActions style={{padding: 20}}>
+                            <MuiButton onClick={() => {
+                                this.setState({openShareDocModal: false})
+                            }} color="primary" style={{textTransform: "capitalize"}}>
                                 Annuler
                             </MuiButton>
-                            <MuiButton disabled={(this.state.checkedNotif === true && this.state.msgNotif === "") || this.state.emailsDriveShare.length === 0 }
-                                       onClick={() => {
-                                           this.setState({loading:true,openShareDocModal:false})
-                                           SmartService.share(this.state.selectedFolderId,
-                                               {
-                                                   to:this.state.emailsDriveShare[0].email,
-                                                   access: {administrate: true, share: true, edit: false, read: true}
-                                               },
-                                               localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( share => {
-                                               if(share.succes === true && share.status === 200){
-                                                   this.setState({loading:false,openShareDocModal:false})
-                                                   this.openSnackbar("success","Le partage du dossier est effectué avec succès, Un mail d'invitation à été envoyé au personnes ajoutées")
-                                               }else{
-                                                   console.log(share.error)
-                                                   this.setState({loading:false})
-                                                   this.openSnackbar("error",share.error)
-                                               }
+                            <MuiButton
+                                disabled={(this.state.checkedNotif === true && this.state.msgNotif === "") || this.state.emailsDriveShare.length === 0}
+                                onClick={() => {
+                                    this.setState({loading: true, openShareDocModal: false})
+                                    SmartService.share(this.state.selectedFolderId,
+                                        {
+                                            to: this.state.emailsDriveShare[0].email,
+                                            access: {administrate: true, share: true, edit: false, read: true}
+                                        },
+                                        localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(share => {
+                                        if (share.succes === true && share.status === 200) {
+                                            this.setState({loading: false, openShareDocModal: false})
+                                            this.openSnackbar("success", "Le partage du dossier est effectué avec succès, Un mail d'invitation à été envoyé au personnes ajoutées")
+                                        } else {
+                                            console.log(share.error)
+                                            this.setState({loading: false})
+                                            this.openSnackbar("error", share.error)
+                                        }
 
-                                           }).catch(err => {
-                                               this.setState({loading:false})
-                                               console.log(err)
-                                           })
+                                    }).catch(err => {
+                                        this.setState({loading: false})
+                                        console.log(err)
+                                    })
 
-                                       }}
-                                       color="primary" variant="contained" style={{textTransform:"capitalize"}}>
+                                }}
+                                color="primary" variant="contained" style={{textTransform: "capitalize"}}>
                                 Envoyer
                             </MuiButton>
                         </DialogActions>
                     </Dialog>
 
 
-                    <Dialog open={this.state.openNewRoomModal} onClose={() => {this.setState({openNewRoomModal:!this.state.openNewRoomModal})}}
+                    <Dialog open={this.state.openNewRoomModal} onClose={() => {
+                        this.setState({openNewRoomModal: !this.state.openNewRoomModal})
+                    }}
                             aria-labelledby="form-dialog-title">
                         <DialogTitle disableTypography id="form-dialog-title">
                             <Typography variant="h6">Créer Room</Typography>
-                            <IconButton aria-label="close" style={{position: 'absolute', right: 5, top: 5, color: "#c0c0c0"}}
-                                        onClick={() => {this.setState({openNewRoomModal:!this.state.openNewRoomModal})}}>
-                                <CloseIcon />
+                            <IconButton aria-label="close"
+                                        style={{position: 'absolute', right: 5, top: 5, color: "#c0c0c0"}}
+                                        onClick={() => {
+                                            this.setState({openNewRoomModal: !this.state.openNewRoomModal})
+                                        }}>
+                                <CloseIcon/>
                             </IconButton>
                         </DialogTitle>
 
@@ -3489,25 +3898,28 @@ export default class DriveV2 extends React.Component {
                                     </div>
                                 </div>
                                 <div className="col-md-10">
-                                    <TextField id="room-name" label="Ajouter un titre" variant="filled" value={this.state.newRoomTitle}
-                                               onChange={(event)=> this.setState({newRoomTitle:event.target.value})}
-                                               style={{width:408,marginLeft:-5}} size="small"
+                                    <TextField id="room-name" label="Ajouter un titre" variant="filled"
+                                               value={this.state.newRoomTitle}
+                                               onChange={(event) => this.setState({newRoomTitle: event.target.value})}
+                                               style={{width: 408, marginLeft: -5}} size="small"
                                     />
                                 </div>
-                                <div className="col-md-12" style={{marginTop:25}}>
+                                <div className="col-md-12" style={{marginTop: 25}}>
                                     <div>
                                         <Chips
                                             chips={this.state.NewRoomEmails}
                                             placeholder='Ajouter des personnes'
-                                            save={ data => {
-                                                this.setState({NewRoomEmails:data})
+                                            save={data => {
+                                                this.setState({NewRoomEmails: data})
                                             }}
                                             pattern={data.emailPatern}
                                             requiredMessage={"Email incorrect"}
                                             required={true}
                                             limit={20}
                                             limitMessage="Vous avez atteint le nombre maximal d'e-mails"
-                                            onInputClick={(event) => {this.setState({anchorElContactsMenu:event.currentTarget}) }}
+                                            onInputClick={(event) => {
+                                                this.setState({anchorElContactsMenu: event.currentTarget})
+                                            }}
 
                                         />
                                         <Menu
@@ -3515,20 +3927,28 @@ export default class DriveV2 extends React.Component {
                                             anchorEl={this.state.anchorElContactsMenu}
                                             keepMounted
                                             open={Boolean(this.state.anchorElContactsMenu)}
-                                            onClose={() => this.setState({anchorElContactsMenu:null})}
+                                            onClose={() => this.setState({anchorElContactsMenu: null})}
                                         >
                                             {
-                                                this.state.contacts.filter(x => x.role === "avocat").map((contact,key) =>
-                                                    <MenuItem key={key}  onClick={() => {
+                                                this.state.contacts.filter(x => x.role === "avocat").map((contact, key) =>
+                                                    <MenuItem key={key} onClick={() => {
                                                         let emails = this.state.NewRoomEmails;
                                                         console.log(parseInt(moment().format("DDMMYYYYHHmmss")));
-                                                        emails.push({email:contact.email,valid:true,key:parseInt(moment().format("DDMMYYYYHHmmss"))})
-                                                        this.setState({anchorElContactsMenu:null,NewRoomEmails:emails})
-                                                    }}  >
+                                                        emails.push({
+                                                            email: contact.email,
+                                                            valid: true,
+                                                            key: parseInt(moment().format("DDMMYYYYHHmmss"))
+                                                        })
+                                                        this.setState({
+                                                            anchorElContactsMenu: null,
+                                                            NewRoomEmails: emails
+                                                        })
+                                                    }}>
                                                         <ListItemIcon>
-                                                            <Avatar src={contact.imageUrl} />
+                                                            <Avatar src={contact.imageUrl}/>
                                                         </ListItemIcon>
-                                                        <Typography variant="inherit">{contact.prenom+" "+contact.nom}</Typography>
+                                                        <Typography
+                                                            variant="inherit">{contact.prenom + " " + contact.nom}</Typography>
                                                     </MenuItem>
                                                 )
                                             }
@@ -3536,9 +3956,10 @@ export default class DriveV2 extends React.Component {
                                     </div>
                                 </div>
 
-                                <div className="col-md-12" style={{marginTop:20}}>
+                                <div className="col-md-12" style={{marginTop: 20}}>
                                     <FormControlLabel
-                                        control={<MuiCheckbox checked={this.state.newRoomCheck1} onChange={() => this.setState({newRoomCheck1:!this.state.newRoomCheck1})}
+                                        control={<MuiCheckbox checked={this.state.newRoomCheck1}
+                                                              onChange={() => this.setState({newRoomCheck1: !this.state.newRoomCheck1})}
                                                               name="checkedNewRoom1"
                                         />}
                                         label="Autoriser les personnes extérieures à votre organisation à rejoindre"
@@ -3546,7 +3967,8 @@ export default class DriveV2 extends React.Component {
                                 </div>
                                 <div className="col-md-12">
                                     <FormControlLabel
-                                        control={<MuiCheckbox checked={this.state.newRoomCheck2} onChange={() => this.setState({newRoomCheck2:!this.state.newRoomCheck2})}
+                                        control={<MuiCheckbox checked={this.state.newRoomCheck2}
+                                                              onChange={() => this.setState({newRoomCheck2: !this.state.newRoomCheck2})}
                                                               name="checkedNewRoom2"
                                         />}
                                         label="Notifier par e-mail"
@@ -3555,19 +3977,22 @@ export default class DriveV2 extends React.Component {
                             </div>
 
                         </DialogContent>
-                        <DialogActions style={{padding:20}}>
-                            <MuiButton onClick={() => {this.setState({openNewRoomModal:false})}} color="primary" style={{textTransform:"capitalize"}}>
+                        <DialogActions style={{padding: 20}}>
+                            <MuiButton onClick={() => {
+                                this.setState({openNewRoomModal: false})
+                            }} color="primary" style={{textTransform: "capitalize"}}>
                                 Annuler
                             </MuiButton>
-                            <MuiButton disabled={this.state.newRoomTitle === "" || this.state.NewRoomEmails.length === 0 }
-                                       onClick={() => {
-                                           this.addNewRoom({
-                                               title:this.state.newRoomTitle,
-                                               members:this.state.NewRoomEmails,
-                                               created_at:new Date().getTime()
-                                           })
-                                       }}
-                                       color="primary" variant="contained" style={{textTransform:"capitalize"}}>
+                            <MuiButton
+                                disabled={this.state.newRoomTitle === "" || this.state.NewRoomEmails.length === 0}
+                                onClick={() => {
+                                    this.addNewRoom({
+                                        title: this.state.newRoomTitle,
+                                        members: this.state.NewRoomEmails,
+                                        created_at: new Date().getTime()
+                                    })
+                                }}
+                                color="primary" variant="contained" style={{textTransform: "capitalize"}}>
                                 Créer
                             </MuiButton>
                         </DialogActions>
@@ -3579,7 +4004,8 @@ export default class DriveV2 extends React.Component {
                         autoHideDuration={7000}
                         onClose={this.closeSnackbar}
                     >
-                        <Alert elevation={6} variant="filled" onClose={this.closeSnackbar} severity={this.state.alertType}>
+                        <Alert elevation={6} variant="filled" onClose={this.closeSnackbar}
+                               severity={this.state.alertType}>
                             {this.state.alertMessage}
                         </Alert>
                     </Snackbar>

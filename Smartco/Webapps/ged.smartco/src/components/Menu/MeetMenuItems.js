@@ -124,6 +124,7 @@ export default function MeetMenuItems(props) {
             defaultExpandIcon={<ArrowRightIcon/>}
             defaultEndIcon={<div style={{width: 32}}/>}
             selected={props.selectedMeetItem}
+            onNodeSelect={props.handleSelectMeetMenu}
         >
             {
                 props.items.map((item,key) =>
