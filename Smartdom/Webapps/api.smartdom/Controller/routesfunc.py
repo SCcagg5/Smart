@@ -254,7 +254,7 @@ def ged_share(cn, nextc):
 def contacter_check(cn, nextc):
     contacter_id = cn.rt["contacter"] if "contacter" in cn.rt else None
     cn.private["contacter"] = contacter(usr_id=cn.private["user"].id, contacter_id=contacter_id)
-    err = cn.private["ged"].check_exist()
+    err = cn.private["contacter"].check_exist()
     return cn.call_next(nextc, err)
 
 def contacter_check_user(cn, nextc):
