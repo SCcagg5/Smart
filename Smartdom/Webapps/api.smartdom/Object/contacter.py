@@ -56,3 +56,30 @@ class contacter:
         if not succes:
             return [False, "data input error", 500]
         return [True, {"id": res[0][0]}, None]
+
+    def update_formation(formations):
+        if not isinstance(formations, list):
+            return [False, "Formations should be a array", 400]
+        keep = ["start", "end", "name", "id", "description", "place"]
+        tmp = []
+        for i in keep:
+            if i not in formations:
+                return [False, "Invalid syntax", 400]
+            else:
+                tmp[i] = str(formations[i])
+        if not isinstance(formations["start"], int) and formations["start"] < 0:
+            return [False, "Invalid start time"]
+        if not isinstance(formations["end"], int) and formations["end"] <= formations["start"] or formation["end"] == -1:
+            return [False, "Invalid end time", 400]
+        if formations["name"] is None and formations["id"] is None:
+            return [False, "Name and Id cannot be Null", 400]
+        if formations["name"] is not None and formations["id"] is not None:
+            return [False, "Should provide a name OR an id, not both", 400]
+        id = str(uuid.uuid4())
+        succes = sql.input("INSERT INTO `contacter_user_form` (`id`, `contacter_id`, `user_id`, `start`, `end`, `place`, `formation_name`, `formation_id`, `description`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", \
+          (id, self.contacter_id, self.usr_id, tmp["start"], tmp["end"], tmp["place"], formations["name"], formations["id"], formations["description"]))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {}, None]
+
+    def remove_formation()

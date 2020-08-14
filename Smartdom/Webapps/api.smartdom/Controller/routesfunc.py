@@ -247,8 +247,22 @@ def ged_share(cn, nextc):
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
-    folder_id = cn.rt["doc"] if "doc" in cn.rt else None
-    err = cn.private["ged"].share(folder_id, cn.pr["to"], cn.pr["access"])
+    doc_id = cn.rt["doc"] if "doc" in cn.rt else None
+    err = cn.private["ged"].share(doc_id, cn.pr["to"], cn.pr["access"])
+    return cn.call_next(nextc, err)
+
+def ged_update(cn, nextc):
+    err = check.contain(cn.pr, [["name", "content"]])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    doc_id = cn.rt["doc"] if "doc" in cn.rt else None
+    err = cn.private["ged"].update(doc_id, cn.pr["name"], cn.pr["content"])
+    return cn.call_next(nextc, err)
+
+def ged_delete(cn, nextc):
+    doc_id = cn.rt["doc"] if "doc" in cn.rt else None
+    err = cn.private["ged"].delete(doc_id)
     return cn.call_next(nextc, err)
 
 def contacter_check(cn, nextc):

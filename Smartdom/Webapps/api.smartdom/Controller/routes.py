@@ -30,6 +30,8 @@ def setuproute(app, call):
     @app.route('/ged/<>/doc',               ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_get_content])                            )
     @app.route('/ged/<>/doc/search',        ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_search])                                 )
     @app.route('/ged/<>/doc/<>',            ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_get_content])                            )
+    @app.route('/ged/<>/doc/<>',            ['OPTIONS', 'PUT'],          lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_update])                                 )
+    @app.route('/ged/<>/doc/<>',            ['OPTIONS', 'DELETE'],       lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_delete])                                 )
     @app.route('/ged/<>/doc/addfolder',     ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_add_folder])                             )
     @app.route('/ged/<>/doc/addfile',       ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_add_file])                               )
     @app.route('/ged/<>/doc/<>/share',      ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_share])                                  )

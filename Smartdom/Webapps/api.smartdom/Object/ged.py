@@ -27,7 +27,7 @@ class folder:
         (id, self.ged_id, self.usr_id, name, folder_id, date))
         if not succes:
             return [False, "data input error", 500]
-        return [True, {}, None]
+        return [True, {"id": id}, None]
 
     def share(self, email, folder_id, access):
         if not self.is_proprietary(folder_id) and not self.is_sharer(folder_id):
@@ -155,6 +155,23 @@ class folder:
         for i2 in folders:
             res["Content"]["folders"].append(self.content(i2[0], i2[1], i2[2]))
         return res
+
+    def update(self, id_folder, name):
+        if not self.is_proprietary(id_folder) or id_folder is None:
+            return [False, "Invalid rights", 403]
+        if name is not None:
+            succes = sql.input("UPDATE `ged_folder` SET `name` = %s WHERE `ged_folder`.`id` = %s;", (name, folder))
+            if not succes:
+                return [False, "data input error", 500]
+        return [True, {"id": id_folder}, None]
+
+    def delete(self, id_folder):
+        if not self.is_proprietary(id_folder) or id_folder is None:
+            return [False, "Invalid rights", 403]
+        succes = sql.input("DELETE FROM `ged_folder` WHERE `ged_folder`.`id` = %s", (id_folder))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {"id": id_folder}, None]
 
     def is_proprietary(self, id_folder, user_id = None):
         user_id = self.usr_id if user_id is None else user_id
@@ -343,6 +360,23 @@ class file:
             return [True, ret, None]
         return [False, "Invalid rights", 403]
 
+    def update(self, id_file, name, content):
+        if not self.is_proprietary(id_file) or id_file is None:
+            return [False, "Invalid rights", 403]
+        if name is not None:
+            succes = sql.input("UPDATE `ged_file` SET `name` = %s WHERE `ged_file`.`id` = %s;", (name, id_file))
+            if not succes:
+                return [False, "data input error", 500]
+        return [True, {"id": id_file}, None]
+
+    def delete(self, id_file):
+        if not self.is_proprietary(id_file) or id_file is None:
+            return [False, "Invalid rights", 403]
+        succes = sql.input("DELETE FROM `ged_file` WHERE `ged_file`.`id` = %s", (id_file))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {"id": id_file}, None]
+
     def is_proprietary(self, id_file, user_id = None):
         user_id = self.usr_id if user_id is None else user_id
         res = sql.get("SELECT `id` FROM `ged_file` WHERE id = %s AND user_id = %s", (id_file, user_id))
@@ -504,6 +538,28 @@ class ged:
         elif file.exist(doc_id):
             fil = file(self.usr_id, self.ged_id)
             ret = fil.share(email, doc_id, access)
+        else:
+            ret = [False, "Doc_id isn't a valid file_id or folder_id", 404]
+        return ret
+
+    def update(self, doc_id, name, content):
+        if folder.exist(doc_id):
+            fol = folder(self.usr_id, self.ged_id)
+            ret = fol.update(doc_id, name)
+        elif file.exist(doc_id):
+            fil = file(self.usr_id, self.ged_id)
+            ret = fil.update(doc_id, name, content)
+        else:
+            ret = [False, "Doc_id isn't a valid file_id or folder_id", 404]
+        return ret
+
+    def delete(self, doc_id):
+        if folder.exist(doc_id):
+            fol = folder(self.usr_id, self.ged_id)
+            ret = fol.delete(doc_id)
+        elif file.exist(doc_id):
+            fil = file(self.usr_id, self.ged_id)
+            ret = fil.delete(doc_id)
         else:
             ret = [False, "Doc_id isn't a valid file_id or folder_id", 404]
         return ret
