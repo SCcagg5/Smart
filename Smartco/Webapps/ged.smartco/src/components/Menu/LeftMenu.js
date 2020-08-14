@@ -16,17 +16,33 @@ import GetAppIcon from "@material-ui/icons/GetApp";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import ImportExportIcon from '@material-ui/icons/ImportExport';
 import IconButton from "@material-ui/core/IconButton";
-
 import RoomsMenuItems from "./RoomsMenuItems";
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import data from "../../data/Data"
 import GmailTree from "../Tree/GmailTree";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogActions from "@material-ui/core/DialogActions";
+import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import Slide from "@material-ui/core/Slide";
+import {Modal, ModalBody, ModalHeader} from "reactstrap";
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default function LeftMenu(props) {
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [anchorElMenu, setAnchorElMenu] = useState(null);
+    const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
+    const [openRenameeModal, setOpenRenameModal] = React.useState(false);
+    const [newFolderName, setnewFolderName] = React.useState(props.selectedFolder.name);
+
+
+
 
     return(
 
@@ -75,7 +91,7 @@ export default function LeftMenu(props) {
                         props.onClickImportFolder()
                     }}>
                         <ListItemIcon>
-                            <ImportExportIcon fontSize="small"/>
+                            <CloudUploadIcon fontSize="small"/>
                         </ListItemIcon>
                         <Typography variant="inherit">Importer un dossier</Typography>
                     </MenuItem>
@@ -118,6 +134,7 @@ export default function LeftMenu(props) {
                                     sharedDrive={props.sharedDrive}
                                     sharedRootFiles={props.sharedRootFiles}
                                     onClickSharedRootItem={props.onClickSharedRootItem}
+                                    setSelectedFolder={(folder) => props.setSelectedFolder(folder)}
                     />
 
                 }
@@ -164,7 +181,9 @@ export default function LeftMenu(props) {
                         <Typography variant="inherit">Ajouter aux favoris</Typography>
                     </MenuItem>
                     <MenuItem key={5}  onClick={() => {
-
+                        setAnchorElMenu(null);
+                        setOpenRenameModal(true)
+                        setnewFolderName(props.selectedFolder.name)
                     }}>
                         <ListItemIcon>
                             <EditIcon fontSize="small" />
@@ -180,7 +199,8 @@ export default function LeftMenu(props) {
                         <Typography variant="inherit">Télécharger</Typography>
                     </MenuItem>
                     <MenuItem key={7}  onClick={() => {
-
+                        setAnchorElMenu(null);
+                        setOpenDeleteModal(true)
                     }}>
                         <ListItemIcon>
                             <DeleteOutlineIcon fontSize="small" />
@@ -188,6 +208,75 @@ export default function LeftMenu(props) {
                         <Typography variant="inherit">Supprimer</Typography>
                     </MenuItem>
                 </Menu>
+
+                <Dialog
+                    open={openDeleteModal}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={() => setOpenDeleteModal(false)}
+                    aria-labelledby="alert-dialog-slide-title"
+                    aria-describedby="alert-dialog-slide-description"
+                >
+                    <DialogTitle id="alert-dialog-slide-title" style={{width:"90%"}}>{"Voulez-vous vraiment supprimer ce dossier ?"}</DialogTitle>
+                    <DialogContent>
+                        <div align="center" style={{marginTop:5,marginBottom:5}}>
+                            <div className="avatar-lg rounded-circle bg-soft-danger border-danger">
+                                <i className="mdi mdi-close-circle-outline avatar-title text-danger" style={{fontSize:42}}/>
+                            </div>
+                        </div>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setOpenDeleteModal(false)} color="default" style={{textTransform:"Capitalize",fontWeight:"bold"}}>
+                            Annuler
+                        </Button>
+                        <Button onClick={() => {
+                            setOpenDeleteModal(false)
+                            props.onDeleteFolder()
+                        }}
+                                color="secondary" style={{textTransform:"Capitalize",fontWeight:"bold"}} variant="contained">
+                            Confirmer
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Modal isOpen={openRenameeModal} size="md" centered={true} zIndex={1500}
+                       toggle={() => {
+                           setOpenRenameModal(false)
+                       }}
+                >
+                    <ModalHeader toggle={() => {setOpenRenameModal(false)}} >
+                        Rennomer
+                    </ModalHeader>
+                    <ModalBody>
+
+                        <div style={{marginTop: 20}}>
+                            <input className="form-control" placeholder="Rennomer" value={newFolderName}
+                                   onChange={event => setnewFolderName(event.target.value)} style={{height:40}}
+                                   type="text"
+                            />
+                        </div>
+                        <div style={{marginTop: 15, textAlign: "right"}}>
+                            <button className="btn btn-light  font-weight-normal m-1"
+                                    style={{fontFamily: "sans-serif"}}
+                                    onClick={() => {
+                                        setOpenRenameModal(false)
+                                    }}
+                            >
+                                Annuler
+                            </button>
+                            <button className="btn btn-success  font-weight-normal m-1"
+                                    style={{fontFamily: "sans-serif"}}
+                                    onClick={() => {
+                                        setOpenRenameModal(false)
+                                        props.onRenameFolder(newFolderName)
+                                    }}
+                            >
+                                OK
+                            </button>
+                        </div>
+
+                    </ModalBody>
+                </Modal>
 
                 <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Rooms" ? "aliceblue":""}} onClick={() => {
                     props.setShowRoomsMenuItems()

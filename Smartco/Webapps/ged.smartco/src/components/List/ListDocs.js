@@ -4,10 +4,7 @@ import PictureAsPdfIcon from "@material-ui/icons/PictureAsPdf";
 import moment from "moment";
 import MenuItem from "@material-ui/core/MenuItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
-import NewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import Typography from "@material-ui/core/Typography";
-import NewFileIcon from "@material-ui/icons/AttachFile";
-import ImportExportIcon from "@material-ui/icons/ImportExport";
 import Menu from "@material-ui/core/Menu";
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -16,11 +13,26 @@ import EditIcon from '@material-ui/icons/Edit';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import SmartService from "../../provider/SmartService";
+import Slide from '@material-ui/core/Slide';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import {Modal, ModalBody, ModalHeader} from "reactstrap";
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default function ListDocs(props) {
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [doc, setDoc] = useState("");
+    const [openRenameeModal, setOpenRenameModal] = useState(false);
+    const [newFileName, setNewFileName] = useState("");
+
+    const [open, setOpen] = React.useState(false);
 
     return(
         <div>
@@ -57,6 +69,7 @@ export default function ListDocs(props) {
                                 event.preventDefault();
                                 props.setSelectedFile(item)
                                 setDoc(item)
+                                setNewFileName(item.name)
                                 setAnchorEl(event.currentTarget)
                             }}
                             >
@@ -80,6 +93,7 @@ export default function ListDocs(props) {
                             event.preventDefault();
                             props.setSelectedFile(item)
                             setDoc(item)
+                            setNewFileName(item.name)
                             setAnchorEl(event.currentTarget)
                         }}
                         >
@@ -145,7 +159,8 @@ export default function ListDocs(props) {
                     <Typography variant="inherit">Ajouter aux favoris</Typography>
                 </MenuItem>
                 <MenuItem key={4}  onClick={() => {
-
+                    setAnchorEl(null);
+                    setOpenRenameModal(true)
                 }}>
                     <ListItemIcon>
                         <EditIcon fontSize="small"/>
@@ -173,6 +188,8 @@ export default function ListDocs(props) {
                     <Typography variant="inherit">Télécharger</Typography>
                 </MenuItem>
                 <MenuItem key={6}  onClick={() => {
+                    setAnchorEl(null);
+                    setOpen(true)
                 }}>
                     <ListItemIcon>
                         <DeleteOutlineIcon fontSize="small"/>
@@ -180,6 +197,74 @@ export default function ListDocs(props) {
                     <Typography variant="inherit">Supprimer</Typography>
                 </MenuItem>
             </Menu>
+
+            <Dialog
+                open={open}
+                TransitionComponent={Transition}
+                keepMounted
+                onClose={() => setOpen(false)}
+                aria-labelledby="alert-dialog-slide-title"
+                aria-describedby="alert-dialog-slide-description"
+            >
+                <DialogTitle id="alert-dialog-slide-title" style={{width:"90%"}}>{"Voulez-vous vraiment supprimer le fichier "+doc.name+".pdf"+" ?"}</DialogTitle>
+                <DialogContent>
+                    <div align="center" style={{marginTop:5,marginBottom:5}}>
+                        <div className="avatar-lg rounded-circle bg-soft-danger border-danger">
+                            <i className="mdi mdi-close-circle-outline avatar-title text-danger" style={{fontSize:42}}/>
+                        </div>
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpen(false)} color="default" style={{textTransform:"Capitalize",fontWeight:"bold"}}>
+                        Annuler
+                    </Button>
+                    <Button onClick={() => {
+                        props.onDeleteFile(doc)
+                    }}
+                            color="secondary" style={{textTransform:"Capitalize",fontWeight:"bold"}} variant="contained">
+                        Confirmer
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Modal isOpen={openRenameeModal} size="md" centered={true} zIndex={1500}
+                   toggle={() => {
+                       setOpenRenameModal(false)
+                   }}
+            >
+                <ModalHeader toggle={() => {setOpenRenameModal(false)}} >
+                    Rennomer
+                </ModalHeader>
+                <ModalBody>
+
+                    <div style={{marginTop: 20}}>
+                        <input className="form-control" placeholder="Rennomer" value={newFileName}
+                               onChange={event => setNewFileName(event.target.value)} style={{height:40}}
+                               type="text"
+                        />
+                    </div>
+                    <div style={{marginTop: 15, textAlign: "right"}}>
+                        <button className="btn btn-light  font-weight-normal m-1"
+                                style={{fontFamily: "sans-serif"}}
+                                onClick={() => {
+                                    setOpenRenameModal(false)
+                                }}
+                        >
+                            Annuler
+                        </button>
+                        <button className="btn btn-success  font-weight-normal m-1"
+                                style={{fontFamily: "sans-serif"}}
+                                onClick={() => {
+                                    setOpenRenameModal(false)
+                                    props.onRenameFile(doc,newFileName)
+                                }}
+                        >
+                            OK
+                        </button>
+                    </div>
+
+                </ModalBody>
+            </Modal>
         </div>
 
     )

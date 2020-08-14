@@ -136,6 +136,7 @@ export default function GmailTree(props) {
                         labelIcon={FolderIcon}
                         endIcon={AddIcon}
                         onClick={() => {
+                            props.setSelectedFolder(nodes)
                             props.getFolderName(nodes.name)
                             props.getFolderId(nodes.id)
 

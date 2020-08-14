@@ -6,7 +6,7 @@ export default class RedirectCp extends Component{
 
     componentDidMount() {
 
-        if(localStorage.getItem('uid') === undefined || localStorage.getItem('uid') === null ){
+        if(localStorage.getItem('email') === undefined || localStorage.getItem('email') === null ){
             this.props.history.push('/login')
         }else{
             this.props.history.push('/drive/0')

@@ -111,6 +111,8 @@ export default class DriveV2 extends React.Component {
         openAlert: false,
         alertMessage: '',
         alertType: '',
+        openUploadToast: false,
+        uploadToastMessage: "",
 
         anchorEl: null,
         anchorElMenu: null,
@@ -145,6 +147,7 @@ export default class DriveV2 extends React.Component {
 
         selectedFoldername: "",
         breadcrumbs: "",
+        selectedFolder:"",
         selectedFolderId: "",
         selectedFile: "",
         selectedFolderFiles: [],
@@ -464,6 +467,17 @@ export default class DriveV2 extends React.Component {
         if (reason === 'clickaway') return;
         this.setState({openAlert: false});
     };
+    openUploadToastSnackbar = (msg) => {
+        this.setState({
+            openUploadToast: true,
+            uploadToastMessage: msg
+        });
+    }
+
+    closeUploadToastSnackbar = (event, reason) => {
+        if (reason === 'clickaway') return;
+        this.setState({openUploadToast: false});
+    };
 
     showDocInPdfModal = (url) => {
 
@@ -494,24 +508,52 @@ export default class DriveV2 extends React.Component {
     };
 
     uploadFolder = (event) => {
+        this.setState({loading:true})
         let files = event.target.files;
         let structure = files[0].webkitRelativePath.split('/');
         let folder_name = structure[0];
-        let folder_id = "";
-        SmartService.addFolder({}, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes => {
+        let calls = [];
+        SmartService.addFolder({name:folder_name,folder_id:null}, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes => {
+            if(addFolderRes.succes === true && addFolderRes.status === 200){
+                this.setState({openUploadToast:true})
+                for (let i = 0; i < files.length; i++) {
+                    let formData = new FormData();
+                    formData.append("file", files[i]);
+                    formData.append("folder_id", addFolderRes.data.id)
+                    calls.push( axios.request({
+                        method: "POST", url: data.endpoint + "/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfile",
+                        data: formData,
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            'token': localStorage.getItem('token'),
+                            'usrtoken': localStorage.getItem('usrtoken')
+                        },
+                        onUploadProgress: (p) => {
+                            this.setState({uploadToastMessage:files[i].name+" : "+((p.loaded / p.total) * 100).toFixed(2).concat(" %").toString()})
+                        }
+                        })
+                    )
+                }
+                Promise.all(calls).then( response => {
+                    this.setState({openUploadToast:false,uploadToastMessage:""})
+                    this.reloadGed()
+                    console.log(response)
+                }).catch( err => {
+                    this.setState({loading:false})
+                    console.log(err)
+                })
 
+            }else{
+                this.setState({loading:false})
+                this.openSnackbar("error",addFolderRes.error)
+            }
         }).catch(err => {
+            this.openSnackbar("error",err)
+            this.setState({loading:false})
             console.log(err)
         })
 
-        let calls = [];
-        for (let i = 0; i < files.length; i++) {
-            calls.push(SmartService.addFile({
-                file: files[i],
-                folder_id: folder_id
-            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")))
-            /*utilFunctions.buildTree(files[i].webkitRelativePath.split('/'),data,files[i].name,files[i].type,files[i])*/
-        }
+
     }
 
     reloadGed = () => {
@@ -927,6 +969,40 @@ export default class DriveV2 extends React.Component {
         }).catch(err => console.log(err))
     }
 
+    deleteFile_Folder = (file) => {
+        this.setState({loading:true})
+        SmartService.deleteFile(file.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( deleteRes => {
+            if(deleteRes.succes === true && deleteRes.status === 200){
+                if(file.type) this.reloadGed()
+                else{
+                    this.props.history.replace({pathname: '/drive/0'});
+                    this.reloadGed()
+                }
+                this.openSnackbar("success",file.type ? file.name+".pdf est supprimé avec succès" : file.name+" est supprimé avec succès")
+            }else{
+                this.openSnackbar("error",deleteRes.error)
+            }
+        }).catch(err => {
+            this.setState({loading:false})
+            this.openSnackbar("error",err)
+        })
+    }
+
+    renameFile_Folder = (file,newName) => {
+        this.setState({loading:true})
+        SmartService.updateFileName({name:newName},file.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+            if(updateNameRes.succes === true && updateNameRes.status === 200){
+                this.reloadGed()
+                this.openSnackbar("success",file.type ? file.name+".pdf a bien été renommé. Nouveau nom: "+newName+".pdf" : file.name+" a bien été renommé. Nouveau nom: "+newName)
+            }else{
+                this.openSnackbar("error",updateNameRes.error)
+            }
+        }).catch(err => {
+            this.setState({loading:false})
+            this.openSnackbar("error",err)
+        })
+    }
+
 
     render() {
 
@@ -1003,7 +1079,8 @@ export default class DriveV2 extends React.Component {
                                         }}
 
                                         driveFolders={this.state.folders || []}
-
+                                        selectedFolder={this.state.selectedFolder}
+                                        setSelectedFolder={(folder) => this.setState({selectedFolder:folder})}
                                         setFolderName={(name) => this.setState({selectedFoldername: name})}
                                         setFolderId={(id) => {
                                             this.props.history.replace({pathname: '/drive/' + id});
@@ -1085,6 +1162,12 @@ export default class DriveV2 extends React.Component {
                                         }}
                                         onClickImportFolder={() => {
                                             this.folderupload.click();
+                                        }}
+                                        onDeleteFolder={() => {
+                                            this.deleteFile_Folder(this.state.selectedFolder)
+                                        }}
+                                        onRenameFolder={(newName) => {
+                                            this.renameFile_Folder(this.state.selectedFolder,newName)
                                         }}
                                     />
                                     <input style={{visibility: 'hidden', width: 0, height: 0}}
@@ -1218,6 +1301,12 @@ export default class DriveV2 extends React.Component {
                                                                                                   setLoading={(b) => this.setState({loading:b})}
                                                                                                   setSelectedFile={(file) => this.setState({selectedFile:file})}
                                                                                                   openShareFileModal={() => this.setState({openShareDocModal:true})}
+                                                                                                  onDeleteFile={(file) => {
+                                                                                                      this.deleteFile_Folder(file);
+                                                                                                  }}
+                                                                                                  onRenameFile={(file,newName) => {
+                                                                                                      this.renameFile_Folder(file,newName)
+                                                                                                  }}
                                                                                         />
                                                                                     </div> :
                                                                                     this.props.match.params.section_id && this.props.match.params.section_id === 'shared' ?
@@ -1228,6 +1317,12 @@ export default class DriveV2 extends React.Component {
                                                                                                       setLoading={(b) => this.setState({loading:b})}
                                                                                                       setSelectedFile={(file) => this.setState({selectedFile:file})}
                                                                                                       openShareFileModal={() => this.setState({openShareDocModal:true})}
+                                                                                                      onDeleteFile={(file) => {
+                                                                                                          this.deleteFile_Folder(file);
+                                                                                                      }}
+                                                                                                      onRenameFile={(file,newName) => {
+                                                                                                          this.renameFile_Folder(file,newName)
+                                                                                                      }}
                                                                                             />
 
                                                                                         </div> :
@@ -1239,6 +1334,12 @@ export default class DriveV2 extends React.Component {
                                                                                                       setLoading={(b) => this.setState({loading:b})}
                                                                                                       setSelectedFile={(file) => this.setState({selectedFile:file})}
                                                                                                       openShareFileModal={() => this.setState({openShareDocModal:true})}
+                                                                                                      onDeleteFile={(file) => {
+                                                                                                          this.deleteFile_Folder(file);
+                                                                                                      }}
+                                                                                                      onRenameFile={(file,newName) => {
+                                                                                                          this.renameFile_Folder(file,newName)
+                                                                                                      }}
                                                                                             />
                                                                                         </div> : null
 
@@ -3269,7 +3370,7 @@ export default class DriveV2 extends React.Component {
                     </Modal>
 
 
-                    <Modal isOpen={this.state.newFolderModal} size="md" centered={true}
+                    <Modal isOpen={this.state.newFolderModal} size="md" centered={true} zIndex={1500}
                            toggle={() => this.setState({
                                newFolderModal: !this.state.newFolderModal,
                                newFolderFromRacine: false
@@ -3318,7 +3419,7 @@ export default class DriveV2 extends React.Component {
                         </ModalBody>
                     </Modal>
 
-                    <Modal isOpen={this.state.showInviteModal} size="md" centered={true}
+                    <Modal isOpen={this.state.showInviteModal} size="md" centered={true} zIndex={1500}
                            toggle={() => this.setState({showInviteModal: !this.state.showInviteModal})}>
                         <ModalHeader toggle={() => this.setState({showInviteModal: !this.state.showInviteModal})}>
                             Ajouter des participants
@@ -3398,7 +3499,7 @@ export default class DriveV2 extends React.Component {
                     </Modal>
 
 
-                    <Modal isOpen={this.state.showModalAdd} size="md" centered={true}
+                    <Modal isOpen={this.state.showModalAdd} size="md" centered={true} zIndex={1500}
                            toggle={() => this.setState({showModalAdd: !this.state.showModalAdd})}>
                         <ModalHeader toggle={() => this.setState({
                             showModalAdd: !this.state.showModalAdd
@@ -3810,12 +3911,21 @@ export default class DriveV2 extends React.Component {
 
                     <Snackbar
                         open={this.state.openAlert}
-                        autoHideDuration={7000}
+                        autoHideDuration={5000}
                         onClose={this.closeSnackbar}
                     >
                         <Alert elevation={6} variant="filled" onClose={this.closeSnackbar}
                                severity={this.state.alertType}>
                             {this.state.alertMessage}
+                        </Alert>
+                    </Snackbar>
+
+                    <Snackbar
+                        open={this.state.openUploadToast}
+                        onClose={this.closeUploadToastSnackbar}
+                    >
+                        <Alert elevation={6} variant="filled" onClose={this.closeUploadToastSnackbar} severity="">
+                            {this.state.uploadToastMessage}
                         </Alert>
                     </Snackbar>
 

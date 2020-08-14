@@ -76,6 +76,23 @@ let SmartService = {
             console.log(error);
         });
     },
+    deleteFile(fileId,token,usrtoken){
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/doc/'+ fileId, {
+            method: 'DELETE',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+    updateFileName(data,fileId,token,usrtoken){
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/doc/'+ fileId, {
+            method: 'PUT',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
     addFolder(data,token,usrtoken){
         return fetch(endpoint + '/ged/'+OALegalGedId+'/doc/addfolder', {
             method: 'POST',
