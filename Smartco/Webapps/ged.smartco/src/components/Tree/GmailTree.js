@@ -71,7 +71,7 @@ const useTreeItemStyles = makeStyles((theme) => ({
 
 function StyledTreeItem(props) {
     const classes = useTreeItemStyles();
-    const {labelText, labelIcon: LabelIcon, labelInfo,endIcon:EndIcon, color, bgColor, ...other} = props;
+    const {labelText, labelIcon: LabelIcon, labelInfo,endIcon:EndIcon, color, bgColor,onEndIconClick, ...other} = props;
 
     return (
         <div>
@@ -88,8 +88,8 @@ function StyledTreeItem(props) {
                             {labelInfo}
                         </Typography>
                         {
-                            props.endIcon && props.endIcon !== "" &&
-                            <EndIcon color="inherit" className={classes.endIcon} onClick={ event => props.onEndIconClick(event)} />
+                            onEndIconClick &&
+                            <EndIcon color="inherit" className={classes.endIcon} onClick={onEndIconClick && props.onEndIconClick} />
                         }
 
                     </div>
@@ -124,7 +124,8 @@ StyledTreeItem.propTypes = {
     color: PropTypes.string,
     labelIcon: PropTypes.elementType.isRequired,
     labelInfo: PropTypes.string,
-    labelText: PropTypes.string.isRequired
+    labelText: PropTypes.string.isRequired,
+    onEndIconClick : PropTypes.func
 };
 
 export default function GmailTree(props) {
@@ -163,7 +164,6 @@ export default function GmailTree(props) {
                             else props.getSelectedFolderFiles([])
 
                         }}
-                        onEndIconClick={props.onEndIconClick}
                         color="#e3742f"
                         bgColor="#fcefe3"
         >

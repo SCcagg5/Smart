@@ -53,6 +53,7 @@ class login extends Component {
         });
 
             SmartService.getToken().then( tokenRes => {
+
                 if (tokenRes.succes === true && tokenRes.status === 200) {
 
                     SmartService.login({email:values.email.trim().toLowerCase(),password1:values.password},tokenRes.data.token).then( loginRes => {
@@ -70,7 +71,7 @@ class login extends Component {
                                     this.setState({loading:false})
                                     this.props.history.push('/drive/0');
 
-                                }else{
+                                }else{console.log(tokenRes)
                                     this.openSnackbar('error', infoRes.error);
                                     this.setState({loading: false})
                                 }

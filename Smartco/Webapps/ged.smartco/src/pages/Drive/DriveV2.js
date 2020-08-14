@@ -83,13 +83,15 @@ import RoomTabs from "../../components/Tabs/RoomTabs";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Menu from "@material-ui/core/Menu";
 import SearchResults from "../../components/Search/SearchResults";
+import ListDocs from "../../components/List/ListDocs";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
 const checkedIcon = <CheckBoxIcon fontSize="small"/>;
 const getLabel = ({option}) => {
     return (
         <React.Fragment>
-            <img src={option.image} alt="" style={{width: 30, height: 30}}/>&nbsp;&nbsp;
+            <img src={option.image} alt="" style={{width: 30, height: 30}}/>
+            &nbsp;&nbsp;
             {option.id}
         </React.Fragment>
     );
@@ -101,6 +103,7 @@ let index = {}
 export default class DriveV2 extends React.Component {
 
     imageUpload = {};
+    folderupload = {};
 
     state = {
         loading: true,
@@ -143,6 +146,7 @@ export default class DriveV2 extends React.Component {
         selectedFoldername: "",
         breadcrumbs: "",
         selectedFolderId: "",
+        selectedFile: "",
         selectedFolderFiles: [],
 
         showNewDocScreen: false,
@@ -197,7 +201,7 @@ export default class DriveV2 extends React.Component {
 
         focusedItem: "Drive",  // => Drive || Rooms || Meet || Contacts
         expanded: [],
-        expandedRoomItems: [],
+        expandedRoomItems: ["0"],
 
         viewMode: "list",
 
@@ -215,10 +219,10 @@ export default class DriveV2 extends React.Component {
     }
 
     componentDidMount() {
-
+        console.log(localStorage.getItem('email'))
         let sharedDrive = [];
 
-        if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
+        if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === undefined) {
             this.props.history.push('/login')
         } else {
             this.setState({loading: true});
@@ -246,7 +250,7 @@ export default class DriveV2 extends React.Component {
                                 response.map((item, key) => {
                                     sharedDrive.push(item.data)
                                 })
-                                if(this.props.match.params.section === "drive"){
+                                if (this.props.match.params.section === "drive") {
 
                                     if (this.props.match.params.section_id === "0") {
                                         this.setState({
@@ -295,15 +299,16 @@ export default class DriveV2 extends React.Component {
                                         })
                                     }
 
-                                }else if(this.props.match.params.section === "rooms"){
+                                } else if (this.props.match.params.section === "rooms") {
 
-                                    if(this.props.match.params.section_id === "all"){
-                                        if(rooms.length > 0 ) this.props.history.replace({pathname: '/rooms/0'});
+                                    if (this.props.match.params.section_id === "all") {
+                                        if (rooms.length > 0) this.props.history.replace({pathname: '/rooms/0'});
                                         this.setState({
-                                            showContainerSection:"Rooms",
-                                            focusedItem:"Rooms",
-                                            selectedRoomItems:rooms.length > 0 ? ["0"]:[],
-                                            openRoomMenuItem:true,
+                                            showContainerSection: "Rooms",
+                                            focusedItem: "Rooms",
+                                            selectedRoomItems: rooms.length > 0 ? ["0"] : [],
+                                            expandedRoomItems: rooms.length > 0 ? ["0"] : [],
+                                            openRoomMenuItem: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             folders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
@@ -314,13 +319,14 @@ export default class DriveV2 extends React.Component {
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             loading: false
                                         })
-                                    }else if( (typeof parseInt(this.props.match.params.section_id)) === "number" ){
-                                        if(rooms[parseInt(this.props.match.params.section_id)]){
+                                    } else if ((typeof parseInt(this.props.match.params.section_id)) === "number") {
+                                        if (rooms[parseInt(this.props.match.params.section_id)]) {
                                             this.setState({
-                                                showContainerSection:"Rooms",
-                                                focusedItem:"Rooms",
-                                                selectedRoomItems:[this.props.match.params.section_id],
-                                                openRoomMenuItem:true,
+                                                showContainerSection: "Rooms",
+                                                focusedItem: "Rooms",
+                                                selectedRoomItems: [this.props.match.params.section_id],
+                                                expandedRoomItems: rooms.length > 0 ? ["0"] : [],
+                                                openRoomMenuItem: true,
                                                 rootFiles: gedRes.data.Proprietary.Content.files || [],
                                                 folders: gedRes.data.Proprietary.Content.folders || [],
                                                 sharedDrive: sharedDrive,
@@ -329,24 +335,24 @@ export default class DriveV2 extends React.Component {
                                                 contacts: contacts,
                                                 rooms: rooms,
                                                 selectedRoom: rooms[parseInt(this.props.match.params.section_id)],
-                                                selectedRoomKey:parseInt(this.props.match.params.section_id),
+                                                selectedRoomKey: parseInt(this.props.match.params.section_id),
                                                 loading: false
                                             })
-                                        }else{
+                                        } else {
                                             console.log("URL ERROR")
                                         }
-                                    }else{
+                                    } else {
                                         console.log("URL ERROR")
                                     }
 
-                                }else if(this.props.match.params.section === "meet"){
+                                } else if (this.props.match.params.section === "meet") {
 
-                                    if(this.props.match.params.section_id === "new"){
+                                    if (this.props.match.params.section_id === "new") {
                                         this.setState({
-                                            showContainerSection:"Meet",
-                                            focusedItem:"Meet",
-                                            selectedMeetMenuItem:["new"],
-                                            openMeetMenuItem:true,
+                                            showContainerSection: "Meet",
+                                            focusedItem: "Meet",
+                                            selectedMeetMenuItem: ["new"],
+                                            openMeetMenuItem: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             folders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
@@ -357,12 +363,12 @@ export default class DriveV2 extends React.Component {
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             loading: false
                                         })
-                                    }else if(this.props.match.params.section_id === "rejoin"){
+                                    } else if (this.props.match.params.section_id === "rejoin") {
                                         this.setState({
-                                            showContainerSection:"Meet",
-                                            focusedItem:"Meet",
-                                            selectedMeetMenuItem:["rejoin"],
-                                            openMeetMenuItem:true,
+                                            showContainerSection: "Meet",
+                                            focusedItem: "Meet",
+                                            selectedMeetMenuItem: ["rejoin"],
+                                            openMeetMenuItem: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             folders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
@@ -373,14 +379,14 @@ export default class DriveV2 extends React.Component {
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             loading: false
                                         })
-                                    }else{
+                                    } else {
                                         console.log("URL ERROR")
                                     }
-                                }else if(this.props.match.params.section === "contacts"){
-                                    if(this.props.match.params.section_id === "all"){
+                                } else if (this.props.match.params.section === "contacts") {
+                                    if (this.props.match.params.section_id === "all") {
                                         this.setState({
-                                            showContainerSection:"Contacts",
-                                            focusedItem:"Contacts",
+                                            showContainerSection: "Contacts",
+                                            focusedItem: "Contacts",
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             folders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
@@ -391,18 +397,18 @@ export default class DriveV2 extends React.Component {
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             loading: false
                                         })
-                                    }else{
+                                    } else {
                                         console.log("URL ERROR")
                                     }
 
-                                }else if(this.props.match.params.section === "search"){
-                                    if(this.props.match.params.section_id){
+                                } else if (this.props.match.params.section === "search") {
+                                    if (this.props.match.params.section_id) {
                                         let textToSearch = this.props.match.params.section_id;
                                         SmartService.search(textToSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
                                             if (searchRes.succes === true && searchRes.status === 200) {
                                                 this.setState({
                                                     searchResult: searchRes.data,
-                                                    textSearch:textToSearch,
+                                                    textSearch: textToSearch,
                                                     rootFiles: gedRes.data.Proprietary.Content.files || [],
                                                     folders: gedRes.data.Proprietary.Content.folders || [],
                                                     sharedDrive: sharedDrive,
@@ -421,7 +427,7 @@ export default class DriveV2 extends React.Component {
                                         })
 
                                     }
-                                }else{
+                                } else {
                                     console.log("URL ERROR")
                                 }
 
@@ -487,6 +493,27 @@ export default class DriveV2 extends React.Component {
 
     };
 
+    uploadFolder = (event) => {
+        let files = event.target.files;
+        let structure = files[0].webkitRelativePath.split('/');
+        let folder_name = structure[0];
+        let folder_id = "";
+        SmartService.addFolder({}, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes => {
+
+        }).catch(err => {
+            console.log(err)
+        })
+
+        let calls = [];
+        for (let i = 0; i < files.length; i++) {
+            calls.push(SmartService.addFile({
+                file: files[i],
+                folder_id: folder_id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")))
+            /*utilFunctions.buildTree(files[i].webkitRelativePath.split('/'),data,files[i].name,files[i].type,files[i])*/
+        }
+    }
+
     reloadGed = () => {
         this.setState({loading: true});
         setTimeout(() => {
@@ -503,6 +530,7 @@ export default class DriveV2 extends React.Component {
                         let folder_name = this.getFolderNameById(this.props.match.params.section_id, folders);
                         this.setState({
                             folders: folders,
+                            rootFiles: gedRes.data.Proprietary.Content.files || [],
                             expanded: this.expandAll(this.props.match.params.section_id, folders),
                             selectedFoldername: folder_name,
                             breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders),
@@ -833,7 +861,7 @@ export default class DriveV2 extends React.Component {
     }
 
     getBreadcumpsPath = (idFolder, drive) => {
-        console.log(drive)
+        //console.log(drive)
         let breadCrumbArray = this.getPath(idFolder, drive)
         let breadcrumbs = [];
         breadCrumbArray.map((id, key) => {
@@ -863,22 +891,40 @@ export default class DriveV2 extends React.Component {
         firebase.database().ref('/rooms').set(
             rooms
         ).then(res => {
-            this.props.history.replace({pathname: '/rooms/' + (rooms.length -1)});
-            this.setState({loading: false, newRoomTitle: "", NewRoomEmails: [],
-                selectedRoom:room,selectedRoomKey:(rooms.length -1),selectedRoomItems:[(rooms.length -1).toString()]})
+            this.props.history.replace({pathname: '/rooms/' + (rooms.length - 1)});
+            this.setState({
+                loading: false,
+                newRoomTitle: "",
+                NewRoomEmails: [],
+                selectedRoom: room,
+                selectedRoomKey: (rooms.length - 1),
+                selectedRoomItems: [(rooms.length - 1).toString()]
+            })
             this.openSnackbar('success', "Room ajouté avec succès");
         });
     }
 
 
     base64ToSize = (base64) => {
-        if(base64.endsWith("==")){
-            return (base64.length * (3/4)) - 2
-        }else if(base64.endsWith("=")) {
-            return (base64.length * (3/4)) - 1
-        }else {
-            return (base64.length * (3/4))
+        if (base64.endsWith("==")) {
+            return (base64.length * (3 / 4)) - 2
+        } else if (base64.endsWith("=")) {
+            return (base64.length * (3 / 4)) - 1
+        } else {
+            return (base64.length * (3 / 4))
         }
+    }
+
+    openPdfModal = (doc_id,) => {
+        this.setState({loading: true})
+        SmartService.getFile(doc_id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(fileRes => {
+            if (fileRes.succes === true && fileRes.status === 200) {
+                this.setState({loading: false})
+                this.showDocInPdfModal(fileRes.data.Content.Data)
+            } else {
+                console.log(fileRes.error)
+            }
+        }).catch(err => console.log(err))
     }
 
 
@@ -886,7 +932,6 @@ export default class DriveV2 extends React.Component {
 
         return (
             <div>
-                <MuiBackdrop open={this.state.loading}/>
                 <TopBar logo={logo} height={70} onClickMenuIcon={() => this.setState({openSideMenu: true})}
                         onLogoutClick={() => {
                             localStorage.clear();
@@ -896,10 +941,9 @@ export default class DriveV2 extends React.Component {
                     this.setState({textSearch: value})
                 }}
                         onRequestSearch={() => {
-                            this.setState({loading: true,showContainerSection:"Drive",focusedItem:"Drive"})
+                            this.setState({loading: true, showContainerSection: "Drive", focusedItem: "Drive"})
                             this.props.history.replace({pathname: '/search/' + this.state.textSearch});
                             SmartService.search(this.state.textSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
-                                console.log(searchRes);
                                 if (searchRes.succes === true && searchRes.status === 200) {
                                     this.setState({loading: false, searchResult: searchRes.data})
                                 } else {
@@ -912,131 +956,141 @@ export default class DriveV2 extends React.Component {
                 />
                 <SideMenu logo={logo} items={data.sideBarItems} iconColor={"blue"} textColor={"#65728E"}
                           history={this.props.history}
-                          opened={this.state.openSideMenu} onClose={() => this.setState({openSideMenu: false})}/>
-
+                          opened={this.state.openSideMenu} onClose={() => this.setState({openSideMenu: false})}
+                />
+                <MuiBackdrop open={this.state.loading}/>
                 <div style={{marginRight: 50, marginTop: 75, marginLeft: 5}}>
                     <div>
                         <div style={{display: "flex"}}>
 
                             <div style={{height: "100%"}}>
                                 <div>
-                                    <LeftMenu openNewFolderModalFromRacine={() => this.setState({
-                                        newFolderModal: true,
-                                        newFolderFromRacine: true
-                                    })}
-                                              focusedItem={this.state.focusedItem}
-                                              setFocusedItem={(item) => {
-                                                  item === "Drive" ? this.props.history.replace({pathname: '/drive/0'}) :
-                                                      item === "Rooms" ? this.state.rooms.length > 0 ? this.props.history.replace({pathname: '/rooms/0'}) : this.props.history.replace({pathname: '/rooms/all'}) :
-                                                          item === "Meet" ? this.props.history.replace({pathname: '/meet/new'}) :
-                                                              this.props.history.replace({pathname: '/contacts/all'})
-                                                  this.setState({focusedItem: item, showContainerSection: item})
-                                              }}
+                                    <LeftMenu
+                                        openNewFolderModalFromRacine={() => this.setState({
+                                            newFolderModal: true,
+                                            newFolderFromRacine: true
+                                        })}
+                                        focusedItem={this.state.focusedItem}
+                                        setFocusedItem={(item) => {
+                                            item === "Drive" ? this.props.history.replace({pathname: '/drive/0'}) :
+                                                item === "Rooms" ? this.state.rooms.length > 0 ? this.props.history.replace({pathname: '/rooms/0'}) : this.props.history.replace({pathname: '/rooms/all'}) :
+                                                    item === "Meet" ? this.props.history.replace({pathname: '/meet/new'}) :
+                                                        this.props.history.replace({pathname: '/contacts/all'})
+                                            this.setState({focusedItem: item, showContainerSection: item})
+                                        }}
 
-                                              showDriveMenuItems={this.state.openDriveMenuItem}
-                                              setShowDriveMenuItems={() => this.setState({openDriveMenuItem: !this.state.openDriveMenuItem})}
+                                        showDriveMenuItems={this.state.openDriveMenuItem}
+                                        setShowDriveMenuItems={() => this.setState({openDriveMenuItem: !this.state.openDriveMenuItem})}
 
-                                              showRoomsMenuItems={this.state.openRoomMenuItem}
-                                              setShowRoomsMenuItems={() => this.setState({openRoomMenuItem: !this.state.openRoomMenuItem})}
+                                        showRoomsMenuItems={this.state.openRoomMenuItem}
+                                        setShowRoomsMenuItems={() => this.setState({openRoomMenuItem: !this.state.openRoomMenuItem})}
 
-                                              showMeetMenuItems={this.state.openMeetMenuItem}
-                                              setShowMeetMenuItems={() => this.setState({openMeetMenuItem: !this.state.openMeetMenuItem})}
+                                        showMeetMenuItems={this.state.openMeetMenuItem}
+                                        setShowMeetMenuItems={() => this.setState({openMeetMenuItem: !this.state.openMeetMenuItem})}
 
-                                              showContacts={this.state.openContactsMenu}
-                                              setShowContacts={() => {
-                                                  this.setState({showContainerSection: "Contacts"})
-                                              }}
+                                        showContacts={this.state.openContactsMenu}
+                                        setShowContacts={() => {
+                                            this.setState({showContainerSection: "Contacts"})
+                                        }}
 
-                                              openNewFolderModal={() => this.setState({newFolderModal: true})}
-                                              showNewFileScreen={() => this.setState({
-                                                  showNewDocScreen: true,
-                                                  showUploadStep: "upload"
-                                              })}
-                                              openShareModal={() => {
-                                                  this.setState({openShareDocModal: true})
-                                              }}
+                                        openNewFolderModal={() => this.setState({newFolderModal: true})}
+                                        showNewFileScreen={() => this.setState({
+                                            showNewDocScreen: true,
+                                            showUploadStep: "upload"
+                                        })}
+                                        openShareModal={() => {
+                                            this.setState({openShareDocModal: true})
+                                        }}
 
-                                              driveFolders={this.state.folders || []}
+                                        driveFolders={this.state.folders || []}
 
-                                              setFolderName={(name) => this.setState({selectedFoldername: name})}
-                                              setFolderId={(id) => {
-                                                  this.props.history.replace({pathname: '/drive/' + id});
-                                                  this.setState({
-                                                      focusedItem: "Drive",
-                                                      breadcrumbs: this.getBreadcumpsPath(id, this.state.folders.concat(this.state.sharedDrive)),
-                                                      selectedFolderId: id,
-                                                      showContainerSection: "Drive"
-                                                  })
-                                              }}
-                                              setSelectedFolderFiles={(files) => this.setState({selectedFolderFiles: files})}
+                                        setFolderName={(name) => this.setState({selectedFoldername: name})}
+                                        setFolderId={(id) => {
+                                            this.props.history.replace({pathname: '/drive/' + id});
+                                            this.setState({
+                                                focusedItem: "Drive",
+                                                breadcrumbs: this.getBreadcumpsPath(id, this.state.folders.concat(this.state.sharedDrive)),
+                                                selectedFolderId: id,
+                                                showContainerSection: "Drive"
+                                            })
+                                        }}
+                                        setSelectedFolderFiles={(files) => this.setState({selectedFolderFiles: files})}
                                         //selectedDriveItem={this.state.showContainerSection === "Drive" && [this.state.selectedFolderId === "" ? this.state.folders.length > 0 ? this.state.folders[0].id : "" : this.state.selectedFolderId]}
-                                              selectedDriveItem={this.state.showContainerSection === "Drive" && (this.props.match.params.section_id ? [this.props.match.params.section_id] : [])}
-                                              expandedDriveItems={this.state.showContainerSection === "Drive" && this.state.expanded}
-                                              selectedMeetItem={this.state.showContainerSection === "Meet" ? this.state.selectedMeetMenuItem : []}
-                                              handleSelectMeetMenu={(event, nodeIds) => {
-                                                  this.setState({selectedMeetMenuItem: nodeIds})
-                                              }}
-                                              onMeetItemClick={(nodeId) => {
-                                                  this.props.history.replace({pathname: '/meet/' + nodeId});
-                                                  if (nodeId === "new") {
-                                                      this.setState({
-                                                          focusedItem: "Meet",
-                                                          showContainerSection: "Meet",
-                                                          selectedMeetMenuItem: "new"
-                                                      })
-                                                  } else if (nodeId === "rejoin") {
-                                                      this.setState({
-                                                          focusedItem: "Meet",
-                                                          showContainerSection: "Meet",
-                                                          selectedMeetMenuItem: "rejoin"
-                                                      })
-                                                  } else {
-                                                  }
-                                              }}
+                                        selectedDriveItem={this.state.showContainerSection === "Drive" ? (this.props.match.params.section_id ? [this.props.match.params.section_id] : []) : []}
+                                        expandedDriveItems={this.state.showContainerSection === "Drive" ? this.state.expanded : []}
+                                        selectedMeetItem={this.state.showContainerSection === "Meet" ? this.state.selectedMeetMenuItem : []}
+                                        handleSelectMeetMenu={(event, nodeIds) => {
+                                            this.setState({selectedMeetMenuItem: nodeIds})
+                                        }}
+                                        onMeetItemClick={(nodeId) => {
+                                            this.props.history.replace({pathname: '/meet/' + nodeId});
+                                            if (nodeId === "new") {
+                                                this.setState({
+                                                    focusedItem: "Meet",
+                                                    showContainerSection: "Meet",
+                                                    selectedMeetMenuItem: "new"
+                                                })
+                                            } else if (nodeId === "rejoin") {
+                                                this.setState({
+                                                    focusedItem: "Meet",
+                                                    showContainerSection: "Meet",
+                                                    selectedMeetMenuItem: "rejoin"
+                                                })
+                                            } else {
+                                            }
+                                        }}
 
-                                              sharedDrive={this.state.sharedDrive || []}
-                                              sharedRootFiles={this.state.sharedRootFiles}
-                                              onClickSharedRootItem={() => {
-                                                  this.props.history.replace({pathname: '/drive/shared'});
-                                                  this.setState({
-                                                      breadcrumbs: "Mon drive / Partagés avec moi",
-                                                      focusedItem: "Drive",
-                                                      showContainerSection: "Drive"
-                                                  })
-                                              }}
+                                        sharedDrive={this.state.sharedDrive || []}
+                                        sharedRootFiles={this.state.sharedRootFiles}
+                                        onClickSharedRootItem={() => {
+                                            this.props.history.replace({pathname: '/drive/shared'});
+                                            this.setState({
+                                                breadcrumbs: "Mon drive / Partagés avec moi",
+                                                focusedItem: "Drive",
+                                                showContainerSection: "Drive"
+                                            })
+                                        }}
 
-                                              handleToggle={(event, nodeIds) => {
-                                                  this.setState({expanded: nodeIds})
-                                              }}
-                                              onClickNewFileFromRacine={() => {
-                                                  this.setState({
-                                                      newFileFromRacine: true,
-                                                      showNewDocScreen: true,
-                                                      showUploadStep: "upload"
-                                                  })
-                                              }}
+                                        handleToggle={(event, nodeIds) => {
+                                            this.setState({expanded: nodeIds})
+                                        }}
+                                        onClickNewFileFromRacine={() => {
+                                            this.setState({
+                                                newFileFromRacine: true,
+                                                showNewDocScreen: true,
+                                                showUploadStep: "upload"
+                                            })
+                                        }}
 
-                                              rooms={this.state.rooms}
-                                              setSelectedRoom={(room, roomId) => {
-                                                  this.props.history.replace({pathname: '/rooms/' + roomId});
-                                                  this.setState({
-                                                      selectedRoom: room,
-                                                      selectedRoomKey: roomId,
-                                                      showContainerSection: "Rooms",
-                                                      focusedItem: "Rooms"
-                                                  })
-                                              }}
-                                              selectedRoomItems={this.state.showContainerSection === "Rooms" && this.state.selectedRoomItems}
-                                              expandedRoomItems={this.state.expandedRoomItems}
-                                              onClickAddRoomBtn={() => {
-                                                  this.setState({openNewRoomModal: true})
-                                              }}
-                                              handleToggleRoomsMenu={(event, nodeIds) => {
-                                                  this.setState({expandedRoomItems: nodeIds})
-                                              }}
-                                              handleSelectRoomsMenu={(event, nodeIds) => {
-                                                  this.setState({selectedRoomItems: nodeIds})
-                                              }}
+                                        rooms={this.state.rooms}
+                                        setSelectedRoom={(room, roomId) => {
+                                            this.props.history.replace({pathname: '/rooms/' + roomId});
+                                            this.setState({
+                                                selectedRoom: room,
+                                                selectedRoomKey: roomId,
+                                                showContainerSection: "Rooms",
+                                                focusedItem: "Rooms"
+                                            })
+                                        }}
+                                        selectedRoomItems={this.state.showContainerSection === "Rooms" ? this.state.selectedRoomItems : []}
+                                        expandedRoomItems={this.state.expandedRoomItems}
+                                        onClickAddRoomBtn={() => {
+                                            this.setState({openNewRoomModal: true})
+                                        }}
+                                        handleToggleRoomsMenu={(event, nodeIds) => {
+                                            this.setState({expandedRoomItems: nodeIds})
+                                        }}
+                                        handleSelectRoomsMenu={(event, nodeIds) => {
+                                            this.setState({selectedRoomItems: nodeIds})
+                                        }}
+                                        onClickImportFolder={() => {
+                                            this.folderupload.click();
+                                        }}
+                                    />
+                                    <input style={{visibility: 'hidden', width: 0, height: 0}}
+                                           onChange={(event) => this.uploadFolder(event)}
+                                           type="file" webkitdirectory="" mozdirectory="" directory="" multiple={true}
+                                           ref={(ref) => this.folderupload = ref}
                                     />
 
                                 </div>
@@ -1102,7 +1156,7 @@ export default class DriveV2 extends React.Component {
                                                                 </div>
                                                             </div>
 
-                                                            <div style={{flexWrap: "wrap", display: "flex"}}>
+                                                            <div style={{flexWrap: "wrap", display: "block"}}>
 
                                                                 {
                                                                     this.props.match.params.section === "search" ?
@@ -1115,6 +1169,19 @@ export default class DriveV2 extends React.Component {
                                                                                     selectedDoc: item,
                                                                                     openRightMenu: true
                                                                                 })}
+                                                                                onPdfIconClick={(item) => {
+                                                                                    this.setState({loading: true})
+                                                                                    //console.log(item)
+                                                                                    SmartService.getFile(item.file_id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(fileRes => {
+                                                                                        if (fileRes.succes === true && fileRes.status === 200) {
+                                                                                            this.setState({loading: false})
+                                                                                            this.showDocInPdfModal(fileRes.data.Content.Data)
+                                                                                        } else {
+                                                                                            console.log(fileRes.error)
+                                                                                        }
+                                                                                    }).catch(err => console.log(err))
+                                                                                }}
+                                                                                setLoading={(b) => this.setState({loading:b})}
                                                                             />
                                                                         </div> :
 
@@ -1123,7 +1190,8 @@ export default class DriveV2 extends React.Component {
                                                                                 <div style={{
                                                                                     marginTop: 25,
                                                                                     display: "flex"
-                                                                                }}>
+                                                                                }}
+                                                                                >
                                                                                     <h5 style={{
                                                                                         fontSize: 16,
                                                                                         color: "gray"
@@ -1144,305 +1212,34 @@ export default class DriveV2 extends React.Component {
 
                                                                                 this.props.match.params.section_id && this.props.match.params.section_id === '0' ?
                                                                                     <div>
-                                                                                        {
-                                                                                            this.state.viewMode === "list" &&
-                                                                                            <div
-                                                                                                className="list_view_item">
-                                                                                                <div
-                                                                                                    style={{width: 56}}>
-                                                                                                    <h6 style={{color: "#000"}}>Type</h6>
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    style={{width: 300}}>
-                                                                                                    <h6 style={{color: "#000"}}>Nom</h6>
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    style={{width: 215}}>
-                                                                                                    <h6 style={{color: "#000"}}>Propriétaire</h6>
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    style={{width: 200}}>
-                                                                                                    <h6 style={{color: "#000"}}>Date
-                                                                                                        de création</h6>
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    style={{width: 150}}>
-                                                                                                    <h6 style={{color: "#000"}}>Taille</h6>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        }
-                                                                                        {
-                                                                                            (this.state.rootFiles || []).map((item, key) =>
-                                                                                                this.state.viewMode === "grid" ?
-                                                                                                    <div key={key}
-                                                                                                         className="cf_itemDoc">
-                                                                                                        <span
-                                                                                                            className="cf-itemDoc_preview"
-                                                                                                            onClick={() => {
-                                                                                                                this.setState({
-                                                                                                                    selectedDoc: item,
-                                                                                                                    openRightMenu: true
-                                                                                                                })
-                                                                                                            }}>
-                                                                                                            <img alt=""
-                                                                                                                 src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
-                                                                                                                 className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
-                                                                                                            <div
-                                                                                                                className="cf_itemDoc_preview_details">
-                                                                                                                <div
-                                                                                                                    className="cf_itemDoc_preview_details_title">
-                                                                                                                    {item.name + ".pdf"}
-                                                                                                                </div>
-                                                                                                                <span
-                                                                                                                    className="badge bg-soft-warning text-warning font-weight-bolder p-1">En
-                                                                                                                    attente</span>
-                                                                                                            </div>
-
-                                                                                                        </span>
-                                                                                                    </div> :
-
-                                                                                                    <div key={key}
-                                                                                                         className="list_view_item"
-                                                                                                         onClick={() => {
-                                                                                                             this.setState({
-                                                                                                                 selectedDoc: item,
-                                                                                                                 openRightMenu: true
-                                                                                                             })
-                                                                                                         }}>
-                                                                                                        <div
-                                                                                                            style={{width: 56}}>
-                                                                                                            <IconButton
-                                                                                                                color="default">
-                                                                                                                <PictureAsPdfIcon
-                                                                                                                    style={{
-                                                                                                                        color: "red",
-                                                                                                                        backgroundColor: "#fff"
-                                                                                                                    }}/>
-                                                                                                            </IconButton>
-                                                                                                        </div>
-                                                                                                        <div
-                                                                                                            style={{width: 300}}>
-                                                                                                            <h6>{item.name + ".pdf"}</h6>
-                                                                                                        </div>
-                                                                                                        <div
-                                                                                                            style={{width: 215}}>
-                                                                                                            <h6 style={{color: "grey"}}>Moi</h6>
-                                                                                                        </div>
-                                                                                                        <div
-                                                                                                            style={{width: 200}}>
-                                                                                                            <h6 style={{color: "grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
-                                                                                                        </div>
-                                                                                                        <div
-                                                                                                            style={{width: 150}}>
-                                                                                                            <h6 style={{color: "grey"}}>50 Ko</h6>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                            )
-                                                                                        }
-
-
+                                                                                        <ListDocs docs={this.state.rootFiles || []} viewMode={this.state.viewMode}
+                                                                                                  onDocClick={(item) => this.setState({selectedDoc: item, openRightMenu: true}) }
+                                                                                                  showDoc={(doc) => this.openPdfModal(doc.id)}
+                                                                                                  setLoading={(b) => this.setState({loading:b})}
+                                                                                                  setSelectedFile={(file) => this.setState({selectedFile:file})}
+                                                                                                  openShareFileModal={() => this.setState({openShareDocModal:true})}
+                                                                                        />
                                                                                     </div> :
                                                                                     this.props.match.params.section_id && this.props.match.params.section_id === 'shared' ?
                                                                                         <div style={{marginTop: 15}}>
-                                                                                            {
-                                                                                                this.state.viewMode === "list" &&
-                                                                                                <div
-                                                                                                    className="list_view_item">
-                                                                                                    <div
-                                                                                                        style={{width: 56}}>
-                                                                                                        <h6 style={{color: "#000"}}>Type</h6>
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        style={{width: 300}}>
-                                                                                                        <h6 style={{color: "#000"}}>Nom</h6>
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        style={{width: 215}}>
-                                                                                                        <h6 style={{color: "#000"}}>Propriétaire</h6>
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        style={{width: 200}}>
-                                                                                                        <h6 style={{color: "#000"}}>Date
-                                                                                                            de
-                                                                                                            création</h6>
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        style={{width: 150}}>
-                                                                                                        <h6 style={{color: "#000"}}>Taille</h6>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            }
-                                                                                            {
-                                                                                                (this.state.sharedRootFiles || []).map((item, key) =>
-                                                                                                    this.state.viewMode === "grid" ?
-                                                                                                        <div key={key}
-                                                                                                             className="cf_itemDoc">
-                                                                                                            <span
-                                                                                                                className="cf-itemDoc_preview"
-                                                                                                                onClick={() => {
-                                                                                                                    this.setState({
-                                                                                                                        selectedDoc: item,
-                                                                                                                        openRightMenu: true
-                                                                                                                    })
-                                                                                                                }}>
-                                                                                                                <img
-                                                                                                                    alt=""
-                                                                                                                    src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
-                                                                                                                    className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
-                                                                                                                <div
-                                                                                                                    className="cf_itemDoc_preview_details">
-                                                                                                                    <div
-                                                                                                                        className="cf_itemDoc_preview_details_title">
-                                                                                                                        {item.name + ".pdf"}
-                                                                                                                    </div>
-                                                                                                                    <span
-                                                                                                                        className="badge bg-soft-warning text-warning font-weight-bolder p-1">En
-                                                                                                                        attente</span>
-                                                                                                                </div>
-
-                                                                                                            </span>
-                                                                                                        </div> :
-                                                                                                        <div key={key}
-                                                                                                             className="list_view_item"
-                                                                                                             onClick={() => {
-                                                                                                                 this.setState({
-                                                                                                                     selectedDoc: item,
-                                                                                                                     openRightMenu: true
-                                                                                                                 })
-                                                                                                             }}>
-                                                                                                            <div
-                                                                                                                style={{width: 56}}>
-                                                                                                                <IconButton
-                                                                                                                    color="default">
-                                                                                                                    <PictureAsPdfIcon
-                                                                                                                        style={{
-                                                                                                                            color: "red",
-                                                                                                                            backgroundColor: "#fff"
-                                                                                                                        }}/>
-                                                                                                                </IconButton>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                style={{width: 300}}>
-                                                                                                                <h6>{item.name + ".pdf"}</h6>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                style={{width: 215}}>
-                                                                                                                <h6 style={{color: "grey"}}>Moi</h6>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                style={{width: 200}}>
-                                                                                                                <h6 style={{color: "grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                style={{width: 150}}>
-                                                                                                                <h6 style={{color: "grey"}}>50
-                                                                                                                    Ko</h6>
-                                                                                                            </div>
-                                                                                                        </div>
-                                                                                                )
-                                                                                            }
+                                                                                            <ListDocs docs={this.state.sharedRootFiles || []} viewMode={this.state.viewMode}
+                                                                                                      onDocClick={(item) => this.setState({selectedDoc: item, openRightMenu: true}) }
+                                                                                                      showDoc={(doc) => this.openPdfModal(doc.id)}
+                                                                                                      setLoading={(b) => this.setState({loading:b})}
+                                                                                                      setSelectedFile={(file) => this.setState({selectedFile:file})}
+                                                                                                      openShareFileModal={() => this.setState({openShareDocModal:true})}
+                                                                                            />
 
                                                                                         </div> :
 
                                                                                         <div style={{marginTop: 15}}>
-                                                                                            {
-                                                                                                this.state.viewMode === "list" &&
-                                                                                                <div
-                                                                                                    className="list_view_item">
-                                                                                                    <div
-                                                                                                        style={{width: 56}}>
-                                                                                                        <h6 style={{color: "#000"}}>Type</h6>
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        style={{width: 300}}>
-                                                                                                        <h6 style={{color: "#000"}}>Nom</h6>
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        style={{width: 215}}>
-                                                                                                        <h6 style={{color: "#000"}}>Propriétaire</h6>
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        style={{width: 200}}>
-                                                                                                        <h6 style={{color: "#000"}}>Date
-                                                                                                            de
-                                                                                                            création</h6>
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        style={{width: 150}}>
-                                                                                                        <h6 style={{color: "#000"}}>Taille</h6>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            }
-                                                                                            {
-                                                                                                (this.state.selectedFolderFiles || []).map((item, key) =>
-                                                                                                    this.state.viewMode === "grid" ?
-                                                                                                        <div key={key}
-                                                                                                             className="cf_itemDoc">
-                                                                                                            <span
-                                                                                                                className="cf-itemDoc_preview"
-                                                                                                                onClick={() => {
-                                                                                                                    this.setState({
-                                                                                                                        selectedDoc: item,
-                                                                                                                        openRightMenu: true
-                                                                                                                    })
-                                                                                                                }}>
-                                                                                                                <img
-                                                                                                                    alt=""
-                                                                                                                    src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}
-                                                                                                                    className={item.thumbnail ? "cf-itemDoc_preview_image" : "cf-itemDoc_preview_staticImg"}/>
-                                                                                                                <div
-                                                                                                                    className="cf_itemDoc_preview_details">
-                                                                                                                    <div
-                                                                                                                        className="cf_itemDoc_preview_details_title">
-                                                                                                                        {item.name + ".pdf"}
-                                                                                                                    </div>
-                                                                                                                    <span
-                                                                                                                        className="badge bg-soft-warning text-warning font-weight-bolder p-1">En
-                                                                                                                        attente</span>
-                                                                                                                </div>
-
-                                                                                                            </span>
-                                                                                                        </div> :
-                                                                                                        <div key={key}
-                                                                                                             className="list_view_item"
-                                                                                                             onClick={() => {
-                                                                                                                 this.setState({
-                                                                                                                     selectedDoc: item,
-                                                                                                                     openRightMenu: true
-                                                                                                                 })
-                                                                                                             }}>
-                                                                                                            <div
-                                                                                                                style={{width: 56}}>
-                                                                                                                <IconButton
-                                                                                                                    color="default">
-                                                                                                                    <PictureAsPdfIcon
-                                                                                                                        style={{
-                                                                                                                            color: "red",
-                                                                                                                            backgroundColor: "#fff"
-                                                                                                                        }}/>
-                                                                                                                </IconButton>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                style={{width: 300}}>
-                                                                                                                <h6>{item.name + ".pdf"}</h6>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                style={{width: 215}}>
-                                                                                                                <h6 style={{color: "grey"}}>Moi</h6>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                style={{width: 200}}>
-                                                                                                                <h6 style={{color: "grey"}}>{moment(parseInt(item.date)).format("DD MMMM YYYY hh:mm")}</h6>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                style={{width: 150}}>
-                                                                                                                <h6 style={{color: "grey"}}>50
-                                                                                                                    Ko</h6>
-                                                                                                            </div>
-                                                                                                        </div>
-                                                                                                )
-                                                                                            }
-
+                                                                                            <ListDocs docs={this.state.selectedFolderFiles || []} viewMode={this.state.viewMode}
+                                                                                                      onDocClick={(item) => this.setState({selectedDoc: item, openRightMenu: true}) }
+                                                                                                      showDoc={(doc) => this.openPdfModal(doc.id)}
+                                                                                                      setLoading={(b) => this.setState({loading:b})}
+                                                                                                      setSelectedFile={(file) => this.setState({selectedFile:file})}
+                                                                                                      openShareFileModal={() => this.setState({openShareDocModal:true})}
+                                                                                            />
                                                                                         </div> : null
 
 
@@ -2055,7 +1852,6 @@ export default class DriveV2 extends React.Component {
                                                         </div>
                                                 }
                                             </div>
-
                                         }
                                         {
                                             this.state.showContainerSection === "Rooms" && this.state.loading === false &&
@@ -2064,13 +1860,13 @@ export default class DriveV2 extends React.Component {
                                                     this.state.rooms.length === 0 ?
                                                         <div>
                                                             <h4 className="mt-0 mb-1">Rooms</h4>
-                                                            <div style={{marginTop:25,display:"flex"}}>
+                                                            <div style={{marginTop: 25, display: "flex"}}>
                                                                 <h5 style={{fontSize: 16, color: "gray"}}>
                                                                     Aucune "Room" encore ajouté !</h5>&nbsp;&nbsp;
                                                                 <h6 style={{
                                                                     cursor: "pointer",
                                                                     color: "#000",
-                                                                    textDecoration: "underline",marginTop:12
+                                                                    textDecoration: "underline", marginTop: 12
                                                                 }} onClick={() => {
                                                                     this.setState({
                                                                         openNewRoomModal: true
@@ -2083,13 +1879,17 @@ export default class DriveV2 extends React.Component {
                                                         <div>
                                                             <h4 className="mt-0 mb-1">{this.state.selectedRoom.title}</h4>
                                                             <p>{this.state.selectedRoom.members.length} membres</p>
-                                                            <RoomTabs contacts={this.state.contacts} room={this.state.selectedRoom}
+                                                            <RoomTabs contacts={this.state.contacts}
+                                                                      room={this.state.selectedRoom}
                                                                       addNewTask={(title, assignedTo) => {
                                                                           let room = this.state.selectedRoom;
                                                                           let tasks = room.tasks || [];
-                                                                          tasks.push({title: title, assignedTo: assignedTo})
+                                                                          tasks.push({
+                                                                              title: title,
+                                                                              assignedTo: assignedTo
+                                                                          })
                                                                           room.tasks = tasks;
-                                                                          console.log(this.state.selectedRoomKey)
+                                                                          //console.log(this.state.selectedRoomKey)
                                                                           firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
                                                                               room
                                                                           ).then(ok => {
@@ -3138,7 +2938,8 @@ export default class DriveV2 extends React.Component {
                                     <IconButton aria-label="Visualiser" title="Visualiser" color="primary"
                                                 onClick={() => {
                                                     this.setState({loadDocSpinner: true})
-                                                    SmartService.getFile(this.state.selectedDoc.id || this.state.selectedDoc.file_id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(fileRes => {
+                                                    SmartService.getFile(this.state.selectedDoc.id || this.state.selectedDoc.file_id,
+                                                        localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(fileRes => {
                                                         if (fileRes.succes === true && fileRes.status === 200) {
                                                             this.setState({loadDocSpinner: false})
                                                             this.showDocInPdfModal(fileRes.data.Content.Data)
@@ -3750,10 +3551,11 @@ export default class DriveV2 extends React.Component {
                     </Modal>
 
 
+                    {/*Share folder Modal*/}
+
                     <Dialog open={this.state.openShareDocModal} onClose={() => {
                         this.setState({openShareDocModal: !this.state.openShareDocModal})
-                    }}
-                            aria-labelledby="form-dialog-title">
+                    }} aria-labelledby="form-dialog-title">
                         <DialogTitle id="form-dialog-title" style={{marginLeft: -22, marginBottom: -10}}>
                             <IconButton aria-label="Partager" color="primary">
                                 <PersonAddIcon/>
@@ -3826,8 +3628,8 @@ export default class DriveV2 extends React.Component {
                                     </div>
                                 }
                                 <div className="col-md-12" style={{marginTop: 15}}>
-                                    <Chip icon={<FolderIcon/>}
-                                          label={this.state.selectedFoldername}
+                                    <Chip icon={this.state.selectedFile === "" ? <FolderIcon/> : <PictureAsPdfIcon style={{color: "red", backgroundColor: "#fff"}}/>}
+                                          label={this.state.selectedFile === "" ? this.state.selectedFoldername :  this.state.selectedFile.name+".pdf"}
                                           style={{
                                               fontWeight: "bold",
                                               backgroundColor: "white",
@@ -3848,15 +3650,16 @@ export default class DriveV2 extends React.Component {
                                 disabled={(this.state.checkedNotif === true && this.state.msgNotif === "") || this.state.emailsDriveShare.length === 0}
                                 onClick={() => {
                                     this.setState({loading: true, openShareDocModal: false})
-                                    SmartService.share(this.state.selectedFolderId,
-                                        {
-                                            to: this.state.emailsDriveShare[0].email,
+                                    SmartService.share(this.state.selectedFile === "" ? this.state.selectedFolderId : this.state.selectedFile.id,
+                                        {to: this.state.emailsDriveShare[0].email,
                                             access: {administrate: true, share: true, edit: false, read: true}
                                         },
                                         localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(share => {
                                         if (share.succes === true && share.status === 200) {
                                             this.setState({loading: false, openShareDocModal: false})
-                                            this.openSnackbar("success", "Le partage du dossier est effectué avec succès, Un mail d'invitation à été envoyé au personnes ajoutées")
+                                            this.openSnackbar("success", this.state.selectedFile === "" ?
+                                                "Le partage du dossier est effectué avec succès, Un mail d'invitation à été envoyé au personnes ajoutées" :
+                                                "Le partage du fichier est effectué avec succès, Un mail d'invitation à été envoyé au personnes ajoutées")
                                         } else {
                                             console.log(share.error)
                                             this.setState({loading: false})
@@ -3874,6 +3677,12 @@ export default class DriveV2 extends React.Component {
                             </MuiButton>
                         </DialogActions>
                     </Dialog>
+
+
+
+
+
+
 
 
                     <Dialog open={this.state.openNewRoomModal} onClose={() => {
@@ -3933,7 +3742,7 @@ export default class DriveV2 extends React.Component {
                                                 this.state.contacts.filter(x => x.role === "avocat").map((contact, key) =>
                                                     <MenuItem key={key} onClick={() => {
                                                         let emails = this.state.NewRoomEmails;
-                                                        console.log(parseInt(moment().format("DDMMYYYYHHmmss")));
+                                                        //console.log(parseInt(moment().format("DDMMYYYYHHmmss")));
                                                         emails.push({
                                                             email: contact.email,
                                                             valid: true,

@@ -3,6 +3,10 @@ import moment from "moment";
 import Highlighter from "react-highlight-words";
 import IconButton from "@material-ui/core/IconButton";
 import PictureAsPdfIcon from "@material-ui/icons/PictureAsPdf";
+import CloudDownloadOutlinedIcon from "@material-ui/icons/CloudDownloadOutlined";
+import VerticalAlignBottomIcon from '@material-ui/icons/VerticalAlignBottom';
+import styles from "./highlight.css"
+import SmartService from "../../provider/SmartService";
 
 export default function SearchResults(props){
 
@@ -12,11 +16,10 @@ export default function SearchResults(props){
     let results = props.data;
 
     let textToSearch = "";
-    let nbWords = 0;
+    let nbHits = 0;
 
     results.result.map((item, key) => {
-        if(item.match && item.match.text) nbWords = nbWords + item.match.text.length;
-        nbWords = nbWords + item.match.text.length;
+        if(item.match && item.match.perfect) nbHits = nbHits + item.match.perfect;
         item.match &&
         (item.match.text || []).map((text, k) => {
             textToSearch = textToSearch.concat(text).concat(". ... ");
@@ -35,7 +38,7 @@ export default function SearchResults(props){
                         <a data-toggle="tab" aria-expanded="true" onClick={() => setActiveTab("docs")} style={{cursor:"pointer"}}
                            className={activeTab === "docs" ? "nav-link active" : "nav-link"}>
                             Tous les résultats
-                            <span className="badge badge-success ml-1">{nbWords}</span>
+                            <span className="badge badge-success ml-1">{nbHits}</span>
                         </a>
                     </li>
                     <li className="nav-item">
@@ -54,24 +57,53 @@ export default function SearchResults(props){
                             <div className="col-md-12">
                                 {
                                     results.result.map((item, key) => (
-                                        <div className="search-item mb-2" key={key}>
-                                            <div className="row inside">
-                                                <h4 className="mb-1">
-                                                    <a href={""} target="_blank" rel="noopener noreferrer">{item.name+".pdf"}</a>
+
+                                        <div className="search-item item_ocr_search mb-2" key={key}>
+                                            <div className="row inside" style={{justifyContent:"space-between"}}>
+                                                <h4 className="mb-1" style={{color:"#323335",marginLeft: 5,marginTop: -5, marginBottom: 12}}>
+                                                    {item.name+".pdf"}
                                                 </h4>
+                                                <div  style={{marginTop:-14}}>
+                                                    <IconButton onClick={() => {props.onPdfIconClick(item)}}>
+                                                        <PictureAsPdfIcon style={{color: "red", backgroundColor: "#fff"}}/>
+                                                    </IconButton>
+                                                    <IconButton onClick={() => {
+                                                        props.setLoading(true)
+                                                        SmartService.getFile(item.file_id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(fileRes => {
+                                                            if (fileRes.succes === true && fileRes.status === 200) {
+                                                                let a = document.createElement("a");
+                                                                a.href ="data:application/pdf;base64," + fileRes.data.Content.Data
+                                                                a.download = item.name+".pdf";
+                                                                props.setLoading(false)
+                                                                a.click();
+                                                            } else {
+                                                                console.log(fileRes.error)
+                                                            }
+                                                        }).catch(err => console.log(err))
+                                                    }}>
+                                                        <VerticalAlignBottomIcon/>
+                                                    </IconButton>
+                                                </div>
+
+
                                             </div>
 
-                                            <div className="font-13 text-success mb-2 text-truncate mt-1">
-                                                {item.match.perfect + " occurences"}
+                                            <div style={{display:"flex",marginBottom:17}}>
+                                                <span className="badge badge-pink ml-1 p-1 font-13">{item.match.perfect + " hits"}</span>
+                                                <span className="badge badge-info ml-1 p-1 font-13">{item.match.partial + " partial hits"}</span>
                                             </div>
 
                                             <Highlighter
-                                                highlightClassName="YourHighlightClass"
+                                                unhighlightClassName={styles.Not_active}
+                                                unhighlightStyle={{color:"#000",fontSize:14,fontFamily: "Halvetica",lineHeight:"1.6rem"}}
+                                                activeClassName={styles.Active}
+                                                highlightClassName={styles.Highlight}
+                                                highlightStyle={{color:"#000",fontSize:14,fontFamily: "Halvetica",
+                                                    backgroundColor:"#CCCCCC",paddingTop:"0.2rem",paddingBottom:"0.2rem",paddingLeft:0,paddingRight:0 }}
                                                 searchWords={[textSearch]}
                                                 autoEscape={true}
-                                                textToHighlight={item.match.text.join(". ...")}
+                                                textToHighlight={item.match.text.slice(0,4).join(" ... ")}
                                             />
-
                                         </div>
                                     ))
                                 }
@@ -109,12 +141,6 @@ export default function SearchResults(props){
                                             <span
                                                 className="cf-itemDoc_preview"
                                                 onClick={() => props.onClickDoc(item)}
-                                                /*onClick={() => {
-                                                    this.setState({
-                                                        selectedDoc: item,
-                                                        openRightMenu: true
-                                                    })
-                                                }}*/
                                             >
                                                 <img alt=""
                                                      src={item.thumbnail || require("../../assets/icons/icon-pdf.png")}

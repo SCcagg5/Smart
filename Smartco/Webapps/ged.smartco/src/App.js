@@ -1,17 +1,17 @@
 import React, {Component} from 'react';
-import {BrowserRouter as Router, Route} from "react-router-dom";
+import {BrowserRouter as Router, Route, Redirect} from "react-router-dom";
 import Login from "./pages/auth/login";
 import Logout from "./pages/auth/logout";
-import Redirect from "./pages/redirect";
+import RedirectCp from "./pages/RedirectCp";
 import ListAvocats from "./pages/avocats/listAvocats";
 import DetailAvocat from "./pages/avocats/detailAvocat";
 import firebase from "firebase/app";
 import Dash from "./Dashboard";
-import Drive from "./pages/Drive/Drive";
 import Meeting from "./pages/Meet/Meeting";
 import Rooms from "./pages/Rooms/Rooms";
 import Chat from "./pages/Chat/chat";
 import DriveV2 from "./pages/Drive/DriveV2";
+import MuiBackdrop from "./components/Loading/MuiBackdrop";
 
 
 const firebaseConfig = {
@@ -30,11 +30,9 @@ firebase.initializeApp(firebaseConfig);
 export default class App extends Component{
 
     render() {
-
     return(
-
         <Router>
-          <Route exact path="/" component={Redirect}/>
+          <Route  path="/" component={RedirectCp}/>
           <Route exact path="/dashboard" component={Dash}/>
           <Route exact path="/:section/:section_id" component={DriveV2}/>
           <Route exact path="/rooms" component={Rooms}/>

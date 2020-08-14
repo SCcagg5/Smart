@@ -13,14 +13,14 @@ export default function SideMenu(props) {
             </div>
 
             <div style={{marginTop:30}}>
-                {
+                {/*{
                     props.items.map((item,key) =>
                         <div key={key} className="menu-item" onClick={()=> props.history.push(item.to)} >
                             <i className={item.icon} style={{fontSize:24,color:props.iconColor,marginLeft:20}}/>
                             <div style={{color:props.textColor,fontSize:"1.05rem",fontWeight:700,marginLeft:25}}>{item.title}</div>
                         </div>
                     )
-                }
+                }*/}
             </div>
             <div style={{position:"absolute",bottom:"1.3%",width:300}}>
                 <hr style={{border:"1px solid #f0f0f0"}}/>
@@ -33,7 +33,6 @@ export default function SideMenu(props) {
                     <i className="fe-user" style={{fontSize:24,color:"blue",marginLeft:20}}/>
                     <div style={{color:"#000",fontSize:"1.05rem",fontWeight:"normal",marginLeft:25}}>
                         {"Mon profil"}
-                        <p style={{color:"grey"}}>{localStorage.getItem("email")}</p>
                     </div>
                 </div>
                 <hr style={{border:"1px solid #f0f0f0"}}/>

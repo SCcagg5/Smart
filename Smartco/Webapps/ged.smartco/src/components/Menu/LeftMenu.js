@@ -14,6 +14,7 @@ import StarBorderIcon from "@material-ui/icons/StarBorder";
 import EditIcon from "@material-ui/icons/Edit";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
+import ImportExportIcon from '@material-ui/icons/ImportExport';
 import IconButton from "@material-ui/core/IconButton";
 
 import RoomsMenuItems from "./RoomsMenuItems";
@@ -67,7 +68,16 @@ export default function LeftMenu(props) {
                         <ListItemIcon>
                             <NewFileIcon fontSize="small" />
                         </ListItemIcon>
-                        <Typography variant="inherit">Nouveau fichier</Typography>
+                        <Typography variant="inherit">Importer un fichier</Typography>
+                    </MenuItem>
+                    <MenuItem key={3}  onClick={() => {
+                        setAnchorEl(null);
+                        props.onClickImportFolder()
+                    }}>
+                        <ListItemIcon>
+                            <ImportExportIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Importer un dossier</Typography>
                     </MenuItem>
                 </Menu>
 
@@ -95,7 +105,7 @@ export default function LeftMenu(props) {
                                     getFolderName={(name) => props.setFolderName(name)}
                                     getFolderId={(id) => props.setFolderId(id)}
                                     getSelectedFolderFiles={(files) => props.setSelectedFolderFiles(files)}
-                                    onEndIconClick={ event => {
+                                    onEndIconClick={ (event) => {
                                         if(event){
                                             event.preventDefault();
                                             setAnchorElMenu(event.currentTarget)
