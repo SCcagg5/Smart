@@ -21,6 +21,10 @@
   font-family: "MyriadPro";
   src: url('./assets/fonts/MyriadProRegular.ttf');
 }
+@font-face {
+  font-family: "Andasia";
+  src: url('assets/fonts/AndasiaDemo.ttf');
+}
 body {
   margin: 0;
   font-family: "MyriadPro", sans-serif!important;
