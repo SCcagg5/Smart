@@ -28,6 +28,7 @@
     "react-beautiful-dnd": "^13.0.0",
     "react-big-calendar": "^0.23.0",
     "react-chat-widget": "^2.1.5",
+    "react-color": "^2.18.1",
     "react-data-menu": "^1.1.2",
     "react-datepicker": "^2.14.1",
     "react-day-picker": "^7.4.8",

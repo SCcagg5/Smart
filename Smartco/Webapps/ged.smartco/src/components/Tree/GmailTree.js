@@ -116,6 +116,9 @@ const useStyles = makeStyles({
     root: {
         flexGrow: 1,
         maxWidth: 400,
+        overflowX:"auto",
+        height:"auto",
+        maxHeight:400
     },
 });
 

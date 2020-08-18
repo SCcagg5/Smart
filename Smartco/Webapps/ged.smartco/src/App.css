@@ -853,25 +853,24 @@ select{
 }
 .custom_pdf_page{
     margin: 10px;
-    height: 842px;
-    width: 595px;
+    height: 850px;
+    width: 590px;
 }
 .box {
     position:absolute;
-    bottom:12px;
-    right:60px;
-    display:flex;
+    bottom:0px;
+    right:5px;
+    width:170px;
+    height:90px ;
+    /*display:flex;*/
+    cursor: grab;
 }
 .dragable_image{
     width:150px;
-    height:60px;
-    margin-left: -13px;
-    margin-top: 10px;
+    height:70px;
 }
-.dragable_image:hover{
-    border:2px dashed #000;
-    /*cursor:all-scroll;*/
-    /*border-top-left-radius: 10px;*/
+.selectedImage{
+    border:2px dashed #089de3;
 }
 
 

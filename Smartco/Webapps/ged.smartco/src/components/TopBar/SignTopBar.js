@@ -63,6 +63,14 @@ export default function SignTopBar(props) {
                                         </ListItemIcon>
                                         <Typography variant="inherit">Créer une signature</Typography>
                                     </MenuItem>
+                                    {
+                                        props.signatures.map((item,key) =>
+                                            <MenuItem key={key} onClick={() => {
+                                            }}>
+                                                <img alt="" src={item} style={{width:150,height:60}}/>
+                                            </MenuItem>
+                                        )
+                                    }
                                 </MenuList>
                             </ClickAwayListener>
                         </Paper>
