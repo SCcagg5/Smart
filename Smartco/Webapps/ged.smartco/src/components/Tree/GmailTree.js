@@ -35,7 +35,7 @@ const useTreeItemStyles = makeStyles((theme) => ({
         },
     },
     group: {
-        marginLeft: 0,
+        marginLeft: 10,
         '& $content': {
             paddingLeft: theme.spacing(2),
         },

@@ -14,7 +14,6 @@ import StarBorderIcon from "@material-ui/icons/StarBorder";
 import EditIcon from "@material-ui/icons/Edit";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
-import ImportExportIcon from '@material-ui/icons/ImportExport';
 import IconButton from "@material-ui/core/IconButton";
 import RoomsMenuItems from "./RoomsMenuItems";
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
@@ -47,7 +46,7 @@ export default function LeftMenu(props) {
     return(
 
 
-        <div style={{width: 240, marginTop: 20}}>
+        <div style={{width: "auto", marginTop: 20,paddingRight:10,minWidth:240}}>
             <div align="center">
 
                 <MuiButton
@@ -99,7 +98,7 @@ export default function LeftMenu(props) {
 
             </div>
 
-            <div style={{marginTop:25, marginLeft: 20}}>
+            <div style={{marginTop:25, marginLeft: 5}}>
 
                 <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Drive" ? "aliceblue":""}} onDoubleClick={() => {
                     props.setShowDriveMenuItems()
