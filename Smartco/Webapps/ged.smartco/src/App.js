@@ -6,7 +6,9 @@ import RedirectCp from "./pages/RedirectCp";
 import firebase from "firebase/app";
 import DriveV2 from "./pages/Drive/DriveV2";
 import Test from "./pages/Test";
+import Test2 from "./pages/Test2";
 import { pdfjs } from 'react-pdf';
+import SignDoc from "./pages/Drive/SignDoc";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 
@@ -31,6 +33,7 @@ export default class App extends Component{
           <Route exact path="/" component={RedirectCp}/>
           <Route exact path="/test" component={Test}/>
           <Route exact path="/:section/:section_id" component={DriveV2}/>
+          <Route exact path="/signDoc/doc/:doc_id" component={SignDoc}/>
           <Route exact path="/login" name="login" component={Login}/>
           <Route exact path="/logout" name="logout" component={Logout}/>
         </Router>

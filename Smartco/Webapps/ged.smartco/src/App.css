@@ -857,20 +857,21 @@ select{
     width: 595px;
 }
 .box {
-    text-align: center;
-    background: transparent;
-    border: 1px solid #f0f0f0;
-    width: 150px;
-    height: 50px;
-    vertical-align: center;
+    position:absolute;
+    bottom:12px;
+    right:60px;
+    display:flex;
 }
 .dragable_image{
     width:150px;
     height:60px;
+    margin-left: -13px;
+    margin-top: 10px;
 }
 .dragable_image:hover{
     border:2px dashed #000;
-    cursor:all-scroll;
+    /*cursor:all-scroll;*/
+    /*border-top-left-radius: 10px;*/
 }
 
 

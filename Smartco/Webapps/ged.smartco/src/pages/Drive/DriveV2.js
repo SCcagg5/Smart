@@ -34,7 +34,7 @@ import Staricon from '@material-ui/icons/Star';
 import FolderIcon from '@material-ui/icons/Folder';
 import MoodIcon from '@material-ui/icons/Mood';
 import TopBar from "../../components/TopBar/TopBar";
-import logo from "../../assets/images/logos/logo-OA-dark.png";
+import logo from "../../assets/images/logos/OALegalLogoV2.jpeg";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import data from "../../data/Data";
 import SmartService from "../../provider/SmartService";
@@ -1306,6 +1306,9 @@ export default class DriveV2 extends React.Component {
                                                                                                   }}
                                                                                                   onRenameFile={(file,newName) => {
                                                                                                       this.renameFile_Folder(file,newName)
+                                                                                                  }}
+                                                                                                  onSignBtnClick={(id) => {
+                                                                                                      this.props.history.push("/signDoc/doc/"+id)
                                                                                                   }}
                                                                                         />
                                                                                     </div> :

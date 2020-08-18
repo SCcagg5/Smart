@@ -1,11 +1,16 @@
 import React,{useState} from "react";
 import { Document, Page } from 'react-pdf';
-import Draggable,{DraggableCore} from "react-draggable";
+import Draggable from "react-draggable";
+import CancelIcon from '@material-ui/icons/Cancel';
 
 export default function Test(props) {
 
     const [numPages, setNumPages] = useState(null);
     const [pages,setPages] = useState([])
+    const [closeBtn,setCloseBtn] = useState(false)
+    const [xPostion,setXposition] = useState(0)
+    const [yPostion,setYposition] = useState(0)
+    const [deltaPosition,setDeltaPosition] = useState({x:0,y:0})
 
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
@@ -14,6 +19,10 @@ export default function Test(props) {
             pages.push(i+1)
         }
         setPages(pages)
+    }
+
+    function handleDrag(e, ui){
+
     }
 
     return(
@@ -25,18 +34,27 @@ export default function Test(props) {
             >
                 {
                     pages.map((item,key) =>
-                        <Page key={key} pageNumber={item} className="custom_pdf_page" onMouseMove={(e) => {
-                            //console.log(e.nativeEvent.offsetX)
-                            //console.log(e.nativeEvent.offsetY)
-                        }}>
-                            <Draggable bounds="parent" scale={1} allowAnyClick={true} enableUserSelectHack={true} >
-                                <div style={{width:150,height:60,position:"absolute",bottom:35,right:60}}>
-                                    <i className="mdi mdi-close-circle" style={{fontSize:22,color:"#000"}}/>
-                                    <img alt="" src={require('../assets/images/signatureExp4.png')} className="dragable_image"/>
-                                </div>
+                        <Page key={key} pageNumber={item} className="custom_pdf_page" onMouseMove={e => {
+                            setXposition(e.nativeEvent.offsetX)
+                            setYposition(e.nativeEvent.offsetY)
 
+                        }} >
+                            {
+                                item === 1 &&
+                                <Draggable bounds="parent" onDrag={handleDrag} onStop={e => console.log(xPostion+" / "+yPostion)}>
+                                    <div  className="box" onMouseEnter={event => setCloseBtn(true)} onMouseLeave={event => setCloseBtn(false)}
+                                    >
+                                        {
+                                            closeBtn === true &&
+                                            <CancelIcon fontSize="small" style={{zIndex:1500,backgroundColor:"#fff",color:"#000"}}/>
+                                        }
+                                        <img draggable="false" alt="" src={require('../assets/images/signatureExp4.png')}
+                                             className="dragable_image"
+                                        />
+                                    </div>
+                                </Draggable>
+                            }
 
-                            </Draggable>
                         </Page>
                     )
                 }

@@ -20,6 +20,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {Modal, ModalBody, ModalHeader} from "reactstrap";
+import GestureIcon from '@material-ui/icons/Gesture';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -151,12 +152,13 @@ export default function ListDocs(props) {
                     <Typography variant="inherit">Partager</Typography>
                 </MenuItem>
                 <MenuItem key={3}  onClick={() => {
-
+                    setAnchorEl(null);
+                    props.onSignBtnClick(doc.id)
                 }}>
                     <ListItemIcon>
-                        <StarBorderIcon fontSize="small"/>
+                        <GestureIcon fontSize="small"/>
                     </ListItemIcon>
-                    <Typography variant="inherit">Ajouter aux favoris</Typography>
+                    <Typography variant="inherit">Signer</Typography>
                 </MenuItem>
                 <MenuItem key={4}  onClick={() => {
                     setAnchorEl(null);

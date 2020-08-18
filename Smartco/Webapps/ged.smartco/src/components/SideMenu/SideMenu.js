@@ -1,4 +1,4 @@
-import logo from "../../assets/images/logos/logo-OA.png";
+import logo from "../../assets/images/logos/OALegalLogoV2.jpeg";
 import Drawer from "@material-ui/core/Drawer";
 import React from "react";
 import "./style.css"
@@ -7,9 +7,9 @@ import "./style.css"
 export default function SideMenu(props) {
 
     return(
-        <Drawer anchor="left" open={props.opened} onClose={props.onClose}>
+        <Drawer anchor="left" open={props.opened} onClose={props.onClose} style={{backgroundColor:"#f5f5f5"}}>
             <div  style={{padding:15,width:300,marginLeft:15}}>
-                <img alt="" src={logo} style={{height:60,width:250,objectFit:"contain"}}/>
+                <img alt="" src={logo} style={{height:150,width:250,objectFit:"contain"}}/>
             </div>
 
             <div style={{marginTop:30}}>
