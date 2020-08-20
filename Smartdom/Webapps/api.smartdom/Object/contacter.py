@@ -58,7 +58,7 @@ class contacter:
         return [True, {"id": res[0][0]}, None]
 
     def update_formation(formations):
-        if not isinstance(formations, list):
+        if not isinstance(formations, dict):
             return [False, "Formations should be a array", 400]
         keep = ["start", "end", "name", "id", "description", "place"]
         tmp = []
@@ -82,4 +82,18 @@ class contacter:
             return [False, "data input error", 500]
         return [True, {}, None]
 
-    def remove_formation()
+    def remove_formation(id_formation):
+        if not self.check_form(id_formation):
+            return [False, "Invalid rights", 403]
+        succes = sql.input("DELETE FROM `contacter_user_form` WHERE `contacter_user_form`.`id` = %s AND `contacter_user_form`.`user_id` = %s AND `contacter_user_form`.`contacter_id`",
+         (id_formation, self.usr_id, self.contacter_id))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {"id": id_folder}, None]
+
+    def check_form(id_formation):
+        res = sql.input("SELECT `id` FROM `contacter_user_form` WHERE `contacter_user_form`.`id` = %s AND `contacter_user_form`.`user_id` = %s AND `contacter_user_form`.`contacter_id`",
+         (id_formation, self.usr_id, self.contacter_id))
+        if len(res) > 0:
+            return True
+        return False

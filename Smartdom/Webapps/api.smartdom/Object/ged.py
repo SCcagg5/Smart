@@ -4,11 +4,101 @@ import uuid
 import time
 import base64
 import re
+import cStringIO
+from base64 import b64decode
+from reportlab.platypus import Image
+from reportlab.lib.units import mm
 from datetime import date
 from .sql import sql
 from .users import user
 from .pdf import pdf
 from .elastic import es, elastic
+
+
+class sign:
+    def __init__(self, usr_id = -1, ged_id = -1):
+        self.usr_id = str(usr_id)
+        self.ged_id = str(ged_id)
+
+    def new(self, base64):
+        id = str(uuid.uuid4())
+        date = str(int(round(time.time() * 1000)))
+        succes = sql.input("INSERT INTO `ged_sign` (`id`,`ged_id`, `user_id`, `base64` `date`) VALUES (%s, %s, %s, %s, %s)", \
+        (id, self.ged_id, self.usr_id, base64, date))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {"id": id}, None]
+
+    def get(self, id_sign):
+        if not self.check_sign(id_sign):
+            return [False, "Invalid rights", 403]
+        res = sql.input("SELECT `base64` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id`",
+         (id_sign, self.usr_id, self.ged_id))
+        return res[0][0]
+
+    def getAll(self):
+        ret = []
+        res = sql.input("SELECT `id`, `date` FROM `ged_sign` WHERE `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id`",
+         (self.usr_id, self.ged_id))
+        for i in res:
+            ret.append({"id": i[0], "date": i[1]})
+        return ret
+
+    def delete(self, id_sign):
+        if not self.check_sign(id_sign):
+            return [False, "Invalid rights", 403]
+        succes = sql.input("SELECT `id` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id`",
+         (id_sign, self.usr_id, self.ged_id))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {"id": id_sign}, None]
+
+    def check_sign(self, id_sign):
+        res = sql.input("SELECT `id` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id`",
+         (id_sign, self.usr_id, self.ged_id))
+        if len(res) > 0:
+            return True
+        return False
+
+    def sign_doc(self, id_sign, id_file):
+        file().path(id_file , self.usr_id):
+        if not self.check_sign(id_sign):
+            return [False, "Invalid rights", 403]
+        res = sql.input("SELECT `base64` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id`",
+         (id_sign, self.usr_id, self.ged_id))
+        signature = b64decode(res[0][0])
+        signature_img = ImageReader(StringIO.StringIO(signature))
+        x = 0
+        y = 0
+        c = canvas.Canvas(path)
+        c.drawImage(signature_img, x, y, 120 * mm, 120 * mm)
+        c.save()
+        return [True, {}, False]
+
+
+
+class room:
+    def __init__(self, usr_id = -1, ged_id = -1):
+        self.usr_id = str(usr_id)
+        self.ged_id = str(ged_id)
+
+    def new(name, date_start, duration):
+        id = str(uuid.uuid4())
+        date = str(int(round(time.time() * 1000)))
+        if int(duration) < 10:
+            return [False, "Invalid duration", 400]
+        if int(date_start) <= int(date):
+            return [False, "Invalid timestamp", 400]
+        date_end = int(date_start) + (int(duration) * 60000000)
+        succes = sql.input("INSERT INTO `ged_room` (`id`,`ged_id`, `user_id`, `name`, `date_start`, `date_end`, `duration`, `date`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", \
+        (id, self.ged_id, self.usr_id, name, date_start, date_end, duration, date))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {"id": id}, None]
+
+    def get_calendar():
+        return []
+
 
 class folder:
     def __init__(self, usr_id = -1, ged_id = -1):
