@@ -4,16 +4,38 @@ import uuid
 import time
 import base64
 import re
-import cStringIO
+from fpdf import FPDF
+from PyPDF2 import PdfFileWriter, PdfFileReader
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+import io
+from reportlab.lib.utils import ImageReader
 from base64 import b64decode
-from reportlab.platypus import Image
-from reportlab.lib.units import mm
 from datetime import date
 from .sql import sql
 from .users import user
 from .pdf import pdf
 from .elastic import es, elastic
 
+class PDF(FPDF):
+    def load_resource(self, reason, filename):
+        if reason == "image":
+            if filename.startswith("http://") or filename.startswith("https://"):
+                f = BytesIO(urlopen(filename).read())
+            elif filename.startswith("data"):
+                f = filename.split('base64,')[1]
+                f = base64.b64decode(f)
+                f = io.BytesIO(f)
+            else:
+                f = open(filename, "rb")
+            return f
+        else:
+            self.error("Unknown resource loading reason \"%s\"" % reason)
+
+
+    def sample_pdf(self,img,path):
+        self.image(img,h=70,w=150,x=30,y=100,type="png")
+        pdf.output(path, 'F')
 
 class sign:
     def __init__(self, usr_id = -1, ged_id = -1):
@@ -23,7 +45,7 @@ class sign:
     def new(self, base64):
         id = str(uuid.uuid4())
         date = str(int(round(time.time() * 1000)))
-        succes = sql.input("INSERT INTO `ged_sign` (`id`,`ged_id`, `user_id`, `base64` `date`) VALUES (%s, %s, %s, %s, %s)", \
+        succes = sql.input("INSERT INTO `ged_sign` (`id`,`ged_id`, `user_id`, `base64`, `date`) VALUES (%s, %s, %s, %s, %s)", \
         (id, self.ged_id, self.usr_id, base64, date))
         if not succes:
             return [False, "data input error", 500]
@@ -32,48 +54,59 @@ class sign:
     def get(self, id_sign):
         if not self.check_sign(id_sign):
             return [False, "Invalid rights", 403]
-        res = sql.input("SELECT `base64` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id`",
+        res = sql.get("SELECT `base64` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id` = %s",
          (id_sign, self.usr_id, self.ged_id))
-        return res[0][0]
+        return [True, res[0][0], None]
 
     def getAll(self):
         ret = []
-        res = sql.input("SELECT `id`, `date` FROM `ged_sign` WHERE `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id`",
+        res = sql.get("SELECT `id`, `date` FROM `ged_sign` WHERE `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id` = %s",
          (self.usr_id, self.ged_id))
         for i in res:
             ret.append({"id": i[0], "date": i[1]})
-        return ret
+        return [True, ret, None]
 
     def delete(self, id_sign):
         if not self.check_sign(id_sign):
             return [False, "Invalid rights", 403]
-        succes = sql.input("SELECT `id` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id`",
+        succes = sql.input("DELETE FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id` = %s",
          (id_sign, self.usr_id, self.ged_id))
         if not succes:
             return [False, "data input error", 500]
         return [True, {"id": id_sign}, None]
 
     def check_sign(self, id_sign):
-        res = sql.input("SELECT `id` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id`",
+        res = sql.get("SELECT `id` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id` = %s",
          (id_sign, self.usr_id, self.ged_id))
         if len(res) > 0:
             return True
         return False
 
-    def sign_doc(self, id_sign, id_file):
-        file().path(id_file , self.usr_id):
+    def sign_doc(self, id_sign, id_file, x, y, height, width):
+        path = file().path(id_file , self.usr_id)
         if not self.check_sign(id_sign):
             return [False, "Invalid rights", 403]
-        res = sql.input("SELECT `base64` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id`",
+        res = sql.get("SELECT `base64` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id` = %s",
          (id_sign, self.usr_id, self.ged_id))
         signature = b64decode(res[0][0])
-        signature_img = ImageReader(StringIO.StringIO(signature))
-        x = 0
-        y = 0
-        c = canvas.Canvas(path)
-        c.drawImage(signature_img, x, y, 120 * mm, 120 * mm)
-        c.save()
-        return [True, {}, False]
+        packet = io.BytesIO()
+        can = canvas.Canvas(packet, pagesize=letter)
+        can.drawImage(ImageReader(io.BytesIO(signature)), x, y, height, width)
+        can.save()
+
+        packet.seek(0)
+        new_pdf = PdfFileReader(packet)
+        inputpdf = open(path, "rb")
+        existing_pdf = PdfFileReader(inputpdf)
+        output = PdfFileWriter()
+        page = existing_pdf.getPage(0)
+        page.mergePage(new_pdf.getPage(0))
+        output.addPage(page)
+        inputpdf.close()
+        outputStream = open(path, "wb")
+        output.write(outputStream)
+        outputStream.close()
+        return [True, {"p":path}, False]
 
 
 

@@ -266,6 +266,7 @@ def ged_delete(cn, nextc):
     return cn.call_next(nextc, err)
 
 def ged_sign_init(cn, nextc):
+    err = [True, {}, 200]
     cn.private["sign"] = sign(usr_id=cn.private["user"].id, ged_id=cn.private["ged"].ged_id)
     return cn.call_next(nextc, err)
 
@@ -292,9 +293,13 @@ def ged_sign_delete(cn, nextc):
     return cn.call_next(nextc, err)
 
 def ged_sign_sign(cn, nextc):
+    err = check.contain(cn.pr, ["x", "y", "h", "w"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
     doc_id = cn.rt["doc"] if "doc" in cn.rt else None
     sign_id = cn.rt["sign"] if "sign" in cn.rt else None
-    err = cn.private["sign"].sign_doc(sign_id)
+    err = cn.private["sign"].sign_doc(sign_id, doc_id, cn.pr["x"], cn.pr["y"], cn.pr["h"], cn.pr["w"])
     return cn.call_next(nextc, err)
 
 def contacter_check(cn, nextc):
