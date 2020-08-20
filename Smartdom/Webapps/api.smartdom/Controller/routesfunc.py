@@ -6,7 +6,7 @@ from Object.items import item
 from Object.admin import admin
 from Object.asset import asset
 from Object.ether import eth_contract
-from Object.ged import folder, file, ged
+from Object.ged import folder, file, ged, sign
 from Object.contacter import contacter
 import json
 
@@ -263,6 +263,38 @@ def ged_update(cn, nextc):
 def ged_delete(cn, nextc):
     doc_id = cn.rt["doc"] if "doc" in cn.rt else None
     err = cn.private["ged"].delete(doc_id)
+    return cn.call_next(nextc, err)
+
+def ged_sign_init(cn, nextc):
+    cn.private["sign"] = sign(usr_id=cn.private["user"].id, ged_id=cn.private["ged"].ged_id)
+    return cn.call_next(nextc, err)
+
+def ged_sign_new(cn, nextc):
+    err = check.contain(cn.pr, ["base64"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = cn.private["sign"].new(cn.pr["base64"])
+    return cn.call_next(nextc, err)
+
+def ged_sign_get_all(cn, nextc):
+    err = cn.private["sign"].getAll()
+    return cn.call_next(nextc, err)
+
+def ged_sign_get(cn, nextc):
+    sign_id = cn.rt["sign"] if "sign" in cn.rt else None
+    err = cn.private["sign"].get(sign_id)
+    return cn.call_next(nextc, err)
+
+def ged_sign_delete(cn, nextc):
+    sign_id = cn.rt["sign"] if "sign" in cn.rt else None
+    err = cn.private["sign"].delete(sign_id)
+    return cn.call_next(nextc, err)
+
+def ged_sign_sign(cn, nextc):
+    doc_id = cn.rt["doc"] if "doc" in cn.rt else None
+    sign_id = cn.rt["sign"] if "sign" in cn.rt else None
+    err = cn.private["sign"].sign_doc(sign_id)
     return cn.call_next(nextc, err)
 
 def contacter_check(cn, nextc):

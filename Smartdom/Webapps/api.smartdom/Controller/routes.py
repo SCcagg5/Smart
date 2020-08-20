@@ -34,7 +34,12 @@ def setuproute(app, call):
     @app.route('/ged/<>/doc/<>',            ['OPTIONS', 'DELETE'],       lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_delete])                                 )
     @app.route('/ged/<>/doc/addfolder',     ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_add_folder])                             )
     @app.route('/ged/<>/doc/addfile',       ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_add_file])                               )
-    @app.route('/ged/<>/doc/<>/share',      ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_share])                                  )
+    @app.route('/ged/<>/doc/<>/share',      ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_share]))
+    @app.route('/ged/<>/sign',              ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_new]))
+    @app.route('/ged/<>/sign',              ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_get_all]))
+    @app.route('/ged/<>/sign/<>',           ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_get]))
+    @app.route('/ged/<>/sign/<>',           ['OPTIONS', 'DELETE'],       lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_delete]))
+    @app.route('/ged/<>/doc/<>/sign/<>',    ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_sign]) )
 
     @app.route('/contacter/<>',             ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, contacter_check, contacter_check_user, contacter_infos])                )
     @app.route('/contacter/<>/adduser',     ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, contacter_check, contacter_check_user, contacter_add_user])             )
