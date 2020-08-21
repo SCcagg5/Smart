@@ -98,6 +98,9 @@ class login extends Component {
             }).catch(err => {
                 this.openSnackbar('error', err);
                 this.setState({loading: false})
+                setTimeout(() => {
+                    this.props.history.push("/error")
+                },2000)
             })
 
     };

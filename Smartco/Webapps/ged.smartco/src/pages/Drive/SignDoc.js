@@ -17,6 +17,7 @@ import IconButton from "@material-ui/core/IconButton";
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import { CirclePicker } from 'react-color';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import Rnd from 'react-rnd';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -84,40 +85,39 @@ export default class SignDoc extends React.Component {
                             file={"data:application/pdf;base64,"+this.state.docBase64}
                             onLoadSuccess={this.onDocumentLoadSuccess}
                         >
-                            {
-                                this.state.pages.map((item, key) =>
-                                    <Page key={key} pageNumber={item} className="custom_pdf_page" >
-                                        {
-                                            item === 1 &&
-                                                this.state.signatures.map((item,key) =>
-                                                    <Draggable bounds="parent" key={key}
-                                                    >
-                                                        <div className="box"
-                                                             onMouseEnter={event => this.setState({closeBtn: true})}
-                                                             onMouseLeave={event => this.setState({closeBtn: false})}>
-                                                            {
-                                                                this.state.closeBtn === true &&
-                                                                <IconButton style={{position:"absolute",top:-20,left:-10}}>
-                                                                    <DeleteOutlineIcon fontSize="default" style={{
-                                                                        zIndex: 1500,
-                                                                        backgroundColor: "#f0f0f0",
-                                                                        color: "red"
-                                                                    }}/>
-                                                                </IconButton>
+                                {
+                                    this.state.signatures.map((item,key) =>
+                                        <Draggable bounds="parent" key={key}
+                                        >
+                                            <div align="center" className="box"
+                                                 onMouseEnter={event => this.setState({closeBtn: true})}
+                                                 onMouseLeave={event => this.setState({closeBtn: false})}>
+                                                {
+                                                    this.state.closeBtn === true &&
+                                                    <IconButton style={{position:"absolute",top:-20,left:-10}}>
+                                                        <DeleteOutlineIcon fontSize="default" style={{
+                                                            zIndex: 1500,
+                                                            backgroundColor: "#f0f0f0",
+                                                            color: "red"
+                                                        }}/>
+                                                    </IconButton>
 
-                                                            }
-                                                            <img draggable="false" alt=""
-                                                                 src={item}
-                                                                 className={this.state.closeBtn === true ? "dragable_image selectedImage" : "dragable_image"}
-                                                            />
-                                                        </div>
-                                                    </Draggable>
-                                                )
+                                                }
+                                                <img draggable="false" alt=""
+                                                     src={item}
+                                                     className={this.state.closeBtn === true ? "dragable_image selectedImage" : "dragable_image"}
+                                                />
+                                            </div>
+                                        </Draggable>
+                                    )
 
-                                        }
-                                    </Page>
-                                )
-                            }
+                                }
+                                {
+                                    this.state.pages.map((item, key) =>
+                                        <Page key={key} pageNumber={item} className="custom_pdf_page" />
+                                    )
+                                }
+
 
 
                         </Document>

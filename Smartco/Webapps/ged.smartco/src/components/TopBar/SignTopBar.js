@@ -64,10 +64,13 @@ export default function SignTopBar(props) {
                                         <Typography variant="inherit">Créer une signature</Typography>
                                     </MenuItem>
                                     {
-                                        props.signatures.map((item,key) =>
+                                        props.savedSignatures.map((item,key) =>
                                             <MenuItem key={key} onClick={() => {
+                                                setAnchorEl(null)
+                                                setOpen(false)
+                                                props.onClickSignature(item)
                                             }}>
-                                                <img alt="" src={item} style={{width:150,height:60}}/>
+                                                <img alt="" src={item.data} style={{width:150,height:60}}/>
                                             </MenuItem>
                                         )
                                     }

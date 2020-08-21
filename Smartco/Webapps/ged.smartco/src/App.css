@@ -14,6 +14,82 @@
     url('assets/fonts/Baloo2-Bold.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 @font-face {
+    font-family: 'AllisonScript';
+    font-style: normal;
+    font-weight: normal;
+    src:
+            local('Allison_Script Regular'),
+            local('Allison_Script-regular'),
+            url('assets/fonts/Allison_Script.otf') format('opentype');
+}
+@font-face {
+    font-family: 'OverRainbow';
+    font-style: normal;
+    font-weight: normal;
+    src:
+            local('OverRainbow Regular'),
+            local('OverRainbow-regular'),
+            url('assets/fonts/OvertheRainbow.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'LoversQuarrel';
+    font-style: normal;
+    font-weight: normal;
+    src:
+            local('LoversQuarrel Regular'),
+            local('LoversQuarrel-regular'),
+            url('assets/fonts/LoversQuarrel-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Caveat-Regular';
+    font-style: normal;
+    font-weight: normal;
+    src:
+            local('Caveat-Regular Regular'),
+            local('Caveat-Regular-regular'),
+            url('assets/fonts/Caveat-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'CedarvilleCursive-Regular';
+    font-style: normal;
+    font-weight: normal;
+    src:
+            local('CedarvilleCursive-Regular Regular'),
+            local('CedarvilleCursive-Regular-regular'),
+            url('assets/fonts/CedarvilleCursive-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'GiveYouGlory-Regular';
+    font-style: normal;
+    font-weight: normal;
+    src:
+            local('GiveYouGlory-Regular Regular'),
+            local('GiveYouGlory-Regular-regular'),
+            url('assets/fonts/GiveYouGlory-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Norican-Regular';
+    font-style: normal;
+    font-weight: normal;
+    src:
+            local('Norican-Regular Regular'),
+            local('Norican-Regular-regular'),
+            url('assets/fonts/Norican-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Stalemate-Regular';
+    font-style: normal;
+    font-weight: normal;
+    src:
+            local('Stalemate-Regular Regular'),
+            local('Stalemate-Regular-regular'),
+            url('assets/fonts/Stalemate-Regular.ttf') format('truetype');
+}
+
+
+
+@font-face {
     font-family: 'Halvetica';
     font-style: normal;
     font-weight: normal;
@@ -857,13 +933,12 @@ select{
     width: 590px;
 }
 .box {
-    position:absolute;
-    bottom:0px;
-    right:5px;
+    /*position:absolute;
+    top:200px;
+    left:100px;*/
     width:170px;
     height:90px ;
-    /*display:flex;*/
-    cursor: grab;
+    /*cursor: grab;*/
 }
 .dragable_image{
     width:150px;
@@ -873,4 +948,49 @@ select{
     border:2px dashed #089de3;
 }
 
+.signTextFont1{
+    font-family: 'AllisonScript', cursive;
+}
+.signTextFont2{
+    font-family: 'OverRainbow', cursive;
+}
+.signTextFont3{
+    font-family: 'LoversQuarrel', cursive;
+}
+.signTextFont4{
+    font-family: 'Caveat-Regular', cursive;
+}
+.signTextFont5{
+    font-family: 'CedarvilleCursive-Regular', cursive;
+}
+.signTextFont6{
+    font-family: 'GiveYouGlory-Regular', cursive;
+}
+.signTextFont7{
+    font-family: 'Norican-Regular', cursive;
+}
+.signTextFont7{
+    font-family: 'Stalemate-Regular', cursive;
+}
+.signText{
+    padding: 2px;
+    display: inline-block;
+    border: 3px solid transparent;
+    border-radius: 7px;
+    vertical-align: top;
+    margin-right: 15px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+.signText:hover{
+    background-color: #eff8fc;
+}
+
+.paraphe_tab_list{
+    margin-top: 20px;
+}
+.MuiDialog-paperWidthSm {
+    min-width: 550px;
+    min-height: 620px;
+}
 

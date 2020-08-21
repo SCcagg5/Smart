@@ -140,23 +140,6 @@ let SmartService = {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     getUserInfo(token,usrtoken){
         return fetch(endpoint + '/infos/', {
             method: 'GET',

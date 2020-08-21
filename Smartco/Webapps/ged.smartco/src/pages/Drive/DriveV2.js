@@ -84,6 +84,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Menu from "@material-ui/core/Menu";
 import SearchResults from "../../components/Search/SearchResults";
 import ListDocs from "../../components/List/ListDocs";
+import htmlToImage from 'html-to-image';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
 const checkedIcon = <CheckBoxIcon fontSize="small"/>;
@@ -107,6 +108,7 @@ export default class DriveV2 extends React.Component {
 
     state = {
         loading: true,
+        firstLoading:true,
 
         openAlert: false,
         alertMessage: '',
@@ -222,13 +224,13 @@ export default class DriveV2 extends React.Component {
     }
 
     componentDidMount() {
-        console.log(localStorage.getItem('email'))
-        let sharedDrive = [];
 
-        if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === undefined) {
+        let sharedDrive = [];
+        if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
             this.props.history.push('/login')
-        } else {
-            this.setState({loading: true});
+        }
+        else {
+            this.setState({firstLoading: true});
             setTimeout(() => {
                 SmartService.getGed(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(gedRes => {
 
@@ -265,7 +267,8 @@ export default class DriveV2 extends React.Component {
                                             contacts: contacts,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            loading: false
+                                            firstLoading: false,
+                                            loading:false
                                         })
                                     } else if (this.props.match.params.section_id === "shared") {
                                         this.setState({
@@ -279,7 +282,8 @@ export default class DriveV2 extends React.Component {
                                             contacts: contacts,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            loading: false
+                                            firstLoading: false,
+                                            loading:false
                                         })
                                     } else {
                                         let folders = gedRes.data.Proprietary.Content.folders || [];
@@ -298,7 +302,8 @@ export default class DriveV2 extends React.Component {
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders.concat(sharedDrive)),
-                                            loading: false
+                                            firstLoading: false,
+                                            loading:false
                                         })
                                     }
 
@@ -320,7 +325,8 @@ export default class DriveV2 extends React.Component {
                                             contacts: contacts,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            loading: false
+                                            firstLoading: false,
+                                            loading:false
                                         })
                                     } else if ((typeof parseInt(this.props.match.params.section_id)) === "number") {
                                         if (rooms[parseInt(this.props.match.params.section_id)]) {
@@ -339,7 +345,8 @@ export default class DriveV2 extends React.Component {
                                                 rooms: rooms,
                                                 selectedRoom: rooms[parseInt(this.props.match.params.section_id)],
                                                 selectedRoomKey: parseInt(this.props.match.params.section_id),
-                                                loading: false
+                                                firstLoading: false,
+                                                loading:false
                                             })
                                         } else {
                                             console.log("URL ERROR")
@@ -364,7 +371,8 @@ export default class DriveV2 extends React.Component {
                                             contacts: contacts,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            loading: false
+                                            firstLoading: false,
+                                            loading:false
                                         })
                                     } else if (this.props.match.params.section_id === "rejoin") {
                                         this.setState({
@@ -380,7 +388,8 @@ export default class DriveV2 extends React.Component {
                                             contacts: contacts,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            loading: false
+                                            firstLoading: false,
+                                            loading:false
                                         })
                                     } else {
                                         console.log("URL ERROR")
@@ -398,7 +407,8 @@ export default class DriveV2 extends React.Component {
                                             contacts: contacts,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            loading: false
+                                            firstLoading: false,
+                                            loading:false
                                         })
                                     } else {
                                         console.log("URL ERROR")
@@ -420,7 +430,8 @@ export default class DriveV2 extends React.Component {
                                                     contacts: contacts,
                                                     rooms: rooms,
                                                     selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                                    loading: false
+                                                    firstLoading: false,
+                                                    loading:false
                                                 })
                                             } else {
                                                 console.log(searchRes.error)
@@ -446,7 +457,7 @@ export default class DriveV2 extends React.Component {
                         this.props.history.push("/login")
                     }
                 }).catch(err => {
-                    this.setState({loading: false})
+                    this.props.history.push("/error")
                     console.log(err)
                 })
 
@@ -1003,180 +1014,199 @@ export default class DriveV2 extends React.Component {
         })
     }
 
+    convetHtmlToBase64 = (divId) => event => {
+        htmlToImage.toPng(document.getElementById(divId))
+            .then(function (dataUrl) {
+                console.log(dataUrl);
+            })
+    }
+
 
     render() {
 
         return (
             <div>
-                <TopBar logo={logo} height={70} onClickMenuIcon={() => this.setState({openSideMenu: true})}
-                        onLogoutClick={() => {
-                            localStorage.clear();
-                            this.props.history.push("/login")
-                        }}
-                        textSearch={this.state.textSearch} onChangeSearch={(value) => {
-                    this.setState({textSearch: value})
-                }}
-                        onRequestSearch={() => {
-                            this.setState({loading: true, showContainerSection: "Drive", focusedItem: "Drive"})
-                            this.props.history.replace({pathname: '/search/' + this.state.textSearch});
-                            SmartService.search(this.state.textSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
-                                if (searchRes.succes === true && searchRes.status === 200) {
-                                    this.setState({loading: false, searchResult: searchRes.data})
-                                } else {
-                                    console.log(searchRes.error)
-                                }
-                            }).catch(err => {
-                                console.log(err)
-                            })
-                        }}
-                />
-                <SideMenu logo={logo} items={data.sideBarItems} iconColor={"blue"} textColor={"#65728E"}
-                          history={this.props.history}
-                          opened={this.state.openSideMenu} onClose={() => this.setState({openSideMenu: false})}
-                />
+                {
+                    this.state.firstLoading === false &&
+                        <div>
+                    <TopBar logo={logo} height={70} onClickMenuIcon={() => this.setState({openSideMenu: true})}
+                            onLogoutClick={() => {
+                                localStorage.clear();
+                                this.props.history.push("/login")
+                            }}
+                            textSearch={this.state.textSearch} onChangeSearch={(value) => {
+                        this.setState({textSearch: value})
+                    }}
+                            onRequestSearch={() => {
+                                this.setState({loading: true, showContainerSection: "Drive", focusedItem: "Drive"})
+                                this.props.history.replace({pathname: '/search/' + this.state.textSearch});
+                                SmartService.search(this.state.textSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
+                                    if (searchRes.succes === true && searchRes.status === 200) {
+                                        this.setState({loading: false, searchResult: searchRes.data})
+                                    } else {
+                                        console.log(searchRes.error)
+                                    }
+                                }).catch(err => {
+                                    console.log(err)
+                                })
+                            }}
+                    />
+                            <SideMenu logo={logo} items={data.sideBarItems} iconColor={"blue"} textColor={"#65728E"}
+                                      history={this.props.history}
+                                      opened={this.state.openSideMenu} onClose={() => this.setState({openSideMenu: false})}
+                            />
+                        </div>
+                }
+
+
+                <MuiBackdrop open={this.state.firstLoading}/>
                 <MuiBackdrop open={this.state.loading}/>
                 <div style={{marginRight: 50, marginTop: 75, marginLeft: 5}}>
                     <div>
                         <div style={{display: "flex"}}>
 
                             <div style={{height: "100%"}}>
-                                <div>
-                                    <LeftMenu
-                                        openNewFolderModalFromRacine={() => this.setState({
-                                            newFolderModal: true,
-                                            newFolderFromRacine: true
-                                        })}
-                                        focusedItem={this.state.focusedItem}
-                                        setFocusedItem={(item) => {
-                                            item === "Drive" ? this.props.history.replace({pathname: '/drive/0'}) :
-                                                item === "Rooms" ? this.state.rooms.length > 0 ? this.props.history.replace({pathname: '/rooms/0'}) : this.props.history.replace({pathname: '/rooms/all'}) :
-                                                    item === "Meet" ? this.props.history.replace({pathname: '/meet/new'}) :
-                                                        this.props.history.replace({pathname: '/contacts/all'})
-                                            this.setState({focusedItem: item, showContainerSection: item})
-                                        }}
+                                {
+                                    this.state.firstLoading === false &&
+                                    <div>
+                                        <LeftMenu
+                                            openNewFolderModalFromRacine={() => this.setState({
+                                                newFolderModal: true,
+                                                newFolderFromRacine: true
+                                            })}
+                                            focusedItem={this.state.focusedItem}
+                                            setFocusedItem={(item) => {
+                                                item === "Drive" ? this.props.history.replace({pathname: '/drive/0'}) :
+                                                    item === "Rooms" ? this.state.rooms.length > 0 ? this.props.history.replace({pathname: '/rooms/0'}) : this.props.history.replace({pathname: '/rooms/all'}) :
+                                                        item === "Meet" ? this.props.history.replace({pathname: '/meet/new'}) :
+                                                            this.props.history.replace({pathname: '/contacts/all'})
+                                                this.setState({focusedItem: item, showContainerSection: item})
+                                            }}
 
-                                        showDriveMenuItems={this.state.openDriveMenuItem}
-                                        setShowDriveMenuItems={() => this.setState({openDriveMenuItem: !this.state.openDriveMenuItem})}
+                                            showDriveMenuItems={this.state.openDriveMenuItem}
+                                            setShowDriveMenuItems={() => this.setState({openDriveMenuItem: !this.state.openDriveMenuItem})}
 
-                                        showRoomsMenuItems={this.state.openRoomMenuItem}
-                                        setShowRoomsMenuItems={() => this.setState({openRoomMenuItem: !this.state.openRoomMenuItem})}
+                                            showRoomsMenuItems={this.state.openRoomMenuItem}
+                                            setShowRoomsMenuItems={() => this.setState({openRoomMenuItem: !this.state.openRoomMenuItem})}
 
-                                        showMeetMenuItems={this.state.openMeetMenuItem}
-                                        setShowMeetMenuItems={() => this.setState({openMeetMenuItem: !this.state.openMeetMenuItem})}
+                                            showMeetMenuItems={this.state.openMeetMenuItem}
+                                            setShowMeetMenuItems={() => this.setState({openMeetMenuItem: !this.state.openMeetMenuItem})}
 
-                                        showContacts={this.state.openContactsMenu}
-                                        setShowContacts={() => {
-                                            this.setState({showContainerSection: "Contacts"})
-                                        }}
+                                            showContacts={this.state.openContactsMenu}
+                                            setShowContacts={() => {
+                                                this.setState({showContainerSection: "Contacts"})
+                                            }}
 
-                                        openNewFolderModal={() => this.setState({newFolderModal: true})}
-                                        showNewFileScreen={() => this.setState({
-                                            showNewDocScreen: true,
-                                            showUploadStep: "upload"
-                                        })}
-                                        openShareModal={() => {
-                                            this.setState({openShareDocModal: true})
-                                        }}
-
-                                        driveFolders={this.state.folders || []}
-                                        selectedFolder={this.state.selectedFolder}
-                                        setSelectedFolder={(folder) => this.setState({selectedFolder:folder})}
-                                        setFolderName={(name) => this.setState({selectedFoldername: name})}
-                                        setFolderId={(id) => {
-                                            this.props.history.replace({pathname: '/drive/' + id});
-                                            this.setState({
-                                                focusedItem: "Drive",
-                                                breadcrumbs: this.getBreadcumpsPath(id, this.state.folders.concat(this.state.sharedDrive)),
-                                                selectedFolderId: id,
-                                                showContainerSection: "Drive"
-                                            })
-                                        }}
-                                        setSelectedFolderFiles={(files) => this.setState({selectedFolderFiles: files})}
-                                        //selectedDriveItem={this.state.showContainerSection === "Drive" && [this.state.selectedFolderId === "" ? this.state.folders.length > 0 ? this.state.folders[0].id : "" : this.state.selectedFolderId]}
-                                        selectedDriveItem={this.state.showContainerSection === "Drive" ? (this.props.match.params.section_id ? [this.props.match.params.section_id] : []) : []}
-                                        expandedDriveItems={this.state.showContainerSection === "Drive" ? this.state.expanded : []}
-                                        selectedMeetItem={this.state.showContainerSection === "Meet" ? this.state.selectedMeetMenuItem : []}
-                                        handleSelectMeetMenu={(event, nodeIds) => {
-                                            this.setState({selectedMeetMenuItem: nodeIds})
-                                        }}
-                                        onMeetItemClick={(nodeId) => {
-                                            this.props.history.replace({pathname: '/meet/' + nodeId});
-                                            if (nodeId === "new") {
-                                                this.setState({
-                                                    focusedItem: "Meet",
-                                                    showContainerSection: "Meet",
-                                                    selectedMeetMenuItem: "new"
-                                                })
-                                            } else if (nodeId === "rejoin") {
-                                                this.setState({
-                                                    focusedItem: "Meet",
-                                                    showContainerSection: "Meet",
-                                                    selectedMeetMenuItem: "rejoin"
-                                                })
-                                            } else {
-                                            }
-                                        }}
-
-                                        sharedDrive={this.state.sharedDrive || []}
-                                        sharedRootFiles={this.state.sharedRootFiles}
-                                        onClickSharedRootItem={() => {
-                                            this.props.history.replace({pathname: '/drive/shared'});
-                                            this.setState({
-                                                breadcrumbs: "Mon drive / Partagés avec moi",
-                                                focusedItem: "Drive",
-                                                showContainerSection: "Drive"
-                                            })
-                                        }}
-
-                                        handleToggle={(event, nodeIds) => {
-                                            this.setState({expanded: nodeIds})
-                                        }}
-                                        onClickNewFileFromRacine={() => {
-                                            this.setState({
-                                                newFileFromRacine: true,
+                                            openNewFolderModal={() => this.setState({newFolderModal: true})}
+                                            showNewFileScreen={() => this.setState({
                                                 showNewDocScreen: true,
                                                 showUploadStep: "upload"
-                                            })
-                                        }}
+                                            })}
+                                            openShareModal={() => {
+                                                this.setState({openShareDocModal: true})
+                                            }}
 
-                                        rooms={this.state.rooms}
-                                        setSelectedRoom={(room, roomId) => {
-                                            this.props.history.replace({pathname: '/rooms/' + roomId});
-                                            this.setState({
-                                                selectedRoom: room,
-                                                selectedRoomKey: roomId,
-                                                showContainerSection: "Rooms",
-                                                focusedItem: "Rooms"
-                                            })
-                                        }}
-                                        selectedRoomItems={this.state.showContainerSection === "Rooms" ? this.state.selectedRoomItems : []}
-                                        expandedRoomItems={this.state.expandedRoomItems}
-                                        onClickAddRoomBtn={() => {
-                                            this.setState({openNewRoomModal: true})
-                                        }}
-                                        handleToggleRoomsMenu={(event, nodeIds) => {
-                                            this.setState({expandedRoomItems: nodeIds})
-                                        }}
-                                        handleSelectRoomsMenu={(event, nodeIds) => {
-                                            this.setState({selectedRoomItems: nodeIds})
-                                        }}
-                                        onClickImportFolder={() => {
-                                            this.folderupload.click();
-                                        }}
-                                        onDeleteFolder={() => {
-                                            this.deleteFile_Folder(this.state.selectedFolder)
-                                        }}
-                                        onRenameFolder={(newName) => {
-                                            this.renameFile_Folder(this.state.selectedFolder,newName)
-                                        }}
-                                    />
-                                    <input style={{visibility: 'hidden', width: 0, height: 0}}
-                                           onChange={(event) => this.uploadFolder(event)}
-                                           type="file" webkitdirectory="" mozdirectory="" directory="" multiple={true}
-                                           ref={(ref) => this.folderupload = ref}
-                                    />
+                                            driveFolders={this.state.folders || []}
+                                            selectedFolder={this.state.selectedFolder}
+                                            setSelectedFolder={(folder) => this.setState({selectedFolder:folder})}
+                                            setFolderName={(name) => this.setState({selectedFoldername: name})}
+                                            setFolderId={(id) => {
+                                                this.props.history.replace({pathname: '/drive/' + id});
+                                                this.setState({
+                                                    focusedItem: "Drive",
+                                                    breadcrumbs: this.getBreadcumpsPath(id, this.state.folders.concat(this.state.sharedDrive)),
+                                                    selectedFolderId: id,
+                                                    showContainerSection: "Drive"
+                                                })
+                                            }}
+                                            setSelectedFolderFiles={(files) => this.setState({selectedFolderFiles: files})}
+                                            //selectedDriveItem={this.state.showContainerSection === "Drive" && [this.state.selectedFolderId === "" ? this.state.folders.length > 0 ? this.state.folders[0].id : "" : this.state.selectedFolderId]}
+                                            selectedDriveItem={this.state.showContainerSection === "Drive" ? (this.props.match.params.section_id ? [this.props.match.params.section_id] : []) : []}
+                                            expandedDriveItems={this.state.showContainerSection === "Drive" ? this.state.expanded : []}
+                                            selectedMeetItem={this.state.showContainerSection === "Meet" ? this.state.selectedMeetMenuItem : []}
+                                            handleSelectMeetMenu={(event, nodeIds) => {
+                                                this.setState({selectedMeetMenuItem: nodeIds})
+                                            }}
+                                            onMeetItemClick={(nodeId) => {
+                                                this.props.history.replace({pathname: '/meet/' + nodeId});
+                                                if (nodeId === "new") {
+                                                    this.setState({
+                                                        focusedItem: "Meet",
+                                                        showContainerSection: "Meet",
+                                                        selectedMeetMenuItem: "new"
+                                                    })
+                                                } else if (nodeId === "rejoin") {
+                                                    this.setState({
+                                                        focusedItem: "Meet",
+                                                        showContainerSection: "Meet",
+                                                        selectedMeetMenuItem: "rejoin"
+                                                    })
+                                                } else {
+                                                }
+                                            }}
 
-                                </div>
+                                            sharedDrive={this.state.sharedDrive || []}
+                                            sharedRootFiles={this.state.sharedRootFiles}
+                                            onClickSharedRootItem={() => {
+                                                this.props.history.replace({pathname: '/drive/shared'});
+                                                this.setState({
+                                                    breadcrumbs: "Mon drive / Partagés avec moi",
+                                                    focusedItem: "Drive",
+                                                    showContainerSection: "Drive"
+                                                })
+                                            }}
+
+                                            handleToggle={(event, nodeIds) => {
+                                                this.setState({expanded: nodeIds})
+                                            }}
+                                            onClickNewFileFromRacine={() => {
+                                                this.setState({
+                                                    newFileFromRacine: true,
+                                                    showNewDocScreen: true,
+                                                    showUploadStep: "upload"
+                                                })
+                                            }}
+
+                                            rooms={this.state.rooms}
+                                            setSelectedRoom={(room, roomId) => {
+                                                this.props.history.replace({pathname: '/rooms/' + roomId});
+                                                this.setState({
+                                                    selectedRoom: room,
+                                                    selectedRoomKey: roomId,
+                                                    showContainerSection: "Rooms",
+                                                    focusedItem: "Rooms"
+                                                })
+                                            }}
+                                            selectedRoomItems={this.state.showContainerSection === "Rooms" ? this.state.selectedRoomItems : []}
+                                            expandedRoomItems={this.state.expandedRoomItems}
+                                            onClickAddRoomBtn={() => {
+                                                this.setState({openNewRoomModal: true})
+                                            }}
+                                            handleToggleRoomsMenu={(event, nodeIds) => {
+                                                this.setState({expandedRoomItems: nodeIds})
+                                            }}
+                                            handleSelectRoomsMenu={(event, nodeIds) => {
+                                                this.setState({selectedRoomItems: nodeIds})
+                                            }}
+                                            onClickImportFolder={() => {
+                                                this.folderupload.click();
+                                            }}
+                                            onDeleteFolder={() => {
+                                                this.deleteFile_Folder(this.state.selectedFolder)
+                                            }}
+                                            onRenameFolder={(newName) => {
+                                                this.renameFile_Folder(this.state.selectedFolder,newName)
+                                            }}
+                                        />
+                                        <input style={{visibility: 'hidden', width: 0, height: 0}}
+                                               onChange={(event) => this.uploadFolder(event)}
+                                               type="file" webkitdirectory="" mozdirectory="" directory="" multiple={true}
+                                               ref={(ref) => this.folderupload = ref}
+                                        />
+
+                                    </div>
+                                }
+
 
                             </div>
 
@@ -2602,8 +2632,7 @@ export default class DriveV2 extends React.Component {
                                                                                 <Tab>Affiliations</Tab>
                                                                                 <Tab>Domaine d'activités</Tab>
                                                                                 <Tab>Langues</Tab>
-                                                                                <Tab>Domaines d'intérêt, loisirs et
-                                                                                    sports</Tab>
+                                                                                <Tab>Domaines d'intérêt, loisirs et sports</Tab>
                                                                             </TabList>
 
                                                                             <TabPanel>
