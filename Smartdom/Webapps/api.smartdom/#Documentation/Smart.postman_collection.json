@@ -2713,6 +2713,245 @@
 			"protocolProfileBehavior": {}
 		},
 		{
+			"name": "Odoo",
+			"item": [
+				{
+					"name": "/odoo/<odoo_id>/odoo",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/odoo",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"odoo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/users",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/users?offset=0&limit=10",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"users"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"param\": {\"name\": \"test3\"}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/user",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/user/<user_id>",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/user/7",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"user",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/companies",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/companies?offset=0&limit=10",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"companies"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/company/<company_id>",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/company/13",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"company",
+								"13"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/company",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"param\": {\"name\": \"test3\"}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/company",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"company"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
 			"name": "Assets",
 			"item": [
 				{
@@ -3301,17 +3540,17 @@
 	],
 	"variable": [
 		{
-			"id": "1a769895-69c8-41d9-a5a9-5a1e53a7c16b",
+			"id": "8bcd48f5-db5d-498a-a2d0-cadf169900b2",
 			"key": "url",
 			"value": "api.localhost"
 		},
 		{
-			"id": "aff963f8-027a-47f0-927f-54a7fa0ab594",
+			"id": "82f9ccf0-3512-4532-9afa-7061721d6f49",
 			"key": "password",
 			"value": "password"
 		},
 		{
-			"id": "69ebcb8f-d260-48ff-9139-01ffc3df9b37",
+			"id": "a4deaf25-a038-42d5-9aaf-a94963340983",
 			"key": "method",
 			"value": "http://"
 		}
