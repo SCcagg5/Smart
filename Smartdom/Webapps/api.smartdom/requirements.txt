@@ -11,5 +11,6 @@ eth_account
 pdftotext
 unidecode
 reportlab
-PyPDF2 
+PyPDF2
 fpdf
+pypi_xmlrpc

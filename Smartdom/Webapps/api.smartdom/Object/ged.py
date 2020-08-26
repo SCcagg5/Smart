@@ -639,6 +639,14 @@ class ged:
             return [False, "data input error", 500]
         return [True, {"id": res[0][0]}, None]
 
+    def is_admin():
+        res = sql.get("SELECT role  FROM `ged_user` WHERE `ged_user`.ged_id = %s AND `ged_user`.user_id = %s", (self.ged_id, self.usr_id))
+        if len(res) != 1:
+            return [False, "Invalid Ged ID or User", 404]
+        if res[0][0] != 1:
+            return [False, "User isn't admin", 403]
+        return [True, {}, None]
+
     def get(self, doc_id):
         ret = None
         fol = folder(self.usr_id, self.ged_id)

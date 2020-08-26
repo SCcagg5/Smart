@@ -8,6 +8,7 @@ from Object.asset import asset
 from Object.ether import eth_contract
 from Object.ged import folder, file, ged, sign
 from Object.contacter import contacter
+from Object.odoo import odoo
 import json
 
 def getauth(cn, nextc):
@@ -293,7 +294,7 @@ def ged_sign_delete(cn, nextc):
     return cn.call_next(nextc, err)
 
 def ged_sign_sign(cn, nextc):
-    err = check.contain(cn.pr, ["x", "y", "h", "w"])
+    err = check.contain(cn.pr, ["x", "y", "h", "w", "page"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
@@ -301,6 +302,59 @@ def ged_sign_sign(cn, nextc):
     sign_id = cn.rt["sign"] if "sign" in cn.rt else None
     err = cn.private["sign"].sign_doc(sign_id, doc_id, cn.pr["x"], cn.pr["y"], cn.pr["h"], cn.pr["w"])
     return cn.call_next(nextc, err)
+
+def odoo_check(cn, nextc):
+    odoo_id = cn.rt["odoo"] if "odoo" in cn.rt else None
+    cn.private["odoo"] = odoo(usr_id=cn.private["user"].id, odoo_id=odoo_id)
+    err = cn.private["contacter"].connection()
+    return cn.call_next(nextc, err)
+
+def odoo(cn, nextc):
+    err = cn.private["odoo"].version()
+    return cn.call_next(nextc, err)
+
+def odoo_users(cn, nextc):
+    err = cn.private["odoo"].list_contact(False, cn.get["offset"], cn.get["limit"])
+    return cn.call_next(nextc, err)
+
+def odoo_user(cn, nextc):
+    contact_id = cn.rt["user"] if "user" in cn.rt else None
+    err = cn.private["odoo"].read_contact(contact_id)
+    return cn.call_next(nextc, err)
+
+def odoo_add_user(cn, nextc):
+    err = check.contain(cn.pr, ["param"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = check.contain(cn.pr["param"], ['base64', 'name', 'parent_id', 'function', 'phone', 'mobile', 'email', 'website', 'title'], "BODY.param")
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr["param"] = err[1]
+    err = cn.private["odoo"].create_client(cn.pr["param"])
+    return cn.call_next(nextc, err)
+
+def odoo_companies(cn, nextc):
+    err = cn.private["odoo"].list_contact(True, cn.get["offset"], cn.get["limit"])
+    return cn.call_next(nextc, err)
+
+def odoo_company(cn, nextc):
+    contact_id = cn.rt["user"] if "user" in cn.rt else None
+    err = cn.private["odoo"].read_contact(contact_id)
+    return cn.call_next(nextc, err)
+
+def odoo_add_company(cn, nextc):
+    err = check.contain(cn.pr, ["param"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = check.contain(cn.pr["param"], ['base64', 'name', 'street', 'street2', 'city', 'zip', 'state_id', 'vat', 'phone', 'mobile', 'email', 'website'], "BODY.param")
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr["param"] = err[1]
+    err = cn.private["odoo"].create_company(cn.pr["param"])
+    return cn.call_next(nextc, err)
+
 
 def contacter_check(cn, nextc):
     contacter_id = cn.rt["contacter"] if "contacter" in cn.rt else None
