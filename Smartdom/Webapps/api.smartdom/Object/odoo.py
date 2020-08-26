@@ -31,19 +31,19 @@ class odoo:
     def list_contact(self, company = False, offset = 0, limit = 10):
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
         ret = models.execute_kw(self.opt['db'],
-                                self.opt['username'],
+                                self.uid,
                                 self.opt['password'],
             'res.partner', 'search',
             [[['is_company', '=', company]]],
-            {'offset': offset, 'limit': limit})
+            {'offset': int(offset), 'limit': int(limit)})
         return [True, ret, None]
 
     def read_contact(self, id):
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
         ret = models.execute_kw(self.opt['db'],
-                                self.opt['username'],
+                                self.uid,
                                 self.opt['password'],
-            'res.partner', 'read', [[id]])
+            'res.partner', 'read', [[int(id)]])
         return [True,ret, None]
 
     def create_client(self, param):
@@ -59,9 +59,12 @@ class odoo:
         for i in dep:
             if param[i] is None:
                 param[i] = False
+        param['parent_id'] = False if int(param['parent_id']) == 0 else int(param['parent_id'])
+        param['title'] = False if int(param['title']) == 0 else int(param['title'])
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
+        print(param)
         ret = models.execute_kw(self.opt['db'],
-                                self.opt['username'],
+                                self.uid,
                                 self.opt['password'],
                                 'res.partner', 'create',
                                 [{
@@ -76,14 +79,14 @@ class odoo:
                                     "__last_update":False,
                                     "company_type":"person",
                                     "name":param['name'],
-                                    "parent_id":param['parent_id'],
+                                    "parent_id": param['parent_id'],
                                     "company_name":False,
                                     "function": param['function'],
                                     "phone": param['phone'],
                                     "mobile": param['mobile'],
                                     "email": param['email'],
                                     "website":param['website'],
-                                    "title":param['title'],
+                                    "title": param['title'],
                                     "user_id":False,
                                     "ref":False,
                                     "company_id":False,
@@ -102,9 +105,10 @@ class odoo:
         for i in dep:
             if param[i] is None:
                 param[i] = False
+        param['state_id'] = False if int(param['state_id']) == 0 else int(param['state_id'])
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
         ret = models.execute_kw(self.opt['db'],
-                                self.opt['username'],
+                                self.uid,
                                 self.opt['password'],
                                 'res.partner', 'create',
                                 [{

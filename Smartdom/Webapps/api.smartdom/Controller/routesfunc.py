@@ -306,10 +306,10 @@ def ged_sign_sign(cn, nextc):
 def odoo_check(cn, nextc):
     odoo_id = cn.rt["odoo"] if "odoo" in cn.rt else None
     cn.private["odoo"] = odoo(usr_id=cn.private["user"].id, odoo_id=odoo_id)
-    err = cn.private["contacter"].connection()
+    err = cn.private["odoo"].connection()
     return cn.call_next(nextc, err)
 
-def odoo(cn, nextc):
+def odoo_infos(cn, nextc):
     err = cn.private["odoo"].version()
     return cn.call_next(nextc, err)
 
@@ -327,10 +327,10 @@ def odoo_add_user(cn, nextc):
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
-    err = check.contain(cn.pr["param"], ['base64', 'name', 'parent_id', 'function', 'phone', 'mobile', 'email', 'website', 'title'], "BODY.param")
+    err = check.contain(cn.pr["param"], ["name"], "body.param")
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
-    cn.pr["param"] = err[1]
+    cn.pr["param"] = check.setnoneopt(cn.pr["param"], ['base64', 'name', 'parent_id', 'function', 'phone', 'mobile', 'email', 'website', 'title'])
     err = cn.private["odoo"].create_client(cn.pr["param"])
     return cn.call_next(nextc, err)
 
@@ -339,7 +339,7 @@ def odoo_companies(cn, nextc):
     return cn.call_next(nextc, err)
 
 def odoo_company(cn, nextc):
-    contact_id = cn.rt["user"] if "user" in cn.rt else None
+    contact_id = cn.rt["company"] if "company" in cn.rt else None
     err = cn.private["odoo"].read_contact(contact_id)
     return cn.call_next(nextc, err)
 
@@ -348,10 +348,10 @@ def odoo_add_company(cn, nextc):
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
-    err = check.contain(cn.pr["param"], ['base64', 'name', 'street', 'street2', 'city', 'zip', 'state_id', 'vat', 'phone', 'mobile', 'email', 'website'], "BODY.param")
+    err = check.contain(cn.pr["param"], ["name"], "body.param")
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
-    cn.pr["param"] = err[1]
+    cn.pr["param"] = check.setnoneopt(cn.pr["param"], ['base64', 'name', 'street', 'street2', 'city', 'zip', 'state_id', 'vat', 'phone', 'mobile', 'email', 'website'])
     err = cn.private["odoo"].create_company(cn.pr["param"])
     return cn.call_next(nextc, err)
 

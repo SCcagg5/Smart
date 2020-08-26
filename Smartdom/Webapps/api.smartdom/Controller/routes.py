@@ -41,13 +41,13 @@ def setuproute(app, call):
     @app.route('/ged/<>/sign/<>',           ['OPTIONS', 'DELETE'],       lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_delete]))
     @app.route('/ged/<>/doc/<>/sign/<>',    ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_sign]) )
 
-    @app.route('/odoo/<>/odoo',              ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo]) )
+    @app.route('/odoo/<>/odoo',              ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_infos]) )
     @app.route('/odoo/<>/users',             ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_users]) )
     @app.route('/odoo/<>/user/<>',           ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_user]) )
     @app.route('/odoo/<>/user',              ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, odoo_check, odoo_add_user]) )
     @app.route('/odoo/<>/companies',         ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_companies]) )
-    @app.route('/odoo/<>/company/<>',        ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, odoo_check, odoo_company]) )
-    @app.route('/odoo/<>/company',           ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_add_company]) )
+    @app.route('/odoo/<>/company/<>',        ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_company]) )
+    @app.route('/odoo/<>/company',           ['OPTIONS', 'POST'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_add_company]) )
 
     @app.route('/contacter/<>',             ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, contacter_check, contacter_check_user, contacter_infos])                )
     @app.route('/contacter/<>/adduser',     ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, contacter_check, contacter_check_user, contacter_add_user])             )
