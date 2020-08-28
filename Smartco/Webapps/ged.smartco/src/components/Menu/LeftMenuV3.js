@@ -29,26 +29,110 @@ import {Modal, ModalBody, ModalHeader} from "reactstrap";
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import SocietyMenuItems from "./SocietyMenuItems";
 import ContactsMenuItems from "./ContactsMenuItems";
+import '../../assets/css/antDesign.css';
+import { Tree } from 'antd';
+
+const { DirectoryTree } = Tree;
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function LeftMenu(props) {
+export default function LeftMenuV3(props) {
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [anchorElMenu, setAnchorElMenu] = useState(null);
     const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
     const [openRenameeModal, setOpenRenameModal] = React.useState(false);
     const [newFolderName, setnewFolderName] = React.useState(props.selectedFolder.name);
+    //const [driveFolders, setDriveFolders] = React.useState(props.driveFolders);
+    const [expandedKeys, setExpandedKeys] = React.useState(props.selectedDriveItem);
+    const [selectedKeys, setSelectedKeys] = React.useState(props.selectedDriveItem);
 
 
+
+    function onDragEnter(info) {
+
+    }
+    function onDrop(info)  {
+        //console.log(info);
+        let driveFolders  = props.driveFolders;
+        const dropKey = info.node.props.eventKey;
+        const dragKey = info.dragNode.props.eventKey;
+        const dropPos = info.node.props.pos.split('-');
+        const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
+
+        const loop = (data, key, callback) => {
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].key === key) {
+                    return callback(data[i], i, data);
+                }
+                if (data[i].children) {
+                    loop(data[i].children, key, callback);
+                }
+            }
+        };
+        const data = [...driveFolders];
+
+        // Find dragObject
+        let dragObj;
+        loop(data, dragKey, (item, index, arr) => {
+            arr.splice(index, 1);
+            dragObj = item;
+        });
+
+        if (!info.dropToGap) {
+            // Drop on the content
+            loop(data, dropKey, item => {
+                item.children = item.children || [];
+                // where to insert
+                item.children.push(dragObj);
+            });
+        } else if (
+            (info.node.props.children || []).length > 0 && // Has children
+            info.node.props.expanded && // Is expanded
+            dropPosition === 1 // On the bottom gap
+        ) {
+            loop(data, dropKey, item => {
+                item.children = item.children || [];
+                // where to insert
+                item.children.unshift(dragObj);
+            });
+        } else {
+            let ar;
+            let i;
+            loop(data, dropKey, (item, index, arr) => {
+                ar = arr;
+                i = index;
+            });
+            if (dropPosition === -1) {
+                ar.splice(i, 0, dragObj);
+            } else {
+                ar.splice(i + 1, 0, dragObj);
+            }
+        }
+
+        props.setDriveFolders(data)
+    }
+
+    function onExpand(expandedKeys) {
+        setExpandedKeys(expandedKeys);
+    }
+
+    function onSelect(selectedKeys, info){
+        //console.log(info)
+        setSelectedKeys(selectedKeys);
+        props.setSelectedFolder(info.node)
+        props.setFolderName(info.node.title)
+        props.setFolderId(info.node.key)
+        props.setSelectedFolderFiles(info.node.files)
+    }
 
 
     return(
 
 
-        <div style={{width: "auto", marginTop: 20,paddingRight:10,minWidth:240}}>
+        <div style={{marginTop: 20,paddingRight:10}}>
             <div align="center">
 
                 <MuiButton
@@ -118,7 +202,27 @@ export default function LeftMenu(props) {
                 </div>
                 {
                     props.showDriveMenuItems === true &&
-                    <GmailTree      data={props.driveFolders || []}
+                    <DirectoryTree
+                        draggable
+                        showIcon={true}
+                        onExpand={onExpand}
+                        onSelect={onSelect}
+                        onDragEnter={onDragEnter}
+                        onDrop={onDrop}
+                        treeData={props.driveFolders}
+                        expandAction="click"
+                        onRightClick={ info => {
+                            setAnchorElMenu(info.event.currentTarget)
+                            props.setSelectedFolder(info.node)
+                            props.setFolderName(info.node.title)
+                            props.setFolderId(info.node.key)
+                        }}
+                        expandedKeys={expandedKeys}
+                        selectedKeys={selectedKeys}
+
+
+                    />
+                    /*<GmailTree    data={props.driveFolders || []}
                                     getFolderName={(name) => props.setFolderName(name)}
                                     getFolderId={(id) => props.setFolderId(id)}
                                     getSelectedFolderFiles={(files) => props.setSelectedFolderFiles(files)}
@@ -136,7 +240,7 @@ export default function LeftMenu(props) {
                                     sharedRootFiles={props.sharedRootFiles}
                                     onClickSharedRootItem={props.onClickSharedRootItem}
                                     setSelectedFolder={(folder) => props.setSelectedFolder(folder)}
-                    />
+                    />*/
 
                 }
                 <Menu
@@ -183,8 +287,8 @@ export default function LeftMenu(props) {
                     </MenuItem>
                     <MenuItem key={5}  onClick={() => {
                         setAnchorElMenu(null);
-                        setOpenRenameModal(true)
-                        setnewFolderName(props.selectedFolder.name)
+                        setOpenRenameModal(true);
+                        setnewFolderName(props.selectedFolder.title)
                     }}>
                         <ListItemIcon>
                             <EditIcon fontSize="small" />
@@ -292,7 +396,7 @@ export default function LeftMenu(props) {
                         }
                         <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Rooms</Typography>
 
-                        <IconButton style={{marginLeft:100,marginTop:-10}} onClick={(event) => {
+                        <IconButton style={{marginLeft:160,marginTop:-10}} onClick={(event) => {
                             event.stopPropagation()
                             props.onClickAddRoomBtn()
                         }}>
@@ -358,7 +462,7 @@ export default function LeftMenu(props) {
                     props.showContacts === true &&
                     <div>
                         <ContactsMenuItems items={data.ContactsMenuItem} selectedContactsItem={props.selectedContactsItem}
-                                          onClick={(nodeId) => {props.onContactsItemClick(nodeId)}} handleSelectContactsMenu={props.handleSelectContactsMenu}
+                                           onClick={(nodeId) => {props.onContactsItemClick(nodeId)}} handleSelectContactsMenu={props.handleSelectContactsMenu}
                         />
                     </div>
 
@@ -382,11 +486,26 @@ export default function LeftMenu(props) {
                     props.showSocietyMenuItems === true &&
                     <div>
                         <SocietyMenuItems items={data.SocietyMenuItem} selectedSocietyItem={props.selectedSocietyItem}
-                                       onClick={(nodeId) => {props.onSocietyItemClick(nodeId)}} handleSelectSocietyMenu={props.handleSelectSocietyMenu}
+                                          onClick={(nodeId) => {props.onSocietyItemClick(nodeId)}} handleSelectSocietyMenu={props.handleSelectSocietyMenu}
                         />
                     </div>
 
                 }
+                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "TimeSheet" ? "aliceblue":""}} onClick={() => {
+                    props.setFocusedItem("TimeSheet")
+                    props.setShowTimeSheet()
+                }}
+                >
+                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                    <div style={{display:"flex"}}>
+                        {
+                            props.showTimeSheet === true ?
+                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                        }
+                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Time Sheet</Typography>
+                    </div>
+                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                </div>
 
             </div>
 

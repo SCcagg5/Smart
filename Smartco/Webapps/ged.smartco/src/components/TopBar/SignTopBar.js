@@ -6,13 +6,15 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import MenuItem from "@material-ui/core/MenuItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Typography from "@material-ui/core/Typography";
-import GestureIcon from '@material-ui/icons/Gesture';
 import Grow from "@material-ui/core/Grow";
 import Paper from "@material-ui/core/Paper";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import MenuList from "@material-ui/core/MenuList";
 import Popper from "@material-ui/core/Popper";
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+
+
 export default function SignTopBar(props) {
 
     const [open, setOpen] = React.useState(false);
@@ -71,6 +73,12 @@ export default function SignTopBar(props) {
                                                 props.onClickSignature(item)
                                             }}>
                                                 <img alt="" src={item.data} style={{width:150,height:60}}/>
+                                                <IconButton style={{marginLeft:23}} onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    props.onClickDelete()
+                                                }}>
+                                                    <DeleteOutlineIcon fontSize="small" color="secondary"/>
+                                                </IconButton>
                                             </MenuItem>
                                         )
                                     }

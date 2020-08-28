@@ -85,6 +85,8 @@ let SmartService = {
         });
     },
     updateFileName(data,fileId,token,usrtoken){
+        console.log(data)
+        console.log(fileId)
         return fetch(endpoint + '/ged/'+OALegalGedId+'/doc/'+ fileId, {
             method: 'PUT',
             headers:this.loadHeaders(token,usrtoken),

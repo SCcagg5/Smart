@@ -1,5 +1,10 @@
 import VideoCallIcon from "@material-ui/icons/VideoCall";
 import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
+import HomeWorkIcon from '@material-ui/icons/HomeWork';
+import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
 
 let Data = {
     endpoint : "https://api.smartdom.ch",
@@ -24,6 +29,37 @@ let Data = {
             title:"Réjoindre une réunion",
             icon:MeetingRoomIcon
         },
+    ],
+
+    SocietyMenuItem : [
+        {
+            nodeId:"prospAc",
+            title:"Prospect à contacter",
+            icon:HomeWorkIcon
+        },
+        {
+            nodeId:"prospEc",
+            title:"Prospect en cours",
+            icon:HomeWorkIcon
+        },
+        {
+            nodeId:"clientM",
+            title:"Client (Mandat)",
+            icon:HomeWorkIcon
+        },
+    ],
+
+    ContactsMenuItem : [
+        {
+            nodeId:"aia",
+            title:"Annuaire in & alliance",
+            icon:PeopleAltIcon
+        },
+        {
+            nodeId:"ae",
+            title:"Annuaire Ecosystème",
+            icon:PeopleAltIcon
+        }
     ],
 
     titres : [
@@ -88,6 +124,95 @@ let Data = {
         'Editer',
         'Administrateur',
         'Partager',
-    ]
+    ],
+
+    times: [
+        {text: "08:00", showConfirm: false, show: true},
+        {text: "08:30", showConfirm: false, show: true},
+        {text: "09:00", showConfirm: false, show: true},
+        {text: "09:30", showConfirm: false, show: true},
+        {text: "10:00", showConfirm: false, show: true},
+        {text: "10:30", showConfirm: false, show: true},
+        {text: "11:00", showConfirm: false, show: true},
+        {text: "11:30", showConfirm: false, show: true},
+        {text: "12:00", showConfirm: false, show: true},
+        {text: "12:30", showConfirm: false, show: true},
+        {text: "13:00", showConfirm: false, show: true},
+        {text: "13:30", showConfirm: false, show: true},
+        {text: "14:00", showConfirm: false, show: true},
+        {text: "14:30", showConfirm: false, show: true},
+        {text: "15:00", showConfirm: false, show: true},
+        {text: "15:30", showConfirm: false, show: true},
+        {text: "16:00", showConfirm: false, show: true},
+        {text: "16:30", showConfirm: false, show: true},
+        {text: "17:00", showConfirm: false, show: true},
+    ],
+
+    datas : {
+        labels: ['January'],
+        datasets: [
+            {
+                label: 'My First dataset',
+                fill: false,
+                lineTension: 0.1,
+                backgroundColor: 'rgba(75,192,192,0.4)',
+                borderColor: 'rgba(75,192,192,1)',
+                borderCapStyle: 'butt',
+                borderDash: [],
+                borderDashOffset: 0.0,
+                borderJoinStyle: 'miter',
+                pointBorderColor: 'rgba(75,192,192,1)',
+                pointBackgroundColor: '#fff',
+                pointBorderWidth: 5,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+                pointHoverBorderColor: 'rgba(220,220,220,1)',
+                pointHoverBorderWidth: 10,
+                pointRadius: 1,
+                pointHitRadius: 20,
+                data: [
+                    {
+                        x: 15,
+                        y: 7.5,
+                        r: 15
+                    }
+                ]
+            },{
+                label: 'My First dataset',
+                fill: false,
+                lineTension: 0.1,
+                backgroundColor: 'red',
+                borderColor: 'rgba(75,192,192,1)',
+                borderCapStyle: 'butt',
+                borderDash: [],
+                borderDashOffset: 0.0,
+                borderJoinStyle: 'miter',
+                pointBorderColor: 'rgba(75,192,192,1)',
+                pointBackgroundColor: '#fff',
+                pointBorderWidth: 5,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+                pointHoverBorderColor: 'rgba(220,220,220,1)',
+                pointHoverBorderWidth: 10,
+                pointRadius: 1,
+                pointHitRadius: 20,
+                data: [
+                    {
+                        x: 5,
+                        y: 15,
+                        r: 15
+                    }
+                ]
+            }
+        ]
+    },
+    MenuProps : {
+        PaperProps: {
+            style: {
+                maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+                width: 250,
+            },
+        },
+    }
 }
 export default Data;
