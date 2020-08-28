@@ -117,10 +117,10 @@ class room:
         self.room_id = str(room_id)
 
     def all(self):
-        res = sql.get("SELECT ged_room.name, ged_room.date_start, ged_room.date_end, ged_room.duration, ged_room.date, user.email FROM ged_room INNER JOIN `user` ON `ged_room`.`user_id` = `user`.id ")
+        res = sql.get("SELECT ged_room.name, ged_room.date_start, ged_room.date_end, ged_room.duration, ged_room.date, user.email, ged_room.id FROM ged_room INNER JOIN `user` ON `ged_room`.`user_id` = `user`.id WHERE ged_room.ged_id = %s", (self.ged_id, ))
         ret = []
         for i in res:
-            ret.append({ "name": i[0], "time": {"start": i[1], "end": i[2], "duration": i[3]}}, "date": i[4], "by": i[5])
+            ret.append({ "id": i[6], "name": i[0], "time": {"start": i[1], "end": i[2], "duration": i[3]}, "date": i[4], "by": i[5]})
         return [True, ret, None]
 
     def new(self, name, date_start, duration):
@@ -138,11 +138,12 @@ class room:
         return [True, {"id": id}, None]
 
     def files(self):
-        res = sql.get("SELECT `user`.email , ged_room_share.`date`, ged_file.id, ged_file.name, ged_file.type, ged_file.date FROM ged_room_share INNER JOIN `ged_file` ON ged_file.id = ged_room_share.`doc_id` INNER JOIN `user` ON `ged_room_share`.`user_id` = `user`.id WHERE `ged_room_share`.ged_id = %s AND `ged_room_share`.room_id = %s", (self.ged_id, self.room_id))
+        res = sql.get("SELECT `user`.email , ged_room_share.`date`, ged_file.id, ged_file.name, ged_file.type, ged_file.date, ged_room_share.id FROM ged_room_share INNER JOIN `ged_file` ON ged_file.id = ged_room_share.`doc_id` INNER JOIN `user` ON `ged_room_share`.`user_id` = `user`.id WHERE `ged_room_share`.ged_id = %s AND `ged_room_share`.room_id = %s", (self.ged_id, self.room_id))
         ret = []
         for i in res:
             ret.append({
-                "id": i[2], "name": res[0][3], "type": res[0][4], "date": res[0][5],
+                "original_id": i[2], "id": i[6], 
+                "name": res[0][3], "type": res[0][4], "date": res[0][5],
                 "by": i[0] ,"in": i[1]
                 })
         return [True, ret, None]
@@ -153,7 +154,7 @@ class room:
         fil = file(self.usr_id, self.ged_id)
         if not file.exist(doc_id):
             return [False, "File doesn't exist", 404]
-        if not fil.is_admin(doc_id):
+        if not fil.is_admin(doc_id) and not fil.is_proprietary(doc_id):
             return [False, "Invalid rights, should be admin", 403]
         succes = sql.input("INSERT INTO `ged_room_share` (`id`,`ged_id`, `room_id`, `user_id`, `doc_id`, `date`) VALUES (%s, %s, %s, %s, %s, %s)", \
         (id, self.ged_id, self.room_id, self.usr_id, doc_id, date))

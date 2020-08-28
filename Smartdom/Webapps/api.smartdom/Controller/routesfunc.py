@@ -6,7 +6,7 @@ from Object.items import item
 from Object.admin import admin
 from Object.asset import asset
 from Object.ether import eth_contract
-from Object.ged import folder, file, ged, sign
+from Object.ged import folder, file, ged, sign, room
 from Object.contacter import contacter
 from Object.odoo import odoo
 import json
@@ -305,11 +305,11 @@ def ged_sign_sign(cn, nextc):
 
 
 def ged_room_new(cn, nextc):
-    err = check.contain(cn.pr, ["ged", "name", "start"])
+    err = check.contain(cn.pr, ["name", "start", "duration"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
-    err = room(usr_id=cn.private["ged"].usr_id, ged_id=cn.private["ged"].ged_id).new(cn.pr["name"], cn.pr["start"], cn.pr["end"])
+    err = room(usr_id=cn.private["ged"].usr_id, ged_id=cn.private["ged"].ged_id).new(cn.pr["name"], cn.pr["start"], cn.pr["duration"])
     return cn.call_next(nextc, err)
 
 def ged_room_all(cn, nextc):
@@ -327,7 +327,7 @@ def ged_room_file_new(cn, nextc):
 
 def ged_room_files_get(cn, nextc):
     room_id = cn.rt["room"] if "room" in cn.rt else None
-    err = room(usr_id=cn.private["ged"].usr_id, ged_id=cn.private["ged"].ged_id, room_id=room_id).all()
+    err = room(usr_id=cn.private["ged"].usr_id, ged_id=cn.private["ged"].ged_id, room_id=room_id).files()
     return cn.call_next(nextc, err)
 
 def odoo_check(cn, nextc):
