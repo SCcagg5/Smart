@@ -1887,15 +1887,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{method}}{{url}}/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/1fe369a3-3548-4032-915e-918a6d757395",
+							"raw": "{{method}}{{url}}/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc",
 							"host": [
 								"{{method}}{{url}}"
 							],
 							"path": [
 								"ged",
 								"896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9",
-								"doc",
-								"1fe369a3-3548-4032-915e-918a6d757395"
+								"doc"
 							]
 						}
 					},
@@ -2601,6 +2600,134 @@
 							""
 						]
 					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Room",
+			"item": [
+				{
+					"name": "/room",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"test\", \"start\": 1598627484000, \"duration\": 30}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/room",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9",
+								"room"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/rooms",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"test\", \"start\": 1598627484000, \"end\": 1598637484000}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/rooms",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9",
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/room/<room_id>/file",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"doc_id\": \"1bc5cfb8-4927-4ac8-bfcb-29a68476d59a\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/rooms/968d6044-01df-426b-8f31-07c88094427c/file",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9",
+								"rooms",
+								"968d6044-01df-426b-8f31-07c88094427c",
+								"file"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/room/<room_id>/files",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"doc_id\": \"1bc5cfb8-4927-4ac8-bfcb-29a68476d59a\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/rooms/968d6044-01df-426b-8f31-07c88094427c/files",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9",
+								"rooms",
+								"968d6044-01df-426b-8f31-07c88094427c",
+								"files"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}
@@ -3540,17 +3667,17 @@
 	],
 	"variable": [
 		{
-			"id": "8bcd48f5-db5d-498a-a2d0-cadf169900b2",
+			"id": "fc7309fa-b864-4719-bf71-7123116676d7",
 			"key": "url",
 			"value": "api.localhost"
 		},
 		{
-			"id": "82f9ccf0-3512-4532-9afa-7061721d6f49",
+			"id": "75ae4391-1c71-483f-b9f8-0b0d5a05a0cd",
 			"key": "password",
 			"value": "password"
 		},
 		{
-			"id": "a4deaf25-a038-42d5-9aaf-a94963340983",
+			"id": "54f508f0-0e08-4d12-ae95-bce8a9ef4c01",
 			"key": "method",
 			"value": "http://"
 		}
