@@ -8,6 +8,10 @@
     height: 44px!important;
     border-radius: 50% !important;
 }
+.DayPicker-Day--disabled {
+    color: #DCE0E0;
+    cursor: default;
+}
 .DayPicker-Day--disponible:hover {
     background-color:  rgba(0, 162, 255, 0.15)!important;
 }
@@ -41,7 +45,7 @@
 .btn-disabled{
     width: 48.5%;
     color: white;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: #c0c0c0;
     border-color: transparent;
     height: 52px;
     border-radius: 4px;
@@ -68,15 +72,16 @@
 }
 
 .call-container{
-    min-width: 1000px;
-    max-width: 1400px;
+    /*min-width: 1000px;
+    max-width: 1400px;*/
     display: flex;
     flex: 1 1 auto;
     min-height: 550px;
-    border: 1px solid  rgba(77, 80, 85, 0.1);
+    /*border: 1px solid  rgba(77, 80, 85, 0.1);
     border-radius: 8px;
     box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.08);
-    background-color: #fff;
+    background-color: #fff;*/
+    width: 850px;
 }
 .btn-confirm-evt{
     color:  #ffffff;

@@ -89,6 +89,15 @@ import BT from "@material-ui/core/Button";
 import TableSociete from "../../components/Tables/TableSociete";
 import { Bubble } from 'react-chartjs-2';
 import Data from "../../data/Data";
+import LeftMenuV3 from "../../components/Menu/LeftMenuV3";
+import ButtonGroup from "@material-ui/core/ButtonGroup";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import time from"../../assets/icons/time.svg"
+import money from"../../assets/icons/money.svg"
+import play from"../../assets/icons/play.svg"
+import calendar from"../../assets/icons/calendar.svg"
+import DatePicker from 'react-date-picker';
+import TableTimeSheet from "../../components/Tables/TableTimeSheet";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
 const checkedIcon = <CheckBoxIcon fontSize="small"/>;
@@ -105,7 +114,7 @@ let expanded = [];
 let index = {}
 
 
-export default class DriveV2 extends React.Component {
+export default class DriveV3 extends React.Component {
 
     imageUpload = {};
     folderupload = {};
@@ -147,6 +156,7 @@ export default class DriveV2 extends React.Component {
         selectedDoc: "",
 
         folders: [],
+        reelFolders:[],
         sharedDrive: [],
         rootFiles: [],
         sharedRootFiles: [],
@@ -172,6 +182,7 @@ export default class DriveV2 extends React.Component {
         openRoomMenuItem: false,
         openContactsMenu: false,
         openSocietyMenuItem:false,
+        openTimeSheetsMenu:false,
 
         showContainerSection: "Drive",
         selectedMeetMenuItem: ["new"],
@@ -266,11 +277,36 @@ export default class DriveV2 extends React.Component {
         selectedRoom: "",
         selectedRoomKey: 0,
 
-        textSearch: ""
+        textSearch: "",
+        searchSociete:"",
+        TimeSheet:{
+            newTime:{
+                duree:"",
+                sujet:"",
+                categoriesActivite:"",
+                description:"",
+                date:new Date(),
+                utilisateurOA:"",
+                rateFacturation:"",
+                pasFacturable:true
+            }
+        },
+        TimeSheetData:[],
 
     }
 
     componentDidMount() {
+
+        firebase.database().ref('TimeSheet/').on('value',(snapshot)=>{
+            let data = snapshot.val()
+            let d=[]
+            if (data !=null){
+                data.map((item,key)=>{
+                    d.push(item)
+                })
+                this.setState({TimeSheetData:d})
+            }
+        })
 
         let sharedDrive = [];
         if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
@@ -291,6 +327,7 @@ export default class DriveV2 extends React.Component {
                             let contacts = data.contacts || [];
                             let rooms = data.rooms || [];
                             let societe = data.societes || [];
+
                             let sharedFolders = gedRes.data.Shared.Content.folders || [];
                             let sharedFiles = gedRes.data.Shared.Content.files || [];
                             let calls = [];
@@ -307,7 +344,8 @@ export default class DriveV2 extends React.Component {
                                     if (this.props.match.params.section_id === "0") {
                                         this.setState({
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
@@ -321,7 +359,8 @@ export default class DriveV2 extends React.Component {
                                     } else if (this.props.match.params.section_id === "shared") {
                                         this.setState({
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
                                             sharedRootFiles: sharedFiles,
                                             expanded: ["shared"],
@@ -338,10 +377,11 @@ export default class DriveV2 extends React.Component {
                                         let folders = gedRes.data.Proprietary.Content.folders || [];
                                         let folder_name = this.getFolderNameById(this.props.match.params.folder_id, folders.concat(sharedDrive));
                                         this.setState({
-                                            folders: folders,
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             sharedRootFiles: sharedFiles,
-                                            expanded: this.expandAll(this.props.match.params.section_id, folders.concat(sharedDrive)).concat(["shared"]),
+                                            //expanded: this.expandAll(this.props.match.params.section_id, folders.concat(sharedDrive)).concat(["shared"]),
                                             sharedDrive: sharedDrive,
                                             selectedFoldername: folder_name,
                                             breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders.concat(sharedDrive)),
@@ -368,7 +408,8 @@ export default class DriveV2 extends React.Component {
                                             expandedRoomItems: rooms.length > 0 ? ["0"] : [],
                                             openRoomMenuItem: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
@@ -388,7 +429,8 @@ export default class DriveV2 extends React.Component {
                                                 expandedRoomItems: rooms.length > 0 ? ["0"] : [],
                                                 openRoomMenuItem: true,
                                                 rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                                folders: gedRes.data.Proprietary.Content.folders || [],
+                                                folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                                reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                                 sharedDrive: sharedDrive,
                                                 sharedRootFiles: sharedFiles,
                                                 meeturl: meeturl,
@@ -416,7 +458,8 @@ export default class DriveV2 extends React.Component {
                                             selectedMeetMenuItem: ["new"],
                                             openMeetMenuItem: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
@@ -434,7 +477,8 @@ export default class DriveV2 extends React.Component {
                                             selectedMeetMenuItem: ["rejoin"],
                                             openMeetMenuItem: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
@@ -454,7 +498,8 @@ export default class DriveV2 extends React.Component {
                                             showContainerSection: "Contacts",
                                             focusedItem: "Contacts",
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
@@ -475,7 +520,8 @@ export default class DriveV2 extends React.Component {
                                             showContainerSection: "Societe",
                                             focusedItem: "Societe",
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            folders: gedRes.data.Proprietary.Content.folders || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
@@ -489,6 +535,28 @@ export default class DriveV2 extends React.Component {
                                     } else {
                                         console.log("URL ERROR")
                                     }
+                                }else if(this.props.match.params.section === "TimeSheet") {
+                                    if (this.props.match.params.section_id === "activities") {
+                                        this.setState({
+                                            showContainerSection: "TimeSheet",
+                                            focusedItem: "TimeSheet",
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedDrive: sharedDrive,
+                                            sharedRootFiles: sharedFiles,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            societe: societe,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            firstLoading: false,
+                                            loading: false
+                                        })
+                                    } else {
+                                        console.log("URL ERROR")
+                                    }
+
                                 } else if (this.props.match.params.section === "search") {
                                     if (this.props.match.params.section_id) {
                                         let textToSearch = this.props.match.params.section_id;
@@ -498,7 +566,8 @@ export default class DriveV2 extends React.Component {
                                                     searchResult: searchRes.data,
                                                     textSearch: textToSearch,
                                                     rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                                    folders: gedRes.data.Proprietary.Content.folders || [],
+                                                    folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                                    reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                                     sharedDrive: sharedDrive,
                                                     sharedRootFiles: sharedFiles,
                                                     meeturl: meeturl,
@@ -609,16 +678,16 @@ export default class DriveV2 extends React.Component {
                     formData.append("file", files[i]);
                     formData.append("folder_id", addFolderRes.data.id)
                     calls.push( axios.request({
-                        method: "POST", url: data.endpoint + "/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfile",
-                        data: formData,
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                            'token': localStorage.getItem('token'),
-                            'usrtoken': localStorage.getItem('usrtoken')
-                        },
-                        onUploadProgress: (p) => {
-                            this.setState({uploadToastMessage:files[i].name+" : "+((p.loaded / p.total) * 100).toFixed(2).concat(" %").toString()})
-                        }
+                            method: "POST", url: data.endpoint + "/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfile",
+                            data: formData,
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                                'token': localStorage.getItem('token'),
+                                'usrtoken': localStorage.getItem('usrtoken')
+                            },
+                            onUploadProgress: (p) => {
+                                this.setState({uploadToastMessage:files[i].name+" : "+((p.loaded / p.total) * 100).toFixed(2).concat(" %").toString()})
+                            }
                         })
                     )
                 }
@@ -652,14 +721,16 @@ export default class DriveV2 extends React.Component {
                     if (this.props.match.params.section === "drive" && this.props.match.params.section_id === "0") {
                         this.setState({
                             rootFiles: gedRes.data.Proprietary.Content.files || [],
-                            folders: gedRes.data.Proprietary.Content.folders || [],
+                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
                             loading: false
                         })
                     } else {
                         let folders = gedRes.data.Proprietary.Content.folders || [];
                         let folder_name = this.getFolderNameById(this.props.match.params.section_id, folders);
                         this.setState({
-                            folders: folders,
+                            folders:  this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                             expanded: this.expandAll(this.props.match.params.section_id, folders),
                             selectedFoldername: folder_name,
@@ -1057,15 +1128,16 @@ export default class DriveV2 extends React.Component {
     }
 
     deleteFile_Folder = (file) => {
+        console.log(file)
         this.setState({loading:true})
-        SmartService.deleteFile(file.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( deleteRes => {
+        SmartService.deleteFile(file.key || file.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( deleteRes => {
             if(deleteRes.succes === true && deleteRes.status === 200){
                 if(file.type) this.reloadGed()
                 else{
                     this.props.history.replace({pathname: '/drive/0'});
                     this.reloadGed()
                 }
-                this.openSnackbar("success",file.type ? file.name+".pdf est supprimé avec succès" : file.name+" est supprimé avec succès")
+                this.openSnackbar("success",file.type ? file.name+".pdf est supprimé avec succès" : file.title+" est supprimé avec succès")
             }else{
                 this.openSnackbar("error",deleteRes.error)
             }
@@ -1077,7 +1149,8 @@ export default class DriveV2 extends React.Component {
 
     renameFile_Folder = (file,newName) => {
         this.setState({loading:true})
-        SmartService.updateFileName({name:newName},file.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+        console.log(file)
+        SmartService.updateFileName({name:newName},file.key || file.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
             if(updateNameRes.succes === true && updateNameRes.status === 200){
                 this.reloadGed()
                 this.openSnackbar("success",file.type ? file.name+".pdf a bien été renommé. Nouveau nom: "+newName+".pdf" : file.name+" a bien été renommé. Nouveau nom: "+newName)
@@ -1090,41 +1163,68 @@ export default class DriveV2 extends React.Component {
         })
     }
 
+    changeStructure = (drive) => {
+        const list = [];
+        for (let i = 0; i < drive.length; i++) {
+            const key = drive[i].id.toString()
+            const treeNode = {
+                title: drive[i].name,
+                key,
+                icon: ({ selected }) => (selected ? <FolderIcon style={{color:"#1a73e8"}} /> : <FolderIcon style={{color:"grey"}} />),
+                files:drive[i].Content.files || []
+            };
+
+            if (drive[i].Content.folders.length > 0) {
+                treeNode.children = this.changeStructure(drive[i].Content.folders);
+            }
+
+            list.push(treeNode);
+        }
+        return list;
+    }
+
+    saveTimeSheet(){
+        let email = localStorage.getItem('email')
+        let timeSheet=this.state.TimeSheet
+        this.state.TimeSheetData.push(timeSheet)
+        firebase.database().ref('/TimeSheet').set(this.state.TimeSheetData)
+    }
+
 
     render() {
-
+        var searchFilter= this.state.societe.filter((soc) => soc.nomSociete.toLowerCase().startsWith(this.state.searchSociete.toLowerCase()))
         return (
             <div>
                 {
                     this.state.firstLoading === false &&
-                        <div>
-                    <TopBar logo={logo} height={70} onClickMenuIcon={() => this.setState({openSideMenu: true})}
-                            onLogoutClick={() => {
-                                localStorage.clear();
-                                this.props.history.push("/login")
-                            }}
-                            textSearch={this.state.textSearch} onChangeSearch={(value) => {
-                        this.setState({textSearch: value})
-                    }}
-                            onRequestSearch={() => {
-                                this.setState({loading: true, showContainerSection: "Drive", focusedItem: "Drive"})
-                                this.props.history.replace({pathname: '/search/' + this.state.textSearch});
-                                SmartService.search(this.state.textSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
-                                    if (searchRes.succes === true && searchRes.status === 200) {
-                                        this.setState({loading: false, searchResult: searchRes.data})
-                                    } else {
-                                        console.log(searchRes.error)
-                                    }
-                                }).catch(err => {
-                                    console.log(err)
-                                })
-                            }}
-                    />
-                            <SideMenu logo={logo} items={data.sideBarItems} iconColor={"blue"} textColor={"#65728E"}
-                                      history={this.props.history}
-                                      opened={this.state.openSideMenu} onClose={() => this.setState({openSideMenu: false})}
-                            />
-                        </div>
+                    <div>
+                        <TopBar logo={logo} height={70} onClickMenuIcon={() => this.setState({openSideMenu: true})}
+                                onLogoutClick={() => {
+                                    localStorage.clear();
+                                    this.props.history.push("/login")
+                                }}
+                                textSearch={this.state.textSearch} onChangeSearch={(value) => {
+                            this.setState({textSearch: value})
+                        }}
+                                onRequestSearch={() => {
+                                    this.setState({loading: true, showContainerSection: "Drive", focusedItem: "Drive"})
+                                    this.props.history.replace({pathname: '/search/' + this.state.textSearch});
+                                    SmartService.search(this.state.textSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
+                                        if (searchRes.succes === true && searchRes.status === 200) {
+                                            this.setState({loading: false, searchResult: searchRes.data})
+                                        } else {
+                                            console.log(searchRes.error)
+                                        }
+                                    }).catch(err => {
+                                        console.log(err)
+                                    })
+                                }}
+                        />
+                        <SideMenu logo={logo} items={data.sideBarItems} iconColor={"blue"} textColor={"#65728E"}
+                                  history={this.props.history}
+                                  opened={this.state.openSideMenu} onClose={() => this.setState({openSideMenu: false})}
+                        />
+                    </div>
                 }
 
                 <MuiBackdrop open={this.state.firstLoading}/>
@@ -1133,11 +1233,11 @@ export default class DriveV2 extends React.Component {
                     <div>
                         <div style={{display: "flex"}}>
 
-                            <div style={{height: "100%"}}>
+                            <div style={{height: 900,overflow:"overlay",minHeight:900,width:300,minWidth:300}}>
                                 {
                                     this.state.firstLoading === false &&
                                     <div>
-                                        <LeftMenu
+                                        <LeftMenuV3
                                             openNewFolderModalFromRacine={() => this.setState({
                                                 newFolderModal: true,
                                                 newFolderFromRacine: true
@@ -1148,7 +1248,7 @@ export default class DriveV2 extends React.Component {
                                                     item === "Rooms" ? this.state.rooms.length > 0 ? this.props.history.replace({pathname: '/rooms/0'}) : this.props.history.replace({pathname: '/rooms/all'}) :
                                                         item === "Meet" ? this.props.history.replace({pathname: '/meet/new'}) :
                                                             item === "Societe" ? this.props.history.replace({pathname: '/societe/all'}) :
-                                                            this.props.history.replace({pathname: '/contacts/all'})
+                                                                this.props.history.replace({pathname: '/contacts/all'})
                                                 this.setState({focusedItem: item, showContainerSection: item})
                                             }}
 
@@ -1163,6 +1263,12 @@ export default class DriveV2 extends React.Component {
 
                                             showSocietyMenuItems={this.state.openSocietyMenuItem}
                                             setShowSocietyMenuItems={() => this.setState({openSocietyMenuItem:!this.state.openSocietyMenuItem})}
+
+                                            showTimeSheet={this.state.openTimeSheetsMenu}
+                                            setShowTimeSheet={() => {
+                                                this.props.history.replace({pathname: '/TimeSheet/activities'});
+                                                this.setState({showContainerSection: "TimeSheet"})
+                                            }}
 
                                             showContacts={this.state.openContactsMenu}
                                             setShowContacts={() => {
@@ -1188,8 +1294,6 @@ export default class DriveV2 extends React.Component {
                                                 this.setState({selectedSocietyMenuItem: nodeIds})
                                             }}
 
-
-
                                             openNewFolderModal={() => this.setState({newFolderModal: true})}
                                             showNewFileScreen={() => this.setState({
                                                 showNewDocScreen: true,
@@ -1200,6 +1304,8 @@ export default class DriveV2 extends React.Component {
                                             }}
 
                                             driveFolders={this.state.folders || []}
+                                            setDriveFolders={(drive) => this.setState({folders:drive})}
+
                                             selectedFolder={this.state.selectedFolder}
                                             setSelectedFolder={(folder) => this.setState({selectedFolder:folder})}
                                             setFolderName={(name) => this.setState({selectedFoldername: name})}
@@ -1207,7 +1313,7 @@ export default class DriveV2 extends React.Component {
                                                 this.props.history.replace({pathname: '/drive/' + id});
                                                 this.setState({
                                                     focusedItem: "Drive",
-                                                    breadcrumbs: this.getBreadcumpsPath(id, this.state.folders.concat(this.state.sharedDrive)),
+                                                    breadcrumbs: this.getBreadcumpsPath(id, this.state.reelFolders.concat(this.state.sharedDrive)),
                                                     selectedFolderId: id,
                                                     showContainerSection: "Drive"
                                                 })
@@ -2082,62 +2188,62 @@ export default class DriveV2 extends React.Component {
                                         }
                                         {
                                             this.state.showContainerSection === "Rooms" && this.state.loading === false &&
-                                                <Rooms rooms={this.state.rooms} selectedRoom={this.state.selectedRoom} contacts={this.state.contacts}
-                                                       openNewRoomModal={() => {
-                                                           this.setState({
-                                                               openNewRoomModal: true
-                                                           })}
-                                                       }
-                                                       addNewtask={(title, assignedTo, team, selectedDateTime) => {
-                                                           let room = this.state.selectedRoom;
-                                                           let tasks = room.tasks || [];
-                                                           tasks.push({
-                                                               title: title,
-                                                               assignedTo: assignedTo,
-                                                               team:team,
-                                                               dateTime:selectedDateTime
+                                            <Rooms rooms={this.state.rooms} selectedRoom={this.state.selectedRoom} contacts={this.state.contacts}
+                                                   openNewRoomModal={() => {
+                                                       this.setState({
+                                                           openNewRoomModal: true
+                                                       })}
+                                                   }
+                                                   addNewtask={(title, assignedTo, team, selectedDateTime) => {
+                                                       let room = this.state.selectedRoom;
+                                                       let tasks = room.tasks || [];
+                                                       tasks.push({
+                                                           title: title,
+                                                           assignedTo: assignedTo,
+                                                           team:team,
+                                                           dateTime:selectedDateTime
+                                                       })
+                                                       room.tasks = tasks;
+                                                       firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
+                                                           room
+                                                       ).then(ok => {
+                                                           this.setState({selectedRoom: room})
+                                                           let emails = [];
+                                                           let teamNames = [];
+                                                           team.map((t,key) => {
+                                                               emails.push(t.email)
+                                                               teamNames.push(t.fname)
                                                            })
-                                                           room.tasks = tasks;
-                                                           firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
-                                                               room
-                                                           ).then(ok => {
-                                                               this.setState({selectedRoom: room})
-                                                               let emails = [];
-                                                               let teamNames = [];
-                                                               team.map((t,key) => {
-                                                                   emails.push(t.email)
-                                                                   teamNames.push(t.fname)
-                                                               })
-                                                               emails.push(assignedTo.email)
-                                                               maillingService.sendCustomMailsWithUrl({
-                                                                   recipients:emails,
-                                                                   subject:"Nouvelle tâche ajoutée ",
-                                                                   msg:"Bonjour, <br> Une tâche avec le nom '"+title+"' vous a été attribué pour la date du "
-                                                                       +selectedDateTime+" .<br><br> <b>Team: </b> "+teamNames.join(", ")+"<br><b>Lead: </b> "+assignedTo.prenom+" "+assignedTo.nom+"<br><br>"
-                                                                       +"Pour plus de détails, merci de consulter votre compte sur OA Legal.<br><br>",
-                                                                   footerMsg:"<br><br> Cordialement<br>L'équipe OA Legal",
-                                                                   linkUrl:"Consulter",
-                                                                   url:"https://smartdom.ch:8035/rooms/"+this.state.selectedRoomKey
-                                                               }).then( ok => {
-                                                                   this.openSnackbar("success","Une notification par mail à été bien envoyé au Lead et au différents membre du Team")
-                                                               }).catch(err => {
-                                                                   this.openSnackbar("error","L'envoi du mail de notification à été échoué ! ")
-                                                               })
+                                                           emails.push(assignedTo.email)
+                                                           maillingService.sendCustomMailsWithUrl({
+                                                               recipients:emails,
+                                                               subject:"Nouvelle tâche ajoutée ",
+                                                               msg:"Bonjour, <br> Une tâche avec le nom '"+title+"' vous a été attribué pour la date du "
+                                                                   +selectedDateTime+" .<br><br> <b>Team: </b> "+teamNames.join(", ")+"<br><b>Lead: </b> "+assignedTo.prenom+" "+assignedTo.nom+"<br><br>"
+                                                                   +"Pour plus de détails, merci de consulter votre compte sur OA Legal.<br><br>",
+                                                               footerMsg:"<br><br> Cordialement<br>L'équipe OA Legal",
+                                                               linkUrl:"Consulter",
+                                                               url:"https://smartdom.ch:8035/rooms/"+this.state.selectedRoomKey
+                                                           }).then( ok => {
+                                                               this.openSnackbar("success","Une notification par mail à été bien envoyé au Lead et au différents membre du Team")
+                                                           }).catch(err => {
+                                                               this.openSnackbar("error","L'envoi du mail de notification à été échoué ! ")
                                                            })
-                                                       }}
-                                                       onDeleteTask={(key) => {
-                                                           let room = this.state.selectedRoom;
-                                                           let tasks = room.tasks;
-                                                           tasks.splice(key,1);
-                                                           room.tasks = tasks;
-                                                           firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
-                                                               room
-                                                           ).then(ok => {
-                                                               this.setState({selectedRoom: room})
-                                                           })
-                                                       }
-                                                       }
-                                                />
+                                                       })
+                                                   }}
+                                                   onDeleteTask={(key) => {
+                                                       let room = this.state.selectedRoom;
+                                                       let tasks = room.tasks;
+                                                       tasks.splice(key,1);
+                                                       room.tasks = tasks;
+                                                       firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
+                                                           room
+                                                       ).then(ok => {
+                                                           this.setState({selectedRoom: room})
+                                                       })
+                                                   }
+                                                   }
+                                            />
                                         }
                                         {
                                             this.state.showContainerSection === "Meet" &&
@@ -4033,6 +4139,434 @@ export default class DriveV2 extends React.Component {
                                                     </div> : null
                                         }
 
+                                        {
+                                            this.state.showContainerSection === "TimeSheet" ?
+
+                                                <div>
+                                                    <div className="row">
+                                                        <div className="col-lg-12">
+                                                            <div style={{textAlign: "right"}}>
+                                                                <button onClick={() => this.setState({
+                                                                    editSocieteForm: false,
+                                                                    showContainerSection: "Societe"
+                                                                })}
+                                                                        className="btn btn-sm btn-outline-info">Retour
+                                                                </button>
+                                                            </div>
+                                                            <div className="card-box text-center"
+                                                                 style={{marginTop: 1}}>
+
+
+
+                                                                <div style={{marginTop: 30}} className="text-left">
+                                                                    <Tabs>
+                                                                        <TabList>
+                                                                            <Tab>Imputation client </Tab>
+                                                                            <Tab>List imputation  </Tab>
+                                                                            <Tab>Imputation team & scheduled time </Tab>
+                                                                            <Tab>New time Entree </Tab>
+                                                                            <Tab>New Expenses </Tab>
+                                                                        </TabList>
+
+                                                                        <TabPanel>
+                                                                            <h5 style={{marginTop: 20,color:"blue"}}>Sélection du client à imputer</h5>
+                                                                            <div className="row border border-primary"
+                                                                                 style={{marginTop: 35}}>
+                                                                                <div className="col-md-4" >
+                                                                                    <input
+                                                                                        className="form-control"
+                                                                                        style={{width:"100%",border:0,marginTop:8}}
+                                                                                        id="search"
+                                                                                        name="search"
+                                                                                        type="text"
+                                                                                        placeholder="Chercher"
+                                                                                        value={this.state.searchSociete}
+                                                                                        onChange={(e)=>{
+                                                                                            this.setState({searchSociete:e.target.value})}}/>
+
+                                                                                </div>
+                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <h5>A-B-C</h5>
+                                                                                </div>
+                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <h5>D-E-F</h5>
+                                                                                </div>
+                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <h5>G-H-I</h5>
+                                                                                </div>
+                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <h5>J-K-L</h5>
+                                                                                </div>
+                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <h5>M-N-O</h5>
+                                                                                </div>
+                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <h5>P-Q-R</h5>
+                                                                                </div>
+                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <h5>S-T-U</h5>
+                                                                                </div>
+                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <h5>W-X-Y-Z</h5>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="row mt-3">
+                                                                                <div className="col-md-3">
+                                                                                    <h5>Nom Sociéte</h5>
+
+                                                                                </div>
+                                                                                <div className="col-md-4">
+                                                                                    <h5>Nom du décideur / email</h5>
+
+                                                                                </div>
+                                                                                <div className="col-md-5">
+                                                                                    <h5>Nom du payeur / email</h5>
+
+                                                                                </div>
+
+                                                                            </div>
+                                                                            <div className="mt-2">
+                                                                                {this.state.searchSociete === "" ?
+                                                                                    <div>
+                                                                                        {this.state.societe.map((item,key)=>(
+                                                                                            <div key={key} className="row mt-2">
+                                                                                                <div className="col-md-3">
+                                                                                                    <div>{item.nomSociete}</div>
+
+                                                                                                </div>
+                                                                                                <div className="col-md-4">
+                                                                                                    <div>{item.nomDecideur+" / "+item.email}</div>
+
+                                                                                                </div>
+                                                                                                <div className="col-md-5">
+                                                                                                    <div>{item.nomPayeur+" / "+item.emailPayeur}</div>
+
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                    :
+                                                                                    <div>
+                                                                                        {
+                                                                                            searchFilter.map((item,key)=>(
+                                                                                                <div key={key} className="row mt-2">
+                                                                                                    <div className="col-md-3">
+                                                                                                        <div>{item.nomSociete}</div>
+
+                                                                                                    </div>
+                                                                                                    <div className="col-md-4">
+                                                                                                        <div>{item.nomDecideur+" / "+item.email}</div>
+
+                                                                                                    </div>
+                                                                                                    <div className="col-md-5">
+                                                                                                        <div>{item.nomPayeur+" / "+item.emailPayeur}</div>
+
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            ))
+                                                                                        }
+                                                                                    </div>
+
+
+
+
+                                                                                }
+
+                                                                            </div>
+
+                                                                        </TabPanel>
+
+                                                                        <TabPanel>
+                                                                            <div className="row align-items-center">
+                                                                                <ButtonGroup aria-label="outlined secondary button group">
+                                                                                    <BT>ALL</BT>
+                                                                                    <BT><img src={time} style={{width:20}}/>Time</BT>
+                                                                                    <BT> <img src={money} style={{width:20}}/>Expense</BT>
+                                                                                </ButtonGroup>
+
+                                                                                <div className="ml-2">
+
+                                                                                    <DatePicker
+                                                                                        calendarIcon={<img src={calendar} style={{width:20}}/> }
+                                                                                        onChange={(e)=>{
+                                                                                            let d = this.state.TimeSheet
+                                                                                            d.newTime.date= e
+                                                                                            this.setState({TimeSheet:d})
+                                                                                        }}
+                                                                                        value={this.state.TimeSheet.newTime.date}
+                                                                                    />
+                                                                                </div>
+                                                                                <div className="ml-1">
+                                                                                    <h5>-</h5>
+                                                                                </div>
+                                                                                <div className="ml-1">
+                                                                                    <DatePicker
+                                                                                        calendarIcon={<img src={calendar} style={{width:20}}/> }
+                                                                                        onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                            d.newTime.date= e
+                                                                                            this.setState({TimeSheet:d})
+                                                                                        }}
+                                                                                        value={this.state.TimeSheet.newTime.date}
+                                                                                    />
+                                                                                </div>
+
+                                                                                <div className="ml-2">
+                                                                                    <ButtonGroup aria-label="outlined secondary button group">
+
+                                                                                        <BT><img src={play}  style={{width:18,transform:'rotate(180deg)'}}/></BT>
+                                                                                        <BT> <img src={play} style={{width:18}}/></BT>
+                                                                                    </ButtonGroup>
+                                                                                </div>
+
+                                                                                <div className="col-md-2 ml-2">
+                                                                                    <MuiSelect
+                                                                                        labelId="demo-simple-select-label"
+                                                                                        id="demo-simple-select"
+                                                                                        style={{width:"100%"}}
+                                                                                        defaultValue={"Custom"}
+
+
+                                                                                    >
+                                                                                        <MenuItem value={"Custom"}>Custom</MenuItem>
+                                                                                        <MenuItem value={"Associé"}>Custom 2</MenuItem>
+                                                                                        <MenuItem value={"Collaborateur"}>Costim 3</MenuItem>
+
+                                                                                    </MuiSelect>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            {
+                                                                                this.state.contacts.length > 0 &&
+                                                                                <TableTimeSheet
+                                                                                    contacts={this.state.TimeSheetData}
+                                                                                    onEditClick={(contact, key) => {
+                                                                                        this.setState({
+                                                                                                selectedSociete: contact,
+                                                                                                selectedSocieteKey: key,
+                                                                                                openRightSocieteModalDetail: true
+                                                                                            }
+                                                                                        )
+                                                                                    }
+                                                                                    }/>
+                                                                            }
+
+
+                                                                        </TabPanel>
+
+                                                                        <TabPanel>
+                                                                        </TabPanel>
+
+                                                                        <TabPanel>
+                                                                            <div className="row">
+                                                                                <div className="col-md-4">
+                                                                                    <div>
+                                                                                        <h5>Durée</h5>
+                                                                                        <div className="row">
+                                                                                            <div className="col-md-6">
+                                                                                                <input
+                                                                                                    className="form-control "
+                                                                                                    id="duree"
+                                                                                                    style={{width:"100%"}}
+                                                                                                    name="duree"
+                                                                                                    type="text"
+                                                                                                    placeholder="Duree"
+                                                                                                    value={this.state.TimeSheet.newTime.duree}
+                                                                                                    onChange={(e)=>{let d=this.state.TimeSheet
+                                                                                                        d.newTime.duree=e.target.value
+                                                                                                        this.setState({TimeSheet:d})}}/>
+
+                                                                                            </div>
+                                                                                            <div className="col-md-6">
+
+
+                                                                                            </div>
+                                                                                        </div>
+
+                                                                                    </div>
+
+
+                                                                                </div>
+                                                                                <div className="col-md-4">
+                                                                                    <div>
+                                                                                        <h5>Sujet</h5>
+                                                                                        <MuiSelect
+                                                                                            labelId="demo-simple-select-label"
+                                                                                            id="demo-simple-select"
+                                                                                            style={{width:"100%"}}
+                                                                                            value={this.state.TimeSheet.newTime.sujet}
+                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                d.newTime.sujet= e.target.value
+                                                                                                this.setState({TimeSheet:d})
+                                                                                            }}
+
+
+                                                                                        >
+                                                                                            <MenuItem value={"Sécretaria"}>Sujet 1</MenuItem>
+                                                                                            <MenuItem value={"Associé"}>Sujet 2</MenuItem>
+                                                                                            <MenuItem value={"Collaborateur"}>Sujet 3</MenuItem>
+
+                                                                                        </MuiSelect>
+                                                                                    </div>
+
+                                                                                </div>
+
+                                                                            </div>
+                                                                            <div className="row mt-3">
+                                                                                <div className="col-md-4">
+                                                                                    <div>
+                                                                                        <h5>Catégories d’activité </h5>
+                                                                                        <MuiSelect
+                                                                                            labelId="demo-simple-select-label"
+                                                                                            id="demo-simple-select"
+                                                                                            style={{width:"100%"}}
+                                                                                            value={this.state.TimeSheet.newTime.categoriesActivite}
+                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                d.newTime.categoriesActivite= e.target.value
+                                                                                                this.setState({TimeSheet:d})
+                                                                                            }}
+
+
+                                                                                        >
+                                                                                            <MenuItem value={"Sécretaria"}>categorie 1</MenuItem>
+                                                                                            <MenuItem value={"Associé"}>categorie 2</MenuItem>
+                                                                                            <MenuItem value={"Collaborateur"}>categorie 3</MenuItem>
+
+                                                                                        </MuiSelect>
+                                                                                    </div>
+
+                                                                                </div>
+                                                                                <div className="col-md-4">
+                                                                                    <div style={{width:"100%"}}>
+                                                                                        <h5>Date</h5>
+                                                                                        <DatePicker
+                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
+                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                d.newTime.date= e
+                                                                                                this.setState({TimeSheet:d})
+                                                                                            }}
+                                                                                            value={this.state.TimeSheet.newTime.date}
+                                                                                        />
+
+                                                                                    </div>
+
+                                                                                </div>
+
+                                                                            </div>
+                                                                            <div className="row mt-3">
+                                                                                <div className="col-md-4">
+                                                                                    <div>
+                                                                                        <div >
+                                                                                            <h5>Description</h5>
+                                                                                        </div>
+                                                                                        <textarea
+                                                                                            className="form-control "
+                                                                                            id="duree"
+                                                                                            style={{width:"100%"}}
+                                                                                            name="duree"
+                                                                                            multiple={true}
+                                                                                            type="text"
+                                                                                            rows={5}
+
+                                                                                            value={this.state.TimeSheet.newTime.description}
+                                                                                            onChange={(e)=>{let d=this.state.TimeSheet
+                                                                                                d.newTime.description=e.target.value
+                                                                                                this.setState({TimeSheet:d})}}/>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="col-md-4">
+                                                                                    <div>
+                                                                                        <h6>Utilisateur chez OA </h6>
+                                                                                    </div>
+
+                                                                                    <MuiSelect
+                                                                                        labelId="demo-mutiple-chip-label"
+                                                                                        id="demo-mutiple-chip"
+
+                                                                                        style={{width:"100%"}}
+                                                                                        value={this.state.TimeSheet.newTime.utilisateurOA}
+                                                                                        onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                            d.newTime.utilisateurOA=e.target.value
+
+                                                                                            this.setState({TimeSheet:d})
+                                                                                        }}
+                                                                                        MenuProps={Data.MenuProps}
+
+
+                                                                                    >
+                                                                                        {this.state.contacts.map((name,key) => (
+                                                                                            <MenuItem key={key} value={name} s>
+                                                                                                <div className="row align-items-center justify-content-center">   <Avatar alt="Natacha" src={name.imageUrl} /> <text >{name.nom + " " + name.prenom}</text></div>
+
+                                                                                            </MenuItem>
+                                                                                        ))}
+                                                                                    </MuiSelect>
+
+                                                                                    <div className="mt-3">
+                                                                                        <h6>
+                                                                                            Rate de facturation
+                                                                                        </h6>
+                                                                                        <Input
+                                                                                            className="form-control "
+                                                                                            id="duree"
+                                                                                            style={{width:"100%"}}
+                                                                                            name="duree"
+                                                                                            type="text"
+                                                                                            endAdornment={<InputAdornment position="end">CHF:Hr</InputAdornment>}
+
+
+                                                                                            value={this.state.TimeSheet.newTime.rateFacturation+""}
+                                                                                            onChange={(e)=>{let d=this.state.TimeSheet
+                                                                                                d.newTime.rateFacturation=e.target.value
+                                                                                                this.setState({TimeSheet:d})}}/>
+
+
+                                                                                    </div>
+                                                                                </div>
+
+                                                                            </div>
+
+                                                                            <div className="row mt-4">
+                                                                                <div className="col-md-3">
+                                                                                    <BT onClick={()=>{this.saveTimeSheet()}} style={{borderRadius:10}} variant="contained" color="primary">
+                                                                                        Enregistrer
+                                                                                    </BT>
+                                                                                </div>
+                                                                                <div className="col-md-3">
+                                                                                    <BT style={{borderRadius:10}} variant="contained" >
+                                                                                        Sauver et créer une autre
+                                                                                    </BT>
+                                                                                </div>
+                                                                                <div className="col-md-3">
+                                                                                    <BT style={{borderRadius:10}} variant="contained" >
+                                                                                        Sauver & dupliquer
+                                                                                    </BT>
+                                                                                </div>
+                                                                                <div className="col-md-3">
+                                                                                    <BT style={{borderRadius:10}} variant="contained" >
+                                                                                        Annuler
+                                                                                    </BT>
+                                                                                </div>
+
+                                                                            </div>
+                                                                        </TabPanel>
+
+                                                                        <TabPanel>
+                                                                        </TabPanel>
+
+
+
+
+                                                                    </Tabs>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>:null
+
+                                        }
 
                                     </div>
                                 </div>

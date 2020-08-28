@@ -1,11 +1,9 @@
 const endpoint = "http://149.202.172.15:3001/api";
-//const endpoint = "http://localhost:3004/api";
-//const endpoint = "http://51.15.229.251:3002/api";
 
-let customEmailService = {
+let maillingService = {
 
-    sendCustomMailWithUrl(data){
-        return fetch(endpoint+'/sendCustomMailWithUrl', {
+    sendCustomMailsWithUrl(data){
+        return fetch(endpoint+'/sendCustomMailsWithUrl', {
             method: 'POST',
             headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
             body: JSON.stringify(data)
@@ -14,20 +12,9 @@ let customEmailService = {
         });
     },
 
-    /*sendSMSToActio(data){
-        console.log(data);
-        return fetch(endpoint+'/sendSMSToActio', {
-            method: 'POST',
-            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },*/
-
 
 
 
 };
 
-export default customEmailService
+export default maillingService;

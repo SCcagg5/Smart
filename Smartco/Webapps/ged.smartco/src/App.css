@@ -989,8 +989,45 @@ select{
 .paraphe_tab_list{
     margin-top: 20px;
 }
-.MuiDialog-paperWidthSm {
+/*.MuiDialog-paperWidthSm {
     min-width: 550px;
     min-height: 620px;
+}*/
+
+.pdf_pges_controls{
+    position: fixed;
+    bottom: 5%;
+    left: 50%;
+    background: white;
+    /* opacity: 0; */
+    transform: translateX(-50%);
+    transition: opacity ease-in-out 0.2s;
+    box-shadow: 0 30px 40px 0 rgba(16, 36, 94, 0.2);
+    border-radius: 4px;
+}
+.pdf_pges_controls button {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border: 0;
+    font: inherit;
+    font-size: 1.3em;
+    border-radius: 4px;
+}
+.pdf_pges_controls button:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.pdf_pges_controls button:last-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.pdf_pges_controls button:enabled:hover, .pdf_pges_controls button:enabled:focus {
+    background-color: #e6e6e6;
+}
+.pdf_pges_controls span {
+    font: inherit;
+    font-size: 1.1em;
+    padding: 0 0.5em;
 }
 
