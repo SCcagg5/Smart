@@ -303,6 +303,33 @@ def ged_sign_sign(cn, nextc):
     err = cn.private["sign"].sign_doc(sign_id, doc_id, cn.pr["x"], cn.pr["y"], cn.pr["h"], cn.pr["w"])
     return cn.call_next(nextc, err)
 
+
+def ged_room_new(cn, nextc):
+    err = check.contain(cn.pr, ["ged", "name", "start"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = room(usr_id=cn.private["ged"].usr_id, ged_id=cn.private["ged"].ged_id).new(cn.pr["name"], cn.pr["start"], cn.pr["end"])
+    return cn.call_next(nextc, err)
+
+def ged_room_all(cn, nextc):
+    err = room(usr_id=cn.private["ged"].usr_id, ged_id=cn.private["ged"].ged_id).all()
+    return cn.call_next(nextc, err)
+
+def ged_room_file_new(cn, nextc):
+    room_id = cn.rt["room"] if "room" in cn.rt else None
+    err = check.contain(cn.pr, ["doc_id"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = room(usr_id=cn.private["ged"].usr_id, ged_id=cn.private["ged"].ged_id, room_id=room_id).add_file(cn.pr["doc_id"])
+    return cn.call_next(nextc, err)
+
+def ged_room_files_get(cn, nextc):
+    room_id = cn.rt["room"] if "room" in cn.rt else None
+    err = room(usr_id=cn.private["ged"].usr_id, ged_id=cn.private["ged"].ged_id, room_id=room_id).all()
+    return cn.call_next(nextc, err)
+
 def odoo_check(cn, nextc):
     odoo_id = cn.rt["odoo"] if "odoo" in cn.rt else None
     cn.private["odoo"] = odoo(usr_id=cn.private["user"].id, odoo_id=odoo_id)

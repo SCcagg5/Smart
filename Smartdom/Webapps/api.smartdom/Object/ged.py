@@ -111,11 +111,19 @@ class sign:
 
 
 class room:
-    def __init__(self, usr_id = -1, ged_id = -1):
+    def __init__(self, usr_id = -1, ged_id = -1, room_id = -1):
         self.usr_id = str(usr_id)
         self.ged_id = str(ged_id)
+        self.room_id = str(room_id)
 
-    def new(name, date_start, duration):
+    def all(self):
+        res = sql.get("SELECT ged_room.name, ged_room.date_start, ged_room.date_end, ged_room.duration, ged_room.date, user.email FROM ged_room INNER JOIN `user` ON `ged_room`.`user_id` = `user`.id ")
+        ret = []
+        for i in res:
+            ret.append({ "name": i[0], "time": {"start": i[1], "end": i[2], "duration": i[3]}}, "date": i[4], "by": i[5])
+        return [True, ret, None]
+
+    def new(self, name, date_start, duration):
         id = str(uuid.uuid4())
         date = str(int(round(time.time() * 1000)))
         if int(duration) < 10:
@@ -129,7 +137,31 @@ class room:
             return [False, "data input error", 500]
         return [True, {"id": id}, None]
 
-    def get_calendar():
+    def files(self):
+        res = sql.get("SELECT `user`.email , ged_room_share.`date`, ged_file.id, ged_file.name, ged_file.type, ged_file.date FROM ged_room_share INNER JOIN `ged_file` ON ged_file.id = ged_room_share.`doc_id` INNER JOIN `user` ON `ged_room_share`.`user_id` = `user`.id WHERE `ged_room_share`.ged_id = %s AND `ged_room_share`.room_id = %s", (self.ged_id, self.room_id))
+        ret = []
+        for i in res:
+            ret.append({
+                "id": i[2], "name": res[0][3], "type": res[0][4], "date": res[0][5],
+                "by": i[0] ,"in": i[1]
+                })
+        return [True, ret, None]
+
+    def add_file(self, doc_id):
+        id = str(uuid.uuid4())
+        date = str(int(round(time.time() * 1000)))
+        fil = file(self.usr_id, self.ged_id)
+        if not file.exist(doc_id):
+            return [False, "File doesn't exist", 404]
+        if not fil.is_admin(doc_id):
+            return [False, "Invalid rights, should be admin", 403]
+        succes = sql.input("INSERT INTO `ged_room_share` (`id`,`ged_id`, `room_id`, `user_id`, `doc_id`, `date`) VALUES (%s, %s, %s, %s, %s, %s)", \
+        (id, self.ged_id, self.room_id, self.usr_id, doc_id, date))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {"id": id}, None]
+
+    def get_calendar(self):
         return []
 
 
@@ -424,9 +456,9 @@ class file:
         (file_id, ))
         return True if len(res) > 0 else False
 
-    def content(self, file_id):
+    def content(self, file_id, over = False):
         ret = {}
-        if self.is_proprietary(file_id):
+        if over or self.is_proprietary(file_id):
             res = sql.get("SELECT `id`, `name`, `date`, `type`, `inside`, `user_id` FROM `ged_file` WHERE id = %s",
             (file_id,))
             if len(res) != 0:
