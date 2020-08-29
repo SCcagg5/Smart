@@ -56,7 +56,7 @@ export default function LeftMenuV3(props) {
     }
     function onDrop(info)  {
         //console.log(info);
-        let driveFolders  = props.driveFolders;
+        /*let driveFolders  = props.driveFolders;
         const dropKey = info.node.props.eventKey;
         const dragKey = info.dragNode.props.eventKey;
         const dropPos = info.node.props.pos.split('-');
@@ -74,7 +74,6 @@ export default function LeftMenuV3(props) {
         };
         const data = [...driveFolders];
 
-        // Find dragObject
         let dragObj;
         loop(data, dragKey, (item, index, arr) => {
             arr.splice(index, 1);
@@ -88,7 +87,8 @@ export default function LeftMenuV3(props) {
                 // where to insert
                 item.children.push(dragObj);
             });
-        } else if (
+        }
+        else if (
             (info.node.props.children || []).length > 0 && // Has children
             info.node.props.expanded && // Is expanded
             dropPosition === 1 // On the bottom gap
@@ -98,7 +98,8 @@ export default function LeftMenuV3(props) {
                 // where to insert
                 item.children.unshift(dragObj);
             });
-        } else {
+        }
+        else {
             let ar;
             let i;
             loop(data, dropKey, (item, index, arr) => {
@@ -112,7 +113,7 @@ export default function LeftMenuV3(props) {
             }
         }
 
-        props.setDriveFolders(data)
+        props.setDriveFolders(data)*/
     }
 
     function onExpand(expandedKeys) {
@@ -122,10 +123,12 @@ export default function LeftMenuV3(props) {
     function onSelect(selectedKeys, info){
         //console.log(info)
         setSelectedKeys(selectedKeys);
-        props.setSelectedFolder(info.node)
-        props.setFolderName(info.node.title)
-        props.setFolderId(info.node.key)
-        props.setSelectedFolderFiles(info.node.files)
+        if(info.node.typeF === "folder"){
+            props.setSelectedFolder(info.node)
+            props.setFolderName(info.node.title)
+            props.setFolderId(info.node.key)
+            props.setSelectedFolderFiles(info.node.files)
+        }
     }
 
 
@@ -210,37 +213,22 @@ export default function LeftMenuV3(props) {
                         onDragEnter={onDragEnter}
                         onDrop={onDrop}
                         treeData={props.driveFolders}
-                        expandAction="click"
+                        expandAction={false}
                         onRightClick={ info => {
-                            setAnchorElMenu(info.event.currentTarget)
-                            props.setSelectedFolder(info.node)
-                            props.setFolderName(info.node.title)
-                            props.setFolderId(info.node.key)
+                            if(info.node.typeF === "folder"){
+                                setAnchorElMenu(info.event.currentTarget)
+                                props.setSelectedFolder(info.node)
+                                props.setFolderName(info.node.title)
+                                props.setFolderId(info.node.key)
+                            }
                         }}
                         expandedKeys={expandedKeys}
                         selectedKeys={selectedKeys}
-
-
+                        onDragStart={ e => {
+                            e.event.dataTransfer.setData("node", JSON.stringify(e.node))
+                        }
+                        }
                     />
-                    /*<GmailTree    data={props.driveFolders || []}
-                                    getFolderName={(name) => props.setFolderName(name)}
-                                    getFolderId={(id) => props.setFolderId(id)}
-                                    getSelectedFolderFiles={(files) => props.setSelectedFolderFiles(files)}
-                                    onEndIconClick={ (event) => {
-                                        if(event){
-                                            event.preventDefault();
-                                            setAnchorElMenu(event.currentTarget)
-                                        }
-                                    }}
-                                    selectedDriveItem={props.selectedDriveItem}
-                                    expandedDriveItems={props.expandedDriveItems}
-                                    getSubfolders={(node) => props.getSubfolders(node)}
-                                    handleToggle={props.handleToggle}
-                                    sharedDrive={props.sharedDrive}
-                                    sharedRootFiles={props.sharedRootFiles}
-                                    onClickSharedRootItem={props.onClickSharedRootItem}
-                                    setSelectedFolder={(folder) => props.setSelectedFolder(folder)}
-                    />*/
 
                 }
                 <Menu
@@ -303,9 +291,9 @@ export default function LeftMenuV3(props) {
                         </ListItemIcon>
                         <Typography variant="inherit">Télécharger</Typography>
                     </MenuItem>
-                    <MenuItem key={7}  onClick={() => {
-                        setAnchorElMenu(null);
-                        setOpenDeleteModal(true)
+                    <MenuItem disabled={true} key={7}  onClick={() => {
+                        /*setAnchorElMenu(null);
+                        setOpenDeleteModal(true)*/
                     }}>
                         <ListItemIcon>
                             <DeleteOutlineIcon fontSize="small" />

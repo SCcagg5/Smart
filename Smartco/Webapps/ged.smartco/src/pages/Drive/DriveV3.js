@@ -98,6 +98,7 @@ import play from"../../assets/icons/play.svg"
 import calendar from"../../assets/icons/calendar.svg"
 import DatePicker from 'react-date-picker';
 import TableTimeSheet from "../../components/Tables/TableTimeSheet";
+import DescriptionIcon from '@material-ui/icons/Description';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
 const checkedIcon = <CheckBoxIcon fontSize="small"/>;
@@ -443,6 +444,8 @@ export default class DriveV3 extends React.Component {
                                                 loading:false
                                             })
                                         } else {
+                                            this.props.history.replace({pathname: '/rooms/all'})
+                                            this.componentDidMount()
                                             console.log("URL ERROR")
                                         }
                                     } else {
@@ -1086,22 +1089,36 @@ export default class DriveV3 extends React.Component {
 
     addNewRoom = (room) => {
         this.setState({loading: true, openNewRoomModal: false})
-        let rooms = this.state.rooms;
-        rooms.push(room);
-        firebase.database().ref('/rooms').set(
-            rooms
-        ).then(res => {
-            this.props.history.replace({pathname: '/rooms/' + (rooms.length - 1)});
-            this.setState({
-                loading: false,
-                newRoomTitle: "",
-                NewRoomEmails: [],
-                selectedRoom: room,
-                selectedRoomKey: (rooms.length - 1),
-                selectedRoomItems: [(rooms.length - 1).toString()]
-            })
-            this.openSnackbar('success', "Room ajouté avec succès");
-        });
+        SmartService.addRoom({name:room.title,start:moment().add("hour",1).unix()*1000,duration:30},
+            localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(addRoomRes => {
+            if(addRoomRes.status === 200 && addRoomRes.succes === true){
+                room.id = addRoomRes.data.id;
+                let rooms = this.state.rooms;
+                rooms.push(room);
+                firebase.database().ref('/rooms').set(
+                    rooms
+                ).then(res => {
+                    this.props.history.replace({pathname: '/rooms/' + (rooms.length - 1)});
+                    this.setState({
+                        loading: false,
+                        newRoomTitle: "",
+                        NewRoomEmails: [],
+                        selectedRoom: room,
+                        selectedRoomKey: (rooms.length - 1),
+                        selectedRoomItems: [(rooms.length - 1).toString()]
+                    })
+                    this.openSnackbar('success', "Room ajouté avec succès");
+                });
+
+            }else{
+                this.setState({loading:false})
+                this.openSnackbar("error",addRoomRes.error)
+            }
+        }).catch(err => {
+            this.setState({loading:false})
+            this.openSnackbar("error",err)
+        })
+
     }
 
 
@@ -1168,14 +1185,18 @@ export default class DriveV3 extends React.Component {
         for (let i = 0; i < drive.length; i++) {
             const key = drive[i].id.toString()
             const treeNode = {
-                title: drive[i].name,
+                title: <div style={{display:"initial",fontFamily:"Cerebri Sans,sans-serif",fontSize:"0.85rem"}}>{drive[i].type ? drive[i].name+".pdf" : drive[i].name}</div> ,
                 key,
-                icon: ({ selected }) => (selected ? <FolderIcon style={{color:"#1a73e8"}} /> : <FolderIcon style={{color:"grey"}} />),
-                files:drive[i].Content.files || []
+                icon: drive[i].type ? <DescriptionIcon style={{color:"red",backgroundColor:"#fff"}} />  :  ({ selected }) => (selected ? <FolderIcon style={{color:"#1a73e8"}} /> : <FolderIcon style={{color:"grey"}} />),
+                files:drive[i].Content ? drive[i].Content.files || [] : [],
+                typeF:drive[i].type ? "file" : "folder"
             };
 
-            if (drive[i].Content.folders.length > 0) {
+            if (drive[i].Content && drive[i].Content.folders.length > 0) {
                 treeNode.children = this.changeStructure(drive[i].Content.folders);
+            }
+            if (drive[i].Content && drive[i].Content.files.length > 0) {
+                treeNode.children = this.changeStructure(drive[i].Content.files);
             }
 
             list.push(treeNode);
@@ -1609,6 +1630,7 @@ export default class DriveV3 extends React.Component {
                                                                         <div className="sk_elupload_drag">
                                                                             <FileUploader
                                                                                 onCancel={() => {
+
                                                                                 }}
 
                                                                                 onDrop={(acceptedFiles, rejectedFiles) => {
@@ -2241,8 +2263,12 @@ export default class DriveV3 extends React.Component {
                                                        ).then(ok => {
                                                            this.setState({selectedRoom: room})
                                                        })
-                                                   }
-                                                   }
+                                                   }}
+                                                   onDropFile={(node) => {
+
+
+                                                   }}
+
                                             />
                                         }
                                         {
@@ -2250,7 +2276,7 @@ export default class DriveV3 extends React.Component {
                                             <div>
                                                 <h4 className="mt-0 mb-1">Meet</h4>
                                                 {
-                                                    this.state.selectedMeetMenuItem === "nm" ?
+                                                    this.state.selectedMeetMenuItem[0] === "new" ?
                                                         <div align="center" style={{marginTop: 200}}>
                                                             <h3>Prêt pour la réunion ?</h3>
                                                             <div style={{display: "inline-flex"}}>

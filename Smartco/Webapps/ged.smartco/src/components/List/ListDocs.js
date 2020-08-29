@@ -21,6 +21,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {Modal, ModalBody, ModalHeader} from "reactstrap";
 import GestureIcon from '@material-ui/icons/Gesture';
+import DescriptionIcon from '@material-ui/icons/Description';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -101,7 +102,7 @@ export default function ListDocs(props) {
                             <div style={{width: 56}}>
                                 <IconButton
                                     color="default">
-                                    <PictureAsPdfIcon
+                                    <DescriptionIcon
                                         style={{
                                             color: "red",
                                             backgroundColor: "#fff"

@@ -28,6 +28,10 @@ import data from "../../data/Data";
 import moment from "moment";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import DialogActions from "@material-ui/core/DialogActions";
+import RoomDocs from "../List/RoomDocs";
+import CircularProgress from '@material-ui/core/CircularProgress';
+import SmartService from "../../provider/SmartService";
+
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -77,10 +81,22 @@ export default function RoomTabs(props) {
     const [anchorElContactsMenu, setAnchorElContactsMenu] = useState(null);
     const [teamCheck1, setTeamCheck1] = useState(false);
     const [teamCheck2, setTeamCheck2] = useState(true);
+    const [loadindFiles, setloadingFiles] = useState(false);
+    const [roomDocs, setRoomDocs] = useState([]);
 
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
+        if(newValue === 1){
+            setloadingFiles(true)
+            SmartService.getRoomFiles(localStorage.getItem("token"),localStorage.getItem("usrtoken"),props.room.id).then( res => {
+                console.log(res)
+                setRoomDocs(res.data)
+                setloadingFiles(false)
+            }).catch(err => {
+                console.log(err)
+            })
+        }
     };
 
     return (
@@ -93,9 +109,44 @@ export default function RoomTabs(props) {
             <TabPanel value={value} index={0}>
                 <div style={{backgroundColor:"#f0f0f0",height:2,marginTop:-2}}/>
             </TabPanel>
+
             <TabPanel value={value} index={1}>
-                <div style={{backgroundColor:"#f0f0f0",height:2,marginTop:-2}}/>
+                {
+                    loadindFiles === true ?
+                    <div align="center" style={{marginTop:80}}>
+                        <CircularProgress color="secondary" />
+                    </div> :
+
+                        <RoomDocs docs={roomDocs} onDocClick={(doc) => {}}
+                                  onDropFile={(node) => {
+                                      console.log(node)
+                                      if(node.typeF === "file"){
+                                          setloadingFiles(true)
+                                          console.log(node.key)
+                                          SmartService.addFileInRoom({doc_id:node.key},props.room.id,
+                                              localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
+                                                  console.log(r)
+                                              SmartService.getRoomFiles(localStorage.getItem("token"),localStorage.getItem("usrtoken"),props.room.id).then( res => {
+                                                  setRoomDocs(res.data)
+                                                  setloadingFiles(false)
+                                              }).catch(err => {
+                                                  console.log(err)
+                                              })
+
+                                          }).catch(err => {
+                                              console.log(err)
+                                          })
+                                      }else{
+                                          alert("Type de fichier erroné !")
+                                      }
+
+                                  }}
+                        />
+                }
+
+
             </TabPanel>
+
             <TabPanel value={value} index={2}>
                 <div style={{backgroundColor:"#f0f0f0",height:2,marginTop:-2}}/>
                 <div style={{marginTop:45}}>

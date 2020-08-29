@@ -31,6 +31,7 @@ export default function Rooms(props) {
                                       props.addNewtask(title, assignedTo, teamEmails, selectedDateTime )
                                   }}
                                   onDeleteTask={(key) => props.onDeleteTask(key) }
+                                  onDropFile={(node) => props.onDropFile(node)}
                         />
                     </div>
             }

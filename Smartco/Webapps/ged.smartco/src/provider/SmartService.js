@@ -114,8 +114,6 @@ let SmartService = {
         });
     },
     share(id,data,token,usrtoken){
-        console.log(id)
-        console.log(data)
         return fetch(endpoint + '/ged/'+OALegalGedId+'/doc/'+id+'/share', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
@@ -134,7 +132,45 @@ let SmartService = {
         });
     },
 
+    /*Rooms*/
 
+    addRoom(data,token,usrtoken){
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/room', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    getAllRooms(token,usrtoken){
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/rooms', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    addFileInRoom(data,roomId,token,usrtoken){
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/rooms/'+roomId+'/file', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    getRoomFiles(token,usrtoken,rommId){
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/rooms/'+rommId+'/files', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
 
 
 
