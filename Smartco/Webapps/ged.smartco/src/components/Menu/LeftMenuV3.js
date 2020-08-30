@@ -18,7 +18,6 @@ import IconButton from "@material-ui/core/IconButton";
 import RoomsMenuItems from "./RoomsMenuItems";
 import PersonAddIcon from "@material-ui/icons/PersonAdd"
 import data from "../../data/Data"
-import GmailTree from "../Tree/GmailTree";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -30,9 +29,12 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import SocietyMenuItems from "./SocietyMenuItems";
 import ContactsMenuItems from "./ContactsMenuItems";
 import '../../assets/css/antDesign.css';
-import { Tree } from 'antd';
+import {Input, Tree} from 'antd';
+import DescriptionIcon from "@material-ui/icons/Description";
+import FolderIcon from "@material-ui/icons/Folder";
 
-const { DirectoryTree } = Tree;
+const {DirectoryTree} = Tree;
+const {Search} = Input;
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -45,16 +47,61 @@ export default function LeftMenuV3(props) {
     const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
     const [openRenameeModal, setOpenRenameModal] = React.useState(false);
     const [newFolderName, setnewFolderName] = React.useState(props.selectedFolder.name);
-    //const [driveFolders, setDriveFolders] = React.useState(props.driveFolders);
     const [expandedKeys, setExpandedKeys] = React.useState(props.selectedDriveItem);
     const [selectedKeys, setSelectedKeys] = React.useState(props.selectedDriveItem);
+    const [searchValue, setSearchValue] = React.useState("");
+    const [autoExpandParent, setAutoExpandParent] = React.useState(true);
 
 
+    const dataList = [];
+    const generateList = data => {
+        for (let i = 0; i < data.length; i++) {
+            const node = data[i];
+            const { key } = node;
+            dataList.push({ key, title: data[i].title });
+            if (node.children) {
+                generateList(node.children);
+            }
+        }
+    };
+    generateList(props.driveFolders)
+
+
+    const  onChange = e => {
+
+        const {value} = e.target;
+        const newExpandedKeys = dataList.map(item => {
+
+                if (item.title.toLowerCase().indexOf(value.toLowerCase()) > -1) {
+                    return getParentKey(item.key, props.driveFolders);
+                }
+                return null;
+            }).filter((item, i, self) => item && self.indexOf(item) === i);
+        setExpandedKeys(newExpandedKeys)
+        setSearchValue(value)
+        setAutoExpandParent(true)
+    }
+
+    const getParentKey = (key, tree) => {
+        let parentKey;
+        for (let i = 0; i < tree.length; i++) {
+            const node = tree[i];
+            if (node.children) {
+                if (node.children.some(item => item.key === key)) {
+                    parentKey = node.key;
+                } else if (getParentKey(key, node.children)) {
+                    parentKey = getParentKey(key, node.children);
+                }
+            }
+        }
+        return parentKey;
+    };
 
     function onDragEnter(info) {
 
     }
-    function onDrop(info)  {
+
+    function onDrop(info) {
         //console.log(info);
         /*let driveFolders  = props.driveFolders;
         const dropKey = info.node.props.eventKey;
@@ -118,12 +165,12 @@ export default function LeftMenuV3(props) {
 
     function onExpand(expandedKeys) {
         setExpandedKeys(expandedKeys);
+        setAutoExpandParent(false)
     }
 
-    function onSelect(selectedKeys, info){
-        //console.log(info)
+    function onSelect(selectedKeys, info) {
         setSelectedKeys(selectedKeys);
-        if(info.node.typeF === "folder"){
+        if (info.node.typeF === "folder") {
             props.setSelectedFolder(info.node)
             props.setFolderName(info.node.title)
             props.setFolderId(info.node.key)
@@ -132,18 +179,54 @@ export default function LeftMenuV3(props) {
     }
 
 
-    return(
+    const loop = data =>
+        data.map(item => {
+            const index = item.title.toLowerCase().indexOf(searchValue.toLowerCase());
+            const beforeStr = item.title.substr(0, index);
+            const searched = item.title.substr(index,searchValue.length)
+            const afterStr = item.title.substr(index + searchValue.length);
+            const title =
+                index > -1 ? (
+                    <span>
+                        {beforeStr}
+                        <span style={{backgroundColor:searchValue !== ""&&"rgb(204, 204, 204)",paddingTop:searchValue !== ""&&"0.4rem",paddingBottom:searchValue !== ""&&"0.4rem"}}>{searched}</span>
+                        {afterStr}
+                    </span>
+                ) : (
+                    <span>{item.title}</span>
+                );
+            if (item.children) {
+                return {
+                    title, key: item.key, children: loop(item.children),
+                    icon: item.icon,
+                    files:item.files,
+                    typeF:item.typeF
+                };
+            }
+
+            return {
+                title,
+                key: item.key,
+                icon: item.icon,
+                files:item.files,
+                typeF:item.typeF
+            };
+        });
 
 
-        <div style={{marginTop: 20,paddingRight:10}}>
+    return (
+
+
+
+        <div style={{marginTop: 20, paddingRight: 10}}>
             <div align="center">
 
                 <MuiButton
                     variant="contained"
                     color="default"
-                    startIcon={<AddIcon style={{color:"#A00015",fontSize:28}} />}
+                    startIcon={<AddIcon style={{color: "#A00015", fontSize: 28}}/>}
                     size="large"
-                    style={{textTransform:"none",borderRadius:20,backgroundColor:"#fff",color:"#000"}}
+                    style={{textTransform: "none", borderRadius: 20, backgroundColor: "#fff", color: "#000"}}
                     onClick={(event) => setAnchorEl(event.currentTarget)}
                 >
                     Nouveau
@@ -156,25 +239,25 @@ export default function LeftMenuV3(props) {
                     open={Boolean(anchorEl)}
                     onClose={() => setAnchorEl(null)}
                 >
-                    <MenuItem key={1}  onClick={() => {
+                    <MenuItem key={1} onClick={() => {
                         setAnchorEl(null);
                         props.openNewFolderModalFromRacine()
-                    }}  >
+                    }}>
                         <ListItemIcon>
-                            <NewFolderIcon fontSize="small" />
+                            <NewFolderIcon fontSize="small"/>
                         </ListItemIcon>
                         <Typography variant="inherit">Nouveau dossier</Typography>
                     </MenuItem>
-                    <MenuItem key={2}  onClick={() => {
+                    <MenuItem key={2} onClick={() => {
                         setAnchorEl(null);
                         props.onClickNewFileFromRacine()
                     }}>
                         <ListItemIcon>
-                            <NewFileIcon fontSize="small" />
+                            <NewFileIcon fontSize="small"/>
                         </ListItemIcon>
                         <Typography variant="inherit">Importer un fichier</Typography>
                     </MenuItem>
-                    <MenuItem key={3}  onClick={() => {
+                    <MenuItem key={3} onClick={() => {
                         setAnchorEl(null);
                         props.onClickImportFolder()
                     }}>
@@ -187,48 +270,54 @@ export default function LeftMenuV3(props) {
 
             </div>
 
-            <div style={{marginTop:25, marginLeft: 5}}>
+            <div style={{marginTop: 25, marginLeft: 5}}>
 
-                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Drive" ? "aliceblue":""}} onDoubleClick={() => {
-                    props.setShowDriveMenuItems()
-                }} onClick={() => {props.setFocusedItem("Drive")}}
+                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Drive" ? "aliceblue" : ""}}
+                     onDoubleClick={() => {
+                         props.setShowDriveMenuItems()
+                     }} onClick={() => {
+                    props.setFocusedItem("Drive")
+                }}
                 >
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
-                    <div style={{display:"flex"}}>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                    <div style={{display: "flex"}}>
                         {
                             props.showDriveMenuItems === true ?
-                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                         }
-                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Mon Drive</Typography>
+                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Mon Drive</Typography>
                     </div>
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                 </div>
                 {
                     props.showDriveMenuItems === true &&
-                    <DirectoryTree
-                        draggable
-                        showIcon={true}
-                        onExpand={onExpand}
-                        onSelect={onSelect}
-                        onDragEnter={onDragEnter}
-                        onDrop={onDrop}
-                        treeData={props.driveFolders}
-                        expandAction={false}
-                        onRightClick={ info => {
-                            if(info.node.typeF === "folder"){
-                                setAnchorElMenu(info.event.currentTarget)
-                                props.setSelectedFolder(info.node)
-                                props.setFolderName(info.node.title)
-                                props.setFolderId(info.node.key)
-                            }
-                        }}
-                        expandedKeys={expandedKeys}
-                        selectedKeys={selectedKeys}
-                        onDragStart={ e => {
-                            e.event.dataTransfer.setData("node", JSON.stringify(e.node))
-                        }
-                        }
-                    />
+                    <div>
+                        <Search style={{marginBottom: 8}} placeholder="Chercher" onChange={onChange}/>
+                        <DirectoryTree
+                            draggable
+                            showIcon={true}
+                            onExpand={onExpand}
+                            onSelect={onSelect}
+                            onDragEnter={onDragEnter}
+                            onDrop={onDrop}
+                            treeData={loop(props.driveFolders)}
+                            expandAction={false}
+                            onRightClick={info => {
+                                if (info.node.typeF === "folder") {
+                                    setAnchorElMenu(info.event.currentTarget)
+                                    props.setSelectedFolder(info.node)
+                                    props.setFolderName(info.node.title)
+                                    props.setFolderId(info.node.key)
+                                }
+                            }}
+                            expandedKeys={expandedKeys}
+                            selectedKeys={selectedKeys}
+                            onDragStart={e => {
+                                e.event.dataTransfer.setData("node", JSON.stringify(e.node))
+                            }}
+                            autoExpandParent={autoExpandParent}
+                        />
+                    </div>
 
                 }
                 <Menu
@@ -238,65 +327,65 @@ export default function LeftMenuV3(props) {
                     open={Boolean(anchorElMenu)}
                     onClose={() => setAnchorElMenu(null)}
                 >
-                    <MenuItem key={1}  onClick={() => {
+                    <MenuItem key={1} onClick={() => {
                         setAnchorElMenu(null);
                         props.openNewFolderModal()
-                    }}  >
+                    }}>
                         <ListItemIcon>
-                            <NewFolderIcon fontSize="small" />
+                            <NewFolderIcon fontSize="small"/>
                         </ListItemIcon>
                         <Typography variant="inherit">Nouveau dossier</Typography>
                     </MenuItem>
-                    <MenuItem key={2}  onClick={() => {
+                    <MenuItem key={2} onClick={() => {
                         setAnchorElMenu(null);
                         props.showNewFileScreen()
                     }}>
                         <ListItemIcon>
-                            <NewFileIcon fontSize="small" />
+                            <NewFileIcon fontSize="small"/>
                         </ListItemIcon>
                         <Typography variant="inherit">Nouveau fichier</Typography>
                     </MenuItem>
-                    <MenuItem key={3}  onClick={() => {
+                    <MenuItem key={3} onClick={() => {
                         setAnchorElMenu(null);
                         props.openShareModal()
                     }}>
                         <ListItemIcon>
-                            <PersonAddIcon fontSize="small" />
+                            <PersonAddIcon fontSize="small"/>
                         </ListItemIcon>
                         <Typography variant="inherit">Partager</Typography>
                     </MenuItem>
-                    <MenuItem key={4}  onClick={() => {
+                    <MenuItem key={4} onClick={() => {
 
                     }}>
                         <ListItemIcon>
-                            <StarBorderIcon fontSize="small" />
+                            <StarBorderIcon fontSize="small"/>
                         </ListItemIcon>
                         <Typography variant="inherit">Ajouter aux favoris</Typography>
                     </MenuItem>
-                    <MenuItem key={5}  onClick={() => {
+                    <MenuItem key={5} onClick={() => {
                         setAnchorElMenu(null);
                         setOpenRenameModal(true);
                         setnewFolderName(props.selectedFolder.title)
                     }}>
                         <ListItemIcon>
-                            <EditIcon fontSize="small" />
+                            <EditIcon fontSize="small"/>
                         </ListItemIcon>
                         <Typography variant="inherit">Rennomer</Typography>
                     </MenuItem>
-                    <MenuItem key={6}  onClick={() => {
+                    <MenuItem key={6} onClick={() => {
 
                     }}>
                         <ListItemIcon>
-                            <GetAppIcon fontSize="small" />
+                            <GetAppIcon fontSize="small"/>
                         </ListItemIcon>
                         <Typography variant="inherit">Télécharger</Typography>
                     </MenuItem>
-                    <MenuItem disabled={true} key={7}  onClick={() => {
+                    <MenuItem disabled={true} key={7} onClick={() => {
                         /*setAnchorElMenu(null);
                         setOpenDeleteModal(true)*/
                     }}>
                         <ListItemIcon>
-                            <DeleteOutlineIcon fontSize="small" />
+                            <DeleteOutlineIcon fontSize="small"/>
                         </ListItemIcon>
                         <Typography variant="inherit">Supprimer</Typography>
                     </MenuItem>
@@ -310,23 +399,27 @@ export default function LeftMenuV3(props) {
                     aria-labelledby="alert-dialog-slide-title"
                     aria-describedby="alert-dialog-slide-description"
                 >
-                    <DialogTitle id="alert-dialog-slide-title" style={{width:"90%"}}>{"Voulez-vous vraiment supprimer ce dossier ?"}</DialogTitle>
+                    <DialogTitle id="alert-dialog-slide-title"
+                                 style={{width: "90%"}}>{"Voulez-vous vraiment supprimer ce dossier ?"}</DialogTitle>
                     <DialogContent>
-                        <div align="center" style={{marginTop:5,marginBottom:5}}>
+                        <div align="center" style={{marginTop: 5, marginBottom: 5}}>
                             <div className="avatar-lg rounded-circle bg-soft-danger border-danger">
-                                <i className="mdi mdi-close-circle-outline avatar-title text-danger" style={{fontSize:42}}/>
+                                <i className="mdi mdi-close-circle-outline avatar-title text-danger"
+                                   style={{fontSize: 42}}/>
                             </div>
                         </div>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setOpenDeleteModal(false)} color="default" style={{textTransform:"Capitalize",fontWeight:"bold"}}>
+                        <Button onClick={() => setOpenDeleteModal(false)} color="default"
+                                style={{textTransform: "Capitalize", fontWeight: "bold"}}>
                             Annuler
                         </Button>
                         <Button onClick={() => {
                             setOpenDeleteModal(false)
                             props.onDeleteFolder()
                         }}
-                                color="secondary" style={{textTransform:"Capitalize",fontWeight:"bold"}} variant="contained">
+                                color="secondary" style={{textTransform: "Capitalize", fontWeight: "bold"}}
+                                variant="contained">
                             Confirmer
                         </Button>
                     </DialogActions>
@@ -337,14 +430,16 @@ export default function LeftMenuV3(props) {
                            setOpenRenameModal(false)
                        }}
                 >
-                    <ModalHeader toggle={() => {setOpenRenameModal(false)}} >
+                    <ModalHeader toggle={() => {
+                        setOpenRenameModal(false)
+                    }}>
                         Rennomer
                     </ModalHeader>
                     <ModalBody>
 
                         <div style={{marginTop: 20}}>
                             <input className="form-control" placeholder="Rennomer" value={newFolderName}
-                                   onChange={event => setnewFolderName(event.target.value)} style={{height:40}}
+                                   onChange={event => setnewFolderName(event.target.value)} style={{height: 40}}
                                    type="text"
                             />
                         </div>
@@ -371,128 +466,141 @@ export default function LeftMenuV3(props) {
                     </ModalBody>
                 </Modal>
 
-                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Rooms" ? "aliceblue":""}} onClick={() => {
-                    props.setShowRoomsMenuItems()
-                    props.setFocusedItem("Rooms")
-                }}
+                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Rooms" ? "aliceblue" : ""}}
+                     onClick={() => {
+                         props.setShowRoomsMenuItems()
+                         props.setFocusedItem("Rooms")
+                     }}
                 >
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
-                    <div style={{display:"flex"}}>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                    <div style={{display: "flex"}}>
                         {
                             props.showRoomsMenuItems === true ?
-                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                         }
-                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Rooms</Typography>
+                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Rooms</Typography>
 
-                        <IconButton style={{marginLeft:160,marginTop:-10}} onClick={(event) => {
+                        <IconButton style={{marginLeft: 160, marginTop: -10}} onClick={(event) => {
                             event.stopPropagation()
                             props.onClickAddRoomBtn()
                         }}>
-                            <AddIcon />
+                            <AddIcon/>
                         </IconButton>
 
                     </div>
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginBottom:10}}/>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginBottom: 10}}/>
                 </div>
                 {
                     props.showRoomsMenuItems === true &&
                     <div>
                         <RoomsMenuItems items={props.rooms} selectedRoomItems={props.selectedRoomItems}
-                                        expandedRoomItems={props.expandedRoomItems} handleToggleRoomsMenu={props.handleToggleRoomsMenu}
+                                        expandedRoomItems={props.expandedRoomItems}
+                                        handleToggleRoomsMenu={props.handleToggleRoomsMenu}
                                         handleSelectRoomsMenu={props.handleSelectRoomsMenu}
-                                        setSelectedRoom={(room,roomId) => props.setSelectedRoom(room,roomId)}
+                                        setSelectedRoom={(room, roomId) => props.setSelectedRoom(room, roomId)}
                         />
                     </div>
                 }
 
 
-
-                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Meet" ? "aliceblue":""}} onClick={() => {
-                    props.setShowMeetMenuItems()
-                    props.setFocusedItem("Meet")
-                }}
+                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Meet" ? "aliceblue" : ""}}
+                     onClick={() => {
+                         props.setShowMeetMenuItems()
+                         props.setFocusedItem("Meet")
+                     }}
                 >
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
-                    <div style={{display:"flex"}}>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                    <div style={{display: "flex"}}>
                         {
                             props.showMeetMenuItems === true ?
-                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                         }
-                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Meet</Typography>
+                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Meet</Typography>
                     </div>
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                 </div>
                 {
                     props.showMeetMenuItems === true &&
                     <div>
                         <MeetMenuItems items={data.MeetMenuItem} selectedMeetItem={props.selectedMeetItem}
-                                       onClick={(nodeId) => {props.onMeetItemClick(nodeId)}} handleSelectMeetMenu={props.handleSelectMeetMenu}
+                                       onClick={(nodeId) => {
+                                           props.onMeetItemClick(nodeId)
+                                       }} handleSelectMeetMenu={props.handleSelectMeetMenu}
                         />
                     </div>
 
                 }
-                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Contacts" ? "aliceblue":""}} onClick={() => {
-                    props.setFocusedItem("Contacts")
-                    props.setShowContacts()
-                }}
+                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Contacts" ? "aliceblue" : ""}}
+                     onClick={() => {
+                         props.setFocusedItem("Contacts")
+                         props.setShowContacts()
+                     }}
                 >
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
-                    <div style={{display:"flex"}}>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                    <div style={{display: "flex"}}>
                         {
                             props.showContacts === true ?
-                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                         }
-                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Contacts</Typography>
+                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Contacts</Typography>
                     </div>
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                 </div>
                 {
                     props.showContacts === true &&
                     <div>
-                        <ContactsMenuItems items={data.ContactsMenuItem} selectedContactsItem={props.selectedContactsItem}
-                                           onClick={(nodeId) => {props.onContactsItemClick(nodeId)}} handleSelectContactsMenu={props.handleSelectContactsMenu}
+                        <ContactsMenuItems items={data.ContactsMenuItem}
+                                           selectedContactsItem={props.selectedContactsItem}
+                                           onClick={(nodeId) => {
+                                               props.onContactsItemClick(nodeId)
+                                           }} handleSelectContactsMenu={props.handleSelectContactsMenu}
                         />
                     </div>
 
                 }
-                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Societe" ? "aliceblue":""}} onClick={() => {
-                    props.setShowSocietyMenuItems()
-                    props.setFocusedItem("Societe")
-                }}
+                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Societe" ? "aliceblue" : ""}}
+                     onClick={() => {
+                         props.setShowSocietyMenuItems()
+                         props.setFocusedItem("Societe")
+                     }}
                 >
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
-                    <div style={{display:"flex"}}>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                    <div style={{display: "flex"}}>
                         {
                             props.showSociete === true ?
-                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                         }
-                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Annuaire societés</Typography>
+                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Annuaire
+                            societés</Typography>
                     </div>
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                 </div>
                 {
                     props.showSocietyMenuItems === true &&
                     <div>
                         <SocietyMenuItems items={data.SocietyMenuItem} selectedSocietyItem={props.selectedSocietyItem}
-                                          onClick={(nodeId) => {props.onSocietyItemClick(nodeId)}} handleSelectSocietyMenu={props.handleSelectSocietyMenu}
+                                          onClick={(nodeId) => {
+                                              props.onSocietyItemClick(nodeId)
+                                          }} handleSelectSocietyMenu={props.handleSelectSocietyMenu}
                         />
                     </div>
 
                 }
-                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "TimeSheet" ? "aliceblue":""}} onClick={() => {
-                    props.setFocusedItem("TimeSheet")
-                    props.setShowTimeSheet()
-                }}
+                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "TimeSheet" ? "aliceblue" : ""}}
+                     onClick={() => {
+                         props.setFocusedItem("TimeSheet")
+                         props.setShowTimeSheet()
+                     }}
                 >
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
-                    <div style={{display:"flex"}}>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                    <div style={{display: "flex"}}>
                         {
                             props.showTimeSheet === true ?
-                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                         }
-                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Time Sheet</Typography>
+                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Time Sheet</Typography>
                     </div>
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                 </div>
 
             </div>

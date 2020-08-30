@@ -398,7 +398,8 @@ export default class DriveV3 extends React.Component {
                                         })
                                     }
 
-                                } else if (this.props.match.params.section === "rooms") {
+                                }
+                                else if (this.props.match.params.section === "rooms") {
 
                                     if (this.props.match.params.section_id === "all") {
                                         if (rooms.length > 0) this.props.history.replace({pathname: '/rooms/0'});
@@ -452,7 +453,8 @@ export default class DriveV3 extends React.Component {
                                         console.log("URL ERROR")
                                     }
 
-                                } else if (this.props.match.params.section === "meet") {
+                                }
+                                else if (this.props.match.params.section === "meet") {
 
                                     if (this.props.match.params.section_id === "new") {
                                         this.setState({
@@ -495,7 +497,8 @@ export default class DriveV3 extends React.Component {
                                     } else {
                                         console.log("URL ERROR")
                                     }
-                                } else if (this.props.match.params.section === "contacts") {
+                                }
+                                else if (this.props.match.params.section === "contacts") {
                                     if (this.props.match.params.section_id === "all" || this.props.match.params.section_id === "aia" || this.props.match.params.section_id === "ae" ) {
                                         this.setState({
                                             showContainerSection: "Contacts",
@@ -517,7 +520,8 @@ export default class DriveV3 extends React.Component {
                                         console.log("URL ERROR")
                                     }
 
-                                }else if(this.props.match.params.section === "societe") {
+                                }
+                                else if(this.props.match.params.section === "societe") {
                                     if (this.props.match.params.section_id === "all") {
                                         this.setState({
                                             showContainerSection: "Societe",
@@ -538,7 +542,8 @@ export default class DriveV3 extends React.Component {
                                     } else {
                                         console.log("URL ERROR")
                                     }
-                                }else if(this.props.match.params.section === "TimeSheet") {
+                                }
+                                else if(this.props.match.params.section === "TimeSheet") {
                                     if (this.props.match.params.section_id === "activities") {
                                         this.setState({
                                             showContainerSection: "TimeSheet",
@@ -560,7 +565,8 @@ export default class DriveV3 extends React.Component {
                                         console.log("URL ERROR")
                                     }
 
-                                } else if (this.props.match.params.section === "search") {
+                                }
+                                else if (this.props.match.params.section === "search") {
                                     if (this.props.match.params.section_id) {
                                         let textToSearch = this.props.match.params.section_id;
                                         SmartService.search(textToSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
@@ -589,9 +595,13 @@ export default class DriveV3 extends React.Component {
                                         })
 
                                     }
-                                } else {
-                                    console.log("URL ERROR")
                                 }
+                                else {
+                                    console.log("URL ERROR")
+                                    this.props.history.replace({pathname: '/drive/0'});
+                                    this.componentDidMount()
+                                }
+
 
 
                             }).catch(err => {
@@ -1185,7 +1195,7 @@ export default class DriveV3 extends React.Component {
         for (let i = 0; i < drive.length; i++) {
             const key = drive[i].id.toString()
             const treeNode = {
-                title: <div style={{display:"initial",fontFamily:"Cerebri Sans,sans-serif",fontSize:"0.85rem"}}>{drive[i].type ? drive[i].name+".pdf" : drive[i].name}</div> ,
+                title: drive[i].type ? drive[i].name+".pdf" : drive[i].name ,
                 key,
                 icon: drive[i].type ? <DescriptionIcon style={{color:"red",backgroundColor:"#fff"}} />  :  ({ selected }) => (selected ? <FolderIcon style={{color:"#1a73e8"}} /> : <FolderIcon style={{color:"grey"}} />),
                 files:drive[i].Content ? drive[i].Content.files || [] : [],
