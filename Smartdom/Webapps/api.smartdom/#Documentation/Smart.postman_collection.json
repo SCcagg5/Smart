@@ -2852,7 +2852,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2883,7 +2883,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2952,7 +2952,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2984,7 +2984,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3025,7 +3025,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"pass\": \"{{password}}\"\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3070,6 +3070,394 @@
 								"odoo",
 								"test",
 								"company"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/company Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"data\": {\"test\": 1}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/bill",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"bill"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/product_id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/product_id?offset=0&limit=10",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"product_id"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/product",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/product?id=1",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"product"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/tax_id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/tax_id",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"tax_id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/tax",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/tax?id=13",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"tax"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "13"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/payment_term_id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/payment_term_id",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"payment_term_id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/payment_term",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/payment_term?id=1",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"payment_term"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/product_category_id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/product_category_id",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"product_category_id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/product_category",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/product_category?id=2",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"product_category"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/bill_id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/bill_id",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"bill_id"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/bill",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/bill?id=1",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"bill"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
 							]
 						}
 					},
@@ -3667,17 +4055,17 @@
 	],
 	"variable": [
 		{
-			"id": "fc7309fa-b864-4719-bf71-7123116676d7",
+			"id": "51f2ef8d-8800-49d3-a18e-a6fb873036f8",
 			"key": "url",
 			"value": "api.localhost"
 		},
 		{
-			"id": "75ae4391-1c71-483f-b9f8-0b0d5a05a0cd",
+			"id": "29988ed4-af0d-46f2-ad5d-db9a2bc0f274",
 			"key": "password",
 			"value": "password"
 		},
 		{
-			"id": "54f508f0-0e08-4d12-ae95-bce8a9ef4c01",
+			"id": "58cacac1-91ce-4c5a-b9a8-d0468418a627",
 			"key": "method",
 			"value": "http://"
 		}
