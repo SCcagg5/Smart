@@ -33,6 +33,11 @@ let Data = {
 
     SocietyMenuItem : [
         {
+            nodeId:"clients_mondat",
+            title:"Client (Mandat)",
+            icon:HomeWorkIcon
+        },
+        {
             nodeId:"prospAc",
             title:"Prospect à contacter",
             icon:HomeWorkIcon
@@ -41,12 +46,7 @@ let Data = {
             nodeId:"prospEc",
             title:"Prospect en cours",
             icon:HomeWorkIcon
-        },
-        {
-            nodeId:"clientM",
-            title:"Client (Mandat)",
-            icon:HomeWorkIcon
-        },
+        }
     ],
 
     ContactsMenuItem : [
@@ -213,6 +213,16 @@ let Data = {
                 width: 250,
             },
         },
-    }
+    },
+    secteurs:[
+        "","bancaire","Corporate","FinTech","Litige","Droit de bail","Droit du travail"
+    ],
+    contactTypes:[
+        {value:"",label:""},
+        {value:"Company",label:"Société"},
+        {value:"Person",label:"Personne physique"},
+        {value:"Association",label:"Association"},
+        {value:"Fondation",label:"Fondation"},
+    ]
 }
 export default Data;

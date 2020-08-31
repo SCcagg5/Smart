@@ -1031,3 +1031,14 @@ select{
     padding: 0 0.5em;
 }
 
+.over-search-lettre:hover{
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: underline;
+}
+.over-search-lettre-selected{
+    cursor: pointer;
+    color: #f50;
+    text-decoration: underline;
+    font-weight: bold;
+}

@@ -12,10 +12,19 @@ import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
-import defaultAvatar from "../../assets/images/users/default_avatar.jpg";
-import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
+import userAvatar from "../../assets/images/users/user4.jpg";
+import entIcon from "../../assets/images/entreprise-icon.png";
 import EditIcon from "@material-ui/icons/Edit";
 import TableHead from '@material-ui/core/TableHead';
+import { Collapse } from 'antd';
+import { CaretRightOutlined } from '@ant-design/icons';
+import countryList from "../../tools/countryList";
+import Select from 'react-select';
+import FolderIcon from '@material-ui/icons/Folder';
+import Data from "../../data/Data";
+
+
+const { Panel } = Collapse;
 
 const useStyles1 = makeStyles((theme) => ({
     root: {
@@ -91,10 +100,26 @@ const useStyles2 = makeStyles({
 export default function TableSociete(props) {
 
     const classes = useStyles2();
+
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [textSearch, setTextSearch] = React.useState("");
+    const [searchByType, setSearchByType] = React.useState("");
+    const [searchBySector, setSearchBySector] = React.useState("");
+    const [searchByPays, setSearchByPays] = React.useState("");  
+    const [searchByLead, setSearchByLead] = React.useState("");
+    const [selectedSearchLettre, setSelectedSearchLettre] = React.useState("");
 
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, props.societes.length - page * rowsPerPage);
+    const searchFilter= props.societes.filter((annuaire) => (  annuaire.ContactName.toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
+                                                               annuaire.ContactName.toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
+        (annuaire.ContactType === searchByType || searchByType === "") &&
+        ((annuaire.secteur && annuaire.secteur === searchBySector)  || searchBySector === "" ) &&
+        ((annuaire.PrimaryAddressCountry && annuaire.PrimaryAddressCountry === searchByPays)  || searchByPays === "" ) &&
+        ((annuaire.facturation && annuaire.facturation.collaborateur_lead === searchByLead)  || searchByLead === "" )
+
+    ))
+
+    const emptyRows = rowsPerPage - Math.min(rowsPerPage, searchFilter - page * rowsPerPage);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -105,84 +130,303 @@ export default function TableSociete(props) {
         setPage(0);
     };
 
-    return (
-        <Table className={classes.table} aria-label="custom pagination table">
-            <TableHead>
-                <TableRow>
-                    <TableCell align="center" style={{width:"25%",fontWeight:600}}>Nom de la societé</TableCell>
-                    <TableCell align="center" style={{width:"25%",fontWeight:600}}>Secteur</TableCell>
-                    <TableCell align="center" style={{width:"30%",fontWeight:600}}>Siege Social</TableCell>
-                    <TableCell align="center" style={{width:"20%",fontWeight:600}}>Action</TableCell>
-                </TableRow>
-            </TableHead>
-                <TableBody>
-                    {(rowsPerPage > 0 ? props.societes.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : props.societes).map((row,key) => (
-                        <TableRow key={key}>
-                            <TableCell component="th" scope="row" style={{width:"25%"}}>
-                                <div
-                                    className="media align-items-center">
-                                    <img
-                                        className=" rounded-circle text-center"
-                                        style={{
-                                            width: 60,
-                                            height: 60,
-                                            objectFit: "cover"
-                                        }}
-                                        src={row.imageUrl || defaultAvatar}
-                                        alt=""/>
+    const contactSelectOptions=[];
+    contactSelectOptions.push({label:"Aucun",value:""})
+    props.contacts.map((contact,key) => {
+        contactSelectOptions.push({value:contact.email,
+            label:<div><img alt="" src={contact.imageUrl || null} style={{width:30,height:30,objectFit:"cover"}}/>{" "}{contact.nom+" "+contact.prenom}</div>
+        })
+    })
 
-                                    <div className="ml-1"
-                                         style={{
-                                             color: "#000",
-                                             fontFamily: "sans-serif",
-                                             fontWeight: 600,
-                                             fontSize: 12
-                                         }}>{row.nomSociete}
+
+
+    return (
+        <div>
+            <h4 className="mt-0 mb-1">Clients (Mondat)</h4>
+            <div className="row mt-3">
+                <div className="col-xl-12">
+                    <div className="row">
+                        <div className="col">
+                            <div className="page-title-box">
+                                <div className="row ">
+                                    <div
+                                        className="col-md-2 bg-danger text-center "
+                                        style={{width: "10%"}}>
+                                        <h4 style={{color: "white"}}>OA Legal</h4>
+                                    </div>
+                                    <hr style={{
+                                        backgroundColor: "#a6a6a6",
+                                        height: "2px",
+                                        borderStyle: "solid",
+                                        color: "red",
+                                        width: "80%"
+                                    }}/>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{marginTop:20}}>
+                        <Collapse
+                            bordered={false}
+                            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+                            className="site-collapse-custom-collapse"
+                        >
+                            <Panel header="Recherche avancée" key="1" className="site-collapse-custom-panel">
+                                <div className="row" style={{border:"2px solid #dee2e6"}}>
+                                    <div className="col-md-3" >
+                                        <input
+                                            className="form-control"
+                                            style={{width:"100%",border:0}}
+                                            id="search"
+                                            name="search"
+                                            type="text"
+                                            placeholder="Chercher par nom"
+                                            value={textSearch}
+                                            onChange={(e)=>  setTextSearch(e.target.value) }/>
+
+                                    </div>
+                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1,display:"flex"}}>
+                                        {
+                                            ["A","B","C"].map((l,key) =>
+                                                <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
+                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    {l}{key < 2 && "-"}
+                                                </h5>
+                                            )
+                                        }
+                                    </div>
+                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1,display:"flex"}}>
+                                        {
+                                            ["D","E","F"].map((l,key) =>
+                                                <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
+                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    {l}{key < 2 && "-"}
+                                                </h5>
+                                            )
+                                        }
+                                    </div>
+                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1,display:"flex"}}>
+                                        {
+                                            ["G","H","I"].map((l,key) =>
+                                                <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
+                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    {l}{key < 2 && "-"}
+                                                </h5>
+                                            )
+                                        }
+                                    </div>
+                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1,display:"flex"}}>
+                                        {
+                                            ["J","K","L"].map((l,key) =>
+                                                <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
+                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    {l}{key < 2 && "-"}
+                                                </h5>
+                                            )
+                                        }
+                                    </div>
+                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1,display:"flex"}}>
+                                        {
+                                            ["M","N","O"].map((l,key) =>
+                                                <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
+                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    {l}{key < 2 && "-"}
+                                                </h5>
+                                            )
+                                        }
+                                    </div>
+                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1,display:"flex"}}>
+                                        {
+                                            ["P","Q","R"].map((l,key) =>
+                                                <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
+                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    {l}{key < 2 && "-"}
+                                                </h5>
+                                            )
+                                        }
+                                    </div>
+                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1,display:"flex"}}>
+                                        {
+                                            ["S","T","U"].map((l,key) =>
+                                                <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
+                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    {l}{key < 2 && "-"}
+                                                </h5>
+                                            )
+                                        }
+                                    </div>
+                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1,display:"flex"}}>
+                                        {
+                                            ["W","X","Y","Z"].map((l,key) =>
+                                                <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
+                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    {l}{key < 3 && "-"}
+                                                </h5>
+                                            )
+                                        }
                                     </div>
                                 </div>
-                            </TableCell>
-                            <TableCell style={{ width: "25%" }} align="center">
-                                {row.secteur}
-                            </TableCell>
-                            <TableCell style={{ width: "30%" }} align="center">
-                                {row.tailleEntreprise}
-                            </TableCell>
-                            <TableCell style={{ width: "20%" }} align="center">
-                                <IconButton aria-label="Modifier" title="Modifier" color="default" size="small" onClick={() => props.onEditClick(row,key)}>
-                                    <EditIcon fontSize="small"/>
-                                </IconButton>
-                                <IconButton aria-label="Supprimer" title="Supprimer" color="secondary" size="small">
-                                    <DeleteOutlineIcon fontSize="small"/>
-                                </IconButton>
-                            </TableCell>
-                        </TableRow>
-                    ))}
+                                <div className="row mt-2">
+                                    <div className="col-md-6">
+                                        <h6>Par type</h6>
+                                        <select className="form-control custom-select" style={{width:350}}
+                                                value={searchByType} onChange={(e) => {
+                                                 setSearchByType(e.target.value)
+                                                 console.log(e.target.value)
+                                        }}
+                                        >
+                                            {
+                                                Data.contactTypes.map((contact,key) =>
+                                                    <option key={key} value={contact.value}>{contact.label}</option>
+                                                )
+                                            }
+                                        </select>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <h6>Par secteur</h6>
+                                        <select className="form-control custom-select" style={{width:350}}
+                                                value={searchBySector} onChange={(e) => setSearchBySector(e.target.value) }
+                                        >
+                                            {
+                                                Data.secteurs.map((secteur,key) =>
+                                                    <option key={key} value={secteur}>{secteur}</option>
+                                                )
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="row mt-1">
+                                    <div className="col-md-6">
+                                        <h6>Par pays</h6>
+                                        <select className="form-control custom-select" style={{width:350}}
+                                                value={searchByPays} onChange={(e) => setSearchByPays(e.target.value) }
+                                        >
+                                            {
+                                                countryList.map((pay,key) =>
+                                                    <option key={key} value={pay.Name}>{pay.Name}</option>
+                                                )
+                                            }
+                                        </select>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <h6>Par collaborateur lead sur le dossier</h6>
+                                        <Select
+                                            defaultValue={searchByLead}
+                                                options={contactSelectOptions}
+                                                closeMenuOnSelect={true}
+                                                isMulti={false}
+                                                hideSelectedOptions={true}
+                                                styles={{
+                                                    container: (provided, state) => ({
+                                                        ...provided,
+                                                        width:350
+                                                    }),
+                                                    menuPortal: styles => ({ ...styles, zIndex: 9999 })
+                                                }}
+                                                menuPortalTarget={document.body}
+                                                onChange={(e) => {
+                                                    console.log(e.value)
+                                                    setSearchByLead(e.value)
+                                                }}
+                                        />
 
-                    {emptyRows > 0 && (
-                        <TableRow style={{ height: 53 * emptyRows }}>
-                            <TableCell colSpan={6} />
-                        </TableRow>
-                    )}
-                </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TablePagination
-                            rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                            colSpan={3}
-                            count={props.societes.length}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            SelectProps={{
-                                inputProps: { 'aria-label': 'rows per page' },
-                                native: true,
-                            }}
-                            onChangePage={handleChangePage}
-                            onChangeRowsPerPage={handleChangeRowsPerPage}
-                            ActionsComponent={TablePaginationActions}
-                            labelRowsPerPage="Lignes par page"
-                        />
-                    </TableRow>
-                </TableFooter>
-            </Table>
+                                    </div>
+                                </div>
+                            </Panel>
+                        </Collapse>
+                    </div>
+                    <div className="card">
+                        <div className="card-body">
+                            <Table className={classes.table} aria-label="custom pagination table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Type</TableCell>
+                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Nom</TableCell>
+                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Secteur</TableCell>
+                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Pays</TableCell>
+                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Date de création</TableCell>
+                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Action</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {(rowsPerPage > 0 ? searchFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) :
+                                        searchFilter).map((row,key) => (
+                                        <TableRow key={key}>
+                                            <TableCell component="th" scope="row" style={{width:"15%"}}>
+                                                <div
+                                                    className="media align-items-center">
+                                                    <img
+                                                        className=" rounded-circle text-center"
+                                                        style={{
+                                                            width: 30,
+                                                            height: 30,
+                                                            objectFit: "cover"
+                                                        }}
+                                                        src={row.imageUrl ? row.imageUrl : row.ContactType === "Company" ? entIcon : userAvatar}
+                                                        alt=""/>
+
+                                                    <div className="ml-1">{row.ContactType === "Company" ? "Société" : "Personne physique"}</div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell style={{ width: "20%" }} align="center">
+                                                {row.ContactName}
+                                            </TableCell>
+                                            <TableCell style={{ width: "20%" }} align="center">
+                                                {row.secteur || ""}
+                                            </TableCell>
+                                            <TableCell style={{ width: "15%" }} align="center">
+                                                {row.PrimaryAddressCountry}
+                                            </TableCell>
+                                            <TableCell style={{ width: "15%" }} align="center">
+                                                {row.ContactCreatedDate}
+                                            </TableCell>
+                                            <TableCell style={{ width: "15%" }} align="center">
+                                                <IconButton aria-label="Modifier" title="Modifier" color="default" size="small"
+                                                            onClick={() => props.onEditClick(row,key)}>
+                                                    <EditIcon fontSize="small"/>
+                                                </IconButton>
+                                                <IconButton aria-label="folder" title="folder" color="default" size="small" onClick={() => {
+
+                                                }}>
+                                                    <FolderIcon fontSize="small" />
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+
+                                    {emptyRows > 0 && (
+                                        <TableRow  style={{ height: 40,textAlign:"center"}}>
+                                            <th style={{marginTop:15}}>Aucun résultat trouvé !</th>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                                <TableFooter>
+                                    <TableRow>
+                                        <TablePagination
+                                            rowsPerPageOptions={[5, 10, 25, { label: 'Tous', value: -1 }]}
+                                            colSpan={3}
+                                            count={searchFilter.length}
+                                            rowsPerPage={rowsPerPage}
+                                            page={page}
+                                            SelectProps={{
+                                                inputProps: { 'aria-label': 'rows per page' },
+                                                native: true,
+                                            }}
+                                            onChangePage={handleChangePage}
+                                            onChangeRowsPerPage={handleChangeRowsPerPage}
+                                            ActionsComponent={TablePaginationActions}
+                                            labelRowsPerPage="Lignes par page"
+                                        />
+                                    </TableRow>
+                                </TableFooter>
+                            </Table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
     );
 }

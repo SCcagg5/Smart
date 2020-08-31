@@ -99,6 +99,8 @@ import calendar from"../../assets/icons/calendar.svg"
 import DatePicker from 'react-date-picker';
 import TableTimeSheet from "../../components/Tables/TableTimeSheet";
 import DescriptionIcon from '@material-ui/icons/Description';
+import entIcon from "../../assets/images/entreprise-icon.png";
+import userAvatar from "../../assets/images/users/user4.jpg";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
 const checkedIcon = <CheckBoxIcon fontSize="small"/>;
@@ -187,7 +189,7 @@ export default class DriveV3 extends React.Component {
 
         showContainerSection: "Drive",
         selectedMeetMenuItem: ["new"],
-        selectedSocietyMenuItem:["prospAc"],
+        selectedSocietyMenuItem:["clients_mondat"],
         selectedContactsMenuItem:["aia"],
 
         selectedSociete: "",
@@ -231,7 +233,7 @@ export default class DriveV3 extends React.Component {
 
         },
         contacts: [],
-        societe:[],
+        annuaire_clients_mondat:[],
         rooms: [],
         openRightContactModalDetail: false,
         openRightSocieteModalDetail:false,
@@ -327,7 +329,7 @@ export default class DriveV3 extends React.Component {
                             const data = snapshot.val() || [];
                             let contacts = data.contacts || [];
                             let rooms = data.rooms || [];
-                            let societe = data.societes || [];
+                            let annuaire_clients_mondat = data.annuaire_client_mondat || [];
 
                             let sharedFolders = gedRes.data.Shared.Content.folders || [];
                             let sharedFiles = gedRes.data.Shared.Content.files || [];
@@ -351,7 +353,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societe: societe,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
@@ -368,7 +370,7 @@ export default class DriveV3 extends React.Component {
                                             breadcrumbs: "Mon drive / paratgés avec moi",
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societe: societe,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
@@ -376,26 +378,32 @@ export default class DriveV3 extends React.Component {
                                         })
                                     } else {
                                         let folders = gedRes.data.Proprietary.Content.folders || [];
-                                        let folder_name = this.getFolderNameById(this.props.match.params.folder_id, folders.concat(sharedDrive));
-                                        this.setState({
-                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            sharedRootFiles: sharedFiles,
-                                            //expanded: this.expandAll(this.props.match.params.section_id, folders.concat(sharedDrive)).concat(["shared"]),
-                                            sharedDrive: sharedDrive,
-                                            selectedFoldername: folder_name,
-                                            breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders.concat(sharedDrive)),
-                                            selectedFolderId: this.props.match.params.section_id,
-                                            meeturl: meeturl,
-                                            contacts: contacts,
-                                            societe: societe,
-                                            rooms: rooms,
-                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders.concat(sharedDrive)),
-                                            firstLoading: false,
-                                            loading:false
-                                        })
+                                        let folder_name = this.getFolderNameById(this.props.match.params.section_id, folders.concat(sharedDrive));
+                                        if(folder_name !== undefined && folder_name !== null){
+                                            this.setState({
+                                                folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                                reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                                rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                                sharedRootFiles: sharedFiles,
+                                                sharedDrive: sharedDrive,
+                                                selectedFoldername: folder_name,
+                                                breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders.concat(sharedDrive)),
+                                                selectedFolderId: this.props.match.params.section_id,
+                                                meeturl: meeturl,
+                                                contacts: contacts,
+                                                annuaire_clients_mondat: annuaire_clients_mondat,
+                                                rooms: rooms,
+                                                selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                                selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders.concat(sharedDrive)),
+                                                firstLoading: false,
+                                                loading:false
+                                            })
+                                        }
+                                        else{
+                                            this.props.history.replace({pathname: '/drive/0'})
+                                            this.componentDidMount()
+                                        }
+
                                     }
 
                                 }
@@ -416,7 +424,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societe: societe,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
@@ -437,7 +445,7 @@ export default class DriveV3 extends React.Component {
                                                 sharedRootFiles: sharedFiles,
                                                 meeturl: meeturl,
                                                 contacts: contacts,
-                                                societe: societe,
+                                                annuaire_clients_mondat: annuaire_clients_mondat,
                                                 rooms: rooms,
                                                 selectedRoom: rooms[parseInt(this.props.match.params.section_id)],
                                                 selectedRoomKey: parseInt(this.props.match.params.section_id),
@@ -469,7 +477,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societe: societe,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
@@ -488,7 +496,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societe: societe,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
@@ -510,7 +518,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societe: societe,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
@@ -521,11 +529,13 @@ export default class DriveV3 extends React.Component {
                                     }
 
                                 }
-                                else if(this.props.match.params.section === "societe") {
-                                    if (this.props.match.params.section_id === "all") {
+                                else if(this.props.match.params.section === "society") {
+                                    if (this.props.match.params.section_id === "clients_mondat") {
                                         this.setState({
                                             showContainerSection: "Societe",
                                             focusedItem: "Societe",
+                                            selectedSocietyMenuItem:["clients_mondat"],
+                                            openSocietyMenuItem:true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -533,14 +543,15 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societe: societe,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
                                             loading: false
                                         })
                                     } else {
-                                        console.log("URL ERROR")
+                                        this.props.history.replace({pathname: '/society/clients_mondat'});
+                                        this.componentDidMount()
                                     }
                                 }
                                 else if(this.props.match.params.section === "TimeSheet") {
@@ -555,7 +566,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societe: societe,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
@@ -581,7 +592,7 @@ export default class DriveV3 extends React.Component {
                                                     sharedRootFiles: sharedFiles,
                                                     meeturl: meeturl,
                                                     contacts: contacts,
-                                                    societe: societe,
+                                                    annuaire_clients_mondat: annuaire_clients_mondat,
                                                     rooms: rooms,
                                                     selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                                     firstLoading: false,
@@ -989,8 +1000,17 @@ export default class DriveV3 extends React.Component {
             [object]: obj
         });
     };
+    handleObjectChange = (object1,object2, name) => event => {
+        let obj = this.state[object1];
+        let container = obj[object2] || {};
+        container[name] = event.target.value;
+        obj[object2] =container
+        this.setState({
+            [object1]: obj
+        });
+    };
 
-    saveChanges = () => {
+    saveContactChanges = () => {
         this.setState({loading: true})
         let key = this.findContactByEmail(this.state.selectedContact.email, this.state.contacts);
         firebase.database().ref('contacts/' + key).set(
@@ -1000,6 +1020,18 @@ export default class DriveV3 extends React.Component {
             this.openSnackbar('success', "Modification effectuée avec succès");
         });
     };
+
+    saveSocietyChanges = () => {
+        this.setState({loading: true})
+        let key = this.findClientMondatById(this.state.selectedSociete.ID, this.state.annuaire_clients_mondat);
+        firebase.database().ref('annuaire_client_mondat/' + key).set(
+            this.state.selectedSociete
+        ).then(res => {
+            this.setState({loading: false})
+            this.openSnackbar('success', "Modification effectuée avec succès");
+        });
+    };
+
 
     openAddModal = (type) => () => {
         this.setState({
@@ -1093,6 +1125,13 @@ export default class DriveV3 extends React.Component {
         let index;
         contacts.map((contact, key) => {
             if (contact.email && contact.email === email) index = key
+        })
+        return index
+    }
+    findClientMondatById = (id, clients) => {
+        let index;
+        clients.map((client, key) => {
+            if (client.ID && client.ID === id) index = key
         })
         return index
     }
@@ -1223,7 +1262,7 @@ export default class DriveV3 extends React.Component {
 
 
     render() {
-        var searchFilter= this.state.societe.filter((soc) => soc.nomSociete.toLowerCase().startsWith(this.state.searchSociete.toLowerCase()))
+        var searchFilter= this.state.annuaire_clients_mondat.filter((soc) => soc.ContactName.toLowerCase().startsWith(this.state.searchSociete.toLowerCase()))
         return (
             <div>
                 {
@@ -1278,7 +1317,7 @@ export default class DriveV3 extends React.Component {
                                                 item === "Drive" ? this.props.history.replace({pathname: '/drive/0'}) :
                                                     item === "Rooms" ? this.state.rooms.length > 0 ? this.props.history.replace({pathname: '/rooms/0'}) : this.props.history.replace({pathname: '/rooms/all'}) :
                                                         item === "Meet" ? this.props.history.replace({pathname: '/meet/new'}) :
-                                                            item === "Societe" ? this.props.history.replace({pathname: '/societe/all'}) :
+                                                            item === "Societe" ? this.props.history.replace({pathname: '/society/clients_mondat'}) :
                                                                 this.props.history.replace({pathname: '/contacts/all'})
                                                 this.setState({focusedItem: item, showContainerSection: item})
                                             }}
@@ -2274,10 +2313,6 @@ export default class DriveV3 extends React.Component {
                                                            this.setState({selectedRoom: room})
                                                        })
                                                    }}
-                                                   onDropFile={(node) => {
-
-
-                                                   }}
 
                                             />
                                         }
@@ -2841,7 +2876,7 @@ export default class DriveV3 extends React.Component {
                                                                     <p className="text-muted">{this.state.selectedContact.specialite} </p>
 
                                                                     <div style={{display: "contents"}}>
-                                                                        <button type="button" onClick={this.saveChanges}
+                                                                        <button type="button" onClick={this.saveContactChanges}
                                                                                 className="btn btn-success btn-xs waves-effect mb-2 waves-light m-1">
                                                                             <i className="fe-edit"/>&nbsp;&nbsp;
                                                                             Enregistrer
@@ -3291,88 +3326,21 @@ export default class DriveV3 extends React.Component {
                                             this.state.showContainerSection === "Societe" ?
                                                 this.state.editSocieteForm === false ?
                                                     <div>
-                                                        <h4 className="mt-0 mb-1">Societe</h4>
-                                                        <div className="row">
-                                                            <div className="col-xl-12">
-                                                                <div className="card">
-                                                                    <div className="card-body">
-                                                                        <div className="row mb-2">
-                                                                            <div className="col-sm-4">
-                                                                                <form className="form-inline">
-                                                                                    <div className="form-group mb-2">
-                                                                                        <label htmlFor="inputPassword2"
-                                                                                               className="sr-only">Chercher</label>
-                                                                                        <input type="search"
-                                                                                               className="form-control"
-                                                                                               id="inputPassword2"
-                                                                                               placeholder="Chercher..."/>
-                                                                                    </div>
-                                                                                </form>
-                                                                            </div>
-                                                                            <div className="col-sm-8">
-                                                                                <div className="text-sm-right">
-                                                                                    <button type="button"
-                                                                                            className="btn btn-success waves-effect waves-light mb-2 mr-1">
-                                                                                        <i className="mdi mdi-settings"/>
-                                                                                    </button>
-                                                                                    <button
-                                                                                        className="btn btn-danger waves-effect waves-light mb-2"
-                                                                                        data-animation="fadein"
-                                                                                        data-plugin="custommodal">
-                                                                                        <i className="mdi mdi-plus-circle mr-1"/>
-                                                                                        Ajouter
-                                                                                    </button>
-                                                                                </div>
-                                                                            </div>
-
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div className="row">
-                                                                    <div className="col">
-                                                                        <div className="page-title-box">
-                                                                            <div className="row ">
-                                                                                <div
-                                                                                    className="col-md-2 bg-danger text-center "
-                                                                                    style={{width: "10%"}}>
-                                                                                    <h4 style={{color: "white"}}>OA Legal</h4>
-                                                                                </div>
-                                                                                <hr style={{
-                                                                                    backgroundColor: "#a6a6a6",
-                                                                                    height: "2px",
-                                                                                    borderStyle: "solid",
-                                                                                    color: "red",
-                                                                                    width: "80%"
-                                                                                }}/>
-                                                                            </div>
-
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div className="card">
-                                                                    <div className="card-body">
-                                                                        {
-                                                                            this.state.contacts.length > 0 &&
-                                                                            <TableSociete
-                                                                                societes={this.state.societe}
-                                                                                onEditClick={(societe, key) => {
-                                                                                    this.setState({
-                                                                                            selectedSociete: societe,
-                                                                                            selectedSocieteKey: key,
-                                                                                            openRightSocieteModalDetail: true
-                                                                                        }
-                                                                                    )
-                                                                                }
-                                                                                }/>
+                                                        {
+                                                            this.state.annuaire_clients_mondat.length > 0 &&
+                                                            <TableSociete
+                                                                contacts={this.state.contacts}
+                                                                societes={this.state.annuaire_clients_mondat}
+                                                                onEditClick={(societe, key) => {
+                                                                    this.setState({
+                                                                            selectedSociete: societe,
+                                                                            selectedSocieteKey: key,
+                                                                            editSocieteForm:true
                                                                         }
-                                                                    </div>
-                                                                </div>
-
-
-                                                            </div>
-                                                        </div>
+                                                                    )
+                                                                }
+                                                                }/>
+                                                        }
                                                     </div> :
 
                                                     <div>
@@ -3389,7 +3357,7 @@ export default class DriveV3 extends React.Component {
                                                                 <div className="card-box text-center"
                                                                      style={{marginTop: 1}}>
                                                                     <img onClick={() => this.imageUpload.click()}
-                                                                         src={this.state.selectedSociete.imageUrl || defaultAvatar}
+                                                                         src={this.state.selectedSociete.imageUrl ? this.state.selectedSociete.imageUrl : this.state.selectedSociete.ContactType === "Company" ? entIcon : userAvatar}
                                                                          className="rounded-circle avatar-lg img-thumbnail"
                                                                          alt="" style={{
                                                                         cursor: "pointer",
@@ -3407,30 +3375,24 @@ export default class DriveV3 extends React.Component {
                                                                            ref={(ref) => this.imageUpload = ref}
                                                                     />
 
-                                                                    <h4 className="mb-0">{this.state.selectedSociete.nomSociete}</h4>
-                                                                    <p className="text-muted">{this.state.selectedContact.specialite} </p>
+                                                                    <h4 className="mb-0">{this.state.selectedSociete.ContactName}</h4>
+                                                                    <p className="text-muted">{this.state.selectedContact.PrimaryAddressCountry || ""} </p>
 
                                                                     <div style={{display: "contents"}}>
-                                                                        <button type="button" onClick={this.saveChanges}
-                                                                                className="btn btn-success btn-xs waves-effect mb-2 waves-light m-1">
-                                                                            <i className="fe-edit"/>&nbsp;&nbsp;
+                                                                        <button type="button" onClick={this.saveSocietyChanges}
+                                                                                className="btn btn-success btn-sm waves-effect mb-2 waves-light m-1">
+                                                                            <i className="fe-save"/>&nbsp;&nbsp;
                                                                             Enregistrer
                                                                         </button>
                                                                         <button type="button" onClick={() => {
-                                                                            this.setState({showPdfPreviewModal: true})
-                                                                            setTimeout(() => {
-                                                                                this.setState({isDocPreviewReady: true})
-                                                                            }, 1000)
-                                                                        }}
-                                                                                className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
+
+                                                                        }} className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
                                                                             <i className="fe-printer"/>&nbsp;&nbsp;
                                                                             Aperçu
                                                                         </button>
-                                                                        <button type="button" onClick={() => {
-                                                                            this.setState({showPdfFlipModal: true})
-                                                                        }}
-                                                                                className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
-                                                                            <i className="fe-printer"/>&nbsp;&nbsp;
+                                                                        <button type="button" onClick={() => {}}
+                                                                                className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
+                                                                            <i className="fe-book-open"/>&nbsp;&nbsp;
                                                                             Book
                                                                         </button>
                                                                     </div>
@@ -3439,14 +3401,13 @@ export default class DriveV3 extends React.Component {
                                                                         <Tabs>
                                                                             <TabList>
                                                                                 <Tab>Informations générales</Tab>
-                                                                                <Tab>Chart </Tab>
+                                                                                <Tab disabled={true}>Graphique </Tab>
                                                                                 <Tab>Ouverture mandat </Tab>
 
                                                                             </TabList>
 
                                                                             <TabPanel>
-                                                                                <h5 style={{marginTop: 20}}>Informations
-                                                                                    générales</h5>
+                                                                                <h5 style={{marginTop: 20}}>Informations générales</h5>
                                                                                 <div className="row"
                                                                                      style={{marginTop: 35}}>
                                                                                     <div className="col-md-12">
@@ -3457,45 +3418,53 @@ export default class DriveV3 extends React.Component {
                                                                                             id="about"
                                                                                             name="about"
                                                                                             value={this.state.selectedSociete.about}
-                                                                                            onChange={this.handleChange('selectedContact', 'about')}/>
+                                                                                            onChange={this.handleChange('selectedSociete', 'about')}/>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="row"
                                                                                      style={{marginTop: 35}}>
                                                                                     <div className="col-md-6">
-                                                                                        <p style={{marginBottom: 10}}>Nom de la societe</p>
+                                                                                        <p style={{marginBottom: 10}}>
+                                                                                            {
+                                                                                                this.state.selectedSociete.ContactType === "Person" ? "Nom":"Nom de la societe"
+                                                                                            }
+                                                                                        </p>
                                                                                         <input
                                                                                             className="form-control"
                                                                                             type="text"
                                                                                             id="nom"
                                                                                             name="nom"
-                                                                                            value={this.state.selectedSociete.nomSociete}
-                                                                                            onChange={this.handleChange('selectedContact', 'nomSociete')}/>
+                                                                                            value={this.state.selectedSociete.ContactName}
+                                                                                            onChange={this.handleChange('selectedSociete', 'nomSociete')}/>
                                                                                     </div>
                                                                                     <div
                                                                                         className="col-md-6">
                                                                                         <p style={{marginBottom: 10}}>Secteur</p>
-                                                                                        <input
-                                                                                            className="form-control"
-                                                                                            type="text"
-                                                                                            id="prenom"
-                                                                                            name="prenom"
-                                                                                            value={this.state.selectedSociete.secteur}
-                                                                                            onChange={this.handleChange('selectedContact', 'secteur')}/>
+                                                                                        <select className="form-control custom-select" value={this.state.selectedSociete.secteur}
+                                                                                                onChange={this.handleChange('selectedSociete', 'secteur')}
+                                                                                        >
+                                                                                            {
+                                                                                                Data.secteurs.map((secteur,key) =>
+                                                                                                    <option key={key} value={secteur}>{secteur}</option>
+                                                                                                )
+                                                                                            }
+
+                                                                                        </select>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="row"
                                                                                      style={{marginTop: 20}}>
                                                                                     <div className="col-md-6">
-                                                                                        <p style={{marginBottom: 10}}>site web </p>
+                                                                                        <p style={{marginBottom: 10}}>Site web </p>
                                                                                         <input
                                                                                             className="form-control"
                                                                                             type="text"
                                                                                             id="email"
                                                                                             name="email"
+                                                                                            placeholder="https://..."
                                                                                             //readOnly={true}
                                                                                             value={this.state.selectedSociete.siteweb}
-                                                                                            onChange={this.handleChange('selectedContact', 'siteweb')}/>
+                                                                                            onChange={this.handleChange('selectedSociete', 'siteweb')}/>
                                                                                     </div>
                                                                                     <div
                                                                                         className="col-md-6">
@@ -3506,33 +3475,34 @@ export default class DriveV3 extends React.Component {
                                                                                             id="phone"
                                                                                             name="phone"
                                                                                             value={this.state.selectedSociete.tailleEntreprise}
-                                                                                            onChange={this.handleChange('selectedContact', 'tailleEntreprise')}/>
+                                                                                            onChange={this.handleChange('selectedSociete', 'tailleEntreprise')}/>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="row"
                                                                                      style={{marginTop: 20}}>
                                                                                     <div className="col-sm-6">
                                                                                         <p style={{marginBottom: 10}}>Type</p>
-                                                                                        <input
-                                                                                            className="form-control custom-select"
-                                                                                            id="titre"
-                                                                                            name="titre"
-                                                                                            type="text"
-                                                                                            placeholder="Titre"
-                                                                                            value={this.state.selectedSociete.type}
-                                                                                            onChange={this.handleChange('selectedContact', 'type')}
+                                                                                        <select className="form-control custom-select" value={this.state.selectedSociete.ContactType}
+                                                                                                onChange={this.handleChange('selectedSociete', 'ContactType')}
                                                                                         >
-                                                                                        </input>
+                                                                                            {
+                                                                                                Data.contactTypes.map((type,key) =>
+                                                                                                    <option key={key} value={type.value}>{type.label}</option>
+                                                                                                )
+                                                                                            }
+
+                                                                                        </select>
                                                                                     </div>
                                                                                     <div className="col-sm-6">
                                                                                         <p style={{marginBottom: 10}}>Fondée en </p>
                                                                                         <Input
+                                                                                            type="date"
                                                                                             className="form-control"
                                                                                             id="pays"
                                                                                             name="pays"
-                                                                                            placeholder="Pays"
+                                                                                            placeholder=""
                                                                                             value={this.state.selectedSociete.fondee}
-                                                                                            onChange={this.handleChange('selectedContact', 'fondee')}>
+                                                                                            onChange={this.handleChange('selectedSociete', 'fondee')}>
 
 
                                                                                         </Input>
@@ -3541,7 +3511,7 @@ export default class DriveV3 extends React.Component {
                                                                                 <div className="row"
                                                                                      style={{marginTop: 20}}>
                                                                                     <div className="col-sm-6">
-                                                                                        <p style={{marginBottom: 10}}>chiffre d'affaire</p>
+                                                                                        <p style={{marginBottom: 10}}>Chiffre d'affaire</p>
                                                                                         <input
                                                                                             className="form-control custom-select"
                                                                                             id="titre"
@@ -3549,7 +3519,7 @@ export default class DriveV3 extends React.Component {
                                                                                             type="text"
                                                                                             placeholder="Titre"
                                                                                             value={this.state.selectedSociete.chiffre_affaire}
-                                                                                            onChange={this.handleChange('selectedContact', 'chiffre_affaire')}
+                                                                                            onChange={this.handleChange('selectedSociete', 'chiffre_affaire')}
                                                                                         >
                                                                                         </input>
                                                                                     </div>
@@ -3559,9 +3529,9 @@ export default class DriveV3 extends React.Component {
                                                                                             className="form-control"
                                                                                             id="pays"
                                                                                             name="pays"
-                                                                                            placeholder="Pays"
+                                                                                            placeholder=""
                                                                                             value={this.state.selectedSociete.capitaux_levés}
-                                                                                            onChange={this.handleChange('selectedContact', 'capitaux_levés')}>
+                                                                                            onChange={this.handleChange('selectedSociete', 'capitaux_levés')}>
 
 
                                                                                         </Input>
@@ -3570,7 +3540,7 @@ export default class DriveV3 extends React.Component {
                                                                             </TabPanel>
 
                                                                             <TabPanel>
-                                                                                <h5 style={{marginTop: 20}}>Chart</h5>
+                                                                                <h5 style={{marginTop: 20}}>Graphique</h5>
                                                                                 <div className="row"
                                                                                      style={{marginTop: 35}}>
                                                                                     <div className="col-md-12">
@@ -3584,39 +3554,42 @@ export default class DriveV3 extends React.Component {
                                                                             </TabPanel>
 
                                                                             <TabPanel>
-                                                                                <div className="row">
+                                                                                <div className="row mt-2">
                                                                                     <div className="col-md-3">
                                                                                         <div>
-                                                                                            Nom de la societe
+                                                                                            {
+                                                                                                this.state.selectedSociete.ContactType === "Person" ? "Nom" : "Nom de la societé"
+                                                                                            }
                                                                                         </div>
                                                                                         <div>
-                                                                                            <TextField value={this.state.selectedSociete.nomSociete}  id="outlined-basic"  variant="outlined" />
+                                                                                            <input className="form-control" defaultValue={this.state.selectedSociete.ContactName} readOnly={true} />
                                                                                         </div>
                                                                                     </div>
-                                                                                    <div className="col-md-3">
-
+                                                                                    <div className="col-md-4">
                                                                                         <div>
                                                                                             Type de dossier
                                                                                         </div>
                                                                                         <div>
-                                                                                            <TextField value={this.state.mondat.typeDossier}
-                                                                                                       onChange={(e)=>{let d = this.state.mondat
-                                                                                                           d.typeDossier=e.target.value
-                                                                                                           this.setState({mondat:d})
-                                                                                                       }} id="outlined-basic"  variant="outlined" />
+                                                                                            <select className="form-control custom-select" value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.typeDossier || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","typeDossier")}
+                                                                                            >
+                                                                                                {
+                                                                                                    Data.secteurs.map((secteur,key) =>
+                                                                                                        <option key={key} value={secteur}>{secteur}</option>
+                                                                                                    )
+                                                                                                }
+
+                                                                                            </select>
                                                                                         </div>
 
                                                                                     </div>
-                                                                                    <div className="col-md-4">
+                                                                                    <div className="col-md-5">
                                                                                         <div>
                                                                                             Description du projet
                                                                                         </div>
                                                                                         <div>
-                                                                                            <TextField value={this.state.mondat.DescriptionProjet}
-                                                                                                       onChange={(e)=>{let d = this.state.mondat
-                                                                                                           d.DescriptionProjet=e.target.value
-                                                                                                           this.setState({mondat:d})
-                                                                                                       }}  style={{width:"100%"}} id="outlined-basic"  variant="outlined" multiline={true} />
+                                                                                            <textarea className="form-control" value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
+                                                                                                      onChange={this.handleObjectChange("selectedSociete","mondat","description")} rows={4} />
                                                                                         </div>
 
                                                                                     </div>
@@ -3627,19 +3600,14 @@ export default class DriveV3 extends React.Component {
                                                                                             Dossier LBA ( intermédiaire financier)
                                                                                         </div>
                                                                                         <div>
-                                                                                            <MuiSelect
-                                                                                                labelId="demo-simple-select-label"
-                                                                                                id="demo-simple-select"
+                                                                                            <select className="form-control custom-select"
                                                                                                 style={{width:"80%"}}
-                                                                                                value={this.state.mondat.DossierLBA}
-                                                                                                onChange={(e)=>{let d = this.state.mondat
-                                                                                                    d.DossierLBA=e.target.value
-                                                                                                    this.setState({mondat:d})}}
-
+                                                                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.dossierLBA || "" : ""}
+                                                                                                onChange={this.handleObjectChange("selectedSociete","mondat","dossierLBA")}
                                                                                             >
-                                                                                                <MenuItem value={"oui"}>Oui</MenuItem>
-                                                                                                <MenuItem value={"non"}>Non</MenuItem>
-                                                                                            </MuiSelect>
+                                                                                                <option value={"Oui"}>Oui</option>
+                                                                                                <option value={"Non"}>Non</option>
+                                                                                            </select>
                                                                                         </div>
 
                                                                                     </div>
@@ -3659,11 +3627,10 @@ export default class DriveV3 extends React.Component {
                                                                                                     type="text"
                                                                                                     id="nom"
                                                                                                     name="nom"
-                                                                                                    value={this.state.mondat.PersonneChargePrincipale.prenom}
-                                                                                                    onChange={(e)=>{let d = this.state.mondat
-                                                                                                        d.PersonneChargePrincipale.prenom=e.target.value
-                                                                                                        this.setState({mondat:d})
-                                                                                                    }} />
+                                                                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_prenom || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcp_prenom")}
+
+                                                                                                />
 
                                                                                             </div>
 
@@ -3678,13 +3645,9 @@ export default class DriveV3 extends React.Component {
                                                                                                     type="text"
                                                                                                     id="nom"
                                                                                                     name="nom"
-                                                                                                    value={this.state.mondat.PersonneChargePrincipale.nom}
-                                                                                                    onChange={(e)=>{let d = this.state.mondat
-                                                                                                        d.PersonneChargePrincipale.nom=e.target.value
-                                                                                                        this.setState({mondat:d})
-                                                                                                    }} />
-
-
+                                                                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_nom || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcp_nom")}
+                                                                                                />
                                                                                             </div>
 
                                                                                         </div>
@@ -3698,11 +3661,9 @@ export default class DriveV3 extends React.Component {
                                                                                                     type="text"
                                                                                                     id="nom"
                                                                                                     name="nom"
-                                                                                                    value={this.state.mondat.PersonneChargePrincipale.email}
-                                                                                                    onChange={(e)=>{let d = this.state.mondat
-                                                                                                        d.PersonneChargePrincipale.email=e.target.value
-                                                                                                        this.setState({mondat:d})
-                                                                                                    }} />
+                                                                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_email || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcp_email")}
+                                                                                                />
                                                                                             </div>
 
                                                                                         </div>
@@ -3716,13 +3677,9 @@ export default class DriveV3 extends React.Component {
                                                                                                     type="text"
                                                                                                     id="nom"
                                                                                                     name="nom"
-                                                                                                    value={this.state.mondat.PersonneChargePrincipale.telephone}
-                                                                                                    onChange={(e)=>{let d = this.state.mondat
-                                                                                                        d.PersonneChargePrincipale.telephone=e.target.value
-                                                                                                        this.setState({mondat:d})
-                                                                                                    }} />
-
-
+                                                                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_phone || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcp_phone")}
+                                                                                                />
                                                                                             </div>
 
                                                                                         </div>
@@ -3735,14 +3692,9 @@ export default class DriveV3 extends React.Component {
                                                                                                     className="form-control"
                                                                                                     id="Adresse"
                                                                                                     name="Adresse"
-                                                                                                    value={this.state.mondat.PersonneChargePrincipale.adresse}
-                                                                                                    onChange={(e)=>{let d = this.state.mondat
-                                                                                                        d.PersonneChargePrincipale.adresse=e.target.value
-                                                                                                        this.setState({mondat:d})
-                                                                                                    }} />
-
-
-
+                                                                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_adress || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcp_adress")}
+                                                                                                />
                                                                                             </div>
 
                                                                                         </div>
@@ -3762,12 +3714,10 @@ export default class DriveV3 extends React.Component {
                                                                                                     type="text"
                                                                                                     id="nom"
                                                                                                     name="nom"
-                                                                                                    value={this.state.mondat.PersonneChargeReglement.prenom}
-                                                                                                    onChange={(e)=>{let d = this.state.mondat
-                                                                                                        d.PersonneChargeReglement.prenom=e.target.value
-                                                                                                        this.setState({mondat:d})
-                                                                                                    }} />
+                                                                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_prenom || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_prenom")}
 
+                                                                                                />
 
                                                                                             </div>
 
@@ -3782,13 +3732,9 @@ export default class DriveV3 extends React.Component {
                                                                                                     type="text"
                                                                                                     id="nom"
                                                                                                     name="nom"
-                                                                                                    value={this.state.mondat.PersonneChargeReglement.nom}
-                                                                                                    onChange={(e)=>{let d = this.state.mondat
-                                                                                                        d.PersonneChargeReglement.nom=e.target.value
-                                                                                                        this.setState({mondat:d})
-                                                                                                    }} />
-
-
+                                                                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_nom || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_nom")}
+                                                                                                />
                                                                                             </div>
 
                                                                                         </div>
@@ -3802,11 +3748,9 @@ export default class DriveV3 extends React.Component {
                                                                                                     type="text"
                                                                                                     id="nom"
                                                                                                     name="nom"
-                                                                                                    value={this.state.mondat.PersonneChargeReglement.email}
-                                                                                                    onChange={(e)=>{let d = this.state.mondat
-                                                                                                        d.PersonneChargeReglement.email=e.target.value
-                                                                                                        this.setState({mondat:d})
-                                                                                                    }} />
+                                                                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_email || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_email")}
+                                                                                                />
                                                                                             </div>
 
                                                                                         </div>
@@ -3820,14 +3764,9 @@ export default class DriveV3 extends React.Component {
                                                                                                     type="text"
                                                                                                     id="nom"
                                                                                                     name="nom"
-                                                                                                    value={this.state.mondat.PersonneChargeReglement.telephone}
-                                                                                                    onChange={(e)=>{let d = this.state.mondat
-                                                                                                        d.PersonneChargeReglement.telephone=e.target.value
-                                                                                                        this.setState({mondat:d})
-                                                                                                    }}
+                                                                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_phone || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_phone")}
                                                                                                 />
-
-
                                                                                             </div>
 
                                                                                         </div>
@@ -3840,14 +3779,9 @@ export default class DriveV3 extends React.Component {
                                                                                                     className="form-control"
                                                                                                     id="Adresse"
                                                                                                     name="Adresse"
-                                                                                                    value={this.state.mondat.PersonneChargeReglement.adresse}
-                                                                                                    onChange={(e)=>{let d = this.state.mondat
-                                                                                                        d.PersonneChargeReglement.adresse=e.target.value
-                                                                                                        this.setState({mondat:d})
-                                                                                                    }}
-
+                                                                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_adress || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_adress")}
                                                                                                 />
-
                                                                                             </div>
 
                                                                                         </div>
@@ -3862,11 +3796,9 @@ export default class DriveV3 extends React.Component {
                                                                                                 type="text"
                                                                                                 id="nom"
                                                                                                 name="nom"
-                                                                                                value={this.state.mondat.autrePartie}
-                                                                                                onChange={(e)=>{let d = this.state.mondat
-                                                                                                    d.autrePartie=e.target.value
-                                                                                                    this.setState({mondat:d})
-                                                                                                }} />
+                                                                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.autrePartie || "" : ""}
+                                                                                                onChange={this.handleObjectChange("selectedSociete","mondat","autrePartie")}
+                                                                                            />
 
                                                                                         </div>
                                                                                         <div className="mt-3">
@@ -3876,30 +3808,23 @@ export default class DriveV3 extends React.Component {
                                                                                                 type="text"
                                                                                                 id="nom"
                                                                                                 name="nom"
-                                                                                                value={this.state.mondat.contrePartie}
-                                                                                                onChange={(e)=>{let d = this.state.mondat
-                                                                                                    d.contrePartie=e.target.value
-                                                                                                    this.setState({mondat:d})
-                                                                                                }}/>
+                                                                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.autrePartie || "" : ""}
+                                                                                                onChange={this.handleObjectChange("selectedSociete","mondat","autrePartie")}
+                                                                                            />
                                                                                         </div>
                                                                                         <div className="mt-3">
                                                                                             <h6>Apporteur </h6>
-                                                                                            <MuiSelect
-                                                                                                labelId="demo-simple-select-label"
-                                                                                                id="demo-simple-select"
+                                                                                            <select className="form-control custom-select"
                                                                                                 style={{width:"80%"}}
-                                                                                                value={this.state.mondat.Apporteur}
-                                                                                                onChange={(e)=>{let d = this.state.mondat
-                                                                                                    d.Apporteur=e.target.value
-                                                                                                    this.setState({mondat:d})
-                                                                                                }}
-
+                                                                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.apporteur || "" : ""}
+                                                                                                onChange={this.handleObjectChange("selectedSociete","mondat","apporteur")}
                                                                                             >
-                                                                                                <MenuItem value={"site web"}>site web</MenuItem>
-                                                                                                <MenuItem value={"Autre avocat"}>Autre avocat</MenuItem>
-                                                                                                <MenuItem value={"Personne tierce"}>Personne tierce</MenuItem>
+                                                                                                <option value={""}>{""}</option>
+                                                                                                <option value={"Site web"}>Site web</option>
+                                                                                                <option value={"Autre avocat"}>Autre avocat</option>
+                                                                                                <option value={"Personne tierce"}>Personne tierce</option>
 
-                                                                                            </MuiSelect>
+                                                                                            </select>
                                                                                         </div>
 
 
@@ -3918,71 +3843,82 @@ export default class DriveV3 extends React.Component {
                                                                                                     labelId="demo-simple-select-label"
                                                                                                     id="demo-simple-select"
                                                                                                     style={{width:"80%"}}
-                                                                                                    onChange={(e)=>{console.log(e)}}
+                                                                                                    onChange={(e)=>{
+                                                                                                        let obj = this.state.selectedSociete;
+                                                                                                        let container = obj["facturation"] || {};
+                                                                                                        container.collaborateur_lead = e.target.value;
+                                                                                                        obj["facturation"] = container;
+                                                                                                        this.setState({selectedSociete:obj})
+                                                                                                    }}
+                                                                                                    value={this.state.selectedSociete.facturation ? this.state.selectedSociete.facturation.collaborateur_lead : ""}
 
                                                                                                 >
-                                                                                                    {this.state.contacts.map((name,key) => (
-                                                                                                        <MenuItem key={key} value={name} >
-                                                                                                            <div className="row align-items-center justify-content-center">   <Avatar alt="Natacha" src={name.imageUrl} /> <text >{name.nom + " " + name.prenom}</text></div>
+                                                                                                    {this.state.contacts.map((contact,key) => (
+                                                                                                        <MenuItem key={key} value={contact.email}>
+                                                                                                            <div className="row align-items-center justify-content-center">
+                                                                                                                <Avatar alt="Natacha" src={contact.imageUrl} />
+                                                                                                                <div>{contact.nom + " " + contact.prenom}</div>
+                                                                                                            </div>
                                                                                                         </MenuItem>
                                                                                                     ))}
                                                                                                 </MuiSelect>
                                                                                             </div>
 
                                                                                         </div>
-                                                                                        <div className="col-md-4">
+                                                                                        <div className="col-md-5">
                                                                                             <div>
                                                                                                 Collaborateur-Team
                                                                                             </div>
                                                                                             <div>
 
                                                                                                 <MuiSelect
-                                                                                                    labelId="demo-mutiple-chip-label"
-                                                                                                    id="demo-mutiple-chip"
+                                                                                                    labelId="demo-mutiple-chip-label-1542"
+                                                                                                    id="demo-mutiple-chip-1542"
                                                                                                     multiple
                                                                                                     style={{width:"100%"}}
-                                                                                                    value={this.state.mondat.collabteam}
-                                                                                                    onChange={(e)=> {
-                                                                                                        let d = this.state.mondat
-                                                                                                        d.collabteam = e.target.value
-                                                                                                        this.setState({mondat: d})
-                                                                                                        console.log(d)
+                                                                                                    onChange={(e)=>{
+                                                                                                        let obj = this.state.selectedSociete;
+                                                                                                        let container = obj["facturation"] || {};
+                                                                                                        container.collaborateur_team = e.target.value;
+                                                                                                        obj["facturation"] = container;
+                                                                                                        console.log(obj)
+                                                                                                        this.setState({selectedSociete:obj})
                                                                                                     }}
+                                                                                                    value={this.state.selectedSociete.facturation ? this.state.selectedSociete.facturation.collaborateur_team || [] : []}
                                                                                                     input={<Input id="select-multiple-chip" />}
                                                                                                     renderValue={(selected) => (
-                                                                                                        <div style={{display:"flex",
-                                                                                                            flexWrap:"wrap"}}>
+                                                                                                        <div style={{display:"flex", flexWrap:"wrap"}}>
                                                                                                             {selected.map((value,key) => (
-                                                                                                                <Chip key={key} label={value.email} style={{margin:2}} />
+                                                                                                                <Chip key={key} label={value.email} style={{margin:2}} avatar={<Avatar alt="" src={value.imageUrl || null} />}
+                                                                                                                />
                                                                                                             ))}
                                                                                                         </div>
                                                                                                     )}
                                                                                                     MenuProps={Data.MenuProps}
                                                                                                 >
-                                                                                                    {this.state.contacts.map((name,key) => (
-                                                                                                        <MenuItem key={key} value={name} s>
-                                                                                                            {name.email}
+                                                                                                    {this.state.contacts.map((contact,key) => (
+                                                                                                        <MenuItem key={key} value={contact}>
+                                                                                                            <div className="row align-items-center justify-content-center">
+                                                                                                                <Avatar alt="" src={contact.imageUrl} />
+                                                                                                                <div>{contact.nom + " " + contact.prenom}</div>
+                                                                                                            </div>
                                                                                                         </MenuItem>
                                                                                                     ))}
                                                                                                 </MuiSelect>
                                                                                             </div>
 
                                                                                         </div>
-                                                                                        <div className="col-md-4">
+                                                                                        <div className="col-md-3">
                                                                                             <div>Taux Horaire collaborateur -B </div>
-                                                                                            <div className="col-md-8">
+
                                                                                                 <input
                                                                                                     className="form-control"
                                                                                                     type="text"
                                                                                                     id="nom"
                                                                                                     name="nom"
-                                                                                                    value={this.state.mondat.tauxHoraireCollab}
-                                                                                                    onChange={(e)=>{let d = this.state.mondat
-                                                                                                        d.tauxHoraireCollab=e.target.value
-                                                                                                        this.setState({mondat:d})
-                                                                                                    }}/>
-
-                                                                                            </div>
+                                                                                                    value={this.state.selectedSociete.facturation ? this.state.selectedSociete.facturation.tauxHoraireCollab || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","facturation","tauxHoraireCollab")}
+                                                                                                />
 
                                                                                         </div>
 
@@ -3992,10 +3928,7 @@ export default class DriveV3 extends React.Component {
                                                                                     <h5>FACTURATION-CLIENT</h5>
                                                                                     <div className="row align-items-center">
                                                                                         <div className="col-md-4">
-
-
                                                                                             <div className="row justify-content-center align-items-center">
-
                                                                                                 <div className="col-md-4">
                                                                                                     <div>Par eMail</div>
                                                                                                 </div>
@@ -4004,7 +3937,8 @@ export default class DriveV3 extends React.Component {
                                                                                                         onChange={(e)=>{let d = this.state.mondat
                                                                                                             d.facturationClient.parEmail= !this.state.mondat.facturationClient.parEmail
                                                                                                             this.setState({mondat:d})
-                                                                                                        }} />
+                                                                                                        }}
+                                                                                                    />
                                                                                                 </div>
 
 
@@ -4051,13 +3985,7 @@ export default class DriveV3 extends React.Component {
                                                                                                     </MuiSelect>
                                                                                                 </div>
 
-
-
                                                                                             </div>
-
-
-
-
 
 
                                                                                         </div>
@@ -4151,14 +4079,14 @@ export default class DriveV3 extends React.Component {
                                                                                         </div>
 
                                                                                     </div>
-                                                                                    <div className="row justify-content-end">
+                                                                                    {/*<div className="row justify-content-end">
                                                                                         <div>
                                                                                             <BT variant="contained" color="primary">
                                                                                                 Enregistrer
                                                                                             </BT>
 
                                                                                         </div>
-                                                                                    </div>
+                                                                                    </div>*/}
                                                                                 </div>
                                                                             </TabPanel>
 
@@ -4265,10 +4193,10 @@ export default class DriveV3 extends React.Component {
                                                                             <div className="mt-2">
                                                                                 {this.state.searchSociete === "" ?
                                                                                     <div>
-                                                                                        {this.state.societe.map((item,key)=>(
+                                                                                        {this.state.annuaire_clients_mondat.map((item,key)=>(
                                                                                             <div key={key} className="row mt-2">
                                                                                                 <div className="col-md-3">
-                                                                                                    <div>{item.nomSociete}</div>
+                                                                                                    <div>{item.ContactName}</div>
 
                                                                                                 </div>
                                                                                                 <div className="col-md-4">

@@ -30849,3 +30849,14 @@ div.ant-typography-edit-content.ant-typography-rtl {
   min-width: 250px;
   max-width: 400px;
 }
+
+
+
+[data-theme='compact'] .site-collapse-custom-collapse .site-collapse-custom-panel,
+.site-collapse-custom-collapse .site-collapse-custom-panel {
+  background: #f7f7f7;
+  border-radius: 2px;
+  margin-bottom: 24px;
+  border: 0px;
+  overflow: hidden;
+}

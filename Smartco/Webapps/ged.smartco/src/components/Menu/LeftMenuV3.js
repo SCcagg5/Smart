@@ -313,7 +313,8 @@ export default function LeftMenuV3(props) {
                             expandedKeys={expandedKeys}
                             selectedKeys={selectedKeys}
                             onDragStart={e => {
-                                e.event.dataTransfer.setData("node", JSON.stringify(e.node))
+                                let node = {key:e.node.key,typeF:e.node.typeF}
+                                e.event.dataTransfer.setData("node", JSON.stringify(node))
                             }}
                             autoExpandParent={autoExpandParent}
                         />
