@@ -392,7 +392,10 @@ def odoo_add_bill(cn, nextc):
 
 def odoo_get_data(cn, nextc):
     data_name = cn.rt["get"] if "get" in cn.rt else None
-    err = cn.private["odoo"].list_index(data_name, cn.get["offset"], cn.get["limit"])
+    id = cn.get["id"] if "id" in cn.get else 0
+    offset = cn.get["offset"] if "offset" in cn.get else 0
+    limit = cn.get["limit"] if "limit" in cn.get else 10
+    err = cn.private["odoo"].list_index(data_name, offset, limit, id)
     return cn.call_next(nextc, err)
 
 def contacter_check(cn, nextc):
