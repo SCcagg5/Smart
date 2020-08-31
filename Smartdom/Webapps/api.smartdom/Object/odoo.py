@@ -6,8 +6,8 @@ class odoo:
         self.usr_id = str(usr_id)
         self.odoo_id = str(odoo_id)
         self.opt = {
-            "url": "",
-            "username" : "",
+	    "url": "http://91.121.162.202:10013",
+            "username" : "eliot.courtel@gmail.com",
             "db": "odoo",
             "password": "test"
         }
@@ -28,40 +28,65 @@ class odoo:
             return [False, "Error during the connection to odoo instance", 500]
         return [True, {}, None]
 
-    def list_index(self, name, offset = 0, limit = 10):
+    def list_index(self, name, offset = 0, limit = 10, id = 0):
             data = {
-                    "product" : {"index": "product.product",
+                    "product_id" : {"index": "product.product",
                                          "arg": ["|", ["company_id", "=", False], ["company_id", "=", 1]],
                                          "opt": {'offset': int(offset), 'limit': int(limit)},
-                                         "model": "name_search"
+                                         "model": "search"
                                         },
-                    "tax":      {"index": "account.tax",
+                    "product": {"index": "product.product",
+                                         "arg": [int(id)],
+                                         "opt": {},
+                                         "model": "read"
+                                        },
+                    "tax_id":      {"index": "account.tax",
                                          "arg": [["type_tax_use", "=?", "sale"], ["company_id", "=", 1]],
                                          "opt": {'offset': int(offset), 'limit': int(limit)},
-                                         "model": "name_search"
+                                         "model": "search"
                                         },
-                    "payement_term": {"index": "account.payment.term",
+                    "tax": {"index": "account.tax",
+                                         "arg": [int(id)],
+                                         "opt": {},
+                                         "model": "read"
+                                        },
+                    "payment_term_id": {"index": "account.payment.term",
                             "arg": [],
                             "opt": {'offset': int(offset), 'limit': int(limit)},
-                            "model": "name_search"
+                            "model": "search"
+                         },
+                    "payment_term": {"index": "account.payment.term",
+                                         "arg": [int(id)],
+                                         "opt": {},
+                                         "model": "read"
+                                        },
+                    "product_category_id": {"index": "product.category",
+                            "arg": [],
+                            "opt": {'offset': int(offset), 'limit': int(limit)},
+                            "model": "search"
                          },
                     "product_category": {"index": "product.category",
-                            "arg": [1],
-                            "opt": {'offset': int(offset), 'limit': int(limit)},
-                            "model": "name_get"
-                         },
-                    "bill" {"index" :"account.move",
-                            "arg": ["type", "=", "out_invoice"],
+                            "arg": [int(id)],
                             "opt": {},
-                            "model": "name_search"
-                            }
+                            "model": "read"
+                         },
+                    "bill_id": {"index" :"account.move",
+                            "arg": [["type", "=", "out_invoice"]],
+                            "opt": {},
+                            "model": "search"
+                            },
+                    "bill": {"index": "account.move",
+                            "arg": [int(id)],
+                            "opt": {},
+                            "model": "read"
+                         },
 
                  }
             ret = []
             if name not in data:
                 return [False, "invalid index", 404]
             else:
-                ret = self.get(base["index"], base["arg"], base["opt"], base["model"])
+                ret = self.get(data[name]["index"], data[name]["arg"], data[name]["opt"], data[name]["model"])
             return [True, ret, None]
 
     def get(self, index, arg, opt, model):
@@ -218,12 +243,15 @@ class odoo:
         #              "message_attachment_count":0}
         # ]
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
-        ret = models.execute_kw(self.opt['db'],
+        try:
+            ret = models.execute_kw(self.opt['db'],
                                 self.uid,
                                 self.opt['password'],
                                 'account.move', 'create',
                                 data
                                 )
+        except Exception as inst:
+            return [False, str(inst), 500]
         return [True, {"id": ret}, None]
 
     def list_contact(self, company = False, offset = 0, limit = 10):
