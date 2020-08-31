@@ -3076,7 +3076,7 @@
 					"response": []
 				},
 				{
-					"name": "/odoo/<odoo_id>/company Copy",
+					"name": "/odoo/<odoo_id>/bill",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -4055,17 +4055,17 @@
 	],
 	"variable": [
 		{
-			"id": "51f2ef8d-8800-49d3-a18e-a6fb873036f8",
+			"id": "455a4dc9-2f92-49d9-bc34-280dfc9a9ae0",
 			"key": "url",
 			"value": "api.localhost"
 		},
 		{
-			"id": "29988ed4-af0d-46f2-ad5d-db9a2bc0f274",
+			"id": "64eb764d-3f0e-4e04-826c-eac6b6b9d768",
 			"key": "password",
 			"value": "password"
 		},
 		{
-			"id": "58cacac1-91ce-4c5a-b9a8-d0468418a627",
+			"id": "b3c4ff83-4e79-4377-a76c-28aad01a79b1",
 			"key": "method",
 			"value": "http://"
 		}
