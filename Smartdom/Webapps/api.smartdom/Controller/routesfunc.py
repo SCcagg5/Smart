@@ -382,6 +382,18 @@ def odoo_add_company(cn, nextc):
     err = cn.private["odoo"].create_company(cn.pr["param"])
     return cn.call_next(nextc, err)
 
+def odoo_add_bill(cn, nextc):
+    err = check.contain(cn.pr, ["data"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = cn.private["odoo"].creatfact(cn.pr["data"])
+    return cn.call_next(nextc, err)
+
+def odoo_get_data(cn, nextc):
+    data_name = cn.rt["get"] if "get" in cn.rt else None
+    err = cn.private["odoo"].list_index(data_name, cn.get["offset"], cn.get["limit"])
+    return cn.call_next(nextc, err)
 
 def contacter_check(cn, nextc):
     contacter_id = cn.rt["contacter"] if "contacter" in cn.rt else None
