@@ -38,8 +38,9 @@ export default function ListDocs(props) {
 
     return(
         <div>
+            <h5 style={{marginTop:15}}>Fichiers ({props.docs.length})</h5>
             {
-                props.viewMode === "list" &&
+                props.viewMode === "list" && props.docs.length > 0 &&
                 <div className="list_view_item">
                     <div
                         style={{width: 56}}>

@@ -30,8 +30,6 @@ import SocietyMenuItems from "./SocietyMenuItems";
 import ContactsMenuItems from "./ContactsMenuItems";
 import '../../assets/css/antDesign.css';
 import {Input, Tree} from 'antd';
-import DescriptionIcon from "@material-ui/icons/Description";
-import FolderIcon from "@material-ui/icons/Folder";
 
 const {DirectoryTree} = Tree;
 const {Search} = Input;
@@ -164,17 +162,22 @@ export default function LeftMenuV3(props) {
     }
 
     function onExpand(expandedKeys) {
-        setExpandedKeys(expandedKeys);
-        setAutoExpandParent(false)
+        //setExpandedKeys(expandedKeys);
+        props.setExpandedDriveItems(expandedKeys)
+        //setAutoExpandParent(false)
+        props.setAutoExpandParent(false)
     }
 
     function onSelect(selectedKeys, info) {
-        setSelectedKeys(selectedKeys);
+
+        //setSelectedKeys(selectedKeys);
+        props.setSelectedDriveItem(selectedKeys)
         if (info.node.typeF === "folder") {
             props.setSelectedFolder(info.node)
             props.setFolderName(info.node.title)
             props.setFolderId(info.node.key)
             props.setSelectedFolderFiles(info.node.files)
+            props.setSelectedFolderFolders(info.node.folders)
         }
     }
 
@@ -198,17 +201,21 @@ export default function LeftMenuV3(props) {
             if (item.children) {
                 return {
                     title, key: item.key, children: loop(item.children),
+                    name:item.title,
                     icon: item.icon,
                     files:item.files,
+                    folders:item.folders,
                     typeF:item.typeF
                 };
             }
 
             return {
                 title,
+                name:item.title,
                 key: item.key,
                 icon: item.icon,
                 files:item.files,
+                folders:item.folders,
                 typeF:item.typeF
             };
         });
@@ -310,13 +317,16 @@ export default function LeftMenuV3(props) {
                                     props.setFolderId(info.node.key)
                                 }
                             }}
-                            expandedKeys={expandedKeys}
-                            selectedKeys={selectedKeys}
+                            //expandedKeys={expandedKeys}
+                            expandedKeys={props.expandedDriveItems}
+                            //selectedKeys={selectedKeys}
+                            selectedKeys={props.selectedDriveItem}
                             onDragStart={e => {
                                 let node = {key:e.node.key,typeF:e.node.typeF}
                                 e.event.dataTransfer.setData("node", JSON.stringify(node))
                             }}
-                            autoExpandParent={autoExpandParent}
+                            //autoExpandParent={autoExpandParent}
+                            autoExpandParent={props.autoExpandParent}
                         />
                     </div>
 

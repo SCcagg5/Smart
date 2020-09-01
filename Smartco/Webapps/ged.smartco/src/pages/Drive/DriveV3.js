@@ -101,6 +101,7 @@ import TableTimeSheet from "../../components/Tables/TableTimeSheet";
 import DescriptionIcon from '@material-ui/icons/Description';
 import entIcon from "../../assets/images/entreprise-icon.png";
 import userAvatar from "../../assets/images/users/user4.jpg";
+import ListFolders from "../../components/List/ListFolders";
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
 const checkedIcon = <CheckBoxIcon fontSize="small"/>;
@@ -162,6 +163,7 @@ export default class DriveV3 extends React.Component {
         reelFolders:[],
         sharedDrive: [],
         rootFiles: [],
+        rootFolders:[],
         sharedRootFiles: [],
 
         selectedFoldername: "",
@@ -170,6 +172,7 @@ export default class DriveV3 extends React.Component {
         selectedFolderId: "",
         selectedFile: "",
         selectedFolderFiles: [],
+        selectedFolderFolders: [],
 
         showNewDocScreen: false,
 
@@ -188,6 +191,9 @@ export default class DriveV3 extends React.Component {
         openTimeSheetsMenu:false,
 
         showContainerSection: "Drive",
+        selectedDriveItem:[],
+        expandedDriveItems:[],
+        autoExpandParent:true,
         selectedMeetMenuItem: ["new"],
         selectedSocietyMenuItem:["clients_mondat"],
         selectedContactsMenuItem:["aia"],
@@ -347,8 +353,11 @@ export default class DriveV3 extends React.Component {
                                     if (this.props.match.params.section_id === "0") {
                                         this.setState({
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            selectedDriveItem:[],
+                                            expandedDriveItems:[],
                                             sharedDrive: sharedDrive,
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
@@ -362,6 +371,7 @@ export default class DriveV3 extends React.Component {
                                     } else if (this.props.match.params.section_id === "shared") {
                                         this.setState({
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
@@ -384,8 +394,11 @@ export default class DriveV3 extends React.Component {
                                                 folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                                 reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                                 rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                                rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                                 sharedRootFiles: sharedFiles,
                                                 sharedDrive: sharedDrive,
+                                                selectedDriveItem:[this.props.match.params.section_id],
+                                                expandedDriveItems:[this.props.match.params.section_id],
                                                 selectedFoldername: folder_name,
                                                 breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders.concat(sharedDrive)),
                                                 selectedFolderId: this.props.match.params.section_id,
@@ -395,6 +408,7 @@ export default class DriveV3 extends React.Component {
                                                 rooms: rooms,
                                                 selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                                 selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders.concat(sharedDrive)),
+                                                selectedFolderFolders: this.getFolderFoldersById(this.props.match.params.section_id, folders.concat(sharedDrive)),
                                                 firstLoading: false,
                                                 loading:false
                                             })
@@ -418,6 +432,7 @@ export default class DriveV3 extends React.Component {
                                             expandedRoomItems: rooms.length > 0 ? ["0"] : [],
                                             openRoomMenuItem: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
@@ -439,6 +454,7 @@ export default class DriveV3 extends React.Component {
                                                 expandedRoomItems: rooms.length > 0 ? ["0"] : [],
                                                 openRoomMenuItem: true,
                                                 rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                                rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                                 folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                                 reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                                 sharedDrive: sharedDrive,
@@ -471,6 +487,7 @@ export default class DriveV3 extends React.Component {
                                             selectedMeetMenuItem: ["new"],
                                             openMeetMenuItem: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
@@ -490,6 +507,7 @@ export default class DriveV3 extends React.Component {
                                             selectedMeetMenuItem: ["rejoin"],
                                             openMeetMenuItem: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
@@ -512,6 +530,7 @@ export default class DriveV3 extends React.Component {
                                             showContainerSection: "Contacts",
                                             focusedItem: "Contacts",
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
@@ -537,6 +556,7 @@ export default class DriveV3 extends React.Component {
                                             selectedSocietyMenuItem:["clients_mondat"],
                                             openSocietyMenuItem:true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
@@ -560,6 +580,7 @@ export default class DriveV3 extends React.Component {
                                             showContainerSection: "TimeSheet",
                                             focusedItem: "TimeSheet",
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedDrive: sharedDrive,
@@ -586,6 +607,7 @@ export default class DriveV3 extends React.Component {
                                                     searchResult: searchRes.data,
                                                     textSearch: textToSearch,
                                                     rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                                    rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                                     folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                                     reelFolders: gedRes.data.Proprietary.Content.folders || [],
                                                     sharedDrive: sharedDrive,
@@ -718,7 +740,7 @@ export default class DriveV3 extends React.Component {
                 Promise.all(calls).then( response => {
                     this.setState({openUploadToast:false,uploadToastMessage:""})
                     this.reloadGed()
-                    console.log(response)
+                    //console.log(response)
                 }).catch( err => {
                     this.setState({loading:false})
                     console.log(err)
@@ -745,6 +767,7 @@ export default class DriveV3 extends React.Component {
                     if (this.props.match.params.section === "drive" && this.props.match.params.section_id === "0") {
                         this.setState({
                             rootFiles: gedRes.data.Proprietary.Content.files || [],
+                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
                             loading: false
@@ -756,11 +779,13 @@ export default class DriveV3 extends React.Component {
                             folders:  this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
                             rootFiles: gedRes.data.Proprietary.Content.files || [],
+                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                             expanded: this.expandAll(this.props.match.params.section_id, folders),
                             selectedFoldername: folder_name,
                             breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders),
                             selectedFolderId: this.props.match.params.section_id,
                             selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders),
+                            selectedFolderFolders: this.getFolderFoldersById(this.props.match.params.section_id, folders),
                             loading: false
                         })
                     }
@@ -1067,6 +1092,22 @@ export default class DriveV3 extends React.Component {
 
     }
 
+    getFolderById = (id, drive) => {
+        for (let i = 0; i < drive.length; i++) {
+            if(drive[i].id){
+                if (drive[i].id !== id) {
+                    let found = this.getFolderById(id, drive[i].Content.folders)
+                    if (found) return found
+                }else return drive[i]
+            }else{
+                if (drive[i].key !== id) {
+                    let found = this.getFolderById(id, drive[i].folders)
+                    if (found) return found
+                } else return drive[i]
+            }
+        }
+    }
+
     getFolderNameById = (id, drive) => {
         for (let i = 0; i < drive.length; i++) {
             if (drive[i].id !== id) {
@@ -1091,6 +1132,14 @@ export default class DriveV3 extends React.Component {
                 let found = this.getFolderFilesById(id, drive[i].Content.folders);
                 if (found) return found;
             } else return drive[i].Content.files
+        }
+    }
+    getFolderFoldersById = (id, drive) => {
+        for (let i = 0; i < drive.length; i++) {
+            if (drive[i].id !== id) {
+                let found = this.getFolderFoldersById(id, drive[i].Content.folders);
+                if (found) return found;
+            } else return drive[i].Content.folders
         }
     }
 
@@ -1194,7 +1243,7 @@ export default class DriveV3 extends React.Component {
     }
 
     deleteFile_Folder = (file) => {
-        console.log(file)
+        //console.log(file)
         this.setState({loading:true})
         SmartService.deleteFile(file.key || file.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( deleteRes => {
             if(deleteRes.succes === true && deleteRes.status === 200){
@@ -1215,7 +1264,7 @@ export default class DriveV3 extends React.Component {
 
     renameFile_Folder = (file,newName) => {
         this.setState({loading:true})
-        console.log(file)
+        //console.log(file)
         SmartService.updateFileName({name:newName},file.key || file.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
             if(updateNameRes.succes === true && updateNameRes.status === 200){
                 this.reloadGed()
@@ -1238,6 +1287,7 @@ export default class DriveV3 extends React.Component {
                 key,
                 icon: drive[i].type ? <DescriptionIcon style={{color:"red",backgroundColor:"#fff"}} />  :  ({ selected }) => (selected ? <FolderIcon style={{color:"#1a73e8"}} /> : <FolderIcon style={{color:"grey"}} />),
                 files:drive[i].Content ? drive[i].Content.files || [] : [],
+                folders:drive[i].Content ? drive[i].Content.folders || [] : [],
                 typeF:drive[i].type ? "file" : "folder"
             };
 
@@ -1363,6 +1413,8 @@ export default class DriveV3 extends React.Component {
                                             handleSelectSocietyMenu={(event, nodeIds) => {
                                                 this.setState({selectedSocietyMenuItem: nodeIds})
                                             }}
+                                            autoExpandParent={this.state.autoExpandParent}
+                                            setAutoExpandParent={(b) => this.setState({autoExpandParent:b})}
 
                                             openNewFolderModal={() => this.setState({newFolderModal: true})}
                                             showNewFileScreen={() => this.setState({
@@ -1388,10 +1440,19 @@ export default class DriveV3 extends React.Component {
                                                     showContainerSection: "Drive"
                                                 })
                                             }}
+
+
                                             setSelectedFolderFiles={(files) => this.setState({selectedFolderFiles: files})}
-                                            //selectedDriveItem={this.state.showContainerSection === "Drive" && [this.state.selectedFolderId === "" ? this.state.folders.length > 0 ? this.state.folders[0].id : "" : this.state.selectedFolderId]}
-                                            selectedDriveItem={this.state.showContainerSection === "Drive" ? (this.props.match.params.section_id ? [this.props.match.params.section_id] : []) : []}
-                                            expandedDriveItems={this.state.showContainerSection === "Drive" ? this.state.expanded : []}
+                                            setSelectedFolderFolders={(folders) => this.setState({selectedFolderFolders:folders})}
+
+                                            //selectedDriveItem={this.state.showContainerSection === "Drive" ? (this.props.match.params.section_id ? [this.props.match.params.section_id] : []) : []}
+                                            selectedDriveItem={this.state.selectedDriveItem}
+                                            setSelectedDriveItem={(keys) => this.setState({selectedDriveItem:keys})}
+
+                                            expandedDriveItems={this.state.expandedDriveItems}
+                                            setExpandedDriveItems={(keys) => this.setState({expandedDriveItems:keys})}
+
+                                            /*expandedDriveItems={this.state.showContainerSection === "Drive" ? this.state.expanded : []}*/
                                             selectedMeetItem={this.state.showContainerSection === "Meet" ? this.state.selectedMeetMenuItem : []}
                                             handleSelectMeetMenu={(event, nodeIds) => {
                                                 this.setState({selectedMeetMenuItem: nodeIds})
@@ -1522,18 +1583,6 @@ export default class DriveV3 extends React.Component {
                                                                         marginBottom: 15,
                                                                         marginTop: 15
                                                                     }}/>
-                                                                    {
-                                                                        this.props.match.params.section !== "search" &&
-                                                                        <h6>
-                                                                            <i className="fa fa-paperclip mb-1"/> Documents
-                                                                            <span>({
-                                                                                (this.props.match.params.section_id && this.props.match.params.section_id === '0') ?
-                                                                                    this.state.rootFiles.length : (this.props.match.params.section_id && this.props.match.params.section_id === 'shared') ?
-                                                                                    this.state.sharedRootFiles.length : this.state.selectedFolderFiles.length
-                                                                            })
-                                                                            </span>
-                                                                        </h6>
-                                                                    }
 
                                                                 </div>
                                                             </div>
@@ -1594,6 +1643,25 @@ export default class DriveV3 extends React.Component {
 
                                                                                 this.props.match.params.section_id && this.props.match.params.section_id === '0' ?
                                                                                     <div>
+                                                                                        <ListFolders items={this.state.rootFolders}
+                                                                                                     onDoubleClickFolder={(folder) => {
+                                                                                                         this.props.history.replace({pathname: '/drive/' + folder.id});
+                                                                                                         this.setState({
+                                                                                                             selectedDriveItem:[folder.id],
+                                                                                                             expandedDriveItems:[folder.id],
+                                                                                                             autoExpandParent:true,
+                                                                                                             selectedFolder:this.getFolderById(folder.id,this.state.folders),
+                                                                                                             selectedFoldername: folder.name,
+                                                                                                             selectedFolderFiles: folder.Content.files || [],
+                                                                                                             selectedFolderFolders:folder.Content.folders || [],
+                                                                                                             focusedItem: "Drive",
+                                                                                                             breadcrumbs: this.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedDrive)),
+                                                                                                             selectedFolderId: folder.id,
+                                                                                                             showContainerSection: "Drive"
+                                                                                                         })
+
+                                                                                                     }}
+                                                                                        />
                                                                                         <ListDocs docs={this.state.rootFiles || []} viewMode={this.state.viewMode}
                                                                                                   onDocClick={(item) => this.setState({selectedDoc: item, openRightMenu: true}) }
                                                                                                   showDoc={(doc) => this.openPdfModal(doc.id)}
@@ -1610,6 +1678,7 @@ export default class DriveV3 extends React.Component {
                                                                                                       this.props.history.push("/signDoc/doc/"+id)
                                                                                                   }}
                                                                                         />
+
                                                                                     </div> :
                                                                                     this.props.match.params.section_id && this.props.match.params.section_id === 'shared' ?
                                                                                         <div style={{marginTop: 15}}>
@@ -1630,6 +1699,24 @@ export default class DriveV3 extends React.Component {
                                                                                         </div> :
 
                                                                                         <div style={{marginTop: 15}}>
+                                                                                            <ListFolders items={this.state.selectedFolderFolders}
+                                                                                                         onDoubleClickFolder={(folder) => {
+                                                                                                             this.props.history.replace({pathname: '/drive/' + folder.id});
+                                                                                                             this.setState({
+                                                                                                                 selectedDriveItem:[folder.id],
+                                                                                                                 expandedDriveItems:[folder.id],
+                                                                                                                 selectedFolder:this.getFolderById(folder.id,this.state.folders),
+                                                                                                                 autoExpandParent:true,
+                                                                                                                 selectedFoldername: folder.name,
+                                                                                                                 selectedFolderFiles: folder.Content.files || [],
+                                                                                                                 selectedFolderFolders:folder.Content.folders || [],
+                                                                                                                 focusedItem: "Drive",
+                                                                                                                 breadcrumbs: this.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedDrive)),
+                                                                                                                 selectedFolderId: folder.id,
+                                                                                                                 showContainerSection: "Drive"
+                                                                                                             })
+                                                                                                         }}
+                                                                                            />
                                                                                             <ListDocs docs={this.state.selectedFolderFiles || []} viewMode={this.state.viewMode}
                                                                                                       onDocClick={(item) => this.setState({selectedDoc: item, openRightMenu: true}) }
                                                                                                       showDoc={(doc) => this.openPdfModal(doc.id)}
@@ -1643,6 +1730,7 @@ export default class DriveV3 extends React.Component {
                                                                                                           this.renameFile_Folder(file,newName)
                                                                                                       }}
                                                                                             />
+
                                                                                         </div> : null
 
 
@@ -3881,7 +3969,6 @@ export default class DriveV3 extends React.Component {
                                                                                                         let container = obj["facturation"] || {};
                                                                                                         container.collaborateur_team = e.target.value;
                                                                                                         obj["facturation"] = container;
-                                                                                                        console.log(obj)
                                                                                                         this.setState({selectedSociete:obj})
                                                                                                     }}
                                                                                                     value={this.state.selectedSociete.facturation ? this.state.selectedSociete.facturation.collaborateur_team || [] : []}
