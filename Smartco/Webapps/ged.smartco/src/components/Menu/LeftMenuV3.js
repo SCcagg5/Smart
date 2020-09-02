@@ -30,6 +30,7 @@ import SocietyMenuItems from "./SocietyMenuItems";
 import ContactsMenuItems from "./ContactsMenuItems";
 import '../../assets/css/antDesign.css';
 import {Input, Tree} from 'antd';
+import TimeSheetMenuItems from "./TimeSheetMenuItems";
 
 const {DirectoryTree} = Tree;
 const {Search} = Input;
@@ -581,8 +582,7 @@ export default function LeftMenuV3(props) {
                             props.showSociete === true ?
                                 <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                         }
-                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Annuaire
-                            societés</Typography>
+                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Annuaire societés</Typography>
                     </div>
                     <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                 </div>
@@ -597,22 +597,30 @@ export default function LeftMenuV3(props) {
                     </div>
 
                 }
-                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "TimeSheet" ? "aliceblue" : ""}}
-                     onClick={() => {
-                         props.setFocusedItem("TimeSheet")
-                         props.setShowTimeSheet()
-                     }}
+                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "TimeSheet" ? "aliceblue":""}} onClick={() => {
+                    props.setShowTimeSheetMenuItems()
+                    props.setFocusedItem("TimeSheet")
+                }}
                 >
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                    <div style={{display: "flex"}}>
+                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                    <div style={{display:"flex"}}>
                         {
-                            props.showTimeSheet === true ?
-                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
+                            props.showTimeSheetMenuItems === true ?
+                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
                         }
-                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Time Sheet</Typography>
+                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Time Sheet</Typography>
                     </div>
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
                 </div>
+                {
+                    props.showTimeSheetMenuItems === true &&
+                    <div>
+                        <TimeSheetMenuItems items={data.TimeSheetMenuItem} selectedTimeSheetItem={props.selectedTimeSheetItem}
+                                            onClick={(nodeId) => {props.onTimeSheetItemClick(nodeId)}} handleSelectTimeSheetMenu={props.handleSelectTimeSheetMenu}
+                        />
+                    </div>
+
+                }
 
             </div>
 

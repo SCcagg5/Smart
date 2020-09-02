@@ -33,7 +33,6 @@ ReactDOM.render(
             <LocaleProvider locale={localeFrOverride}>
                 <App />
             </LocaleProvider>
-
         </BaseProvider>
     </StyletronProvider>,
     document.getElementById("root")

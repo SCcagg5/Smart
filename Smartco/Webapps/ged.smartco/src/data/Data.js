@@ -62,6 +62,165 @@ let Data = {
         }
     ],
 
+    TimeSheetMenuItem : [
+        {
+            nodeId:"activities",
+            title:"Activities",
+            icon:VideoCallIcon
+        },
+        {
+            nodeId:"dashboard",
+            title:"DashBoard Team",
+            icon:MeetingRoomIcon
+        },
+        {
+            nodeId:"dashboardPerson",
+            title:"DashBoard Person / Week",
+            icon:MeetingRoomIcon
+        },
+        {
+            nodeId:"dashboardProject",
+            title:"DashBoard Project",
+            icon:MeetingRoomIcon
+        },
+    ],
+
+
+    dashboardTab:{
+        monday:{
+            date:"8 may ",
+            data:[
+                {
+                    title:"Internal Office (Descovery Design)",
+                    work:"Emails - Good morning",
+                    value:"0.25"
+                },
+                {
+                    title:"Signage Redesign 2017 (Britsh Musuem)",
+                    work:"Graphic Design - Exhibition Signage",
+                    value:"1.50"
+                },
+                {
+                    title:"Signage Redesign 2017 (Britsh Musuem)",
+                    work:"Project Management - Design Review",
+                    value:"1.50"
+                },
+                {
+                    title:"Autumn 2016 Campaign Launch ",
+                    work:"Emails - Good mornin",
+                    value:"2.00"
+                }
+            ]
+        }
+
+    },
+
+    dashbordProject:{
+        acme:[
+            {
+                title:"Autumn 2016 Campaign Launch",
+                budget:"$15,000.00",
+                spent:"$4,710.00",
+                chart:30,
+                romaining:"$10,290.00",
+                purcent:"69%",
+                costs:"$19,500.00"
+
+            },
+            {
+                title:"Website Redesign 2017 - Phase 1",
+                budget:"500.00",
+                spent:"268.83",
+                chart:50,
+                romaining:"231.17",
+                purcent:"46%",
+                costs:"$34,190.00"
+
+            },
+
+        ],
+        astorian:[
+            {
+                title:"Penguin Tour Campaign",
+                budget:"$50,000.00",
+                spent:"$61,089.00",
+                chart:90,
+                romaining:"-$11,089.00",
+                purcent:"-22%",
+                costs:"$26,471.90"
+
+            },
+            {
+                title:"Print Campaign",
+                budget:"500.00",
+                spent:"268.83",
+                chart:40,
+                romaining:"231.17",
+                purcent:"46%",
+                costs:"$34,190.00"
+
+            },
+            {
+                title:"Web Design",
+                budget:"500.00",
+                spent:"268.83",
+                chart:70,
+                romaining:"231.17",
+                purcent:"46%",
+                costs:"$34,190.00"
+
+            },
+        ],
+        barrington:[
+            {
+                title:"Magazine Design",
+                budget:"300.00  ",
+                spent:"167.49",
+                chart:60,
+                romaining:"132.51",
+                purcent:"44%",
+                costs:"$21,190.00"
+
+            },
+            {
+                title:"Spring 2017 Product Launch ",
+                budget:"500.00",
+                spent:"268.83",
+                chart:50,
+                romaining:"231.17",
+                purcent:"46%",
+                costs:"$34,190.00"
+
+            },
+
+        ],
+        british:[
+            {
+                title:"Signage Redsign 2017",
+                budget:"500.00",
+                spent:"268.83",
+                chart:50,
+                romaining:"231.17",
+                purcent:"46%",
+                costs:"$34,190.00"
+
+            },
+        ],
+        broadstreet:[
+            {
+                title:"Product launch",
+                budget:"500.00",
+                spent:"268.83",
+                chart:10,
+                romaining:"231.17",
+                purcent:"46%",
+                costs:"$34,190.00"
+
+            },
+        ]
+    },
+
+
     titres : [
         "","Associés", "Conseil", "collaborateurs", "Avocats-stagiaires", "Personnel Administratif"
     ],

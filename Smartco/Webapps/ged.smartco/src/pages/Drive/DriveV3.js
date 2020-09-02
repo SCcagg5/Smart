@@ -39,7 +39,6 @@ import SideMenu from "../../components/SideMenu/SideMenu";
 import data from "../../data/Data";
 import SmartService from "../../provider/SmartService";
 import CircularProgress from '@material-ui/core/CircularProgress';
-import LeftMenu from "../../components/Menu/LeftMenu";
 import MuiBackdrop from "../../components/Loading/MuiBackdrop";
 import maillingService from "../../provider/customEmailService";
 import Snackbar from "@material-ui/core/Snackbar";
@@ -95,13 +94,44 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import time from"../../assets/icons/time.svg"
 import money from"../../assets/icons/money.svg"
 import play from"../../assets/icons/play.svg"
+import pluss from"../../assets/icons/pluss.svg"
+import back from"../../assets/icons/back.svg"
+import edit from"../../assets/icons/edit.svg"
 import calendar from"../../assets/icons/calendar.svg"
+import down from "../../assets/icons/down.svg";
 import DatePicker from 'react-date-picker';
 import TableTimeSheet from "../../components/Tables/TableTimeSheet";
 import DescriptionIcon from '@material-ui/icons/Description';
 import entIcon from "../../assets/images/entreprise-icon.png";
 import userAvatar from "../../assets/images/users/user4.jpg";
 import ListFolders from "../../components/List/ListFolders";
+import TableTimeSheetDashboard from "../../components/Tables/TableDashboardTimeSheet";
+import HSBar from "react-horizontal-stacked-bar-chart";
+import AtlButton, { ButtonGroup as AltButtonGroup } from '@atlaskit/button';
+import Timer from "react-compound-timer";
+import SelectSearch from 'react-select-search';
+import "../../assets/css/react-select-search.css"
+
+
+function renderSearchOption(props, option, snapshot, className) {
+    const imgStyle = {
+        borderRadius: '50%',
+        verticalAlign: 'middle',
+        marginRight: 10,
+        width:32,height:32,objectFit:"cover"
+    };
+
+    return (
+        <button {...props} className={className} type="button">
+            <span>
+                <img alt="" style={imgStyle}
+                     src={option.ContactType === "Person" ? option.imageUrl ? option.imageUrl : userAvatar : entIcon} />
+                     <span style={{fontSize:13}}>{option.ContactName}</span>
+            </span>
+        </button>
+    );
+}
+
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
 const checkedIcon = <CheckBoxIcon fontSize="small"/>;
@@ -197,6 +227,7 @@ export default class DriveV3 extends React.Component {
         selectedMeetMenuItem: ["new"],
         selectedSocietyMenuItem:["clients_mondat"],
         selectedContactsMenuItem:["aia"],
+        selectedTimeSheetMenuItem: ["activities"],
 
         selectedSociete: "",
         selectedSocieteKey: "",
@@ -239,6 +270,7 @@ export default class DriveV3 extends React.Component {
 
         },
         contacts: [],
+        societes:[],
         annuaire_clients_mondat:[],
         rooms: [],
         openRightContactModalDetail: false,
@@ -301,6 +333,9 @@ export default class DriveV3 extends React.Component {
             }
         },
         TimeSheetData:[],
+        DashboardPerson:{
+            person:""
+        },
 
     }
 
@@ -335,6 +370,7 @@ export default class DriveV3 extends React.Component {
                             const data = snapshot.val() || [];
                             let contacts = data.contacts || [];
                             let rooms = data.rooms || [];
+                            let societes = data.societes || [];
                             let annuaire_clients_mondat = data.annuaire_client_mondat || [];
 
                             let sharedFolders = gedRes.data.Shared.Content.folders || [];
@@ -362,6 +398,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
+                                            societes:societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
@@ -380,6 +417,7 @@ export default class DriveV3 extends React.Component {
                                             breadcrumbs: "Mon drive / paratgés avec moi",
                                             meeturl: meeturl,
                                             contacts: contacts,
+                                            societes:societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
@@ -404,6 +442,7 @@ export default class DriveV3 extends React.Component {
                                                 selectedFolderId: this.props.match.params.section_id,
                                                 meeturl: meeturl,
                                                 contacts: contacts,
+                                                societes:societes,
                                                 annuaire_clients_mondat: annuaire_clients_mondat,
                                                 rooms: rooms,
                                                 selectedRoom: rooms.length > 0 ? rooms[0] : "",
@@ -439,6 +478,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
+                                            societes:societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
@@ -461,6 +501,7 @@ export default class DriveV3 extends React.Component {
                                                 sharedRootFiles: sharedFiles,
                                                 meeturl: meeturl,
                                                 contacts: contacts,
+                                                societes:societes,
                                                 annuaire_clients_mondat: annuaire_clients_mondat,
                                                 rooms: rooms,
                                                 selectedRoom: rooms[parseInt(this.props.match.params.section_id)],
@@ -494,6 +535,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
+                                            societes:societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
@@ -514,6 +556,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
+                                            societes:societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
@@ -537,6 +580,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
+                                            societes:societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
@@ -563,6 +607,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
+                                            societes:societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
@@ -579,6 +624,8 @@ export default class DriveV3 extends React.Component {
                                         this.setState({
                                             showContainerSection: "TimeSheet",
                                             focusedItem: "TimeSheet",
+                                            selectedTimeSheetMenuItem:["activities"],
+                                            openTimeSheetsMenu:true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
@@ -587,13 +634,80 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
+                                            societes:societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
                                             loading: false
                                         })
-                                    } else {
+                                    }
+                                    else if (this.props.match.params.section_id === "dashboard") {
+                                        this.setState({
+                                            showContainerSection: "TimeSheet",
+                                            focusedItem: "TimeSheet",
+                                            selectedTimeSheetMenuItem:["dashboard"],
+                                            openTimeSheetsMenu:true,
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedDrive: sharedDrive,
+                                            sharedRootFiles: sharedFiles,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            societes:societes,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            firstLoading: false,
+                                            loading: false
+                                        })
+                                    }
+                                    else if (this.props.match.params.section_id === "dashboardPerson") {
+                                        this.setState({
+                                            showContainerSection: "TimeSheet",
+                                            focusedItem: "TimeSheet",
+                                            selectedTimeSheetMenuItem:["dashboardPerson"],
+                                            openTimeSheetsMenu:true,
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedDrive: sharedDrive,
+                                            sharedRootFiles: sharedFiles,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            societes:societes,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            firstLoading: false,
+                                            loading: false
+                                        })
+                                    }
+                                    else if (this.props.match.params.section_id === "dashboardProject") {
+                                        this.setState({
+                                            showContainerSection: "TimeSheet",
+                                            focusedItem: "TimeSheet",
+                                            selectedTimeSheetMenuItem:["dashboardProject"],
+                                            openTimeSheetsMenu:true,
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedDrive: sharedDrive,
+                                            sharedRootFiles: sharedFiles,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            societes:societes,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            firstLoading: false,
+                                            loading: false
+                                        })
+                                    }else{
                                         console.log("URL ERROR")
                                     }
 
@@ -614,6 +728,7 @@ export default class DriveV3 extends React.Component {
                                                     sharedRootFiles: sharedFiles,
                                                     meeturl: meeturl,
                                                     contacts: contacts,
+                                                    societes:societes,
                                                     annuaire_clients_mondat: annuaire_clients_mondat,
                                                     rooms: rooms,
                                                     selectedRoom: rooms.length > 0 ? rooms[0] : "",
@@ -1368,7 +1483,7 @@ export default class DriveV3 extends React.Component {
                                                     item === "Rooms" ? this.state.rooms.length > 0 ? this.props.history.replace({pathname: '/rooms/0'}) : this.props.history.replace({pathname: '/rooms/all'}) :
                                                         item === "Meet" ? this.props.history.replace({pathname: '/meet/new'}) :
                                                             item === "Societe" ? this.props.history.replace({pathname: '/society/clients_mondat'}) :
-                                                                this.props.history.replace({pathname: '/contacts/all'})
+                                                                item === "TimeSheet" ? this.props.history.replace({pathname: '/TimeSheet/activities'}) : this.props.history.replace({pathname: '/drive/0'})
                                                 this.setState({focusedItem: item, showContainerSection: item})
                                             }}
 
@@ -1413,6 +1528,47 @@ export default class DriveV3 extends React.Component {
                                             handleSelectSocietyMenu={(event, nodeIds) => {
                                                 this.setState({selectedSocietyMenuItem: nodeIds})
                                             }}
+
+                                            showTimeSheetMenuItems={this.state.openTimeSheetsMenu}
+                                            setShowTimeSheetMenuItems={() => {
+                                                this.props.history.replace({pathname: '/TimeSheet/activities'});
+                                                this.setState({openTimeSheetsMenu: !this.state.openTimeSheetsMenu,showContainerSection:"TimeSheet",selectedTimeSheetItem:["activities"]})
+                                            }}
+                                            selectedTimeSheetItem={this.state.showContainerSection === "TimeSheet" ? this.state.selectedTimeSheetMenuItem : []}
+
+                                            handleSelectTimeSheetMenu={(event, nodeIds) => {
+                                                this.setState({selectedTimeSheetMenuItem: nodeIds})
+                                            }}
+                                            onTimeSheetItemClick={(nodeId) => {
+                                                this.props.history.replace({pathname: '/TimeSheet/' + nodeId});
+                                                if (nodeId === "activities") {
+                                                    this.setState({
+                                                        focusedItem: "TimeSheet",
+                                                        showContainerSection: "TimeSheet",
+                                                        selectedTimeSheetMenuItem: ["activities"]
+                                                    })
+                                                } else if (nodeId === "dashboard") {
+                                                    this.setState({
+                                                        focusedItem: "TimeSheet",
+                                                        showContainerSection: "TimeSheet",
+                                                        selectedTimeSheetMenuItem: ["dashboard"]
+                                                    })
+                                                } else if (nodeId === "dashboardPerson") {
+                                                    this.setState({
+                                                        focusedItem: "TimeSheet",
+                                                        showContainerSection: "TimeSheet",
+                                                        selectedTimeSheetMenuItem: ["dashboardPerson"]
+                                                    })
+                                                }
+                                                else if (nodeId === "dashboardProject") {
+                                                    this.setState({
+                                                        focusedItem: "TimeSheet",
+                                                        showContainerSection: "TimeSheet",
+                                                        selectedTimeSheetMenuItem: ["dashboardProject"]
+                                                    })
+                                                }
+                                            }}
+
                                             autoExpandParent={this.state.autoExpandParent}
                                             setAutoExpandParent={(b) => this.setState({autoExpandParent:b})}
 
@@ -4191,305 +4347,169 @@ export default class DriveV3 extends React.Component {
                                         }
 
                                         {
-                                            this.state.showContainerSection === "TimeSheet" ?
+                                            this.state.showContainerSection === "TimeSheet" &&
 
-                                                <div>
-                                                    <div className="row">
-                                                        <div className="col-lg-12">
-                                                            <div style={{textAlign: "right"}}>
-                                                                <button onClick={() => this.setState({
-                                                                    editSocieteForm: false,
-                                                                    showContainerSection: "Societe"
-                                                                })}
-                                                                        className="btn btn-sm btn-outline-info">Retour
-                                                                </button>
-                                                            </div>
-                                                            <div className="card-box text-center"
-                                                                 style={{marginTop: 1}}>
+                                            <div>
+                                                {this.state.selectedTimeSheetMenuItem[0] === "activities" ?
+                                                    <div>
+                                                        <div className="row">
+                                                            <div className="col-lg-12">
+                                                                <div style={{textAlign: "right"}}>
+                                                                    <button onClick={() => this.setState({
+                                                                        editSocieteForm: false,
+                                                                        showContainerSection: "Societe"
+                                                                    })}
+                                                                            className="btn btn-sm btn-outline-info">Retour
+                                                                    </button>
+                                                                </div>
+                                                                <div className="card-box text-center"
+                                                                     style={{marginTop: 1}}>
 
 
 
-                                                                <div style={{marginTop: 30}} className="text-left">
-                                                                    <Tabs>
-                                                                        <TabList>
-                                                                            <Tab>Imputation client </Tab>
-                                                                            <Tab>List imputation  </Tab>
-                                                                            <Tab>Imputation team & scheduled time </Tab>
-                                                                            <Tab>New time Entree </Tab>
-                                                                            <Tab>New Expenses </Tab>
-                                                                        </TabList>
+                                                                    <div style={{marginTop: 30}} className="text-left">
+                                                                        <Tabs>
+                                                                            <TabList>
+                                                                                <Tab>Imputation client </Tab>
+                                                                                <Tab>List imputation  </Tab>
+                                                                                <Tab>Imputation team & scheduled time </Tab>
+                                                                                <Tab>New time Entree </Tab>
+                                                                                <Tab>New Expenses </Tab>
+                                                                            </TabList>
 
-                                                                        <TabPanel>
-                                                                            <h5 style={{marginTop: 20,color:"blue"}}>Sélection du client à imputer</h5>
-                                                                            <div className="row border border-primary"
-                                                                                 style={{marginTop: 35}}>
-                                                                                <div className="col-md-4" >
-                                                                                    <input
-                                                                                        className="form-control"
-                                                                                        style={{width:"100%",border:0,marginTop:8}}
-                                                                                        id="search"
-                                                                                        name="search"
-                                                                                        type="text"
-                                                                                        placeholder="Chercher"
-                                                                                        value={this.state.searchSociete}
-                                                                                        onChange={(e)=>{
-                                                                                            this.setState({searchSociete:e.target.value})}}/>
+                                                                            <TabPanel>
+                                                                                <h5 style={{marginTop: 20,color:"blue"}}>Sélection du client à imputer</h5>
+                                                                                <div className="row border border-primary"
+                                                                                     style={{marginTop: 35}}>
+                                                                                    <div className="col-md-4" >
+                                                                                        <input
+                                                                                            className="form-control "
+                                                                                            style={{width:"100%"}}
+                                                                                            id="search"
+                                                                                            namse="search"
+                                                                                            type="text"
+                                                                                            placeholder="search"
+                                                                                            value={this.state.searchSociete}
+                                                                                            onChange={(e)=>{this.setState({searchSociete:e.target.value})}}/>
 
-                                                                                </div>
-                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
-                                                                                    <h5>A-B-C</h5>
-                                                                                </div>
-                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
-                                                                                    <h5>D-E-F</h5>
-                                                                                </div>
-                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
-                                                                                    <h5>G-H-I</h5>
-                                                                                </div>
-                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
-                                                                                    <h5>J-K-L</h5>
-                                                                                </div>
-                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
-                                                                                    <h5>M-N-O</h5>
-                                                                                </div>
-                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
-                                                                                    <h5>P-Q-R</h5>
-                                                                                </div>
-                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
-                                                                                    <h5>S-T-U</h5>
-                                                                                </div>
-                                                                                <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
-                                                                                    <h5>W-X-Y-Z</h5>
-                                                                                </div>
-                                                                            </div>
-
-                                                                            <div className="row mt-3">
-                                                                                <div className="col-md-3">
-                                                                                    <h5>Nom Sociéte</h5>
-
-                                                                                </div>
-                                                                                <div className="col-md-4">
-                                                                                    <h5>Nom du décideur / email</h5>
-
-                                                                                </div>
-                                                                                <div className="col-md-5">
-                                                                                    <h5>Nom du payeur / email</h5>
-
-                                                                                </div>
-
-                                                                            </div>
-                                                                            <div className="mt-2">
-                                                                                {this.state.searchSociete === "" ?
-                                                                                    <div>
-                                                                                        {this.state.annuaire_clients_mondat.map((item,key)=>(
-                                                                                            <div key={key} className="row mt-2">
-                                                                                                <div className="col-md-3">
-                                                                                                    <div>{item.ContactName}</div>
-
-                                                                                                </div>
-                                                                                                <div className="col-md-4">
-                                                                                                    <div>{item.nomDecideur+" / "+item.email}</div>
-
-                                                                                                </div>
-                                                                                                <div className="col-md-5">
-                                                                                                    <div>{item.nomPayeur+" / "+item.emailPayeur}</div>
-
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        ))}
                                                                                     </div>
-                                                                                    :
-                                                                                    <div>
-                                                                                        {
-                                                                                            searchFilter.map((item,key)=>(
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>A-B-C</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>D-E-F</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>G-H-I</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>J-K-L</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>M-N-O</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>P-Q-R</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>S-T-U</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>W-X-Y-Z</h5>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div className="row mt-3">
+                                                                                    <div className="col-md-3">
+                                                                                        <h5>Nom Sociéte</h5>
+
+                                                                                    </div>
+                                                                                    <div className="col-md-4">
+                                                                                        <h5>Nom du décideur / email</h5>
+
+                                                                                    </div>
+                                                                                    <div className="col-md-5">
+                                                                                        <h5>Nom du payeur / email</h5>
+
+                                                                                    </div>
+
+                                                                                </div>
+                                                                                <div className="mt-2">
+                                                                                    {this.state.searchSociete==="" ?
+                                                                                        <div>
+                                                                                            {this.state.societes.map((item,key)=>(
                                                                                                 <div key={key} className="row mt-2">
                                                                                                     <div className="col-md-3">
-                                                                                                        <div>{item.nomSociete}</div>
+                                                                                                        <text>{item.nomSociete}</text>
 
                                                                                                     </div>
                                                                                                     <div className="col-md-4">
-                                                                                                        <div>{item.nomDecideur+" / "+item.email}</div>
+                                                                                                        <text>{item.nomDecideur+" / "+item.email}</text>
 
                                                                                                     </div>
                                                                                                     <div className="col-md-5">
-                                                                                                        <div>{item.nomPayeur+" / "+item.emailPayeur}</div>
+                                                                                                        <text>{item.nomPayeur+" / "+item.emailPayeur}</text>
 
                                                                                                     </div>
                                                                                                 </div>
-                                                                                            ))
-                                                                                        }
-                                                                                    </div>
+                                                                                            ))}
+                                                                                        </div>
+                                                                                        :
+                                                                                        <div>
+                                                                                            {
+                                                                                                searchFilter.map((item,key)=>(
+                                                                                                    <div key={key} className="row mt-2">
+                                                                                                        <div className="col-md-3">
+                                                                                                            <text>{item.nomSociete}</text>
 
+                                                                                                        </div>
+                                                                                                        <div className="col-md-4">
+                                                                                                            <text>{item.nomDecideur+" / "+item.email}</text>
 
+                                                                                                        </div>
+                                                                                                        <div className="col-md-5">
+                                                                                                            <text>{item.nomPayeur+" / "+item.emailPayeur}</text>
 
-
-                                                                                }
-
-                                                                            </div>
-
-                                                                        </TabPanel>
-
-                                                                        <TabPanel>
-                                                                            <div className="row align-items-center">
-                                                                                <ButtonGroup aria-label="outlined secondary button group">
-                                                                                    <BT>ALL</BT>
-                                                                                    <BT><img src={time} style={{width:20}}/>Time</BT>
-                                                                                    <BT> <img src={money} style={{width:20}}/>Expense</BT>
-                                                                                </ButtonGroup>
-
-                                                                                <div className="ml-2">
-
-                                                                                    <DatePicker
-                                                                                        calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                        onChange={(e)=>{
-                                                                                            let d = this.state.TimeSheet
-                                                                                            d.newTime.date= e
-                                                                                            this.setState({TimeSheet:d})
-                                                                                        }}
-                                                                                        value={this.state.TimeSheet.newTime.date}
-                                                                                    />
-                                                                                </div>
-                                                                                <div className="ml-1">
-                                                                                    <h5>-</h5>
-                                                                                </div>
-                                                                                <div className="ml-1">
-                                                                                    <DatePicker
-                                                                                        calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                        onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                            d.newTime.date= e
-                                                                                            this.setState({TimeSheet:d})
-                                                                                        }}
-                                                                                        value={this.state.TimeSheet.newTime.date}
-                                                                                    />
-                                                                                </div>
-
-                                                                                <div className="ml-2">
-                                                                                    <ButtonGroup aria-label="outlined secondary button group">
-
-                                                                                        <BT><img src={play}  style={{width:18,transform:'rotate(180deg)'}}/></BT>
-                                                                                        <BT> <img src={play} style={{width:18}}/></BT>
-                                                                                    </ButtonGroup>
-                                                                                </div>
-
-                                                                                <div className="col-md-2 ml-2">
-                                                                                    <MuiSelect
-                                                                                        labelId="demo-simple-select-label"
-                                                                                        id="demo-simple-select"
-                                                                                        style={{width:"100%"}}
-                                                                                        defaultValue={"Custom"}
-
-
-                                                                                    >
-                                                                                        <MenuItem value={"Custom"}>Custom</MenuItem>
-                                                                                        <MenuItem value={"Associé"}>Custom 2</MenuItem>
-                                                                                        <MenuItem value={"Collaborateur"}>Costim 3</MenuItem>
-
-                                                                                    </MuiSelect>
-                                                                                </div>
-                                                                            </div>
-
-                                                                            {
-                                                                                this.state.contacts.length > 0 &&
-                                                                                <TableTimeSheet
-                                                                                    contacts={this.state.TimeSheetData}
-                                                                                    onEditClick={(contact, key) => {
-                                                                                        this.setState({
-                                                                                                selectedSociete: contact,
-                                                                                                selectedSocieteKey: key,
-                                                                                                openRightSocieteModalDetail: true
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                ))
                                                                                             }
-                                                                                        )
-                                                                                    }
-                                                                                    }/>
-                                                                            }
-
-
-                                                                        </TabPanel>
-
-                                                                        <TabPanel>
-                                                                        </TabPanel>
-
-                                                                        <TabPanel>
-                                                                            <div className="row">
-                                                                                <div className="col-md-4">
-                                                                                    <div>
-                                                                                        <h5>Durée</h5>
-                                                                                        <div className="row">
-                                                                                            <div className="col-md-6">
-                                                                                                <input
-                                                                                                    className="form-control "
-                                                                                                    id="duree"
-                                                                                                    style={{width:"100%"}}
-                                                                                                    name="duree"
-                                                                                                    type="text"
-                                                                                                    placeholder="Duree"
-                                                                                                    value={this.state.TimeSheet.newTime.duree}
-                                                                                                    onChange={(e)=>{let d=this.state.TimeSheet
-                                                                                                        d.newTime.duree=e.target.value
-                                                                                                        this.setState({TimeSheet:d})}}/>
-
-                                                                                            </div>
-                                                                                            <div className="col-md-6">
-
-
-                                                                                            </div>
                                                                                         </div>
 
-                                                                                    </div>
 
+
+
+                                                                                    }
 
                                                                                 </div>
-                                                                                <div className="col-md-4">
-                                                                                    <div>
-                                                                                        <h5>Sujet</h5>
-                                                                                        <MuiSelect
-                                                                                            labelId="demo-simple-select-label"
-                                                                                            id="demo-simple-select"
-                                                                                            style={{width:"100%"}}
-                                                                                            value={this.state.TimeSheet.newTime.sujet}
+
+                                                                            </TabPanel>
+
+                                                                            <TabPanel>
+                                                                                <div className="row align-items-center">
+                                                                                    <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                        <BT>ALL</BT>
+                                                                                        <BT><img src={time} style={{width:20}}/>Time</BT>
+                                                                                        <BT> <img src={money} style={{width:20}}/>Expense</BT>
+                                                                                    </ButtonGroup>
+
+                                                                                    <div className="ml-2">
+
+                                                                                        <DatePicker
+
+
+                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
                                                                                             onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                d.newTime.sujet= e.target.value
+                                                                                                d.newTime.date= e
                                                                                                 this.setState({TimeSheet:d})
                                                                                             }}
-
-
-                                                                                        >
-                                                                                            <MenuItem value={"Sécretaria"}>Sujet 1</MenuItem>
-                                                                                            <MenuItem value={"Associé"}>Sujet 2</MenuItem>
-                                                                                            <MenuItem value={"Collaborateur"}>Sujet 3</MenuItem>
-
-                                                                                        </MuiSelect>
+                                                                                            value={this.state.TimeSheet.newTime.date}
+                                                                                        />
                                                                                     </div>
-
-                                                                                </div>
-
-                                                                            </div>
-                                                                            <div className="row mt-3">
-                                                                                <div className="col-md-4">
-                                                                                    <div>
-                                                                                        <h5>Catégories d’activité </h5>
-                                                                                        <MuiSelect
-                                                                                            labelId="demo-simple-select-label"
-                                                                                            id="demo-simple-select"
-                                                                                            style={{width:"100%"}}
-                                                                                            value={this.state.TimeSheet.newTime.categoriesActivite}
-                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                d.newTime.categoriesActivite= e.target.value
-                                                                                                this.setState({TimeSheet:d})
-                                                                                            }}
-
-
-                                                                                        >
-                                                                                            <MenuItem value={"Sécretaria"}>categorie 1</MenuItem>
-                                                                                            <MenuItem value={"Associé"}>categorie 2</MenuItem>
-                                                                                            <MenuItem value={"Collaborateur"}>categorie 3</MenuItem>
-
-                                                                                        </MuiSelect>
+                                                                                    <div className="ml-1">
+                                                                                        <h5>-</h5>
                                                                                     </div>
-
-                                                                                </div>
-                                                                                <div className="col-md-4">
-                                                                                    <div style={{width:"100%"}}>
-                                                                                        <h5>Date</h5>
+                                                                                    <div className="ml-1">
                                                                                         <DatePicker
                                                                                             calendarIcon={<img src={calendar} style={{width:20}}/> }
                                                                                             onChange={(e)=>{let d = this.state.TimeSheet
@@ -4498,124 +4518,1426 @@ export default class DriveV3 extends React.Component {
                                                                                             }}
                                                                                             value={this.state.TimeSheet.newTime.date}
                                                                                         />
-
                                                                                     </div>
 
+                                                                                    <div className="ml-2">
+                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+
+                                                                                            <BT><img src={play}  style={{width:18,transform:'rotate(180deg)'}}/></BT>
+                                                                                            <BT> <img src={play} style={{width:18}}/></BT>
+                                                                                        </ButtonGroup>
+                                                                                    </div>
+
+                                                                                    <div className="col-md-2 ml-2">
+                                                                                        <Select
+                                                                                            labelId="demo-simple-select-label"
+                                                                                            id="demo-simple-select"
+                                                                                            style={{width:"100%"}}
+                                                                                            defaultValue={"Custom"}
+
+
+                                                                                        >
+                                                                                            <MenuItem value={"Custom"}>Custom</MenuItem>
+                                                                                            <MenuItem value={"Associé"}>Custom 2</MenuItem>
+                                                                                            <MenuItem value={"Collaborateur"}>Costim 3</MenuItem>
+
+                                                                                        </Select>
+                                                                                    </div>
                                                                                 </div>
 
-                                                                            </div>
-                                                                            <div className="row mt-3">
-                                                                                <div className="col-md-4">
-                                                                                    <div>
-                                                                                        <div >
-                                                                                            <h5>Description</h5>
+                                                                                {
+                                                                                    this.state.contacts.length > 0 &&
+                                                                                    <TableTimeSheet
+                                                                                        contacts={this.state.TimeSheetData}
+                                                                                        onEditClick={(contact, key) => {
+                                                                                            this.setState({
+                                                                                                    selectedSociete: contact,
+                                                                                                    selectedSocieteKey: key,
+                                                                                                    openRightSocieteModalDetail: true
+                                                                                                }
+                                                                                            )
+                                                                                        }
+                                                                                        }/>
+                                                                                }
+
+
+                                                                            </TabPanel>
+
+                                                                            <TabPanel/>
+
+                                                                            <TabPanel>
+                                                                                <div className="row mt-2">
+                                                                                    <div className="col-md-6">
+                                                                                            <h5>Durée</h5>
+                                                                                            <div className="row">
+                                                                                                <div className="col-md-5">
+                                                                                                    <input
+                                                                                                        className="form-control "
+                                                                                                        id="duree"
+                                                                                                        style={{width:"100%"}}
+                                                                                                        name="duree"
+                                                                                                        type="text"
+                                                                                                        placeholder="Duree"
+                                                                                                        value={this.state.TimeSheet.newTime.duree}
+                                                                                                        onChange={(e)=>{let d=this.state.TimeSheet
+                                                                                                            d.newTime.duree=e.target.value
+                                                                                                            this.setState({TimeSheet:d})}}/>
+
+                                                                                                </div>
+                                                                                                <div className="col-md-7">
+
+                                                                                                    <div  style={{display:"flex"}}>
+                                                                                                        <Timer
+                                                                                                            initialTime={0}
+                                                                                                            startImmediately={false}
+                                                                                                        >
+                                                                                                            {({ start, resume, pause, stop, reset, timerState }) => (
+                                                                                                                <React.Fragment>
+                                                                                                                    <div align="center" style={{backgroundColor:"#c0c0c0",padding:8,color:"#000",height:36,fontWeight:700,fontSize:15}}>
+                                                                                                                        <Timer.Hours  /> h:
+                                                                                                                        <Timer.Minutes /> m:
+                                                                                                                        <Timer.Seconds /> s
+                                                                                                                    </div>
+                                                                                                                    <div style={{marginLeft:10}}>
+                                                                                                                        <div align="center" style={{backgroundColor:"green",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer"}}
+                                                                                                                             onClick={start}
+                                                                                                                        >
+                                                                                                                            Start</div>
+                                                                                                                        <div align="center" style={{backgroundColor:"red",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer",marginTop:3}}
+                                                                                                                             onClick={stop}
+                                                                                                                        >
+                                                                                                                            Stop</div>
+                                                                                                                        <div align="center" style={{backgroundColor:"#c0c0c0",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer",marginTop:3}}
+                                                                                                                             onClick={reset}
+                                                                                                                        >
+                                                                                                                            Reset</div>
+                                                                                                                    </div>
+
+                                                                                                                </React.Fragment>
+                                                                                                            )}
+                                                                                                        </Timer>
+                                                                                                    </div>
+
+                                                                                                </div>
+                                                                                            </div>
+                                                                                    </div>
+                                                                                    <div className="col-md-4">
+                                                                                        <div>
+                                                                                            <h5>identification / Imputation client</h5>
+                                                                                            <SelectSearch
+                                                                                                options={
+                                                                                                    this.state.annuaire_clients_mondat.map(({ContactType,ContactName,imageUrl }) =>
+                                                                                                        ({ value: ContactName, name: ContactName, ContactType:ContactType,ContactName:ContactName, imageUrl:imageUrl }))
+                                                                                                }
+                                                                                                renderOption={renderSearchOption}
+                                                                                                search
+                                                                                                placeholder="Chercher votre client"
+                                                                                                //printOptions="always"
+                                                                                            />
                                                                                         </div>
-                                                                                        <textarea
-                                                                                            className="form-control "
-                                                                                            id="duree"
+
+                                                                                    </div>
+
+                                                                                </div>
+                                                                                <div className="row mt-3">
+                                                                                    <div className="col-md-4">
+                                                                                        <div>
+                                                                                            <h5>Catégories d’activité </h5>
+                                                                                            <MuiSelect
+                                                                                                labelId="demo-simple-select-label"
+                                                                                                id="demo-simple-select"
+                                                                                                style={{width:"100%"}}
+                                                                                                value={this.state.TimeSheet.newTime.categoriesActivite}
+                                                                                                onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                    d.newTime.categoriesActivite= e.target.value
+                                                                                                    this.setState({TimeSheet:d})
+                                                                                                }}
+
+
+                                                                                            >
+                                                                                                <MenuItem value={"Sécretaria"}>categorie 1</MenuItem>
+                                                                                                <MenuItem value={"Associé"}>categorie 2</MenuItem>
+                                                                                                <MenuItem value={"Collaborateur"}>categorie 3</MenuItem>
+
+                                                                                            </MuiSelect>
+                                                                                        </div>
+
+                                                                                    </div>
+                                                                                    <div className="col-md-4">
+                                                                                        <div style={{width:"100%"}}>
+                                                                                            <h5>Date</h5>
+                                                                                            <DatePicker
+
+                                                                                                calendarIcon={<img src={calendar} style={{width:20}}/> }
+                                                                                                onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                    d.newTime.date= e
+                                                                                                    this.setState({TimeSheet:d})
+                                                                                                }}
+                                                                                                value={this.state.TimeSheet.newTime.date}
+                                                                                            />
+
+                                                                                        </div>
+
+                                                                                    </div>
+
+                                                                                </div>
+                                                                                <div className="row mt-3">
+                                                                                    <div className="col-md-4">
+                                                                                        <div>
+                                                                                            <div >
+                                                                                                <h5>Description</h5>
+                                                                                            </div>
+                                                                                            <textarea
+                                                                                                className="form-control "
+                                                                                                id="duree"
+                                                                                                style={{width:"100%"}}
+                                                                                                name="duree"
+                                                                                                rows={5}
+                                                                                                value={this.state.TimeSheet.newTime.description}
+                                                                                                onChange={(e)=>{let d=this.state.TimeSheet
+                                                                                                    d.newTime.description=e.target.value
+                                                                                                    this.setState({TimeSheet:d})}}/>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div className="col-md-4">
+                                                                                        <div>
+                                                                                            <h6>Utilisateur chez OA </h6>
+                                                                                        </div>
+
+                                                                                        <MuiSelect
+                                                                                            labelId="demo-mutiple-chip-label"
+                                                                                            id="demo-mutiple-chip"
+
                                                                                             style={{width:"100%"}}
-                                                                                            name="duree"
-                                                                                            multiple={true}
-                                                                                            type="text"
-                                                                                            rows={5}
+                                                                                            value={this.state.TimeSheet.newTime.utilisateurOA}
+                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                d.newTime.utilisateurOA=e.target.value
 
-                                                                                            value={this.state.TimeSheet.newTime.description}
-                                                                                            onChange={(e)=>{let d=this.state.TimeSheet
-                                                                                                d.newTime.description=e.target.value
-                                                                                                this.setState({TimeSheet:d})}}/>
+                                                                                                this.setState({TimeSheet:d})
+                                                                                            }}
+                                                                                            MenuProps={Data.MenuProps}
+
+
+                                                                                        >
+                                                                                            {this.state.contacts.map((name,key) => (
+                                                                                                <MenuItem key={key} value={name} s>
+                                                                                                    <div className="row align-items-center justify-content-center">   <Avatar alt="Natacha" src={name.imageUrl} /> <text >{name.nom + " " + name.prenom}</text></div>
+
+                                                                                                </MenuItem>
+                                                                                            ))}
+                                                                                        </MuiSelect>
+
+                                                                                        <div className="mt-3">
+                                                                                            <h6>
+                                                                                                Rate de facturation
+                                                                                            </h6>
+                                                                                            <Input
+                                                                                                className="form-control "
+                                                                                                id="duree"
+                                                                                                style={{width:"100%"}}
+                                                                                                name="duree"
+                                                                                                type="text"
+                                                                                                endAdornment={<InputAdornment position="end">CHF:Hr</InputAdornment>}
+
+
+                                                                                                value={this.state.TimeSheet.newTime.rateFacturation+""}
+                                                                                                onChange={(e)=>{let d=this.state.TimeSheet
+                                                                                                    d.newTime.rateFacturation=e.target.value
+                                                                                                    this.setState({TimeSheet:d})}}/>
+
+
+                                                                                        </div>
                                                                                     </div>
-                                                                                </div>
-                                                                                <div className="col-md-4">
-                                                                                    <div>
-                                                                                        <h6>Utilisateur chez OA </h6>
-                                                                                    </div>
 
-                                                                                    <MuiSelect
-                                                                                        labelId="demo-mutiple-chip-label"
-                                                                                        id="demo-mutiple-chip"
-
-                                                                                        style={{width:"100%"}}
-                                                                                        value={this.state.TimeSheet.newTime.utilisateurOA}
-                                                                                        onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                            d.newTime.utilisateurOA=e.target.value
-
-                                                                                            this.setState({TimeSheet:d})
-                                                                                        }}
-                                                                                        MenuProps={Data.MenuProps}
-
-
-                                                                                    >
-                                                                                        {this.state.contacts.map((name,key) => (
-                                                                                            <MenuItem key={key} value={name} s>
-                                                                                                <div className="row align-items-center justify-content-center">   <Avatar alt="Natacha" src={name.imageUrl} /> <text >{name.nom + " " + name.prenom}</text></div>
-
-                                                                                            </MenuItem>
-                                                                                        ))}
-                                                                                    </MuiSelect>
-
-                                                                                    <div className="mt-3">
-                                                                                        <h6>
-                                                                                            Rate de facturation
-                                                                                        </h6>
-                                                                                        <Input
-                                                                                            className="form-control "
-                                                                                            id="duree"
-                                                                                            style={{width:"100%"}}
-                                                                                            name="duree"
-                                                                                            type="text"
-                                                                                            endAdornment={<InputAdornment position="end">CHF:Hr</InputAdornment>}
-
-
-                                                                                            value={this.state.TimeSheet.newTime.rateFacturation+""}
-                                                                                            onChange={(e)=>{let d=this.state.TimeSheet
-                                                                                                d.newTime.rateFacturation=e.target.value
-                                                                                                this.setState({TimeSheet:d})}}/>
-
-
-                                                                                    </div>
                                                                                 </div>
 
-                                                                            </div>
 
-                                                                            <div className="row mt-4">
-                                                                                <div className="col-md-3">
-                                                                                    <BT onClick={()=>{this.saveTimeSheet()}} style={{borderRadius:10}} variant="contained" color="primary">
-                                                                                        Enregistrer
-                                                                                    </BT>
+
+                                                                                <div align="center" className=" mt-4">
+                                                                                    <AltButtonGroup>
+                                                                                        <AtlButton onClick={()=>{this.saveTimeSheet()}} appearance="primary">Enregistrer</AtlButton>
+                                                                                        <AtlButton appearance="">Enregistrer et créer une autre</AtlButton>
+                                                                                        <AtlButton appearance="">Enregistrer & dupliquer</AtlButton>
+                                                                                        <AtlButton appearance="">Annuler</AtlButton>
+                                                                                    </AltButtonGroup>
                                                                                 </div>
-                                                                                <div className="col-md-3">
-                                                                                    <BT style={{borderRadius:10}} variant="contained" >
-                                                                                        Sauver et créer une autre
-                                                                                    </BT>
-                                                                                </div>
-                                                                                <div className="col-md-3">
-                                                                                    <BT style={{borderRadius:10}} variant="contained" >
-                                                                                        Sauver & dupliquer
-                                                                                    </BT>
-                                                                                </div>
-                                                                                <div className="col-md-3">
-                                                                                    <BT style={{borderRadius:10}} variant="contained" >
-                                                                                        Annuler
-                                                                                    </BT>
-                                                                                </div>
+                                                                            </TabPanel>
 
-                                                                            </div>
-                                                                        </TabPanel>
-
-                                                                        <TabPanel>
-                                                                        </TabPanel>
+                                                                            <TabPanel/>
 
 
 
 
-                                                                    </Tabs>
+                                                                        </Tabs>
+                                                                    </div>
                                                                 </div>
                                                             </div>
+
                                                         </div>
 
-                                                    </div>
+                                                    </div>:null
 
-                                                </div>:null
+                                                }
+                                                {this.state.selectedTimeSheetMenuItem[0] ==="dashboard"?
+                                                    <div>
+                                                        <div className="row">
+
+                                                            <div className="col-lg-12">
+                                                                <div className="row align-items-center²">
+                                                                    <div className="col-md-6 text-left">
+                                                                        <h5 className="font-weight-bold">Time Sheet</h5>
+                                                                        <h6 className="ml-2"> > Dashboard </h6>
+
+                                                                    </div>
+                                                                    <div className="col-md-6" style={{textAlign: "right"}}>
+                                                                        <button onClick={() => this.setState({
+                                                                            editSocieteForm: false,
+                                                                            showContainerSection: "TimeSheet"
+                                                                        })}
+                                                                                className="btn btn-sm btn-outline-info">Retour
+                                                                        </button>
+                                                                    </div>
+
+                                                                </div>
+                                                                <div className="card-box text-center"
+                                                                     style={{marginTop: 1}}>
+
+
+
+                                                                    <div style={{marginTop: 10}} className="text-left">
+                                                                        <Tabs>
+                                                                            <TabList>
+                                                                                <Tab>This Week</Tab>
+                                                                                <Tab>Scheduled Next Week  </Tab>
+                                                                            </TabList>
+
+                                                                            <TabPanel>
+
+                                                                                <div className="row justify-content-start align-items-center mt-3">
+                                                                                    <div >
+                                                                                        <BT
+                                                                                            variant="contained"
+                                                                                            style={{backgroundColor:"#17a51b",color:"white"}}
+
+
+                                                                                            startIcon={<img src={pluss} style={{width:10}} /> }
+                                                                                        >
+                                                                                            Add Person
+                                                                                        </BT>
+
+
+                                                                                    </div>
+                                                                                    <div className="ml-1">
+                                                                                        <BT
+                                                                                            variant="contained"
+                                                                                            style={{color:"#a6a6a6"}}
+
+
+
+                                                                                        >
+                                                                                            Import
+                                                                                        </BT>
+                                                                                    </div>
+                                                                                    <div className="ml-1">
+                                                                                        <BT
+                                                                                            variant="contained"
+                                                                                            style={{color:"#a6a6a6"}}
+
+
+
+                                                                                        >
+                                                                                            Export
+                                                                                        </BT>
+                                                                                    </div>
+
+                                                                                </div>
+                                                                                <div className="row mt-2" >
+                                                                                    <div className="col-md-4">
+                                                                                        <div className="row align-items-center justify-content-start">
+                                                                                            <h3 className="font-weight-bold">This Week : </h3>
+                                                                                            <h3>08 - 14 may 2017</h3>
+                                                                                        </div>
+
+                                                                                    </div>
+                                                                                    <div className="col-md-8 text-right">
+                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+
+                                                                                            <BT><img src={back}  style={{width:18}}/></BT>
+                                                                                            <BT style={{backgroundColor:"#e6e6e6"}}> This Week</BT>
+                                                                                            <BT> <img src={back} style={{width:18,transform:'rotate(180deg)'}}/></BT>
+
+                                                                                        </ButtonGroup>
+
+
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="row align-items-center w-100">
+                                                                                    <div className="col-md-4 text-left">
+                                                                                        <hr style={{width:"80%",height:1,backgroundColor:"#a6a6a6" ,marginRight:"100%"}}/>
+                                                                                    </div>
+                                                                                    <div className="col-md-8 text-right ">
+                                                                                        <hr style={{width:"100%",height:1,backgroundColor:"#a6a6a6"}}/>
+
+
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div className="row align-items-center">
+                                                                                    <div className="col-md-4">
+                                                                                        <div className="row align-items-center">
+                                                                                            <div className="col-md-6 text-left">
+                                                                                                <h6>Total Hours</h6>
+                                                                                                <h3>236.59</h3>
+                                                                                            </div>
+                                                                                            <div className="col-md-6 text-left">
+                                                                                                <h6>Total Capacity</h6>
+                                                                                                <h3>280.00</h3>
+                                                                                            </div>
+
+                                                                                        </div>
+
+                                                                                    </div>
+                                                                                    <div className="col-md-8 text-right">
+                                                                                        <div className="row align-items-center">
+                                                                                            <div className="col-md-2">
+                                                                                                <div>
+                                                                                                    <text>176.91</text>
+
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                    <text>59.66</text>
+
+                                                                                                </div>
+
+                                                                                            </div>
+                                                                                            <div className="col-md-10">
+                                                                                                <div style={{padding:20 ,width:"80%"}}>
+                                                                                                    <HSBar
+                                                                                                        showTextDown
+                                                                                                        id="hsbarExample"
+                                                                                                        outlineWidth={0.2}
+                                                                                                        outlineRadius={10}
+
+                                                                                                        outlineColor="#a6a6a6"
+
+
+                                                                                                        data={[
+                                                                                                            { value: 60,description: "0%", color: "#1998ed" },
+                                                                                                            { value: 20, description: "60%", color: "#a5d6fa" },
+                                                                                                            { value: 20, description: "80%", color: "white"}
+                                                                                                        ]}
+                                                                                                    />
+                                                                                                </div>
+
+                                                                                            </div>
+
+                                                                                        </div>
+
+                                                                                    </div>
+
+                                                                                </div>
+
+                                                                                <div >
+                                                                                    {
+                                                                                        this.state.contacts.length > 0 &&
+                                                                                        <TableTimeSheetDashboard
+                                                                                            contacts={this.state.contacts}
+                                                                                            onEditClick={(contact, key) => {
+                                                                                                this.setState({
+                                                                                                        selectedSociete: contact,
+                                                                                                        selectedSocieteKey: key,
+                                                                                                        openRightSocieteModalDetail: true
+                                                                                                    }
+                                                                                                )
+                                                                                            }
+                                                                                            }/>
+                                                                                    }
+
+
+                                                                                </div>
+
+
+
+                                                                            </TabPanel>
+
+                                                                            <TabPanel>
+                                                                                <div className="row align-items-center">
+                                                                                    <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                        <BT>ALL</BT>
+                                                                                        <BT><img src={time} style={{width:20}}/>Time</BT>
+                                                                                        <BT> <img src={money} style={{width:20}}/>Expense</BT>
+                                                                                    </ButtonGroup>
+
+                                                                                    <div className="ml-2">
+
+                                                                                        <DatePicker
+
+
+                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
+                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                d.newTime.date= e
+                                                                                                this.setState({TimeSheet:d})
+                                                                                            }}
+                                                                                            value={this.state.TimeSheet.newTime.date}
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="ml-1">
+                                                                                        <h5>-</h5>
+                                                                                    </div>
+                                                                                    <div className="ml-1">
+                                                                                        <DatePicker
+                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
+                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                d.newTime.date= e
+                                                                                                this.setState({TimeSheet:d})
+                                                                                            }}
+                                                                                            value={this.state.TimeSheet.newTime.date}
+                                                                                        />
+                                                                                    </div>
+
+                                                                                    <div className="ml-2">
+                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+
+                                                                                            <BT><img src={play}  style={{width:18,transform:'rotate(180deg)'}}/></BT>
+                                                                                            <BT> <img src={play} style={{width:18}}/></BT>
+                                                                                        </ButtonGroup>
+                                                                                    </div>
+
+                                                                                    <div className="col-md-2 ml-2">
+                                                                                        <Select
+                                                                                            labelId="demo-simple-select-label"
+                                                                                            id="demo-simple-select"
+                                                                                            style={{width:"100%"}}
+                                                                                            defaultValue={"Custom"}
+
+
+                                                                                        >
+                                                                                            <MenuItem value={"Custom"}>Custom</MenuItem>
+                                                                                            <MenuItem value={"Associé"}>Custom 2</MenuItem>
+                                                                                            <MenuItem value={"Collaborateur"}>Costim 3</MenuItem>
+
+                                                                                        </Select>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                {
+                                                                                    this.state.contacts.length > 0 &&
+                                                                                    <TableTimeSheet
+                                                                                        contacts={this.state.TimeSheetData}
+                                                                                        onEditClick={(contact, key) => {
+                                                                                            this.setState({
+                                                                                                    selectedSociete: contact,
+                                                                                                    selectedSocieteKey: key,
+                                                                                                    openRightSocieteModalDetail: true
+                                                                                                }
+                                                                                            )
+                                                                                        }
+                                                                                        }/>
+                                                                                }
+
+
+                                                                            </TabPanel>
+                                                                        </Tabs>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>:null
+
+                                                }
+                                                {this.state.selectedTimeSheetMenuItem[0] ==="dashboardPerson"?
+                                                    <div>
+                                                        <div className="row">
+
+                                                            <div className="col-lg-12">
+                                                                <div className="row align-items-center²">
+                                                                    <div className="col-md-6 text-left">
+                                                                        <h5 className="font-weight-bold">Time Sheet</h5>
+                                                                        <h6 className="ml-2"> > Dashboard </h6>
+
+                                                                    </div>
+                                                                    <div className="col-md-6" style={{textAlign: "right"}}>
+                                                                        <button onClick={() => this.setState({
+                                                                            editSocieteForm: false,
+                                                                            showContainerSection: "TimeSheet"
+                                                                        })}
+                                                                                className="btn btn-sm btn-outline-info">Retour
+                                                                        </button>
+                                                                    </div>
+
+                                                                </div>
+                                                                <div className="card-box text-center"
+                                                                     style={{marginTop: 1}}>
+
+
+
+                                                                    <div style={{marginTop: 10}} className="text-left">
+                                                                        <Tabs>
+                                                                            <TabList>
+                                                                                <Tab>This Week</Tab>
+                                                                                <Tab>Scheduled Next Week  </Tab>
+                                                                            </TabList>
+
+                                                                            <TabPanel>
+
+                                                                                <div className="row border border-primary"
+                                                                                     style={{marginTop: 35}}>
+                                                                                    <div className="col-md-4" >
+                                                                                        <FormControl variant="outlined"  style={{width:"100%"}}>
+                                                                                            <Select
+                                                                                                labelId="demo-simple-select-filled-label"
+                                                                                                id="demo-simple-select-filled"
+                                                                                                style={{width:"100%"}}
+                                                                                                value={this.state.DashboardPerson.person}
+                                                                                                onChange={(e)=>{let d = this.state.DashboardPerson
+                                                                                                    d.person=e.target.value
+
+                                                                                                    this.setState({DashboardPerson:d})
+                                                                                                    console.log(e.target.value)}}
+
+
+                                                                                                MenuProps={Data.MenuProps}
+                                                                                            >
+                                                                                                {this.state.contacts.map((name,key) => (
+                                                                                                    <MenuItem key={key} value={name} >
+                                                                                                        <div className="row align-items-center">
+                                                                                                            <Avatar alt="Natacha" src={name.imageUrl} style={{marginLeft:10}} /> <text className="ml-2">  {name.nom + " " +name.prenom} </text>
+                                                                                                        </div>
+                                                                                                    </MenuItem>
+                                                                                                ))}
+                                                                                            </Select>
+                                                                                        </FormControl>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>A-B-C</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>D-E-F</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>G-H-I</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>J-K-L</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>M-N-O</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>P-Q-R</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>S-T-U</h5>
+                                                                                    </div>
+                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                        <h5>W-X-Y-Z</h5>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="row mt-2" >
+                                                                                    <div className="col-md-4">
+                                                                                        <div className="row align-items-center justify-content-start">
+                                                                                            <h3 className="font-weight-bold">This Week : </h3>
+                                                                                            <h3>08 - 14 may 2017</h3>
+                                                                                        </div>
+
+                                                                                    </div>
+                                                                                    <div className="col-md-8 text-right">
+                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+
+                                                                                            <BT><img src={back}  style={{width:18}}/></BT>
+                                                                                            <BT style={{backgroundColor:"#e6e6e6"}}> This Week</BT>
+                                                                                            <BT> <img src={back} style={{width:18,transform:'rotate(180deg)'}}/></BT>
+
+                                                                                        </ButtonGroup>
+
+
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div >
+
+                                                                                    <hr style={{width:"100%",height:1,backgroundColor:"#a6a6a6" }}/>
+
+
+
+                                                                                </div>
+                                                                                { this.state.DashboardPerson.person != ""&&
+                                                                                <div>
+                                                                                    <div className="row align-items-center mt-3 ">
+                                                                                        <div className="col-md-4">
+                                                                                            <div className="row align-items-center">
+                                                                                                <div className="col-md-4">
+                                                                                                    <img
+                                                                                                        src={this.state.DashboardPerson.person.imageUrl } style={{width:"100%"}}/>
+                                                                                                </div>
+                                                                                                <div className="col-md-8">
+                                                                                                    <div>
+                                                                                                        <h4 className="font-weight-bold">{this.state.DashboardPerson.person.nom+" "+this.state.DashboardPerson.person.prenom}</h4>
+                                                                                                    </div>
+                                                                                                    <div>
+                                                                                                        <h5>{this.state.DashboardPerson.person.role}</h5>
+                                                                                                    </div>
+                                                                                                    <div>
+                                                                                                        <h5>{this.state.DashboardPerson.person.email}</h5>
+                                                                                                    </div>
+
+
+                                                                                                </div>
+
+                                                                                            </div>
+
+                                                                                        </div>
+                                                                                        <div className="col-md-8 text-right">
+                                                                                            <div className="row justify-content-end w-100">
+                                                                                                <BT
+
+                                                                                                    variant="contained"
+                                                                                                    style={{backgroundColor:"#e6e6e6",color:"black",textTransform:'none'}}
+
+
+                                                                                                    startIcon={<img src={edit} style={{width:10}} /> }
+                                                                                                >
+                                                                                                    Edit profile
+                                                                                                </BT>
+                                                                                                <BT
+                                                                                                    variant="contained"
+                                                                                                    endIcon={<img src={down} style={{width:10}}/>}
+                                                                                                    style={{backgroundColor:"#e6e6e6",color:"black",marginLeft:5,textTransform:'none'}}
+
+
+                                                                                                    aria-controls="simple-menu" aria-haspopup="true" >
+                                                                                                    Actions
+
+
+                                                                                                </BT>
+                                                                                                <Menu
+                                                                                                    id="simple-menu"
+                                                                                                    anchorEl={""}
+                                                                                                    keepMounted
+
+                                                                                                >
+                                                                                                    <MenuItem >Profile</MenuItem>
+                                                                                                    <MenuItem >My account</MenuItem>
+                                                                                                    <MenuItem >Logout</MenuItem>
+                                                                                                </Menu>
+
+                                                                                            </div>
+
+
+                                                                                        </div>
+
+                                                                                    </div>
+                                                                                    <div className="row mt-4">
+                                                                                        <div className="col-md-4">
+                                                                                            <div className="col-md-12 " style={{borderStyle:"solid",borderRadius:10,borderWidth:0.5,borderColor:"#a6a6a6"}}>
+                                                                                                <div className="row">
+                                                                                                    <div className="col-md-6 text-left">
+                                                                                                        <h5 style={{color:"#a6a6a6"}}>
+                                                                                                            Total Hours
+                                                                                                        </h5>
+                                                                                                        <h4 className="font-weight-bold">
+                                                                                                            30.75
+                                                                                                        </h4>
+                                                                                                    </div>
+                                                                                                    <div className="col-md-6 text-left">
+                                                                                                        <h5 style={{color:"#a6a6a6"}}>
+                                                                                                            Capacity
+                                                                                                        </h5>
+                                                                                                        <h4 className="font-weight-bold">
+                                                                                                            35.00
+                                                                                                        </h4>
+                                                                                                    </div>
+
+                                                                                                </div>
+
+                                                                                                <div className="mt-2">
+                                                                                                    <HSBar
+
+                                                                                                        showTextDown={false}
+                                                                                                        id="hsbarExample"
+                                                                                                        outlineWidth={0.2}
+
+
+
+                                                                                                        outlineColor="#a6a6a6"
+
+
+                                                                                                        data={[
+                                                                                                            { value: 60,description: "0%", color: "#1998ed" },
+                                                                                                            { value: 20, description: "60%", color: "#a5d6fa" },
+                                                                                                            { value: 20, description: "80%", color: "white"}
+                                                                                                        ]}
+                                                                                                    />
+                                                                                                </div>
+
+                                                                                                <div className="row mt-2 align-items-center  ml-1 " style={{width:"100%"}}>
+                                                                                                    <div className="col-md-6">
+                                                                                                        <div className="row align-items-center   " >
+                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#1998ed"}}>
+
+                                                                                                            </div>
+                                                                                                            <div className="ml-1">
+                                                                                                                <text>Billable</text>
+
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div className="col-md-6 text-right font-weight-bold">
+                                                                                                        <h5>19.91</h5>
+
+                                                                                                    </div>
+
+                                                                                                </div>
+                                                                                                <div className="row mt-1 align-items-center  ml-1 " style={{width:"100%"}}>
+                                                                                                    <div className="col-md-6">
+                                                                                                        <div className="row align-items-center   " >
+                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#a5d6fa"}}>
+
+                                                                                                            </div>
+                                                                                                            <div className="ml-1">
+                                                                                                                <text>Non-Billable</text>
+
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div className="col-md-6 text-right">
+                                                                                                        <h5 className="font-weight-bold">10.81</h5>
+
+                                                                                                    </div>
+
+                                                                                                </div>
+
+                                                                                            </div>
+                                                                                            <div className="col-md-12 mt-3 " style={{borderStyle:"solid",borderRadius:10,borderWidth:0.5,borderColor:"#a6a6a6"}}>
+                                                                                                <div className="row justify-content-center align-items-center">
+                                                                                                    <div style={{width:"12%"}}>
+                                                                                                        <text>Mon</text>
+                                                                                                        <h6>6.50</h6>
+                                                                                                    </div>
+                                                                                                    <div style={{width:"12%"}}>
+                                                                                                        <text>Tue</text>
+                                                                                                        <h6>7.58</h6>
+                                                                                                    </div>
+                                                                                                    <div style={{width:"12%"}}>
+                                                                                                        <text>Wed</text>
+                                                                                                        <h6>6.23</h6>
+                                                                                                    </div>
+                                                                                                    <div style={{width:"12%"}}>
+                                                                                                        <text>Thu</text>
+                                                                                                        <h6>7.33</h6>
+                                                                                                    </div>
+                                                                                                    <div style={{width:"12%"}}>
+                                                                                                        <text>Fri</text>
+                                                                                                        <h6>3.10</h6>
+                                                                                                    </div>
+                                                                                                    <div style={{width:"12%"}}>
+                                                                                                        <text>Sat</text>
+                                                                                                        <h6>0.00</h6>
+                                                                                                    </div>
+                                                                                                    <div style={{width:"12%"}}>
+                                                                                                        <text>Sun</text>
+                                                                                                        <h6>0.00</h6>
+                                                                                                    </div>
+
+
+
+                                                                                                </div>
+                                                                                            </div>
+
+                                                                                            <div className="col-md-12 mt-3 " style={{borderStyle:"solid",borderRadius:10,borderWidth:0.5,borderColor:"#a6a6a6",paddingTop:5}}>
+
+                                                                                                <HSBar
+
+                                                                                                    showTextDown={false}
+                                                                                                    id="hsbarExample"
+                                                                                                    outlineWidth={0.2}
+
+
+
+                                                                                                    outlineColor="#a6a6a6"
+
+
+                                                                                                    data={[
+                                                                                                        { value: 50,description: "0%", color: "#5cb31f" },
+                                                                                                        { value: 20, description: "60%", color: "#fc6420" },
+                                                                                                        { value: 20, description: "80%", color: "#e1c92c"},
+                                                                                                        { value: 10, description: "80%", color: "#20bde8"}
+                                                                                                    ]}
+                                                                                                />
+                                                                                                <div className="row mt-2 align-items-center  ml-1 " style={{width:"100%"}}>
+                                                                                                    <div className="col-md-8">
+                                                                                                        <div className="row align-items-center   " >
+                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#5cb31f"}}>
+
+                                                                                                            </div>
+                                                                                                            <div className="ml-1">
+                                                                                                                <text>Autumn 2016 Campaign Launch </text>
+
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div className="col-md-4 text-right font-weight-bold">
+                                                                                                        <h5>17.83</h5>
+
+                                                                                                    </div>
+
+                                                                                                </div>
+                                                                                                <div className="row mt-1 align-items-center  ml-1 " style={{width:"100%"}}>
+                                                                                                    <div className="col-md-8">
+                                                                                                        <div className="row align-items-center   " >
+                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#fc6420"}}>
+
+                                                                                                            </div>
+                                                                                                            <div className="ml-1">
+                                                                                                                <text>Website Redisgn 2017 - Phase  </text>
+
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div className="col-md-4 text-right font-weight-bold">
+                                                                                                        <h5>5.83</h5>
+
+                                                                                                    </div>
+
+                                                                                                </div>
+                                                                                                <div className="row mt-1 align-items-center  ml-1 " style={{width:"100%"}}>
+                                                                                                    <div className="col-md-8">
+                                                                                                        <div className="row align-items-center   " >
+                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#e1c92c"}}>
+
+                                                                                                            </div>
+                                                                                                            <div className="ml-1">
+                                                                                                                <text>Signage Redesign 2017   </text>
+
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div className="col-md-4 text-right font-weight-bold">
+                                                                                                        <h5>5.33</h5>
+
+                                                                                                    </div>
+
+                                                                                                </div>
+                                                                                                <div className="row mt-1 align-items-center  ml-1 " style={{width:"100%"}}>
+                                                                                                    <div className="col-md-8">
+                                                                                                        <div className="row align-items-center   " >
+                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#20bde8"}}>
+
+                                                                                                            </div>
+                                                                                                            <div className="ml-1">
+                                                                                                                <text>Internal Office   </text>
+
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div className="col-md-4 text-right font-weight-bold">
+                                                                                                        <h5>1.75</h5>
+
+                                                                                                    </div>
+
+                                                                                                </div>
+
+                                                                                            </div>
+
+                                                                                        </div>
+                                                                                        <div className="col-md-8">
+
+                                                                                            <div className="row justify-content-start" style={{borderBottomStyle:"solid",borderBottomColor:"#a6a6a6"}}>
+                                                                                                <div className="col-md-auto">
+                                                                                                    <text className="font-weight-bold" style={{color:"black"}}>Monday  </text>{" "+data.dashboardTab.monday.date}
+                                                                                                </div>
+
+                                                                                            </div>
+                                                                                            {data.dashboardTab.monday.data.map((item,key)=>(
+                                                                                                <div className="row align-items-center" style={{borderBottomStyle:"solid",borderBottomColor:"#a6a6a6" ,borderBottomWidth:0.2 ,marginTop:8,paddingBottom:10}}>
+                                                                                                    <div className="col-md-9 text-left">
+                                                                                                        <div>
+                                                                                                            <text className="font-weight-bold" style={{color:"black"}}>{item.title}</text>
+                                                                                                        </div>
+                                                                                                        <div>
+                                                                                                            <text>{item.work}</text>
+
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div className="col-md-2">
+                                                                                                        <text className="font-weight-bold" style={{color:"black"}}>{item.value}</text>
+                                                                                                    </div>
+                                                                                                    <div className="col-md-1">
+                                                                                                        <IconButton >
+                                                                                                            <img src={edit} style={{width:"100%"}}/>
+                                                                                                        </IconButton>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            ))}
+
+                                                                                        </div>
+
+                                                                                    </div>
+                                                                                </div>
+
+
+                                                                                }
+
+
+                                                                            </TabPanel>
+
+                                                                            <TabPanel>
+                                                                                <div className="row align-items-center">
+                                                                                    <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                        <BT>ALL</BT>
+                                                                                        <BT><img src={time} style={{width:20}}/>Time</BT>
+                                                                                        <BT> <img src={money} style={{width:20}}/>Expense</BT>
+                                                                                    </ButtonGroup>
+
+                                                                                    <div className="ml-2">
+
+                                                                                        <DatePicker
+
+
+                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
+                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                d.newTime.date= e
+                                                                                                this.setState({TimeSheet:d})
+                                                                                            }}
+                                                                                            value={this.state.TimeSheet.newTime.date}
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="ml-1">
+                                                                                        <h5>-</h5>
+                                                                                    </div>
+                                                                                    <div className="ml-1">
+                                                                                        <DatePicker
+                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
+                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                d.newTime.date= e
+                                                                                                this.setState({TimeSheet:d})
+                                                                                            }}
+                                                                                            value={this.state.TimeSheet.newTime.date}
+                                                                                        />
+                                                                                    </div>
+
+                                                                                    <div className="ml-2">
+                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+
+                                                                                            <BT><img src={play}  style={{width:18,transform:'rotate(180deg)'}}/></BT>
+                                                                                            <BT> <img src={play} style={{width:18}}/></BT>
+                                                                                        </ButtonGroup>
+                                                                                    </div>
+
+                                                                                    <div className="col-md-2 ml-2">
+                                                                                        <Select
+                                                                                            labelId="demo-simple-select-label"
+                                                                                            id="demo-simple-select"
+                                                                                            style={{width:"100%"}}
+                                                                                            defaultValue={"Custom"}
+
+
+                                                                                        >
+                                                                                            <MenuItem value={"Custom"}>Custom</MenuItem>
+                                                                                            <MenuItem value={"Associé"}>Custom 2</MenuItem>
+                                                                                            <MenuItem value={"Collaborateur"}>Costim 3</MenuItem>
+
+                                                                                        </Select>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                {
+                                                                                    this.state.contacts.length > 0 &&
+                                                                                    <TableTimeSheet
+                                                                                        contacts={this.state.TimeSheetData}
+                                                                                        onEditClick={(contact, key) => {
+                                                                                            this.setState({
+                                                                                                    selectedSociete: contact,
+                                                                                                    selectedSocieteKey: key,
+                                                                                                    openRightSocieteModalDetail: true
+                                                                                                }
+                                                                                            )
+                                                                                        }
+                                                                                        }/>
+                                                                                }
+
+
+                                                                            </TabPanel>
+                                                                        </Tabs>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>:null
+
+                                                }
+                                                {this.state.selectedTimeSheetMenuItem[0] ==="dashboardProject"?
+                                                    <div>
+                                                        <div className="row">
+
+                                                            <div className="col-lg-12">
+                                                                <div className="row align-items-center²">
+                                                                    <div className="col-md-6 text-left">
+                                                                        <h5 className="font-weight-bold">Time Sheet</h5>
+                                                                        <h6 className="ml-2"> > Dashboard Project </h6>
+
+                                                                    </div>
+                                                                    <div className="col-md-6" style={{textAlign: "right"}}>
+                                                                        <button onClick={() => this.setState({
+                                                                            editSocieteForm: false,
+                                                                            showContainerSection: "TimeSheet"
+                                                                        })}
+                                                                                className="btn btn-sm btn-outline-info">Retour
+                                                                        </button>
+                                                                    </div>
+
+                                                                </div>
+                                                                <div className="card-box text-center"
+                                                                     style={{marginTop: 1}}>
+
+
+
+                                                                    <div style={{marginTop: 10}} className="text-left">
+                                                                        <Tabs>
+                                                                            <TabList>
+                                                                                <Tab>All projects</Tab>
+                                                                                <Tab>This Week</Tab>
+                                                                                <Tab>Scheduled Next Week  </Tab>
+                                                                            </TabList>
+
+                                                                            <TabPanel>
+
+                                                                                <div className="row justify-content-start align-items-center mt-3">
+                                                                                    <div >
+                                                                                        <BT
+                                                                                            variant="contained"
+                                                                                            style={{backgroundColor:"#17a51b",color:"white"}}
+
+
+                                                                                            startIcon={<img src={pluss} style={{width:10}} /> }
+                                                                                        >
+                                                                                            Add Person
+                                                                                        </BT>
+
+
+                                                                                    </div>
+                                                                                    <div className="ml-1">
+                                                                                        <BT
+                                                                                            variant="contained"
+                                                                                            style={{color:"#a6a6a6"}}
+
+
+
+                                                                                        >
+                                                                                            Import
+                                                                                        </BT>
+                                                                                    </div>
+                                                                                    <div className="ml-1">
+                                                                                        <BT
+                                                                                            variant="contained"
+                                                                                            style={{color:"#a6a6a6"}}
+
+
+
+                                                                                        >
+                                                                                            Export
+                                                                                        </BT>
+                                                                                    </div>
+
+                                                                                </div>
+                                                                                <div className="row justify-content-start">
+                                                                                    <div className="mt-3 text-left col-md-3">
+                                                                                        <BT
+                                                                                            variant="contained"
+                                                                                            endIcon={<img alt="" src={down} style={{width:10}}/>}
+                                                                                            style={{backgroundColor:"#e6e6e6",color:"black",marginLeft:5,textTransform:'none',width:"100%"}}
+                                                                                            aria-controls="simple-menu" aria-haspopup="true" >
+                                                                                            Budgeted Project (9)
+                                                                                        </BT>
+                                                                                    </div>
+
+                                                                                </div>
+                                                                                <div className="mt-3">
+                                                                                    <table className="table">
+                                                                                        <thead className="thead-light">
+                                                                                        <tr>
+                                                                                            <th scope="col">ACME CORPORATION</th>
+                                                                                            <th scope="col">Budget</th>
+                                                                                            <th scope="col">Spent</th>
+                                                                                            <th scope="col" style={{width:"20%"}}/>
+
+                                                                                            <th scope="col">Remaining</th>
+                                                                                            <th scope="col"/>
+
+                                                                                            <th scope="col">Cost</th>
+                                                                                        </tr>
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                        {data.dashbordProject.acme.map((item,key)=>(
+                                                                                            <tr key={key}>
+                                                                                                <td>{item.title}</td>
+                                                                                                <td>{item.budget}</td>
+                                                                                                <td>{item.spent}</td>
+                                                                                                <td><div className="progress ml-auto mr-auto w-100 " >
+                                                                                                    <div className="progress-bar" role="progressbar" style={{width: item.chart + "%", backgroundColor: "#1fbce7"}}
+                                                                                                         aria-valuenow="10" aria-valuemin='0'
+                                                                                                         aria-valuemax="100"/>
+                                                                                                </div>  </td>
+                                                                                                <td>{item.romaining } </td>
+                                                                                                <td>{item.purcent}</td>
+
+                                                                                                <td>{item.costs}</td>
+                                                                                            </tr>
+                                                                                        ))
+
+                                                                                        }
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                    <table className="table">
+                                                                                        <thead
+                                                                                            className="thead-light">
+                                                                                        <tr>
+                                                                                            <th scope="col">ASTORIAN PUBLISHING</th>
+                                                                                            <th scope="col">Budget</th>
+                                                                                            <th scope="col">Spent</th>
+                                                                                            <th scope="col" style={{width:"20%"}}/>
+
+                                                                                            <th scope="col">Remaining</th>
+                                                                                            <th scope="col"/>
+
+                                                                                            <th scope="col">Cost</th>
+                                                                                        </tr>
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                        {data.dashbordProject.astorian.map((item,key)=>(
+                                                                                            <tr key={key}>
+                                                                                                <td>{item.title}</td>
+                                                                                                <td>{item.budget}</td>
+                                                                                                <td>{item.spent}</td>
+                                                                                                <td><div className="progress ml-auto mr-auto w-100 " >
+                                                                                                    <div className="progress-bar" role="progressbar" style={{width: item.chart + "%", backgroundColor: "#1fbce7"}}
+                                                                                                         aria-valuenow="10" aria-valuemin='0'
+                                                                                                         aria-valuemax="100"/>
+                                                                                                </div>  </td>
+                                                                                                <td>{item.romaining } </td>
+                                                                                                <td>{item.purcent}</td>
+                                                                                                <td>{item.costs}</td>
+                                                                                            </tr>
+                                                                                        ))
+
+                                                                                        }
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                    <table className="table">
+                                                                                        <thead
+                                                                                            className="thead-light">
+                                                                                        <tr>
+                                                                                            <th scope="col">BARRINGTON PUBLISHERS</th>
+                                                                                            <th scope="col">Budget</th>
+                                                                                            <th scope="col">Spent</th>
+                                                                                            <th scope="col" style={{width:"20%"}}/>
+
+                                                                                            <th scope="col">Remaining</th>
+                                                                                            <th scope="col"/>
+
+                                                                                            <th scope="col">Cost</th>
+                                                                                        </tr>
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                        {data.dashbordProject.barrington.map((item,key)=>(
+                                                                                            <tr key={key}>
+                                                                                                <td>{item.title}</td>
+                                                                                                <td>{item.budget}</td>
+                                                                                                <td>{item.spent}</td>
+                                                                                                <td><div className="progress ml-auto mr-auto w-100 " >
+                                                                                                    <div className="progress-bar" role="progressbar" style={{width: item.chart + "%", backgroundColor: "#1fbce7"}}
+                                                                                                         aria-valuenow="10" aria-valuemin='0'
+                                                                                                         aria-valuemax="100"/>
+                                                                                                </div>  </td>
+                                                                                                <td>{item.romaining } </td>
+                                                                                                <td>{item.purcent}</td>
+
+                                                                                                <td>{item.costs}</td>
+                                                                                            </tr>
+                                                                                        ))
+
+                                                                                        }
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                    <table className="table">
+                                                                                        <thead
+                                                                                            className="thead-light">
+                                                                                        <tr>
+                                                                                            <th scope="col">BRITISH MUSEUM</th>
+                                                                                            <th scope="col">Budget</th>
+                                                                                            <th scope="col">Spent</th>
+                                                                                            <th scope="col" style={{width:"20%"}}/>
+
+                                                                                            <th scope="col">Remaining</th>
+                                                                                            <th scope="col"/>
+
+                                                                                            <th scope="col">Cost</th>
+                                                                                        </tr>
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                        {data.dashbordProject.british.map((item,key)=>(
+                                                                                            <tr key={key}>
+                                                                                                <td>{item.title}</td>
+                                                                                                <td>{item.budget}</td>
+                                                                                                <td>{item.spent}</td>
+                                                                                                <td><div className="progress ml-auto mr-auto w-100 " >
+                                                                                                    <div className="progress-bar" role="progressbar" style={{width: item.chart + "%", backgroundColor: "#1fbce7"}}
+                                                                                                         aria-valuenow="10" aria-valuemin='0'
+                                                                                                         aria-valuemax="100"/>
+                                                                                                </div>  </td>
+                                                                                                <td>{item.romaining } </td>
+                                                                                                <td>{item.purcent}</td>
+
+                                                                                                <td>{item.costs}</td>
+                                                                                            </tr>
+                                                                                        ))
+
+                                                                                        }
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                    <table className="table">
+                                                                                        <thead
+                                                                                            className="thead-light">
+                                                                                        <tr>
+                                                                                            <th scope="col">BROADSTREET INC</th>
+                                                                                            <th scope="col">Budget</th>
+                                                                                            <th scope="col">Spent</th>
+                                                                                            <th scope="col" style={{width:"20%"}}/>
+
+                                                                                            <th scope="col">Remaining</th>
+                                                                                            <th scope="col"/>
+
+                                                                                            <th scope="col">Cost</th>
+                                                                                        </tr>
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                        {data.dashbordProject.broadstreet.map((item,key)=>(
+                                                                                            <tr key={key}>
+                                                                                                <td>{item.title}</td>
+                                                                                                <td>{item.budget}</td>
+                                                                                                <td>{item.spent}</td>
+                                                                                                <td><div className="progress ml-auto mr-auto w-100 " >
+                                                                                                    <div className="progress-bar" role="progressbar" style={{width: item.chart + "%", backgroundColor: "#1fbce7"}}
+                                                                                                         aria-valuenow="10" aria-valuemin='0'
+                                                                                                         aria-valuemax="100"/>
+                                                                                                </div>  </td>
+                                                                                                <td>{item.romaining } </td>
+                                                                                                <td>{item.purcent}</td>
+
+                                                                                                <td>{item.costs}</td>
+                                                                                            </tr>
+                                                                                        ))
+
+                                                                                        }
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </div>
+
+
+
+
+                                                                            </TabPanel>
+
+                                                                            <TabPanel>
+                                                                                <div className="row align-items-center">
+                                                                                    <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                        <BT>ALL</BT>
+                                                                                        <BT><img src={time} style={{width:20}}/>Time</BT>
+                                                                                        <BT> <img src={money} style={{width:20}}/>Expense</BT>
+                                                                                    </ButtonGroup>
+
+                                                                                    <div className="ml-2">
+
+                                                                                        <DatePicker
+
+
+                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
+                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                d.newTime.date= e
+                                                                                                this.setState({TimeSheet:d})
+                                                                                            }}
+                                                                                            value={this.state.TimeSheet.newTime.date}
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="ml-1">
+                                                                                        <h5>-</h5>
+                                                                                    </div>
+                                                                                    <div className="ml-1">
+                                                                                        <DatePicker
+                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
+                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
+                                                                                                d.newTime.date= e
+                                                                                                this.setState({TimeSheet:d})
+                                                                                            }}
+                                                                                            value={this.state.TimeSheet.newTime.date}
+                                                                                        />
+                                                                                    </div>
+
+                                                                                    <div className="ml-2">
+                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+
+                                                                                            <BT><img src={play}  style={{width:18,transform:'rotate(180deg)'}}/></BT>
+                                                                                            <BT> <img src={play} style={{width:18}}/></BT>
+                                                                                        </ButtonGroup>
+                                                                                    </div>
+
+                                                                                    <div className="col-md-2 ml-2">
+                                                                                        <Select
+                                                                                            labelId="demo-simple-select-label"
+                                                                                            id="demo-simple-select"
+                                                                                            style={{width:"100%"}}
+                                                                                            defaultValue={"Custom"}
+
+
+                                                                                        >
+                                                                                            <MenuItem value={"Custom"}>Custom</MenuItem>
+                                                                                            <MenuItem value={"Associé"}>Custom 2</MenuItem>
+                                                                                            <MenuItem value={"Collaborateur"}>Costim 3</MenuItem>
+
+                                                                                        </Select>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                {
+                                                                                    this.state.contacts.length > 0 &&
+                                                                                    <TableTimeSheet
+                                                                                        contacts={this.state.TimeSheetData}
+                                                                                        onEditClick={(contact, key) => {
+                                                                                            this.setState({
+                                                                                                    selectedSociete: contact,
+                                                                                                    selectedSocieteKey: key,
+                                                                                                    openRightSocieteModalDetail: true
+                                                                                                }
+                                                                                            )
+                                                                                        }
+                                                                                        }/>
+                                                                                }
+
+
+                                                                            </TabPanel>
+
+                                                                            <TabPanel>
+
+                                                                            </TabPanel>
+
+
+
+
+
+                                                                        </Tabs>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>:null
+                                                }
+
+                                            </div>
 
                                         }
 
