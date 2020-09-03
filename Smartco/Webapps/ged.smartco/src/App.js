@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {BrowserRouter as Router, Route} from "react-router-dom";
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import Login from "./pages/auth/login";
 import Logout from "./pages/auth/logout";
 import RedirectCp from "./pages/RedirectCp";
@@ -27,16 +27,24 @@ firebase.initializeApp(firebaseConfig);
 
 export default class App extends Component{
 
+    constructor(props) {
+        super(props);
+        console.log(props)
+    }
+
     render() {
+
     return(
         <Router>
-          <Route exact path="/" component={RedirectCp}/>
-          <Route exact path="/test" component={Test}/>
-          <Route exact path="/:section/:section_id" component={DriveV3}/>
-          <Route exact path="/signDoc/doc/:doc_id" component={SignDocV3}/>
-          <Route exact path="/login" name="login" component={Login}/>
-          <Route exact path="/logout" name="logout" component={Logout}/>
-          <Route exact path="/error" name="error" component={Error}/>
+            <Switch>
+                <Route exact path="/" component={RedirectCp}/>
+                <Route exact path="/test" component={Test}/>
+                <Route exact path="/:section/:section_id" component={DriveV3}/>
+                <Route exact path="/signDoc/doc/:doc_id" component={SignDocV3}/>
+                <Route exact path="/login"  component={Login}/>
+                <Route exact path="/logout"  component={Logout}/>
+                <Route component={Error}/>
+            </Switch>
         </Router>
     )
   }

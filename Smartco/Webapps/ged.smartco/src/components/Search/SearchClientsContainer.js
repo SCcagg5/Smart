@@ -22,8 +22,7 @@ import countryList from "../../tools/countryList";
 import Select from 'react-select';
 import FolderIcon from '@material-ui/icons/Folder';
 import Data from "../../data/Data";
-import Switch from "@material-ui/core/Switch";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import {Button} from "@material-ui/core";
 
 
 const { Panel } = Collapse;
@@ -99,24 +98,22 @@ const useStyles2 = makeStyles({
     },
 });
 
-export default function TableSociete(props) {
+export default function SearchClientsContainer(props) {
 
     const classes = useStyles2();
 
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [textSearch, setTextSearch] = React.useState("");
-    const [searchByState, setSearchByState] = React.useState("");
     const [searchByType, setSearchByType] = React.useState("");
     const [searchBySector, setSearchBySector] = React.useState("");
-    const [searchByPays, setSearchByPays] = React.useState("");  
+    const [searchByPays, setSearchByPays] = React.useState("");
     const [searchByLead, setSearchByLead] = React.useState("");
     const [selectedSearchLettre, setSelectedSearchLettre] = React.useState("");
 
     const searchFilter= props.societes.filter((annuaire) => (  annuaire.ContactName.toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
-                                                               annuaire.ContactName.toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
+        annuaire.ContactName.toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
         (annuaire.ContactType === searchByType || searchByType === "") &&
-        ((annuaire.isActif && annuaire.isActif  === searchByState) || searchByState === "") &&
         ((annuaire.secteur && annuaire.secteur === searchBySector)  || searchBySector === "" ) &&
         ((annuaire.PrimaryAddressCountry && annuaire.PrimaryAddressCountry === searchByPays)  || searchByPays === "" ) &&
         ((annuaire.facturation && annuaire.facturation.collaborateur_lead === searchByLead)  || searchByLead === "" )
@@ -146,37 +143,15 @@ export default function TableSociete(props) {
 
     return (
         <div>
-            <h4 className="mt-0 mb-1">Clients (Mondat)</h4>
-            <div className="row mt-3">
+            <div className="row">
                 <div className="col-xl-12">
-                    <div className="row">
-                        <div className="col">
-                            <div className="page-title-box">
-                                <div className="row ">
-                                    <div
-                                        className="col-md-2 bg-danger text-center "
-                                        style={{width: "10%"}}>
-                                        <h4 style={{color: "white"}}>OA Legal</h4>
-                                    </div>
-                                    <hr style={{
-                                        backgroundColor: "#a6a6a6",
-                                        height: "2px",
-                                        borderStyle: "solid",
-                                        color: "red",
-                                        width: "80%"
-                                    }}/>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div style={{marginTop:20}}>
+                    <div>
                         <Collapse
-                            bordered={false}
+                            bordered={false} defaultActiveKey={['1']}
                             expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
                             className="site-collapse-custom-collapse"
                         >
-                            <Panel header="Recherche avancée" key="1" className="site-collapse-custom-panel">
+                            <Panel header="Recherche avancée" key="1" className="site-collapse-custom-panel" >
                                 <div className="row" style={{border:"2px solid #dee2e6"}}>
                                     <div className="col-md-3" >
                                         <input
@@ -272,32 +247,12 @@ export default function TableSociete(props) {
                                     </div>
                                 </div>
                                 <div className="row mt-2">
-                                    <div className="col-md-12">
-                                        <h6>Par statut</h6>
-                                        <select className="form-control custom-select" style={{width:350}}
-                                                value={searchByState} onChange={(e) => {
-                                                    if(e.target.value === "true"){
-                                                        setSearchByState(true)
-                                                    }else if(e.target.value === "false"){
-                                                        setSearchByState(false)
-                                                    }else{
-                                                        setSearchByState("")
-                                                    }
-                                        } }
-                                        >
-                                            <option value={""}/>
-                                            <option  value="true" >Actif</option>
-                                            <option  value="false">Non actif</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="row mt-1">
                                     <div className="col-md-6">
                                         <h6>Par type</h6>
                                         <select className="form-control custom-select" style={{width:350}}
                                                 value={searchByType} onChange={(e) => {
-                                                 setSearchByType(e.target.value)
-                                                 console.log(e.target.value)
+                                            setSearchByType(e.target.value)
+                                            console.log(e.target.value)
                                         }}
                                         >
                                             {
@@ -320,7 +275,6 @@ export default function TableSociete(props) {
                                         </select>
                                     </div>
                                 </div>
-
                                 <div className="row mt-1">
                                     <div className="col-md-6">
                                         <h6>Par pays</h6>
@@ -338,22 +292,22 @@ export default function TableSociete(props) {
                                         <h6>Par collaborateur lead sur le dossier</h6>
                                         <Select
                                             defaultValue={searchByLead}
-                                                options={contactSelectOptions}
-                                                closeMenuOnSelect={true}
-                                                isMulti={false}
-                                                hideSelectedOptions={true}
-                                                styles={{
-                                                    container: (provided, state) => ({
-                                                        ...provided,
-                                                        width:350
-                                                    }),
-                                                    menuPortal: styles => ({ ...styles, zIndex: 9999 })
-                                                }}
-                                                menuPortalTarget={document.body}
-                                                onChange={(e) => {
-                                                    console.log(e.value)
-                                                    setSearchByLead(e.value)
-                                                }}
+                                            options={contactSelectOptions}
+                                            closeMenuOnSelect={true}
+                                            isMulti={false}
+                                            hideSelectedOptions={true}
+                                            styles={{
+                                                container: (provided, state) => ({
+                                                    ...provided,
+                                                    width:350
+                                                }),
+                                                menuPortal: styles => ({ ...styles, zIndex: 9999 })
+                                            }}
+                                            menuPortalTarget={document.body}
+                                            onChange={(e) => {
+                                                console.log(e.value)
+                                                setSearchByLead(e.value)
+                                            }}
                                         />
 
                                     </div>
@@ -365,19 +319,19 @@ export default function TableSociete(props) {
                         <div className="card-body">
                             <Table className={classes.table} aria-label="custom pagination table">
                                 <TableHead>
-                                    <TableRow style={{padding:10}}>
-                                        <TableCell style={{width:"15%",fontWeight:600}}>Type</TableCell>
-                                        <TableCell style={{width:"20%",fontWeight:600}}>Nom</TableCell>
-                                        <TableCell  style={{width:"20%",fontWeight:600}}>Secteur</TableCell>
-                                        <TableCell  style={{width:"15%",fontWeight:600}}>Pays</TableCell>
-                                        <TableCell  style={{width:"15%",fontWeight:600}}>Date de création</TableCell>
-                                        <TableCell  style={{width:"15%",fontWeight:600}}>Action</TableCell>
+                                    <TableRow>
+                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Type</TableCell>
+                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Nom</TableCell>
+                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Secteur</TableCell>
+                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Pays</TableCell>
+                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Date de création</TableCell>
+                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Action</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {(rowsPerPage > 0 ? searchFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) :
                                         searchFilter).map((row,key) => (
-                                        <TableRow key={key} style={{padding:10}}>
+                                        <TableRow key={key}>
                                             <TableCell component="th" scope="row" style={{width:"15%"}}>
                                                 <div
                                                     className="media align-items-center">
@@ -394,27 +348,35 @@ export default function TableSociete(props) {
                                                     <div className="ml-1">{row.ContactType === "Company" ? "Société" : "Personne physique"}</div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell style={{ width: "20%" }} >
+                                            <TableCell style={{ width: "20%" }} align="center">
                                                 {row.ContactName}
                                             </TableCell>
-                                            <TableCell style={{ width: "20%" }} >
+                                            <TableCell style={{ width: "20%" }} align="center">
                                                 {row.secteur || ""}
                                             </TableCell>
-                                            <TableCell style={{ width: "15%" }} >
+                                            <TableCell style={{ width: "15%" }} align="center">
                                                 {row.PrimaryAddressCountry}
                                             </TableCell>
-                                            <TableCell style={{ width: "15%" }} >
+                                            <TableCell style={{ width: "15%" }} align="center">
                                                 {row.ContactCreatedDate}
                                             </TableCell>
-                                            <TableCell style={{ width: "15%" }} >
-                                                <IconButton aria-label="Modifier" title="Modifier" color="default" size="small"
-                                                            onClick={() => props.onEditClick(row,key)}>
-                                                    <EditIcon fontSize="small" style={{color:"#1a73e8"}}/>
-                                                </IconButton>
-                                                <IconButton aria-label="folder" title="folder" color="default" size="small" onClick={() => {
-                                                }}>
-                                                    <FolderIcon fontSize="small" />
-                                                </IconButton>
+                                            <TableCell style={{ width: "15%" }} align="center">
+                                                <Button color="default" size="small" style={{
+                                                    backgroundColor: "white",
+                                                    fontWeight: 600,
+                                                    textTransform: "capitalize",
+                                                    boxShadow: "2px 4px 8px 3px rgba(31, 30, 47, 0.15)",marginBottom:3
+                                                }} onClick={() => {
+                                                    console.log(row)
+                                                    props.onSelectBtnClick(row)
+                                                }}>Select</Button>
+                                                <Button color="default" size="small" style={{
+                                                    backgroundColor: "white",
+                                                    fontWeight: 600,
+                                                    textTransform: "capitalize",
+                                                    boxShadow: "2px 4px 8px 3px rgba(31, 30, 47, 0.15)"
+                                                }}>Input</Button>
+
                                             </TableCell>
                                         </TableRow>
                                     ))}

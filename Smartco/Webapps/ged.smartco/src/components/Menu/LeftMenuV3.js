@@ -479,8 +479,10 @@ export default function LeftMenuV3(props) {
                 </Modal>
 
                 <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Rooms" ? "aliceblue" : ""}}
-                     onClick={() => {
+                     onDoubleClick={() => {
                          props.setShowRoomsMenuItems()
+                     }}
+                     onClick={() => {
                          props.setFocusedItem("Rooms")
                      }}
                 >

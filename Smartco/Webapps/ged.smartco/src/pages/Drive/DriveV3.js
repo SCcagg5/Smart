@@ -110,7 +110,10 @@ import HSBar from "react-horizontal-stacked-bar-chart";
 import AtlButton, { ButtonGroup as AltButtonGroup } from '@atlaskit/button';
 import Timer from "react-compound-timer";
 import SelectSearch from 'react-select-search';
+import SearchIcon from '@material-ui/icons/Search';
 import "../../assets/css/react-select-search.css"
+import SearchClientsContainer from "../../components/Search/SearchClientsContainer";
+import Switch from '@material-ui/core/Switch';
 
 
 function renderSearchOption(props, option, snapshot, className) {
@@ -131,7 +134,6 @@ function renderSearchOption(props, option, snapshot, className) {
         </button>
     );
 }
-
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
 const checkedIcon = <CheckBoxIcon fontSize="small"/>;
@@ -337,27 +339,31 @@ export default class DriveV3 extends React.Component {
             person:""
         },
 
+        openAdvancedSearchModal:false,
+        selectedClientTimeEntree:""
+
     }
 
     componentDidMount() {
 
-        firebase.database().ref('TimeSheet/').on('value',(snapshot)=>{
-            let data = snapshot.val()
-            let d=[]
-            if (data !=null){
-                data.map((item,key)=>{
-                    d.push(item)
-                })
-                this.setState({TimeSheetData:d})
-            }
-        })
-
-        let sharedDrive = [];
         if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
             this.props.history.push('/login')
         }
         else {
+            let sharedDrive = [];
             this.setState({firstLoading: true});
+
+            firebase.database().ref('TimeSheet/').on('value',(snapshot)=>{
+                let data = snapshot.val()
+                let d=[]
+                if (data !=null){
+                    data.map((item,key)=>{
+                        d.push(item)
+                    })
+                    this.setState({TimeSheetData:d})
+                }
+            })
+
             setTimeout(() => {
                 SmartService.getGed(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(gedRes => {
 
@@ -753,6 +759,7 @@ export default class DriveV3 extends React.Component {
 
 
                             }).catch(err => {
+
                                 console.log(err);
                             })
                         });
@@ -1482,6 +1489,7 @@ export default class DriveV3 extends React.Component {
                                                 item === "Drive" ? this.props.history.replace({pathname: '/drive/0'}) :
                                                     item === "Rooms" ? this.state.rooms.length > 0 ? this.props.history.replace({pathname: '/rooms/0'}) : this.props.history.replace({pathname: '/rooms/all'}) :
                                                         item === "Meet" ? this.props.history.replace({pathname: '/meet/new'}) :
+                                                            item === "Contacts" ? this.props.history.replace({pathname: '/Contacts/aia'}) :
                                                             item === "Societe" ? this.props.history.replace({pathname: '/society/clients_mondat'}) :
                                                                 item === "TimeSheet" ? this.props.history.replace({pathname: '/TimeSheet/activities'}) : this.props.history.replace({pathname: '/drive/0'})
                                                 this.setState({focusedItem: item, showContainerSection: item})
@@ -1601,16 +1609,14 @@ export default class DriveV3 extends React.Component {
                                             setSelectedFolderFiles={(files) => this.setState({selectedFolderFiles: files})}
                                             setSelectedFolderFolders={(folders) => this.setState({selectedFolderFolders:folders})}
 
-                                            //selectedDriveItem={this.state.showContainerSection === "Drive" ? (this.props.match.params.section_id ? [this.props.match.params.section_id] : []) : []}
                                             selectedDriveItem={this.state.selectedDriveItem}
                                             setSelectedDriveItem={(keys) => this.setState({selectedDriveItem:keys})}
 
                                             expandedDriveItems={this.state.expandedDriveItems}
                                             setExpandedDriveItems={(keys) => this.setState({expandedDriveItems:keys})}
 
-                                            /*expandedDriveItems={this.state.showContainerSection === "Drive" ? this.state.expanded : []}*/
                                             selectedMeetItem={this.state.showContainerSection === "Meet" ? this.state.selectedMeetMenuItem : []}
-                                            handleSelectMeetMenu={(event, nodeIds) => {
+                                            handleSelectMeetMenu={(nodeIds) => {
                                                 this.setState({selectedMeetMenuItem: nodeIds})
                                             }}
                                             onMeetItemClick={(nodeId) => {
@@ -1619,13 +1625,13 @@ export default class DriveV3 extends React.Component {
                                                     this.setState({
                                                         focusedItem: "Meet",
                                                         showContainerSection: "Meet",
-                                                        selectedMeetMenuItem: "new"
+                                                        selectedMeetMenuItem: ["new"]
                                                     })
                                                 } else if (nodeId === "rejoin") {
                                                     this.setState({
                                                         focusedItem: "Meet",
                                                         showContainerSection: "Meet",
-                                                        selectedMeetMenuItem: "rejoin"
+                                                        selectedMeetMenuItem: ["rejoin"]
                                                     })
                                                 } else {
                                                 }
@@ -1692,14 +1698,11 @@ export default class DriveV3 extends React.Component {
 
                                     </div>
                                 }
-
-
                             </div>
 
                             <div style={{flexWrap: "wrap", flex: "1 1 auto"}}>
                                 <div className="card">
                                     <div className="card-body" style={{minHeight: 750}}>
-
                                         {
                                             this.state.showContainerSection === "Drive" && this.state.loading === false &&
                                             <div>
@@ -2557,7 +2560,6 @@ export default class DriveV3 extends React.Component {
                                                            this.setState({selectedRoom: room})
                                                        })
                                                    }}
-
                                             />
                                         }
                                         {
@@ -2604,9 +2606,7 @@ export default class DriveV3 extends React.Component {
                                                             </div>
 
                                                         </div>
-
                                                         :
-
                                                         <div align="center" style={{marginTop: 200}}>
                                                             <h3>Vous avez un code de réunion ?</h3>
                                                             <p style={{fontFamily: "sans-serif"}}>
@@ -3586,7 +3586,6 @@ export default class DriveV3 extends React.Component {
                                                                 }/>
                                                         }
                                                     </div> :
-
                                                     <div>
                                                         <div className="row">
                                                             <div className="col-lg-12">
@@ -3652,12 +3651,38 @@ export default class DriveV3 extends React.Component {
 
                                                                             <TabPanel>
                                                                                 <h5 style={{marginTop: 20}}>Informations générales</h5>
-                                                                                <div className="row"
-                                                                                     style={{marginTop: 35}}>
+                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                    <div className="col-md-6">
+                                                                                        <div className="col-md-12">
+                                                                                            <p style={{marginBottom: 10}}>Email</p>
+                                                                                            <input
+                                                                                                type="email"
+                                                                                                className="form-control"
+                                                                                                id="email"
+                                                                                                name="email"
+                                                                                                value={this.state.selectedSociete.PrimaryEmailAddress}
+                                                                                                onChange={this.handleChange('selectedSociete', 'PrimaryEmailAddress')}/>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div className="col-md-6">
+                                                                                        <p style={{marginBottom: 10}}>Statut</p>
+                                                                                        <FormControlLabel
+                                                                                            control={<Switch checked={this.state.selectedSociete.isActif || false}
+                                                                                                             onChange={event => {
+                                                                                                                 let obj = this.state.selectedSociete;
+                                                                                                                 obj.isActif = event.target.checked;
+                                                                                                                 this.setState({selectedSociete:obj})
+                                                                                                             }}
+                                                                                                             name="isActif" />}
+                                                                                            label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === true ? "Actif" : "Non actif" : "Non actif" }
+                                                                                        />
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="row" style={{marginTop: 35}}>
                                                                                     <div className="col-md-12">
                                                                                         <p style={{marginBottom: 10}}>À propos</p>
                                                                                         <textarea
-                                                                                            rows={7}
+                                                                                            rows={4}
                                                                                             className="form-control"
                                                                                             id="about"
                                                                                             name="about"
@@ -3665,8 +3690,7 @@ export default class DriveV3 extends React.Component {
                                                                                             onChange={this.handleChange('selectedSociete', 'about')}/>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="row"
-                                                                                     style={{marginTop: 35}}>
+                                                                                <div className="row" style={{marginTop: 35}}>
                                                                                     <div className="col-md-6">
                                                                                         <p style={{marginBottom: 10}}>
                                                                                             {
@@ -4348,7 +4372,6 @@ export default class DriveV3 extends React.Component {
 
                                         {
                                             this.state.showContainerSection === "TimeSheet" &&
-
                                             <div>
                                                 {this.state.selectedTimeSheetMenuItem[0] === "activities" ?
                                                     <div>
@@ -4440,15 +4463,15 @@ export default class DriveV3 extends React.Component {
                                                                                             {this.state.societes.map((item,key)=>(
                                                                                                 <div key={key} className="row mt-2">
                                                                                                     <div className="col-md-3">
-                                                                                                        <text>{item.nomSociete}</text>
+                                                                                                        <div>{item.nomSociete}</div>
 
                                                                                                     </div>
                                                                                                     <div className="col-md-4">
-                                                                                                        <text>{item.nomDecideur+" / "+item.email}</text>
+                                                                                                        <div>{item.nomDecideur+" / "+item.email}</div>
 
                                                                                                     </div>
                                                                                                     <div className="col-md-5">
-                                                                                                        <text>{item.nomPayeur+" / "+item.emailPayeur}</text>
+                                                                                                        <div>{item.nomPayeur+" / "+item.emailPayeur}</div>
 
                                                                                                     </div>
                                                                                                 </div>
@@ -4460,15 +4483,15 @@ export default class DriveV3 extends React.Component {
                                                                                                 searchFilter.map((item,key)=>(
                                                                                                     <div key={key} className="row mt-2">
                                                                                                         <div className="col-md-3">
-                                                                                                            <text>{item.nomSociete}</text>
+                                                                                                            <div>{item.nomSociete}</div>
 
                                                                                                         </div>
                                                                                                         <div className="col-md-4">
-                                                                                                            <text>{item.nomDecideur+" / "+item.email}</text>
+                                                                                                            <div>{item.nomDecideur+" / "+item.email}</div>
 
                                                                                                         </div>
                                                                                                         <div className="col-md-5">
-                                                                                                            <text>{item.nomPayeur+" / "+item.emailPayeur}</text>
+                                                                                                            <div>{item.nomPayeur+" / "+item.emailPayeur}</div>
 
                                                                                                         </div>
                                                                                                     </div>
@@ -4624,16 +4647,26 @@ export default class DriveV3 extends React.Component {
                                                                                     <div className="col-md-4">
                                                                                         <div>
                                                                                             <h5>identification / Imputation client</h5>
-                                                                                            <SelectSearch
-                                                                                                options={
-                                                                                                    this.state.annuaire_clients_mondat.map(({ContactType,ContactName,imageUrl }) =>
-                                                                                                        ({ value: ContactName, name: ContactName, ContactType:ContactType,ContactName:ContactName, imageUrl:imageUrl }))
-                                                                                                }
-                                                                                                renderOption={renderSearchOption}
-                                                                                                search
-                                                                                                placeholder="Chercher votre client"
-                                                                                                //printOptions="always"
-                                                                                            />
+                                                                                            <div style={{display:"flex"}}>
+                                                                                                <SelectSearch
+                                                                                                    options={
+                                                                                                        this.state.annuaire_clients_mondat.map(({ContactType,ContactName,imageUrl }) =>
+                                                                                                            ({ value: ContactName, name: ContactName, ContactType:ContactType,ContactName:ContactName, imageUrl:imageUrl }))
+                                                                                                    }
+                                                                                                    value={this.state.selectedClientTimeEntree}
+                                                                                                    renderOption={renderSearchOption}
+                                                                                                    search
+                                                                                                    placeholder="Chercher votre client"
+                                                                                                    onChange={ e => {
+                                                                                                        console.log(e)
+                                                                                                        this.setState({selectedClientTimeEntree:e})
+                                                                                                    }}
+                                                                                                />
+                                                                                                <IconButton style={{marginTop:-5}} onClick={() => this.setState({openAdvancedSearchModal:true})}>
+                                                                                                    <SearchIcon />
+                                                                                                </IconButton>
+                                                                                            </div>
+
                                                                                         </div>
 
                                                                                     </div>
@@ -4721,7 +4754,7 @@ export default class DriveV3 extends React.Component {
                                                                                         >
                                                                                             {this.state.contacts.map((name,key) => (
                                                                                                 <MenuItem key={key} value={name} s>
-                                                                                                    <div className="row align-items-center justify-content-center">   <Avatar alt="Natacha" src={name.imageUrl} /> <text >{name.nom + " " + name.prenom}</text></div>
+                                                                                                    <div className="row align-items-center justify-content-center">   <Avatar alt="Natacha" src={name.imageUrl} /> <div >{name.nom + " " + name.prenom}</div></div>
 
                                                                                                 </MenuItem>
                                                                                             ))}
@@ -4901,11 +4934,11 @@ export default class DriveV3 extends React.Component {
                                                                                         <div className="row align-items-center">
                                                                                             <div className="col-md-2">
                                                                                                 <div>
-                                                                                                    <text>176.91</text>
+                                                                                                    <div>176.91</div>
 
                                                                                                 </div>
                                                                                                 <div>
-                                                                                                    <text>59.66</text>
+                                                                                                    <div>59.66</div>
 
                                                                                                 </div>
 
@@ -5103,7 +5136,7 @@ export default class DriveV3 extends React.Component {
                                                                                                 {this.state.contacts.map((name,key) => (
                                                                                                     <MenuItem key={key} value={name} >
                                                                                                         <div className="row align-items-center">
-                                                                                                            <Avatar alt="Natacha" src={name.imageUrl} style={{marginLeft:10}} /> <text className="ml-2">  {name.nom + " " +name.prenom} </text>
+                                                                                                            <Avatar alt="Natacha" src={name.imageUrl} style={{marginLeft:10}} /> <div className="ml-2">  {name.nom + " " +name.prenom} </div>
                                                                                                         </div>
                                                                                                     </MenuItem>
                                                                                                 ))}
@@ -5278,7 +5311,7 @@ export default class DriveV3 extends React.Component {
 
                                                                                                             </div>
                                                                                                             <div className="ml-1">
-                                                                                                                <text>Billable</text>
+                                                                                                                <div>Billable</div>
 
                                                                                                             </div>
                                                                                                         </div>
@@ -5296,7 +5329,7 @@ export default class DriveV3 extends React.Component {
 
                                                                                                             </div>
                                                                                                             <div className="ml-1">
-                                                                                                                <text>Non-Billable</text>
+                                                                                                                <div>Non-Billable</div>
 
                                                                                                             </div>
                                                                                                         </div>
@@ -5312,31 +5345,31 @@ export default class DriveV3 extends React.Component {
                                                                                             <div className="col-md-12 mt-3 " style={{borderStyle:"solid",borderRadius:10,borderWidth:0.5,borderColor:"#a6a6a6"}}>
                                                                                                 <div className="row justify-content-center align-items-center">
                                                                                                     <div style={{width:"12%"}}>
-                                                                                                        <text>Mon</text>
+                                                                                                        <div>Mon</div>
                                                                                                         <h6>6.50</h6>
                                                                                                     </div>
                                                                                                     <div style={{width:"12%"}}>
-                                                                                                        <text>Tue</text>
+                                                                                                        <div>Tue</div>
                                                                                                         <h6>7.58</h6>
                                                                                                     </div>
                                                                                                     <div style={{width:"12%"}}>
-                                                                                                        <text>Wed</text>
+                                                                                                        <div>Wed</div>
                                                                                                         <h6>6.23</h6>
                                                                                                     </div>
                                                                                                     <div style={{width:"12%"}}>
-                                                                                                        <text>Thu</text>
+                                                                                                        <div>Thu</div>
                                                                                                         <h6>7.33</h6>
                                                                                                     </div>
                                                                                                     <div style={{width:"12%"}}>
-                                                                                                        <text>Fri</text>
+                                                                                                        <div>Fri</div>
                                                                                                         <h6>3.10</h6>
                                                                                                     </div>
                                                                                                     <div style={{width:"12%"}}>
-                                                                                                        <text>Sat</text>
+                                                                                                        <div>Sat</div>
                                                                                                         <h6>0.00</h6>
                                                                                                     </div>
                                                                                                     <div style={{width:"12%"}}>
-                                                                                                        <text>Sun</text>
+                                                                                                        <div>Sun</div>
                                                                                                         <h6>0.00</h6>
                                                                                                     </div>
 
@@ -5372,7 +5405,7 @@ export default class DriveV3 extends React.Component {
 
                                                                                                             </div>
                                                                                                             <div className="ml-1">
-                                                                                                                <text>Autumn 2016 Campaign Launch </text>
+                                                                                                                <div>Autumn 2016 Campaign Launch </div>
 
                                                                                                             </div>
                                                                                                         </div>
@@ -5390,7 +5423,7 @@ export default class DriveV3 extends React.Component {
 
                                                                                                             </div>
                                                                                                             <div className="ml-1">
-                                                                                                                <text>Website Redisgn 2017 - Phase  </text>
+                                                                                                                <div>Website Redisgn 2017 - Phase  </div>
 
                                                                                                             </div>
                                                                                                         </div>
@@ -5408,7 +5441,7 @@ export default class DriveV3 extends React.Component {
 
                                                                                                             </div>
                                                                                                             <div className="ml-1">
-                                                                                                                <text>Signage Redesign 2017   </text>
+                                                                                                                <div>Signage Redesign 2017   </div>
 
                                                                                                             </div>
                                                                                                         </div>
@@ -5426,7 +5459,7 @@ export default class DriveV3 extends React.Component {
 
                                                                                                             </div>
                                                                                                             <div className="ml-1">
-                                                                                                                <text>Internal Office   </text>
+                                                                                                                <div>Internal Office   </div>
 
                                                                                                             </div>
                                                                                                         </div>
@@ -5445,7 +5478,7 @@ export default class DriveV3 extends React.Component {
 
                                                                                             <div className="row justify-content-start" style={{borderBottomStyle:"solid",borderBottomColor:"#a6a6a6"}}>
                                                                                                 <div className="col-md-auto">
-                                                                                                    <text className="font-weight-bold" style={{color:"black"}}>Monday  </text>{" "+data.dashboardTab.monday.date}
+                                                                                                    <div className="font-weight-bold" style={{color:"black"}}>Monday  </div>{" "+data.dashboardTab.monday.date}
                                                                                                 </div>
 
                                                                                             </div>
@@ -5453,15 +5486,15 @@ export default class DriveV3 extends React.Component {
                                                                                                 <div className="row align-items-center" style={{borderBottomStyle:"solid",borderBottomColor:"#a6a6a6" ,borderBottomWidth:0.2 ,marginTop:8,paddingBottom:10}}>
                                                                                                     <div className="col-md-9 text-left">
                                                                                                         <div>
-                                                                                                            <text className="font-weight-bold" style={{color:"black"}}>{item.title}</text>
+                                                                                                            <div className="font-weight-bold" style={{color:"black"}}>{item.title}</div>
                                                                                                         </div>
                                                                                                         <div>
-                                                                                                            <text>{item.work}</text>
+                                                                                                            <div>{item.work}</div>
 
                                                                                                         </div>
                                                                                                     </div>
                                                                                                     <div className="col-md-2">
-                                                                                                        <text className="font-weight-bold" style={{color:"black"}}>{item.value}</text>
+                                                                                                        <div className="font-weight-bold" style={{color:"black"}}>{item.value}</div>
                                                                                                     </div>
                                                                                                     <div className="col-md-1">
                                                                                                         <IconButton >
@@ -5938,7 +5971,6 @@ export default class DriveV3 extends React.Component {
                                                 }
 
                                             </div>
-
                                         }
 
                                     </div>
@@ -5979,7 +6011,6 @@ export default class DriveV3 extends React.Component {
                                         <FindInPageOutlinedIcon/>
                                     </IconButton>
                                     <IconButton aria-label="Télécharger" title="Télécharger" color="default"
-                                        //href={this.state.selectedDoc.path}
                                                 download={true} target="_blank">
                                         <CloudDownloadOutlinedIcon/>
                                     </IconButton>
@@ -6432,7 +6463,6 @@ export default class DriveV3 extends React.Component {
                             <div style={{backgroundColor: "#d3d3d3", height: 1}}/>
                             <div align="center" style={{marginTop: 30}}>
                                 <h5>Ou</h5>
-                                {/*<button className="btn btn-rounded btn-light">Ajouter</button>*/}
                             </div>
                             <h4 className="text-success"><i className="fe-user-plus text-success"/>&nbsp;Inviter</h4>
                             <p style={{fontFamily: "sans-serif"}}>Tapez sur 'Entrée' pour valider une adresse mail</p>
@@ -6449,7 +6479,7 @@ export default class DriveV3 extends React.Component {
                                     this.setState({inviteEmails: _emails});
                                 }}
                                 validateEmail={email => {
-                                    return isEmail(email); // return boolean
+                                    return isEmail(email);
                                 }}
                                 getLabel={(
                                     email,
@@ -6781,12 +6811,6 @@ export default class DriveV3 extends React.Component {
                     </Dialog>
 
 
-
-
-
-
-
-
                     <Dialog open={this.state.openNewRoomModal} onClose={() => {
                         this.setState({openNewRoomModal: !this.state.openNewRoomModal})
                     }}
@@ -6844,7 +6868,6 @@ export default class DriveV3 extends React.Component {
                                                 this.state.contacts.filter(x => x.role === "avocat").map((contact, key) =>
                                                     <MenuItem key={key} onClick={() => {
                                                         let emails = this.state.NewRoomEmails;
-                                                        //console.log(parseInt(moment().format("DDMMYYYYHHmmss")));
                                                         emails.push({
                                                             email: contact.email,
                                                             valid: true,
@@ -6910,6 +6933,32 @@ export default class DriveV3 extends React.Component {
                     </Dialog>
 
 
+                    <Dialog open={this.state.openAdvancedSearchModal} maxWidth="xl" onClose={() => {
+                        this.setState({openAdvancedSearchModal: !this.state.openAdvancedSearchModal})
+                    }}
+                            aria-labelledby="form-dialog-title">
+                        <DialogTitle disableTypography id="form-dialog-title">
+                            <Typography variant="h6">Recherche avancée</Typography>
+                            <IconButton aria-label="close"
+                                        style={{position: 'absolute', right: 5, top: 5, color: "#c0c0c0"}}
+                                        onClick={() => {
+                                            this.setState({openAdvancedSearchModal: !this.state.openAdvancedSearchModal})
+                                        }}>
+                                <CloseIcon/>
+                            </IconButton>
+                        </DialogTitle>
+
+                        <DialogContent>
+
+                            <SearchClientsContainer societes={this.state.annuaire_clients_mondat} contacts={this.state.contacts}
+                                                    onSelectBtnClick={(client) => {
+                                                        this.setState({openAdvancedSearchModal:false,selectedClientTimeEntree:client.ContactName})
+                                                    }}
+                            />
+
+                        </DialogContent>
+                    </Dialog>
+
                     <Snackbar
                         open={this.state.openAlert}
                         autoHideDuration={5000}
@@ -6934,5 +6983,4 @@ export default class DriveV3 extends React.Component {
             </div>
         )
     }
-
 }

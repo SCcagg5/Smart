@@ -86,6 +86,33 @@
             local('Stalemate-Regular-regular'),
             url('assets/fonts/Stalemate-Regular.ttf') format('truetype');
 }
+@font-face {
+    font-family: 'Titillium Web';
+    font-style: normal;
+    font-weight: 900;
+    src:
+            local('Titillium Web'),
+            local('Titillium-Web'),
+            url('assets/fonts/TitilliumWeb-Black.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Titillium Web';
+    font-style: normal;
+    font-weight: 700;
+    src:
+            local('Titillium Web'),
+            local('Titillium-Web'),
+            url('assets/fonts/TitilliumWeb-Bold.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    src:
+            local('Montserrat Medium'),
+            local('Montserrat-Medium'),
+            url('assets/fonts/Montserrat-Medium.ttf') format('truetype');
+}
 
 
 
@@ -1041,4 +1068,8 @@ select{
     color: #f50;
     text-decoration: underline;
     font-weight: bold;
+}
+.MuiTableCell-root{
+    padding:10px!important;
+    font-size: 0.865rem!important;
 }
