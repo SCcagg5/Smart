@@ -114,6 +114,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import "../../assets/css/react-select-search.css"
 import SearchClientsContainer from "../../components/Search/SearchClientsContainer";
 import Switch from '@material-ui/core/Switch';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 
 function renderSearchOption(props, option, snapshot, className) {
@@ -325,22 +326,24 @@ export default class DriveV3 extends React.Component {
         TimeSheet:{
             newTime:{
                 duree:"",
-                sujet:"",
+                client:"",
                 categoriesActivite:"",
                 description:"",
                 date:new Date(),
                 utilisateurOA:"",
                 rateFacturation:"",
-                pasFacturable:true
             }
         },
+        lignesFactures:[],
         TimeSheetData:[],
         DashboardPerson:{
             person:""
         },
 
         openAdvancedSearchModal:false,
-        selectedClientTimeEntree:""
+        selectedClientTimeEntree:"",
+
+        showLignesFactureClient:false,
 
     }
 
@@ -1435,6 +1438,7 @@ export default class DriveV3 extends React.Component {
 
     render() {
         var searchFilter= this.state.annuaire_clients_mondat.filter((soc) => soc.ContactName.toLowerCase().startsWith(this.state.searchSociete.toLowerCase()))
+        var searchFilterLignesfacture = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
         return (
             <div>
                 {
@@ -4589,211 +4593,350 @@ export default class DriveV3 extends React.Component {
                                                                             <TabPanel/>
 
                                                                             <TabPanel>
-                                                                                <div className="row mt-2">
-                                                                                    <div className="col-md-6">
-                                                                                            <h5>Durée</h5>
-                                                                                            <div className="row">
-                                                                                                <div className="col-md-5">
-                                                                                                    <input
-                                                                                                        className="form-control "
-                                                                                                        id="duree"
-                                                                                                        style={{width:"100%"}}
-                                                                                                        name="duree"
-                                                                                                        type="text"
-                                                                                                        placeholder="Duree"
-                                                                                                        value={this.state.TimeSheet.newTime.duree}
-                                                                                                        onChange={(e)=>{let d=this.state.TimeSheet
-                                                                                                            d.newTime.duree=e.target.value
-                                                                                                            this.setState({TimeSheet:d})}}/>
+                                                                                {
+                                                                                    this.state.showLignesFactureClient === false ?
+                                                                                        <div>
+                                                                                            <div className="row mt-2">
+                                                                                                <div className="col-md-6">
+                                                                                                    <h5>Durée</h5>
+                                                                                                    <div className="row">
+                                                                                                        <div className="col-md-5">
+                                                                                                            <input
+                                                                                                                className="form-control "
+                                                                                                                id="duree"
+                                                                                                                style={{width:"100%"}}
+                                                                                                                name="duree"
+                                                                                                                type="text"
+                                                                                                                placeholder="Duree"
+                                                                                                                readOnly={true}
+                                                                                                                value={this.state.TimeSheet.newTime.duree}
+                                                                                                                onChange={(e)=>{let d=this.state.TimeSheet
+                                                                                                                    d.newTime.duree = e.target.value
+                                                                                                                    this.setState({TimeSheet:d})}}/>
 
+                                                                                                        </div>
+                                                                                                        <div className="col-md-7">
+
+                                                                                                            <div  style={{display:"flex"}}>
+                                                                                                                <Timer
+                                                                                                                    initialTime={0}
+                                                                                                                    startImmediately={false}
+                                                                                                                >
+                                                                                                                    {({ start, resume, pause, stop, reset, timerState, getTime }) => (
+                                                                                                                        <React.Fragment>
+                                                                                                                            <div align="center" style={{backgroundColor:"#c0c0c0",padding:8,color:"#000",height:36,fontWeight:700,fontSize:15}}>
+                                                                                                                                <Timer.Hours  /> h:
+                                                                                                                                <Timer.Minutes /> m:
+                                                                                                                                <Timer.Seconds /> s
+                                                                                                                            </div>
+                                                                                                                            <div style={{marginLeft:10}}>
+                                                                                                                                <div align="center" style={{backgroundColor:"green",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer"}}
+                                                                                                                                     onClick={start}
+                                                                                                                                >
+                                                                                                                                    Start</div>
+                                                                                                                                <div align="center" style={{backgroundColor:"red",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer",marginTop:3}}
+                                                                                                                                     onClick={() => {
+                                                                                                                                         let timeEtablished = getTime()
+                                                                                                                                         let timeH = ((timeEtablished / 1000) / 60) / 60;
+                                                                                                                                         let obj = this.state.TimeSheet;
+                                                                                                                                         obj.newTime.duree = timeH.toFixed(3) + " Heures"
+                                                                                                                                         this.setState({TimeSheet:obj})
+                                                                                                                                         stop();
+                                                                                                                                     }}
+                                                                                                                                >
+                                                                                                                                    Stop</div>
+                                                                                                                                <div align="center" style={{backgroundColor:"#c0c0c0",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer",marginTop:3}}
+                                                                                                                                     onClick={() => {
+                                                                                                                                         let obj = this.state.TimeSheet;
+                                                                                                                                         obj.newTime.duree = "";
+                                                                                                                                         this.setState({TimeSheet:obj})
+                                                                                                                                         reset()
+                                                                                                                                     }}
+                                                                                                                                >
+                                                                                                                                    Reset</div>
+                                                                                                                            </div>
+
+                                                                                                                        </React.Fragment>
+                                                                                                                    )}
+                                                                                                                </Timer>
+                                                                                                            </div>
+
+                                                                                                        </div>
+                                                                                                    </div>
                                                                                                 </div>
-                                                                                                <div className="col-md-7">
+                                                                                                <div className="col-md-4">
+                                                                                                    <div>
+                                                                                                        <h5>identification / Imputation client</h5>
+                                                                                                        <div style={{display:"flex"}}>
+                                                                                                            <SelectSearch
+                                                                                                                options={
+                                                                                                                    this.state.annuaire_clients_mondat.map(({ContactType,ContactName,imageUrl }) =>
+                                                                                                                        ({ value: ContactName, name: ContactName, ContactType:ContactType,ContactName:ContactName, imageUrl:imageUrl }))
+                                                                                                                }
+                                                                                                                value={this.state.selectedClientTimeEntree}
+                                                                                                                renderOption={renderSearchOption}
+                                                                                                                search
+                                                                                                                placeholder="Chercher votre client"
+                                                                                                                onChange={ e => {
+                                                                                                                    console.log(e)
+                                                                                                                    let obj = this.state.TimeSheet;
+                                                                                                                    obj.newTime.client = e;
+                                                                                                                    this.setState({selectedClientTimeEntree:e,TimeSheet:obj})
+                                                                                                                }}
+                                                                                                            />
+                                                                                                            <IconButton style={{marginTop:-5}} onClick={() => this.setState({openAdvancedSearchModal:true})}>
+                                                                                                                <SearchIcon />
+                                                                                                            </IconButton>
+                                                                                                        </div>
 
-                                                                                                    <div  style={{display:"flex"}}>
-                                                                                                        <Timer
-                                                                                                            initialTime={0}
-                                                                                                            startImmediately={false}
-                                                                                                        >
-                                                                                                            {({ start, resume, pause, stop, reset, timerState }) => (
-                                                                                                                <React.Fragment>
-                                                                                                                    <div align="center" style={{backgroundColor:"#c0c0c0",padding:8,color:"#000",height:36,fontWeight:700,fontSize:15}}>
-                                                                                                                        <Timer.Hours  /> h:
-                                                                                                                        <Timer.Minutes /> m:
-                                                                                                                        <Timer.Seconds /> s
-                                                                                                                    </div>
-                                                                                                                    <div style={{marginLeft:10}}>
-                                                                                                                        <div align="center" style={{backgroundColor:"green",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer"}}
-                                                                                                                             onClick={start}
-                                                                                                                        >
-                                                                                                                            Start</div>
-                                                                                                                        <div align="center" style={{backgroundColor:"red",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer",marginTop:3}}
-                                                                                                                             onClick={stop}
-                                                                                                                        >
-                                                                                                                            Stop</div>
-                                                                                                                        <div align="center" style={{backgroundColor:"#c0c0c0",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer",marginTop:3}}
-                                                                                                                             onClick={reset}
-                                                                                                                        >
-                                                                                                                            Reset</div>
-                                                                                                                    </div>
-
-                                                                                                                </React.Fragment>
-                                                                                                            )}
-                                                                                                        </Timer>
                                                                                                     </div>
 
                                                                                                 </div>
+
                                                                                             </div>
-                                                                                    </div>
-                                                                                    <div className="col-md-4">
-                                                                                        <div>
-                                                                                            <h5>identification / Imputation client</h5>
-                                                                                            <div style={{display:"flex"}}>
-                                                                                                <SelectSearch
-                                                                                                    options={
-                                                                                                        this.state.annuaire_clients_mondat.map(({ContactType,ContactName,imageUrl }) =>
-                                                                                                            ({ value: ContactName, name: ContactName, ContactType:ContactType,ContactName:ContactName, imageUrl:imageUrl }))
-                                                                                                    }
-                                                                                                    value={this.state.selectedClientTimeEntree}
-                                                                                                    renderOption={renderSearchOption}
-                                                                                                    search
-                                                                                                    placeholder="Chercher votre client"
-                                                                                                    onChange={ e => {
-                                                                                                        console.log(e)
-                                                                                                        this.setState({selectedClientTimeEntree:e})
-                                                                                                    }}
-                                                                                                />
-                                                                                                <IconButton style={{marginTop:-5}} onClick={() => this.setState({openAdvancedSearchModal:true})}>
-                                                                                                    <SearchIcon />
-                                                                                                </IconButton>
+                                                                                            <div className="row mt-3">
+                                                                                                <div className="col-md-4">
+                                                                                                    <div>
+                                                                                                        <h5>Catégorie d’activités </h5>
+                                                                                                        <MuiSelect
+                                                                                                            labelId="demo-simple-select-label"
+                                                                                                            id="demo-simple-select"
+                                                                                                            style={{width:"100%"}}
+                                                                                                            value={this.state.TimeSheet.newTime.categoriesActivite}
+                                                                                                            onChange={(e)=>{
+                                                                                                                let d = this.state.TimeSheet
+                                                                                                                d.newTime.categoriesActivite= e.target.value
+                                                                                                                this.setState({TimeSheet:d})
+                                                                                                            }}
+                                                                                                        >
+                                                                                                            <MenuItem value={"Temps facturé"}>Temps facturé</MenuItem>
+                                                                                                            <MenuItem value={"Paiement avancée"}>Paiement avancée</MenuItem>
+                                                                                                        </MuiSelect>
+                                                                                                    </div>
+
+                                                                                                </div>
+                                                                                                <div className="col-md-4">
+                                                                                                    <div style={{width:"100%"}}>
+                                                                                                        <h5>Date</h5>
+                                                                                                        <DatePicker
+
+                                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
+                                                                                                            onChange={(e)=>{
+                                                                                                                let d = this.state.TimeSheet
+                                                                                                                d.newTime.date= e
+                                                                                                                this.setState({TimeSheet:d})
+                                                                                                            }}
+                                                                                                            value={this.state.TimeSheet.newTime.date}
+                                                                                                        />
+
+                                                                                                    </div>
+
+                                                                                                </div>
+
                                                                                             </div>
+                                                                                            <div className="row mt-3">
+                                                                                                <div className="col-md-4">
+                                                                                                    <div>
+                                                                                                        <div >
+                                                                                                            <h5>Description</h5>
+                                                                                                        </div>
+                                                                                                        <textarea
+                                                                                                            className="form-control "
+                                                                                                            id="duree"
+                                                                                                            style={{width:"100%"}}
+                                                                                                            name="duree"
+                                                                                                            rows={5}
+                                                                                                            value={this.state.TimeSheet.newTime.description}
+                                                                                                            onChange={(e)=>{
+                                                                                                                let d=this.state.TimeSheet
+                                                                                                                d.newTime.description=e.target.value
+                                                                                                                this.setState({TimeSheet:d})}}/>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div className="col-md-4">
+                                                                                                    <div>
+                                                                                                        <h6>Utilisateur chez OA </h6>
+                                                                                                    </div>
 
-                                                                                        </div>
+                                                                                                    <MuiSelect
+                                                                                                        labelId="demo-mutiple-chip-label"
+                                                                                                        id="demo-mutiple-chip"
+                                                                                                        style={{width:"100%"}}
+                                                                                                        value={this.state.TimeSheet.newTime.utilisateurOA}
+                                                                                                        onChange={(e)=>{
+                                                                                                            let d = this.state.TimeSheet
+                                                                                                            d.newTime.utilisateurOA=e.target.value
+                                                                                                            this.setState({TimeSheet:d})
+                                                                                                        }}
+                                                                                                        MenuProps={Data.MenuProps}
+                                                                                                    >
+                                                                                                        {this.state.contacts.map((name,key) => (
+                                                                                                            <MenuItem key={key} value={name} s>
+                                                                                                                <div className="row align-items-center justify-content-center">   <Avatar alt="Natacha" src={name.imageUrl} /> <div >{name.nom + " " + name.prenom}</div></div>
+                                                                                                            </MenuItem>
+                                                                                                        ))}
+                                                                                                    </MuiSelect>
 
-                                                                                    </div>
-
-                                                                                </div>
-                                                                                <div className="row mt-3">
-                                                                                    <div className="col-md-4">
-                                                                                        <div>
-                                                                                            <h5>Catégories d’activité </h5>
-                                                                                            <MuiSelect
-                                                                                                labelId="demo-simple-select-label"
-                                                                                                id="demo-simple-select"
-                                                                                                style={{width:"100%"}}
-                                                                                                value={this.state.TimeSheet.newTime.categoriesActivite}
-                                                                                                onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                    d.newTime.categoriesActivite= e.target.value
-                                                                                                    this.setState({TimeSheet:d})
-                                                                                                }}
+                                                                                                    <div className="mt-3">
+                                                                                                        <h6>
+                                                                                                            Rate de facturation
+                                                                                                        </h6>
+                                                                                                        <Input
+                                                                                                            className="form-control "
+                                                                                                            id="duree"
+                                                                                                            style={{width:"100%"}}
+                                                                                                            name="duree"
+                                                                                                            type="text"
+                                                                                                            endAdornment={<InputAdornment position="end">CHF:Hr</InputAdornment>}
 
 
-                                                                                            >
-                                                                                                <MenuItem value={"Sécretaria"}>categorie 1</MenuItem>
-                                                                                                <MenuItem value={"Associé"}>categorie 2</MenuItem>
-                                                                                                <MenuItem value={"Collaborateur"}>categorie 3</MenuItem>
+                                                                                                            value={this.state.TimeSheet.newTime.rateFacturation+""}
+                                                                                                            onChange={(e)=>{
+                                                                                                                let d=this.state.TimeSheet
+                                                                                                                d.newTime.rateFacturation=e.target.value
+                                                                                                                this.setState({TimeSheet:d})}}/>
 
-                                                                                            </MuiSelect>
-                                                                                        </div>
 
-                                                                                    </div>
-                                                                                    <div className="col-md-4">
-                                                                                        <div style={{width:"100%"}}>
-                                                                                            <h5>Date</h5>
-                                                                                            <DatePicker
+                                                                                                    </div>
+                                                                                                </div>
 
-                                                                                                calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                                onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                    d.newTime.date= e
-                                                                                                    this.setState({TimeSheet:d})
-                                                                                                }}
-                                                                                                value={this.state.TimeSheet.newTime.date}
-                                                                                            />
-
-                                                                                        </div>
-
-                                                                                    </div>
-
-                                                                                </div>
-                                                                                <div className="row mt-3">
-                                                                                    <div className="col-md-4">
-                                                                                        <div>
-                                                                                            <div >
-                                                                                                <h5>Description</h5>
                                                                                             </div>
-                                                                                            <textarea
-                                                                                                className="form-control "
-                                                                                                id="duree"
-                                                                                                style={{width:"100%"}}
-                                                                                                name="duree"
-                                                                                                rows={5}
-                                                                                                value={this.state.TimeSheet.newTime.description}
-                                                                                                onChange={(e)=>{let d=this.state.TimeSheet
-                                                                                                    d.newTime.description=e.target.value
-                                                                                                    this.setState({TimeSheet:d})}}/>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div className="col-md-4">
+                                                                                            <div align="center" className=" mt-4">
+                                                                                                <AltButtonGroup>
+                                                                                                    <AtlButton onClick={()=>{
+                                                                                                        let obj = this.state.TimeSheet;
+                                                                                                        obj.newTime.duree = parseFloat(obj.newTime.duree.replace(" Heures",""))
+                                                                                                        let lignes_fact = this.state.lignesFactures || [];
+                                                                                                        lignes_fact.push(obj);
+                                                                                                        this.setState({
+                                                                                                            lignesFactures:lignes_fact,
+                                                                                                            TimeSheet:{
+                                                                                                                newTime:{
+                                                                                                                    duree:"",
+                                                                                                                    client:obj.newTime.client,
+                                                                                                                    categoriesActivite:"",
+                                                                                                                    description:"",
+                                                                                                                    date:new Date(),
+                                                                                                                    utilisateurOA:obj.newTime.utilisateurOA,
+                                                                                                                    rateFacturation:obj.newTime.rateFacturation,
+                                                                                                                }
+                                                                                                            }
+                                                                                                        })
+                                                                                                        console.log(obj)
+                                                                                                        this.openSnackbar("success","Enregistrement effectué avec succès")
+                                                                                                    }} appearance="primary" isDisabled={this.state.TimeSheet.newTime.duree === "" || this.state.TimeSheet.newTime.description === "" ||
+                                                                                                    this.state.TimeSheet.newTime.rateFacturation === "" || this.state.TimeSheet.newTime.client === ""}
+                                                                                                               style={{margin:20}}>
+                                                                                                        Enregistrer
+                                                                                                    </AtlButton>
+                                                                                                    <AtlButton appearance="" style={{margin:20}}>Enregistrer et créer une autre</AtlButton>
+                                                                                                    <AtlButton appearance="" style={{margin:20}}>Enregistrer & dupliquer</AtlButton>
+                                                                                                    <AtlButton appearance="" style={{margin:20}} onClick={() => {
+                                                                                                        this.setState({
+                                                                                                            TimeSheet:{
+                                                                                                                newTime:{
+                                                                                                                    duree:"",
+                                                                                                                    client:"",
+                                                                                                                    categoriesActivite:"",
+                                                                                                                    description:"",
+                                                                                                                    date:new Date(),
+                                                                                                                    utilisateurOA:"",
+                                                                                                                    rateFacturation:"",
+                                                                                                                }
+                                                                                                            }
+                                                                                                        })
+                                                                                                    }}>Annuler</AtlButton>
+                                                                                                </AltButtonGroup>
+                                                                                                <div>
+                                                                                                    <AltButtonGroup style={{marginTop:10}}>
+                                                                                                        <AtlButton appearance="" onClick={() => this.setState({showLignesFactureClient:true})}>Etablir facture</AtlButton>
+                                                                                                        <AtlButton appearance="">Histo.Fact.Clients</AtlButton>
+                                                                                                    </AltButtonGroup>
+                                                                                                </div>
+
+                                                                                            </div>
+                                                                                        </div>  :
+
                                                                                         <div>
-                                                                                            <h6>Utilisateur chez OA </h6>
+                                                                                            <div className="mt-1">
+                                                                                                <div>
+                                                                                                    <IconButton onClick={() => this.setState({showLignesFactureClient:false})}>
+                                                                                                        <ArrowBackIcon/>
+                                                                                                    </IconButton>
+                                                                                                    <h5 className="mt-3">identification / Imputation client</h5>
+                                                                                                    <div style={{display:"flex"}}>
+                                                                                                            <SelectSearch
+                                                                                                                options={
+                                                                                                                    this.state.annuaire_clients_mondat.map(({ContactType,ContactName,imageUrl }) =>
+                                                                                                                        ({ value: ContactName, name: ContactName, ContactType:ContactType,ContactName:ContactName, imageUrl:imageUrl }))
+                                                                                                                }
+                                                                                                                value={this.state.selectedClientTimeEntree}
+                                                                                                                renderOption={renderSearchOption}
+                                                                                                                search
+                                                                                                                placeholder="Chercher votre client"
+                                                                                                                onChange={ e => {
+                                                                                                                    console.log(e)
+                                                                                                                    let obj = this.state.TimeSheet;
+                                                                                                                    obj.newTime.client = e;
+                                                                                                                    this.setState({selectedClientTimeEntree:e,TimeSheet:obj})
+                                                                                                                }}
+                                                                                                            />
+                                                                                                            <IconButton style={{marginTop:-5}} onClick={() => this.setState({openAdvancedSearchModal:true})}>
+                                                                                                                <SearchIcon />
+                                                                                                            </IconButton>
+                                                                                                        </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            {
+                                                                                                searchFilterLignesfacture.length > 0 ?
+                                                                                                    <div className="mt-3">
+                                                                                                        <div style={{width:"100%",backgroundColor:"#D2DDFE",padding:5,display:"flex"}}>
+                                                                                                            <div align="center" style={{width:"15%"}}>
+                                                                                                                <h5>Date</h5>
+                                                                                                            </div>
+                                                                                                            <div align="center" style={{width:"70%"}}>
+                                                                                                                <h5>Activités</h5>
+                                                                                                            </div>
+                                                                                                            <div align="center" style={{width:"15%"}}>
+                                                                                                                <h5>Heures</h5>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        {
+                                                                                                            searchFilterLignesfacture.map((lf,key) =>
+                                                                                                                <div key={key}>
+                                                                                                                    <div  style={{width:"100%",backgroundColor:"#fff",padding:5,display:"flex"}}>
+                                                                                                                        <div align="center" style={{width:"15%"}}>
+                                                                                                                            <h5>{moment(lf.newTime.date).format("DD-MM-YYYY HH:mm")}</h5>
+                                                                                                                        </div>
+                                                                                                                        <div align="center" style={{width:"70%"}}>
+                                                                                                                            <h5>{lf.newTime.description}</h5>
+                                                                                                                        </div>
+                                                                                                                        <div align="center" style={{width:"15%"}}>
+                                                                                                                            <h5>{lf.newTime.duree}</h5>
+                                                                                                                        </div>
+                                                                                                                    </div>
+                                                                                                                    {
+                                                                                                                        key < searchFilterLignesfacture.length &&
+                                                                                                                        <div style={{backgroundColor:"#f0f0f0",height:2}}/>
+                                                                                                                    }
+
+                                                                                                                </div>
+                                                                                                            )
+                                                                                                        }
+                                                                                                        <div className="mt-4 text-right">
+                                                                                                            <AtlButton appearance="primary" onClick={() => {}}>ETABLIR FACTURE</AtlButton>
+                                                                                                        </div>
+                                                                                                    </div>  :
+
+                                                                                                    <div className="mt-4">
+                                                                                                        <h5 style={{color:"#f50"}}>Aucune ligne facture encore ajoutée pour ce client !</h5>
+                                                                                                    </div>
+                                                                                            }
+
                                                                                         </div>
-
-                                                                                        <MuiSelect
-                                                                                            labelId="demo-mutiple-chip-label"
-                                                                                            id="demo-mutiple-chip"
-
-                                                                                            style={{width:"100%"}}
-                                                                                            value={this.state.TimeSheet.newTime.utilisateurOA}
-                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                d.newTime.utilisateurOA=e.target.value
-
-                                                                                                this.setState({TimeSheet:d})
-                                                                                            }}
-                                                                                            MenuProps={Data.MenuProps}
+                                                                                }
 
 
-                                                                                        >
-                                                                                            {this.state.contacts.map((name,key) => (
-                                                                                                <MenuItem key={key} value={name} s>
-                                                                                                    <div className="row align-items-center justify-content-center">   <Avatar alt="Natacha" src={name.imageUrl} /> <div >{name.nom + " " + name.prenom}</div></div>
-
-                                                                                                </MenuItem>
-                                                                                            ))}
-                                                                                        </MuiSelect>
-
-                                                                                        <div className="mt-3">
-                                                                                            <h6>
-                                                                                                Rate de facturation
-                                                                                            </h6>
-                                                                                            <Input
-                                                                                                className="form-control "
-                                                                                                id="duree"
-                                                                                                style={{width:"100%"}}
-                                                                                                name="duree"
-                                                                                                type="text"
-                                                                                                endAdornment={<InputAdornment position="end">CHF:Hr</InputAdornment>}
-
-
-                                                                                                value={this.state.TimeSheet.newTime.rateFacturation+""}
-                                                                                                onChange={(e)=>{let d=this.state.TimeSheet
-                                                                                                    d.newTime.rateFacturation=e.target.value
-                                                                                                    this.setState({TimeSheet:d})}}/>
-
-
-                                                                                        </div>
-                                                                                    </div>
-
-                                                                                </div>
-
-
-
-                                                                                <div align="center" className=" mt-4">
-                                                                                    <AltButtonGroup>
-                                                                                        <AtlButton onClick={()=>{this.saveTimeSheet()}} appearance="primary">Enregistrer</AtlButton>
-                                                                                        <AtlButton appearance="">Enregistrer et créer une autre</AtlButton>
-                                                                                        <AtlButton appearance="">Enregistrer & dupliquer</AtlButton>
-                                                                                        <AtlButton appearance="">Annuler</AtlButton>
-                                                                                    </AltButtonGroup>
-                                                                                </div>
                                                                             </TabPanel>
 
                                                                             <TabPanel/>
