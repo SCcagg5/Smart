@@ -4894,11 +4894,14 @@ export default class DriveV3 extends React.Component {
                                                                                                             <div align="center" style={{width:"15%"}}>
                                                                                                                 <h5>Date</h5>
                                                                                                             </div>
-                                                                                                            <div align="center" style={{width:"70%"}}>
+                                                                                                            <div align="center" style={{width:"60%"}}>
                                                                                                                 <h5>Activités</h5>
                                                                                                             </div>
-                                                                                                            <div align="center" style={{width:"15%"}}>
+                                                                                                            <div align="center" style={{width:"10%"}}>
                                                                                                                 <h5>Heures</h5>
+                                                                                                            </div>
+                                                                                                            <div align="center" style={{width:"15%"}}>
+                                                                                                                <h5>Discount(%)</h5>
                                                                                                             </div>
                                                                                                         </div>
                                                                                                         {
@@ -4908,11 +4911,22 @@ export default class DriveV3 extends React.Component {
                                                                                                                         <div align="center" style={{width:"15%"}}>
                                                                                                                             <h5>{moment(lf.newTime.date).format("DD-MM-YYYY HH:mm")}</h5>
                                                                                                                         </div>
-                                                                                                                        <div align="center" style={{width:"70%"}}>
+                                                                                                                        <div align="center" style={{width:"60%"}}>
                                                                                                                             <h5>{lf.newTime.description}</h5>
                                                                                                                         </div>
-                                                                                                                        <div align="center" style={{width:"15%"}}>
+                                                                                                                        <div align="center" style={{width:"10%"}}>
                                                                                                                             <h5>{lf.newTime.duree}</h5>
+                                                                                                                        </div>
+                                                                                                                        <div align="center" style={{width:"15%"}}>
+                                                                                                                            <input className="form-control" value={this.state.lignesFactures[key].discount || "0"} style={{width:75}}
+                                                                                                                                   onChange={e => {
+                                                                                                                                       let lignesF = this.state.lignesFactures;
+                                                                                                                                       let ligneF = this.state.lignesFactures[key];
+                                                                                                                                       ligneF.discount = e.target.value;
+                                                                                                                                       lignesF[key] = ligneF;
+                                                                                                                                       this.setState({lignesFactures:lignesF})
+                                                                                                                                   }}
+                                                                                                                            />
                                                                                                                         </div>
                                                                                                                     </div>
                                                                                                                     {
@@ -4923,6 +4937,25 @@ export default class DriveV3 extends React.Component {
                                                                                                                 </div>
                                                                                                             )
                                                                                                         }
+                                                                                                        <div className="mt-3">
+                                                                                                            <h6>Partner validant cette facture</h6>
+                                                                                                            <MuiSelect
+                                                                                                                labelId="demo-mutiple-chip-label"
+                                                                                                                id="demo-mutiple-chip"
+                                                                                                                style={{width:250}}
+                                                                                                                value={this.state.partnerFacture}
+                                                                                                                onChange={(e)=>{
+                                                                                                                    this.setState({partnerFacture:e.target.value})
+                                                                                                                }}
+                                                                                                                MenuProps={Data.MenuProps}
+                                                                                                            >
+                                                                                                                {this.state.contacts.map((name,key) => (
+                                                                                                                    <MenuItem key={key} value={name} >
+                                                                                                                        <div className="row align-items-center justify-content-center">   <Avatar alt="Natacha" src={name.imageUrl} /> <div >{name.nom + " " + name.prenom}</div></div>
+                                                                                                                    </MenuItem>
+                                                                                                                ))}
+                                                                                                            </MuiSelect>
+                                                                                                        </div>
                                                                                                         <div className="mt-4 text-right">
                                                                                                             <AtlButton appearance="primary" onClick={() => {}}>ETABLIR FACTURE</AtlButton>
                                                                                                         </div>
