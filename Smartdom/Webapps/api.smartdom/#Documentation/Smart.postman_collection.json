@@ -3082,7 +3082,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"data\": {\"test\": 1}\r\n}",
+							"raw": "{\r\n    \"data\": [{\r\n        \"state\": \"draft\",\r\n        \"type\": \"out_invoice\",\r\n        \"invoice_sent\": false,\r\n        \"l10n_ch_isr_sent\": false,\r\n        \"name\": \"/\",\r\n        \"invoice_date\": \"2020-09-01\",\r\n        \"date\": \"2020-09-01\",\r\n        \"journal_id\": 1,\r\n        \"currency_id\": 5,\r\n        \"invoice_user_id\": 2,\r\n        \"invoice_incoterm_id\": false,\r\n        \"auto_post\": false,\r\n        \"to_check\": false,\r\n        \"authorized_transaction_ids\": [\r\n            [\r\n                6,\r\n                false,\r\n                []\r\n            ]\r\n        ],\r\n        \"tax_lock_date_message\": false,\r\n        \"id\": false,\r\n        \"invoice_payment_state\": \"not_paid\",\r\n        \"invoice_filter_type_domain\": \"sale\",\r\n        \"company_currency_id\": 5,\r\n        \"commercial_partner_id\": 13,\r\n        \"bank_partner_id\": 1,\r\n        \"invoice_has_outstanding\": false,\r\n        \"l10n_ch_currency_name\": \"CHF\",\r\n        \"invoice_sequence_number_next_prefix\": false,\r\n        \"invoice_sequence_number_next\": false,\r\n        \"invoice_has_matching_suspense_amount\": false,\r\n        \"has_reconciled_entries\": false,\r\n        \"restrict_mode_hash_table\": false,\r\n        \"partner_id\": 13,\r\n        \"ref\": \"test\",\r\n        \"invoice_vendor_bill_id\": false,\r\n        \"invoice_payment_term_id\": 2,\r\n        \"invoice_date_due\": \"2020-09-09\",\r\n        \"company_id\": 1,\r\n        \"invoice_line_ids\": [],\r\n        \"amount_untaxed\": 0,\r\n        \"amount_by_group\": [],\r\n        \"amount_total\": 0,\r\n        \"invoice_payments_widget\": \"False\",\r\n        \"amount_residual\": 0,\r\n        \"invoice_outstanding_credits_debits_widget\": false,\r\n        \"narration\": false,\r\n        \"line_ids\": [],\r\n        \"invoice_origin\": false,\r\n        \"fiscal_position_id\": 1,\r\n        \"invoice_cash_rounding_id\": false,\r\n        \"invoice_source_email\": false,\r\n        \"invoice_payment_ref\": false,\r\n        \"invoice_partner_bank_id\": false,\r\n        \"reversed_entry_id\": false,\r\n        \"message_follower_ids\": [],\r\n        \"activity_ids\": [],\r\n        \"message_ids\": [],\r\n        \"message_attachment_count\": 0\r\n    }]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3458,6 +3458,38 @@
 									"key": "id",
 									"value": "1"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/bill_id Copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/bill_patern",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"bill_patern"
 							]
 						}
 					},
@@ -4055,17 +4087,17 @@
 	],
 	"variable": [
 		{
-			"id": "455a4dc9-2f92-49d9-bc34-280dfc9a9ae0",
+			"id": "efcf74df-bfb3-47e8-a7df-1c5439ae4471",
 			"key": "url",
 			"value": "api.localhost"
 		},
 		{
-			"id": "64eb764d-3f0e-4e04-826c-eac6b6b9d768",
+			"id": "46309592-a01e-43fd-8135-0a072c89d40d",
 			"key": "password",
 			"value": "password"
 		},
 		{
-			"id": "b3c4ff83-4e79-4377-a76c-28aad01a79b1",
+			"id": "582e11e9-35c4-4cef-84a8-0f733de80cf9",
 			"key": "method",
 			"value": "http://"
 		}
