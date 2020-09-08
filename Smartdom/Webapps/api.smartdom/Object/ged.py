@@ -408,7 +408,7 @@ class file:
                 input["text"] = res[1]["text"]
                 input["map"] = res[1]["map"]
                 input["lexiq"] = res[1]["lexiq"]
-        index = "ged_search_" + self.ged_id + "_" + date.today().strftime("%m%Y")
+        index = "ged_search_" + self.ged_id + "_" + self.usr_id + "_" + date.today().strftime("%m%Y")
         if es.indices.exists(index=index):
             es.indices.refresh(index=index)
         else:
@@ -730,7 +730,12 @@ class ged:
 
     def search(self, word, type, date_from, date_to, page = 1, size = 20):
         query, regex, limit = pdf.query(word, date_from, date_to, page, size)
-        index_template = "ged_search_" + self.ged_id + "_"
+        index_template = "ged_search_" + self.ged_id + "_" + self.usr_id + "_"
+        index = "ged_search_" + self.ged_id + "_" + self.usr_id + "_" + date.today().strftime("%m%Y")
+        if es.indices.exists(index=index):
+            es.indices.refresh(index=index)
+        else:
+            es.indices.create(index=index, body=elastic.doc_mapping)
         res = es.search(index=re.findall(r''+index_template+'[0-9]*', es.cat.indices()),
                         body=query,
                         request_timeout=600)["hits"]["hits"]

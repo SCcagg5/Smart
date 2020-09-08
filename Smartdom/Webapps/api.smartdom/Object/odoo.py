@@ -31,62 +31,345 @@ class odoo:
     def list_index(self, name, offset = 0, limit = 10, id = 0):
             data = {
                     "product_id" : {"index": "product.product",
-                                         "arg": ["|", ["company_id", "=", False], ["company_id", "=", 1]],
+                                         "arg": [["|", ["company_id", "=", False], ["company_id", "=", 1]]],
                                          "opt": {'offset': int(offset), 'limit': int(limit)},
                                          "model": "search"
                                         },
                     "product": {"index": "product.product",
-                                         "arg": [int(id)],
+                                         "arg": [[int(id)]],
                                          "opt": {},
                                          "model": "read"
                                         },
                     "tax_id":      {"index": "account.tax",
-                                         "arg": [["type_tax_use", "=?", "sale"], ["company_id", "=", 1]],
+                                         "arg": [[["type_tax_use", "=?", "sale"], ["company_id", "=", 1]]],
                                          "opt": {'offset': int(offset), 'limit': int(limit)},
                                          "model": "search"
                                         },
                     "tax": {"index": "account.tax",
-                                         "arg": [int(id)],
+                                         "arg": [[int(id)]],
                                          "opt": {},
                                          "model": "read"
                                         },
                     "payment_term_id": {"index": "account.payment.term",
-                            "arg": [],
+                            "arg": [[]],
                             "opt": {'offset': int(offset), 'limit': int(limit)},
                             "model": "search"
                          },
                     "payment_term": {"index": "account.payment.term",
-                                         "arg": [int(id)],
+                                         "arg": [[int(id)]],
                                          "opt": {},
                                          "model": "read"
                                         },
                     "product_category_id": {"index": "product.category",
-                            "arg": [],
+                            "arg": [[]],
                             "opt": {'offset': int(offset), 'limit': int(limit)},
                             "model": "search"
                          },
                     "product_category": {"index": "product.category",
-                            "arg": [int(id)],
+                            "arg": [[int(id)]],
                             "opt": {},
                             "model": "read"
                          },
                     "bill_id": {"index" :"account.move",
-                            "arg": [["type", "=", "out_invoice"]],
+                            "arg": [[["type", "=", "out_invoice"]]],
                             "opt": {},
                             "model": "search"
                             },
                     "bill": {"index": "account.move",
-                            "arg": [int(id)],
+                            "arg": [[int(id)]],
                             "opt": {},
                             "model": "read"
                          },
+                    "line_get": {"index": "account.move.line",
+			    "arg": [["sequence","move_name","product_id","name","account_id","analytic_account_id","analytic_tag_ids","quantity","product_uom_id","price_unit","discount","tax_ids","price_subtotal","price_total","partner_id","amount_currency","currency_id","debit","credit","date","date_maturity","tax_line_id","tax_repartition_line_id","tag_ids","tax_base_amount","tax_exigible","company_id","company_currency_id","recompute_tax_line","display_type","is_rounding_line","exclude_from_invoice_tab","account_internal_type","always_set_currency_id"]],
+			    "opt": {},
+			    "model": "default_get"
+			},
+		    "bill_line_pattern": {"pattern": {
+  "invoice_line_ids": [
+    [
+      0,
+      "virtual_238",
+      {
+        "sequence": 10,
+        "account_id": 104,
+        "quantity": 1,
+        "discount": 0,
+        "partner_id": False,
+        "currency_id": False,
+        "debit": 0,
+        "credit": 30,
+        "display_type": False,
+        "product_id": 1,
+        "name": "[testes] tesarticle",
+        "analytic_account_id": False,
+        "analytic_tag_ids": [
+          [
+            6,
+            False,
+            []
+          ]
+        ],
+        "product_uom_id": 1,
+        "price_unit": 30,
+        "tax_ids": [
+          [
+            6,
+            False,
+            [
+              13
+            ]
+          ]
+        ],
+        "amount_currency": 0,
+        "date_maturity": False,
+        "tag_ids": [
+          [
+            6,
+            False,
+            [
+              17
+            ]
+          ]
+        ],
+        "recompute_tax_line": False,
+        "is_rounding_line": False,
+        "exclude_from_invoice_tab": False
+      }
+    ]
+  ], 
+  "line_ids": [
+    [
+      0,
+      "virtual_238",
+      {
+        "account_id": 104,
+        "sequence": 10,
+        "name": "[testes] tesarticle",
+        "quantity": 1,
+        "price_unit": 30,
+        "discount": 0,
+        "debit": 0,
+        "credit": 30,
+        "amount_currency": 0,
+        "date_maturity": False,
+        "currency_id": False,
+        "partner_id": False,
+        "product_uom_id": 1,
+        "product_id": 1,
+        "payment_id": False,
+        "tax_ids": [
+          [
+            6,
+            False,
+            [
+              13
+            ]
+          ]
+        ],
+        "tax_base_amount": 0,
+        "tax_exigible": True,
+        "tax_repartition_line_id": False,
+        "tag_ids": [
+          [
+            6,
+            False,
+            [
+              17
+            ]
+          ]
+        ],
+        "analytic_account_id": False,
+        "analytic_tag_ids": [
+          [
+            6,
+            False,
+            []
+          ]
+        ],
+        "recompute_tax_line": False,
+        "display_type": False,
+        "is_rounding_line": False,
+        "exclude_from_invoice_tab": False
+      }
+    ],
+    [
+      0,
+      "virtual_260",
+      {
+        "account_id": 76,
+        "sequence": 10,
+        "name": "TVA due a 7.7% (TN)",
+        "quantity": 1,
+        "price_unit": 2.31,
+        "discount": 0,
+        "debit": 0,
+        "credit": 2.31,
+        "amount_currency": 0,
+        "date_maturity": False,
+        "currency_id": False,
+        "partner_id": False,
+        "product_uom_id": False,
+        "product_id": False,
+        "payment_id": False,
+        "tax_ids": [
+          [
+            6,
+            False,
+            []
+          ]
+        ],
+        "tax_base_amount": 30,
+        "tax_exigible": True,
+        "tax_repartition_line_id": 26,
+        "tag_ids": [
+          [
+            6,
+            False,
+            [
+              27
+            ]
+          ]
+        ],
+        "analytic_account_id": False,
+        "analytic_tag_ids": [
+          [
+            6,
+            False,
+            []
+          ]
+        ],
+        "recompute_tax_line": False,
+        "display_type": False,
+        "is_rounding_line": False,
+        "exclude_from_invoice_tab": True
+      }
+    ],
+    [
+      0,
+      "virtual_269",
+      {
+        "account_id": 6,
+        "sequence": 10,
+        "name": False,
+        "quantity": 1,
+        "price_unit": -32.31,
+        "discount": 0,
+        "debit": 32.31,
+        "credit": 0,
+        "amount_currency": 0,
+        "date_maturity": "2020-09-08",
+        "currency_id": False,
+        "partner_id": False,
+        "product_uom_id": False,
+        "product_id": False,
+        "payment_id": False,
+        "tax_ids": [
+          [
+            6,
+            False,
+            []
+          ]
+        ],
+        "tax_base_amount": 0,
+        "tax_exigible": True,
+        "tax_repartition_line_id": False,
+        "tag_ids": [
+          [
+            6,
+            False,
+            []
+          ]
+        ],
+        "analytic_account_id": False,
+        "analytic_tag_ids": [
+          [
+            6,
+            False,
+            []
+          ]
+        ],
+        "recompute_tax_line": False,
+        "display_type": False,
+        "is_rounding_line": False,
+        "exclude_from_invoice_tab": True
+      }
+    ]
+  ]}
+			},
+                    "bill_pattern": {"pattern": {
+        "state": "draft",
+        "type": "out_invoice",
+        "invoice_sent": False,
+        "l10n_ch_isr_sent": False,
+        "name": "<Name>",
+        "invoice_date": "<date>",
+        "date": "<date>",
+        "journal_id": 1,
+        "currency_id": "<currency_id>",
+        "invoice_user_id": 2,
+        "invoice_incoterm_id": False,
+        "auto_post": False,
+        "to_check": False,
+        "authorized_transaction_ids": [
+          [
+            6,
+            False,
+            []
+          ]
+        ],
+        "tax_lock_date_message": False,
+        "id": False,
+        "invoice_payment_state": "not_paid",
+        "invoice_filter_type_domain": "sale",
+        "company_currency_id": "<currency_id>",
+        "commercial_partner_id": "<company_id>",
+        "bank_partner_id": 1,
+        "invoice_has_outstanding": False,
+        "l10n_ch_currency_name": "<currency_name>",
+        "invoice_sequence_number_next_prefix": False,
+        "invoice_sequence_number_next": False,
+        "invoice_has_matching_suspense_amount": False,
+        "has_reconciled_entries": False,
+        "restrict_mode_hash_table": False,
+        "partner_id": "<company_id>",
+        "ref": "<ref_number>",
+        "invoice_vendor_bill_id": False,
+        "invoice_payment_term_id": "<payment_term_id>",
+        "invoice_date_due": "<date_+_payement_term>",
+        "company_id": 1,
+        "invoice_line_ids": [],
+        "amount_untaxed": 0,
+        "amount_by_group": [],
+        "amount_total": 0,
+        "invoice_payments_widget": "False",
+        "amount_residual": 0,
+        "invoice_outstanding_credits_debits_widget": False,
+        "narration": False,
+        "line_ids": [],
+        "invoice_origin": False,
+        "fiscal_position_id": 1,
+        "invoice_cash_rounding_id": False,
+        "invoice_source_email": False,
+        "invoice_payment_ref": False,
+        "invoice_partner_bank_id": False,
+        "reversed_entry_id": False,
+        "message_follower_ids": [],
+        "activity_ids": [],
+        "message_ids": [],
+        "message_attachment_count": 0
+      }
+			}
 
                  }
             ret = []
             if name not in data:
                 return [False, "invalid index", 404]
             else:
-                ret = self.get(data[name]["index"], data[name]["arg"], data[name]["opt"], data[name]["model"])
+                if "pattern" in data[name]:
+                    ret = data[name]["pattern"]
+                else:
+                    ret = self.get(data[name]["index"], data[name]["arg"], data[name]["opt"], data[name]["model"])
             return [True, ret, None]
 
     def get(self, index, arg, opt, model):
@@ -94,7 +377,7 @@ class odoo:
         ret = models.execute_kw(self.opt['db'],
                                 self.uid,
                                 self.opt['password'],
-            index, model , [arg], opt)
+            index, model , arg, opt)
         return ret
 
     def onchangefact(self, data):
@@ -248,7 +531,7 @@ class odoo:
                                 self.uid,
                                 self.opt['password'],
                                 'account.move', 'create',
-                                data
+                                data, {}
                                 )
         except Exception as inst:
             return [False, str(inst), 500]
