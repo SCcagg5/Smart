@@ -374,6 +374,8 @@ export default class DriveV3 extends React.Component {
 
                         let meeturl = "https://meet.smartdom.ch/meet_" + moment().format("DDMMYYYYHHmmss")
 
+                        console.log(gedRes.data.Proprietary)
+
                         firebase.database().ref('/').on('value', (snapshot) => {
 
                             const data = snapshot.val() || [];
@@ -1439,6 +1441,7 @@ export default class DriveV3 extends React.Component {
     render() {
         var searchFilter= this.state.annuaire_clients_mondat.filter((soc) => soc.ContactName.toLowerCase().startsWith(this.state.searchSociete.toLowerCase()))
         var searchFilterLignesfacture = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
+        console.log(this.state.sharedDrive)
         return (
             <div>
                 {
@@ -1593,7 +1596,7 @@ export default class DriveV3 extends React.Component {
                                                 this.setState({openShareDocModal: true})
                                             }}
 
-                                            driveFolders={this.state.folders || []}
+                                            driveFolders={this.state.folders.concat(this.state.sharedDrive || []) || []}
                                             setDriveFolders={(drive) => this.setState({folders:drive})}
 
                                             selectedFolder={this.state.selectedFolder}
@@ -1857,6 +1860,9 @@ export default class DriveV3 extends React.Component {
                                                                                                       onRenameFile={(file,newName) => {
                                                                                                           this.renameFile_Folder(file,newName)
                                                                                                       }}
+                                                                                                      onSignBtnClick={(id) => {
+                                                                                                          this.props.history.push("/signDoc/doc/"+id)
+                                                                                                      }}
                                                                                             />
 
                                                                                         </div> :
@@ -1891,6 +1897,9 @@ export default class DriveV3 extends React.Component {
                                                                                                       }}
                                                                                                       onRenameFile={(file,newName) => {
                                                                                                           this.renameFile_Folder(file,newName)
+                                                                                                      }}
+                                                                                                      onSignBtnClick={(id) => {
+                                                                                                          this.props.history.push("/signDoc/doc/"+id)
                                                                                                       }}
                                                                                             />
 
@@ -5295,7 +5304,7 @@ export default class DriveV3 extends React.Component {
                                                                                      style={{marginTop: 35}}>
                                                                                     <div className="col-md-4" >
                                                                                         <FormControl variant="outlined"  style={{width:"100%"}}>
-                                                                                            <Select
+                                                                                            <MuiSelect
                                                                                                 labelId="demo-simple-select-filled-label"
                                                                                                 id="demo-simple-select-filled"
                                                                                                 style={{width:"100%"}}
@@ -5316,7 +5325,7 @@ export default class DriveV3 extends React.Component {
                                                                                                         </div>
                                                                                                     </MenuItem>
                                                                                                 ))}
-                                                                                            </Select>
+                                                                                            </MuiSelect>
                                                                                         </FormControl>
                                                                                     </div>
                                                                                     <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>

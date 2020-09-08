@@ -53,7 +53,6 @@ class login extends Component {
         });
 
             SmartService.getToken().then( tokenRes => {
-                console.log(tokenRes)
                 if (tokenRes.succes === true && tokenRes.status === 200) {
 
                     SmartService.login({email:values.email.trim().toLowerCase(),password1:values.password},tokenRes.data.token).then( loginRes => {

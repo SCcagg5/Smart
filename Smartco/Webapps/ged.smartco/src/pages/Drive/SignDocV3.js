@@ -57,6 +57,7 @@ export default class SignDocV3 extends React.Component {
         savedSignatures: [],
         selectedPage: 1,
         signatureText: "Exemple",
+        selectedSignTextId:"signText1",
         mainTabIndex:0,
         parapheTabIndex: 0,
         signatureTabIndex: 0,
