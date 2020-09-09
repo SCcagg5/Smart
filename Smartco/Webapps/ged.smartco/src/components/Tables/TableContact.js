@@ -162,7 +162,7 @@ export default function TableContact(props) {
                                 </div>
                             </TableCell>
                             <TableCell style={{ width: "25%" }} align="center">
-                                {row.phone}
+                                { row.phone || "" }
                             </TableCell>
                             <TableCell style={{ width: "30%" }} align="center">
                                 {row.email}

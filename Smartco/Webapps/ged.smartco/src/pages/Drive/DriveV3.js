@@ -37,6 +37,7 @@ import TopBar from "../../components/TopBar/TopBar";
 import logo from "../../assets/images/logos/OALegalLogoV2.jpeg";
 import SideMenu from "../../components/SideMenu/SideMenu";
 import data from "../../data/Data";
+import Data from "../../data/Data";
 import SmartService from "../../provider/SmartService";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import MuiBackdrop from "../../components/Loading/MuiBackdrop";
@@ -86,18 +87,17 @@ import Rooms from "../Rooms/Rooms";
 import CB from "@material-ui/core/Checkbox";
 import BT from "@material-ui/core/Button";
 import TableSociete from "../../components/Tables/TableSociete";
-import { Bubble } from 'react-chartjs-2';
-import Data from "../../data/Data";
+import {Bubble} from 'react-chartjs-2';
 import LeftMenuV3 from "../../components/Menu/LeftMenuV3";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import InputAdornment from "@material-ui/core/InputAdornment";
-import time from"../../assets/icons/time.svg"
-import money from"../../assets/icons/money.svg"
-import play from"../../assets/icons/play.svg"
-import pluss from"../../assets/icons/pluss.svg"
-import back from"../../assets/icons/back.svg"
-import edit from"../../assets/icons/edit.svg"
-import calendar from"../../assets/icons/calendar.svg"
+import time from "../../assets/icons/time.svg"
+import money from "../../assets/icons/money.svg"
+import play from "../../assets/icons/play.svg"
+import pluss from "../../assets/icons/pluss.svg"
+import back from "../../assets/icons/back.svg"
+import edit from "../../assets/icons/edit.svg"
+import calendar from "../../assets/icons/calendar.svg"
 import down from "../../assets/icons/down.svg";
 import DatePicker from 'react-date-picker';
 import TableTimeSheet from "../../components/Tables/TableTimeSheet";
@@ -107,7 +107,7 @@ import userAvatar from "../../assets/images/users/user4.jpg";
 import ListFolders from "../../components/List/ListFolders";
 import TableTimeSheetDashboard from "../../components/Tables/TableDashboardTimeSheet";
 import HSBar from "react-horizontal-stacked-bar-chart";
-import AtlButton, { ButtonGroup as AltButtonGroup } from '@atlaskit/button';
+import AtlButton, {ButtonGroup as AltButtonGroup} from '@atlaskit/button';
 import Timer from "react-compound-timer";
 import SelectSearch from 'react-select-search';
 import SearchIcon from '@material-ui/icons/Search';
@@ -122,15 +122,15 @@ function renderSearchOption(props, option, snapshot, className) {
         borderRadius: '50%',
         verticalAlign: 'middle',
         marginRight: 10,
-        width:32,height:32,objectFit:"cover"
+        width: 32, height: 32, objectFit: "cover"
     };
 
     return (
         <button {...props} className={className} type="button">
             <span>
                 <img alt="" style={imgStyle}
-                     src={option.ContactType === "Person" ? option.imageUrl ? option.imageUrl : userAvatar : entIcon} />
-                     <span style={{fontSize:13}}>{option.ContactName}</span>
+                     src={option.ContactType === "Person" ? option.imageUrl ? option.imageUrl : userAvatar : entIcon}/>
+                <span style={{fontSize: 13}}>{option.ContactName}</span>
             </span>
         </button>
     );
@@ -158,7 +158,7 @@ export default class DriveV3 extends React.Component {
 
     state = {
         loading: true,
-        firstLoading:true,
+        firstLoading: true,
 
         openAlert: false,
         alertMessage: '',
@@ -193,15 +193,15 @@ export default class DriveV3 extends React.Component {
         selectedDoc: "",
 
         folders: [],
-        reelFolders:[],
+        reelFolders: [],
         sharedDrive: [],
         rootFiles: [],
-        rootFolders:[],
+        rootFolders: [],
         sharedRootFiles: [],
 
         selectedFoldername: "",
         breadcrumbs: "",
-        selectedFolder:"",
+        selectedFolder: "",
         selectedFolderId: "",
         selectedFile: "",
         selectedFolderFiles: [],
@@ -220,16 +220,16 @@ export default class DriveV3 extends React.Component {
         openMeetMenuItem: false,
         openRoomMenuItem: false,
         openContactsMenu: false,
-        openSocietyMenuItem:false,
-        openTimeSheetsMenu:false,
+        openSocietyMenuItem: false,
+        openTimeSheetsMenu: false,
 
         showContainerSection: "Drive",
-        selectedDriveItem:[],
-        expandedDriveItems:[],
-        autoExpandParent:true,
+        selectedDriveItem: [],
+        expandedDriveItems: [],
+        autoExpandParent: true,
         selectedMeetMenuItem: ["new"],
-        selectedSocietyMenuItem:["clients_mondat"],
-        selectedContactsMenuItem:["aia"],
+        selectedSocietyMenuItem: ["clients_mondat"],
+        selectedContactsMenuItem: ["aia"],
         selectedTimeSheetMenuItem: ["activities"],
 
         selectedSociete: "",
@@ -237,47 +237,47 @@ export default class DriveV3 extends React.Component {
 
         showInviteModal: false,
         meetCode: "",
-        mondat:{
-            typeDossier:"",
-            DescriptionProjet:"",
-            DossierLBA:"",
-            PersonneChargePrincipale:{
-                prenom:"",
-                nom:"",
-                email:"" ,
-                telephone:"",
-                adresse:""
+        mondat: {
+            typeDossier: "",
+            DescriptionProjet: "",
+            DossierLBA: "",
+            PersonneChargePrincipale: {
+                prenom: "",
+                nom: "",
+                email: "",
+                telephone: "",
+                adresse: ""
             },
-            PersonneChargeReglement:{
-                prenom:"",
-                nom:"",
-                email:"" ,
-                telephone:"",
-                adresse:""
+            PersonneChargeReglement: {
+                prenom: "",
+                nom: "",
+                email: "",
+                telephone: "",
+                adresse: ""
             },
-            autrePartie:"",
-            contrePartie:"",
-            Apporteur:"",
-            collablead:"",
-            collabteam:[],
-            tauxHoraireCollab:"",
-            facturationClient:{
-                parEmail:true,
-                parCourrier:"",
-                frequence:"",
-                EnvoyeParSecretariat:"",
-                EnvoyeAvocat:"",
-                LangueFacturation:"",
-                Mode:""
+            autrePartie: "",
+            contrePartie: "",
+            Apporteur: "",
+            collablead: "",
+            collabteam: [],
+            tauxHoraireCollab: "",
+            facturationClient: {
+                parEmail: true,
+                parCourrier: "",
+                frequence: "",
+                EnvoyeParSecretariat: "",
+                EnvoyeAvocat: "",
+                LangueFacturation: "",
+                Mode: ""
             }
 
         },
         contacts: [],
-        societes:[],
-        annuaire_clients_mondat:[],
+        societes: [],
+        annuaire_clients_mondat: [],
         rooms: [],
         openRightContactModalDetail: false,
-        openRightSocieteModalDetail:false,
+        openRightSocieteModalDetail: false,
         selectedContact: "",
         selectedContactKey: "",
         editContactForm: false,
@@ -322,28 +322,28 @@ export default class DriveV3 extends React.Component {
         selectedRoomKey: 0,
 
         textSearch: "",
-        searchSociete:"",
-        TimeSheet:{
-            newTime:{
-                duree:"",
-                client:"",
-                categoriesActivite:"",
-                description:"",
-                date:new Date(),
-                utilisateurOA:"",
-                rateFacturation:"",
+        searchSociete: "",
+        TimeSheet: {
+            newTime: {
+                duree: "",
+                client: "",
+                categoriesActivite: "",
+                description: "",
+                date: new Date(),
+                utilisateurOA: "",
+                rateFacturation: "",
             }
         },
-        lignesFactures:[],
-        TimeSheetData:[],
-        DashboardPerson:{
-            person:""
+        lignesFactures: [],
+        TimeSheetData: [],
+        DashboardPerson: {
+            person: ""
         },
 
-        openAdvancedSearchModal:false,
-        selectedClientTimeEntree:"",
+        openAdvancedSearchModal: false,
+        selectedClientTimeEntree: "",
 
-        showLignesFactureClient:false,
+        showLignesFactureClient: false,
 
     }
 
@@ -351,19 +351,18 @@ export default class DriveV3 extends React.Component {
 
         if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
             this.props.history.push('/login')
-        }
-        else {
+        } else {
             let sharedDrive = [];
             this.setState({firstLoading: true});
 
-            firebase.database().ref('TimeSheet/').on('value',(snapshot)=>{
+            firebase.database().ref('TimeSheet/').on('value', (snapshot) => {
                 let data = snapshot.val()
-                let d=[]
-                if (data !=null){
-                    data.map((item,key)=>{
+                let d = []
+                if (data != null) {
+                    data.map((item, key) => {
                         d.push(item)
                     })
-                    this.setState({TimeSheetData:d})
+                    this.setState({TimeSheetData: d})
                 }
             })
 
@@ -374,12 +373,13 @@ export default class DriveV3 extends React.Component {
 
                         let meeturl = "https://meet.smartdom.ch/meet_" + moment().format("DDMMYYYYHHmmss")
 
-                        console.log(gedRes.data.Proprietary)
+                        //console.log(gedRes.data.Proprietary)
 
                         firebase.database().ref('/').on('value', (snapshot) => {
 
                             const data = snapshot.val() || [];
                             let contacts = data.contacts || [];
+                            //console.log(contacts)
                             let rooms = data.rooms || [];
                             let societes = data.societes || [];
                             let annuaire_clients_mondat = data.annuaire_client_mondat || [];
@@ -403,18 +403,18 @@ export default class DriveV3 extends React.Component {
                                             rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            selectedDriveItem:[],
-                                            expandedDriveItems:[],
+                                            selectedDriveItem: [],
+                                            expandedDriveItems: [],
                                             sharedDrive: sharedDrive,
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societes:societes,
+                                            societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
-                                            loading:false
+                                            loading: false
                                         })
                                     } else if (this.props.match.params.section_id === "shared") {
                                         this.setState({
@@ -428,17 +428,17 @@ export default class DriveV3 extends React.Component {
                                             breadcrumbs: "Mon drive / paratgés avec moi",
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societes:societes,
+                                            societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
-                                            loading:false
+                                            loading: false
                                         })
                                     } else {
                                         let folders = gedRes.data.Proprietary.Content.folders || [];
                                         let folder_name = this.getFolderNameById(this.props.match.params.section_id, folders.concat(sharedDrive));
-                                        if(folder_name !== undefined && folder_name !== null){
+                                        if (folder_name !== undefined && folder_name !== null) {
                                             this.setState({
                                                 folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                                 reelFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -446,32 +446,30 @@ export default class DriveV3 extends React.Component {
                                                 rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                                 sharedRootFiles: sharedFiles,
                                                 sharedDrive: sharedDrive,
-                                                selectedDriveItem:[this.props.match.params.section_id],
-                                                expandedDriveItems:[this.props.match.params.section_id],
+                                                selectedDriveItem: [this.props.match.params.section_id],
+                                                expandedDriveItems: [this.props.match.params.section_id],
                                                 selectedFoldername: folder_name,
                                                 breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders.concat(sharedDrive)),
                                                 selectedFolderId: this.props.match.params.section_id,
                                                 meeturl: meeturl,
                                                 contacts: contacts,
-                                                societes:societes,
+                                                societes: societes,
                                                 annuaire_clients_mondat: annuaire_clients_mondat,
                                                 rooms: rooms,
                                                 selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                                 selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders.concat(sharedDrive)),
                                                 selectedFolderFolders: this.getFolderFoldersById(this.props.match.params.section_id, folders.concat(sharedDrive)),
                                                 firstLoading: false,
-                                                loading:false
+                                                loading: false
                                             })
-                                        }
-                                        else{
+                                        } else {
                                             this.props.history.replace({pathname: '/drive/0'})
                                             this.componentDidMount()
                                         }
 
                                     }
 
-                                }
-                                else if (this.props.match.params.section === "rooms") {
+                                } else if (this.props.match.params.section === "rooms") {
 
                                     if (this.props.match.params.section_id === "all") {
                                         if (rooms.length > 0) this.props.history.replace({pathname: '/rooms/0'});
@@ -489,12 +487,12 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societes:societes,
+                                            societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
-                                            loading:false
+                                            loading: false
                                         })
                                     } else if ((typeof parseInt(this.props.match.params.section_id)) === "number") {
                                         if (rooms[parseInt(this.props.match.params.section_id)]) {
@@ -512,13 +510,13 @@ export default class DriveV3 extends React.Component {
                                                 sharedRootFiles: sharedFiles,
                                                 meeturl: meeturl,
                                                 contacts: contacts,
-                                                societes:societes,
+                                                societes: societes,
                                                 annuaire_clients_mondat: annuaire_clients_mondat,
                                                 rooms: rooms,
                                                 selectedRoom: rooms[parseInt(this.props.match.params.section_id)],
                                                 selectedRoomKey: parseInt(this.props.match.params.section_id),
                                                 firstLoading: false,
-                                                loading:false
+                                                loading: false
                                             })
                                         } else {
                                             this.props.history.replace({pathname: '/rooms/all'})
@@ -529,8 +527,7 @@ export default class DriveV3 extends React.Component {
                                         console.log("URL ERROR")
                                     }
 
-                                }
-                                else if (this.props.match.params.section === "meet") {
+                                } else if (this.props.match.params.section === "meet") {
 
                                     if (this.props.match.params.section_id === "new") {
                                         this.setState({
@@ -546,12 +543,12 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societes:societes,
+                                            societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
-                                            loading:false
+                                            loading: false
                                         })
                                     } else if (this.props.match.params.section_id === "rejoin") {
                                         this.setState({
@@ -567,19 +564,18 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societes:societes,
+                                            societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
-                                            loading:false
+                                            loading: false
                                         })
                                     } else {
                                         console.log("URL ERROR")
                                     }
-                                }
-                                else if (this.props.match.params.section === "contacts") {
-                                    if (this.props.match.params.section_id === "all" || this.props.match.params.section_id === "aia" || this.props.match.params.section_id === "ae" ) {
+                                } else if (this.props.match.params.section === "contacts") {
+                                    if (this.props.match.params.section_id === "all" || this.props.match.params.section_id === "aia" || this.props.match.params.section_id === "ae") {
                                         this.setState({
                                             showContainerSection: "Contacts",
                                             focusedItem: "Contacts",
@@ -591,25 +587,24 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societes:societes,
+                                            societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
-                                            loading:false
+                                            loading: false
                                         })
                                     } else {
                                         console.log("URL ERROR")
                                     }
 
-                                }
-                                else if(this.props.match.params.section === "society") {
+                                } else if (this.props.match.params.section === "society") {
                                     if (this.props.match.params.section_id === "clients_mondat") {
                                         this.setState({
                                             showContainerSection: "Societe",
                                             focusedItem: "Societe",
-                                            selectedSocietyMenuItem:["clients_mondat"],
-                                            openSocietyMenuItem:true,
+                                            selectedSocietyMenuItem: ["clients_mondat"],
+                                            openSocietyMenuItem: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
@@ -618,7 +613,7 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societes:societes,
+                                            societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
@@ -629,14 +624,13 @@ export default class DriveV3 extends React.Component {
                                         this.props.history.replace({pathname: '/society/clients_mondat'});
                                         this.componentDidMount()
                                     }
-                                }
-                                else if(this.props.match.params.section === "TimeSheet") {
+                                } else if (this.props.match.params.section === "TimeSheet") {
                                     if (this.props.match.params.section_id === "activities") {
                                         this.setState({
                                             showContainerSection: "TimeSheet",
                                             focusedItem: "TimeSheet",
-                                            selectedTimeSheetMenuItem:["activities"],
-                                            openTimeSheetsMenu:true,
+                                            selectedTimeSheetMenuItem: ["activities"],
+                                            openTimeSheetsMenu: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
@@ -645,20 +639,19 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societes:societes,
+                                            societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
                                             loading: false
                                         })
-                                    }
-                                    else if (this.props.match.params.section_id === "dashboard") {
+                                    } else if (this.props.match.params.section_id === "dashboard") {
                                         this.setState({
                                             showContainerSection: "TimeSheet",
                                             focusedItem: "TimeSheet",
-                                            selectedTimeSheetMenuItem:["dashboard"],
-                                            openTimeSheetsMenu:true,
+                                            selectedTimeSheetMenuItem: ["dashboard"],
+                                            openTimeSheetsMenu: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
@@ -667,20 +660,19 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societes:societes,
+                                            societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
                                             loading: false
                                         })
-                                    }
-                                    else if (this.props.match.params.section_id === "dashboardPerson") {
+                                    } else if (this.props.match.params.section_id === "dashboardPerson") {
                                         this.setState({
                                             showContainerSection: "TimeSheet",
                                             focusedItem: "TimeSheet",
-                                            selectedTimeSheetMenuItem:["dashboardPerson"],
-                                            openTimeSheetsMenu:true,
+                                            selectedTimeSheetMenuItem: ["dashboardPerson"],
+                                            openTimeSheetsMenu: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
@@ -689,20 +681,19 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societes:societes,
+                                            societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
                                             loading: false
                                         })
-                                    }
-                                    else if (this.props.match.params.section_id === "dashboardProject") {
+                                    } else if (this.props.match.params.section_id === "dashboardProject") {
                                         this.setState({
                                             showContainerSection: "TimeSheet",
                                             focusedItem: "TimeSheet",
-                                            selectedTimeSheetMenuItem:["dashboardProject"],
-                                            openTimeSheetsMenu:true,
+                                            selectedTimeSheetMenuItem: ["dashboardProject"],
+                                            openTimeSheetsMenu: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
@@ -711,19 +702,18 @@ export default class DriveV3 extends React.Component {
                                             sharedRootFiles: sharedFiles,
                                             meeturl: meeturl,
                                             contacts: contacts,
-                                            societes:societes,
+                                            societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                             firstLoading: false,
                                             loading: false
                                         })
-                                    }else{
+                                    } else {
                                         console.log("URL ERROR")
                                     }
 
-                                }
-                                else if (this.props.match.params.section === "search") {
+                                } else if (this.props.match.params.section === "search") {
                                     if (this.props.match.params.section_id) {
                                         let textToSearch = this.props.match.params.section_id;
                                         SmartService.search(textToSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
@@ -739,12 +729,12 @@ export default class DriveV3 extends React.Component {
                                                     sharedRootFiles: sharedFiles,
                                                     meeturl: meeturl,
                                                     contacts: contacts,
-                                                    societes:societes,
+                                                    societes: societes,
                                                     annuaire_clients_mondat: annuaire_clients_mondat,
                                                     rooms: rooms,
                                                     selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                                     firstLoading: false,
-                                                    loading:false
+                                                    loading: false
                                                 })
                                             } else {
                                                 console.log(searchRes.error)
@@ -754,13 +744,11 @@ export default class DriveV3 extends React.Component {
                                         })
 
                                     }
-                                }
-                                else {
+                                } else {
                                     console.log("URL ERROR")
                                     this.props.history.replace({pathname: '/drive/0'});
                                     this.componentDidMount()
                                 }
-
 
 
                             }).catch(err => {
@@ -825,8 +813,8 @@ export default class DriveV3 extends React.Component {
         reader.onloadend = () => {
             let selectedContact = this.state.selectedContact;
             selectedContact.imageUrl = reader.result;
-
-            firebase.database().ref('contacts/' + this.state.selectedContactKey).set(
+            let key = this.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
+            firebase.database().ref('contacts/' + key).set(
                 this.state.selectedContact
             ).then(res => {
                 this.setState({loading: false})
@@ -838,19 +826,22 @@ export default class DriveV3 extends React.Component {
     };
 
     uploadFolder = (event) => {
-        this.setState({loading:true})
+        this.setState({loading: true})
         let files = event.target.files;
         let structure = files[0].webkitRelativePath.split('/');
         let folder_name = structure[0];
         let calls = [];
-        SmartService.addFolder({name:folder_name,folder_id:null}, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes => {
-            if(addFolderRes.succes === true && addFolderRes.status === 200){
-                this.setState({openUploadToast:true})
+        SmartService.addFolder({
+            name: folder_name,
+            folder_id: null
+        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes => {
+            if (addFolderRes.succes === true && addFolderRes.status === 200) {
+                this.setState({openUploadToast: true})
                 for (let i = 0; i < files.length; i++) {
                     let formData = new FormData();
                     formData.append("file", files[i]);
                     formData.append("folder_id", addFolderRes.data.id)
-                    calls.push( axios.request({
+                    calls.push(axios.request({
                             method: "POST", url: data.endpoint + "/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfile",
                             data: formData,
                             headers: {
@@ -859,27 +850,27 @@ export default class DriveV3 extends React.Component {
                                 'usrtoken': localStorage.getItem('usrtoken')
                             },
                             onUploadProgress: (p) => {
-                                this.setState({uploadToastMessage:files[i].name+" : "+((p.loaded / p.total) * 100).toFixed(2).concat(" %").toString()})
+                                this.setState({uploadToastMessage: files[i].name + " : " + ((p.loaded / p.total) * 100).toFixed(2).concat(" %").toString()})
                             }
                         })
                     )
                 }
-                Promise.all(calls).then( response => {
-                    this.setState({openUploadToast:false,uploadToastMessage:""})
+                Promise.all(calls).then(response => {
+                    this.setState({openUploadToast: false, uploadToastMessage: ""})
                     this.reloadGed()
                     //console.log(response)
-                }).catch( err => {
-                    this.setState({loading:false})
+                }).catch(err => {
+                    this.setState({loading: false})
                     console.log(err)
                 })
 
-            }else{
-                this.setState({loading:false})
-                this.openSnackbar("error",addFolderRes.error)
+            } else {
+                this.setState({loading: false})
+                this.openSnackbar("error", addFolderRes.error)
             }
         }).catch(err => {
-            this.openSnackbar("error",err)
-            this.setState({loading:false})
+            this.openSnackbar("error", err)
+            this.setState({loading: false})
             console.log(err)
         })
 
@@ -903,7 +894,7 @@ export default class DriveV3 extends React.Component {
                         let folders = gedRes.data.Proprietary.Content.folders || [];
                         let folder_name = this.getFolderNameById(this.props.match.params.section_id, folders);
                         this.setState({
-                            folders:  this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                             rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -1152,11 +1143,12 @@ export default class DriveV3 extends React.Component {
             [object]: obj
         });
     };
-    handleObjectChange = (object1,object2, name) => event => {
+
+    handleObjectChange = (object1, object2, name) => event => {
         let obj = this.state[object1];
         let container = obj[object2] || {};
         container[name] = event.target.value;
-        obj[object2] =container
+        obj[object2] = container
         this.setState({
             [object1]: obj
         });
@@ -1164,13 +1156,15 @@ export default class DriveV3 extends React.Component {
 
     saveContactChanges = () => {
         this.setState({loading: true})
-        let key = this.findContactByEmail(this.state.selectedContact.email, this.state.contacts);
+        let key = this.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
         firebase.database().ref('contacts/' + key).set(
             this.state.selectedContact
-        ).then(res => {
+        ).then( res =>  {
             this.setState({loading: false})
             this.openSnackbar('success', "Modification effectuée avec succès");
-        });
+        }).catch( err => {
+            console.log(err)
+        })
     };
 
     saveSocietyChanges = () => {
@@ -1221,12 +1215,12 @@ export default class DriveV3 extends React.Component {
 
     getFolderById = (id, drive) => {
         for (let i = 0; i < drive.length; i++) {
-            if(drive[i].id){
+            if (drive[i].id) {
                 if (drive[i].id !== id) {
                     let found = this.getFolderById(id, drive[i].Content.folders)
                     if (found) return found
-                }else return drive[i]
-            }else{
+                } else return drive[i]
+            } else {
                 if (drive[i].key !== id) {
                     let found = this.getFolderById(id, drive[i].folders)
                     if (found) return found
@@ -1261,6 +1255,7 @@ export default class DriveV3 extends React.Component {
             } else return drive[i].Content.files
         }
     }
+
     getFolderFoldersById = (id, drive) => {
         for (let i = 0; i < drive.length; i++) {
             if (drive[i].id !== id) {
@@ -1304,6 +1299,15 @@ export default class DriveV3 extends React.Component {
         })
         return index
     }
+
+    findContactByUid = (uid, contacts) => {
+        let index;
+        contacts.map((contact, key) => {
+            if (contact.uid && contact.uid === uid) index = key
+        })
+        return index
+    }
+
     findClientMondatById = (id, clients) => {
         let index;
         clients.map((client, key) => {
@@ -1314,9 +1318,9 @@ export default class DriveV3 extends React.Component {
 
     addNewRoom = (room) => {
         this.setState({loading: true, openNewRoomModal: false})
-        SmartService.addRoom({name:room.title,start:moment().add("hour",1).unix()*1000,duration:30},
-            localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(addRoomRes => {
-            if(addRoomRes.status === 200 && addRoomRes.succes === true){
+        SmartService.addRoom({name: room.title, start: moment().add("hour", 1).unix() * 1000, duration: 30},
+            localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addRoomRes => {
+            if (addRoomRes.status === 200 && addRoomRes.succes === true) {
                 room.id = addRoomRes.data.id;
                 let rooms = this.state.rooms;
                 rooms.push(room);
@@ -1335,13 +1339,13 @@ export default class DriveV3 extends React.Component {
                     this.openSnackbar('success', "Room ajouté avec succès");
                 });
 
-            }else{
-                this.setState({loading:false})
-                this.openSnackbar("error",addRoomRes.error)
+            } else {
+                this.setState({loading: false})
+                this.openSnackbar("error", addRoomRes.error)
             }
         }).catch(err => {
-            this.setState({loading:false})
-            this.openSnackbar("error",err)
+            this.setState({loading: false})
+            this.openSnackbar("error", err)
         })
 
     }
@@ -1371,37 +1375,37 @@ export default class DriveV3 extends React.Component {
 
     deleteFile_Folder = (file) => {
         //console.log(file)
-        this.setState({loading:true})
-        SmartService.deleteFile(file.key || file.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( deleteRes => {
-            if(deleteRes.succes === true && deleteRes.status === 200){
-                if(file.type) this.reloadGed()
-                else{
+        this.setState({loading: true})
+        SmartService.deleteFile(file.key || file.id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(deleteRes => {
+            if (deleteRes.succes === true && deleteRes.status === 200) {
+                if (file.type) this.reloadGed()
+                else {
                     this.props.history.replace({pathname: '/drive/0'});
                     this.reloadGed()
                 }
-                this.openSnackbar("success",file.type ? file.name+".pdf est supprimé avec succès" : file.title+" est supprimé avec succès")
-            }else{
-                this.openSnackbar("error",deleteRes.error)
+                this.openSnackbar("success", file.type ? file.name + ".pdf est supprimé avec succès" : file.title + " est supprimé avec succès")
+            } else {
+                this.openSnackbar("error", deleteRes.error)
             }
         }).catch(err => {
-            this.setState({loading:false})
-            this.openSnackbar("error",err)
+            this.setState({loading: false})
+            this.openSnackbar("error", err)
         })
     }
 
-    renameFile_Folder = (file,newName) => {
-        this.setState({loading:true})
+    renameFile_Folder = (file, newName) => {
+        this.setState({loading: true})
         //console.log(file)
-        SmartService.updateFileName({name:newName},file.key || file.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
-            if(updateNameRes.succes === true && updateNameRes.status === 200){
+        SmartService.updateFileName({name: newName}, file.key || file.id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(updateNameRes => {
+            if (updateNameRes.succes === true && updateNameRes.status === 200) {
                 this.reloadGed()
-                this.openSnackbar("success",file.type ? file.name+".pdf a bien été renommé. Nouveau nom: "+newName+".pdf" : file.name+" a bien été renommé. Nouveau nom: "+newName)
-            }else{
-                this.openSnackbar("error",updateNameRes.error)
+                this.openSnackbar("success", file.type ? file.name + ".pdf a bien été renommé. Nouveau nom: " + newName + ".pdf" : file.name + " a bien été renommé. Nouveau nom: " + newName)
+            } else {
+                this.openSnackbar("error", updateNameRes.error)
             }
         }).catch(err => {
-            this.setState({loading:false})
-            this.openSnackbar("error",err)
+            this.setState({loading: false})
+            this.openSnackbar("error", err)
         })
     }
 
@@ -1410,12 +1414,14 @@ export default class DriveV3 extends React.Component {
         for (let i = 0; i < drive.length; i++) {
             const key = drive[i].id.toString()
             const treeNode = {
-                title: drive[i].type ? drive[i].name+".pdf" : drive[i].name ,
+                title: drive[i].type ? drive[i].name + ".pdf" : drive[i].name,
                 key,
-                icon: drive[i].type ? <DescriptionIcon style={{color:"red",backgroundColor:"#fff"}} />  :  ({ selected }) => (selected ? <FolderIcon style={{color:"#1a73e8"}} /> : <FolderIcon style={{color:"grey"}} />),
-                files:drive[i].Content ? drive[i].Content.files || [] : [],
-                folders:drive[i].Content ? drive[i].Content.folders || [] : [],
-                typeF:drive[i].type ? "file" : "folder"
+                icon: drive[i].type ?
+                    <DescriptionIcon style={{color: "red", backgroundColor: "#fff"}}/> : ({selected}) => (selected ?
+                        <FolderIcon style={{color: "#1a73e8"}}/> : <FolderIcon style={{color: "grey"}}/>),
+                files: drive[i].Content ? drive[i].Content.files || [] : [],
+                folders: drive[i].Content ? drive[i].Content.folders || [] : [],
+                typeF: drive[i].type ? "file" : "folder"
             };
 
             if (drive[i].Content && drive[i].Content.folders.length > 0) {
@@ -1430,18 +1436,658 @@ export default class DriveV3 extends React.Component {
         return list;
     }
 
-    saveTimeSheet(){
+    saveTimeSheet() {
         let email = localStorage.getItem('email')
-        let timeSheet=this.state.TimeSheet
+        let timeSheet = this.state.TimeSheet
         this.state.TimeSheetData.push(timeSheet)
         firebase.database().ref('/TimeSheet').set(this.state.TimeSheetData)
     }
 
 
+    createFacture(){
+
+        let lignes_factures = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
+        let odoo_data = [{
+            "access_token":"eafd285777ggobfvxyvnx",
+            "state": "draft",
+            "type": "out_invoice",
+            "invoice_sent": false,
+            "l10n_ch_isr_sent": false,
+            "name": "",
+            "invoice_date": moment().format("YYYY-MM-DD"),
+            "date": moment().format("YYYY-MM-DD"),
+            "journal_id": 1,
+            "currency_id": 5,
+            "invoice_user_id": 3,
+            "invoice_incoterm_id": false,
+            "auto_post": false,
+            "to_check": false,
+            "authorized_transaction_ids": [
+                [
+                    6,
+                    false,
+                    []
+                ]
+            ],
+            "tax_lock_date_message": false,
+            "id": false,
+            "invoice_payment_state": "not_paid",
+            "invoice_filter_type_domain": "sale",
+            "company_currency_id": 5,
+            "commercial_partner_id": "",
+            "bank_partner_id": 1,
+            "invoice_has_outstanding": false,
+            "l10n_ch_currency_name": "CHF",
+            "invoice_sequence_number_next_prefix": false,
+            "invoice_sequence_number_next": false,
+            "invoice_has_matching_suspense_amount": false,
+            "has_reconciled_entries": false,
+            "restrict_mode_hash_table": false,
+            "partner_id": lignes_factures[0].newTime.company_id,
+            "ref": 121006,
+            "invoice_vendor_bill_id": false,
+            "invoice_payment_term_id": 1,
+            "invoice_date_due": "2020-09-06",
+            "company_id": 1,
+            "amount_untaxed": 0,
+            "amount_by_group": [],
+            "amount_total": 0,
+            "invoice_payments_widget": "False",
+            "amount_residual": 0,
+            "invoice_outstanding_credits_debits_widget": false,
+            "narration": false,
+            "invoice_origin": false,
+            "fiscal_position_id": 1,
+            "invoice_cash_rounding_id": false,
+            "invoice_source_email": false,
+            "invoice_payment_ref": false,
+            "invoice_partner_bank_id": false,
+            "reversed_entry_id": false,
+            "message_follower_ids": [],
+            "activity_ids": [],
+            "message_ids": [],
+            "message_attachment_count": 0,
+            "invoice_line_ids": [
+                [
+                    0,
+                    "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
+                    {
+                        "sequence": 10,
+                        "account_id": 104,
+                        "quantity": 0.15,
+                        "discount": 10,
+                        "partner_id": false,
+                        "currency_id": false,
+                        "debit": 0,
+                        "credit": 60,
+                        "display_type": false,
+                        "product_id": 1,
+                        "name": "apel téléphonqiue clientele",
+                        "analytic_account_id": false,
+                        "analytic_tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+
+                        "price_unit": 400,
+                        "tax_ids": [
+                            [
+                                6,false,[]
+                            ]
+                        ],
+                        "amount_currency": 0,
+                        "date_maturity": false,
+                        "tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "recompute_tax_line": false,
+                        "is_rounding_line": false,
+                        "exclude_from_invoice_tab": false
+                    }
+                ]
+            ],
+            "line_ids": []
+        }]
+        let total = 0;
+        lignes_factures.map((ligne,key) => {
+            total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation))
+
+            //console.log(ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
+            odoo_data[0].line_ids.push(
+                [
+                        0,
+                        "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
+                        {
+                            "account_id": 104,
+                            "sequence": 10,
+                            "name": ligne.newTime.description,
+                            "quantity": ligne.newTime.duree,
+                            "price_unit": parseFloat(ligne.newTime.rateFacturation),
+                            "discount": 0,
+                            "debit": 0,
+                            "credit": ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation) ,
+                            "amount_currency": 0,
+                            "date_maturity": false,
+                            "currency_id": false,
+                            "partner_id": false,
+                            "product_uom_id": false,
+                            "product_id": 1,
+                            "payment_id": false,
+                            "tax_ids": [
+                                [
+                                    6,
+                                    false,
+                                    [
+
+                                    ]
+                                ]
+                            ],
+                            "tax_base_amount": 0,
+                            "tax_exigible": true,
+                            "tax_repartition_line_id": false,
+                            "tag_ids": [
+                                [
+                                    6,
+                                    false,
+                                    [
+
+                                    ]
+                                ]
+                            ],
+                            "analytic_account_id": false,
+                            "analytic_tag_ids": [
+                                [
+                                    6,
+                                    false,
+                                    []
+                                ]
+                            ],
+                            "recompute_tax_line": false,
+                            "display_type": false,
+                            "is_rounding_line": false,
+                            "exclude_from_invoice_tab": false
+                        }
+                    ],
+            )
+
+        })
+        //console.log(total)
+        odoo_data[0].line_ids.push(
+            [
+                0,
+                "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
+                {
+                    "account_id": 6,
+                    "sequence": 10,
+                    "name": false,
+                    "quantity": 1,
+                    "price_unit": -total,
+                    "discount": 0,
+                    "debit": total,
+                    "credit": 0,
+                    "amount_currency": 0,
+                    "date_maturity": "2020-09-08",
+                    "currency_id": false,
+                    "partner_id": false,
+                    "product_uom_id": false,
+                    "product_id": false,
+                    "payment_id": false,
+                    "tax_ids": [
+                        [
+                            6,
+                            false,
+                            []
+                        ]
+                    ],
+                    "tax_base_amount": 0,
+                    "tax_exigible": true,
+                    "tax_repartition_line_id": false,
+                    "tag_ids": [
+                        [
+                            6,
+                            false,
+                            []
+                        ]
+                    ],
+                    "analytic_account_id": false,
+                    "analytic_tag_ids": [
+                        [
+                            6,
+                            false,
+                            []
+                        ]
+                    ],
+                    "recompute_tax_line": false,
+                    "display_type": false,
+                    "is_rounding_line": false,
+                    "exclude_from_invoice_tab": true
+                }
+            ]
+        )
+
+        SmartService.create_facture_odoo(localStorage.getItem("token"),localStorage.getItem("usrtoken"),{data:odoo_data}).then( createFactRes => {
+            //console.log(createFactRes)
+            window.open("http://91.121.162.202:10013/my/invoices/"+createFactRes.data.id+"?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true","_blank")
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+
+
+    genrateGed(){
+        /*SmartService.addFolder({name:"SECRETARIAT",folder_id:null},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes => {
+
+            console.log("OK")
+
+            SmartService.addFolder({name:"ETUDE",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes1 => {
+
+                console.log("OK")
+                SmartService.addFolder({name:"BCORP",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"LOGOS",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"PHOTOS",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"CONFERENCE - PUBLICATIONS",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"KNOW HOW",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"NEWSLETTER",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"PRESENTATION ETUDE",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"CALENDRIER",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"EVENT",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"MODELES",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"ARCHIVAGE",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"OUVERTURE DOSSIER",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"LISTE TELEPHONE INTERNE",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"ASSOCIES ***",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes1_assoc => {
+                    console.log("OK")
+
+                    SmartService.addFolder({name:"CONVENTION D'ACTIONNAIRES",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                        console.log("OK")
+
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({name:"CONTRAT DE TRAVAIL",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                        console.log("OK")
+
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({name:"DECISIONS CONSEIL D'ADMINISTRATION",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                        console.log("OK")
+
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({name:"ASSEMBLEE GENERALE EXTRAORDINAIRE",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                        console.log("OK")
+
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({name:"ASSEMBLEE GENERALE ORDINAIRE",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                        console.log("OK")
+
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({name:"PV REUNION",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                        console.log("OK")
+
+                    }).catch(err => {
+                        console.log(err)
+                    })
+
+                }).catch(err => {
+                    console.log(err)
+                })
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+            SmartService.addFolder({name:"LOCAUX",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes2 => {
+
+                SmartService.addFolder({name:"ASSURANCES",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"BAIL A LOYER",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"CAVES",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"BAVITECH",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"NETTOYAGE",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"BADEL",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+            SmartService.addFolder({name:"COMPTABILITE *",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes3 => {
+
+                SmartService.addFolder({name:"BUDGET",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"FACTURATION CLIENTS",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"FACTURES FOURNISSEURS",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"TVA",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"LISTES IBAN",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"CAISSE ETUDE",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+            SmartService.addFolder({name:"RH *",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes4 => {
+
+                SmartService.addFolder({name:"EMPLOYES",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"WELCOME PACK",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"LPP ETUDE",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"FER CIAM",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"TELETRAVAIL",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"CANDIDATURES",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"OCAS",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+            SmartService.addFolder({name:"LISTES",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes5 => {
+
+
+                SmartService.addFolder({name:"CLIENTS",folder_id:addFolderRes5.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"AVOCATS",folder_id:addFolderRes5.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+        }).catch(err => {
+            console.log(err)
+        })
+
+        SmartService.addFolder({name:"CLIENTS",folder_id:null},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes => {
+
+            SmartService.addFolder({name:"HYPERSONIC LTD",folder_id:addFolderClientRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes1 => {
+                console.log("OK")
+
+                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"MÉMOIRE",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"CHARGE DE PIECES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"CONVOCATIONS",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"COMPTABILITE",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"CORRESPONDANCE",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"INTERNE ****",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"NOTES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"PV RENDEZ-VOUS",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"PROCEDURES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"RECHERCHES JURIDIQUES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+            SmartService.addFolder({name:"Serge LICHTENSTEIN",folder_id:addFolderClientRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes2 => {
+                console.log("OK")
+
+                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"MÉMOIRE",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"CHARGE DE PIECES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"CONVOCATIONS",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"COMPTABILITE",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"CORRESPONDANCE",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"INTERNE ****",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"NOTES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"PV RENDEZ-VOUS",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"PROCEDURES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({name:"RECHERCHES JURIDIQUES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+        }).catch(err => {
+            console.log(err);
+        })*/
+    }
+
+
     render() {
-        var searchFilter= this.state.annuaire_clients_mondat.filter((soc) => soc.ContactName.toLowerCase().startsWith(this.state.searchSociete.toLowerCase()))
+        var searchFilter = this.state.annuaire_clients_mondat.filter((soc) => soc.ContactName.toLowerCase().startsWith(this.state.searchSociete.toLowerCase()))
         var searchFilterLignesfacture = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
-        console.log(this.state.sharedDrive)
         return (
             <div>
                 {
@@ -1482,7 +2128,7 @@ export default class DriveV3 extends React.Component {
                     <div>
                         <div style={{display: "flex"}}>
 
-                            <div style={{height: 900,overflow:"overlay",minHeight:900,width:300,minWidth:300}}>
+                            <div style={{height: 900, overflow: "overlay", minHeight: 900, width: 300, minWidth: 300}}>
                                 {
                                     this.state.firstLoading === false &&
                                     <div>
@@ -1496,9 +2142,9 @@ export default class DriveV3 extends React.Component {
                                                 item === "Drive" ? this.props.history.replace({pathname: '/drive/0'}) :
                                                     item === "Rooms" ? this.state.rooms.length > 0 ? this.props.history.replace({pathname: '/rooms/0'}) : this.props.history.replace({pathname: '/rooms/all'}) :
                                                         item === "Meet" ? this.props.history.replace({pathname: '/meet/new'}) :
-                                                            item === "Contacts" ? this.props.history.replace({pathname: '/Contacts/aia'}) :
-                                                            item === "Societe" ? this.props.history.replace({pathname: '/society/clients_mondat'}) :
-                                                                item === "TimeSheet" ? this.props.history.replace({pathname: '/TimeSheet/activities'}) : this.props.history.replace({pathname: '/drive/0'})
+                                                            item === "Contacts" ? this.props.history.replace({pathname: '/contacts/aia'}) :
+                                                                item === "Societe" ? this.props.history.replace({pathname: '/society/clients_mondat'}) :
+                                                                    item === "TimeSheet" ? this.props.history.replace({pathname: '/TimeSheet/activities'}) : this.props.history.replace({pathname: '/drive/0'})
                                                 this.setState({focusedItem: item, showContainerSection: item})
                                             }}
 
@@ -1512,7 +2158,7 @@ export default class DriveV3 extends React.Component {
                                             setShowMeetMenuItems={() => this.setState({openMeetMenuItem: !this.state.openMeetMenuItem})}
 
                                             showSocietyMenuItems={this.state.openSocietyMenuItem}
-                                            setShowSocietyMenuItems={() => this.setState({openSocietyMenuItem:!this.state.openSocietyMenuItem})}
+                                            setShowSocietyMenuItems={() => this.setState({openSocietyMenuItem: !this.state.openSocietyMenuItem})}
 
                                             showTimeSheet={this.state.openTimeSheetsMenu}
                                             setShowTimeSheet={() => {
@@ -1522,9 +2168,12 @@ export default class DriveV3 extends React.Component {
 
                                             showContacts={this.state.openContactsMenu}
                                             setShowContacts={() => {
-                                                this.setState({showContainerSection: "Contacts",openContactsMenu:true})
+                                                this.setState({
+                                                    showContainerSection: "Contacts",
+                                                    openContactsMenu: true
+                                                })
                                             }}
-                                            selectedContactsItem={this.state.showContainerSection === "Contacts" ? this.state.selectedContactsMenuItem : [] }
+                                            selectedContactsItem={this.state.showContainerSection === "Contacts" ? this.state.selectedContactsMenuItem : []}
                                             onContactsItemClick={(nodeId) => {
                                                 this.props.history.replace({pathname: '/contacts/' + nodeId});
                                             }}
@@ -1536,7 +2185,7 @@ export default class DriveV3 extends React.Component {
                                             setShowSociete={() => {
                                                 this.setState({showContainerSection: "Societe"})
                                             }}
-                                            selectedSocietyItem={this.state.showContainerSection === "Societe" ? this.state.selectedSocietyMenuItem : [] }
+                                            selectedSocietyItem={this.state.showContainerSection === "Societe" ? this.state.selectedSocietyMenuItem : []}
                                             onSocietyItemClick={(nodeId) => {
                                                 this.props.history.replace({pathname: '/society/' + nodeId});
                                             }}
@@ -1547,7 +2196,11 @@ export default class DriveV3 extends React.Component {
                                             showTimeSheetMenuItems={this.state.openTimeSheetsMenu}
                                             setShowTimeSheetMenuItems={() => {
                                                 this.props.history.replace({pathname: '/TimeSheet/activities'});
-                                                this.setState({openTimeSheetsMenu: !this.state.openTimeSheetsMenu,showContainerSection:"TimeSheet",selectedTimeSheetItem:["activities"]})
+                                                this.setState({
+                                                    openTimeSheetsMenu: !this.state.openTimeSheetsMenu,
+                                                    showContainerSection: "TimeSheet",
+                                                    selectedTimeSheetItem: ["activities"]
+                                                })
                                             }}
                                             selectedTimeSheetItem={this.state.showContainerSection === "TimeSheet" ? this.state.selectedTimeSheetMenuItem : []}
 
@@ -1574,8 +2227,7 @@ export default class DriveV3 extends React.Component {
                                                         showContainerSection: "TimeSheet",
                                                         selectedTimeSheetMenuItem: ["dashboardPerson"]
                                                     })
-                                                }
-                                                else if (nodeId === "dashboardProject") {
+                                                } else if (nodeId === "dashboardProject") {
                                                     this.setState({
                                                         focusedItem: "TimeSheet",
                                                         showContainerSection: "TimeSheet",
@@ -1585,7 +2237,7 @@ export default class DriveV3 extends React.Component {
                                             }}
 
                                             autoExpandParent={this.state.autoExpandParent}
-                                            setAutoExpandParent={(b) => this.setState({autoExpandParent:b})}
+                                            setAutoExpandParent={(b) => this.setState({autoExpandParent: b})}
 
                                             openNewFolderModal={() => this.setState({newFolderModal: true})}
                                             showNewFileScreen={() => this.setState({
@@ -1597,10 +2249,10 @@ export default class DriveV3 extends React.Component {
                                             }}
 
                                             driveFolders={this.state.folders.concat(this.state.sharedDrive || []) || []}
-                                            setDriveFolders={(drive) => this.setState({folders:drive})}
+                                            setDriveFolders={(drive) => this.setState({folders: drive})}
 
                                             selectedFolder={this.state.selectedFolder}
-                                            setSelectedFolder={(folder) => this.setState({selectedFolder:folder})}
+                                            setSelectedFolder={(folder) => this.setState({selectedFolder: folder})}
                                             setFolderName={(name) => this.setState({selectedFoldername: name})}
                                             setFolderId={(id) => {
                                                 this.props.history.replace({pathname: '/drive/' + id});
@@ -1614,13 +2266,13 @@ export default class DriveV3 extends React.Component {
 
 
                                             setSelectedFolderFiles={(files) => this.setState({selectedFolderFiles: files})}
-                                            setSelectedFolderFolders={(folders) => this.setState({selectedFolderFolders:folders})}
+                                            setSelectedFolderFolders={(folders) => this.setState({selectedFolderFolders: folders})}
 
                                             selectedDriveItem={this.state.selectedDriveItem}
-                                            setSelectedDriveItem={(keys) => this.setState({selectedDriveItem:keys})}
+                                            setSelectedDriveItem={(keys) => this.setState({selectedDriveItem: keys})}
 
                                             expandedDriveItems={this.state.expandedDriveItems}
-                                            setExpandedDriveItems={(keys) => this.setState({expandedDriveItems:keys})}
+                                            setExpandedDriveItems={(keys) => this.setState({expandedDriveItems: keys})}
 
                                             selectedMeetItem={this.state.showContainerSection === "Meet" ? this.state.selectedMeetMenuItem : []}
                                             handleSelectMeetMenu={(nodeIds) => {
@@ -1694,12 +2346,13 @@ export default class DriveV3 extends React.Component {
                                                 this.deleteFile_Folder(this.state.selectedFolder)
                                             }}
                                             onRenameFolder={(newName) => {
-                                                this.renameFile_Folder(this.state.selectedFolder,newName)
+                                                this.renameFile_Folder(this.state.selectedFolder, newName)
                                             }}
                                         />
                                         <input style={{visibility: 'hidden', width: 0, height: 0}}
                                                onChange={(event) => this.uploadFolder(event)}
-                                               type="file" webkitdirectory="" mozdirectory="" directory="" multiple={true}
+                                               type="file" webkitdirectory="" mozdirectory="" directory=""
+                                               multiple={true}
                                                ref={(ref) => this.folderupload = ref}
                                         />
 
@@ -1778,7 +2431,7 @@ export default class DriveV3 extends React.Component {
                                                                                         }
                                                                                     }).catch(err => console.log(err))
                                                                                 }}
-                                                                                setLoading={(b) => this.setState({loading:b})}
+                                                                                setLoading={(b) => this.setState({loading: b})}
                                                                             />
                                                                         </div> :
 
@@ -1809,98 +2462,115 @@ export default class DriveV3 extends React.Component {
 
                                                                                 this.props.match.params.section_id && this.props.match.params.section_id === '0' ?
                                                                                     <div>
-                                                                                        <ListFolders items={this.state.rootFolders}
-                                                                                                     onDoubleClickFolder={(folder) => {
-                                                                                                         this.props.history.replace({pathname: '/drive/' + folder.id});
-                                                                                                         this.setState({
-                                                                                                             selectedDriveItem:[folder.id],
-                                                                                                             expandedDriveItems:[folder.id],
-                                                                                                             autoExpandParent:true,
-                                                                                                             selectedFolder:this.getFolderById(folder.id,this.state.folders),
-                                                                                                             selectedFoldername: folder.name,
-                                                                                                             selectedFolderFiles: folder.Content.files || [],
-                                                                                                             selectedFolderFolders:folder.Content.folders || [],
-                                                                                                             focusedItem: "Drive",
-                                                                                                             breadcrumbs: this.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedDrive)),
-                                                                                                             selectedFolderId: folder.id,
-                                                                                                             showContainerSection: "Drive"
-                                                                                                         })
+                                                                                        <ListFolders
+                                                                                            items={this.state.rootFolders}
+                                                                                            onDoubleClickFolder={(folder) => {
+                                                                                                this.props.history.replace({pathname: '/drive/' + folder.id});
+                                                                                                this.setState({
+                                                                                                    selectedDriveItem: [folder.id],
+                                                                                                    expandedDriveItems: [folder.id],
+                                                                                                    autoExpandParent: true,
+                                                                                                    selectedFolder: this.getFolderById(folder.id, this.state.folders),
+                                                                                                    selectedFoldername: folder.name,
+                                                                                                    selectedFolderFiles: folder.Content.files || [],
+                                                                                                    selectedFolderFolders: folder.Content.folders || [],
+                                                                                                    focusedItem: "Drive",
+                                                                                                    breadcrumbs: this.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedDrive)),
+                                                                                                    selectedFolderId: folder.id,
+                                                                                                    showContainerSection: "Drive"
+                                                                                                })
 
-                                                                                                     }}
+                                                                                            }}
                                                                                         />
-                                                                                        <ListDocs docs={this.state.rootFiles || []} viewMode={this.state.viewMode}
-                                                                                                  onDocClick={(item) => this.setState({selectedDoc: item, openRightMenu: true}) }
-                                                                                                  showDoc={(doc) => this.openPdfModal(doc.id)}
-                                                                                                  setLoading={(b) => this.setState({loading:b})}
-                                                                                                  setSelectedFile={(file) => this.setState({selectedFile:file})}
-                                                                                                  openShareFileModal={() => this.setState({openShareDocModal:true})}
-                                                                                                  onDeleteFile={(file) => {
-                                                                                                      this.deleteFile_Folder(file);
-                                                                                                  }}
-                                                                                                  onRenameFile={(file,newName) => {
-                                                                                                      this.renameFile_Folder(file,newName)
-                                                                                                  }}
-                                                                                                  onSignBtnClick={(id) => {
-                                                                                                      this.props.history.push("/signDoc/doc/"+id)
-                                                                                                  }}
+                                                                                        <ListDocs
+                                                                                            docs={this.state.rootFiles || []}
+                                                                                            viewMode={this.state.viewMode}
+                                                                                            onDocClick={(item) => this.setState({
+                                                                                                selectedDoc: item,
+                                                                                                openRightMenu: true
+                                                                                            })}
+                                                                                            showDoc={(doc) => this.openPdfModal(doc.id)}
+                                                                                            setLoading={(b) => this.setState({loading: b})}
+                                                                                            setSelectedFile={(file) => this.setState({selectedFile: file})}
+                                                                                            openShareFileModal={() => this.setState({openShareDocModal: true})}
+                                                                                            onDeleteFile={(file) => {
+                                                                                                this.deleteFile_Folder(file);
+                                                                                            }}
+                                                                                            onRenameFile={(file, newName) => {
+                                                                                                this.renameFile_Folder(file, newName)
+                                                                                            }}
+                                                                                            onSignBtnClick={(id) => {
+                                                                                                this.props.history.push("/signDoc/doc/" + id)
+                                                                                            }}
                                                                                         />
 
                                                                                     </div> :
                                                                                     this.props.match.params.section_id && this.props.match.params.section_id === 'shared' ?
                                                                                         <div style={{marginTop: 15}}>
-                                                                                            <ListDocs docs={this.state.sharedRootFiles || []} viewMode={this.state.viewMode}
-                                                                                                      onDocClick={(item) => this.setState({selectedDoc: item, openRightMenu: true}) }
-                                                                                                      showDoc={(doc) => this.openPdfModal(doc.id)}
-                                                                                                      setLoading={(b) => this.setState({loading:b})}
-                                                                                                      setSelectedFile={(file) => this.setState({selectedFile:file})}
-                                                                                                      openShareFileModal={() => this.setState({openShareDocModal:true})}
-                                                                                                      onDeleteFile={(file) => {
-                                                                                                          this.deleteFile_Folder(file);
-                                                                                                      }}
-                                                                                                      onRenameFile={(file,newName) => {
-                                                                                                          this.renameFile_Folder(file,newName)
-                                                                                                      }}
-                                                                                                      onSignBtnClick={(id) => {
-                                                                                                          this.props.history.push("/signDoc/doc/"+id)
-                                                                                                      }}
+                                                                                            <ListDocs
+                                                                                                docs={this.state.sharedRootFiles || []}
+                                                                                                viewMode={this.state.viewMode}
+                                                                                                onDocClick={(item) => this.setState({
+                                                                                                    selectedDoc: item,
+                                                                                                    openRightMenu: true
+                                                                                                })}
+                                                                                                showDoc={(doc) => this.openPdfModal(doc.id)}
+                                                                                                setLoading={(b) => this.setState({loading: b})}
+                                                                                                setSelectedFile={(file) => this.setState({selectedFile: file})}
+                                                                                                openShareFileModal={() => this.setState({openShareDocModal: true})}
+                                                                                                onDeleteFile={(file) => {
+                                                                                                    this.deleteFile_Folder(file);
+                                                                                                }}
+                                                                                                onRenameFile={(file, newName) => {
+                                                                                                    this.renameFile_Folder(file, newName)
+                                                                                                }}
+                                                                                                onSignBtnClick={(id) => {
+                                                                                                    this.props.history.push("/signDoc/doc/" + id)
+                                                                                                }}
                                                                                             />
 
                                                                                         </div> :
 
                                                                                         <div style={{marginTop: 15}}>
-                                                                                            <ListFolders items={this.state.selectedFolderFolders}
-                                                                                                         onDoubleClickFolder={(folder) => {
-                                                                                                             this.props.history.replace({pathname: '/drive/' + folder.id});
-                                                                                                             this.setState({
-                                                                                                                 selectedDriveItem:[folder.id],
-                                                                                                                 expandedDriveItems:[folder.id],
-                                                                                                                 selectedFolder:this.getFolderById(folder.id,this.state.folders),
-                                                                                                                 autoExpandParent:true,
-                                                                                                                 selectedFoldername: folder.name,
-                                                                                                                 selectedFolderFiles: folder.Content.files || [],
-                                                                                                                 selectedFolderFolders:folder.Content.folders || [],
-                                                                                                                 focusedItem: "Drive",
-                                                                                                                 breadcrumbs: this.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedDrive)),
-                                                                                                                 selectedFolderId: folder.id,
-                                                                                                                 showContainerSection: "Drive"
-                                                                                                             })
-                                                                                                         }}
+                                                                                            <ListFolders
+                                                                                                items={this.state.selectedFolderFolders}
+                                                                                                onDoubleClickFolder={(folder) => {
+                                                                                                    this.props.history.replace({pathname: '/drive/' + folder.id});
+                                                                                                    this.setState({
+                                                                                                        selectedDriveItem: [folder.id],
+                                                                                                        expandedDriveItems: [folder.id],
+                                                                                                        selectedFolder: this.getFolderById(folder.id, this.state.folders),
+                                                                                                        autoExpandParent: true,
+                                                                                                        selectedFoldername: folder.name,
+                                                                                                        selectedFolderFiles: folder.Content.files || [],
+                                                                                                        selectedFolderFolders: folder.Content.folders || [],
+                                                                                                        focusedItem: "Drive",
+                                                                                                        breadcrumbs: this.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedDrive)),
+                                                                                                        selectedFolderId: folder.id,
+                                                                                                        showContainerSection: "Drive"
+                                                                                                    })
+                                                                                                }}
                                                                                             />
-                                                                                            <ListDocs docs={this.state.selectedFolderFiles || []} viewMode={this.state.viewMode}
-                                                                                                      onDocClick={(item) => this.setState({selectedDoc: item, openRightMenu: true}) }
-                                                                                                      showDoc={(doc) => this.openPdfModal(doc.id)}
-                                                                                                      setLoading={(b) => this.setState({loading:b})}
-                                                                                                      setSelectedFile={(file) => this.setState({selectedFile:file})}
-                                                                                                      openShareFileModal={() => this.setState({openShareDocModal:true})}
-                                                                                                      onDeleteFile={(file) => {
-                                                                                                          this.deleteFile_Folder(file);
-                                                                                                      }}
-                                                                                                      onRenameFile={(file,newName) => {
-                                                                                                          this.renameFile_Folder(file,newName)
-                                                                                                      }}
-                                                                                                      onSignBtnClick={(id) => {
-                                                                                                          this.props.history.push("/signDoc/doc/"+id)
-                                                                                                      }}
+                                                                                            <ListDocs
+                                                                                                docs={this.state.selectedFolderFiles || []}
+                                                                                                viewMode={this.state.viewMode}
+                                                                                                onDocClick={(item) => this.setState({
+                                                                                                    selectedDoc: item,
+                                                                                                    openRightMenu: true
+                                                                                                })}
+                                                                                                showDoc={(doc) => this.openPdfModal(doc.id)}
+                                                                                                setLoading={(b) => this.setState({loading: b})}
+                                                                                                setSelectedFile={(file) => this.setState({selectedFile: file})}
+                                                                                                openShareFileModal={() => this.setState({openShareDocModal: true})}
+                                                                                                onDeleteFile={(file) => {
+                                                                                                    this.deleteFile_Folder(file);
+                                                                                                }}
+                                                                                                onRenameFile={(file, newName) => {
+                                                                                                    this.renameFile_Folder(file, newName)
+                                                                                                }}
+                                                                                                onSignBtnClick={(id) => {
+                                                                                                    this.props.history.push("/signDoc/doc/" + id)
+                                                                                                }}
                                                                                             />
 
                                                                                         </div> : null
@@ -2519,11 +3189,13 @@ export default class DriveV3 extends React.Component {
                                         }
                                         {
                                             this.state.showContainerSection === "Rooms" && this.state.loading === false &&
-                                            <Rooms rooms={this.state.rooms} selectedRoom={this.state.selectedRoom} contacts={this.state.contacts}
+                                            <Rooms rooms={this.state.rooms} selectedRoom={this.state.selectedRoom}
+                                                   contacts={this.state.contacts}
                                                    openNewRoomModal={() => {
                                                        this.setState({
                                                            openNewRoomModal: true
-                                                       })}
+                                                       })
+                                                   }
                                                    }
                                                    addNewtask={(title, assignedTo, team, selectedDateTime) => {
                                                        let room = this.state.selectedRoom;
@@ -2531,8 +3203,8 @@ export default class DriveV3 extends React.Component {
                                                        tasks.push({
                                                            title: title,
                                                            assignedTo: assignedTo,
-                                                           team:team,
-                                                           dateTime:selectedDateTime
+                                                           team: team,
+                                                           dateTime: selectedDateTime
                                                        })
                                                        room.tasks = tasks;
                                                        firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
@@ -2541,31 +3213,31 @@ export default class DriveV3 extends React.Component {
                                                            this.setState({selectedRoom: room})
                                                            let emails = [];
                                                            let teamNames = [];
-                                                           team.map((t,key) => {
+                                                           team.map((t, key) => {
                                                                emails.push(t.email)
                                                                teamNames.push(t.fname)
                                                            })
                                                            emails.push(assignedTo.email)
                                                            maillingService.sendCustomMailsWithUrl({
-                                                               recipients:emails,
-                                                               subject:"Nouvelle tâche ajoutée ",
-                                                               msg:"Bonjour, <br> Une tâche avec le nom '"+title+"' vous a été attribué pour la date du "
-                                                                   +selectedDateTime+" .<br><br> <b>Team: </b> "+teamNames.join(", ")+"<br><b>Lead: </b> "+assignedTo.prenom+" "+assignedTo.nom+"<br><br>"
-                                                                   +"Pour plus de détails, merci de consulter votre compte sur OA Legal.<br><br>",
-                                                               footerMsg:"<br><br> Cordialement<br>L'équipe OA Legal",
-                                                               linkUrl:"Consulter",
-                                                               url:"https://smartdom.ch:8035/rooms/"+this.state.selectedRoomKey
-                                                           }).then( ok => {
-                                                               this.openSnackbar("success","Une notification par mail à été bien envoyé au Lead et au différents membre du Team")
+                                                               recipients: emails,
+                                                               subject: "Nouvelle tâche ajoutée ",
+                                                               msg: "Bonjour, <br> Une tâche avec le nom '" + title + "' vous a été attribué pour la date du "
+                                                                   + selectedDateTime + " .<br><br> <b>Team: </b> " + teamNames.join(", ") + "<br><b>Lead: </b> " + assignedTo.prenom + " " + assignedTo.nom + "<br><br>"
+                                                                   + "Pour plus de détails, merci de consulter votre compte sur OA Legal.<br><br>",
+                                                               footerMsg: "<br><br> Cordialement<br>L'équipe OA Legal",
+                                                               linkUrl: "Consulter",
+                                                               url: "https://smartdom.ch:8035/rooms/" + this.state.selectedRoomKey
+                                                           }).then(ok => {
+                                                               this.openSnackbar("success", "Une notification par mail à été bien envoyé au Lead et au différents membre du Team")
                                                            }).catch(err => {
-                                                               this.openSnackbar("error","L'envoi du mail de notification à été échoué ! ")
+                                                               this.openSnackbar("error", "L'envoi du mail de notification à été échoué ! ")
                                                            })
                                                        })
                                                    }}
                                                    onDeleteTask={(key) => {
                                                        let room = this.state.selectedRoom;
                                                        let tasks = room.tasks;
-                                                       tasks.splice(key,1);
+                                                       tasks.splice(key, 1);
                                                        room.tasks = tasks;
                                                        firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
                                                            room
@@ -2675,6 +3347,13 @@ export default class DriveV3 extends React.Component {
                                                                                         <i className="mdi mdi-settings"/>
                                                                                     </button>
                                                                                     <button
+                                                                                        onClick={() => {
+                                                                                            console.log(Math.floor(100 + Math.random() * 900))
+                                                                                            console.log(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15))
+
+                                                                                            this.genrateGed()
+
+                                                                                        }}
                                                                                         className="btn btn-danger waves-effect waves-light mb-2"
                                                                                         data-animation="fadein"
                                                                                         data-plugin="custommodal">
@@ -2703,7 +3382,7 @@ export default class DriveV3 extends React.Component {
                                                                                     borderStyle: "solid",
                                                                                     color: "red",
                                                                                     width: "80%",
-                                                                                    marginTop:25,marginBottom:25
+                                                                                    marginTop: 25, marginBottom: 25
                                                                                 }}/>
                                                                             </div>
 
@@ -3133,7 +3812,8 @@ export default class DriveV3 extends React.Component {
                                                                     <p className="text-muted">{this.state.selectedContact.specialite} </p>
 
                                                                     <div style={{display: "contents"}}>
-                                                                        <button type="button" onClick={this.saveContactChanges}
+                                                                        <button type="button"
+                                                                                onClick={this.saveContactChanges}
                                                                                 className="btn btn-success btn-xs waves-effect mb-2 waves-light m-1">
                                                                             <i className="fe-edit"/>&nbsp;&nbsp;
                                                                             Enregistrer
@@ -3167,7 +3847,8 @@ export default class DriveV3 extends React.Component {
                                                                                 <Tab>Affiliations</Tab>
                                                                                 <Tab>Domaine d'activités</Tab>
                                                                                 <Tab>Langues</Tab>
-                                                                                <Tab>Domaines d'intérêt, loisirs et sports</Tab>
+                                                                                <Tab>Domaines d'intérêt, loisirs et
+                                                                                    sports</Tab>
                                                                             </TabList>
 
                                                                             <TabPanel>
@@ -3285,7 +3966,8 @@ export default class DriveV3 extends React.Component {
                                                                                 <div className="row"
                                                                                      style={{marginTop: 35}}>
                                                                                     <div className="col-md-12">
-                                                                                        <p style={{marginBottom: 10}}>Décrire en quelques lignes </p>
+                                                                                        <p style={{marginBottom: 10}}>Décrire
+                                                                                            en quelques lignes </p>
                                                                                         <textarea
                                                                                             rows={10}
                                                                                             className="form-control"
@@ -3592,7 +4274,7 @@ export default class DriveV3 extends React.Component {
                                                                     this.setState({
                                                                             selectedSociete: societe,
                                                                             selectedSocieteKey: key,
-                                                                            editSocieteForm:true
+                                                                            editSocieteForm: true
                                                                         }
                                                                     )
                                                                 }
@@ -3635,18 +4317,21 @@ export default class DriveV3 extends React.Component {
                                                                     <p className="text-muted">{this.state.selectedContact.PrimaryAddressCountry || ""} </p>
 
                                                                     <div style={{display: "contents"}}>
-                                                                        <button type="button" onClick={this.saveSocietyChanges}
+                                                                        <button type="button"
+                                                                                onClick={this.saveSocietyChanges}
                                                                                 className="btn btn-success btn-sm waves-effect mb-2 waves-light m-1">
                                                                             <i className="fe-save"/>&nbsp;&nbsp;
                                                                             Enregistrer
                                                                         </button>
                                                                         <button type="button" onClick={() => {
 
-                                                                        }} className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
+                                                                        }}
+                                                                                className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
                                                                             <i className="fe-printer"/>&nbsp;&nbsp;
                                                                             Aperçu
                                                                         </button>
-                                                                        <button type="button" onClick={() => {}}
+                                                                        <button type="button" onClick={() => {
+                                                                        }}
                                                                                 className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
                                                                             <i className="fe-book-open"/>&nbsp;&nbsp;
                                                                             Book
@@ -3663,8 +4348,10 @@ export default class DriveV3 extends React.Component {
                                                                             </TabList>
 
                                                                             <TabPanel>
-                                                                                <h5 style={{marginTop: 20}}>Informations générales</h5>
-                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                <h5 style={{marginTop: 20}}>Informations
+                                                                                    générales</h5>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 35}}>
                                                                                     <div className="col-md-6">
                                                                                         <div className="col-md-12">
                                                                                             <p style={{marginBottom: 10}}>Email</p>
@@ -3680,20 +4367,23 @@ export default class DriveV3 extends React.Component {
                                                                                     <div className="col-md-6">
                                                                                         <p style={{marginBottom: 10}}>Statut</p>
                                                                                         <FormControlLabel
-                                                                                            control={<Switch checked={this.state.selectedSociete.isActif || false}
-                                                                                                             onChange={event => {
-                                                                                                                 let obj = this.state.selectedSociete;
-                                                                                                                 obj.isActif = event.target.checked;
-                                                                                                                 this.setState({selectedSociete:obj})
-                                                                                                             }}
-                                                                                                             name="isActif" />}
-                                                                                            label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === true ? "Actif" : "Non actif" : "Non actif" }
+                                                                                            control={<Switch
+                                                                                                checked={this.state.selectedSociete.isActif || false}
+                                                                                                onChange={event => {
+                                                                                                    let obj = this.state.selectedSociete;
+                                                                                                    obj.isActif = event.target.checked;
+                                                                                                    this.setState({selectedSociete: obj})
+                                                                                                }}
+                                                                                                name="isActif"/>}
+                                                                                            label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === true ? "Actif" : "Non actif" : "Non actif"}
                                                                                         />
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 35}}>
                                                                                     <div className="col-md-12">
-                                                                                        <p style={{marginBottom: 10}}>À propos</p>
+                                                                                        <p style={{marginBottom: 10}}>À
+                                                                                            propos</p>
                                                                                         <textarea
                                                                                             rows={4}
                                                                                             className="form-control"
@@ -3703,11 +4393,12 @@ export default class DriveV3 extends React.Component {
                                                                                             onChange={this.handleChange('selectedSociete', 'about')}/>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 35}}>
                                                                                     <div className="col-md-6">
                                                                                         <p style={{marginBottom: 10}}>
                                                                                             {
-                                                                                                this.state.selectedSociete.ContactType === "Person" ? "Nom":"Nom de la societe"
+                                                                                                this.state.selectedSociete.ContactType === "Person" ? "Nom" : "Nom de la societe"
                                                                                             }
                                                                                         </p>
                                                                                         <input
@@ -3721,12 +4412,15 @@ export default class DriveV3 extends React.Component {
                                                                                     <div
                                                                                         className="col-md-6">
                                                                                         <p style={{marginBottom: 10}}>Secteur</p>
-                                                                                        <select className="form-control custom-select" value={this.state.selectedSociete.secteur}
-                                                                                                onChange={this.handleChange('selectedSociete', 'secteur')}
+                                                                                        <select
+                                                                                            className="form-control custom-select"
+                                                                                            value={this.state.selectedSociete.secteur}
+                                                                                            onChange={this.handleChange('selectedSociete', 'secteur')}
                                                                                         >
                                                                                             {
-                                                                                                Data.secteurs.map((secteur,key) =>
-                                                                                                    <option key={key} value={secteur}>{secteur}</option>
+                                                                                                Data.secteurs.map((secteur, key) =>
+                                                                                                    <option key={key}
+                                                                                                            value={secteur}>{secteur}</option>
                                                                                                 )
                                                                                             }
 
@@ -3736,7 +4430,8 @@ export default class DriveV3 extends React.Component {
                                                                                 <div className="row"
                                                                                      style={{marginTop: 20}}>
                                                                                     <div className="col-md-6">
-                                                                                        <p style={{marginBottom: 10}}>Site web </p>
+                                                                                        <p style={{marginBottom: 10}}>Site
+                                                                                            web </p>
                                                                                         <input
                                                                                             className="form-control"
                                                                                             type="text"
@@ -3749,7 +4444,8 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
                                                                                     <div
                                                                                         className="col-md-6">
-                                                                                        <p style={{marginBottom: 10}}>Taille de l'entreprise</p>
+                                                                                        <p style={{marginBottom: 10}}>Taille
+                                                                                            de l'entreprise</p>
                                                                                         <input
                                                                                             className="form-control"
                                                                                             type="text"
@@ -3763,19 +4459,23 @@ export default class DriveV3 extends React.Component {
                                                                                      style={{marginTop: 20}}>
                                                                                     <div className="col-sm-6">
                                                                                         <p style={{marginBottom: 10}}>Type</p>
-                                                                                        <select className="form-control custom-select" value={this.state.selectedSociete.ContactType}
-                                                                                                onChange={this.handleChange('selectedSociete', 'ContactType')}
+                                                                                        <select
+                                                                                            className="form-control custom-select"
+                                                                                            value={this.state.selectedSociete.ContactType}
+                                                                                            onChange={this.handleChange('selectedSociete', 'ContactType')}
                                                                                         >
                                                                                             {
-                                                                                                Data.contactTypes.map((type,key) =>
-                                                                                                    <option key={key} value={type.value}>{type.label}</option>
+                                                                                                Data.contactTypes.map((type, key) =>
+                                                                                                    <option key={key}
+                                                                                                            value={type.value}>{type.label}</option>
                                                                                                 )
                                                                                             }
 
                                                                                         </select>
                                                                                     </div>
                                                                                     <div className="col-sm-6">
-                                                                                        <p style={{marginBottom: 10}}>Fondée en </p>
+                                                                                        <p style={{marginBottom: 10}}>Fondée
+                                                                                            en </p>
                                                                                         <Input
                                                                                             type="date"
                                                                                             className="form-control"
@@ -3792,7 +4492,8 @@ export default class DriveV3 extends React.Component {
                                                                                 <div className="row"
                                                                                      style={{marginTop: 20}}>
                                                                                     <div className="col-sm-6">
-                                                                                        <p style={{marginBottom: 10}}>Chiffre d'affaire</p>
+                                                                                        <p style={{marginBottom: 10}}>Chiffre
+                                                                                            d'affaire</p>
                                                                                         <input
                                                                                             className="form-control custom-select"
                                                                                             id="titre"
@@ -3805,7 +4506,8 @@ export default class DriveV3 extends React.Component {
                                                                                         </input>
                                                                                     </div>
                                                                                     <div className="col-sm-6">
-                                                                                        <p style={{marginBottom: 10}}>Capitaux levée </p>
+                                                                                        <p style={{marginBottom: 10}}>Capitaux
+                                                                                            levée </p>
                                                                                         <Input
                                                                                             className="form-control"
                                                                                             id="pays"
@@ -3843,7 +4545,10 @@ export default class DriveV3 extends React.Component {
                                                                                             }
                                                                                         </div>
                                                                                         <div>
-                                                                                            <input className="form-control" defaultValue={this.state.selectedSociete.ContactName} readOnly={true} />
+                                                                                            <input
+                                                                                                className="form-control"
+                                                                                                defaultValue={this.state.selectedSociete.ContactName}
+                                                                                                readOnly={true}/>
                                                                                         </div>
                                                                                     </div>
                                                                                     <div className="col-md-4">
@@ -3851,12 +4556,16 @@ export default class DriveV3 extends React.Component {
                                                                                             Type de dossier
                                                                                         </div>
                                                                                         <div>
-                                                                                            <select className="form-control custom-select" value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.typeDossier || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","typeDossier")}
+                                                                                            <select
+                                                                                                className="form-control custom-select"
+                                                                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.typeDossier || "" : ""}
+                                                                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "typeDossier")}
                                                                                             >
                                                                                                 {
-                                                                                                    Data.secteurs.map((secteur,key) =>
-                                                                                                        <option key={key} value={secteur}>{secteur}</option>
+                                                                                                    Data.secteurs.map((secteur, key) =>
+                                                                                                        <option
+                                                                                                            key={key}
+                                                                                                            value={secteur}>{secteur}</option>
                                                                                                     )
                                                                                                 }
 
@@ -3869,8 +4578,11 @@ export default class DriveV3 extends React.Component {
                                                                                             Description du projet
                                                                                         </div>
                                                                                         <div>
-                                                                                            <textarea className="form-control" value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
-                                                                                                      onChange={this.handleObjectChange("selectedSociete","mondat","description")} rows={4} />
+                                                                                            <textarea
+                                                                                                className="form-control"
+                                                                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
+                                                                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "description")}
+                                                                                                rows={4}/>
                                                                                         </div>
 
                                                                                     </div>
@@ -3878,27 +4590,37 @@ export default class DriveV3 extends React.Component {
                                                                                 <div className="row">
                                                                                     <div className="col-md-3 mt-1">
                                                                                         <div>
-                                                                                            Dossier LBA ( intermédiaire financier)
+                                                                                            Dossier LBA ( intermédiaire
+                                                                                            financier)
                                                                                         </div>
                                                                                         <div>
-                                                                                            <select className="form-control custom-select"
-                                                                                                style={{width:"80%"}}
+                                                                                            <select
+                                                                                                className="form-control custom-select"
+                                                                                                style={{width: "80%"}}
                                                                                                 value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.dossierLBA || "" : ""}
-                                                                                                onChange={this.handleObjectChange("selectedSociete","mondat","dossierLBA")}
+                                                                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "dossierLBA")}
                                                                                             >
-                                                                                                <option value={"Oui"}>Oui</option>
-                                                                                                <option value={"Non"}>Non</option>
+                                                                                                <option
+                                                                                                    value={"Oui"}>Oui
+                                                                                                </option>
+                                                                                                <option
+                                                                                                    value={"Non"}>Non
+                                                                                                </option>
                                                                                             </select>
                                                                                         </div>
 
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="row mt-4 align-items-center">
+                                                                                <div
+                                                                                    className="row mt-4 align-items-center">
                                                                                     <div className="col-md-4">
                                                                                         <div>
-                                                                                            <h6>Personne en charge principale ( le client. ) </h6>
+                                                                                            <h6>Personne en charge
+                                                                                                principale ( le client.
+                                                                                                ) </h6>
                                                                                         </div>
-                                                                                        <div className="row justify-content-center align-items-center mt-2">
+                                                                                        <div
+                                                                                            className="row justify-content-center align-items-center mt-2">
                                                                                             <div className="col-md-3">
                                                                                                 <div>Prénom</div>
                                                                                             </div>
@@ -3909,14 +4631,15 @@ export default class DriveV3 extends React.Component {
                                                                                                     id="nom"
                                                                                                     name="nom"
                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_prenom || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcp_prenom")}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_prenom")}
 
                                                                                                 />
 
                                                                                             </div>
 
                                                                                         </div>
-                                                                                        <div className="row justify-content-center align-items-center mt-2">
+                                                                                        <div
+                                                                                            className="row justify-content-center align-items-center mt-2">
                                                                                             <div className="col-md-3">
                                                                                                 <div>Nom</div>
                                                                                             </div>
@@ -3927,12 +4650,13 @@ export default class DriveV3 extends React.Component {
                                                                                                     id="nom"
                                                                                                     name="nom"
                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_nom || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcp_nom")}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_nom")}
                                                                                                 />
                                                                                             </div>
 
                                                                                         </div>
-                                                                                        <div className="row justify-content-center align-items-center mt-2">
+                                                                                        <div
+                                                                                            className="row justify-content-center align-items-center mt-2">
                                                                                             <div className="col-md-3">
                                                                                                 <div>Email</div>
                                                                                             </div>
@@ -3943,12 +4667,13 @@ export default class DriveV3 extends React.Component {
                                                                                                     id="nom"
                                                                                                     name="nom"
                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_email || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcp_email")}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_email")}
                                                                                                 />
                                                                                             </div>
 
                                                                                         </div>
-                                                                                        <div className="row justify-content-center align-items-center mt-2">
+                                                                                        <div
+                                                                                            className="row justify-content-center align-items-center mt-2">
                                                                                             <div className="col-md-3">
                                                                                                 <div>Téléphone</div>
                                                                                             </div>
@@ -3959,12 +4684,13 @@ export default class DriveV3 extends React.Component {
                                                                                                     id="nom"
                                                                                                     name="nom"
                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_phone || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcp_phone")}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_phone")}
                                                                                                 />
                                                                                             </div>
 
                                                                                         </div>
-                                                                                        <div className="row justify-content-center align-items-center mt-2">
+                                                                                        <div
+                                                                                            className="row justify-content-center align-items-center mt-2">
                                                                                             <div className="col-md-3">
                                                                                                 <div>Adresse</div>
                                                                                             </div>
@@ -3974,7 +4700,7 @@ export default class DriveV3 extends React.Component {
                                                                                                     id="Adresse"
                                                                                                     name="Adresse"
                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_adress || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcp_adress")}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_adress")}
                                                                                                 />
                                                                                             </div>
 
@@ -3983,9 +4709,11 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
                                                                                     <div className="col-md-4">
                                                                                         <div>
-                                                                                            <h6>Personne en charge pour les réglements  </h6>
+                                                                                            <h6>Personne en charge pour
+                                                                                                les réglements </h6>
                                                                                         </div>
-                                                                                        <div className="row justify-content-center align-items-center mt-2">
+                                                                                        <div
+                                                                                            className="row justify-content-center align-items-center mt-2">
                                                                                             <div className="col-md-3">
                                                                                                 <div>Prénom</div>
                                                                                             </div>
@@ -3996,14 +4724,15 @@ export default class DriveV3 extends React.Component {
                                                                                                     id="nom"
                                                                                                     name="nom"
                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_prenom || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_prenom")}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_prenom")}
 
                                                                                                 />
 
                                                                                             </div>
 
                                                                                         </div>
-                                                                                        <div className="row justify-content-center align-items-center mt-2">
+                                                                                        <div
+                                                                                            className="row justify-content-center align-items-center mt-2">
                                                                                             <div className="col-md-3">
                                                                                                 <div>Nom</div>
                                                                                             </div>
@@ -4014,12 +4743,13 @@ export default class DriveV3 extends React.Component {
                                                                                                     id="nom"
                                                                                                     name="nom"
                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_nom || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_nom")}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_nom")}
                                                                                                 />
                                                                                             </div>
 
                                                                                         </div>
-                                                                                        <div className="row justify-content-center align-items-center mt-2">
+                                                                                        <div
+                                                                                            className="row justify-content-center align-items-center mt-2">
                                                                                             <div className="col-md-3">
                                                                                                 <div>Email</div>
                                                                                             </div>
@@ -4030,12 +4760,13 @@ export default class DriveV3 extends React.Component {
                                                                                                     id="nom"
                                                                                                     name="nom"
                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_email || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_email")}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_email")}
                                                                                                 />
                                                                                             </div>
 
                                                                                         </div>
-                                                                                        <div className="row justify-content-center align-items-center mt-2">
+                                                                                        <div
+                                                                                            className="row justify-content-center align-items-center mt-2">
                                                                                             <div className="col-md-3">
                                                                                                 <div>Téléphone</div>
                                                                                             </div>
@@ -4046,12 +4777,13 @@ export default class DriveV3 extends React.Component {
                                                                                                     id="nom"
                                                                                                     name="nom"
                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_phone || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_phone")}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_phone")}
                                                                                                 />
                                                                                             </div>
 
                                                                                         </div>
-                                                                                        <div className="row justify-content-center align-items-center mt-2">
+                                                                                        <div
+                                                                                            className="row justify-content-center align-items-center mt-2">
                                                                                             <div className="col-md-3">
                                                                                                 <div>Adresse</div>
                                                                                             </div>
@@ -4061,7 +4793,7 @@ export default class DriveV3 extends React.Component {
                                                                                                     id="Adresse"
                                                                                                     name="Adresse"
                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_adress || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_adress")}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_adress")}
                                                                                                 />
                                                                                             </div>
 
@@ -4078,7 +4810,7 @@ export default class DriveV3 extends React.Component {
                                                                                                 id="nom"
                                                                                                 name="nom"
                                                                                                 value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.autrePartie || "" : ""}
-                                                                                                onChange={this.handleObjectChange("selectedSociete","mondat","autrePartie")}
+                                                                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "autrePartie")}
                                                                                             />
 
                                                                                         </div>
@@ -4090,20 +4822,31 @@ export default class DriveV3 extends React.Component {
                                                                                                 id="nom"
                                                                                                 name="nom"
                                                                                                 value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.autrePartie || "" : ""}
-                                                                                                onChange={this.handleObjectChange("selectedSociete","mondat","autrePartie")}
+                                                                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "autrePartie")}
                                                                                             />
                                                                                         </div>
                                                                                         <div className="mt-3">
                                                                                             <h6>Apporteur </h6>
-                                                                                            <select className="form-control custom-select"
-                                                                                                style={{width:"80%"}}
+                                                                                            <select
+                                                                                                className="form-control custom-select"
+                                                                                                style={{width: "80%"}}
                                                                                                 value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.apporteur || "" : ""}
-                                                                                                onChange={this.handleObjectChange("selectedSociete","mondat","apporteur")}
+                                                                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "apporteur")}
                                                                                             >
-                                                                                                <option value={""}>{""}</option>
-                                                                                                <option value={"Site web"}>Site web</option>
-                                                                                                <option value={"Autre avocat"}>Autre avocat</option>
-                                                                                                <option value={"Personne tierce"}>Personne tierce</option>
+                                                                                                <option
+                                                                                                    value={""}>{""}</option>
+                                                                                                <option
+                                                                                                    value={"Site web"}>Site
+                                                                                                    web
+                                                                                                </option>
+                                                                                                <option
+                                                                                                    value={"Autre avocat"}>Autre
+                                                                                                    avocat
+                                                                                                </option>
+                                                                                                <option
+                                                                                                    value={"Personne tierce"}>Personne
+                                                                                                    tierce
+                                                                                                </option>
 
                                                                                             </select>
                                                                                         </div>
@@ -4112,32 +4855,44 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
 
                                                                                 </div>
-                                                                                <hr style={{width:"100%",height:2,backgroundColor:"#a6a6a6",marginTop:25,marginBottom:25}}/>
+                                                                                <hr style={{
+                                                                                    width: "100%",
+                                                                                    height: 2,
+                                                                                    backgroundColor: "#a6a6a6",
+                                                                                    marginTop: 25,
+                                                                                    marginBottom: 25
+                                                                                }}/>
 
                                                                                 <div>
                                                                                     <h5>Facturation</h5>
-                                                                                    <div className="row align-items-center">
+                                                                                    <div
+                                                                                        className="row align-items-center">
                                                                                         <div className="col-md-4">
                                                                                             <div>Collaborateur-Lead</div>
                                                                                             <div>
                                                                                                 <MuiSelect
                                                                                                     labelId="demo-simple-select-label"
                                                                                                     id="demo-simple-select"
-                                                                                                    style={{width:"80%"}}
-                                                                                                    onChange={(e)=>{
+                                                                                                    style={{width: "80%"}}
+                                                                                                    onChange={(e) => {
                                                                                                         let obj = this.state.selectedSociete;
                                                                                                         let container = obj["facturation"] || {};
                                                                                                         container.collaborateur_lead = e.target.value;
                                                                                                         obj["facturation"] = container;
-                                                                                                        this.setState({selectedSociete:obj})
+                                                                                                        this.setState({selectedSociete: obj})
                                                                                                     }}
                                                                                                     value={this.state.selectedSociete.facturation ? this.state.selectedSociete.facturation.collaborateur_lead : ""}
 
                                                                                                 >
-                                                                                                    {this.state.contacts.map((contact,key) => (
-                                                                                                        <MenuItem key={key} value={contact.email}>
-                                                                                                            <div className="row align-items-center justify-content-center">
-                                                                                                                <Avatar alt="Natacha" src={contact.imageUrl} />
+                                                                                                    {this.state.contacts.map((contact, key) => (
+                                                                                                        <MenuItem
+                                                                                                            key={key}
+                                                                                                            value={contact.email}>
+                                                                                                            <div
+                                                                                                                className="row align-items-center justify-content-center">
+                                                                                                                <Avatar
+                                                                                                                    alt="Natacha"
+                                                                                                                    src={contact.imageUrl}/>
                                                                                                                 <div>{contact.nom + " " + contact.prenom}</div>
                                                                                                             </div>
                                                                                                         </MenuItem>
@@ -4156,30 +4911,46 @@ export default class DriveV3 extends React.Component {
                                                                                                     labelId="demo-mutiple-chip-label-1542"
                                                                                                     id="demo-mutiple-chip-1542"
                                                                                                     multiple
-                                                                                                    style={{width:"100%"}}
-                                                                                                    onChange={(e)=>{
+                                                                                                    style={{width: "100%"}}
+                                                                                                    onChange={(e) => {
                                                                                                         let obj = this.state.selectedSociete;
                                                                                                         let container = obj["facturation"] || {};
                                                                                                         container.collaborateur_team = e.target.value;
                                                                                                         obj["facturation"] = container;
-                                                                                                        this.setState({selectedSociete:obj})
+                                                                                                        this.setState({selectedSociete: obj})
                                                                                                     }}
                                                                                                     value={this.state.selectedSociete.facturation ? this.state.selectedSociete.facturation.collaborateur_team || [] : []}
-                                                                                                    input={<Input id="select-multiple-chip" />}
+                                                                                                    input={<Input
+                                                                                                        id="select-multiple-chip"/>}
                                                                                                     renderValue={(selected) => (
-                                                                                                        <div style={{display:"flex", flexWrap:"wrap"}}>
-                                                                                                            {selected.map((value,key) => (
-                                                                                                                <Chip key={key} label={value.email} style={{margin:2}} avatar={<Avatar alt="" src={value.imageUrl || null} />}
+                                                                                                        <div style={{
+                                                                                                            display: "flex",
+                                                                                                            flexWrap: "wrap"
+                                                                                                        }}>
+                                                                                                            {selected.map((value, key) => (
+                                                                                                                <Chip
+                                                                                                                    key={key}
+                                                                                                                    label={value.email}
+                                                                                                                    style={{margin: 2}}
+                                                                                                                    avatar={
+                                                                                                                        <Avatar
+                                                                                                                            alt=""
+                                                                                                                            src={value.imageUrl || null}/>}
                                                                                                                 />
                                                                                                             ))}
                                                                                                         </div>
                                                                                                     )}
                                                                                                     MenuProps={Data.MenuProps}
                                                                                                 >
-                                                                                                    {this.state.contacts.map((contact,key) => (
-                                                                                                        <MenuItem key={key} value={contact}>
-                                                                                                            <div className="row align-items-center justify-content-center">
-                                                                                                                <Avatar alt="" src={contact.imageUrl} />
+                                                                                                    {this.state.contacts.map((contact, key) => (
+                                                                                                        <MenuItem
+                                                                                                            key={key}
+                                                                                                            value={contact}>
+                                                                                                            <div
+                                                                                                                className="row align-items-center justify-content-center">
+                                                                                                                <Avatar
+                                                                                                                    alt=""
+                                                                                                                    src={contact.imageUrl}/>
                                                                                                                 <div>{contact.nom + " " + contact.prenom}</div>
                                                                                                             </div>
                                                                                                         </MenuItem>
@@ -4189,16 +4960,18 @@ export default class DriveV3 extends React.Component {
 
                                                                                         </div>
                                                                                         <div className="col-md-3">
-                                                                                            <div>Taux Horaire collaborateur -B </div>
+                                                                                            <div>Taux Horaire
+                                                                                                collaborateur -B
+                                                                                            </div>
 
-                                                                                                <input
-                                                                                                    className="form-control"
-                                                                                                    type="text"
-                                                                                                    id="nom"
-                                                                                                    name="nom"
-                                                                                                    value={this.state.selectedSociete.facturation ? this.state.selectedSociete.facturation.tauxHoraireCollab || "" : ""}
-                                                                                                    onChange={this.handleObjectChange("selectedSociete","facturation","tauxHoraireCollab")}
-                                                                                                />
+                                                                                            <input
+                                                                                                className="form-control"
+                                                                                                type="text"
+                                                                                                id="nom"
+                                                                                                name="nom"
+                                                                                                value={this.state.selectedSociete.facturation ? this.state.selectedSociete.facturation.tauxHoraireCollab || "" : ""}
+                                                                                                onChange={this.handleObjectChange("selectedSociete", "facturation", "tauxHoraireCollab")}
+                                                                                            />
 
                                                                                         </div>
 
@@ -4206,62 +4979,80 @@ export default class DriveV3 extends React.Component {
                                                                                 </div>
                                                                                 <div className="mt-4">
                                                                                     <h5>FACTURATION-CLIENT</h5>
-                                                                                    <div className="row align-items-center">
+                                                                                    <div
+                                                                                        className="row align-items-center">
                                                                                         <div className="col-md-4">
-                                                                                            <div className="row justify-content-center align-items-center">
-                                                                                                <div className="col-md-4">
+                                                                                            <div
+                                                                                                className="row justify-content-center align-items-center">
+                                                                                                <div
+                                                                                                    className="col-md-4">
                                                                                                     <div>Par eMail</div>
                                                                                                 </div>
-                                                                                                <div className="col-md-8">
-                                                                                                    <CB color="primary" checked={this.state.mondat.facturationClient.parEmail || false}
-                                                                                                        onChange={(e)=>{let d = this.state.mondat
-                                                                                                            d.facturationClient.parEmail= !this.state.mondat.facturationClient.parEmail
-                                                                                                            this.setState({mondat:d})
+                                                                                                <div
+                                                                                                    className="col-md-8">
+                                                                                                    <CB color="primary"
+                                                                                                        checked={this.state.mondat.facturationClient.parEmail || false}
+                                                                                                        onChange={(e) => {
+                                                                                                            let d = this.state.mondat
+                                                                                                            d.facturationClient.parEmail = !this.state.mondat.facturationClient.parEmail
+                                                                                                            this.setState({mondat: d})
                                                                                                         }}
                                                                                                     />
                                                                                                 </div>
 
 
-
                                                                                             </div>
-                                                                                            <div className="row justify-content-center align-items-center">
+                                                                                            <div
+                                                                                                className="row justify-content-center align-items-center">
 
-                                                                                                <div className="col-md-4">
-                                                                                                    <div>Par courrier</div>
+                                                                                                <div
+                                                                                                    className="col-md-4">
+                                                                                                    <div>Par courrier
+                                                                                                    </div>
                                                                                                 </div>
-                                                                                                <div className="col-md-8">
+                                                                                                <div
+                                                                                                    className="col-md-8">
                                                                                                     <CB color="primary"
                                                                                                         checked={this.state.mondat.facturationClient.parCourrier || false}
-                                                                                                        onChange={(e)=>{let d = this.state.mondat
-                                                                                                            d.facturationClient.parCourrier= !this.state.mondat.facturationClient.parCourrier
-                                                                                                            this.setState({mondat:d})
+                                                                                                        onChange={(e) => {
+                                                                                                            let d = this.state.mondat
+                                                                                                            d.facturationClient.parCourrier = !this.state.mondat.facturationClient.parCourrier
+                                                                                                            this.setState({mondat: d})
                                                                                                         }}/>
                                                                                                 </div>
 
 
-
                                                                                             </div>
-                                                                                            <div className="row justify-content-center align-items-center">
+                                                                                            <div
+                                                                                                className="row justify-content-center align-items-center">
 
-                                                                                                <div className="col-md-4">
+                                                                                                <div
+                                                                                                    className="col-md-4">
                                                                                                     <div>Fréquence</div>
                                                                                                 </div>
-                                                                                                <div className="col-md-8">
+                                                                                                <div
+                                                                                                    className="col-md-8">
                                                                                                     <MuiSelect
                                                                                                         labelId="demo-simple-select-label"
                                                                                                         id="demo-simple-select"
-                                                                                                        style={{width:"100%"}}
+                                                                                                        style={{width: "100%"}}
                                                                                                         value={this.state.mondat.facturationClient.frequence}
-                                                                                                        onChange={(e)=>{let d = this.state.mondat
-                                                                                                            d.facturationClient.frequence= e.target.value
-                                                                                                            this.setState({mondat:d})
+                                                                                                        onChange={(e) => {
+                                                                                                            let d = this.state.mondat
+                                                                                                            d.facturationClient.frequence = e.target.value
+                                                                                                            this.setState({mondat: d})
                                                                                                         }}
 
                                                                                                     >
-                                                                                                        <MenuItem value={"mission"}>Par mission</MenuItem>
-                                                                                                        <MenuItem value={"Mensuellement"}>Mensuellement</MenuItem>
-                                                                                                        <MenuItem value={"Quarter"}>Quarter</MenuItem>
-                                                                                                        <MenuItem value={"Annuellement"}>Annuellement</MenuItem>
+                                                                                                        <MenuItem
+                                                                                                            value={"mission"}>Par
+                                                                                                            mission</MenuItem>
+                                                                                                        <MenuItem
+                                                                                                            value={"Mensuellement"}>Mensuellement</MenuItem>
+                                                                                                        <MenuItem
+                                                                                                            value={"Quarter"}>Quarter</MenuItem>
+                                                                                                        <MenuItem
+                                                                                                            value={"Annuellement"}>Annuellement</MenuItem>
                                                                                                     </MuiSelect>
                                                                                                 </div>
 
@@ -4272,85 +5063,114 @@ export default class DriveV3 extends React.Component {
                                                                                         <div className="col-md-4">
 
 
-                                                                                            <div className="row justify-content-center align-items-center">
+                                                                                            <div
+                                                                                                className="row justify-content-center align-items-center">
 
-                                                                                                <div className="col-md-6">
-                                                                                                    <div>Envoyé par le secrétariat</div>
+                                                                                                <div
+                                                                                                    className="col-md-6">
+                                                                                                    <div>Envoyé par le
+                                                                                                        secrétariat
+                                                                                                    </div>
                                                                                                 </div>
-                                                                                                <div className="col-md-6">
-                                                                                                    <CB color="primary" checked={this.state.mondat.facturationClient.EnvoyeParSecretariat || false}
-                                                                                                        onChange={(e)=>{let d = this.state.mondat
-                                                                                                            d.facturationClient.EnvoyeParSecretariat= !this.state.mondat.facturationClient.EnvoyeParSecretariat
-                                                                                                            this.setState({mondat:d})
-                                                                                                        }} />
+                                                                                                <div
+                                                                                                    className="col-md-6">
+                                                                                                    <CB color="primary"
+                                                                                                        checked={this.state.mondat.facturationClient.EnvoyeParSecretariat || false}
+                                                                                                        onChange={(e) => {
+                                                                                                            let d = this.state.mondat
+                                                                                                            d.facturationClient.EnvoyeParSecretariat = !this.state.mondat.facturationClient.EnvoyeParSecretariat
+                                                                                                            this.setState({mondat: d})
+                                                                                                        }}/>
                                                                                                 </div>
-
 
 
                                                                                             </div>
-                                                                                            <div className="row justify-content-center align-items-center">
+                                                                                            <div
+                                                                                                className="row justify-content-center align-items-center">
 
-                                                                                                <div className="col-md-6">
-                                                                                                    <div>Envoyé par l’avocat </div>
+                                                                                                <div
+                                                                                                    className="col-md-6">
+                                                                                                    <div>Envoyé par
+                                                                                                        l’avocat
+                                                                                                    </div>
                                                                                                 </div>
-                                                                                                <div className="col-md-6">
-                                                                                                    <CB color="primary" checked={this.state.mondat.facturationClient.EnvoyeAvocat || false}
-                                                                                                        onChange={(e)=>{let d = this.state.mondat
-                                                                                                            d.facturationClient.EnvoyeAvocat= !this.state.mondat.facturationClient.EnvoyeAvocat
-                                                                                                            this.setState({mondat:d})
-                                                                                                        }} />
+                                                                                                <div
+                                                                                                    className="col-md-6">
+                                                                                                    <CB color="primary"
+                                                                                                        checked={this.state.mondat.facturationClient.EnvoyeAvocat || false}
+                                                                                                        onChange={(e) => {
+                                                                                                            let d = this.state.mondat
+                                                                                                            d.facturationClient.EnvoyeAvocat = !this.state.mondat.facturationClient.EnvoyeAvocat
+                                                                                                            this.setState({mondat: d})
+                                                                                                        }}/>
                                                                                                 </div>
-
 
 
                                                                                             </div>
-                                                                                            <div className="row justify-content-center align-items-center">
+                                                                                            <div
+                                                                                                className="row justify-content-center align-items-center">
 
-                                                                                                <div className="col-md-6">
-                                                                                                    <div>Langue de Facturation</div>
+                                                                                                <div
+                                                                                                    className="col-md-6">
+                                                                                                    <div>Langue de
+                                                                                                        Facturation
+                                                                                                    </div>
                                                                                                 </div>
-                                                                                                <div className="col-md-6">
+                                                                                                <div
+                                                                                                    className="col-md-6">
                                                                                                     <MuiSelect
                                                                                                         labelId="demo-simple-select-label"
                                                                                                         id="demo-simple-select"
-                                                                                                        style={{width:"100%"}}
+                                                                                                        style={{width: "100%"}}
                                                                                                         value={this.state.mondat.facturationClient.LangueFacturation}
-                                                                                                        onChange={(e)=>{let d = this.state.mondat
-                                                                                                            d.facturationClient.LangueFacturation= e.target.value
-                                                                                                            this.setState({mondat:d})
+                                                                                                        onChange={(e) => {
+                                                                                                            let d = this.state.mondat
+                                                                                                            d.facturationClient.LangueFacturation = e.target.value
+                                                                                                            this.setState({mondat: d})
                                                                                                         }}
 
                                                                                                     >
-                                                                                                        <MenuItem value={"Français"}>Français</MenuItem>
-                                                                                                        <MenuItem value={"Anglais"}>Anglais</MenuItem>
+                                                                                                        <MenuItem
+                                                                                                            value={"Français"}>Français</MenuItem>
+                                                                                                        <MenuItem
+                                                                                                            value={"Anglais"}>Anglais</MenuItem>
 
                                                                                                     </MuiSelect>
                                                                                                 </div>
 
 
-
                                                                                             </div>
-                                                                                            <div className="row justify-content-center align-items-center">
+                                                                                            <div
+                                                                                                className="row justify-content-center align-items-center">
 
-                                                                                                <div className="col-md-6">
-                                                                                                    <div>Mode ( à envoyer par qui ) </div>
+                                                                                                <div
+                                                                                                    className="col-md-6">
+                                                                                                    <div>Mode ( à
+                                                                                                        envoyer par qui
+                                                                                                        )
+                                                                                                    </div>
                                                                                                 </div>
-                                                                                                <div className="col-md-6">
+                                                                                                <div
+                                                                                                    className="col-md-6">
                                                                                                     <MuiSelect
                                                                                                         labelId="demo-simple-select-label"
                                                                                                         id="demo-simple-select"
-                                                                                                        style={{width:"100%"}}
+                                                                                                        style={{width: "100%"}}
                                                                                                         value={this.state.mondat.facturationClient.Mode}
-                                                                                                        onChange={(e)=>{let d = this.state.mondat
-                                                                                                            d.facturationClient.Mode= e.target.value
-                                                                                                            this.setState({mondat:d})
+                                                                                                        onChange={(e) => {
+                                                                                                            let d = this.state.mondat
+                                                                                                            d.facturationClient.Mode = e.target.value
+                                                                                                            this.setState({mondat: d})
                                                                                                         }}
 
 
                                                                                                     >
-                                                                                                        <MenuItem value={"Sécretaria"}>Sécretariat</MenuItem>
-                                                                                                        <MenuItem value={"Associé"}>Associé</MenuItem>
-                                                                                                        <MenuItem value={"Collaborateur"}>Collaborateur</MenuItem>
+                                                                                                        <MenuItem
+                                                                                                            value={"Sécretaria"}>Sécretariat</MenuItem>
+                                                                                                        <MenuItem
+                                                                                                            value={"Associé"}>Associé</MenuItem>
+                                                                                                        <MenuItem
+                                                                                                            value={"Collaborateur"}>Collaborateur</MenuItem>
 
                                                                                                     </MuiSelect>
                                                                                                 </div>
@@ -4369,8 +5189,6 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>*/}
                                                                                 </div>
                                                                             </TabPanel>
-
-
 
 
                                                                         </Tabs>
@@ -4402,55 +5220,93 @@ export default class DriveV3 extends React.Component {
                                                                      style={{marginTop: 1}}>
 
 
-
                                                                     <div style={{marginTop: 30}} className="text-left">
                                                                         <Tabs>
                                                                             <TabList>
                                                                                 <Tab>Imputation client </Tab>
-                                                                                <Tab>List imputation  </Tab>
-                                                                                <Tab>Imputation team & scheduled time </Tab>
+                                                                                <Tab>List imputation </Tab>
+                                                                                <Tab>Imputation team & scheduled
+                                                                                    time </Tab>
                                                                                 <Tab>New time Entree </Tab>
                                                                                 <Tab>New Expenses </Tab>
                                                                             </TabList>
 
                                                                             <TabPanel>
-                                                                                <h5 style={{marginTop: 20,color:"blue"}}>Sélection du client à imputer</h5>
-                                                                                <div className="row border border-primary"
-                                                                                     style={{marginTop: 35}}>
-                                                                                    <div className="col-md-4" >
+                                                                                <h5 style={{
+                                                                                    marginTop: 20,
+                                                                                    color: "blue"
+                                                                                }}>Sélection du client à imputer</h5>
+                                                                                <div
+                                                                                    className="row border border-primary"
+                                                                                    style={{marginTop: 35}}>
+                                                                                    <div className="col-md-4">
                                                                                         <input
                                                                                             className="form-control "
-                                                                                            style={{width:"100%"}}
+                                                                                            style={{width: "100%"}}
                                                                                             id="search"
                                                                                             namse="search"
                                                                                             type="text"
                                                                                             placeholder="search"
                                                                                             value={this.state.searchSociete}
-                                                                                            onChange={(e)=>{this.setState({searchSociete:e.target.value})}}/>
+                                                                                            onChange={(e) => {
+                                                                                                this.setState({searchSociete: e.target.value})
+                                                                                            }}/>
 
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>A-B-C</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>D-E-F</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>G-H-I</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>J-K-L</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>M-N-O</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>P-Q-R</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>S-T-U</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>W-X-Y-Z</h5>
                                                                                     </div>
                                                                                 </div>
@@ -4471,20 +5327,24 @@ export default class DriveV3 extends React.Component {
 
                                                                                 </div>
                                                                                 <div className="mt-2">
-                                                                                    {this.state.searchSociete==="" ?
+                                                                                    {this.state.searchSociete === "" ?
                                                                                         <div>
-                                                                                            {this.state.societes.map((item,key)=>(
-                                                                                                <div key={key} className="row mt-2">
-                                                                                                    <div className="col-md-3">
+                                                                                            {this.state.societes.map((item, key) => (
+                                                                                                <div key={key}
+                                                                                                     className="row mt-2">
+                                                                                                    <div
+                                                                                                        className="col-md-3">
                                                                                                         <div>{item.nomSociete}</div>
 
                                                                                                     </div>
-                                                                                                    <div className="col-md-4">
-                                                                                                        <div>{item.nomDecideur+" / "+item.email}</div>
+                                                                                                    <div
+                                                                                                        className="col-md-4">
+                                                                                                        <div>{item.nomDecideur + " / " + item.email}</div>
 
                                                                                                     </div>
-                                                                                                    <div className="col-md-5">
-                                                                                                        <div>{item.nomPayeur+" / "+item.emailPayeur}</div>
+                                                                                                    <div
+                                                                                                        className="col-md-5">
+                                                                                                        <div>{item.nomPayeur + " / " + item.emailPayeur}</div>
 
                                                                                                     </div>
                                                                                                 </div>
@@ -4493,26 +5353,28 @@ export default class DriveV3 extends React.Component {
                                                                                         :
                                                                                         <div>
                                                                                             {
-                                                                                                searchFilter.map((item,key)=>(
-                                                                                                    <div key={key} className="row mt-2">
-                                                                                                        <div className="col-md-3">
+                                                                                                searchFilter.map((item, key) => (
+                                                                                                    <div key={key}
+                                                                                                         className="row mt-2">
+                                                                                                        <div
+                                                                                                            className="col-md-3">
                                                                                                             <div>{item.nomSociete}</div>
 
                                                                                                         </div>
-                                                                                                        <div className="col-md-4">
-                                                                                                            <div>{item.nomDecideur+" / "+item.email}</div>
+                                                                                                        <div
+                                                                                                            className="col-md-4">
+                                                                                                            <div>{item.nomDecideur + " / " + item.email}</div>
 
                                                                                                         </div>
-                                                                                                        <div className="col-md-5">
-                                                                                                            <div>{item.nomPayeur+" / "+item.emailPayeur}</div>
+                                                                                                        <div
+                                                                                                            className="col-md-5">
+                                                                                                            <div>{item.nomPayeur + " / " + item.emailPayeur}</div>
 
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 ))
                                                                                             }
                                                                                         </div>
-
-
 
 
                                                                                     }
@@ -4523,10 +5385,17 @@ export default class DriveV3 extends React.Component {
 
                                                                             <TabPanel>
                                                                                 <div className="row align-items-center">
-                                                                                    <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                    <ButtonGroup color="#a6a6a6"
+                                                                                                 aria-label="outlined secondary button group">
                                                                                         <BT>ALL</BT>
-                                                                                        <BT><img src={time} style={{width:20}}/>Time</BT>
-                                                                                        <BT> <img src={money} style={{width:20}}/>Expense</BT>
+                                                                                        <BT>
+                                                                                            <img src={time}
+                                                                                                 style={{width: 20}}/>
+                                                                                            Time</BT>
+                                                                                        <BT>
+                                                                                            <img src={money}
+                                                                                                 style={{width: 20}}/>
+                                                                                            Expense</BT>
                                                                                     </ButtonGroup>
 
                                                                                     <div className="ml-2">
@@ -4534,10 +5403,13 @@ export default class DriveV3 extends React.Component {
                                                                                         <DatePicker
 
 
-                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                d.newTime.date= e
-                                                                                                this.setState({TimeSheet:d})
+                                                                                            calendarIcon={<img
+                                                                                                src={calendar}
+                                                                                                style={{width: 20}}/>}
+                                                                                            onChange={(e) => {
+                                                                                                let d = this.state.TimeSheet
+                                                                                                d.newTime.date = e
+                                                                                                this.setState({TimeSheet: d})
                                                                                             }}
                                                                                             value={this.state.TimeSheet.newTime.date}
                                                                                         />
@@ -4547,20 +5419,32 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
                                                                                     <div className="ml-1">
                                                                                         <DatePicker
-                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                d.newTime.date= e
-                                                                                                this.setState({TimeSheet:d})
+                                                                                            calendarIcon={<img
+                                                                                                src={calendar}
+                                                                                                style={{width: 20}}/>}
+                                                                                            onChange={(e) => {
+                                                                                                let d = this.state.TimeSheet
+                                                                                                d.newTime.date = e
+                                                                                                this.setState({TimeSheet: d})
                                                                                             }}
                                                                                             value={this.state.TimeSheet.newTime.date}
                                                                                         />
                                                                                     </div>
 
                                                                                     <div className="ml-2">
-                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                        <ButtonGroup color="#a6a6a6"
+                                                                                                     aria-label="outlined secondary button group">
 
-                                                                                            <BT><img src={play}  style={{width:18,transform:'rotate(180deg)'}}/></BT>
-                                                                                            <BT> <img src={play} style={{width:18}}/></BT>
+                                                                                            <BT>
+                                                                                                <img src={play} style={{
+                                                                                                    width: 18,
+                                                                                                    transform: 'rotate(180deg)'
+                                                                                                }}/>
+                                                                                            </BT>
+                                                                                            <BT>
+                                                                                                <img src={play}
+                                                                                                     style={{width: 18}}/>
+                                                                                            </BT>
                                                                                         </ButtonGroup>
                                                                                     </div>
 
@@ -4568,14 +5452,18 @@ export default class DriveV3 extends React.Component {
                                                                                         <Select
                                                                                             labelId="demo-simple-select-label"
                                                                                             id="demo-simple-select"
-                                                                                            style={{width:"100%"}}
+                                                                                            style={{width: "100%"}}
                                                                                             defaultValue={"Custom"}
 
 
                                                                                         >
-                                                                                            <MenuItem value={"Custom"}>Custom</MenuItem>
-                                                                                            <MenuItem value={"Associé"}>Custom 2</MenuItem>
-                                                                                            <MenuItem value={"Collaborateur"}>Costim 3</MenuItem>
+                                                                                            <MenuItem
+                                                                                                value={"Custom"}>Custom</MenuItem>
+                                                                                            <MenuItem value={"Associé"}>Custom
+                                                                                                2</MenuItem>
+                                                                                            <MenuItem
+                                                                                                value={"Collaborateur"}>Costim
+                                                                                                3</MenuItem>
 
                                                                                         </Select>
                                                                                     </div>
@@ -4606,63 +5494,116 @@ export default class DriveV3 extends React.Component {
                                                                                     this.state.showLignesFactureClient === false ?
                                                                                         <div>
                                                                                             <div className="row mt-2">
-                                                                                                <div className="col-md-6">
+                                                                                                <div
+                                                                                                    className="col-md-6">
                                                                                                     <h5>Durée</h5>
-                                                                                                    <div className="row">
-                                                                                                        <div className="col-md-5">
-                                                                                                            <input
+                                                                                                    <div
+                                                                                                        className="row">
+                                                                                                        <div
+                                                                                                            className="col-md-5">
+                                                                                                            <Input
                                                                                                                 className="form-control "
                                                                                                                 id="duree"
-                                                                                                                style={{width:"100%"}}
+                                                                                                                style={{width: "100%"}}
                                                                                                                 name="duree"
                                                                                                                 type="text"
-                                                                                                                placeholder="Duree"
-                                                                                                                readOnly={true}
                                                                                                                 value={this.state.TimeSheet.newTime.duree}
-                                                                                                                onChange={(e)=>{let d=this.state.TimeSheet
+                                                                                                                endAdornment={
+                                                                                                                    <InputAdornment
+                                                                                                                        position="end">Heures</InputAdornment>}
+                                                                                                                onChange={(e) => {
+                                                                                                                    let d = this.state.TimeSheet
                                                                                                                     d.newTime.duree = e.target.value
-                                                                                                                    this.setState({TimeSheet:d})}}/>
+                                                                                                                    this.setState({TimeSheet: d})
+                                                                                                                }}/>
 
                                                                                                         </div>
-                                                                                                        <div className="col-md-7">
+                                                                                                        <div
+                                                                                                            className="col-md-7">
 
-                                                                                                            <div  style={{display:"flex"}}>
+                                                                                                            <div
+                                                                                                                style={{display: "flex"}}>
                                                                                                                 <Timer
                                                                                                                     initialTime={0}
                                                                                                                     startImmediately={false}
                                                                                                                 >
-                                                                                                                    {({ start, resume, pause, stop, reset, timerState, getTime }) => (
+                                                                                                                    {({start, resume, pause, stop, reset, timerState, getTime}) => (
                                                                                                                         <React.Fragment>
-                                                                                                                            <div align="center" style={{backgroundColor:"#c0c0c0",padding:8,color:"#000",height:36,fontWeight:700,fontSize:15}}>
-                                                                                                                                <Timer.Hours  /> h:
-                                                                                                                                <Timer.Minutes /> m:
-                                                                                                                                <Timer.Seconds /> s
+                                                                                                                            <div
+                                                                                                                                align="center"
+                                                                                                                                style={{
+                                                                                                                                    backgroundColor: "#c0c0c0",
+                                                                                                                                    padding: 8,
+                                                                                                                                    color: "#000",
+                                                                                                                                    height: 36,
+                                                                                                                                    fontWeight: 700,
+                                                                                                                                    fontSize: 15
+                                                                                                                                }}>
+                                                                                                                                <Timer.Hours/> h:
+                                                                                                                                <Timer.Minutes/> m:
+                                                                                                                                <Timer.Seconds/> s
                                                                                                                             </div>
-                                                                                                                            <div style={{marginLeft:10}}>
-                                                                                                                                <div align="center" style={{backgroundColor:"green",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer"}}
-                                                                                                                                     onClick={start}
+                                                                                                                            <div
+                                                                                                                                style={{marginLeft: 10}}>
+                                                                                                                                <div
+                                                                                                                                    align="center"
+                                                                                                                                    style={{
+                                                                                                                                        backgroundColor: "green",
+                                                                                                                                        padding: 5,
+                                                                                                                                        borderRadius: 10,
+                                                                                                                                        width: 50,
+                                                                                                                                        color: "#fff",
+                                                                                                                                        fontWeight: 700,
+                                                                                                                                        cursor: "pointer"
+                                                                                                                                    }}
+                                                                                                                                    onClick={start}
                                                                                                                                 >
-                                                                                                                                    Start</div>
-                                                                                                                                <div align="center" style={{backgroundColor:"red",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer",marginTop:3}}
-                                                                                                                                     onClick={() => {
-                                                                                                                                         let timeEtablished = getTime()
-                                                                                                                                         let timeH = ((timeEtablished / 1000) / 60) / 60;
-                                                                                                                                         let obj = this.state.TimeSheet;
-                                                                                                                                         obj.newTime.duree = timeH.toFixed(3) + " Heures"
-                                                                                                                                         this.setState({TimeSheet:obj})
-                                                                                                                                         stop();
-                                                                                                                                     }}
+                                                                                                                                    Start
+                                                                                                                                </div>
+                                                                                                                                <div
+                                                                                                                                    align="center"
+                                                                                                                                    style={{
+                                                                                                                                        backgroundColor: "red",
+                                                                                                                                        padding: 5,
+                                                                                                                                        borderRadius: 10,
+                                                                                                                                        width: 50,
+                                                                                                                                        color: "#fff",
+                                                                                                                                        fontWeight: 700,
+                                                                                                                                        cursor: "pointer",
+                                                                                                                                        marginTop: 3
+                                                                                                                                    }}
+                                                                                                                                    onClick={() => {
+                                                                                                                                        let timeEtablished = getTime()
+                                                                                                                                        let timeH = ((timeEtablished / 1000) / 60) / 60;
+                                                                                                                                        let obj = this.state.TimeSheet;
+                                                                                                                                        obj.newTime.duree = timeH.toFixed(3)
+                                                                                                                                        this.setState({TimeSheet: obj})
+                                                                                                                                        stop();
+                                                                                                                                    }}
                                                                                                                                 >
-                                                                                                                                    Stop</div>
-                                                                                                                                <div align="center" style={{backgroundColor:"#c0c0c0",padding:5,borderRadius:10,width:50,color:"#fff",fontWeight:700,cursor:"pointer",marginTop:3}}
-                                                                                                                                     onClick={() => {
-                                                                                                                                         let obj = this.state.TimeSheet;
-                                                                                                                                         obj.newTime.duree = "";
-                                                                                                                                         this.setState({TimeSheet:obj})
-                                                                                                                                         reset()
-                                                                                                                                     }}
+                                                                                                                                    Stop
+                                                                                                                                </div>
+                                                                                                                                <div
+                                                                                                                                    align="center"
+                                                                                                                                    style={{
+                                                                                                                                        backgroundColor: "#c0c0c0",
+                                                                                                                                        padding: 5,
+                                                                                                                                        borderRadius: 10,
+                                                                                                                                        width: 50,
+                                                                                                                                        color: "#fff",
+                                                                                                                                        fontWeight: 700,
+                                                                                                                                        cursor: "pointer",
+                                                                                                                                        marginTop: 3
+                                                                                                                                    }}
+                                                                                                                                    onClick={() => {
+                                                                                                                                        let obj = this.state.TimeSheet;
+                                                                                                                                        obj.newTime.duree = "";
+                                                                                                                                        this.setState({TimeSheet: obj})
+                                                                                                                                        reset()
+                                                                                                                                    }}
                                                                                                                                 >
-                                                                                                                                    Reset</div>
+                                                                                                                                    Reset
+                                                                                                                                </div>
                                                                                                                             </div>
 
                                                                                                                         </React.Fragment>
@@ -4673,28 +5614,43 @@ export default class DriveV3 extends React.Component {
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 </div>
-                                                                                                <div className="col-md-4">
+                                                                                                <div
+                                                                                                    className="col-md-4">
                                                                                                     <div>
-                                                                                                        <h5>identification / Imputation client</h5>
-                                                                                                        <div style={{display:"flex"}}>
+                                                                                                        <h5>identification
+                                                                                                            / Imputation
+                                                                                                            client</h5>
+                                                                                                        <div
+                                                                                                            style={{display: "flex"}}>
                                                                                                             <SelectSearch
                                                                                                                 options={
-                                                                                                                    this.state.annuaire_clients_mondat.map(({ContactType,ContactName,imageUrl }) =>
-                                                                                                                        ({ value: ContactName, name: ContactName, ContactType:ContactType,ContactName:ContactName, imageUrl:imageUrl }))
+                                                                                                                    this.state.annuaire_clients_mondat.map(({ContactType, ContactName, imageUrl}) =>
+                                                                                                                        ({
+                                                                                                                            value: ContactName,
+                                                                                                                            name: ContactName,
+                                                                                                                            ContactType: ContactType,
+                                                                                                                            ContactName: ContactName,
+                                                                                                                            imageUrl: imageUrl
+                                                                                                                        }))
                                                                                                                 }
                                                                                                                 value={this.state.selectedClientTimeEntree}
                                                                                                                 renderOption={renderSearchOption}
                                                                                                                 search
                                                                                                                 placeholder="Chercher votre client"
-                                                                                                                onChange={ e => {
-                                                                                                                    console.log(e)
+                                                                                                                onChange={e => {
+                                                                                                                    //console.log(e)
                                                                                                                     let obj = this.state.TimeSheet;
                                                                                                                     obj.newTime.client = e;
-                                                                                                                    this.setState({selectedClientTimeEntree:e,TimeSheet:obj})
+                                                                                                                    this.setState({
+                                                                                                                        selectedClientTimeEntree: e,
+                                                                                                                        TimeSheet: obj
+                                                                                                                    })
                                                                                                                 }}
                                                                                                             />
-                                                                                                            <IconButton style={{marginTop:-5}} onClick={() => this.setState({openAdvancedSearchModal:true})}>
-                                                                                                                <SearchIcon />
+                                                                                                            <IconButton
+                                                                                                                style={{marginTop: -5}}
+                                                                                                                onClick={() => this.setState({openAdvancedSearchModal: true})}>
+                                                                                                                <SearchIcon/>
                                                                                                             </IconButton>
                                                                                                         </div>
 
@@ -4704,36 +5660,47 @@ export default class DriveV3 extends React.Component {
 
                                                                                             </div>
                                                                                             <div className="row mt-3">
-                                                                                                <div className="col-md-4">
+                                                                                                <div
+                                                                                                    className="col-md-4">
                                                                                                     <div>
-                                                                                                        <h5>Catégorie d’activités </h5>
+                                                                                                        <h5>Catégorie
+                                                                                                            d’activités </h5>
                                                                                                         <MuiSelect
                                                                                                             labelId="demo-simple-select-label"
                                                                                                             id="demo-simple-select"
-                                                                                                            style={{width:"100%"}}
+                                                                                                            style={{width: "100%"}}
                                                                                                             value={this.state.TimeSheet.newTime.categoriesActivite}
-                                                                                                            onChange={(e)=>{
+                                                                                                            onChange={(e) => {
                                                                                                                 let d = this.state.TimeSheet
-                                                                                                                d.newTime.categoriesActivite= e.target.value
-                                                                                                                this.setState({TimeSheet:d})
+                                                                                                                d.newTime.categoriesActivite = e.target.value
+                                                                                                                this.setState({TimeSheet: d})
                                                                                                             }}
                                                                                                         >
-                                                                                                            <MenuItem value={"Temps facturé"}>Temps facturé</MenuItem>
-                                                                                                            <MenuItem value={"Paiement avancée"}>Paiement avancée</MenuItem>
+                                                                                                            <MenuItem
+                                                                                                                value={"Temps facturé"}>Temps
+                                                                                                                facturé</MenuItem>
+                                                                                                            <MenuItem
+                                                                                                                value={"Paiement avancée"}>Paiement
+                                                                                                                avancée</MenuItem>
                                                                                                         </MuiSelect>
                                                                                                     </div>
 
                                                                                                 </div>
-                                                                                                <div className="col-md-4">
-                                                                                                    <div style={{width:"100%"}}>
+                                                                                                <div
+                                                                                                    className="col-md-4">
+                                                                                                    <div
+                                                                                                        style={{width: "100%"}}>
                                                                                                         <h5>Date</h5>
                                                                                                         <DatePicker
 
-                                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                                            onChange={(e)=>{
+                                                                                                            calendarIcon={
+                                                                                                                <img
+                                                                                                                    src={calendar}
+                                                                                                                    style={{width: 20}}/>}
+                                                                                                            onChange={(e) => {
                                                                                                                 let d = this.state.TimeSheet
-                                                                                                                d.newTime.date= e
-                                                                                                                this.setState({TimeSheet:d})
+                                                                                                                d.newTime.date = e
+                                                                                                                this.setState({TimeSheet: d})
                                                                                                             }}
                                                                                                             value={this.state.TimeSheet.newTime.date}
                                                                                                         />
@@ -4744,25 +5711,28 @@ export default class DriveV3 extends React.Component {
 
                                                                                             </div>
                                                                                             <div className="row mt-3">
-                                                                                                <div className="col-md-4">
+                                                                                                <div
+                                                                                                    className="col-md-4">
                                                                                                     <div>
-                                                                                                        <div >
+                                                                                                        <div>
                                                                                                             <h5>Description</h5>
                                                                                                         </div>
                                                                                                         <textarea
                                                                                                             className="form-control "
                                                                                                             id="duree"
-                                                                                                            style={{width:"100%"}}
+                                                                                                            style={{width: "100%"}}
                                                                                                             name="duree"
                                                                                                             rows={5}
                                                                                                             value={this.state.TimeSheet.newTime.description}
-                                                                                                            onChange={(e)=>{
-                                                                                                                let d=this.state.TimeSheet
-                                                                                                                d.newTime.description=e.target.value
-                                                                                                                this.setState({TimeSheet:d})}}/>
+                                                                                                            onChange={(e) => {
+                                                                                                                let d = this.state.TimeSheet
+                                                                                                                d.newTime.description = e.target.value
+                                                                                                                this.setState({TimeSheet: d})
+                                                                                                            }}/>
                                                                                                     </div>
                                                                                                 </div>
-                                                                                                <div className="col-md-4">
+                                                                                                <div
+                                                                                                    className="col-md-4">
                                                                                                     <div>
                                                                                                         <h6>Utilisateur chez OA </h6>
                                                                                                     </div>
@@ -4770,208 +5740,323 @@ export default class DriveV3 extends React.Component {
                                                                                                     <MuiSelect
                                                                                                         labelId="demo-mutiple-chip-label"
                                                                                                         id="demo-mutiple-chip"
-                                                                                                        style={{width:"100%"}}
+                                                                                                        style={{width: "100%"}}
                                                                                                         value={this.state.TimeSheet.newTime.utilisateurOA}
-                                                                                                        onChange={(e)=>{
+                                                                                                        onChange={(e) => {
                                                                                                             let d = this.state.TimeSheet
-                                                                                                            d.newTime.utilisateurOA=e.target.value
-                                                                                                            this.setState({TimeSheet:d})
+                                                                                                            d.newTime.utilisateurOA = e.target.value
+                                                                                                            this.setState({TimeSheet: d})
                                                                                                         }}
                                                                                                         MenuProps={Data.MenuProps}
                                                                                                     >
-                                                                                                        {this.state.contacts.map((name,key) => (
-                                                                                                            <MenuItem key={key} value={name} s>
-                                                                                                                <div className="row align-items-center justify-content-center">   <Avatar alt="Natacha" src={name.imageUrl} /> <div >{name.nom + " " + name.prenom}</div></div>
+                                                                                                        {this.state.contacts.map((name, key) => (
+                                                                                                            <MenuItem
+                                                                                                                key={key}
+                                                                                                                value={name}
+                                                                                                                s>
+                                                                                                                <div
+                                                                                                                    className="row align-items-center justify-content-center">
+                                                                                                                    <Avatar
+                                                                                                                        alt="Natacha"
+                                                                                                                        src={name.imageUrl}/>
+                                                                                                                    <div>{name.nom + " " + name.prenom}</div>
+                                                                                                                </div>
                                                                                                             </MenuItem>
                                                                                                         ))}
                                                                                                     </MuiSelect>
 
-                                                                                                    <div className="mt-3">
+                                                                                                    <div
+                                                                                                        className="mt-3">
                                                                                                         <h6>
-                                                                                                            Rate de facturation
+                                                                                                            Rate de
+                                                                                                            facturation
                                                                                                         </h6>
                                                                                                         <Input
                                                                                                             className="form-control "
                                                                                                             id="duree"
-                                                                                                            style={{width:"100%"}}
+                                                                                                            style={{width: "100%"}}
                                                                                                             name="duree"
                                                                                                             type="text"
-                                                                                                            endAdornment={<InputAdornment position="end">CHF:Hr</InputAdornment>}
+                                                                                                            endAdornment={
+                                                                                                                <InputAdornment
+                                                                                                                    position="end">CHF:Hr</InputAdornment>}
 
 
-                                                                                                            value={this.state.TimeSheet.newTime.rateFacturation+""}
-                                                                                                            onChange={(e)=>{
-                                                                                                                let d=this.state.TimeSheet
-                                                                                                                d.newTime.rateFacturation=e.target.value
-                                                                                                                this.setState({TimeSheet:d})}}/>
+                                                                                                            value={this.state.TimeSheet.newTime.rateFacturation + ""}
+                                                                                                            onChange={(e) => {
+                                                                                                                let d = this.state.TimeSheet
+                                                                                                                d.newTime.rateFacturation = e.target.value
+                                                                                                                this.setState({TimeSheet: d})
+                                                                                                            }}/>
 
 
                                                                                                     </div>
                                                                                                 </div>
 
                                                                                             </div>
-                                                                                            <div align="center" className=" mt-4">
+                                                                                            <div align="center"
+                                                                                                 className=" mt-4">
                                                                                                 <AltButtonGroup>
-                                                                                                    <AtlButton onClick={()=>{
-                                                                                                        let obj = this.state.TimeSheet;
-                                                                                                        obj.newTime.duree = parseFloat(obj.newTime.duree.replace(" Heures",""))
-                                                                                                        let lignes_fact = this.state.lignesFactures || [];
-                                                                                                        lignes_fact.push(obj);
-                                                                                                        this.setState({
-                                                                                                            lignesFactures:lignes_fact,
-                                                                                                            TimeSheet:{
-                                                                                                                newTime:{
-                                                                                                                    duree:"",
-                                                                                                                    client:obj.newTime.client,
-                                                                                                                    categoriesActivite:"",
-                                                                                                                    description:"",
-                                                                                                                    date:new Date(),
-                                                                                                                    utilisateurOA:obj.newTime.utilisateurOA,
-                                                                                                                    rateFacturation:obj.newTime.rateFacturation,
-                                                                                                                }
-                                                                                                            }
-                                                                                                        })
-                                                                                                        console.log(obj)
-                                                                                                        this.openSnackbar("success","Enregistrement effectué avec succès")
-                                                                                                    }} appearance="primary" isDisabled={this.state.TimeSheet.newTime.duree === "" || this.state.TimeSheet.newTime.description === "" ||
-                                                                                                    this.state.TimeSheet.newTime.rateFacturation === "" || this.state.TimeSheet.newTime.client === ""}
-                                                                                                               style={{margin:20}}>
+                                                                                                    <AtlButton
+                                                                                                        onClick={() => {
+                                                                                                            let obj = this.state.TimeSheet;
+                                                                                                            obj.newTime.duree = parseFloat(obj.newTime.duree)
+                                                                                                            let lignes_fact = this.state.lignesFactures || [];
+
+                                                                                                            SmartService.create_company(localStorage.getItem("token"),localStorage.getItem("usrtoken"),{param:{name:obj.newTime.client}}).then(newCompRes => {
+                                                                                                                obj.newTime.company_id = newCompRes.data.id;
+                                                                                                                lignes_fact.push(obj);
+
+                                                                                                                this.setState({
+                                                                                                                    lignesFactures: lignes_fact,
+                                                                                                                    TimeSheet: {
+                                                                                                                        newTime: {
+                                                                                                                            duree: "",
+                                                                                                                            client: obj.newTime.client,
+                                                                                                                            categoriesActivite: "",
+                                                                                                                            description: "",
+                                                                                                                            date: new Date(),
+                                                                                                                            utilisateurOA: obj.newTime.utilisateurOA,
+                                                                                                                            rateFacturation: obj.newTime.rateFacturation,
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                })
+                                                                                                                //console.log(obj)
+                                                                                                                this.openSnackbar("success", "Enregistrement effectué avec succès")
+                                                                                                            }).catch(err => {
+                                                                                                                console.log(err)
+                                                                                                            })
+
+
+                                                                                                        }}
+                                                                                                        appearance="primary"
+                                                                                                        isDisabled={this.state.TimeSheet.newTime.duree === "" || this.state.TimeSheet.newTime.description === "" ||
+                                                                                                        this.state.TimeSheet.newTime.rateFacturation === "" || this.state.TimeSheet.newTime.client === ""}
+                                                                                                        style={{margin: 20}}>
                                                                                                         Enregistrer
                                                                                                     </AtlButton>
-                                                                                                    <AtlButton appearance="" style={{margin:20}}>Enregistrer et créer une autre</AtlButton>
-                                                                                                    <AtlButton appearance="" style={{margin:20}}>Enregistrer & dupliquer</AtlButton>
-                                                                                                    <AtlButton appearance="" style={{margin:20}} onClick={() => {
-                                                                                                        this.setState({
-                                                                                                            TimeSheet:{
-                                                                                                                newTime:{
-                                                                                                                    duree:"",
-                                                                                                                    client:"",
-                                                                                                                    categoriesActivite:"",
-                                                                                                                    description:"",
-                                                                                                                    date:new Date(),
-                                                                                                                    utilisateurOA:"",
-                                                                                                                    rateFacturation:"",
+                                                                                                    <AtlButton
+                                                                                                        appearance=""
+                                                                                                        style={{margin: 20}}>Enregistrer
+                                                                                                        et créer une
+                                                                                                        autre</AtlButton>
+                                                                                                    <AtlButton
+                                                                                                        appearance=""
+                                                                                                        style={{margin: 20}}>Enregistrer
+                                                                                                        &
+                                                                                                        dupliquer</AtlButton>
+                                                                                                    <AtlButton
+                                                                                                        appearance=""
+                                                                                                        style={{margin: 20}}
+                                                                                                        onClick={() => {
+                                                                                                            this.setState({
+                                                                                                                TimeSheet: {
+                                                                                                                    newTime: {
+                                                                                                                        duree: "",
+                                                                                                                        client: "",
+                                                                                                                        categoriesActivite: "",
+                                                                                                                        description: "",
+                                                                                                                        date: new Date(),
+                                                                                                                        utilisateurOA: "",
+                                                                                                                        rateFacturation: "",
+                                                                                                                    }
                                                                                                                 }
-                                                                                                            }
-                                                                                                        })
-                                                                                                    }}>Annuler</AtlButton>
+                                                                                                            })
+                                                                                                        }}>Annuler</AtlButton>
                                                                                                 </AltButtonGroup>
                                                                                                 <div>
-                                                                                                    <AltButtonGroup style={{marginTop:10}}>
-                                                                                                        <AtlButton appearance="" onClick={() => this.setState({showLignesFactureClient:true})}>Etablir facture</AtlButton>
-                                                                                                        <AtlButton appearance="">Histo.Fact.Clients</AtlButton>
+                                                                                                    <AltButtonGroup
+                                                                                                        style={{marginTop: 10}}>
+                                                                                                        <AtlButton
+                                                                                                            appearance=""
+                                                                                                            onClick={() => this.setState({showLignesFactureClient: true})}>Etablir facture</AtlButton>
+                                                                                                        <AtlButton
+                                                                                                            appearance="">Histo.Fact.Clients</AtlButton>
                                                                                                     </AltButtonGroup>
                                                                                                 </div>
 
                                                                                             </div>
-                                                                                        </div>  :
+                                                                                        </div> :
 
                                                                                         <div>
                                                                                             <div className="mt-1">
                                                                                                 <div>
-                                                                                                    <IconButton onClick={() => this.setState({showLignesFactureClient:false})}>
+                                                                                                    <IconButton
+                                                                                                        onClick={() => this.setState({showLignesFactureClient: false})}>
                                                                                                         <ArrowBackIcon/>
                                                                                                     </IconButton>
-                                                                                                    <h5 className="mt-3">identification / Imputation client</h5>
-                                                                                                    <div style={{display:"flex"}}>
-                                                                                                            <SelectSearch
-                                                                                                                options={
-                                                                                                                    this.state.annuaire_clients_mondat.map(({ContactType,ContactName,imageUrl }) =>
-                                                                                                                        ({ value: ContactName, name: ContactName, ContactType:ContactType,ContactName:ContactName, imageUrl:imageUrl }))
-                                                                                                                }
-                                                                                                                value={this.state.selectedClientTimeEntree}
-                                                                                                                renderOption={renderSearchOption}
-                                                                                                                search
-                                                                                                                placeholder="Chercher votre client"
-                                                                                                                onChange={ e => {
-                                                                                                                    console.log(e)
-                                                                                                                    let obj = this.state.TimeSheet;
-                                                                                                                    obj.newTime.client = e;
-                                                                                                                    this.setState({selectedClientTimeEntree:e,TimeSheet:obj})
-                                                                                                                }}
-                                                                                                            />
-                                                                                                            <IconButton style={{marginTop:-5}} onClick={() => this.setState({openAdvancedSearchModal:true})}>
-                                                                                                                <SearchIcon />
-                                                                                                            </IconButton>
-                                                                                                        </div>
+                                                                                                    <h5 className="mt-3">identification
+                                                                                                        / Imputation
+                                                                                                        client</h5>
+                                                                                                    <div
+                                                                                                        style={{display: "flex"}}>
+                                                                                                        <SelectSearch
+                                                                                                            options={
+                                                                                                                this.state.annuaire_clients_mondat.map(({ContactType, ContactName, imageUrl}) =>
+                                                                                                                    ({
+                                                                                                                        value: ContactName,
+                                                                                                                        name: ContactName,
+                                                                                                                        ContactType: ContactType,
+                                                                                                                        ContactName: ContactName,
+                                                                                                                        imageUrl: imageUrl
+                                                                                                                    }))
+                                                                                                            }
+                                                                                                            value={this.state.selectedClientTimeEntree}
+                                                                                                            renderOption={renderSearchOption}
+                                                                                                            search
+                                                                                                            placeholder="Chercher votre client"
+                                                                                                            onChange={e => {
+                                                                                                                //console.log(e)
+                                                                                                                let obj = this.state.TimeSheet;
+                                                                                                                obj.newTime.client = e;
+                                                                                                                this.setState({
+                                                                                                                    selectedClientTimeEntree: e,
+                                                                                                                    TimeSheet: obj
+                                                                                                                })
+                                                                                                            }}
+                                                                                                        />
+                                                                                                        <IconButton
+                                                                                                            style={{marginTop: -5}}
+                                                                                                            onClick={() => this.setState({openAdvancedSearchModal: true})}>
+                                                                                                            <SearchIcon/>
+                                                                                                        </IconButton>
+                                                                                                    </div>
                                                                                                 </div>
                                                                                             </div>
                                                                                             {
                                                                                                 searchFilterLignesfacture.length > 0 ?
-                                                                                                    <div className="mt-3">
-                                                                                                        <div style={{width:"100%",backgroundColor:"#D2DDFE",padding:5,display:"flex"}}>
-                                                                                                            <div align="center" style={{width:"15%"}}>
+                                                                                                    <div
+                                                                                                        className="mt-3">
+                                                                                                        <div style={{
+                                                                                                            width: "100%",
+                                                                                                            backgroundColor: "#D2DDFE",
+                                                                                                            padding: 5,
+                                                                                                            display: "flex"
+                                                                                                        }}>
+                                                                                                            <div
+                                                                                                                align="center"
+                                                                                                                style={{width: "15%"}}>
                                                                                                                 <h5>Date</h5>
                                                                                                             </div>
-                                                                                                            <div align="center" style={{width:"60%"}}>
+                                                                                                            <div
+                                                                                                                align="center"
+                                                                                                                style={{width: "60%"}}>
                                                                                                                 <h5>Activités</h5>
                                                                                                             </div>
-                                                                                                            <div align="center" style={{width:"10%"}}>
+                                                                                                            <div
+                                                                                                                align="center"
+                                                                                                                style={{width: "10%"}}>
                                                                                                                 <h5>Heures</h5>
                                                                                                             </div>
-                                                                                                            <div align="center" style={{width:"15%"}}>
+                                                                                                            <div
+                                                                                                                align="center"
+                                                                                                                style={{width: "15%"}}>
                                                                                                                 <h5>Discount(%)</h5>
                                                                                                             </div>
                                                                                                         </div>
                                                                                                         {
-                                                                                                            searchFilterLignesfacture.map((lf,key) =>
-                                                                                                                <div key={key}>
-                                                                                                                    <div  style={{width:"100%",backgroundColor:"#fff",padding:5,display:"flex"}}>
-                                                                                                                        <div align="center" style={{width:"15%"}}>
+                                                                                                            searchFilterLignesfacture.map((lf, key) =>
+                                                                                                                <div
+                                                                                                                    key={key}>
+                                                                                                                    <div
+                                                                                                                        style={{
+                                                                                                                            width: "100%",
+                                                                                                                            backgroundColor: "#fff",
+                                                                                                                            padding: 5,
+                                                                                                                            display: "flex"
+                                                                                                                        }}>
+                                                                                                                        <div
+                                                                                                                            align="center"
+                                                                                                                            style={{width: "15%"}}>
                                                                                                                             <h5>{moment(lf.newTime.date).format("DD-MM-YYYY HH:mm")}</h5>
                                                                                                                         </div>
-                                                                                                                        <div align="center" style={{width:"60%"}}>
+                                                                                                                        <div
+                                                                                                                            align="center"
+                                                                                                                            style={{width: "60%"}}>
                                                                                                                             <h5>{lf.newTime.description}</h5>
                                                                                                                         </div>
-                                                                                                                        <div align="center" style={{width:"10%"}}>
+                                                                                                                        <div
+                                                                                                                            align="center"
+                                                                                                                            style={{width: "10%"}}>
                                                                                                                             <h5>{lf.newTime.duree}</h5>
                                                                                                                         </div>
-                                                                                                                        <div align="center" style={{width:"15%"}}>
-                                                                                                                            <input className="form-control" value={this.state.lignesFactures[key].discount || "0"} style={{width:75}}
-                                                                                                                                   onChange={e => {
-                                                                                                                                       let lignesF = this.state.lignesFactures;
-                                                                                                                                       let ligneF = this.state.lignesFactures[key];
-                                                                                                                                       ligneF.discount = e.target.value;
-                                                                                                                                       lignesF[key] = ligneF;
-                                                                                                                                       this.setState({lignesFactures:lignesF})
-                                                                                                                                   }}
+                                                                                                                        <div
+                                                                                                                            align="center"
+                                                                                                                            style={{width: "15%"}}>
+                                                                                                                            <input
+                                                                                                                                className="form-control"
+                                                                                                                                value={this.state.lignesFactures[key].discount || "0"}
+                                                                                                                                style={{width: 75}}
+                                                                                                                                onChange={e => {
+                                                                                                                                    let lignesF = this.state.lignesFactures;
+                                                                                                                                    let ligneF = this.state.lignesFactures[key];
+                                                                                                                                    ligneF.discount = e.target.value;
+                                                                                                                                    lignesF[key] = ligneF;
+                                                                                                                                    this.setState({lignesFactures: lignesF})
+                                                                                                                                }}
                                                                                                                             />
                                                                                                                         </div>
                                                                                                                     </div>
                                                                                                                     {
                                                                                                                         key < searchFilterLignesfacture.length &&
-                                                                                                                        <div style={{backgroundColor:"#f0f0f0",height:2}}/>
+                                                                                                                        <div
+                                                                                                                            style={{
+                                                                                                                                backgroundColor: "#f0f0f0",
+                                                                                                                                height: 2
+                                                                                                                            }}/>
                                                                                                                     }
 
                                                                                                                 </div>
                                                                                                             )
                                                                                                         }
-                                                                                                        <div className="mt-3">
+                                                                                                        <div
+                                                                                                            className="mt-3">
                                                                                                             <h6>Partner validant cette facture</h6>
                                                                                                             <MuiSelect
                                                                                                                 labelId="demo-mutiple-chip-label"
                                                                                                                 id="demo-mutiple-chip"
-                                                                                                                style={{width:250}}
+                                                                                                                style={{width: 250}}
                                                                                                                 value={this.state.partnerFacture}
-                                                                                                                onChange={(e)=>{
-                                                                                                                    this.setState({partnerFacture:e.target.value})
+                                                                                                                onChange={(e) => {
+                                                                                                                    this.setState({partnerFacture: e.target.value})
                                                                                                                 }}
                                                                                                                 MenuProps={Data.MenuProps}
                                                                                                             >
-                                                                                                                {this.state.contacts.map((name,key) => (
-                                                                                                                    <MenuItem key={key} value={name} >
-                                                                                                                        <div className="row align-items-center justify-content-center">   <Avatar alt="Natacha" src={name.imageUrl} /> <div >{name.nom + " " + name.prenom}</div></div>
+                                                                                                                {this.state.contacts.map((name, key) => (
+                                                                                                                    <MenuItem
+                                                                                                                        key={key}
+                                                                                                                        value={name}>
+                                                                                                                        <div
+                                                                                                                            className="row align-items-center justify-content-center">
+                                                                                                                            <Avatar
+                                                                                                                                alt="Natacha"
+                                                                                                                                src={name.imageUrl}/>
+                                                                                                                            <div>{name.nom + " " + name.prenom}</div>
+                                                                                                                        </div>
                                                                                                                     </MenuItem>
                                                                                                                 ))}
                                                                                                             </MuiSelect>
                                                                                                         </div>
-                                                                                                        <div className="mt-4 text-right">
-                                                                                                            <AtlButton appearance="primary" onClick={() => {}}>ETABLIR FACTURE</AtlButton>
+                                                                                                        <div
+                                                                                                            className="mt-4 text-right">
+                                                                                                            <AtlButton
+                                                                                                                appearance="primary"
+                                                                                                                onClick={() => {
+                                                                                                                    this.createFacture()
+                                                                                                                }}>
+                                                                                                                ETABLIR FACTURE</AtlButton>
                                                                                                         </div>
-                                                                                                    </div>  :
+                                                                                                    </div> :
 
-                                                                                                    <div className="mt-4">
-                                                                                                        <h5 style={{color:"#f50"}}>Aucune ligne facture encore ajoutée pour ce client !</h5>
+                                                                                                    <div
+                                                                                                        className="mt-4">
+                                                                                                        <h5 style={{color: "#f50"}}>Aucune
+                                                                                                            ligne
+                                                                                                            facture
+                                                                                                            encore
+                                                                                                            ajoutée pour
+                                                                                                            ce client
+                                                                                                            !</h5>
                                                                                                     </div>
                                                                                             }
 
@@ -4984,8 +6069,6 @@ export default class DriveV3 extends React.Component {
                                                                             <TabPanel/>
 
 
-
-
                                                                         </Tabs>
                                                                     </div>
                                                                 </div>
@@ -4993,10 +6076,10 @@ export default class DriveV3 extends React.Component {
 
                                                         </div>
 
-                                                    </div>:null
+                                                    </div> : null
 
                                                 }
-                                                {this.state.selectedTimeSheetMenuItem[0] ==="dashboard"?
+                                                {this.state.selectedTimeSheetMenuItem[0] === "dashboard" ?
                                                     <div>
                                                         <div className="row">
 
@@ -5007,7 +6090,8 @@ export default class DriveV3 extends React.Component {
                                                                         <h6 className="ml-2"> > Dashboard </h6>
 
                                                                     </div>
-                                                                    <div className="col-md-6" style={{textAlign: "right"}}>
+                                                                    <div className="col-md-6"
+                                                                         style={{textAlign: "right"}}>
                                                                         <button onClick={() => this.setState({
                                                                             editSocieteForm: false,
                                                                             showContainerSection: "TimeSheet"
@@ -5021,24 +6105,28 @@ export default class DriveV3 extends React.Component {
                                                                      style={{marginTop: 1}}>
 
 
-
                                                                     <div style={{marginTop: 10}} className="text-left">
                                                                         <Tabs>
                                                                             <TabList>
                                                                                 <Tab>This Week</Tab>
-                                                                                <Tab>Scheduled Next Week  </Tab>
+                                                                                <Tab>Scheduled Next Week </Tab>
                                                                             </TabList>
 
                                                                             <TabPanel>
 
-                                                                                <div className="row justify-content-start align-items-center mt-3">
-                                                                                    <div >
+                                                                                <div
+                                                                                    className="row justify-content-start align-items-center mt-3">
+                                                                                    <div>
                                                                                         <BT
                                                                                             variant="contained"
-                                                                                            style={{backgroundColor:"#17a51b",color:"white"}}
+                                                                                            style={{
+                                                                                                backgroundColor: "#17a51b",
+                                                                                                color: "white"
+                                                                                            }}
 
 
-                                                                                            startIcon={<img src={pluss} style={{width:10}} /> }
+                                                                                            startIcon={<img src={pluss}
+                                                                                                            style={{width: 10}}/>}
                                                                                         >
                                                                                             Add Person
                                                                                         </BT>
@@ -5048,8 +6136,7 @@ export default class DriveV3 extends React.Component {
                                                                                     <div className="ml-1">
                                                                                         <BT
                                                                                             variant="contained"
-                                                                                            style={{color:"#a6a6a6"}}
-
+                                                                                            style={{color: "#a6a6a6"}}
 
 
                                                                                         >
@@ -5059,8 +6146,7 @@ export default class DriveV3 extends React.Component {
                                                                                     <div className="ml-1">
                                                                                         <BT
                                                                                             variant="contained"
-                                                                                            style={{color:"#a6a6a6"}}
-
+                                                                                            style={{color: "#a6a6a6"}}
 
 
                                                                                         >
@@ -5069,32 +6155,56 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
 
                                                                                 </div>
-                                                                                <div className="row mt-2" >
+                                                                                <div className="row mt-2">
                                                                                     <div className="col-md-4">
-                                                                                        <div className="row align-items-center justify-content-start">
-                                                                                            <h3 className="font-weight-bold">This Week : </h3>
+                                                                                        <div
+                                                                                            className="row align-items-center justify-content-start">
+                                                                                            <h3 className="font-weight-bold">This
+                                                                                                Week : </h3>
                                                                                             <h3>08 - 14 may 2017</h3>
                                                                                         </div>
 
                                                                                     </div>
-                                                                                    <div className="col-md-8 text-right">
-                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                    <div
+                                                                                        className="col-md-8 text-right">
+                                                                                        <ButtonGroup color="#a6a6a6"
+                                                                                                     aria-label="outlined secondary button group">
 
-                                                                                            <BT><img src={back}  style={{width:18}}/></BT>
-                                                                                            <BT style={{backgroundColor:"#e6e6e6"}}> This Week</BT>
-                                                                                            <BT> <img src={back} style={{width:18,transform:'rotate(180deg)'}}/></BT>
+                                                                                            <BT>
+                                                                                                <img src={back}
+                                                                                                     style={{width: 18}}/>
+                                                                                            </BT>
+                                                                                            <BT style={{backgroundColor: "#e6e6e6"}}> This
+                                                                                                Week</BT>
+                                                                                            <BT>
+                                                                                                <img src={back} style={{
+                                                                                                    width: 18,
+                                                                                                    transform: 'rotate(180deg)'
+                                                                                                }}/>
+                                                                                            </BT>
 
                                                                                         </ButtonGroup>
 
 
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="row align-items-center w-100">
+                                                                                <div
+                                                                                    className="row align-items-center w-100">
                                                                                     <div className="col-md-4 text-left">
-                                                                                        <hr style={{width:"80%",height:1,backgroundColor:"#a6a6a6" ,marginRight:"100%"}}/>
+                                                                                        <hr style={{
+                                                                                            width: "80%",
+                                                                                            height: 1,
+                                                                                            backgroundColor: "#a6a6a6",
+                                                                                            marginRight: "100%"
+                                                                                        }}/>
                                                                                     </div>
-                                                                                    <div className="col-md-8 text-right ">
-                                                                                        <hr style={{width:"100%",height:1,backgroundColor:"#a6a6a6"}}/>
+                                                                                    <div
+                                                                                        className="col-md-8 text-right ">
+                                                                                        <hr style={{
+                                                                                            width: "100%",
+                                                                                            height: 1,
+                                                                                            backgroundColor: "#a6a6a6"
+                                                                                        }}/>
 
 
                                                                                     </div>
@@ -5102,12 +6212,15 @@ export default class DriveV3 extends React.Component {
 
                                                                                 <div className="row align-items-center">
                                                                                     <div className="col-md-4">
-                                                                                        <div className="row align-items-center">
-                                                                                            <div className="col-md-6 text-left">
+                                                                                        <div
+                                                                                            className="row align-items-center">
+                                                                                            <div
+                                                                                                className="col-md-6 text-left">
                                                                                                 <h6>Total Hours</h6>
                                                                                                 <h3>236.59</h3>
                                                                                             </div>
-                                                                                            <div className="col-md-6 text-left">
+                                                                                            <div
+                                                                                                className="col-md-6 text-left">
                                                                                                 <h6>Total Capacity</h6>
                                                                                                 <h3>280.00</h3>
                                                                                             </div>
@@ -5115,8 +6228,10 @@ export default class DriveV3 extends React.Component {
                                                                                         </div>
 
                                                                                     </div>
-                                                                                    <div className="col-md-8 text-right">
-                                                                                        <div className="row align-items-center">
+                                                                                    <div
+                                                                                        className="col-md-8 text-right">
+                                                                                        <div
+                                                                                            className="row align-items-center">
                                                                                             <div className="col-md-2">
                                                                                                 <div>
                                                                                                     <div>176.91</div>
@@ -5129,7 +6244,10 @@ export default class DriveV3 extends React.Component {
 
                                                                                             </div>
                                                                                             <div className="col-md-10">
-                                                                                                <div style={{padding:20 ,width:"80%"}}>
+                                                                                                <div style={{
+                                                                                                    padding: 20,
+                                                                                                    width: "80%"
+                                                                                                }}>
                                                                                                     <HSBar
                                                                                                         showTextDown
                                                                                                         id="hsbarExample"
@@ -5140,9 +6258,21 @@ export default class DriveV3 extends React.Component {
 
 
                                                                                                         data={[
-                                                                                                            { value: 60,description: "0%", color: "#1998ed" },
-                                                                                                            { value: 20, description: "60%", color: "#a5d6fa" },
-                                                                                                            { value: 20, description: "80%", color: "white"}
+                                                                                                            {
+                                                                                                                value: 60,
+                                                                                                                description: "0%",
+                                                                                                                color: "#1998ed"
+                                                                                                            },
+                                                                                                            {
+                                                                                                                value: 20,
+                                                                                                                description: "60%",
+                                                                                                                color: "#a5d6fa"
+                                                                                                            },
+                                                                                                            {
+                                                                                                                value: 20,
+                                                                                                                description: "80%",
+                                                                                                                color: "white"
+                                                                                                            }
                                                                                                         ]}
                                                                                                     />
                                                                                                 </div>
@@ -5155,7 +6285,7 @@ export default class DriveV3 extends React.Component {
 
                                                                                 </div>
 
-                                                                                <div >
+                                                                                <div>
                                                                                     {
                                                                                         this.state.contacts.length > 0 &&
                                                                                         <TableTimeSheetDashboard
@@ -5175,15 +6305,21 @@ export default class DriveV3 extends React.Component {
                                                                                 </div>
 
 
-
                                                                             </TabPanel>
 
                                                                             <TabPanel>
                                                                                 <div className="row align-items-center">
-                                                                                    <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                    <ButtonGroup color="#a6a6a6"
+                                                                                                 aria-label="outlined secondary button group">
                                                                                         <BT>ALL</BT>
-                                                                                        <BT><img src={time} style={{width:20}}/>Time</BT>
-                                                                                        <BT> <img src={money} style={{width:20}}/>Expense</BT>
+                                                                                        <BT>
+                                                                                            <img src={time}
+                                                                                                 style={{width: 20}}/>
+                                                                                            Time</BT>
+                                                                                        <BT>
+                                                                                            <img src={money}
+                                                                                                 style={{width: 20}}/>
+                                                                                            Expense</BT>
                                                                                     </ButtonGroup>
 
                                                                                     <div className="ml-2">
@@ -5191,10 +6327,13 @@ export default class DriveV3 extends React.Component {
                                                                                         <DatePicker
 
 
-                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                d.newTime.date= e
-                                                                                                this.setState({TimeSheet:d})
+                                                                                            calendarIcon={<img
+                                                                                                src={calendar}
+                                                                                                style={{width: 20}}/>}
+                                                                                            onChange={(e) => {
+                                                                                                let d = this.state.TimeSheet
+                                                                                                d.newTime.date = e
+                                                                                                this.setState({TimeSheet: d})
                                                                                             }}
                                                                                             value={this.state.TimeSheet.newTime.date}
                                                                                         />
@@ -5204,20 +6343,32 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
                                                                                     <div className="ml-1">
                                                                                         <DatePicker
-                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                d.newTime.date= e
-                                                                                                this.setState({TimeSheet:d})
+                                                                                            calendarIcon={<img
+                                                                                                src={calendar}
+                                                                                                style={{width: 20}}/>}
+                                                                                            onChange={(e) => {
+                                                                                                let d = this.state.TimeSheet
+                                                                                                d.newTime.date = e
+                                                                                                this.setState({TimeSheet: d})
                                                                                             }}
                                                                                             value={this.state.TimeSheet.newTime.date}
                                                                                         />
                                                                                     </div>
 
                                                                                     <div className="ml-2">
-                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                        <ButtonGroup color="#a6a6a6"
+                                                                                                     aria-label="outlined secondary button group">
 
-                                                                                            <BT><img src={play}  style={{width:18,transform:'rotate(180deg)'}}/></BT>
-                                                                                            <BT> <img src={play} style={{width:18}}/></BT>
+                                                                                            <BT>
+                                                                                                <img src={play} style={{
+                                                                                                    width: 18,
+                                                                                                    transform: 'rotate(180deg)'
+                                                                                                }}/>
+                                                                                            </BT>
+                                                                                            <BT>
+                                                                                                <img src={play}
+                                                                                                     style={{width: 18}}/>
+                                                                                            </BT>
                                                                                         </ButtonGroup>
                                                                                     </div>
 
@@ -5225,14 +6376,18 @@ export default class DriveV3 extends React.Component {
                                                                                         <Select
                                                                                             labelId="demo-simple-select-label"
                                                                                             id="demo-simple-select"
-                                                                                            style={{width:"100%"}}
+                                                                                            style={{width: "100%"}}
                                                                                             defaultValue={"Custom"}
 
 
                                                                                         >
-                                                                                            <MenuItem value={"Custom"}>Custom</MenuItem>
-                                                                                            <MenuItem value={"Associé"}>Custom 2</MenuItem>
-                                                                                            <MenuItem value={"Collaborateur"}>Costim 3</MenuItem>
+                                                                                            <MenuItem
+                                                                                                value={"Custom"}>Custom</MenuItem>
+                                                                                            <MenuItem value={"Associé"}>Custom
+                                                                                                2</MenuItem>
+                                                                                            <MenuItem
+                                                                                                value={"Collaborateur"}>Costim
+                                                                                                3</MenuItem>
 
                                                                                         </Select>
                                                                                     </div>
@@ -5262,10 +6417,10 @@ export default class DriveV3 extends React.Component {
 
                                                         </div>
 
-                                                    </div>:null
+                                                    </div> : null
 
                                                 }
-                                                {this.state.selectedTimeSheetMenuItem[0] ==="dashboardPerson"?
+                                                {this.state.selectedTimeSheetMenuItem[0] === "dashboardPerson" ?
                                                     <div>
                                                         <div className="row">
 
@@ -5276,7 +6431,8 @@ export default class DriveV3 extends React.Component {
                                                                         <h6 className="ml-2"> > Dashboard </h6>
 
                                                                     </div>
-                                                                    <div className="col-md-6" style={{textAlign: "right"}}>
+                                                                    <div className="col-md-6"
+                                                                         style={{textAlign: "right"}}>
                                                                         <button onClick={() => this.setState({
                                                                             editSocieteForm: false,
                                                                             showContainerSection: "TimeSheet"
@@ -5290,108 +6446,171 @@ export default class DriveV3 extends React.Component {
                                                                      style={{marginTop: 1}}>
 
 
-
                                                                     <div style={{marginTop: 10}} className="text-left">
                                                                         <Tabs>
                                                                             <TabList>
                                                                                 <Tab>This Week</Tab>
-                                                                                <Tab>Scheduled Next Week  </Tab>
+                                                                                <Tab>Scheduled Next Week </Tab>
                                                                             </TabList>
 
                                                                             <TabPanel>
 
-                                                                                <div className="row border border-primary"
-                                                                                     style={{marginTop: 35}}>
-                                                                                    <div className="col-md-4" >
-                                                                                        <FormControl variant="outlined"  style={{width:"100%"}}>
+                                                                                <div
+                                                                                    className="row border border-primary"
+                                                                                    style={{marginTop: 35}}>
+                                                                                    <div className="col-md-4">
+                                                                                        <FormControl variant="outlined"
+                                                                                                     style={{width: "100%"}}>
                                                                                             <MuiSelect
                                                                                                 labelId="demo-simple-select-filled-label"
                                                                                                 id="demo-simple-select-filled"
-                                                                                                style={{width:"100%"}}
+                                                                                                style={{width: "100%"}}
                                                                                                 value={this.state.DashboardPerson.person}
-                                                                                                onChange={(e)=>{let d = this.state.DashboardPerson
-                                                                                                    d.person=e.target.value
+                                                                                                onChange={(e) => {
+                                                                                                    let d = this.state.DashboardPerson
+                                                                                                    d.person = e.target.value
 
-                                                                                                    this.setState({DashboardPerson:d})
-                                                                                                    console.log(e.target.value)}}
+                                                                                                    this.setState({DashboardPerson: d})
+                                                                                                    //console.log(e.target.value)
+                                                                                                }}
 
 
                                                                                                 MenuProps={Data.MenuProps}
                                                                                             >
-                                                                                                {this.state.contacts.map((name,key) => (
-                                                                                                    <MenuItem key={key} value={name} >
-                                                                                                        <div className="row align-items-center">
-                                                                                                            <Avatar alt="Natacha" src={name.imageUrl} style={{marginLeft:10}} /> <div className="ml-2">  {name.nom + " " +name.prenom} </div>
+                                                                                                {this.state.contacts.map((name, key) => (
+                                                                                                    <MenuItem key={key}
+                                                                                                              value={name}>
+                                                                                                        <div
+                                                                                                            className="row align-items-center">
+                                                                                                            <Avatar
+                                                                                                                alt="Natacha"
+                                                                                                                src={name.imageUrl}
+                                                                                                                style={{marginLeft: 10}}/>
+                                                                                                            <div
+                                                                                                                className="ml-2">  {name.nom + " " + name.prenom} </div>
                                                                                                         </div>
                                                                                                     </MenuItem>
                                                                                                 ))}
                                                                                             </MuiSelect>
                                                                                         </FormControl>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>A-B-C</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>D-E-F</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>G-H-I</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>J-K-L</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>M-N-O</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>P-Q-R</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>S-T-U</h5>
                                                                                     </div>
-                                                                                    <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1}}>
+                                                                                    <div className="col-md-1" style={{
+                                                                                        borderLeftColor: "#a6a6a6",
+                                                                                        borderLeftStyle: "solid",
+                                                                                        borderLeftWidth: 1
+                                                                                    }}>
                                                                                         <h5>W-X-Y-Z</h5>
                                                                                     </div>
                                                                                 </div>
-                                                                                <div className="row mt-2" >
+                                                                                <div className="row mt-2">
                                                                                     <div className="col-md-4">
-                                                                                        <div className="row align-items-center justify-content-start">
-                                                                                            <h3 className="font-weight-bold">This Week : </h3>
+                                                                                        <div
+                                                                                            className="row align-items-center justify-content-start">
+                                                                                            <h3 className="font-weight-bold">This
+                                                                                                Week : </h3>
                                                                                             <h3>08 - 14 may 2017</h3>
                                                                                         </div>
 
                                                                                     </div>
-                                                                                    <div className="col-md-8 text-right">
-                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                    <div
+                                                                                        className="col-md-8 text-right">
+                                                                                        <ButtonGroup color="#a6a6a6"
+                                                                                                     aria-label="outlined secondary button group">
 
-                                                                                            <BT><img src={back}  style={{width:18}}/></BT>
-                                                                                            <BT style={{backgroundColor:"#e6e6e6"}}> This Week</BT>
-                                                                                            <BT> <img src={back} style={{width:18,transform:'rotate(180deg)'}}/></BT>
+                                                                                            <BT>
+                                                                                                <img src={back}
+                                                                                                     style={{width: 18}}/>
+                                                                                            </BT>
+                                                                                            <BT style={{backgroundColor: "#e6e6e6"}}> This
+                                                                                                Week</BT>
+                                                                                            <BT>
+                                                                                                <img src={back} style={{
+                                                                                                    width: 18,
+                                                                                                    transform: 'rotate(180deg)'
+                                                                                                }}/>
+                                                                                            </BT>
 
                                                                                         </ButtonGroup>
 
 
                                                                                     </div>
                                                                                 </div>
-                                                                                <div >
+                                                                                <div>
 
-                                                                                    <hr style={{width:"100%",height:1,backgroundColor:"#a6a6a6" }}/>
-
+                                                                                    <hr style={{
+                                                                                        width: "100%",
+                                                                                        height: 1,
+                                                                                        backgroundColor: "#a6a6a6"
+                                                                                    }}/>
 
 
                                                                                 </div>
-                                                                                { this.state.DashboardPerson.person != ""&&
+                                                                                {this.state.DashboardPerson.person != "" &&
                                                                                 <div>
-                                                                                    <div className="row align-items-center mt-3 ">
+                                                                                    <div
+                                                                                        className="row align-items-center mt-3 ">
                                                                                         <div className="col-md-4">
-                                                                                            <div className="row align-items-center">
-                                                                                                <div className="col-md-4">
+                                                                                            <div
+                                                                                                className="row align-items-center">
+                                                                                                <div
+                                                                                                    className="col-md-4">
                                                                                                     <img
-                                                                                                        src={this.state.DashboardPerson.person.imageUrl } style={{width:"100%"}}/>
+                                                                                                        src={this.state.DashboardPerson.person.imageUrl}
+                                                                                                        style={{width: "100%"}}/>
                                                                                                 </div>
-                                                                                                <div className="col-md-8">
+                                                                                                <div
+                                                                                                    className="col-md-8">
                                                                                                     <div>
-                                                                                                        <h4 className="font-weight-bold">{this.state.DashboardPerson.person.nom+" "+this.state.DashboardPerson.person.prenom}</h4>
+                                                                                                        <h4 className="font-weight-bold">{this.state.DashboardPerson.person.nom + " " + this.state.DashboardPerson.person.prenom}</h4>
                                                                                                     </div>
                                                                                                     <div>
                                                                                                         <h5>{this.state.DashboardPerson.person.role}</h5>
@@ -5406,25 +6625,41 @@ export default class DriveV3 extends React.Component {
                                                                                             </div>
 
                                                                                         </div>
-                                                                                        <div className="col-md-8 text-right">
-                                                                                            <div className="row justify-content-end w-100">
+                                                                                        <div
+                                                                                            className="col-md-8 text-right">
+                                                                                            <div
+                                                                                                className="row justify-content-end w-100">
                                                                                                 <BT
 
                                                                                                     variant="contained"
-                                                                                                    style={{backgroundColor:"#e6e6e6",color:"black",textTransform:'none'}}
+                                                                                                    style={{
+                                                                                                        backgroundColor: "#e6e6e6",
+                                                                                                        color: "black",
+                                                                                                        textTransform: 'none'
+                                                                                                    }}
 
 
-                                                                                                    startIcon={<img src={edit} style={{width:10}} /> }
+                                                                                                    startIcon={<img
+                                                                                                        src={edit}
+                                                                                                        style={{width: 10}}/>}
                                                                                                 >
                                                                                                     Edit profile
                                                                                                 </BT>
                                                                                                 <BT
                                                                                                     variant="contained"
-                                                                                                    endIcon={<img src={down} style={{width:10}}/>}
-                                                                                                    style={{backgroundColor:"#e6e6e6",color:"black",marginLeft:5,textTransform:'none'}}
+                                                                                                    endIcon={<img
+                                                                                                        src={down}
+                                                                                                        style={{width: 10}}/>}
+                                                                                                    style={{
+                                                                                                        backgroundColor: "#e6e6e6",
+                                                                                                        color: "black",
+                                                                                                        marginLeft: 5,
+                                                                                                        textTransform: 'none'
+                                                                                                    }}
 
 
-                                                                                                    aria-controls="simple-menu" aria-haspopup="true" >
+                                                                                                    aria-controls="simple-menu"
+                                                                                                    aria-haspopup="true">
                                                                                                     Actions
 
 
@@ -5435,9 +6670,10 @@ export default class DriveV3 extends React.Component {
                                                                                                     keepMounted
 
                                                                                                 >
-                                                                                                    <MenuItem >Profile</MenuItem>
-                                                                                                    <MenuItem >My account</MenuItem>
-                                                                                                    <MenuItem >Logout</MenuItem>
+                                                                                                    <MenuItem>Profile</MenuItem>
+                                                                                                    <MenuItem>My
+                                                                                                        account</MenuItem>
+                                                                                                    <MenuItem>Logout</MenuItem>
                                                                                                 </Menu>
 
                                                                                             </div>
@@ -5448,18 +6684,26 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
                                                                                     <div className="row mt-4">
                                                                                         <div className="col-md-4">
-                                                                                            <div className="col-md-12 " style={{borderStyle:"solid",borderRadius:10,borderWidth:0.5,borderColor:"#a6a6a6"}}>
+                                                                                            <div className="col-md-12 "
+                                                                                                 style={{
+                                                                                                     borderStyle: "solid",
+                                                                                                     borderRadius: 10,
+                                                                                                     borderWidth: 0.5,
+                                                                                                     borderColor: "#a6a6a6"
+                                                                                                 }}>
                                                                                                 <div className="row">
-                                                                                                    <div className="col-md-6 text-left">
-                                                                                                        <h5 style={{color:"#a6a6a6"}}>
+                                                                                                    <div
+                                                                                                        className="col-md-6 text-left">
+                                                                                                        <h5 style={{color: "#a6a6a6"}}>
                                                                                                             Total Hours
                                                                                                         </h5>
                                                                                                         <h4 className="font-weight-bold">
                                                                                                             30.75
                                                                                                         </h4>
                                                                                                     </div>
-                                                                                                    <div className="col-md-6 text-left">
-                                                                                                        <h5 style={{color:"#a6a6a6"}}>
+                                                                                                    <div
+                                                                                                        className="col-md-6 text-left">
+                                                                                                        <h5 style={{color: "#a6a6a6"}}>
                                                                                                             Capacity
                                                                                                         </h5>
                                                                                                         <h4 className="font-weight-bold">
@@ -5477,49 +6721,84 @@ export default class DriveV3 extends React.Component {
                                                                                                         outlineWidth={0.2}
 
 
-
                                                                                                         outlineColor="#a6a6a6"
 
 
                                                                                                         data={[
-                                                                                                            { value: 60,description: "0%", color: "#1998ed" },
-                                                                                                            { value: 20, description: "60%", color: "#a5d6fa" },
-                                                                                                            { value: 20, description: "80%", color: "white"}
+                                                                                                            {
+                                                                                                                value: 60,
+                                                                                                                description: "0%",
+                                                                                                                color: "#1998ed"
+                                                                                                            },
+                                                                                                            {
+                                                                                                                value: 20,
+                                                                                                                description: "60%",
+                                                                                                                color: "#a5d6fa"
+                                                                                                            },
+                                                                                                            {
+                                                                                                                value: 20,
+                                                                                                                description: "80%",
+                                                                                                                color: "white"
+                                                                                                            }
                                                                                                         ]}
                                                                                                     />
                                                                                                 </div>
 
-                                                                                                <div className="row mt-2 align-items-center  ml-1 " style={{width:"100%"}}>
-                                                                                                    <div className="col-md-6">
-                                                                                                        <div className="row align-items-center   " >
-                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#1998ed"}}>
+                                                                                                <div
+                                                                                                    className="row mt-2 align-items-center  ml-1 "
+                                                                                                    style={{width: "100%"}}>
+                                                                                                    <div
+                                                                                                        className="col-md-6">
+                                                                                                        <div
+                                                                                                            className="row align-items-center   ">
+                                                                                                            <div
+                                                                                                                style={{
+                                                                                                                    height: 15,
+                                                                                                                    width: 15,
+                                                                                                                    borderRadius: 2,
+                                                                                                                    backgroundColor: "#1998ed"
+                                                                                                                }}>
 
                                                                                                             </div>
-                                                                                                            <div className="ml-1">
+                                                                                                            <div
+                                                                                                                className="ml-1">
                                                                                                                 <div>Billable</div>
 
                                                                                                             </div>
                                                                                                         </div>
                                                                                                     </div>
-                                                                                                    <div className="col-md-6 text-right font-weight-bold">
+                                                                                                    <div
+                                                                                                        className="col-md-6 text-right font-weight-bold">
                                                                                                         <h5>19.91</h5>
 
                                                                                                     </div>
 
                                                                                                 </div>
-                                                                                                <div className="row mt-1 align-items-center  ml-1 " style={{width:"100%"}}>
-                                                                                                    <div className="col-md-6">
-                                                                                                        <div className="row align-items-center   " >
-                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#a5d6fa"}}>
+                                                                                                <div
+                                                                                                    className="row mt-1 align-items-center  ml-1 "
+                                                                                                    style={{width: "100%"}}>
+                                                                                                    <div
+                                                                                                        className="col-md-6">
+                                                                                                        <div
+                                                                                                            className="row align-items-center   ">
+                                                                                                            <div
+                                                                                                                style={{
+                                                                                                                    height: 15,
+                                                                                                                    width: 15,
+                                                                                                                    borderRadius: 2,
+                                                                                                                    backgroundColor: "#a5d6fa"
+                                                                                                                }}>
 
                                                                                                             </div>
-                                                                                                            <div className="ml-1">
+                                                                                                            <div
+                                                                                                                className="ml-1">
                                                                                                                 <div>Non-Billable</div>
 
                                                                                                             </div>
                                                                                                         </div>
                                                                                                     </div>
-                                                                                                    <div className="col-md-6 text-right">
+                                                                                                    <div
+                                                                                                        className="col-md-6 text-right">
                                                                                                         <h5 className="font-weight-bold">10.81</h5>
 
                                                                                                     </div>
@@ -5527,43 +6806,65 @@ export default class DriveV3 extends React.Component {
                                                                                                 </div>
 
                                                                                             </div>
-                                                                                            <div className="col-md-12 mt-3 " style={{borderStyle:"solid",borderRadius:10,borderWidth:0.5,borderColor:"#a6a6a6"}}>
-                                                                                                <div className="row justify-content-center align-items-center">
-                                                                                                    <div style={{width:"12%"}}>
+                                                                                            <div
+                                                                                                className="col-md-12 mt-3 "
+                                                                                                style={{
+                                                                                                    borderStyle: "solid",
+                                                                                                    borderRadius: 10,
+                                                                                                    borderWidth: 0.5,
+                                                                                                    borderColor: "#a6a6a6"
+                                                                                                }}>
+                                                                                                <div
+                                                                                                    className="row justify-content-center align-items-center">
+                                                                                                    <div
+                                                                                                        style={{width: "12%"}}>
                                                                                                         <div>Mon</div>
                                                                                                         <h6>6.50</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:"12%"}}>
+                                                                                                    <div
+                                                                                                        style={{width: "12%"}}>
                                                                                                         <div>Tue</div>
                                                                                                         <h6>7.58</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:"12%"}}>
+                                                                                                    <div
+                                                                                                        style={{width: "12%"}}>
                                                                                                         <div>Wed</div>
                                                                                                         <h6>6.23</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:"12%"}}>
+                                                                                                    <div
+                                                                                                        style={{width: "12%"}}>
                                                                                                         <div>Thu</div>
                                                                                                         <h6>7.33</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:"12%"}}>
+                                                                                                    <div
+                                                                                                        style={{width: "12%"}}>
                                                                                                         <div>Fri</div>
                                                                                                         <h6>3.10</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:"12%"}}>
+                                                                                                    <div
+                                                                                                        style={{width: "12%"}}>
                                                                                                         <div>Sat</div>
                                                                                                         <h6>0.00</h6>
                                                                                                     </div>
-                                                                                                    <div style={{width:"12%"}}>
+                                                                                                    <div
+                                                                                                        style={{width: "12%"}}>
                                                                                                         <div>Sun</div>
                                                                                                         <h6>0.00</h6>
                                                                                                     </div>
 
 
-
                                                                                                 </div>
                                                                                             </div>
 
-                                                                                            <div className="col-md-12 mt-3 " style={{borderStyle:"solid",borderRadius:10,borderWidth:0.5,borderColor:"#a6a6a6",paddingTop:5}}>
+                                                                                            <div
+                                                                                                className="col-md-12 mt-3 "
+                                                                                                style={{
+                                                                                                    borderStyle: "solid",
+                                                                                                    borderRadius: 10,
+                                                                                                    borderWidth: 0.5,
+                                                                                                    borderColor: "#a6a6a6",
+                                                                                                    paddingTop: 5
+                                                                                                }}>
 
                                                                                                 <HSBar
 
@@ -5572,84 +6873,161 @@ export default class DriveV3 extends React.Component {
                                                                                                     outlineWidth={0.2}
 
 
-
                                                                                                     outlineColor="#a6a6a6"
 
 
                                                                                                     data={[
-                                                                                                        { value: 50,description: "0%", color: "#5cb31f" },
-                                                                                                        { value: 20, description: "60%", color: "#fc6420" },
-                                                                                                        { value: 20, description: "80%", color: "#e1c92c"},
-                                                                                                        { value: 10, description: "80%", color: "#20bde8"}
+                                                                                                        {
+                                                                                                            value: 50,
+                                                                                                            description: "0%",
+                                                                                                            color: "#5cb31f"
+                                                                                                        },
+                                                                                                        {
+                                                                                                            value: 20,
+                                                                                                            description: "60%",
+                                                                                                            color: "#fc6420"
+                                                                                                        },
+                                                                                                        {
+                                                                                                            value: 20,
+                                                                                                            description: "80%",
+                                                                                                            color: "#e1c92c"
+                                                                                                        },
+                                                                                                        {
+                                                                                                            value: 10,
+                                                                                                            description: "80%",
+                                                                                                            color: "#20bde8"
+                                                                                                        }
                                                                                                     ]}
                                                                                                 />
-                                                                                                <div className="row mt-2 align-items-center  ml-1 " style={{width:"100%"}}>
-                                                                                                    <div className="col-md-8">
-                                                                                                        <div className="row align-items-center   " >
-                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#5cb31f"}}>
+                                                                                                <div
+                                                                                                    className="row mt-2 align-items-center  ml-1 "
+                                                                                                    style={{width: "100%"}}>
+                                                                                                    <div
+                                                                                                        className="col-md-8">
+                                                                                                        <div
+                                                                                                            className="row align-items-center   ">
+                                                                                                            <div
+                                                                                                                style={{
+                                                                                                                    height: 15,
+                                                                                                                    width: 15,
+                                                                                                                    borderRadius: 2,
+                                                                                                                    backgroundColor: "#5cb31f"
+                                                                                                                }}>
 
                                                                                                             </div>
-                                                                                                            <div className="ml-1">
-                                                                                                                <div>Autumn 2016 Campaign Launch </div>
+                                                                                                            <div
+                                                                                                                className="ml-1">
+                                                                                                                <div>Autumn
+                                                                                                                    2016
+                                                                                                                    Campaign
+                                                                                                                    Launch
+                                                                                                                </div>
 
                                                                                                             </div>
                                                                                                         </div>
                                                                                                     </div>
-                                                                                                    <div className="col-md-4 text-right font-weight-bold">
+                                                                                                    <div
+                                                                                                        className="col-md-4 text-right font-weight-bold">
                                                                                                         <h5>17.83</h5>
 
                                                                                                     </div>
 
                                                                                                 </div>
-                                                                                                <div className="row mt-1 align-items-center  ml-1 " style={{width:"100%"}}>
-                                                                                                    <div className="col-md-8">
-                                                                                                        <div className="row align-items-center   " >
-                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#fc6420"}}>
+                                                                                                <div
+                                                                                                    className="row mt-1 align-items-center  ml-1 "
+                                                                                                    style={{width: "100%"}}>
+                                                                                                    <div
+                                                                                                        className="col-md-8">
+                                                                                                        <div
+                                                                                                            className="row align-items-center   ">
+                                                                                                            <div
+                                                                                                                style={{
+                                                                                                                    height: 15,
+                                                                                                                    width: 15,
+                                                                                                                    borderRadius: 2,
+                                                                                                                    backgroundColor: "#fc6420"
+                                                                                                                }}>
 
                                                                                                             </div>
-                                                                                                            <div className="ml-1">
-                                                                                                                <div>Website Redisgn 2017 - Phase  </div>
+                                                                                                            <div
+                                                                                                                className="ml-1">
+                                                                                                                <div>Website
+                                                                                                                    Redisgn
+                                                                                                                    2017
+                                                                                                                    -
+                                                                                                                    Phase
+                                                                                                                </div>
 
                                                                                                             </div>
                                                                                                         </div>
                                                                                                     </div>
-                                                                                                    <div className="col-md-4 text-right font-weight-bold">
+                                                                                                    <div
+                                                                                                        className="col-md-4 text-right font-weight-bold">
                                                                                                         <h5>5.83</h5>
 
                                                                                                     </div>
 
                                                                                                 </div>
-                                                                                                <div className="row mt-1 align-items-center  ml-1 " style={{width:"100%"}}>
-                                                                                                    <div className="col-md-8">
-                                                                                                        <div className="row align-items-center   " >
-                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#e1c92c"}}>
+                                                                                                <div
+                                                                                                    className="row mt-1 align-items-center  ml-1 "
+                                                                                                    style={{width: "100%"}}>
+                                                                                                    <div
+                                                                                                        className="col-md-8">
+                                                                                                        <div
+                                                                                                            className="row align-items-center   ">
+                                                                                                            <div
+                                                                                                                style={{
+                                                                                                                    height: 15,
+                                                                                                                    width: 15,
+                                                                                                                    borderRadius: 2,
+                                                                                                                    backgroundColor: "#e1c92c"
+                                                                                                                }}>
 
                                                                                                             </div>
-                                                                                                            <div className="ml-1">
-                                                                                                                <div>Signage Redesign 2017   </div>
+                                                                                                            <div
+                                                                                                                className="ml-1">
+                                                                                                                <div>Signage
+                                                                                                                    Redesign
+                                                                                                                    2017
+                                                                                                                </div>
 
                                                                                                             </div>
                                                                                                         </div>
                                                                                                     </div>
-                                                                                                    <div className="col-md-4 text-right font-weight-bold">
+                                                                                                    <div
+                                                                                                        className="col-md-4 text-right font-weight-bold">
                                                                                                         <h5>5.33</h5>
 
                                                                                                     </div>
 
                                                                                                 </div>
-                                                                                                <div className="row mt-1 align-items-center  ml-1 " style={{width:"100%"}}>
-                                                                                                    <div className="col-md-8">
-                                                                                                        <div className="row align-items-center   " >
-                                                                                                            <div  style={{height:15,width:15 ,borderRadius:2 ,backgroundColor:"#20bde8"}}>
+                                                                                                <div
+                                                                                                    className="row mt-1 align-items-center  ml-1 "
+                                                                                                    style={{width: "100%"}}>
+                                                                                                    <div
+                                                                                                        className="col-md-8">
+                                                                                                        <div
+                                                                                                            className="row align-items-center   ">
+                                                                                                            <div
+                                                                                                                style={{
+                                                                                                                    height: 15,
+                                                                                                                    width: 15,
+                                                                                                                    borderRadius: 2,
+                                                                                                                    backgroundColor: "#20bde8"
+                                                                                                                }}>
 
                                                                                                             </div>
-                                                                                                            <div className="ml-1">
-                                                                                                                <div>Internal Office   </div>
+                                                                                                            <div
+                                                                                                                className="ml-1">
+                                                                                                                <div>Internal
+                                                                                                                    Office
+                                                                                                                </div>
 
                                                                                                             </div>
                                                                                                         </div>
                                                                                                     </div>
-                                                                                                    <div className="col-md-4 text-right font-weight-bold">
+                                                                                                    <div
+                                                                                                        className="col-md-4 text-right font-weight-bold">
                                                                                                         <h5>1.75</h5>
 
                                                                                                     </div>
@@ -5661,29 +7039,56 @@ export default class DriveV3 extends React.Component {
                                                                                         </div>
                                                                                         <div className="col-md-8">
 
-                                                                                            <div className="row justify-content-start" style={{borderBottomStyle:"solid",borderBottomColor:"#a6a6a6"}}>
-                                                                                                <div className="col-md-auto">
-                                                                                                    <div className="font-weight-bold" style={{color:"black"}}>Monday  </div>{" "+data.dashboardTab.monday.date}
+                                                                                            <div
+                                                                                                className="row justify-content-start"
+                                                                                                style={{
+                                                                                                    borderBottomStyle: "solid",
+                                                                                                    borderBottomColor: "#a6a6a6"
+                                                                                                }}>
+                                                                                                <div
+                                                                                                    className="col-md-auto">
+                                                                                                    <div
+                                                                                                        className="font-weight-bold"
+                                                                                                        style={{color: "black"}}>Monday
+                                                                                                    </div>
+                                                                                                    {" " + data.dashboardTab.monday.date}
                                                                                                 </div>
 
                                                                                             </div>
-                                                                                            {data.dashboardTab.monday.data.map((item,key)=>(
-                                                                                                <div className="row align-items-center" style={{borderBottomStyle:"solid",borderBottomColor:"#a6a6a6" ,borderBottomWidth:0.2 ,marginTop:8,paddingBottom:10}}>
-                                                                                                    <div className="col-md-9 text-left">
+                                                                                            {data.dashboardTab.monday.data.map((item, key) => (
+                                                                                                <div
+                                                                                                    className="row align-items-center"
+                                                                                                    style={{
+                                                                                                        borderBottomStyle: "solid",
+                                                                                                        borderBottomColor: "#a6a6a6",
+                                                                                                        borderBottomWidth: 0.2,
+                                                                                                        marginTop: 8,
+                                                                                                        paddingBottom: 10
+                                                                                                    }}>
+                                                                                                    <div
+                                                                                                        className="col-md-9 text-left">
                                                                                                         <div>
-                                                                                                            <div className="font-weight-bold" style={{color:"black"}}>{item.title}</div>
+                                                                                                            <div
+                                                                                                                className="font-weight-bold"
+                                                                                                                style={{color: "black"}}>{item.title}</div>
                                                                                                         </div>
                                                                                                         <div>
                                                                                                             <div>{item.work}</div>
 
                                                                                                         </div>
                                                                                                     </div>
-                                                                                                    <div className="col-md-2">
-                                                                                                        <div className="font-weight-bold" style={{color:"black"}}>{item.value}</div>
+                                                                                                    <div
+                                                                                                        className="col-md-2">
+                                                                                                        <div
+                                                                                                            className="font-weight-bold"
+                                                                                                            style={{color: "black"}}>{item.value}</div>
                                                                                                     </div>
-                                                                                                    <div className="col-md-1">
-                                                                                                        <IconButton >
-                                                                                                            <img src={edit} style={{width:"100%"}}/>
+                                                                                                    <div
+                                                                                                        className="col-md-1">
+                                                                                                        <IconButton>
+                                                                                                            <img
+                                                                                                                src={edit}
+                                                                                                                style={{width: "100%"}}/>
                                                                                                         </IconButton>
                                                                                                     </div>
                                                                                                 </div>
@@ -5702,10 +7107,17 @@ export default class DriveV3 extends React.Component {
 
                                                                             <TabPanel>
                                                                                 <div className="row align-items-center">
-                                                                                    <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                    <ButtonGroup color="#a6a6a6"
+                                                                                                 aria-label="outlined secondary button group">
                                                                                         <BT>ALL</BT>
-                                                                                        <BT><img src={time} style={{width:20}}/>Time</BT>
-                                                                                        <BT> <img src={money} style={{width:20}}/>Expense</BT>
+                                                                                        <BT>
+                                                                                            <img src={time}
+                                                                                                 style={{width: 20}}/>
+                                                                                            Time</BT>
+                                                                                        <BT>
+                                                                                            <img src={money}
+                                                                                                 style={{width: 20}}/>
+                                                                                            Expense</BT>
                                                                                     </ButtonGroup>
 
                                                                                     <div className="ml-2">
@@ -5713,10 +7125,13 @@ export default class DriveV3 extends React.Component {
                                                                                         <DatePicker
 
 
-                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                d.newTime.date= e
-                                                                                                this.setState({TimeSheet:d})
+                                                                                            calendarIcon={<img
+                                                                                                src={calendar}
+                                                                                                style={{width: 20}}/>}
+                                                                                            onChange={(e) => {
+                                                                                                let d = this.state.TimeSheet
+                                                                                                d.newTime.date = e
+                                                                                                this.setState({TimeSheet: d})
                                                                                             }}
                                                                                             value={this.state.TimeSheet.newTime.date}
                                                                                         />
@@ -5726,20 +7141,32 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
                                                                                     <div className="ml-1">
                                                                                         <DatePicker
-                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                d.newTime.date= e
-                                                                                                this.setState({TimeSheet:d})
+                                                                                            calendarIcon={<img
+                                                                                                src={calendar}
+                                                                                                style={{width: 20}}/>}
+                                                                                            onChange={(e) => {
+                                                                                                let d = this.state.TimeSheet
+                                                                                                d.newTime.date = e
+                                                                                                this.setState({TimeSheet: d})
                                                                                             }}
                                                                                             value={this.state.TimeSheet.newTime.date}
                                                                                         />
                                                                                     </div>
 
                                                                                     <div className="ml-2">
-                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                        <ButtonGroup color="#a6a6a6"
+                                                                                                     aria-label="outlined secondary button group">
 
-                                                                                            <BT><img src={play}  style={{width:18,transform:'rotate(180deg)'}}/></BT>
-                                                                                            <BT> <img src={play} style={{width:18}}/></BT>
+                                                                                            <BT>
+                                                                                                <img src={play} style={{
+                                                                                                    width: 18,
+                                                                                                    transform: 'rotate(180deg)'
+                                                                                                }}/>
+                                                                                            </BT>
+                                                                                            <BT>
+                                                                                                <img src={play}
+                                                                                                     style={{width: 18}}/>
+                                                                                            </BT>
                                                                                         </ButtonGroup>
                                                                                     </div>
 
@@ -5747,14 +7174,18 @@ export default class DriveV3 extends React.Component {
                                                                                         <Select
                                                                                             labelId="demo-simple-select-label"
                                                                                             id="demo-simple-select"
-                                                                                            style={{width:"100%"}}
+                                                                                            style={{width: "100%"}}
                                                                                             defaultValue={"Custom"}
 
 
                                                                                         >
-                                                                                            <MenuItem value={"Custom"}>Custom</MenuItem>
-                                                                                            <MenuItem value={"Associé"}>Custom 2</MenuItem>
-                                                                                            <MenuItem value={"Collaborateur"}>Costim 3</MenuItem>
+                                                                                            <MenuItem
+                                                                                                value={"Custom"}>Custom</MenuItem>
+                                                                                            <MenuItem value={"Associé"}>Custom
+                                                                                                2</MenuItem>
+                                                                                            <MenuItem
+                                                                                                value={"Collaborateur"}>Costim
+                                                                                                3</MenuItem>
 
                                                                                         </Select>
                                                                                     </div>
@@ -5784,10 +7215,10 @@ export default class DriveV3 extends React.Component {
 
                                                         </div>
 
-                                                    </div>:null
+                                                    </div> : null
 
                                                 }
-                                                {this.state.selectedTimeSheetMenuItem[0] ==="dashboardProject"?
+                                                {this.state.selectedTimeSheetMenuItem[0] === "dashboardProject" ?
                                                     <div>
                                                         <div className="row">
 
@@ -5798,7 +7229,8 @@ export default class DriveV3 extends React.Component {
                                                                         <h6 className="ml-2"> > Dashboard Project </h6>
 
                                                                     </div>
-                                                                    <div className="col-md-6" style={{textAlign: "right"}}>
+                                                                    <div className="col-md-6"
+                                                                         style={{textAlign: "right"}}>
                                                                         <button onClick={() => this.setState({
                                                                             editSocieteForm: false,
                                                                             showContainerSection: "TimeSheet"
@@ -5812,25 +7244,29 @@ export default class DriveV3 extends React.Component {
                                                                      style={{marginTop: 1}}>
 
 
-
                                                                     <div style={{marginTop: 10}} className="text-left">
                                                                         <Tabs>
                                                                             <TabList>
                                                                                 <Tab>All projects</Tab>
                                                                                 <Tab>This Week</Tab>
-                                                                                <Tab>Scheduled Next Week  </Tab>
+                                                                                <Tab>Scheduled Next Week </Tab>
                                                                             </TabList>
 
                                                                             <TabPanel>
 
-                                                                                <div className="row justify-content-start align-items-center mt-3">
-                                                                                    <div >
+                                                                                <div
+                                                                                    className="row justify-content-start align-items-center mt-3">
+                                                                                    <div>
                                                                                         <BT
                                                                                             variant="contained"
-                                                                                            style={{backgroundColor:"#17a51b",color:"white"}}
+                                                                                            style={{
+                                                                                                backgroundColor: "#17a51b",
+                                                                                                color: "white"
+                                                                                            }}
 
 
-                                                                                            startIcon={<img src={pluss} style={{width:10}} /> }
+                                                                                            startIcon={<img src={pluss}
+                                                                                                            style={{width: 10}}/>}
                                                                                         >
                                                                                             Add Person
                                                                                         </BT>
@@ -5840,8 +7276,7 @@ export default class DriveV3 extends React.Component {
                                                                                     <div className="ml-1">
                                                                                         <BT
                                                                                             variant="contained"
-                                                                                            style={{color:"#a6a6a6"}}
-
+                                                                                            style={{color: "#a6a6a6"}}
 
 
                                                                                         >
@@ -5851,8 +7286,7 @@ export default class DriveV3 extends React.Component {
                                                                                     <div className="ml-1">
                                                                                         <BT
                                                                                             variant="contained"
-                                                                                            style={{color:"#a6a6a6"}}
-
+                                                                                            style={{color: "#a6a6a6"}}
 
 
                                                                                         >
@@ -5861,13 +7295,24 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
 
                                                                                 </div>
-                                                                                <div className="row justify-content-start">
-                                                                                    <div className="mt-3 text-left col-md-3">
+                                                                                <div
+                                                                                    className="row justify-content-start">
+                                                                                    <div
+                                                                                        className="mt-3 text-left col-md-3">
                                                                                         <BT
                                                                                             variant="contained"
-                                                                                            endIcon={<img alt="" src={down} style={{width:10}}/>}
-                                                                                            style={{backgroundColor:"#e6e6e6",color:"black",marginLeft:5,textTransform:'none',width:"100%"}}
-                                                                                            aria-controls="simple-menu" aria-haspopup="true" >
+                                                                                            endIcon={<img alt=""
+                                                                                                          src={down}
+                                                                                                          style={{width: 10}}/>}
+                                                                                            style={{
+                                                                                                backgroundColor: "#e6e6e6",
+                                                                                                color: "black",
+                                                                                                marginLeft: 5,
+                                                                                                textTransform: 'none',
+                                                                                                width: "100%"
+                                                                                            }}
+                                                                                            aria-controls="simple-menu"
+                                                                                            aria-haspopup="true">
                                                                                             Budgeted Project (9)
                                                                                         </BT>
                                                                                     </div>
@@ -5877,10 +7322,13 @@ export default class DriveV3 extends React.Component {
                                                                                     <table className="table">
                                                                                         <thead className="thead-light">
                                                                                         <tr>
-                                                                                            <th scope="col">ACME CORPORATION</th>
+                                                                                            <th scope="col">ACME
+                                                                                                CORPORATION
+                                                                                            </th>
                                                                                             <th scope="col">Budget</th>
                                                                                             <th scope="col">Spent</th>
-                                                                                            <th scope="col" style={{width:"20%"}}/>
+                                                                                            <th scope="col"
+                                                                                                style={{width: "20%"}}/>
 
                                                                                             <th scope="col">Remaining</th>
                                                                                             <th scope="col"/>
@@ -5889,17 +7337,27 @@ export default class DriveV3 extends React.Component {
                                                                                         </tr>
                                                                                         </thead>
                                                                                         <tbody>
-                                                                                        {data.dashbordProject.acme.map((item,key)=>(
+                                                                                        {data.dashbordProject.acme.map((item, key) => (
                                                                                             <tr key={key}>
                                                                                                 <td>{item.title}</td>
                                                                                                 <td>{item.budget}</td>
                                                                                                 <td>{item.spent}</td>
-                                                                                                <td><div className="progress ml-auto mr-auto w-100 " >
-                                                                                                    <div className="progress-bar" role="progressbar" style={{width: item.chart + "%", backgroundColor: "#1fbce7"}}
-                                                                                                         aria-valuenow="10" aria-valuemin='0'
-                                                                                                         aria-valuemax="100"/>
-                                                                                                </div>  </td>
-                                                                                                <td>{item.romaining } </td>
+                                                                                                <td>
+                                                                                                    <div
+                                                                                                        className="progress ml-auto mr-auto w-100 ">
+                                                                                                        <div
+                                                                                                            className="progress-bar"
+                                                                                                            role="progressbar"
+                                                                                                            style={{
+                                                                                                                width: item.chart + "%",
+                                                                                                                backgroundColor: "#1fbce7"
+                                                                                                            }}
+                                                                                                            aria-valuenow="10"
+                                                                                                            aria-valuemin='0'
+                                                                                                            aria-valuemax="100"/>
+                                                                                                    </div>
+                                                                                                </td>
+                                                                                                <td>{item.romaining} </td>
                                                                                                 <td>{item.purcent}</td>
 
                                                                                                 <td>{item.costs}</td>
@@ -5913,10 +7371,13 @@ export default class DriveV3 extends React.Component {
                                                                                         <thead
                                                                                             className="thead-light">
                                                                                         <tr>
-                                                                                            <th scope="col">ASTORIAN PUBLISHING</th>
+                                                                                            <th scope="col">ASTORIAN
+                                                                                                PUBLISHING
+                                                                                            </th>
                                                                                             <th scope="col">Budget</th>
                                                                                             <th scope="col">Spent</th>
-                                                                                            <th scope="col" style={{width:"20%"}}/>
+                                                                                            <th scope="col"
+                                                                                                style={{width: "20%"}}/>
 
                                                                                             <th scope="col">Remaining</th>
                                                                                             <th scope="col"/>
@@ -5925,17 +7386,27 @@ export default class DriveV3 extends React.Component {
                                                                                         </tr>
                                                                                         </thead>
                                                                                         <tbody>
-                                                                                        {data.dashbordProject.astorian.map((item,key)=>(
+                                                                                        {data.dashbordProject.astorian.map((item, key) => (
                                                                                             <tr key={key}>
                                                                                                 <td>{item.title}</td>
                                                                                                 <td>{item.budget}</td>
                                                                                                 <td>{item.spent}</td>
-                                                                                                <td><div className="progress ml-auto mr-auto w-100 " >
-                                                                                                    <div className="progress-bar" role="progressbar" style={{width: item.chart + "%", backgroundColor: "#1fbce7"}}
-                                                                                                         aria-valuenow="10" aria-valuemin='0'
-                                                                                                         aria-valuemax="100"/>
-                                                                                                </div>  </td>
-                                                                                                <td>{item.romaining } </td>
+                                                                                                <td>
+                                                                                                    <div
+                                                                                                        className="progress ml-auto mr-auto w-100 ">
+                                                                                                        <div
+                                                                                                            className="progress-bar"
+                                                                                                            role="progressbar"
+                                                                                                            style={{
+                                                                                                                width: item.chart + "%",
+                                                                                                                backgroundColor: "#1fbce7"
+                                                                                                            }}
+                                                                                                            aria-valuenow="10"
+                                                                                                            aria-valuemin='0'
+                                                                                                            aria-valuemax="100"/>
+                                                                                                    </div>
+                                                                                                </td>
+                                                                                                <td>{item.romaining} </td>
                                                                                                 <td>{item.purcent}</td>
                                                                                                 <td>{item.costs}</td>
                                                                                             </tr>
@@ -5948,10 +7419,13 @@ export default class DriveV3 extends React.Component {
                                                                                         <thead
                                                                                             className="thead-light">
                                                                                         <tr>
-                                                                                            <th scope="col">BARRINGTON PUBLISHERS</th>
+                                                                                            <th scope="col">BARRINGTON
+                                                                                                PUBLISHERS
+                                                                                            </th>
                                                                                             <th scope="col">Budget</th>
                                                                                             <th scope="col">Spent</th>
-                                                                                            <th scope="col" style={{width:"20%"}}/>
+                                                                                            <th scope="col"
+                                                                                                style={{width: "20%"}}/>
 
                                                                                             <th scope="col">Remaining</th>
                                                                                             <th scope="col"/>
@@ -5960,53 +7434,27 @@ export default class DriveV3 extends React.Component {
                                                                                         </tr>
                                                                                         </thead>
                                                                                         <tbody>
-                                                                                        {data.dashbordProject.barrington.map((item,key)=>(
+                                                                                        {data.dashbordProject.barrington.map((item, key) => (
                                                                                             <tr key={key}>
                                                                                                 <td>{item.title}</td>
                                                                                                 <td>{item.budget}</td>
                                                                                                 <td>{item.spent}</td>
-                                                                                                <td><div className="progress ml-auto mr-auto w-100 " >
-                                                                                                    <div className="progress-bar" role="progressbar" style={{width: item.chart + "%", backgroundColor: "#1fbce7"}}
-                                                                                                         aria-valuenow="10" aria-valuemin='0'
-                                                                                                         aria-valuemax="100"/>
-                                                                                                </div>  </td>
-                                                                                                <td>{item.romaining } </td>
-                                                                                                <td>{item.purcent}</td>
-
-                                                                                                <td>{item.costs}</td>
-                                                                                            </tr>
-                                                                                        ))
-
-                                                                                        }
-                                                                                        </tbody>
-                                                                                    </table>
-                                                                                    <table className="table">
-                                                                                        <thead
-                                                                                            className="thead-light">
-                                                                                        <tr>
-                                                                                            <th scope="col">BRITISH MUSEUM</th>
-                                                                                            <th scope="col">Budget</th>
-                                                                                            <th scope="col">Spent</th>
-                                                                                            <th scope="col" style={{width:"20%"}}/>
-
-                                                                                            <th scope="col">Remaining</th>
-                                                                                            <th scope="col"/>
-
-                                                                                            <th scope="col">Cost</th>
-                                                                                        </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                        {data.dashbordProject.british.map((item,key)=>(
-                                                                                            <tr key={key}>
-                                                                                                <td>{item.title}</td>
-                                                                                                <td>{item.budget}</td>
-                                                                                                <td>{item.spent}</td>
-                                                                                                <td><div className="progress ml-auto mr-auto w-100 " >
-                                                                                                    <div className="progress-bar" role="progressbar" style={{width: item.chart + "%", backgroundColor: "#1fbce7"}}
-                                                                                                         aria-valuenow="10" aria-valuemin='0'
-                                                                                                         aria-valuemax="100"/>
-                                                                                                </div>  </td>
-                                                                                                <td>{item.romaining } </td>
+                                                                                                <td>
+                                                                                                    <div
+                                                                                                        className="progress ml-auto mr-auto w-100 ">
+                                                                                                        <div
+                                                                                                            className="progress-bar"
+                                                                                                            role="progressbar"
+                                                                                                            style={{
+                                                                                                                width: item.chart + "%",
+                                                                                                                backgroundColor: "#1fbce7"
+                                                                                                            }}
+                                                                                                            aria-valuenow="10"
+                                                                                                            aria-valuemin='0'
+                                                                                                            aria-valuemax="100"/>
+                                                                                                    </div>
+                                                                                                </td>
+                                                                                                <td>{item.romaining} </td>
                                                                                                 <td>{item.purcent}</td>
 
                                                                                                 <td>{item.costs}</td>
@@ -6020,10 +7468,13 @@ export default class DriveV3 extends React.Component {
                                                                                         <thead
                                                                                             className="thead-light">
                                                                                         <tr>
-                                                                                            <th scope="col">BROADSTREET INC</th>
+                                                                                            <th scope="col">BRITISH
+                                                                                                MUSEUM
+                                                                                            </th>
                                                                                             <th scope="col">Budget</th>
                                                                                             <th scope="col">Spent</th>
-                                                                                            <th scope="col" style={{width:"20%"}}/>
+                                                                                            <th scope="col"
+                                                                                                style={{width: "20%"}}/>
 
                                                                                             <th scope="col">Remaining</th>
                                                                                             <th scope="col"/>
@@ -6032,17 +7483,76 @@ export default class DriveV3 extends React.Component {
                                                                                         </tr>
                                                                                         </thead>
                                                                                         <tbody>
-                                                                                        {data.dashbordProject.broadstreet.map((item,key)=>(
+                                                                                        {data.dashbordProject.british.map((item, key) => (
                                                                                             <tr key={key}>
                                                                                                 <td>{item.title}</td>
                                                                                                 <td>{item.budget}</td>
                                                                                                 <td>{item.spent}</td>
-                                                                                                <td><div className="progress ml-auto mr-auto w-100 " >
-                                                                                                    <div className="progress-bar" role="progressbar" style={{width: item.chart + "%", backgroundColor: "#1fbce7"}}
-                                                                                                         aria-valuenow="10" aria-valuemin='0'
-                                                                                                         aria-valuemax="100"/>
-                                                                                                </div>  </td>
-                                                                                                <td>{item.romaining } </td>
+                                                                                                <td>
+                                                                                                    <div
+                                                                                                        className="progress ml-auto mr-auto w-100 ">
+                                                                                                        <div
+                                                                                                            className="progress-bar"
+                                                                                                            role="progressbar"
+                                                                                                            style={{
+                                                                                                                width: item.chart + "%",
+                                                                                                                backgroundColor: "#1fbce7"
+                                                                                                            }}
+                                                                                                            aria-valuenow="10"
+                                                                                                            aria-valuemin='0'
+                                                                                                            aria-valuemax="100"/>
+                                                                                                    </div>
+                                                                                                </td>
+                                                                                                <td>{item.romaining} </td>
+                                                                                                <td>{item.purcent}</td>
+
+                                                                                                <td>{item.costs}</td>
+                                                                                            </tr>
+                                                                                        ))
+
+                                                                                        }
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                    <table className="table">
+                                                                                        <thead
+                                                                                            className="thead-light">
+                                                                                        <tr>
+                                                                                            <th scope="col">BROADSTREET
+                                                                                                INC
+                                                                                            </th>
+                                                                                            <th scope="col">Budget</th>
+                                                                                            <th scope="col">Spent</th>
+                                                                                            <th scope="col"
+                                                                                                style={{width: "20%"}}/>
+
+                                                                                            <th scope="col">Remaining</th>
+                                                                                            <th scope="col"/>
+
+                                                                                            <th scope="col">Cost</th>
+                                                                                        </tr>
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                        {data.dashbordProject.broadstreet.map((item, key) => (
+                                                                                            <tr key={key}>
+                                                                                                <td>{item.title}</td>
+                                                                                                <td>{item.budget}</td>
+                                                                                                <td>{item.spent}</td>
+                                                                                                <td>
+                                                                                                    <div
+                                                                                                        className="progress ml-auto mr-auto w-100 ">
+                                                                                                        <div
+                                                                                                            className="progress-bar"
+                                                                                                            role="progressbar"
+                                                                                                            style={{
+                                                                                                                width: item.chart + "%",
+                                                                                                                backgroundColor: "#1fbce7"
+                                                                                                            }}
+                                                                                                            aria-valuenow="10"
+                                                                                                            aria-valuemin='0'
+                                                                                                            aria-valuemax="100"/>
+                                                                                                    </div>
+                                                                                                </td>
+                                                                                                <td>{item.romaining} </td>
                                                                                                 <td>{item.purcent}</td>
 
                                                                                                 <td>{item.costs}</td>
@@ -6055,16 +7565,21 @@ export default class DriveV3 extends React.Component {
                                                                                 </div>
 
 
-
-
                                                                             </TabPanel>
 
                                                                             <TabPanel>
                                                                                 <div className="row align-items-center">
-                                                                                    <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                    <ButtonGroup color="#a6a6a6"
+                                                                                                 aria-label="outlined secondary button group">
                                                                                         <BT>ALL</BT>
-                                                                                        <BT><img src={time} style={{width:20}}/>Time</BT>
-                                                                                        <BT> <img src={money} style={{width:20}}/>Expense</BT>
+                                                                                        <BT>
+                                                                                            <img src={time}
+                                                                                                 style={{width: 20}}/>
+                                                                                            Time</BT>
+                                                                                        <BT>
+                                                                                            <img src={money}
+                                                                                                 style={{width: 20}}/>
+                                                                                            Expense</BT>
                                                                                     </ButtonGroup>
 
                                                                                     <div className="ml-2">
@@ -6072,10 +7587,13 @@ export default class DriveV3 extends React.Component {
                                                                                         <DatePicker
 
 
-                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                d.newTime.date= e
-                                                                                                this.setState({TimeSheet:d})
+                                                                                            calendarIcon={<img
+                                                                                                src={calendar}
+                                                                                                style={{width: 20}}/>}
+                                                                                            onChange={(e) => {
+                                                                                                let d = this.state.TimeSheet
+                                                                                                d.newTime.date = e
+                                                                                                this.setState({TimeSheet: d})
                                                                                             }}
                                                                                             value={this.state.TimeSheet.newTime.date}
                                                                                         />
@@ -6085,20 +7603,32 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
                                                                                     <div className="ml-1">
                                                                                         <DatePicker
-                                                                                            calendarIcon={<img src={calendar} style={{width:20}}/> }
-                                                                                            onChange={(e)=>{let d = this.state.TimeSheet
-                                                                                                d.newTime.date= e
-                                                                                                this.setState({TimeSheet:d})
+                                                                                            calendarIcon={<img
+                                                                                                src={calendar}
+                                                                                                style={{width: 20}}/>}
+                                                                                            onChange={(e) => {
+                                                                                                let d = this.state.TimeSheet
+                                                                                                d.newTime.date = e
+                                                                                                this.setState({TimeSheet: d})
                                                                                             }}
                                                                                             value={this.state.TimeSheet.newTime.date}
                                                                                         />
                                                                                     </div>
 
                                                                                     <div className="ml-2">
-                                                                                        <ButtonGroup color="#a6a6a6" aria-label="outlined secondary button group">
+                                                                                        <ButtonGroup color="#a6a6a6"
+                                                                                                     aria-label="outlined secondary button group">
 
-                                                                                            <BT><img src={play}  style={{width:18,transform:'rotate(180deg)'}}/></BT>
-                                                                                            <BT> <img src={play} style={{width:18}}/></BT>
+                                                                                            <BT>
+                                                                                                <img src={play} style={{
+                                                                                                    width: 18,
+                                                                                                    transform: 'rotate(180deg)'
+                                                                                                }}/>
+                                                                                            </BT>
+                                                                                            <BT>
+                                                                                                <img src={play}
+                                                                                                     style={{width: 18}}/>
+                                                                                            </BT>
                                                                                         </ButtonGroup>
                                                                                     </div>
 
@@ -6106,14 +7636,18 @@ export default class DriveV3 extends React.Component {
                                                                                         <Select
                                                                                             labelId="demo-simple-select-label"
                                                                                             id="demo-simple-select"
-                                                                                            style={{width:"100%"}}
+                                                                                            style={{width: "100%"}}
                                                                                             defaultValue={"Custom"}
 
 
                                                                                         >
-                                                                                            <MenuItem value={"Custom"}>Custom</MenuItem>
-                                                                                            <MenuItem value={"Associé"}>Custom 2</MenuItem>
-                                                                                            <MenuItem value={"Collaborateur"}>Costim 3</MenuItem>
+                                                                                            <MenuItem
+                                                                                                value={"Custom"}>Custom</MenuItem>
+                                                                                            <MenuItem value={"Associé"}>Custom
+                                                                                                2</MenuItem>
+                                                                                            <MenuItem
+                                                                                                value={"Collaborateur"}>Costim
+                                                                                                3</MenuItem>
 
                                                                                         </Select>
                                                                                     </div>
@@ -6142,9 +7676,6 @@ export default class DriveV3 extends React.Component {
                                                                             </TabPanel>
 
 
-
-
-
                                                                         </Tabs>
                                                                     </div>
                                                                 </div>
@@ -6152,7 +7683,7 @@ export default class DriveV3 extends React.Component {
 
                                                         </div>
 
-                                                    </div>:null
+                                                    </div> : null
                                                 }
 
                                             </div>
@@ -6945,8 +8476,9 @@ export default class DriveV3 extends React.Component {
                                     </div>
                                 }
                                 <div className="col-md-12" style={{marginTop: 15}}>
-                                    <Chip icon={this.state.selectedFile === "" ? <FolderIcon/> : <PictureAsPdfIcon style={{color: "red", backgroundColor: "#fff"}}/>}
-                                          label={this.state.selectedFile === "" ? this.state.selectedFoldername :  this.state.selectedFile.name+".pdf"}
+                                    <Chip icon={this.state.selectedFile === "" ? <FolderIcon/> :
+                                        <PictureAsPdfIcon style={{color: "red", backgroundColor: "#fff"}}/>}
+                                          label={this.state.selectedFile === "" ? this.state.selectedFoldername : this.state.selectedFile.name + ".pdf"}
                                           style={{
                                               fontWeight: "bold",
                                               backgroundColor: "white",
@@ -6968,7 +8500,8 @@ export default class DriveV3 extends React.Component {
                                 onClick={() => {
                                     this.setState({loading: true, openShareDocModal: false})
                                     SmartService.share(this.state.selectedFile === "" ? this.state.selectedFolderId : this.state.selectedFile.id,
-                                        {to: this.state.emailsDriveShare[0].email,
+                                        {
+                                            to: this.state.emailsDriveShare[0].email,
                                             access: {administrate: true, share: true, edit: false, read: true}
                                         },
                                         localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(share => {
@@ -7135,9 +8668,13 @@ export default class DriveV3 extends React.Component {
 
                         <DialogContent>
 
-                            <SearchClientsContainer societes={this.state.annuaire_clients_mondat} contacts={this.state.contacts}
+                            <SearchClientsContainer societes={this.state.annuaire_clients_mondat}
+                                                    contacts={this.state.contacts}
                                                     onSelectBtnClick={(client) => {
-                                                        this.setState({openAdvancedSearchModal:false,selectedClientTimeEntree:client.ContactName})
+                                                        this.setState({
+                                                            openAdvancedSearchModal: false,
+                                                            selectedClientTimeEntree: client.ContactName
+                                                        })
                                                     }}
                             />
 

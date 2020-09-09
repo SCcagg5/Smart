@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Container, Row, Col, Card, CardBody, Label, FormGroup} from 'reactstrap';
 import {AvForm, AvGroup, AvInput, AvFeedback} from 'availity-reactstrap-validation';
 import Loader from '../../components/Loaders/Loader';
-import logo from "../../assets/images/logos/logo-OA.png"
+import logo from "../../assets/images/logos/OALegalLogoV2.jpeg"
 import "firebase/auth";
 import "firebase/database"
 import Snackbar from '@material-ui/core/Snackbar';
@@ -17,15 +17,9 @@ class login extends Component {
         error: '',
         email: '',
         password: '',
-        coupon: "",
-        showCouponInput: false,
-
         openAlert: false,
         alertMessage: '',
         alertType: '',
-
-        messageSended:"",
-        messageResponse:""
     };
 
     componentDidMount() {
@@ -61,16 +55,28 @@ class login extends Component {
 
                             SmartService.getUserInfo(tokenRes.data.token,loginRes.data.usrtoken).then(infoRes => {
 
-                                console.log(infoRes)
                                 if (infoRes.succes === true && infoRes.status === 200) {
 
-                                    localStorage.setItem("token",tokenRes.data.token)
-                                    localStorage.setItem("usrtoken",loginRes.data.usrtoken)
-                                    localStorage.setItem("email",infoRes.data.email)
-                                    this.setState({loading:false})
-                                    this.props.history.push('/drive/0');
+                                    SmartService.getInfoGed(tokenRes.data.token,loginRes.data.usrtoken).then( infoGedRes => {
+                                        if (infoGedRes.succes === true && infoGedRes.status === 200) {
 
-                                }else{console.log(tokenRes)
+                                            localStorage.setItem("token",tokenRes.data.token)
+                                            localStorage.setItem("usrtoken",loginRes.data.usrtoken)
+                                            localStorage.setItem("email",infoRes.data.email)
+                                            localStorage.setItem("role",infoGedRes.data.self.role.role)
+                                            this.setState({loading:false})
+                                            this.props.history.push('/drive/0');
+
+                                        }else{
+                                            this.openSnackbar('error', infoGedRes.error);
+                                            this.setState({loading: false})
+                                        }
+                                    }).catch(err => {
+                                        this.openSnackbar('error', err);
+                                        this.setState({loading: false})
+                                    })
+
+                                }else{
                                     this.openSnackbar('error', infoRes.error);
                                     this.setState({loading: false})
                                 }
@@ -113,7 +119,7 @@ class login extends Component {
             <React.Fragment>
 
 
-                <div style={{justifyContent:"center",marginTop:180}}>
+                <div style={{justifyContent:"center",marginTop:110}}>
                     <Container>
                         <Row className="justify-content-center">
                             <Col md={8} lg={6} xl={5}>
@@ -122,8 +128,8 @@ class login extends Component {
                                         { /* preloader */}
                                         {this.state.loading && <Loader/>}
 
-                                        <div className="text-center mt-4 mb-2">
-                                            <img style={{width:350,objectFit:"contain"}} src={logo} alt=""/>
+                                        <div align="center" className="mb-2">
+                                            <img style={{width:250,objectFit:"cover"}} src={logo} alt=""/>
                                         </div>
 
                                         <AvForm onValidSubmit={this.login}>
@@ -131,7 +137,7 @@ class login extends Component {
                                             <AvGroup className="mb-3 mt-5">
                                                 <Label for="password">Email</Label>
                                                 <AvInput type="email" name="email" id="email"
-                                                         style={{height:40}}
+                                                         style={{height:45}}
                                                          placeholder="Entrer votre mail"
                                                          value={this.state.email} required/>
                                                 <AvFeedback>Email invalide</AvFeedback>
@@ -141,22 +147,10 @@ class login extends Component {
                                                 <Label for="password">Mot de passe</Label>
                                                 <AvInput type="password" name="password" id="password"
                                                          placeholder="Entrer votre mot de passe"
+                                                         style={{height:45}}
                                                          value={this.state.password} required/>
                                                 <AvFeedback>Mot de passe incorrect</AvFeedback>
                                             </AvGroup>
-
-                                            {
-                                                this.state.showCouponInput &&
-                                                <AvGroup className="mb-3">
-                                                    <Label for="password">Coupon d'accès</Label>
-                                                    <AvInput type="text" name="coupon" id="email"
-                                                             placeholder="Entrez votre coupon d'accès"
-                                                             value={this.state.coupon} required/>
-                                                    <AvFeedback>Champs obligatoire!</AvFeedback>
-                                                </AvGroup>
-
-                                            }
-
 
                                             <FormGroup>
                                                 <button className="btn-block btn" style={{backgroundColor:"#A00015",marginTop:65}}>Se connecter</button>
@@ -183,11 +177,6 @@ class login extends Component {
                     <Alert elevation={6} variant="filled" onClose={this.closeSnackbar} severity={this.state.alertType}>
                         {this.state.alertMessage}
                     </Alert>
-                    {/*<MySnackbarContentWrapper
-                            onClose={this.closeSnackbar}
-                            variant={this.state.alertType}
-                            message={this.state.alertMessage}
-                        />*/}
                 </Snackbar>
 
 

@@ -312,10 +312,12 @@ export default function LeftMenuV3(props) {
                             expandAction={false}
                             onRightClick={info => {
                                 if (info.node.typeF === "folder") {
-                                    setAnchorElMenu(info.event.currentTarget)
-                                    props.setSelectedFolder(info.node)
-                                    props.setFolderName(info.node.title)
-                                    props.setFolderId(info.node.key)
+
+                                        setAnchorElMenu(info.event.currentTarget)
+                                        props.setSelectedFolder(info.node)
+                                        props.setFolderName(info.node.title)
+                                        props.setFolderId(info.node.key)
+
                                 }
                             }}
                             //expandedKeys={expandedKeys}
@@ -342,7 +344,7 @@ export default function LeftMenuV3(props) {
                     <MenuItem key={1} onClick={() => {
                         setAnchorElMenu(null);
                         props.openNewFolderModal()
-                    }}>
+                    }} disabled={localStorage.getItem("role") !== "admin"}>
                         <ListItemIcon>
                             <NewFolderIcon fontSize="small"/>
                         </ListItemIcon>
@@ -360,25 +362,17 @@ export default function LeftMenuV3(props) {
                     <MenuItem key={3} onClick={() => {
                         setAnchorElMenu(null);
                         props.openShareModal()
-                    }}>
+                    }} disabled={localStorage.getItem("role") !== "admin"}>
                         <ListItemIcon>
                             <PersonAddIcon fontSize="small"/>
                         </ListItemIcon>
                         <Typography variant="inherit">Partager</Typography>
                     </MenuItem>
-                    <MenuItem key={4} onClick={() => {
-
-                    }}>
-                        <ListItemIcon>
-                            <StarBorderIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Ajouter aux favoris</Typography>
-                    </MenuItem>
                     <MenuItem key={5} onClick={() => {
                         setAnchorElMenu(null);
                         setOpenRenameModal(true);
                         setnewFolderName(props.selectedFolder.title)
-                    }}>
+                    }} disabled={localStorage.getItem("role") !== "admin"}>
                         <ListItemIcon>
                             <EditIcon fontSize="small"/>
                         </ListItemIcon>
@@ -392,10 +386,10 @@ export default function LeftMenuV3(props) {
                         </ListItemIcon>
                         <Typography variant="inherit">Télécharger</Typography>
                     </MenuItem>
-                    <MenuItem disabled={true} key={7} onClick={() => {
-                        /*setAnchorElMenu(null);
-                        setOpenDeleteModal(true)*/
-                    }}>
+                    <MenuItem  key={7} onClick={() => {
+                        setAnchorElMenu(null);
+                        setOpenDeleteModal(true)
+                    }} disabled={localStorage.getItem("role") !== "admin"}>
                         <ListItemIcon>
                             <DeleteOutlineIcon fontSize="small"/>
                         </ListItemIcon>

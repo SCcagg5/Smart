@@ -31,6 +31,15 @@ let SmartService = {
         });
     },
 
+    getInfoGed(token,usrtoken){
+        return fetch(endpoint + '/ged/'+OALegalGedId, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     getToken(){
         return fetch(endpoint + '/login/', {
             method: 'POST',
@@ -173,7 +182,25 @@ let SmartService = {
     },
 
 
+    create_company(token,usrtoken,data){
+        return fetch(endpoint + '/odoo/test/company', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
 
+    create_facture_odoo(token,usrtoken,data){
+        return fetch(endpoint + '/odoo/test/bill', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
 
 
 
