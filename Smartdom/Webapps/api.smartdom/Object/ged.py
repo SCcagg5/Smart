@@ -642,10 +642,17 @@ class ged:
         return [True, {"id": res[0][0]}, None]
 
     def infos(self):
-        res = sql.get("SELECT `ged`.`name`, `user`.`email`, `ged`.`date` FROM `ged` INNER JOIN user ON `ged`.user_id = `user`.id WHERE `ged`.id = %s", (self.ged_id, ))
+        res = sql.get("SELECT `ged`.`name`, `user`.`email`, `ged`.`date`, `ged`.user_id FROM `ged` INNER JOIN user ON `ged`.user_id = `user`.id WHERE `ged`.id = %s", (self.ged_id, ))
         if len(res) != 1:
             return [False, "Invalid Ged ID", 404]
-        return [True, {"name": res[0][0], "admin": res[0][1], "date": res[0][2]}, None]
+        if res[0][3] == self.usr_id:
+            res2 = [["0", None, res[0][2]]]
+        else:
+            res2 = sql.get("SELECT `ged_user`.role, `user`.`email`,  `ged_user`.date  FROM `ged_user` INNER JOIN user ON `ged_user`.shared_by = `user`.id WHERE `ged_user`.ged_id = %s AND `ged_user`.user_id = %s", (self.ged_id, self.usr_id))
+        if len(res2) != 1:
+            return [False, "Invalid User ID", 404]
+        role = {"2": "client", "1": "user", "0": "admin"}[str(res2[0][0])]
+        return [True, {"name": res[0][0], "admin": res[0][1], "date": res[0][2], "self": {"added_by": res2[0][1], "date": res2[0][2], "role": {"role_id": res2[0][0], "role": role}}}, None]
 
     def check_user(self):
         res = sql.get("SELECT `id` FROM `ged_user` WHERE ged_id = %s AND user_id = %s", (self.ged_id, self.usr_id, ))
@@ -654,9 +661,9 @@ class ged:
         return [True, {"access_id": res[0][0]}, None]
 
     def create_user(self, email, role):
-        if role not in ["admin", "user"]:
+        if role not in ["admin", "user", "client"]:
             return [False, "role is not correct 'admin' or 'user'", 400]
-        role = {"admin": 1, "user": 0}[role]
+        role = {"client": 2, "user": 1, "admin": 0}[role]
         user_id = user.fromemail(email)
         table = "ged_user"
         if not user_id:
@@ -670,13 +677,13 @@ class ged:
           (id, self.ged_id, user_id, role, self.usr_id, date))
         if not succes:
             return [False, "data input error", 500]
-        return [True, {"id": res[0][0]}, None]
+        return [True, {"id": id}, None]
 
     def is_admin():
         res = sql.get("SELECT role  FROM `ged_user` WHERE `ged_user`.ged_id = %s AND `ged_user`.user_id = %s", (self.ged_id, self.usr_id))
         if len(res) != 1:
             return [False, "Invalid Ged ID or User", 404]
-        if res[0][0] != 1:
+        if res[0][0] != 0:
             return [False, "User isn't admin", 403]
         return [True, {}, None]
 
