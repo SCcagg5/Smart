@@ -52,6 +52,7 @@ export default function LeftMenuV3(props) {
     const [autoExpandParent, setAutoExpandParent] = React.useState(true);
 
 
+
     const dataList = [];
     const generateList = data => {
         for (let i = 0; i < data.length; i++) {
@@ -224,8 +225,6 @@ export default function LeftMenuV3(props) {
 
     return (
 
-
-
         <div style={{marginTop: 20, paddingRight: 10}}>
             <div align="center">
 
@@ -309,7 +308,7 @@ export default function LeftMenuV3(props) {
                             onDragEnter={onDragEnter}
                             onDrop={onDrop}
                             treeData={loop(props.driveFolders)}
-                            expandAction={false}
+                            expandAction="click"
                             onRightClick={info => {
                                 if (info.node.typeF === "folder") {
 
@@ -472,151 +471,159 @@ export default function LeftMenuV3(props) {
                     </ModalBody>
                 </Modal>
 
-                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Rooms" ? "aliceblue" : ""}}
-                     onDoubleClick={() => {
-                         props.setShowRoomsMenuItems()
-                     }}
-                     onClick={() => {
-                         props.setFocusedItem("Rooms")
-                     }}
-                >
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                    <div style={{display: "flex"}}>
-                        {
-                            props.showRoomsMenuItems === true ?
-                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
-                        }
-                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Rooms</Typography>
-
-                        <IconButton style={{marginLeft: 160, marginTop: -10}} onClick={(event) => {
-                            event.stopPropagation()
-                            props.onClickAddRoomBtn()
-                        }}>
-                            <AddIcon/>
-                        </IconButton>
-
-                    </div>
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginBottom: 10}}/>
-                </div>
                 {
-                    props.showRoomsMenuItems === true &&
-                    <div>
-                        <RoomsMenuItems items={props.rooms} selectedRoomItems={props.selectedRoomItems}
-                                        expandedRoomItems={props.expandedRoomItems}
-                                        handleToggleRoomsMenu={props.handleToggleRoomsMenu}
-                                        handleSelectRoomsMenu={props.handleSelectRoomsMenu}
-                                        setSelectedRoom={(room, roomId) => props.setSelectedRoom(room, roomId)}
-                        />
-                    </div>
+                    (localStorage.getItem("role") === "admin" || localStorage.getItem("role") === "client") &&
+                        <div>
+                            <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Rooms" ? "aliceblue" : ""}}
+                                 onDoubleClick={() => {
+                                     props.setShowRoomsMenuItems()
+                                 }}
+                                 onClick={() => {
+                                     props.setFocusedItem("Rooms")
+                                 }}
+                            >
+                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                                <div style={{display: "flex"}}>
+                                    {
+                                        props.showRoomsMenuItems === true ?
+                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
+                                    }
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Rooms</Typography>
+
+                                    <IconButton style={{marginLeft: 160, marginTop: -10}} onClick={(event) => {
+                                        event.stopPropagation()
+                                        props.onClickAddRoomBtn()
+                                    }}>
+                                        <AddIcon/>
+                                    </IconButton>
+
+                                </div>
+                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginBottom: 10}}/>
+                            </div>
+                            {
+                                props.showRoomsMenuItems === true &&
+                                <div>
+                                    <RoomsMenuItems items={props.rooms} selectedRoomItems={props.selectedRoomItems}
+                                                    expandedRoomItems={props.expandedRoomItems}
+                                                    handleToggleRoomsMenu={props.handleToggleRoomsMenu}
+                                                    handleSelectRoomsMenu={props.handleSelectRoomsMenu}
+                                                    setSelectedRoom={(room, roomId) => props.setSelectedRoom(room, roomId)}
+                                    />
+                                </div>
+                            }
+
+
+                            <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Meet" ? "aliceblue" : ""}}
+                                 onClick={() => {
+                                     props.setShowMeetMenuItems()
+                                     props.setFocusedItem("Meet")
+                                 }}
+                            >
+                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                                <div style={{display: "flex"}}>
+                                    {
+                                        props.showMeetMenuItems === true ?
+                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
+                                    }
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Meet</Typography>
+                                </div>
+                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                            </div>
+                            {
+                                props.showMeetMenuItems === true &&
+                                <div>
+                                    <MeetMenuItems items={data.MeetMenuItem} selectedMeetItem={props.selectedMeetItem}
+                                                   onClick={(nodeId) => {
+                                                       props.onMeetItemClick(nodeId)
+                                                   }} handleSelectMeetMenu={props.handleSelectMeetMenu}
+                                    />
+                                </div>
+
+                            }
+                            <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Contacts" ? "aliceblue" : ""}}
+                                 onClick={() => {
+                                     props.setFocusedItem("Contacts")
+                                     props.setShowContacts()
+                                 }}
+                            >
+                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                                <div style={{display: "flex"}}>
+                                    {
+                                        props.showContacts === true ?
+                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
+                                    }
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Contacts</Typography>
+                                </div>
+                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                            </div>
+                            {
+                                props.showContacts === true &&
+                                <div>
+                                    <ContactsMenuItems items={data.ContactsMenuItem}
+                                                       selectedContactsItem={props.selectedContactsItem}
+                                                       onClick={(nodeId) => {
+                                                           props.onContactsItemClick(nodeId)
+                                                       }} handleSelectContactsMenu={props.handleSelectContactsMenu}
+                                    />
+                                </div>
+
+                            }
+                            <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Societe" ? "aliceblue" : ""}}
+                                 onClick={() => {
+                                     props.setShowSocietyMenuItems()
+                                     props.setFocusedItem("Societe")
+                                 }}
+                            >
+                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                                <div style={{display: "flex"}}>
+                                    {
+                                        props.showSociete === true ?
+                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
+                                    }
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Annuaire societés</Typography>
+                                </div>
+                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                            </div>
+                            {
+                                props.showSocietyMenuItems === true &&
+                                <div>
+                                    <SocietyMenuItems items={data.SocietyMenuItem} selectedSocietyItem={props.selectedSocietyItem}
+                                                      onClick={(nodeId) => {
+                                                          props.onSocietyItemClick(nodeId)
+                                                      }} handleSelectSocietyMenu={props.handleSelectSocietyMenu}
+                                    />
+                                </div>
+
+                            }
+                            <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "TimeSheet" ? "aliceblue":""}} onClick={() => {
+                                props.setShowTimeSheetMenuItems()
+                                props.setFocusedItem("TimeSheet")
+                            }}
+                            >
+                                <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                                <div style={{display:"flex"}}>
+                                    {
+                                        props.showTimeSheetMenuItems === true ?
+                                            <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                                    }
+                                    <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Time Sheet</Typography>
+                                </div>
+                                <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                            </div>
+                            {
+                                props.showTimeSheetMenuItems === true &&
+                                <div>
+                                    <TimeSheetMenuItems items={data.TimeSheetMenuItem} selectedTimeSheetItem={props.selectedTimeSheetItem}
+                                                        onClick={(nodeId) => {props.onTimeSheetItemClick(nodeId)}} handleSelectTimeSheetMenu={props.handleSelectTimeSheetMenu}
+                                    />
+                                </div>
+
+                            }
+
+                        </div>
                 }
 
 
-                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Meet" ? "aliceblue" : ""}}
-                     onClick={() => {
-                         props.setShowMeetMenuItems()
-                         props.setFocusedItem("Meet")
-                     }}
-                >
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                    <div style={{display: "flex"}}>
-                        {
-                            props.showMeetMenuItems === true ?
-                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
-                        }
-                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Meet</Typography>
-                    </div>
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                </div>
-                {
-                    props.showMeetMenuItems === true &&
-                    <div>
-                        <MeetMenuItems items={data.MeetMenuItem} selectedMeetItem={props.selectedMeetItem}
-                                       onClick={(nodeId) => {
-                                           props.onMeetItemClick(nodeId)
-                                       }} handleSelectMeetMenu={props.handleSelectMeetMenu}
-                        />
-                    </div>
-
-                }
-                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Contacts" ? "aliceblue" : ""}}
-                     onClick={() => {
-                         props.setFocusedItem("Contacts")
-                         props.setShowContacts()
-                     }}
-                >
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                    <div style={{display: "flex"}}>
-                        {
-                            props.showContacts === true ?
-                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
-                        }
-                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Contacts</Typography>
-                    </div>
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                </div>
-                {
-                    props.showContacts === true &&
-                    <div>
-                        <ContactsMenuItems items={data.ContactsMenuItem}
-                                           selectedContactsItem={props.selectedContactsItem}
-                                           onClick={(nodeId) => {
-                                               props.onContactsItemClick(nodeId)
-                                           }} handleSelectContactsMenu={props.handleSelectContactsMenu}
-                        />
-                    </div>
-
-                }
-                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Societe" ? "aliceblue" : ""}}
-                     onClick={() => {
-                         props.setShowSocietyMenuItems()
-                         props.setFocusedItem("Societe")
-                     }}
-                >
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                    <div style={{display: "flex"}}>
-                        {
-                            props.showSociete === true ?
-                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
-                        }
-                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Annuaire societés</Typography>
-                    </div>
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                </div>
-                {
-                    props.showSocietyMenuItems === true &&
-                    <div>
-                        <SocietyMenuItems items={data.SocietyMenuItem} selectedSocietyItem={props.selectedSocietyItem}
-                                          onClick={(nodeId) => {
-                                              props.onSocietyItemClick(nodeId)
-                                          }} handleSelectSocietyMenu={props.handleSelectSocietyMenu}
-                        />
-                    </div>
-
-                }
-                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "TimeSheet" ? "aliceblue":""}} onClick={() => {
-                    props.setShowTimeSheetMenuItems()
-                    props.setFocusedItem("TimeSheet")
-                }}
-                >
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
-                    <div style={{display:"flex"}}>
-                        {
-                            props.showTimeSheetMenuItems === true ?
-                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
-                        }
-                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Time Sheet</Typography>
-                    </div>
-                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
-                </div>
-                {
-                    props.showTimeSheetMenuItems === true &&
-                    <div>
-                        <TimeSheetMenuItems items={data.TimeSheetMenuItem} selectedTimeSheetItem={props.selectedTimeSheetItem}
-                                            onClick={(nodeId) => {props.onTimeSheetItemClick(nodeId)}} handleSelectTimeSheetMenu={props.handleSelectTimeSheetMenu}
-                        />
-                    </div>
-
-                }
 
             </div>
 

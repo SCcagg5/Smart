@@ -344,6 +344,7 @@ export default class DriveV3 extends React.Component {
         selectedClientTimeEntree: "",
 
         showLignesFactureClient: false,
+        dateFacture:""
 
     }
 
@@ -1445,7 +1446,6 @@ export default class DriveV3 extends React.Component {
 
 
     createFacture(){
-
         let lignes_factures = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
         let odoo_data = [{
             "access_token":"eafd285777ggobfvxyvnx",
@@ -1454,8 +1454,8 @@ export default class DriveV3 extends React.Component {
             "invoice_sent": false,
             "l10n_ch_isr_sent": false,
             "name": "",
-            "invoice_date": moment().format("YYYY-MM-DD"),
-            "date": moment().format("YYYY-MM-DD"),
+            "invoice_date": moment(this.state.dateFacture).format("YYYY-MM-DD"),
+            "date": moment(this.state.dateFacture).format("YYYY-MM-DD"),
             "journal_id": 1,
             "currency_id": 5,
             "invoice_user_id": 3,
@@ -1522,7 +1522,7 @@ export default class DriveV3 extends React.Component {
                         "credit": 60,
                         "display_type": false,
                         "product_id": 1,
-                        "name": "apel téléphonqiue clientele",
+                        "name": "/*/*/",
                         "analytic_account_id": false,
                         "analytic_tag_ids": [
                             [
@@ -1681,9 +1681,20 @@ export default class DriveV3 extends React.Component {
     }
 
 
+    deleteLigneFact(lf){
+        const r = window.confirm("Voulez-vous vraiment supprimer cette ligne facture ?");
+        if(r === true){
+            let lignes_facture = this.state.lignesFactures;
+            let findIndex = lignes_facture.findIndex(x => x.uid === lf.uid);
+            lignes_facture.splice(findIndex,1);
+            this.setState({lignesFactures:lignes_facture})
+        }
+
+    }
+
 
     genrateGed(){
-        /*SmartService.addFolder({name:"SECRETARIAT",folder_id:null},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes => {
+        SmartService.addFolder({name:"SECRETARIAT",folder_id:null},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes => {
 
             console.log("OK")
 
@@ -2081,7 +2092,7 @@ export default class DriveV3 extends React.Component {
 
         }).catch(err => {
             console.log(err);
-        })*/
+        })
     }
 
 
@@ -3348,11 +3359,8 @@ export default class DriveV3 extends React.Component {
                                                                                     </button>
                                                                                     <button
                                                                                         onClick={() => {
-                                                                                            console.log(Math.floor(100 + Math.random() * 900))
                                                                                             console.log(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15))
-
-                                                                                            this.genrateGed()
-
+                                                                                            //this.genrateGed()
                                                                                         }}
                                                                                         className="btn btn-danger waves-effect waves-light mb-2"
                                                                                         data-animation="fadein"
@@ -5208,14 +5216,14 @@ export default class DriveV3 extends React.Component {
                                                     <div>
                                                         <div className="row">
                                                             <div className="col-lg-12">
-                                                                <div style={{textAlign: "right"}}>
+                                                                {/*<div style={{textAlign: "right"}}>
                                                                     <button onClick={() => this.setState({
                                                                         editSocieteForm: false,
                                                                         showContainerSection: "Societe"
                                                                     })}
                                                                             className="btn btn-sm btn-outline-info">Retour
                                                                     </button>
-                                                                </div>
+                                                                </div>*/}
                                                                 <div className="card-box text-center"
                                                                      style={{marginTop: 1}}>
 
@@ -5663,8 +5671,7 @@ export default class DriveV3 extends React.Component {
                                                                                                 <div
                                                                                                     className="col-md-4">
                                                                                                     <div>
-                                                                                                        <h5>Catégorie
-                                                                                                            d’activités </h5>
+                                                                                                        <h5>Catégorie d’activités </h5>
                                                                                                         <MuiSelect
                                                                                                             labelId="demo-simple-select-label"
                                                                                                             id="demo-simple-select"
@@ -5686,8 +5693,7 @@ export default class DriveV3 extends React.Component {
                                                                                                     </div>
 
                                                                                                 </div>
-                                                                                                <div
-                                                                                                    className="col-md-4">
+                                                                                                <div className="col-md-4">
                                                                                                     <div
                                                                                                         style={{width: "100%"}}>
                                                                                                         <h5>Date</h5>
@@ -5805,6 +5811,7 @@ export default class DriveV3 extends React.Component {
 
                                                                                                             SmartService.create_company(localStorage.getItem("token"),localStorage.getItem("usrtoken"),{param:{name:obj.newTime.client}}).then(newCompRes => {
                                                                                                                 obj.newTime.company_id = newCompRes.data.id;
+                                                                                                                obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
                                                                                                                 lignes_fact.push(obj);
 
                                                                                                                 this.setState({
@@ -5881,46 +5888,75 @@ export default class DriveV3 extends React.Component {
                                                                                         <div>
                                                                                             <div className="mt-1">
                                                                                                 <div>
-                                                                                                    <IconButton
+                                                                                                    <div style={{textAlign: "right",marginTop:15}}>
+                                                                                                        <button onClick={() => this.setState({
+                                                                                                            showLignesFactureClient: false
+                                                                                                        })}
+                                                                                                                className="btn btn-sm btn-outline-info">Retour
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                    {/*<IconButton
                                                                                                         onClick={() => this.setState({showLignesFactureClient: false})}>
                                                                                                         <ArrowBackIcon/>
-                                                                                                    </IconButton>
-                                                                                                    <h5 className="mt-3">identification
-                                                                                                        / Imputation
-                                                                                                        client</h5>
-                                                                                                    <div
-                                                                                                        style={{display: "flex"}}>
-                                                                                                        <SelectSearch
-                                                                                                            options={
-                                                                                                                this.state.annuaire_clients_mondat.map(({ContactType, ContactName, imageUrl}) =>
-                                                                                                                    ({
-                                                                                                                        value: ContactName,
-                                                                                                                        name: ContactName,
-                                                                                                                        ContactType: ContactType,
-                                                                                                                        ContactName: ContactName,
-                                                                                                                        imageUrl: imageUrl
-                                                                                                                    }))
-                                                                                                            }
-                                                                                                            value={this.state.selectedClientTimeEntree}
-                                                                                                            renderOption={renderSearchOption}
-                                                                                                            search
-                                                                                                            placeholder="Chercher votre client"
-                                                                                                            onChange={e => {
-                                                                                                                //console.log(e)
-                                                                                                                let obj = this.state.TimeSheet;
-                                                                                                                obj.newTime.client = e;
-                                                                                                                this.setState({
-                                                                                                                    selectedClientTimeEntree: e,
-                                                                                                                    TimeSheet: obj
-                                                                                                                })
-                                                                                                            }}
-                                                                                                        />
-                                                                                                        <IconButton
-                                                                                                            style={{marginTop: -5}}
-                                                                                                            onClick={() => this.setState({openAdvancedSearchModal: true})}>
-                                                                                                            <SearchIcon/>
-                                                                                                        </IconButton>
+                                                                                                    </IconButton>*/}
+                                                                                                    <div className="row mt-3">
+                                                                                                        <div className="col-md-6">
+                                                                                                            <h5>identification / Imputation client</h5>
+                                                                                                            <div
+                                                                                                                style={{display: "flex"}}>
+                                                                                                                <SelectSearch
+                                                                                                                    options={
+                                                                                                                        this.state.annuaire_clients_mondat.map(({ContactType, ContactName, imageUrl}) =>
+                                                                                                                            ({
+                                                                                                                                value: ContactName,
+                                                                                                                                name: ContactName,
+                                                                                                                                ContactType: ContactType,
+                                                                                                                                ContactName: ContactName,
+                                                                                                                                imageUrl: imageUrl
+                                                                                                                            }))
+                                                                                                                    }
+                                                                                                                    value={this.state.selectedClientTimeEntree}
+                                                                                                                    renderOption={renderSearchOption}
+                                                                                                                    search
+                                                                                                                    placeholder="Chercher votre client"
+                                                                                                                    onChange={e => {
+                                                                                                                        //console.log(e)
+                                                                                                                        let obj = this.state.TimeSheet;
+                                                                                                                        obj.newTime.client = e;
+                                                                                                                        this.setState({
+                                                                                                                            selectedClientTimeEntree: e,
+                                                                                                                            TimeSheet: obj
+                                                                                                                        })
+                                                                                                                    }}
+                                                                                                                />
+                                                                                                                <IconButton
+                                                                                                                    style={{marginTop: -5}}
+                                                                                                                    onClick={() => this.setState({openAdvancedSearchModal: true})}>
+                                                                                                                    <SearchIcon/>
+                                                                                                                </IconButton>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        <div className="col-md-4">
+                                                                                                            <div
+                                                                                                                style={{width: "100%"}}>
+                                                                                                                <h5>Date de la facture</h5>
+                                                                                                                <DatePicker
+                                                                                                                    calendarIcon={
+                                                                                                                        <img alt=""
+                                                                                                                            src={calendar}
+                                                                                                                            style={{width: 20}}/>}
+                                                                                                                    onChange={(e) => {
+                                                                                                                        this.setState({dateFacture: e})
+                                                                                                                    }}
+                                                                                                                    value={this.state.dateFacture}
+                                                                                                                />
+
+                                                                                                            </div>
+
+                                                                                                        </div>
                                                                                                     </div>
+
+
                                                                                                 </div>
                                                                                             </div>
                                                                                             {
@@ -5935,12 +5971,12 @@ export default class DriveV3 extends React.Component {
                                                                                                         }}>
                                                                                                             <div
                                                                                                                 align="center"
-                                                                                                                style={{width: "15%"}}>
+                                                                                                                style={{width: "10%"}}>
                                                                                                                 <h5>Date</h5>
                                                                                                             </div>
                                                                                                             <div
                                                                                                                 align="center"
-                                                                                                                style={{width: "60%"}}>
+                                                                                                                style={{width: "55%"}}>
                                                                                                                 <h5>Activités</h5>
                                                                                                             </div>
                                                                                                             <div
@@ -5952,6 +5988,11 @@ export default class DriveV3 extends React.Component {
                                                                                                                 align="center"
                                                                                                                 style={{width: "15%"}}>
                                                                                                                 <h5>Discount(%)</h5>
+                                                                                                            </div>
+                                                                                                            <div
+                                                                                                                align="center"
+                                                                                                                style={{width: "10%"}}>
+                                                                                                                <h5>Action</h5>
                                                                                                             </div>
                                                                                                         </div>
                                                                                                         {
@@ -5968,7 +6009,7 @@ export default class DriveV3 extends React.Component {
                                                                                                                         <div
                                                                                                                             align="center"
                                                                                                                             style={{width: "15%"}}>
-                                                                                                                            <h5>{moment(lf.newTime.date).format("DD-MM-YYYY HH:mm")}</h5>
+                                                                                                                            <h5>{moment(lf.newTime.date).format("DD-MM-YYYY")}</h5>
                                                                                                                         </div>
                                                                                                                         <div
                                                                                                                             align="center"
@@ -5995,6 +6036,15 @@ export default class DriveV3 extends React.Component {
                                                                                                                                     this.setState({lignesFactures: lignesF})
                                                                                                                                 }}
                                                                                                                             />
+                                                                                                                        </div>
+                                                                                                                        <div
+                                                                                                                            align="center"
+                                                                                                                            style={{width: "10%"}}>
+                                                                                                                            <IconButton onClick={() => {
+                                                                                                                                this.deleteLigneFact(lf)
+                                                                                                                            }}>
+                                                                                                                                <DeleteOutlineIcon color="error" />
+                                                                                                                            </IconButton>
                                                                                                                         </div>
                                                                                                                     </div>
                                                                                                                     {
