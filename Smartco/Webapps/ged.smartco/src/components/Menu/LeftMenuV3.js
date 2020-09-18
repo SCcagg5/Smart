@@ -577,7 +577,7 @@ export default function LeftMenuV3(props) {
                                 <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                                 <div style={{display: "flex"}}>
                                     {
-                                        props.showSociete === true ?
+                                        props.showSocietyMenuItems === true ?
                                             <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                                     }
                                     <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Annuaire societés</Typography>

@@ -392,7 +392,7 @@ export default class DriveV3 extends React.Component {
                                 calls.push(SmartService.getFile(sharedFolders[i].id, localStorage.getItem("token"), localStorage.getItem("usrtoken")))
                             }
                             Promise.all(calls).then(response => {
-                                //console.log(response)
+                                console.log(response)
                                 response.map((item, key) => {
                                     sharedDrive.push(item.data)
                                 })
@@ -438,7 +438,7 @@ export default class DriveV3 extends React.Component {
                                         })
                                     } else {
                                         let folders = gedRes.data.Proprietary.Content.folders || [];
-                                        let folder_name = this.getFolderNameById(this.props.match.params.section_id, folders.concat(sharedDrive));
+                                        let folder_name = this.getFolderNameById(this.props.match.params.section_id, folders);
                                         if (folder_name !== undefined && folder_name !== null) {
                                             this.setState({
                                                 folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
@@ -450,7 +450,7 @@ export default class DriveV3 extends React.Component {
                                                 selectedDriveItem: [this.props.match.params.section_id],
                                                 expandedDriveItems: [this.props.match.params.section_id],
                                                 selectedFoldername: folder_name,
-                                                breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders.concat(sharedDrive)),
+                                                breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders),
                                                 selectedFolderId: this.props.match.params.section_id,
                                                 meeturl: meeturl,
                                                 contacts: contacts,
@@ -458,8 +458,8 @@ export default class DriveV3 extends React.Component {
                                                 annuaire_clients_mondat: annuaire_clients_mondat,
                                                 rooms: rooms,
                                                 selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                                selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders.concat(sharedDrive)),
-                                                selectedFolderFolders: this.getFolderFoldersById(this.props.match.params.section_id, folders.concat(sharedDrive)),
+                                                selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders),
+                                                selectedFolderFolders: this.getFolderFoldersById(this.props.match.params.section_id, folders),
                                                 firstLoading: false,
                                                 loading: false
                                             })
@@ -580,6 +580,7 @@ export default class DriveV3 extends React.Component {
                                         this.setState({
                                             showContainerSection: "Contacts",
                                             focusedItem: "Contacts",
+                                            openContactsMenu:true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
                                             rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
@@ -753,7 +754,6 @@ export default class DriveV3 extends React.Component {
 
 
                             }).catch(err => {
-
                                 console.log(err);
                             })
                         });
@@ -2181,12 +2181,15 @@ export default class DriveV3 extends React.Component {
                                             setShowContacts={() => {
                                                 this.setState({
                                                     showContainerSection: "Contacts",
-                                                    openContactsMenu: true
+                                                    openContactsMenu: !this.state.openContactsMenu
                                                 })
                                             }}
                                             selectedContactsItem={this.state.showContainerSection === "Contacts" ? this.state.selectedContactsMenuItem : []}
                                             onContactsItemClick={(nodeId) => {
                                                 this.props.history.replace({pathname: '/contacts/' + nodeId});
+                                                this.setState({
+                                                    showContainerSection: "Contacts"
+                                                })
                                             }}
                                             handleSelectContactsMenu={(event, nodeIds) => {
                                                 this.setState({selectedContactsMenuItem: nodeIds})
@@ -2199,6 +2202,7 @@ export default class DriveV3 extends React.Component {
                                             selectedSocietyItem={this.state.showContainerSection === "Societe" ? this.state.selectedSocietyMenuItem : []}
                                             onSocietyItemClick={(nodeId) => {
                                                 this.props.history.replace({pathname: '/society/' + nodeId});
+                                                this.setState({showContainerSection: "Societe"})
                                             }}
                                             handleSelectSocietyMenu={(event, nodeIds) => {
                                                 this.setState({selectedSocietyMenuItem: nodeIds})
@@ -2259,7 +2263,7 @@ export default class DriveV3 extends React.Component {
                                                 this.setState({openShareDocModal: true})
                                             }}
 
-                                            driveFolders={this.state.folders.concat(this.state.sharedDrive || []) || []}
+                                            driveFolders={this.state.folders || []}
                                             setDriveFolders={(drive) => this.setState({folders: drive})}
 
                                             selectedFolder={this.state.selectedFolder}
@@ -2269,7 +2273,7 @@ export default class DriveV3 extends React.Component {
                                                 this.props.history.replace({pathname: '/drive/' + id});
                                                 this.setState({
                                                     focusedItem: "Drive",
-                                                    breadcrumbs: this.getBreadcumpsPath(id, this.state.reelFolders.concat(this.state.sharedDrive)),
+                                                    breadcrumbs: this.getBreadcumpsPath(id, this.state.reelFolders),
                                                     selectedFolderId: id,
                                                     showContainerSection: "Drive"
                                                 })
@@ -3855,18 +3859,15 @@ export default class DriveV3 extends React.Component {
                                                                                 <Tab>Affiliations</Tab>
                                                                                 <Tab>Domaine d'activités</Tab>
                                                                                 <Tab>Langues</Tab>
-                                                                                <Tab>Domaines d'intérêt, loisirs et
-                                                                                    sports</Tab>
+                                                                                <Tab>Domaines d'intérêt, loisirs et sports</Tab>
                                                                             </TabList>
 
                                                                             <TabPanel>
                                                                                 <h5 style={{marginTop: 20}}>Informations
                                                                                     générales</h5>
-                                                                                <div className="row"
-                                                                                     style={{marginTop: 35}}>
-                                                                                    <div className="col-md-12">
-                                                                                        <p style={{marginBottom: 10}}>À
-                                                                                            propos</p>
+                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                    <div className="col-md-8">
+                                                                                        <p style={{marginBottom: 10}}>À propos</p>
                                                                                         <textarea
                                                                                             rows={7}
                                                                                             className="form-control"
@@ -3874,6 +3875,25 @@ export default class DriveV3 extends React.Component {
                                                                                             name="about"
                                                                                             value={this.state.selectedContact.about}
                                                                                             onChange={this.handleChange('selectedContact', 'about')}/>
+                                                                                    </div>
+                                                                                    <div className="col-md-4">
+                                                                                        <h6>
+                                                                                            Rate de facturation
+                                                                                        </h6>
+                                                                                        <Input
+                                                                                            className="form-control "
+                                                                                            id="duree354"
+                                                                                            style={{width: "100%"}}
+                                                                                            name="duree6878"
+                                                                                            type="text"
+                                                                                            endAdornment={
+                                                                                                <InputAdornment
+                                                                                                    position="end">CHF/h</InputAdornment>}
+
+
+                                                                                            value={this.state.selectedContact.rateFacturation}
+                                                                                            onChange={this.handleChange('selectedContact', 'rateFacturation')}
+                                                                                            />
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="row"
@@ -4899,7 +4919,7 @@ export default class DriveV3 extends React.Component {
                                                                                                             <div
                                                                                                                 className="row align-items-center justify-content-center">
                                                                                                                 <Avatar
-                                                                                                                    alt="Natacha"
+                                                                                                                    alt=""
                                                                                                                     src={contact.imageUrl}/>
                                                                                                                 <div>{contact.nom + " " + contact.prenom}</div>
                                                                                                             </div>
@@ -5250,9 +5270,8 @@ export default class DriveV3 extends React.Component {
                                                                                     <div className="col-md-4">
                                                                                         <input
                                                                                             className="form-control "
-                                                                                            style={{width: "100%"}}
+                                                                                            style={{width: "100%",borderColor:"transparent",marginTop:8}}
                                                                                             id="search"
-                                                                                            namse="search"
                                                                                             type="text"
                                                                                             placeholder="search"
                                                                                             value={this.state.searchSociete}
@@ -5649,7 +5668,12 @@ export default class DriveV3 extends React.Component {
                                                                                                                     //console.log(e)
                                                                                                                     let obj = this.state.TimeSheet;
                                                                                                                     obj.newTime.client = e;
+                                                                                                                    let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => x.ContactName === e);
+                                                                                                                    console.log(find_annuaire_fact_lead)
+                                                                                                                    let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : "" : "";
+                                                                                                                    console.log(partner_email)
                                                                                                                     this.setState({
+                                                                                                                        partnerFacture:partner_email,
                                                                                                                         selectedClientTimeEntree: e,
                                                                                                                         TimeSheet: obj
                                                                                                                     })
@@ -5749,8 +5773,10 @@ export default class DriveV3 extends React.Component {
                                                                                                         style={{width: "100%"}}
                                                                                                         value={this.state.TimeSheet.newTime.utilisateurOA}
                                                                                                         onChange={(e) => {
+                                                                                                            console.log(e)
                                                                                                             let d = this.state.TimeSheet
-                                                                                                            d.newTime.utilisateurOA = e.target.value
+                                                                                                            d.newTime.utilisateurOA = e.target.value;
+                                                                                                            d.newTime.rateFacturation = e.target.value.rateFacturation || ""
                                                                                                             this.setState({TimeSheet: d})
                                                                                                         }}
                                                                                                         MenuProps={Data.MenuProps}
@@ -5771,11 +5797,9 @@ export default class DriveV3 extends React.Component {
                                                                                                         ))}
                                                                                                     </MuiSelect>
 
-                                                                                                    <div
-                                                                                                        className="mt-3">
+                                                                                                    <div className="mt-3">
                                                                                                         <h6>
-                                                                                                            Rate de
-                                                                                                            facturation
+                                                                                                            Rate de facturation
                                                                                                         </h6>
                                                                                                         <Input
                                                                                                             className="form-control "
@@ -5794,8 +5818,6 @@ export default class DriveV3 extends React.Component {
                                                                                                                 d.newTime.rateFacturation = e.target.value
                                                                                                                 this.setState({TimeSheet: d})
                                                                                                             }}/>
-
-
                                                                                                     </div>
                                                                                                 </div>
 
@@ -5906,7 +5928,7 @@ export default class DriveV3 extends React.Component {
                                                                                                                 style={{display: "flex"}}>
                                                                                                                 <SelectSearch
                                                                                                                     options={
-                                                                                                                        this.state.annuaire_clients_mondat.map(({ContactType, ContactName, imageUrl}) =>
+                                                                                                                        this.state.annuaire_clients_mondat.map(({PrimaryEmailAddress, ContactType, ContactName, imageUrl}) =>
                                                                                                                             ({
                                                                                                                                 value: ContactName,
                                                                                                                                 name: ContactName,
@@ -5919,11 +5941,17 @@ export default class DriveV3 extends React.Component {
                                                                                                                     renderOption={renderSearchOption}
                                                                                                                     search
                                                                                                                     placeholder="Chercher votre client"
-                                                                                                                    onChange={e => {
-                                                                                                                        //console.log(e)
+                                                                                                                    onChange={ e => {
+                                                                                                                        console.log(e)
                                                                                                                         let obj = this.state.TimeSheet;
                                                                                                                         obj.newTime.client = e;
+
+                                                                                                                        let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => x.ContactName === e);
+                                                                                                                        console.log(find_annuaire_fact_lead)
+                                                                                                                        let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : "" : "";
+                                                                                                                        console.log(partner_email)
                                                                                                                         this.setState({
+                                                                                                                            partnerFacture:partner_email,
                                                                                                                             selectedClientTimeEntree: e,
                                                                                                                             TimeSheet: obj
                                                                                                                         })
@@ -5961,8 +5989,7 @@ export default class DriveV3 extends React.Component {
                                                                                             </div>
                                                                                             {
                                                                                                 searchFilterLignesfacture.length > 0 ?
-                                                                                                    <div
-                                                                                                        className="mt-3">
+                                                                                                    <div className="mt-3">
                                                                                                         <div style={{
                                                                                                             width: "100%",
                                                                                                             backgroundColor: "#D2DDFE",
@@ -6063,25 +6090,26 @@ export default class DriveV3 extends React.Component {
                                                                                                             className="mt-3">
                                                                                                             <h6>Partner validant cette facture</h6>
                                                                                                             <MuiSelect
-                                                                                                                labelId="demo-mutiple-chip-label"
-                                                                                                                id="demo-mutiple-chip"
+                                                                                                                labelId="demo-mutiple-chip-label14545"
+                                                                                                                id="demo-mutiple-chip34688"
                                                                                                                 style={{width: 250}}
                                                                                                                 value={this.state.partnerFacture}
                                                                                                                 onChange={(e) => {
+                                                                                                                    console.log(e.target.value)
                                                                                                                     this.setState({partnerFacture: e.target.value})
                                                                                                                 }}
                                                                                                                 MenuProps={Data.MenuProps}
                                                                                                             >
-                                                                                                                {this.state.contacts.map((name, key) => (
+                                                                                                                {this.state.contacts.map((contact, key) => (
                                                                                                                     <MenuItem
                                                                                                                         key={key}
-                                                                                                                        value={name}>
+                                                                                                                        value={contact.email}>
                                                                                                                         <div
                                                                                                                             className="row align-items-center justify-content-center">
                                                                                                                             <Avatar
-                                                                                                                                alt="Natacha"
-                                                                                                                                src={name.imageUrl}/>
-                                                                                                                            <div>{name.nom + " " + name.prenom}</div>
+                                                                                                                                alt=""
+                                                                                                                                src={contact.imageUrl}/>
+                                                                                                                            <div>{contact.nom + " " + contact.prenom}</div>
                                                                                                                         </div>
                                                                                                                     </MenuItem>
                                                                                                                 ))}
@@ -8721,9 +8749,16 @@ export default class DriveV3 extends React.Component {
                             <SearchClientsContainer societes={this.state.annuaire_clients_mondat}
                                                     contacts={this.state.contacts}
                                                     onSelectBtnClick={(client) => {
+                                                        let obj = this.state.TimeSheet;
+                                                        obj.newTime.client = client.ContactName;
+                                                        let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => x.ContactName === client.ContactName);
+                                                        let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : "" : "";
+
                                                         this.setState({
                                                             openAdvancedSearchModal: false,
-                                                            selectedClientTimeEntree: client.ContactName
+                                                            partnerFacture:partner_email,
+                                                            selectedClientTimeEntree: client.ContactName,
+                                                            TimeSheet: obj
                                                         })
                                                     }}
                             />
