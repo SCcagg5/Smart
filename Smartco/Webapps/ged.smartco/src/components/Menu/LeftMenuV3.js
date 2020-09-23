@@ -472,7 +472,7 @@ export default function LeftMenuV3(props) {
                 </Modal>
 
                 {
-                    (localStorage.getItem("role") === "admin" || localStorage.getItem("role") === "client") &&
+                    (localStorage.getItem("role") === "admin" || localStorage.getItem("role") === "user") &&
                         <div>
                             <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Rooms" ? "aliceblue" : ""}}
                                  onDoubleClick={() => {
