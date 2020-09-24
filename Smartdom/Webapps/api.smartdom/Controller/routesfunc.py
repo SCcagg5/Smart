@@ -383,11 +383,11 @@ def odoo_add_company(cn, nextc):
     return cn.call_next(nextc, err)
 
 def odoo_case(cn, nextc):
-    err = cn.private["odoo"].case()
+    err = cn.private["odoo"].case(cn.private["ged"].ged_id)
     return cn.call_next(nextc, err)
 
 def odoo_add_case(cn, nextc):
-    err = check.contain(cn.pr, "client_id", "type", "name", "client_folder")
+    err = check.contain(cn.pr, ["client_id", "type", "name", "client_folder"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]

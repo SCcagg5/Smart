@@ -1,5 +1,10 @@
 import pypi_xmlrpc
 import xmlrpc.client
+import uuid
+import time
+from datetime import date
+from .ged import folder
+from .sql import sql
 
 class odoo:
     def __init__(self, usr_id = -1, odoo_id = -1):
@@ -12,10 +17,15 @@ class odoo:
             "password": "test"
         }
         self.uid = None
-    
-    def case(self):
-        ret = {}
-        return [True, ret, None]
+
+    def case(self, ged_id):
+        ret = []
+        i = 0
+        res = sql.get("SELECT `client_id`, `name`, `type`, `folder_id`, `date` FROM odoo_case WHERE ged_id = %s", (ged_id))
+        while i < len(res):
+          ret.append({"client_id": res[i][0], "name": res[i][1], "type": res[i][2], "folder_id": res[i][3], "date": res[i][4]})
+          i += 1
+        return [True, {"client": ret}, None]
 
     def new_case(self, client_id, type, name, folder_id, ged_id):
         fol = folder(self.usr_id, ged_id).new(name, folder_id)
@@ -28,7 +38,7 @@ class odoo:
         (id, ged_id, self.usr_id, client_id, name, type, folder_id, date))
         if not succes:
             return [False, "data input error", 500]
-        return [True, {"case_id": id, "folder_id": id}, None]
+        return [True, {"case_id": id, "folder_id": folder_id}, None]
 
     def version(self):
         common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(self.opt['url']))
