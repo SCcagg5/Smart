@@ -191,13 +191,13 @@ export default function RoomTabs(props) {
                         <Grid item xs={2}>
                             <h5 style={{color:"grey"}}>Date</h5>
                         </Grid>
-                        <Grid item xs={3}>
+                        <Grid item xs={showAddForm === true ? 3 : 2}>
                             <h5 style={{color:"grey"}}>Client Attribution</h5>
                         </Grid>
                         <Grid item xs={2}>
                             <h5 style={{color:"grey"}}>Lead</h5>
                         </Grid>
-                        <Grid item xs={1}>
+                        <Grid item xs={showAddForm === true ? 1 : 2}>
                             <h5 style={{color:"grey"}}>Team</h5>
                         </Grid>
                         <Grid item xs={1}/>
@@ -246,6 +246,7 @@ export default function RoomTabs(props) {
                                                 }}
                                                 menuPortalTarget={document.body}
                                                 onChange={(e) => {
+                                                    setSelectedClient(e.value)
                                                     let find_annuaire = (props.annuaire_clients || []).find(x => x.ContactName === e.value);
                                                     let lead_email = find_annuaire ? find_annuaire.facturation ? find_annuaire.facturation.collaborateur_lead : "" : "";
                                                     let team_emails = find_annuaire ? find_annuaire.facturation ? find_annuaire.facturation.collaborateur_team : [] : [];
@@ -321,7 +322,7 @@ export default function RoomTabs(props) {
                                                     <AvatarGroup style={{marginTop:55}} max={4} spacing="medium" onClick={() => setOpenTeamModal(true) }>
                                                         {
                                                             teamEmails.map((item,key) =>
-                                                                <Avatar alt="" src={item.avatar} title={item.fname} />
+                                                                <Avatar key={key} alt="" src={item.avatar} title={item.fname} />
                                                             )
                                                         }
                                                     </AvatarGroup>
@@ -338,7 +339,7 @@ export default function RoomTabs(props) {
                                                 setnewTaskTitle("")
                                                 setTeamEmails([])
                                                 setSelectedDateTime("")
-                                                props.addNewTask(newTaskTitle,selectedAssign,teamEmails,selectedDateTime)
+                                                props.addNewTask(newTaskTitle,selectedClient,selectedAssign,teamEmails,selectedDateTime)
                                             }} variant="contained" size="small"
                                                     style={{textTransform:"capitalize",backgroundColor:"#2196f3",color:"#fff",fontWeight:"bold"}}>
                                                 Ajouter
@@ -346,6 +347,10 @@ export default function RoomTabs(props) {
                                             <Button
                                                 onClick={() => {
                                                     setShowAddForm(false)
+                                                    setSelectedAssign("")
+                                                    setnewTaskTitle("")
+                                                    setTeamEmails([])
+                                                    setSelectedDateTime("")
                                                 }}
                                                 color="default" variant="text" size="small" style={{textTransform:"capitalize",fontWeight:"bold"}}>
                                                 Annuler
@@ -382,8 +387,8 @@ export default function RoomTabs(props) {
                                             />
                                         </div>
                                     </Grid>
-                                    <Grid item xs={3} >
-
+                                    <Grid item xs={2} >
+                                        <h5 style={{marginTop:25}}>{task.clientAttribution}</h5>
                                     </Grid>
                                     <Grid item xs={2}>
                                         <div style={{padding:"20px 0"}}>
@@ -394,7 +399,7 @@ export default function RoomTabs(props) {
                                             />
                                         </div>
                                     </Grid>
-                                    <Grid item xs={1} >
+                                    <Grid item xs={2} >
                                         <AvatarGroup style={{marginTop:20}} max={4} spacing="medium">
                                             {
                                                 (task.team || []).map((item,key) =>

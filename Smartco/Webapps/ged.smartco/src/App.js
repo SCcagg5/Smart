@@ -37,8 +37,10 @@ export default class App extends Component{
         <Router>
             <Switch>
                 <Route exact path="/" component={RedirectCp}/>
-                <Route exact path="/test" component={Test}/>
-                <Route exact path="/:section/:section_id" component={DriveV3}/>
+                {/*<Route exact path="/test" component={Test}/>*/}
+                <Route exact path="/:section/:section_id" component={DriveV3}>
+
+                </Route>
                 <Route exact path="/signDoc/doc/:doc_id" component={SignDocV3}/>
                 <Route exact path="/login"  component={Login}/>
                 <Route exact path="/logout"  component={Logout}/>
