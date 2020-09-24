@@ -382,6 +382,10 @@ let Data = {
         {value:"Person",label:"Personne physique"},
         {value:"Association",label:"Association"},
         {value:"Fondation",label:"Fondation"},
+    ],
+
+    timeSuggestions: [
+        "0:10","0:15","0:20","0:30","0:40","0:50","0:60","0:70","0:80","0:90","1","1:5","2","2:5","3","3:5","4","4:5","5"
     ]
 }
 export default Data;
