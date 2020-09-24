@@ -163,7 +163,7 @@ const getOAContactLabel = ({option}) => {
         <React.Fragment>
             <img src={option.imageUrl || userAvatar} alt="" style={{width: 30, height: 30}}/>
             &nbsp;&nbsp;
-            {option.nom+" "+option.prenom}
+            {option.nom + " " + option.prenom}
         </React.Fragment>
     );
 }
@@ -355,6 +355,7 @@ export default class DriveV3 extends React.Component {
             }
         },
         lignesFactures: [],
+        lignef_template: "0",
         TimeSheetData: [],
         DashboardPerson: {
             person: ""
@@ -364,10 +365,10 @@ export default class DriveV3 extends React.Component {
         selectedClientTimeEntree: "",
 
         showLignesFactureClient: false,
-        dateFacture:new Date(),
+        dateFacture: new Date(),
 
-        timeSuggestions:[],
-        timeSuggValue:""
+        timeSuggestions: [],
+        timeSuggValue: ""
 
 
     }
@@ -392,7 +393,7 @@ export default class DriveV3 extends React.Component {
             })
             firebase.database().ref('lignes_factures/').on('value', (snapshot) => {
                 let lignes_f = snapshot.val()
-                this.setState({lignesFactures:lignes_f || []})
+                this.setState({lignesFactures: lignes_f || []})
             })
 
             setTimeout(() => {
@@ -781,88 +782,111 @@ export default class DriveV3 extends React.Component {
                                 console.log(err);
                             })*/
 
-                                if (this.props.match.params.section === "drive") {
+                            if (this.props.match.params.section === "drive") {
 
-                                    if (this.props.match.params.section_id === "0") {
+                                if (this.props.match.params.section_id === "0") {
+                                    this.setState({
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        selectedDriveItem: [],
+                                        expandedDriveItems: [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if (this.props.match.params.section_id === "shared") {
+                                    this.setState({
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        expanded: ["shared"],
+                                        breadcrumbs: "Mon drive / paratgés avec moi",
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else {
+                                    let folders = gedRes.data.Proprietary.Content.folders || [];
+                                    let folder_name = this.getFolderNameById(this.props.match.params.section_id, folders);
+                                    if (folder_name !== undefined && folder_name !== null) {
                                         this.setState({
-                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                                             reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            selectedDriveItem: [],
-                                            expandedDriveItems: [],
-                                            sharedDrive: sharedDrive,
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                             sharedRootFiles: sharedFiles,
+                                            sharedDrive: sharedDrive,
+                                            selectedDriveItem: [this.props.match.params.section_id],
+                                            expandedDriveItems: [this.props.match.params.section_id],
+                                            selectedFoldername: folder_name,
+                                            breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders),
+                                            selectedFolderId: this.props.match.params.section_id,
                                             meeturl: meeturl,
                                             contacts: contacts,
                                             societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
                                             selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            firstLoading: false,
-                                            loading: false
-                                        })
-                                    } else if (this.props.match.params.section_id === "shared") {
-                                        this.setState({
-                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            sharedDrive: sharedDrive,
-                                            sharedRootFiles: sharedFiles,
-                                            expanded: ["shared"],
-                                            breadcrumbs: "Mon drive / paratgés avec moi",
-                                            meeturl: meeturl,
-                                            contacts: contacts,
-                                            societes: societes,
-                                            annuaire_clients_mondat: annuaire_clients_mondat,
-                                            rooms: rooms,
-                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders),
+                                            selectedFolderFolders: this.getFolderFoldersById(this.props.match.params.section_id, folders),
                                             firstLoading: false,
                                             loading: false
                                         })
                                     } else {
-                                        let folders = gedRes.data.Proprietary.Content.folders || [];
-                                        let folder_name = this.getFolderNameById(this.props.match.params.section_id, folders);
-                                        if (folder_name !== undefined && folder_name !== null) {
-                                            this.setState({
-                                                folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                                reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                                rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                                rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                                                sharedRootFiles: sharedFiles,
-                                                sharedDrive: sharedDrive,
-                                                selectedDriveItem: [this.props.match.params.section_id],
-                                                expandedDriveItems: [this.props.match.params.section_id],
-                                                selectedFoldername: folder_name,
-                                                breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders),
-                                                selectedFolderId: this.props.match.params.section_id,
-                                                meeturl: meeturl,
-                                                contacts: contacts,
-                                                societes: societes,
-                                                annuaire_clients_mondat: annuaire_clients_mondat,
-                                                rooms: rooms,
-                                                selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                                selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders),
-                                                selectedFolderFolders: this.getFolderFoldersById(this.props.match.params.section_id, folders),
-                                                firstLoading: false,
-                                                loading: false
-                                            })
-                                        } else {
-                                            this.props.history.replace({pathname: '/drive/0'})
-                                            this.componentDidMount()
-                                        }
-
+                                        this.props.history.replace({pathname: '/drive/0'})
+                                        this.componentDidMount()
                                     }
 
-                                } else if (this.props.match.params.section === "rooms") {
+                                }
 
-                                    if (this.props.match.params.section_id === "all") {
-                                        if (rooms.length > 0) this.props.history.replace({pathname: '/rooms/0'});
+                            } else if (this.props.match.params.section === "rooms") {
+
+                                if (this.props.match.params.section_id === "all") {
+                                    if (rooms.length > 0) this.props.history.replace({pathname: '/rooms/0'});
+                                    this.setState({
+                                        showContainerSection: "Rooms",
+                                        focusedItem: "Rooms",
+                                        selectedRoomItems: rooms.length > 0 ? ["0"] : [],
+                                        expandedRoomItems: rooms.length > 0 ? ["0"] : [],
+                                        openRoomMenuItem: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if ((typeof parseInt(this.props.match.params.section_id)) === "number") {
+                                    if (rooms[parseInt(this.props.match.params.section_id)]) {
                                         this.setState({
                                             showContainerSection: "Rooms",
                                             focusedItem: "Rooms",
-                                            selectedRoomItems: rooms.length > 0 ? ["0"] : [],
+                                            selectedRoomItems: [this.props.match.params.section_id],
                                             expandedRoomItems: rooms.length > 0 ? ["0"] : [],
                                             openRoomMenuItem: true,
                                             rootFiles: gedRes.data.Proprietary.Content.files || [],
@@ -876,18 +900,215 @@ export default class DriveV3 extends React.Component {
                                             societes: societes,
                                             annuaire_clients_mondat: annuaire_clients_mondat,
                                             rooms: rooms,
-                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            selectedRoom: rooms[parseInt(this.props.match.params.section_id)],
+                                            selectedRoomKey: parseInt(this.props.match.params.section_id),
                                             firstLoading: false,
                                             loading: false
                                         })
-                                    } else if ((typeof parseInt(this.props.match.params.section_id)) === "number") {
-                                        if (rooms[parseInt(this.props.match.params.section_id)]) {
+                                    } else {
+                                        this.props.history.replace({pathname: '/rooms/all'})
+                                        this.componentDidMount()
+                                        console.log("URL ERROR")
+                                    }
+                                } else {
+                                    console.log("URL ERROR")
+                                }
+
+                            } else if (this.props.match.params.section === "meet") {
+
+                                if (this.props.match.params.section_id === "new") {
+                                    this.setState({
+                                        showContainerSection: "Meet",
+                                        focusedItem: "Meet",
+                                        selectedMeetMenuItem: ["new"],
+                                        openMeetMenuItem: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if (this.props.match.params.section_id === "rejoin") {
+                                    this.setState({
+                                        showContainerSection: "Meet",
+                                        focusedItem: "Meet",
+                                        selectedMeetMenuItem: ["rejoin"],
+                                        openMeetMenuItem: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else {
+                                    console.log("URL ERROR")
+                                }
+                            } else if (this.props.match.params.section === "contacts") {
+                                if (this.props.match.params.section_id === "all" || this.props.match.params.section_id === "aia" || this.props.match.params.section_id === "ae") {
+                                    this.setState({
+                                        showContainerSection: "Contacts",
+                                        focusedItem: "Contacts",
+                                        openContactsMenu: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else {
+                                    console.log("URL ERROR")
+                                }
+
+                            } else if (this.props.match.params.section === "society") {
+                                if (this.props.match.params.section_id === "clients_mondat") {
+                                    this.setState({
+                                        showContainerSection: "Societe",
+                                        focusedItem: "Societe",
+                                        selectedSocietyMenuItem: ["clients_mondat"],
+                                        openSocietyMenuItem: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else {
+                                    this.props.history.replace({pathname: '/society/clients_mondat'});
+                                    this.componentDidMount()
+                                }
+                            } else if (this.props.match.params.section === "TimeSheet") {
+                                if (this.props.match.params.section_id === "activities") {
+                                    this.setState({
+                                        showContainerSection: "TimeSheet",
+                                        focusedItem: "TimeSheet",
+                                        selectedTimeSheetMenuItem: ["activities"],
+                                        openTimeSheetsMenu: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if (this.props.match.params.section_id === "dashboard") {
+                                    this.setState({
+                                        showContainerSection: "TimeSheet",
+                                        focusedItem: "TimeSheet",
+                                        selectedTimeSheetMenuItem: ["dashboard"],
+                                        openTimeSheetsMenu: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if (this.props.match.params.section_id === "dashboardPerson") {
+                                    this.setState({
+                                        showContainerSection: "TimeSheet",
+                                        focusedItem: "TimeSheet",
+                                        selectedTimeSheetMenuItem: ["dashboardPerson"],
+                                        openTimeSheetsMenu: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if (this.props.match.params.section_id === "dashboardProject") {
+                                    this.setState({
+                                        showContainerSection: "TimeSheet",
+                                        focusedItem: "TimeSheet",
+                                        selectedTimeSheetMenuItem: ["dashboardProject"],
+                                        openTimeSheetsMenu: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else {
+                                    console.log("URL ERROR")
+                                }
+
+                            } else if (this.props.match.params.section === "search") {
+                                if (this.props.match.params.section_id) {
+                                    let textToSearch = this.props.match.params.section_id;
+                                    SmartService.search(textToSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
+                                        if (searchRes.succes === true && searchRes.status === 200) {
                                             this.setState({
-                                                showContainerSection: "Rooms",
-                                                focusedItem: "Rooms",
-                                                selectedRoomItems: [this.props.match.params.section_id],
-                                                expandedRoomItems: rooms.length > 0 ? ["0"] : [],
-                                                openRoomMenuItem: true,
+                                                searchResult: searchRes.data,
+                                                textSearch: textToSearch,
                                                 rootFiles: gedRes.data.Proprietary.Content.files || [],
                                                 rootFolders: gedRes.data.Proprietary.Content.folders || [],
                                                 folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
@@ -899,244 +1120,23 @@ export default class DriveV3 extends React.Component {
                                                 societes: societes,
                                                 annuaire_clients_mondat: annuaire_clients_mondat,
                                                 rooms: rooms,
-                                                selectedRoom: rooms[parseInt(this.props.match.params.section_id)],
-                                                selectedRoomKey: parseInt(this.props.match.params.section_id),
+                                                selectedRoom: rooms.length > 0 ? rooms[0] : "",
                                                 firstLoading: false,
                                                 loading: false
                                             })
                                         } else {
-                                            this.props.history.replace({pathname: '/rooms/all'})
-                                            this.componentDidMount()
-                                            console.log("URL ERROR")
+                                            console.log(searchRes.error)
                                         }
-                                    } else {
-                                        console.log("URL ERROR")
-                                    }
+                                    }).catch(err => {
+                                        console.log(err)
+                                    })
 
-                                } else if (this.props.match.params.section === "meet") {
-
-                                    if (this.props.match.params.section_id === "new") {
-                                        this.setState({
-                                            showContainerSection: "Meet",
-                                            focusedItem: "Meet",
-                                            selectedMeetMenuItem: ["new"],
-                                            openMeetMenuItem: true,
-                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            sharedDrive: sharedDrive,
-                                            sharedRootFiles: sharedFiles,
-                                            meeturl: meeturl,
-                                            contacts: contacts,
-                                            societes: societes,
-                                            annuaire_clients_mondat: annuaire_clients_mondat,
-                                            rooms: rooms,
-                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            firstLoading: false,
-                                            loading: false
-                                        })
-                                    } else if (this.props.match.params.section_id === "rejoin") {
-                                        this.setState({
-                                            showContainerSection: "Meet",
-                                            focusedItem: "Meet",
-                                            selectedMeetMenuItem: ["rejoin"],
-                                            openMeetMenuItem: true,
-                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            sharedDrive: sharedDrive,
-                                            sharedRootFiles: sharedFiles,
-                                            meeturl: meeturl,
-                                            contacts: contacts,
-                                            societes: societes,
-                                            annuaire_clients_mondat: annuaire_clients_mondat,
-                                            rooms: rooms,
-                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            firstLoading: false,
-                                            loading: false
-                                        })
-                                    } else {
-                                        console.log("URL ERROR")
-                                    }
-                                } else if (this.props.match.params.section === "contacts") {
-                                    if (this.props.match.params.section_id === "all" || this.props.match.params.section_id === "aia" || this.props.match.params.section_id === "ae") {
-                                        this.setState({
-                                            showContainerSection: "Contacts",
-                                            focusedItem: "Contacts",
-                                            openContactsMenu:true,
-                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            sharedDrive: sharedDrive,
-                                            sharedRootFiles: sharedFiles,
-                                            meeturl: meeturl,
-                                            contacts: contacts,
-                                            societes: societes,
-                                            annuaire_clients_mondat: annuaire_clients_mondat,
-                                            rooms: rooms,
-                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            firstLoading: false,
-                                            loading: false
-                                        })
-                                    } else {
-                                        console.log("URL ERROR")
-                                    }
-
-                                } else if (this.props.match.params.section === "society") {
-                                    if (this.props.match.params.section_id === "clients_mondat") {
-                                        this.setState({
-                                            showContainerSection: "Societe",
-                                            focusedItem: "Societe",
-                                            selectedSocietyMenuItem: ["clients_mondat"],
-                                            openSocietyMenuItem: true,
-                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            sharedDrive: sharedDrive,
-                                            sharedRootFiles: sharedFiles,
-                                            meeturl: meeturl,
-                                            contacts: contacts,
-                                            societes: societes,
-                                            annuaire_clients_mondat: annuaire_clients_mondat,
-                                            rooms: rooms,
-                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            firstLoading: false,
-                                            loading: false
-                                        })
-                                    } else {
-                                        this.props.history.replace({pathname: '/society/clients_mondat'});
-                                        this.componentDidMount()
-                                    }
-                                } else if (this.props.match.params.section === "TimeSheet") {
-                                    if (this.props.match.params.section_id === "activities") {
-                                        this.setState({
-                                            showContainerSection: "TimeSheet",
-                                            focusedItem: "TimeSheet",
-                                            selectedTimeSheetMenuItem: ["activities"],
-                                            openTimeSheetsMenu: true,
-                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            sharedDrive: sharedDrive,
-                                            sharedRootFiles: sharedFiles,
-                                            meeturl: meeturl,
-                                            contacts: contacts,
-                                            societes: societes,
-                                            annuaire_clients_mondat: annuaire_clients_mondat,
-                                            rooms: rooms,
-                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            firstLoading: false,
-                                            loading: false
-                                        })
-                                    } else if (this.props.match.params.section_id === "dashboard") {
-                                        this.setState({
-                                            showContainerSection: "TimeSheet",
-                                            focusedItem: "TimeSheet",
-                                            selectedTimeSheetMenuItem: ["dashboard"],
-                                            openTimeSheetsMenu: true,
-                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            sharedDrive: sharedDrive,
-                                            sharedRootFiles: sharedFiles,
-                                            meeturl: meeturl,
-                                            contacts: contacts,
-                                            societes: societes,
-                                            annuaire_clients_mondat: annuaire_clients_mondat,
-                                            rooms: rooms,
-                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            firstLoading: false,
-                                            loading: false
-                                        })
-                                    } else if (this.props.match.params.section_id === "dashboardPerson") {
-                                        this.setState({
-                                            showContainerSection: "TimeSheet",
-                                            focusedItem: "TimeSheet",
-                                            selectedTimeSheetMenuItem: ["dashboardPerson"],
-                                            openTimeSheetsMenu: true,
-                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            sharedDrive: sharedDrive,
-                                            sharedRootFiles: sharedFiles,
-                                            meeturl: meeturl,
-                                            contacts: contacts,
-                                            societes: societes,
-                                            annuaire_clients_mondat: annuaire_clients_mondat,
-                                            rooms: rooms,
-                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            firstLoading: false,
-                                            loading: false
-                                        })
-                                    } else if (this.props.match.params.section_id === "dashboardProject") {
-                                        this.setState({
-                                            showContainerSection: "TimeSheet",
-                                            focusedItem: "TimeSheet",
-                                            selectedTimeSheetMenuItem: ["dashboardProject"],
-                                            openTimeSheetsMenu: true,
-                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                            sharedDrive: sharedDrive,
-                                            sharedRootFiles: sharedFiles,
-                                            meeturl: meeturl,
-                                            contacts: contacts,
-                                            societes: societes,
-                                            annuaire_clients_mondat: annuaire_clients_mondat,
-                                            rooms: rooms,
-                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                            firstLoading: false,
-                                            loading: false
-                                        })
-                                    } else {
-                                        console.log("URL ERROR")
-                                    }
-
-                                } else if (this.props.match.params.section === "search") {
-                                    if (this.props.match.params.section_id) {
-                                        let textToSearch = this.props.match.params.section_id;
-                                        SmartService.search(textToSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
-                                            if (searchRes.succes === true && searchRes.status === 200) {
-                                                this.setState({
-                                                    searchResult: searchRes.data,
-                                                    textSearch: textToSearch,
-                                                    rootFiles: gedRes.data.Proprietary.Content.files || [],
-                                                    rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                                                    folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                                                    reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                                                    sharedDrive: sharedDrive,
-                                                    sharedRootFiles: sharedFiles,
-                                                    meeturl: meeturl,
-                                                    contacts: contacts,
-                                                    societes: societes,
-                                                    annuaire_clients_mondat: annuaire_clients_mondat,
-                                                    rooms: rooms,
-                                                    selectedRoom: rooms.length > 0 ? rooms[0] : "",
-                                                    firstLoading: false,
-                                                    loading: false
-                                                })
-                                            } else {
-                                                console.log(searchRes.error)
-                                            }
-                                        }).catch(err => {
-                                            console.log(err)
-                                        })
-
-                                    }
-                                } else {
-                                    console.log("URL ERROR")
-                                    this.props.history.replace({pathname: '/drive/0'});
-                                    this.componentDidMount()
                                 }
-
+                            } else {
+                                console.log("URL ERROR")
+                                this.props.history.replace({pathname: '/drive/0'});
+                                this.componentDidMount()
+                            }
 
 
                         });
@@ -1543,10 +1543,10 @@ export default class DriveV3 extends React.Component {
         let key = this.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
         firebase.database().ref('contacts/' + key).set(
             this.state.selectedContact
-        ).then( res =>  {
+        ).then(res => {
             this.setState({loading: false})
             this.openSnackbar('success', "Modification effectuée avec succès");
-        }).catch( err => {
+        }).catch(err => {
             console.log(err)
         })
     };
@@ -1827,246 +1827,19 @@ export default class DriveV3 extends React.Component {
         firebase.database().ref('/TimeSheet').set(this.state.TimeSheetData)
     }
 
-
-    createFacture(){
-        let lignes_factures = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
-        let odoo_data = [{
-            "access_token":"eafd285777ggobfvxyvnx",
-            "state": "draft",
-            "type": "out_invoice",
-            "invoice_sent": false,
-            "l10n_ch_isr_sent": false,
-            "name": "",
-            "invoice_date": moment(this.state.dateFacture).format("YYYY-MM-DD"),
-            "date": moment(this.state.dateFacture).format("YYYY-MM-DD"),
-            "journal_id": 1,
-            "currency_id": 5,
-            "invoice_user_id": 3,
-            "invoice_incoterm_id": false,
-            "auto_post": false,
-            "to_check": false,
-            "authorized_transaction_ids": [
-                [
-                    6,
-                    false,
-                    []
-                ]
-            ],
-            "tax_lock_date_message": false,
-            "id": false,
-            "invoice_payment_state": "not_paid",
-            "invoice_filter_type_domain": "sale",
-            "company_currency_id": 5,
-            "commercial_partner_id": "",
-            "bank_partner_id": 1,
-            "invoice_has_outstanding": false,
-            "l10n_ch_currency_name": "CHF",
-            "invoice_sequence_number_next_prefix": false,
-            "invoice_sequence_number_next": false,
-            "invoice_has_matching_suspense_amount": false,
-            "has_reconciled_entries": false,
-            "restrict_mode_hash_table": false,
-            "partner_id": lignes_factures[0].newTime.company_id,
-            "ref": 121006,
-            "invoice_vendor_bill_id": false,
-            "invoice_payment_term_id": 1,
-            "invoice_date_due": "2020-09-06",
-            "company_id": 1,
-            "amount_untaxed": 0,
-            "amount_by_group": [],
-            "amount_total": 0,
-            "invoice_payments_widget": "False",
-            "amount_residual": 0,
-            "invoice_outstanding_credits_debits_widget": false,
-            "narration": false,
-            "invoice_origin": false,
-            "fiscal_position_id": 1,
-            "invoice_cash_rounding_id": false,
-            "invoice_source_email": false,
-            "invoice_payment_ref": false,
-            "invoice_partner_bank_id": false,
-            "reversed_entry_id": false,
-            "message_follower_ids": [],
-            "activity_ids": [],
-            "message_ids": [],
-            "message_attachment_count": 0,
-            "invoice_line_ids": [
-                [
-                    0,
-                    "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
-                    {
-                        "sequence": 10,
-                        "account_id": 104,
-                        "quantity": 0.15,
-                        "discount": 10,
-                        "partner_id": false,
-                        "currency_id": false,
-                        "debit": 0,
-                        "credit": 60,
-                        "display_type": false,
-                        "product_id": 1,
-                        "name": "/*/*/",
-                        "analytic_account_id": false,
-                        "analytic_tag_ids": [
-                            [
-                                6,
-                                false,
-                                []
-                            ]
-                        ],
-
-                        "price_unit": 400,
-                        "tax_ids": [
-                            [
-                                6,false,[]
-                            ]
-                        ],
-                        "amount_currency": 0,
-                        "date_maturity": false,
-                        "tag_ids": [
-                            [
-                                6,
-                                false,
-                                []
-                            ]
-                        ],
-                        "recompute_tax_line": false,
-                        "is_rounding_line": false,
-                        "exclude_from_invoice_tab": false
-                    }
-                ]
-            ],
-            "line_ids": []
-        }]
-        let total = 0;
-        lignes_factures.map((ligne,key) => {
-            total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation))
-
-            //console.log(ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
-            odoo_data[0].line_ids.push(
-                [
-                        0,
-                        "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
-                        {
-                            "account_id": 104,
-                            "sequence": 10,
-                            "name": ligne.newTime.description,
-                            "quantity": ligne.newTime.duree,
-                            "price_unit": parseFloat(ligne.newTime.rateFacturation),
-                            "discount": 0,
-                            "debit": 0,
-                            "credit": ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation) ,
-                            "amount_currency": 0,
-                            "date_maturity": false,
-                            "currency_id": false,
-                            "partner_id": false,
-                            "product_uom_id": false,
-                            "product_id": 1,
-                            "payment_id": false,
-                            "tax_ids": [
-                                [
-                                    6,
-                                    false,
-                                    [
-
-                                    ]
-                                ]
-                            ],
-                            "tax_base_amount": 0,
-                            "tax_exigible": true,
-                            "tax_repartition_line_id": false,
-                            "tag_ids": [
-                                [
-                                    6,
-                                    false,
-                                    [
-
-                                    ]
-                                ]
-                            ],
-                            "analytic_account_id": false,
-                            "analytic_tag_ids": [
-                                [
-                                    6,
-                                    false,
-                                    []
-                                ]
-                            ],
-                            "recompute_tax_line": false,
-                            "display_type": false,
-                            "is_rounding_line": false,
-                            "exclude_from_invoice_tab": false
-                        }
-                    ],
-            )
-
+    getOAContactByEmail(email) {
+        let OAcontact = ""
+        this.state.contacts.map((contact, key) => {
+            if (contact && contact.email && contact.email === email) OAcontact = contact;
         })
-        //console.log(total)
-        odoo_data[0].line_ids.push(
-            [
-                0,
-                "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
-                {
-                    "account_id": 6,
-                    "sequence": 10,
-                    "name": false,
-                    "quantity": 1,
-                    "price_unit": -total,
-                    "discount": 0,
-                    "debit": total,
-                    "credit": 0,
-                    "amount_currency": 0,
-                    "date_maturity": "2020-09-08",
-                    "currency_id": false,
-                    "partner_id": false,
-                    "product_uom_id": false,
-                    "product_id": false,
-                    "payment_id": false,
-                    "tax_ids": [
-                        [
-                            6,
-                            false,
-                            []
-                        ]
-                    ],
-                    "tax_base_amount": 0,
-                    "tax_exigible": true,
-                    "tax_repartition_line_id": false,
-                    "tag_ids": [
-                        [
-                            6,
-                            false,
-                            []
-                        ]
-                    ],
-                    "analytic_account_id": false,
-                    "analytic_tag_ids": [
-                        [
-                            6,
-                            false,
-                            []
-                        ]
-                    ],
-                    "recompute_tax_line": false,
-                    "display_type": false,
-                    "is_rounding_line": false,
-                    "exclude_from_invoice_tab": true
-                }
-            ]
-        )
-
-        SmartService.create_facture_odoo(localStorage.getItem("token"),localStorage.getItem("usrtoken"),{data:odoo_data}).then( createFactRes => {
-            //console.log(createFactRes)
-            window.open("http://91.121.162.202:10013/my/invoices/"+createFactRes.data.id+"?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true","_blank")
-        }).catch(err => {
-            console.log(err);
-        })
+        return OAcontact;
     }
 
-    createFacture_ForSelected(){
-        let lignes_factures = this.state.lignesFactures.filter((lf) => lf.checked === true);
+
+    createFacture() {
+        let lignes_factures = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
         let odoo_data = [{
-            "access_token":"eafd285777ggobfvxyvnx",
+            "access_token": "eafd285777ggobfvxyvnx",
             "state": "draft",
             "type": "out_invoice",
             "invoice_sent": false,
@@ -2128,7 +1901,7 @@ export default class DriveV3 extends React.Component {
             "invoice_line_ids": [
                 [
                     0,
-                    "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
+                    "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
                     {
                         "sequence": 10,
                         "account_id": 104,
@@ -2153,7 +1926,7 @@ export default class DriveV3 extends React.Component {
                         "price_unit": 400,
                         "tax_ids": [
                             [
-                                6,false,[]
+                                6, false, []
                             ]
                         ],
                         "amount_currency": 0,
@@ -2174,23 +1947,29 @@ export default class DriveV3 extends React.Component {
             "line_ids": []
         }]
         let total = 0;
-        lignes_factures.map((ligne,key) => {
-            total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation))
 
-            //console.log(ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
+
+        lignes_factures.map((ligne, key) => {
+            total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation))
+            let OAContact = this.getOAContactByEmail(ligne.newTime.utilisateurOA);
             odoo_data[0].line_ids.push(
                 [
                     0,
-                    "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
+                    "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
                     {
                         "account_id": 104,
                         "sequence": 10,
-                        "name": ligne.newTime.description,
+                        "name": ligne.template === "0" ? ligne.newTime.description :
+                            ligne.template === "1" ? OAContact.nom + " " + OAContact.prenom :
+                                ligne.template === "2" ? ligne.newTime.duree + " Heures" :
+                                    ligne.template === "3" ? ligne.newTime.description + " ; " + OAContact.nom + " " + OAContact.prenom :
+                                        ligne.template === "4" ? ligne.newTime.description + " ; " + ligne.newTime.duree + " Heures" :
+                                            ligne.template === "5" ? ligne.newTime.description + " ; " + OAContact.nom + " " + OAContact.prenom + " ; " + ligne.newTime.duree + " Heures" : ligne.newTime.description,
                         "quantity": ligne.newTime.duree,
                         "price_unit": parseFloat(ligne.newTime.rateFacturation),
                         "discount": 0,
                         "debit": 0,
-                        "credit": ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation) ,
+                        "credit": ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation),
                         "amount_currency": 0,
                         "date_maturity": false,
                         "currency_id": false,
@@ -2202,9 +1981,7 @@ export default class DriveV3 extends React.Component {
                             [
                                 6,
                                 false,
-                                [
-
-                                ]
+                                []
                             ]
                         ],
                         "tax_base_amount": 0,
@@ -2214,9 +1991,7 @@ export default class DriveV3 extends React.Component {
                             [
                                 6,
                                 false,
-                                [
-
-                                ]
+                                []
                             ]
                         ],
                         "analytic_account_id": false,
@@ -2240,7 +2015,7 @@ export default class DriveV3 extends React.Component {
         odoo_data[0].line_ids.push(
             [
                 0,
-                "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
+                "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
                 {
                     "account_id": 6,
                     "sequence": 10,
@@ -2290,142 +2065,443 @@ export default class DriveV3 extends React.Component {
             ]
         )
 
-        SmartService.create_facture_odoo(localStorage.getItem("token"),localStorage.getItem("usrtoken"),{data:odoo_data}).then( createFactRes => {
+        SmartService.create_facture_odoo(localStorage.getItem("token"), localStorage.getItem("usrtoken"), {data: odoo_data}).then(createFactRes => {
             //console.log(createFactRes)
-            window.open("http://91.121.162.202:10013/my/invoices/"+createFactRes.data.id+"?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true","_blank")
+            window.open("http://91.121.162.202:10013/my/invoices/" + createFactRes.data.id + "?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true", "_blank")
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    createFacture_ForSelected() {
+        let lignes_factures = this.state.lignesFactures.filter((lf) => lf.checked === true);
+        let odoo_data = [{
+            "access_token": "eafd285777ggobfvxyvnx",
+            "state": "draft",
+            "type": "out_invoice",
+            "invoice_sent": false,
+            "l10n_ch_isr_sent": false,
+            "name": "",
+            "invoice_date": moment(this.state.dateFacture).format("YYYY-MM-DD"),
+            "date": moment(this.state.dateFacture).format("YYYY-MM-DD"),
+            "journal_id": 1,
+            "currency_id": 5,
+            "invoice_user_id": 3,
+            "invoice_incoterm_id": false,
+            "auto_post": false,
+            "to_check": false,
+            "authorized_transaction_ids": [
+                [
+                    6,
+                    false,
+                    []
+                ]
+            ],
+            "tax_lock_date_message": false,
+            "id": false,
+            "invoice_payment_state": "not_paid",
+            "invoice_filter_type_domain": "sale",
+            "company_currency_id": 5,
+            "commercial_partner_id": "",
+            "bank_partner_id": 1,
+            "invoice_has_outstanding": false,
+            "l10n_ch_currency_name": "CHF",
+            "invoice_sequence_number_next_prefix": false,
+            "invoice_sequence_number_next": false,
+            "invoice_has_matching_suspense_amount": false,
+            "has_reconciled_entries": false,
+            "restrict_mode_hash_table": false,
+            "partner_id": lignes_factures[0].newTime.company_id,
+            "ref": 121006,
+            "invoice_vendor_bill_id": false,
+            "invoice_payment_term_id": 1,
+            "invoice_date_due": "2020-09-06",
+            "company_id": 1,
+            "amount_untaxed": 0,
+            "amount_by_group": [],
+            "amount_total": 0,
+            "invoice_payments_widget": "False",
+            "amount_residual": 0,
+            "invoice_outstanding_credits_debits_widget": false,
+            "narration": false,
+            "invoice_origin": false,
+            "fiscal_position_id": 1,
+            "invoice_cash_rounding_id": false,
+            "invoice_source_email": false,
+            "invoice_payment_ref": false,
+            "invoice_partner_bank_id": false,
+            "reversed_entry_id": false,
+            "message_follower_ids": [],
+            "activity_ids": [],
+            "message_ids": [],
+            "message_attachment_count": 0,
+            "invoice_line_ids": [
+                [
+                    0,
+                    "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
+                    {
+                        "sequence": 10,
+                        "account_id": 104,
+                        "quantity": 0.15,
+                        "discount": 10,
+                        "partner_id": false,
+                        "currency_id": false,
+                        "debit": 0,
+                        "credit": 60,
+                        "display_type": false,
+                        "product_id": 1,
+                        "name": "/*/*/",
+                        "analytic_account_id": false,
+                        "analytic_tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+
+                        "price_unit": 400,
+                        "tax_ids": [
+                            [
+                                6, false, []
+                            ]
+                        ],
+                        "amount_currency": 0,
+                        "date_maturity": false,
+                        "tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "recompute_tax_line": false,
+                        "is_rounding_line": false,
+                        "exclude_from_invoice_tab": false
+                    }
+                ]
+            ],
+            "line_ids": []
+        }]
+        let total = 0;
+        lignes_factures.map((ligne, key) => {
+            total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation))
+            let OAContact = this.getOAContactByEmail(ligne.newTime.utilisateurOA);
+            odoo_data[0].line_ids.push(
+                [
+                    0,
+                    "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
+                    {
+                        "account_id": 104,
+                        "sequence": 10,
+                        "name": ligne.template === "0" ? ligne.newTime.description :
+                            ligne.template === "1" ? OAContact.nom + " " + OAContact.prenom :
+                                ligne.template === "2" ? ligne.newTime.duree + " Heures" :
+                                    ligne.template === "3" ? ligne.newTime.description + " ; " + OAContact.nom + " " + OAContact.prenom :
+                                        ligne.template === "4" ? ligne.newTime.description + " ; " + ligne.newTime.duree + " Heures" :
+                                            ligne.template === "5" ? ligne.newTime.description + " ; " + OAContact.nom + " " + OAContact.prenom + " ; " + ligne.newTime.duree + " Heures" : ligne.newTime.description,
+                        "quantity": ligne.newTime.duree,
+                        "price_unit": parseFloat(ligne.newTime.rateFacturation),
+                        "discount": 0,
+                        "debit": 0,
+                        "credit": ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation),
+                        "amount_currency": 0,
+                        "date_maturity": false,
+                        "currency_id": false,
+                        "partner_id": false,
+                        "product_uom_id": false,
+                        "product_id": 1,
+                        "payment_id": false,
+                        "tax_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "tax_base_amount": 0,
+                        "tax_exigible": true,
+                        "tax_repartition_line_id": false,
+                        "tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "analytic_account_id": false,
+                        "analytic_tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "recompute_tax_line": false,
+                        "display_type": false,
+                        "is_rounding_line": false,
+                        "exclude_from_invoice_tab": false
+                    }
+                ],
+            )
+
+        })
+        //console.log(total)
+        odoo_data[0].line_ids.push(
+            [
+                0,
+                "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
+                {
+                    "account_id": 6,
+                    "sequence": 10,
+                    "name": false,
+                    "quantity": 1,
+                    "price_unit": -total,
+                    "discount": 0,
+                    "debit": total,
+                    "credit": 0,
+                    "amount_currency": 0,
+                    "date_maturity": "2020-09-08",
+                    "currency_id": false,
+                    "partner_id": false,
+                    "product_uom_id": false,
+                    "product_id": false,
+                    "payment_id": false,
+                    "tax_ids": [
+                        [
+                            6,
+                            false,
+                            []
+                        ]
+                    ],
+                    "tax_base_amount": 0,
+                    "tax_exigible": true,
+                    "tax_repartition_line_id": false,
+                    "tag_ids": [
+                        [
+                            6,
+                            false,
+                            []
+                        ]
+                    ],
+                    "analytic_account_id": false,
+                    "analytic_tag_ids": [
+                        [
+                            6,
+                            false,
+                            []
+                        ]
+                    ],
+                    "recompute_tax_line": false,
+                    "display_type": false,
+                    "is_rounding_line": false,
+                    "exclude_from_invoice_tab": true
+                }
+            ]
+        )
+
+        SmartService.create_facture_odoo(localStorage.getItem("token"), localStorage.getItem("usrtoken"), {data: odoo_data}).then(createFactRes => {
+            //console.log(createFactRes)
+            window.open("http://91.121.162.202:10013/my/invoices/" + createFactRes.data.id + "?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true", "_blank")
         }).catch(err => {
             console.log(err);
         })
     }
 
 
-    deleteLigneFact(lf){
+    deleteLigneFact(lf) {
         const r = window.confirm("Voulez-vous vraiment supprimer cette ligne facture ?");
-        if(r === true){
+        if (r === true) {
             let lignes_facture = this.state.lignesFactures;
             let findIndex = lignes_facture.findIndex(x => x.uid === lf.uid);
-            lignes_facture.splice(findIndex,1);
-            this.setState({lignesFactures:lignes_facture})
+            lignes_facture.splice(findIndex, 1);
+            this.setState({lignesFactures: lignes_facture})
         }
 
     }
 
-    updateLignes_facture(lignes_factures){
+    updateLignes_facture(lignes_factures) {
         setTimeout(() => {
             firebase.database().ref("/lignes_factures").set(lignes_factures);
             //console.log(this.state.TimeSheet)
-        },300)
+        }, 300)
 
     }
 
 
-    genrateGed(){
-        SmartService.addFolder({name:"SECRETARIAT",folder_id:null},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes => {
+    genrateGed() {
+        SmartService.addFolder({
+            name: "SECRETARIAT",
+            folder_id: null
+        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes => {
 
             console.log("OK")
 
-            SmartService.addFolder({name:"ETUDE",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes1 => {
+            SmartService.addFolder({
+                name: "ETUDE",
+                folder_id: addFolderRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes1 => {
 
                 console.log("OK")
-                SmartService.addFolder({name:"BCORP",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "BCORP",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"LOGOS",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "LOGOS",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PHOTOS",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "PHOTOS",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CONFERENCE - PUBLICATIONS",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "CONFERENCE - PUBLICATIONS",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"KNOW HOW",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "KNOW HOW",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"NEWSLETTER",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "NEWSLETTER",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PRESENTATION ETUDE",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "PRESENTATION ETUDE",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CALENDRIER",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "CALENDRIER",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"EVENT",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "EVENT",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"MODELES",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "MODELES",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"ARCHIVAGE",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "ARCHIVAGE",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"OUVERTURE DOSSIER",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "OUVERTURE DOSSIER",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"LISTE TELEPHONE INTERNE",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "LISTE TELEPHONE INTERNE",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"ASSOCIES ***",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes1_assoc => {
+                SmartService.addFolder({
+                    name: "ASSOCIES ***",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes1_assoc => {
                     console.log("OK")
 
-                    SmartService.addFolder({name:"CONVENTION D'ACTIONNAIRES",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "CONVENTION D'ACTIONNAIRES",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
                         console.log(err)
                     })
-                    SmartService.addFolder({name:"CONTRAT DE TRAVAIL",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "CONTRAT DE TRAVAIL",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
                         console.log(err)
                     })
-                    SmartService.addFolder({name:"DECISIONS CONSEIL D'ADMINISTRATION",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "DECISIONS CONSEIL D'ADMINISTRATION",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
                         console.log(err)
                     })
-                    SmartService.addFolder({name:"ASSEMBLEE GENERALE EXTRAORDINAIRE",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "ASSEMBLEE GENERALE EXTRAORDINAIRE",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
                         console.log(err)
                     })
-                    SmartService.addFolder({name:"ASSEMBLEE GENERALE ORDINAIRE",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "ASSEMBLEE GENERALE ORDINAIRE",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
                         console.log(err)
                     })
-                    SmartService.addFolder({name:"PV REUNION",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "PV REUNION",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
@@ -2440,71 +2516,55 @@ export default class DriveV3 extends React.Component {
                 console.log(err)
             })
 
-            SmartService.addFolder({name:"LOCAUX",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes2 => {
+            SmartService.addFolder({
+                name: "LOCAUX",
+                folder_id: addFolderRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes2 => {
 
-                SmartService.addFolder({name:"ASSURANCES",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "ASSURANCES",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"BAIL A LOYER",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "BAIL A LOYER",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CAVES",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "CAVES",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"BAVITECH",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "BAVITECH",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"NETTOYAGE",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "NETTOYAGE",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"BADEL",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-
-            }).catch(err => {
-                console.log(err)
-            })
-
-            SmartService.addFolder({name:"COMPTABILITE *",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes3 => {
-
-                SmartService.addFolder({name:"BUDGET",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"FACTURATION CLIENTS",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"FACTURES FOURNISSEURS",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"TVA",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"LISTES IBAN",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"CAISSE ETUDE",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "BADEL",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
@@ -2514,39 +2574,55 @@ export default class DriveV3 extends React.Component {
                 console.log(err)
             })
 
-            SmartService.addFolder({name:"RH *",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes4 => {
+            SmartService.addFolder({
+                name: "COMPTABILITE *",
+                folder_id: addFolderRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes3 => {
 
-                SmartService.addFolder({name:"EMPLOYES",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "BUDGET",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"WELCOME PACK",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "FACTURATION CLIENTS",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"LPP ETUDE",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "FACTURES FOURNISSEURS",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"FER CIAM",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "TVA",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"TELETRAVAIL",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "LISTES IBAN",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CANDIDATURES",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"OCAS",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "CAISSE ETUDE",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
@@ -2556,15 +2632,90 @@ export default class DriveV3 extends React.Component {
                 console.log(err)
             })
 
-            SmartService.addFolder({name:"LISTES",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes5 => {
+            SmartService.addFolder({
+                name: "RH *",
+                folder_id: addFolderRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes4 => {
 
-
-                SmartService.addFolder({name:"CLIENTS",folder_id:addFolderRes5.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "EMPLOYES",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"AVOCATS",folder_id:addFolderRes5.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "WELCOME PACK",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "LPP ETUDE",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "FER CIAM",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "TELETRAVAIL",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "CANDIDATURES",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "OCAS",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+            SmartService.addFolder({
+                name: "LISTES",
+                folder_id: addFolderRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes5 => {
+
+
+                SmartService.addFolder({
+                    name: "CLIENTS",
+                    folder_id: addFolderRes5.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "AVOCATS",
+                    folder_id: addFolderRes5.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
@@ -2578,67 +2729,109 @@ export default class DriveV3 extends React.Component {
             console.log(err)
         })
 
-        SmartService.addFolder({name:"CLIENTS",folder_id:null},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes => {
+        SmartService.addFolder({
+            name: "CLIENTS",
+            folder_id: null
+        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes => {
 
-            SmartService.addFolder({name:"HYPERSONIC LTD",folder_id:addFolderClientRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes1 => {
+            SmartService.addFolder({
+                name: "HYPERSONIC LTD",
+                folder_id: addFolderClientRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes1 => {
                 console.log("OK")
 
-                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "ADMIN (Lettre d'engagement)",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"MÉMOIRE",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "MÉMOIRE",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CHARGE DE PIECES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CHARGE DE PIECES",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CONVOCATIONS",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CONVOCATIONS",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "ADMIN (Lettre d'engagement)",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"COMPTABILITE",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "COMPTABILITE",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CORRESPONDANCE",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CORRESPONDANCE",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"INTERNE ****",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "INTERNE ****",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"NOTES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "NOTES",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PV RENDEZ-VOUS",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "PV RENDEZ-VOUS",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PROCEDURES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "PROCEDURES",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"RECHERCHES JURIDIQUES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "RECHERCHES JURIDIQUES",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
@@ -2648,65 +2841,104 @@ export default class DriveV3 extends React.Component {
                 console.log(err)
             })
 
-            SmartService.addFolder({name:"Serge LICHTENSTEIN",folder_id:addFolderClientRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes2 => {
+            SmartService.addFolder({
+                name: "Serge LICHTENSTEIN",
+                folder_id: addFolderClientRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes2 => {
                 console.log("OK")
 
-                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "ADMIN (Lettre d'engagement)",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"MÉMOIRE",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "MÉMOIRE",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CHARGE DE PIECES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CHARGE DE PIECES",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CONVOCATIONS",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CONVOCATIONS",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "ADMIN (Lettre d'engagement)",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"COMPTABILITE",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "COMPTABILITE",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CORRESPONDANCE",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CORRESPONDANCE",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"INTERNE ****",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "INTERNE ****",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"NOTES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "NOTES",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PV RENDEZ-VOUS",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "PV RENDEZ-VOUS",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PROCEDURES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "PROCEDURES",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"RECHERCHES JURIDIQUES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "RECHERCHES JURIDIQUES",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
@@ -2721,14 +2953,14 @@ export default class DriveV3 extends React.Component {
         })
     }
 
-    onInputTimeSuggChange = (event, { newValue }) => {
+    onInputTimeSuggChange = (event, {newValue}) => {
         console.log(newValue)
         let d = this.state.TimeSheet
         d.newTime.duree = newValue
         this.setState({TimeSheet: d})
     };
 
-    onTimeSuggestionsFetchRequested = ({ value }) => {
+    onTimeSuggestionsFetchRequested = ({value}) => {
         this.setState({
             timeSuggestions: getTimeSuggestions(value)
         });
@@ -2747,15 +2979,18 @@ export default class DriveV3 extends React.Component {
 
         const inputSuggProps = {
             placeholder: '0:1, 0:15, 0:30...',
-            value:this.state.TimeSheet.newTime.duree,
+            value: this.state.TimeSheet.newTime.duree,
             onChange: this.onInputTimeSuggChange
         };
 
-        const contactSelectOptions=[];
-        contactSelectOptions.push({label:"Aucun",value:""})
-        this.state.contacts.map((contact,key) => {
-            contactSelectOptions.push({value:contact.email,
-                label:<div><img alt="" src={contact.imageUrl || null} style={{width:30,height:30,objectFit:"cover"}}/>{" "}{contact.nom+" "+contact.prenom}</div>
+        const contactSelectOptions = [];
+        contactSelectOptions.push({label: "Aucun", value: ""})
+        this.state.contacts.map((contact, key) => {
+            contactSelectOptions.push({
+                value: contact.email,
+                label: <div>
+                    <img alt="" src={contact.imageUrl || null} style={{width: 30, height: 30, objectFit: "cover"}}/>
+                    {" "}{contact.nom + " " + contact.prenom}</div>
             })
         })
         return (
@@ -3872,14 +4107,15 @@ export default class DriveV3 extends React.Component {
                                                        })
                                                    }
                                                    }
-                                                   addNewtask={(title, assignedTo, team, selectedDateTime) => {
+                                                   addNewtask={(title,selectedClient, assignedTo, team, selectedDateTime) => {
                                                        let room = this.state.selectedRoom;
                                                        let tasks = room.tasks || [];
                                                        tasks.push({
                                                            title: title,
                                                            assignedTo: assignedTo,
                                                            team: team,
-                                                           dateTime: selectedDateTime
+                                                           dateTime: selectedDateTime,
+                                                           clientAttribution:selectedClient
                                                        })
                                                        room.tasks = tasks;
                                                        firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
@@ -3910,15 +4146,19 @@ export default class DriveV3 extends React.Component {
                                                        })
                                                    }}
                                                    onDeleteTask={(key) => {
-                                                       let room = this.state.selectedRoom;
-                                                       let tasks = room.tasks;
-                                                       tasks.splice(key, 1);
-                                                       room.tasks = tasks;
-                                                       firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
-                                                           room
-                                                       ).then(ok => {
-                                                           this.setState({selectedRoom: room})
-                                                       })
+                                                       const r = window.confirm("Voulez-vous vraiment supprimer cette tâche ?");
+                                                       if (r === true) {
+                                                           let room = this.state.selectedRoom;
+                                                           let tasks = room.tasks;
+                                                           tasks.splice(key, 1);
+                                                           room.tasks = tasks;
+                                                           firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
+                                                               room
+                                                           ).then(ok => {
+                                                               this.setState({selectedRoom: room})
+                                                           })
+                                                       }
+
                                                    }}
                                             />
                                         }
@@ -4046,7 +4286,8 @@ export default class DriveV3 extends React.Component {
                                                                                 <div
                                                                                     className="col-md-2 bg-danger text-center "
                                                                                     style={{width: "10%"}}>
-                                                                                    <h4 style={{color: "white"}}>OA Legal</h4>
+                                                                                    <h4 style={{color: "white"}}>OA
+                                                                                        Legal</h4>
                                                                                 </div>
                                                                                 <hr style={{
                                                                                     backgroundColor: "#c0c0c0",
@@ -4519,15 +4760,18 @@ export default class DriveV3 extends React.Component {
                                                                                 <Tab>Affiliations</Tab>
                                                                                 <Tab>Domaine d'activités</Tab>
                                                                                 <Tab>Langues</Tab>
-                                                                                <Tab>Domaines d'intérêt, loisirs et sports</Tab>
+                                                                                <Tab>Domaines d'intérêt, loisirs et
+                                                                                    sports</Tab>
                                                                             </TabList>
 
                                                                             <TabPanel>
                                                                                 <h5 style={{marginTop: 20}}>Informations
                                                                                     générales</h5>
-                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 35}}>
                                                                                     <div className="col-md-8">
-                                                                                        <p style={{marginBottom: 10}}>À propos</p>
+                                                                                        <p style={{marginBottom: 10}}>À
+                                                                                            propos</p>
                                                                                         <textarea
                                                                                             rows={7}
                                                                                             className="form-control"
@@ -4538,7 +4782,7 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
                                                                                     <div className="col-md-4">
                                                                                         <h6>
-                                                                                            Rate de facturation
+                                                                                            Taux horaire
                                                                                         </h6>
                                                                                         <Input
                                                                                             className="form-control "
@@ -4553,7 +4797,7 @@ export default class DriveV3 extends React.Component {
 
                                                                                             value={this.state.selectedContact.rateFacturation}
                                                                                             onChange={this.handleChange('selectedContact', 'rateFacturation')}
-                                                                                            />
+                                                                                        />
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="row"
@@ -4959,6 +5203,7 @@ export default class DriveV3 extends React.Component {
                                                                 contacts={this.state.contacts}
                                                                 societes={this.state.annuaire_clients_mondat}
                                                                 onEditClick={(societe, key) => {
+                                                                    //this.props.history.push('/society/clients_mondat/'+societe.ID)
                                                                     this.setState({
                                                                             selectedSociete: societe,
                                                                             selectedSocieteKey: key,
@@ -5915,11 +6160,13 @@ export default class DriveV3 extends React.Component {
                                                                                 <Tab>List imputation </Tab>
                                                                                 {
                                                                                     localStorage.getItem("role") === "admin" &&
-                                                                                        [
-                                                                                            <Tab key={0}>Imputation client </Tab>,
-                                                                                            <Tab key={1}>Imputation team & scheduled time </Tab>,
-                                                                                            <Tab key={2}>New Expenses </Tab>
-                                                                                        ]
+                                                                                    [
+                                                                                        <Tab key={0}>Imputation
+                                                                                            client </Tab>,
+                                                                                        <Tab key={1}>Imputation team &
+                                                                                            scheduled time </Tab>,
+                                                                                        <Tab key={2}>New Expenses </Tab>
+                                                                                    ]
                                                                                 }
 
                                                                             </TabList>
@@ -5934,14 +6181,16 @@ export default class DriveV3 extends React.Component {
                                                                                                     <h5>Durée</h5>
                                                                                                     <div
                                                                                                         className="row">
-                                                                                                        <div className="col-md-5">
+                                                                                                        <div
+                                                                                                            className="col-md-5">
                                                                                                             <Autosuggest
                                                                                                                 suggestions={this.state.timeSuggestions}
                                                                                                                 onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
                                                                                                                 onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
-                                                                                                                onSuggestionSelected={(event,{suggestion}) => console.log(suggestion)}
+                                                                                                                onSuggestionSelected={(event, {suggestion}) => console.log(suggestion)}
                                                                                                                 getSuggestionValue={suggestion => suggestion}
-                                                                                                                renderSuggestion={suggestion => (<div>{suggestion}</div>)}
+                                                                                                                renderSuggestion={suggestion => (
+                                                                                                                    <div>{suggestion}</div>)}
                                                                                                                 inputProps={inputSuggProps}
                                                                                                             />
                                                                                                         </div>
@@ -5965,18 +6214,21 @@ export default class DriveV3 extends React.Component {
                                                                                                                                     height: 36,
                                                                                                                                     fontWeight: 700,
                                                                                                                                     fontSize: 16,
-                                                                                                                                    letterSpacing:"0.1rem"
+                                                                                                                                    letterSpacing: "0.1rem"
                                                                                                                                 }}>
-                                                                                                                                <Timer.Hours formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`}/>
-                                                                                                                                <Timer.Minutes formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`}/>
-                                                                                                                                <Timer.Seconds formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`}/>
+                                                                                                                                <Timer.Hours
+                                                                                                                                    formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`}/>
+                                                                                                                                <Timer.Minutes
+                                                                                                                                    formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`}/>
+                                                                                                                                <Timer.Seconds
+                                                                                                                                    formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`}/>
                                                                                                                             </div>
                                                                                                                             <div
                                                                                                                                 style={{marginLeft: 10}}>
                                                                                                                                 <div
                                                                                                                                     align="center"
                                                                                                                                     style={{
-                                                                                                                                        backgroundColor: (getTimerState() === "STOPPED" ||getTimerState() === "INITED") ? "green":"red",
+                                                                                                                                        backgroundColor: (getTimerState() === "STOPPED" || getTimerState() === "INITED") ? "green" : "red",
                                                                                                                                         padding: 5,
                                                                                                                                         borderRadius: 10,
                                                                                                                                         width: 50,
@@ -5986,21 +6238,21 @@ export default class DriveV3 extends React.Component {
                                                                                                                                     }}
 
                                                                                                                                     onClick={() => {
-                                                                                                                                        if(getTimerState() === "STOPPED" || getTimerState() === "INITED"){
+                                                                                                                                        if (getTimerState() === "STOPPED" || getTimerState() === "INITED") {
                                                                                                                                             start()
-                                                                                                                                        }else{
+                                                                                                                                        } else {
                                                                                                                                             let timeEtablished = getTime()
                                                                                                                                             console.log(timeEtablished)
                                                                                                                                             let timeH = ((timeEtablished / 1000) / 60) / 60;
                                                                                                                                             console.log(timeH)
                                                                                                                                             let obj = this.state.TimeSheet;
-                                                                                                                                            obj.newTime.duree = timeH.toFixed(3).replace(".",":")
+                                                                                                                                            obj.newTime.duree = timeH.toFixed(3).replace(".", ":")
                                                                                                                                             this.setState({TimeSheet: obj})
                                                                                                                                             stop()
                                                                                                                                         }
                                                                                                                                     }}
                                                                                                                                 >
-                                                                                                                                    {(getTimerState() === "STOPPED" ||getTimerState() === "INITED") ? "Start":"Stop"}
+                                                                                                                                    {(getTimerState() === "STOPPED" || getTimerState() === "INITED") ? "Start" : "Stop"}
                                                                                                                                 </div>
                                                                                                                                 <div
                                                                                                                                     align="center"
@@ -6065,7 +6317,7 @@ export default class DriveV3 extends React.Component {
                                                                                                                     let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : "" : "";
                                                                                                                     console.log(partner_email)
                                                                                                                     this.setState({
-                                                                                                                        partnerFacture:partner_email,
+                                                                                                                        partnerFacture: partner_email,
                                                                                                                         selectedClientTimeEntree: e,
                                                                                                                         TimeSheet: obj
                                                                                                                     })
@@ -6087,7 +6339,8 @@ export default class DriveV3 extends React.Component {
                                                                                                 <div
                                                                                                     className="col-md-4">
                                                                                                     <div>
-                                                                                                        <h5>Catégorie d’activités </h5>
+                                                                                                        <h5>Catégorie
+                                                                                                            d’activités </h5>
                                                                                                         <MuiSelect
                                                                                                             labelId="demo-simple-select-label"
                                                                                                             id="demo-simple-select"
@@ -6100,24 +6353,25 @@ export default class DriveV3 extends React.Component {
                                                                                                             }}
                                                                                                         >
                                                                                                             <MenuItem
-                                                                                                                value={"Temps facturé"}>Temps facturé</MenuItem>
+                                                                                                                value={"Temps facturé"}>Temps
+                                                                                                                facturé</MenuItem>
                                                                                                             <MenuItem
                                                                                                                 value={"Paiement avancée"}>Provision</MenuItem>
                                                                                                         </MuiSelect>
                                                                                                     </div>
 
                                                                                                 </div>
-                                                                                                <div className="col-md-4">
+                                                                                                <div
+                                                                                                    className="col-md-4">
                                                                                                     <div
                                                                                                         style={{width: "100%"}}>
                                                                                                         <h5>Date</h5>
                                                                                                         <DatePicker
 
                                                                                                             calendarIcon={
-                                                                                                                <img
-                                                                                                                    src={calendar}
-                                                                                                                    style={{width: 20}}/>}
+                                                                                                                <img alt="" src={calendar} style={{width: 20}}/>}
                                                                                                             onChange={(e) => {
+                                                                                                                console.log(e)
                                                                                                                 let d = this.state.TimeSheet
                                                                                                                 d.newTime.date = e
                                                                                                                 this.setState({TimeSheet: d})
@@ -6154,7 +6408,9 @@ export default class DriveV3 extends React.Component {
                                                                                                 <div
                                                                                                     className="col-md-4">
                                                                                                     <div>
-                                                                                                        <h6>Utilisateur chez OA </h6>
+                                                                                                        <h6>Utilisateur
+                                                                                                            chez
+                                                                                                            OA </h6>
                                                                                                     </div>
 
                                                                                                     <RSelect
@@ -6166,9 +6422,12 @@ export default class DriveV3 extends React.Component {
                                                                                                         styles={{
                                                                                                             container: (provided, state) => ({
                                                                                                                 ...provided,
-                                                                                                                width:300
+                                                                                                                width: 250
                                                                                                             }),
-                                                                                                            menuPortal: styles => ({ ...styles, zIndex: 9999 })
+                                                                                                            menuPortal: styles => ({
+                                                                                                                ...styles,
+                                                                                                                zIndex: 9999
+                                                                                                            })
                                                                                                         }}
                                                                                                         menuPortalTarget={document.body}
                                                                                                         onChange={(e) => {
@@ -6176,9 +6435,9 @@ export default class DriveV3 extends React.Component {
                                                                                                             let d = this.state.TimeSheet
                                                                                                             d.newTime.utilisateurOA = e.value;
                                                                                                             let OA_contacts = this.state.contacts;
-                                                                                                            let OA_contact="";
-                                                                                                            OA_contacts.map((contact,key) => {
-                                                                                                                if(contact && contact.email && contact.email === e.value){
+                                                                                                            let OA_contact = "";
+                                                                                                            OA_contacts.map((contact, key) => {
+                                                                                                                if (contact && contact.email && contact.email === e.value) {
                                                                                                                     OA_contact = contact
                                                                                                                 }
                                                                                                             })
@@ -6187,9 +6446,10 @@ export default class DriveV3 extends React.Component {
                                                                                                         }}
                                                                                                     />
 
-                                                                                                    <div className="mt-3">
+                                                                                                    <div
+                                                                                                        className="mt-3">
                                                                                                         <h6>
-                                                                                                            Rate de facturation
+                                                                                                            Taux horaire
                                                                                                         </h6>
                                                                                                         <Input
                                                                                                             className="form-control "
@@ -6209,38 +6469,78 @@ export default class DriveV3 extends React.Component {
                                                                                                             }}/>
                                                                                                     </div>
                                                                                                 </div>
+                                                                                                <div
+                                                                                                    className="col-md-4">
+                                                                                                    <h6>Choix du
+                                                                                                        template </h6>
+                                                                                                    <select
+                                                                                                        className="form-control custom-select"
+                                                                                                        value={this.state.lignef_template}
+                                                                                                        onChange={(e) => {
+                                                                                                            this.setState({lignef_template: e.target.value})
+                                                                                                        }}>
+                                                                                                        <option
+                                                                                                            value="0">Description
+                                                                                                            seulemnt
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="1">Nom
+                                                                                                            avocat
+                                                                                                            seulemnt
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="2">Nombre
+                                                                                                            d'heures
+                                                                                                            seulemnt
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="3">Description
+                                                                                                            + Nom avocat
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="4">Description
+                                                                                                            + Nombre
+                                                                                                            d'heures
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="5">Description
+                                                                                                            + Nom avocat
+                                                                                                            + Nombre
+                                                                                                            d'heures
+                                                                                                        </option>
+                                                                                                    </select>
+                                                                                                </div>
 
                                                                                             </div>
-                                                                                            <div align="center"
-                                                                                                 className=" mt-4">
+                                                                                            <div align="center" className=" mt-4">
                                                                                                 <AltButtonGroup>
                                                                                                     <AtlButton
                                                                                                         onClick={() => {
 
                                                                                                             let obj = this.state.TimeSheet;
-                                                                                                            let utili_OA_copy = obj.newTime.utilisateurOA;
                                                                                                             let time = obj.newTime.duree;
                                                                                                             let timeFormated = ""
-                                                                                                            if(time.indexOf(":") > -1 ){
-                                                                                                                timeFormated = parseFloat(time.replace(":","."));
-                                                                                                            }else if(time.indexOf(".") > -1){
+                                                                                                            if (time.indexOf(":") > -1) {
+                                                                                                                timeFormated = parseFloat(time.replace(":", "."));
+                                                                                                            } else if (time.indexOf(".") > -1) {
                                                                                                                 timeFormated = parseFloat(time)
-                                                                                                            }else if(time.indexOf(":") === -1 && time.indexOf(".") === -1){
+                                                                                                            } else if (time.indexOf(":") === -1 && time.indexOf(".") === -1) {
                                                                                                                 timeFormated = parseInt(time);
+                                                                                                            } else {
+                                                                                                                this.openSnackbar("error", "Le format de la durée est invalide !")
                                                                                                             }
-                                                                                                            else{
-                                                                                                                this.openSnackbar("error","Le format de la durée est invalide !")
-                                                                                                            }
-                                                                                                            if((typeof timeFormated) !== "number" || isNaN(timeFormated)){
-                                                                                                                this.openSnackbar("error","Le format de la durée est invalide !")
-                                                                                                            }else{
+                                                                                                            if ((typeof timeFormated) !== "number" || isNaN(timeFormated)) {
+                                                                                                                this.openSnackbar("error", "Le format de la durée est invalide !")
+                                                                                                            } else {
                                                                                                                 obj.newTime.duree = timeFormated;
                                                                                                                 let lignes_fact = this.state.lignesFactures || [];
 
-                                                                                                                SmartService.create_company(localStorage.getItem("token"),localStorage.getItem("usrtoken"),{param:{name:obj.newTime.client}}).then(newCompRes => {
+                                                                                                                SmartService.create_company(localStorage.getItem("token"), localStorage.getItem("usrtoken"), {param: {name: obj.newTime.client}}).then(newCompRes => {
                                                                                                                     obj.newTime.company_id = newCompRes.data.id;
+                                                                                                                    obj.newTime.date = moment(this.state.TimeSheet.newTime.data).format("YYYY-MM-DD");
                                                                                                                     obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
                                                                                                                     obj.user_email = localStorage.getItem("email");
+                                                                                                                    obj.template = this.state.lignef_template;
                                                                                                                     lignes_fact.push(obj);
 
                                                                                                                     this.setState({
@@ -6275,10 +6575,14 @@ export default class DriveV3 extends React.Component {
                                                                                                     </AtlButton>
                                                                                                     <AtlButton
                                                                                                         appearance=""
-                                                                                                        style={{margin: 20}}>Enregistrer et créer une autre</AtlButton>
+                                                                                                        style={{margin: 20}}>Enregistrer
+                                                                                                        et créer une
+                                                                                                        autre</AtlButton>
                                                                                                     <AtlButton
                                                                                                         appearance=""
-                                                                                                        style={{margin: 20}}>Enregistrer & dupliquer</AtlButton>
+                                                                                                        style={{margin: 20}}>Enregistrer
+                                                                                                        &
+                                                                                                        dupliquer</AtlButton>
                                                                                                     <AtlButton
                                                                                                         appearance=""
                                                                                                         style={{margin: 20}}
@@ -6303,7 +6607,8 @@ export default class DriveV3 extends React.Component {
                                                                                                         style={{marginTop: 10}}>
                                                                                                         <AtlButton
                                                                                                             appearance=""
-                                                                                                            onClick={() => this.setState({showLignesFactureClient: true})}>Etablir facture</AtlButton>
+                                                                                                            onClick={() => this.setState({showLignesFactureClient: true})}>Etablir
+                                                                                                            facture</AtlButton>
                                                                                                         <AtlButton
                                                                                                             appearance="">Histo.Fact.Clients</AtlButton>
                                                                                                     </AltButtonGroup>
@@ -6315,20 +6620,29 @@ export default class DriveV3 extends React.Component {
                                                                                         <div>
                                                                                             <div className="mt-1">
                                                                                                 <div>
-                                                                                                    <div style={{textAlign: "right",marginTop:15}}>
-                                                                                                        <button onClick={() => this.setState({
-                                                                                                            showLignesFactureClient: false
-                                                                                                        })}
-                                                                                                                className="btn btn-sm btn-outline-info">Retour
+                                                                                                    <div style={{
+                                                                                                        textAlign: "right",
+                                                                                                        marginTop: 15
+                                                                                                    }}>
+                                                                                                        <button
+                                                                                                            onClick={() => this.setState({
+                                                                                                                showLignesFactureClient: false
+                                                                                                            })}
+                                                                                                            className="btn btn-sm btn-outline-info">Retour
                                                                                                         </button>
                                                                                                     </div>
                                                                                                     {/*<IconButton
                                                                                                         onClick={() => this.setState({showLignesFactureClient: false})}>
                                                                                                         <ArrowBackIcon/>
                                                                                                     </IconButton>*/}
-                                                                                                    <div className="row mt-3">
-                                                                                                        <div className="col-md-6">
-                                                                                                            <h5>identification / Imputation client</h5>
+                                                                                                    <div
+                                                                                                        className="row mt-3">
+                                                                                                        <div
+                                                                                                            className="col-md-6">
+                                                                                                            <h5>identification
+                                                                                                                /
+                                                                                                                Imputation
+                                                                                                                client</h5>
                                                                                                             <div
                                                                                                                 style={{display: "flex"}}>
                                                                                                                 <SelectSearch
@@ -6346,7 +6660,7 @@ export default class DriveV3 extends React.Component {
                                                                                                                     renderOption={renderSearchOption}
                                                                                                                     search
                                                                                                                     placeholder="Chercher votre client"
-                                                                                                                    onChange={ e => {
+                                                                                                                    onChange={e => {
                                                                                                                         console.log(e)
                                                                                                                         let obj = this.state.TimeSheet;
                                                                                                                         obj.newTime.client = e;
@@ -6356,7 +6670,7 @@ export default class DriveV3 extends React.Component {
                                                                                                                         let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : "" : "";
                                                                                                                         console.log(partner_email)
                                                                                                                         this.setState({
-                                                                                                                            partnerFacture:partner_email,
+                                                                                                                            partnerFacture: partner_email,
                                                                                                                             selectedClientTimeEntree: e,
                                                                                                                             TimeSheet: obj
                                                                                                                         })
@@ -6369,15 +6683,20 @@ export default class DriveV3 extends React.Component {
                                                                                                                 </IconButton>
                                                                                                             </div>
                                                                                                         </div>
-                                                                                                        <div className="col-md-4">
+                                                                                                        <div
+                                                                                                            className="col-md-4">
                                                                                                             <div
                                                                                                                 style={{width: "100%"}}>
-                                                                                                                <h5>Date de la facture</h5>
+                                                                                                                <h5>Date
+                                                                                                                    de
+                                                                                                                    la
+                                                                                                                    facture</h5>
                                                                                                                 <DatePicker
                                                                                                                     calendarIcon={
-                                                                                                                        <img alt=""
-                                                                                                                             src={calendar}
-                                                                                                                             style={{width: 20}}/>}
+                                                                                                                        <img
+                                                                                                                            alt=""
+                                                                                                                            src={calendar}
+                                                                                                                            style={{width: 20}}/>}
                                                                                                                     onChange={(e) => {
                                                                                                                         this.setState({dateFacture: e})
                                                                                                                     }}
@@ -6394,7 +6713,8 @@ export default class DriveV3 extends React.Component {
                                                                                             </div>
                                                                                             {
                                                                                                 searchFilterLignesfacture.length > 0 ?
-                                                                                                    <div className="mt-3">
+                                                                                                    <div
+                                                                                                        className="mt-3">
                                                                                                         <div style={{
                                                                                                             width: "100%",
                                                                                                             backgroundColor: "#D2DDFE",
@@ -6473,10 +6793,12 @@ export default class DriveV3 extends React.Component {
                                                                                                                         <div
                                                                                                                             align="center"
                                                                                                                             style={{width: "10%"}}>
-                                                                                                                            <IconButton onClick={() => {
-                                                                                                                                this.deleteLigneFact(lf)
-                                                                                                                            }}>
-                                                                                                                                <DeleteOutlineIcon color="error" />
+                                                                                                                            <IconButton
+                                                                                                                                onClick={() => {
+                                                                                                                                    this.deleteLigneFact(lf)
+                                                                                                                                }}>
+                                                                                                                                <DeleteOutlineIcon
+                                                                                                                                    color="error"/>
                                                                                                                             </IconButton>
                                                                                                                         </div>
                                                                                                                     </div>
@@ -6528,15 +6850,20 @@ export default class DriveV3 extends React.Component {
                                                                                                                 onClick={() => {
                                                                                                                     this.createFacture()
                                                                                                                 }}>
-                                                                                                                ETABLIR FACTURE</AtlButton>
+                                                                                                                ETABLIR
+                                                                                                                FACTURE</AtlButton>
                                                                                                         </div>
                                                                                                     </div> :
 
                                                                                                     <div
                                                                                                         className="mt-4">
-                                                                                                        <h5 style={{color: "#f50"}}>Aucune ligne
-                                                                                                            facture encore ajoutée pour
-                                                                                                            ce client !</h5>
+                                                                                                        <h5 style={{color: "#f50"}}>Aucune
+                                                                                                            ligne
+                                                                                                            facture
+                                                                                                            encore
+                                                                                                            ajoutée pour
+                                                                                                            ce client
+                                                                                                            !</h5>
                                                                                                     </div>
                                                                                             }
 
@@ -6552,13 +6879,23 @@ export default class DriveV3 extends React.Component {
                                                                                     this.state.lignesFactures.length > 0 &&
                                                                                     <TableTimeSheet
                                                                                         lignesFactures={this.state.lignesFactures}
-                                                                                        setLignesFactures={(lignes_factures) => this.setState({lignesFactures:lignes_factures})}
+                                                                                        setLignesFactures={(lignes_factures) => this.setState({lignesFactures: lignes_factures})}
                                                                                         OA_contacts={this.state.contacts}
+                                                                                        annuaire_clients_mondat={this.state.annuaire_clients_mondat}
                                                                                         onClickFacture={() => {
                                                                                             this.createFacture_ForSelected()
                                                                                         }
                                                                                         }
                                                                                     />
+                                                                                }
+                                                                                {
+                                                                                    this.state.lignesFactures.length === 0 &&
+                                                                                    <div style={{
+                                                                                        marginTop: 30,
+                                                                                        marginLeft: 10
+                                                                                    }}>Aucune ligne facture encore
+                                                                                        ajoutée !</div>
+
                                                                                 }
 
 
@@ -9348,7 +9685,7 @@ export default class DriveV3 extends React.Component {
 
                                                         this.setState({
                                                             openAdvancedSearchModal: false,
-                                                            partnerFacture:partner_email,
+                                                            partnerFacture: partner_email,
                                                             selectedClientTimeEntree: client.ContactName,
                                                             TimeSheet: obj
                                                         })

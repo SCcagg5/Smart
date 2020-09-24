@@ -22,8 +22,6 @@ import countryList from "../../tools/countryList";
 import Select from 'react-select';
 import FolderIcon from '@material-ui/icons/Folder';
 import Data from "../../data/Data";
-import Switch from "@material-ui/core/Switch";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 
 const { Panel } = Collapse;
