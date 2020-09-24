@@ -12,6 +12,23 @@ class odoo:
             "password": "test"
         }
         self.uid = None
+    
+    def case(self):
+        ret = {}
+        return [True, ret, None]
+
+    def new_case(self, client_id, type, name, folder_id, ged_id):
+        fol = folder(self.usr_id, ged_id).new(name, folder_id)
+        if not fol[0]:
+           return fol
+        folder_id = fol[1]["id"]
+        id = str(uuid.uuid4())
+        date = str(int(round(time.time() * 1000)))
+        succes = sql.input("INSERT INTO `odoo_case` (`id`,`ged_id`, `user_id`, `client_id`, `name`, `type`, `folder_id`, `date`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", \
+        (id, ged_id, self.usr_id, client_id, name, type, folder_id, date))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {"case_id": id, "folder_id": id}, None]
 
     def version(self):
         common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(self.opt['url']))
