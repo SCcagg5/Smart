@@ -390,7 +390,8 @@ export default function LeftMenuV3(props) {
                     <MenuItem  key={7} onClick={() => {
                         setAnchorElMenu(null);
                         setOpenDeleteModal(true)
-                    }} disabled={localStorage.getItem("role") !== "admin"}>
+                    }} //disabled={localStorage.getItem("role") !== "admin"}
+                    >
                         <ListItemIcon>
                             <DeleteOutlineIcon fontSize="small"/>
                         </ListItemIcon>

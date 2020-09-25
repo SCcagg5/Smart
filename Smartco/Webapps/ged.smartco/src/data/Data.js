@@ -376,6 +376,9 @@ let Data = {
     secteurs:[
         "","bancaire","Corporate","FinTech","Litige","Droit de bail","Droit du travail"
     ],
+    secteurs2:[
+        "corporate","litige"
+    ],
     contactTypes:[
         {value:"",label:""},
         {value:"Company",label:"Société"},

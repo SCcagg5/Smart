@@ -192,6 +192,26 @@ let SmartService = {
         });
     },
 
+    create_client(token,usrtoken,data){
+        return fetch(endpoint + '/odoo/test/user', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    create_client_folder(token,usrtoken,data){
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/odoo/test/case', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     create_facture_odoo(token,usrtoken,data){
         return fetch(endpoint + '/odoo/test/bill', {
             method: 'POST',

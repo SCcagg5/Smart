@@ -400,7 +400,11 @@ export default class DriveV3 extends React.Component {
                 SmartService.getGed(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(gedRes => {
 
                     if (gedRes.succes === true && gedRes.status === 200) {
-
+                        let client_folder = gedRes.data.Proprietary.Content.folders.find(x => x.name === "CLIENTS");
+                        if(client_folder){
+                            localStorage.setItem("client_folder_id",client_folder.id)
+                            console.log(client_folder.id)
+                        }
                         let meeturl = "https://meet.smartdom.ch/meet_" + moment().format("DDMMYYYYHHmmss")
 
                         firebase.database().ref('/').on('value', (snapshot) => {
@@ -2741,14 +2745,6 @@ export default class DriveV3 extends React.Component {
                 console.log("OK")
 
                 SmartService.addFolder({
-                    name: "ADMIN (Lettre d'engagement)",
-                    folder_id: addFolderClientRes1.data.id
-                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({
                     name: "MÉMOIRE",
                     folder_id: addFolderClientRes1.data.id
                 }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
@@ -2971,6 +2967,143 @@ export default class DriveV3 extends React.Component {
             timeSuggestions: []
         });
     };
+
+    generateClientFolder(name,type,folder_id,client_id){
+        this.setState({loading: true});
+        if(client_id === null){
+            SmartService.create_client(localStorage.getItem("token"),localStorage.getItem("usrtoken"),{param:{
+                    name: name,
+                    base64: false,
+                    parent_id: false,
+                    function: false,
+                    phone: false,
+                    mobile: false,
+                    email: false,
+                    website: false,
+                    title: false
+                }}).then( createClientRes => {
+
+                    SmartService.create_client_folder(localStorage.getItem("token"),localStorage.getItem("usrtoken"),{
+                        client_id:createClientRes.data.id,
+                        type:type,
+                        name:name,
+                        client_folder:folder_id
+                    }).then(createClientFolderRes => {
+
+                        SmartService.addFolder({
+                            name: "MÉMOIRE",
+                            folder_id: createClientFolderRes.data.folder_id
+                        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                            console.log("OK")
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                        SmartService.addFolder({
+                            name: "CHARGE DE PIECES",
+                            folder_id: createClientFolderRes.data.folder_id
+                        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                            console.log("OK")
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                        SmartService.addFolder({
+                            name: "CONVOCATIONS",
+                            folder_id: createClientFolderRes.data.folder_id
+                        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                            console.log("OK")
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                        SmartService.addFolder({
+                            name: "ADMIN (Lettre d'engagement)",
+                            folder_id: createClientFolderRes.data.folder_id
+                        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                            console.log("OK")
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                        SmartService.addFolder({
+                            name: "COMPTABILITE",
+                            folder_id: createClientFolderRes.data.folder_id
+                        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                            console.log("OK")
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                        SmartService.addFolder({
+                            name: "CORRESPONDANCE",
+                            folder_id: createClientFolderRes.data.folder_id
+                        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                            console.log("OK")
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                        SmartService.addFolder({
+                            name: "INTERNE ****",
+                            folder_id: createClientFolderRes.data.folder_id
+                        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                            console.log("OK")
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                        SmartService.addFolder({
+                            name: "NOTES",
+                            folder_id: createClientFolderRes.data.folder_id
+                        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                            console.log("OK")
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                        SmartService.addFolder({
+                            name: "PV RENDEZ-VOUS",
+                            folder_id: createClientFolderRes.data.folder_id
+                        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                            console.log("OK")
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                        SmartService.addFolder({
+                            name: "PROCEDURES",
+                            folder_id: createClientFolderRes.data.folder_id
+                        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                            console.log("OK")
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                        SmartService.addFolder({
+                            name: "RECHERCHES JURIDIQUES",
+                            folder_id: createClientFolderRes.data.folder_id
+                        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                            console.log("OK")
+                        }).catch(err => {
+                            console.log(err)
+                        })
+
+                        setTimeout(() => {
+                            let selected = this.state.selectedSociete;
+                            selected.client_id = createClientRes.data.id;
+                            selected.folder_id = createClientFolderRes.data.folder_id;
+                            selected.type_odoo = type;
+                            let key = this.findClientMondatById(this.state.selectedSociete.ID, this.state.annuaire_clients_mondat);
+                            firebase.database().ref('annuaire_client_mondat/' + key).set(
+                                selected
+                            ).then(res => {
+                                this.setState({loading: false})
+                                this.reloadGed()
+                            });
+
+                        },2000)
+
+
+                    }).catch(err => {console.log(err)})
+
+            }).catch(err => {console.log(err)})
+        }else{
+            this.setState({loading: false})
+            console.log("CLIENT CREATED")
+        }
+    }
+
 
 
     render() {
@@ -5210,8 +5343,24 @@ export default class DriveV3 extends React.Component {
                                                                             editSocieteForm: true
                                                                         }
                                                                     )
-                                                                }
-                                                                }/>
+                                                                }}
+                                                                onFolderClick={(folder_id) => {
+                                                                    if(folder_id){
+                                                                        this.props.history.replace({pathname: '/drive/'+folder_id});
+                                                                        this.setState({
+                                                                            showContainerSection: "Drive",
+                                                                            focusedItem: "Drive",
+                                                                            selectedDriveItem: [folder_id],
+                                                                            expandedDriveItems: [folder_id,localStorage.getItem("client_folder_id")],
+                                                                            selectedFoldername: this.getFolderNameById(folder_id, this.state.reelFolders),
+                                                                            breadcrumbs: this.getBreadcumpsPath(folder_id, this.state.reelFolders),
+                                                                            selectedFolderId: folder_id,
+                                                                            selectedFolderFiles: this.getFolderFilesById(folder_id, this.state.reelFolders),
+                                                                            selectedFolderFolders: this.getFolderFoldersById(folder_id, this.state.reelFolders),
+                                                                        })
+                                                                    }
+                                                                }}
+                                                            />
                                                         }
                                                     </div> :
                                                     <div>
@@ -5478,24 +5627,26 @@ export default class DriveV3 extends React.Component {
                                                                                             }
                                                                                         </div>
                                                                                         <div>
-                                                                                            <input
+                                                                                            <input style={{color:"#000"}}
                                                                                                 className="form-control"
                                                                                                 defaultValue={this.state.selectedSociete.ContactName}
-                                                                                                readOnly={true}/>
+                                                                                                readOnly={false}
+                                                                                                onChange={this.handleChange("selectedSociete", "ContactName" )}
+                                                                                            />
                                                                                         </div>
                                                                                     </div>
                                                                                     <div className="col-md-4">
                                                                                         <div>
-                                                                                            Type de dossier
+                                                                                            Type
                                                                                         </div>
                                                                                         <div>
                                                                                             <select
                                                                                                 className="form-control custom-select"
-                                                                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.typeDossier || "" : ""}
-                                                                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "typeDossier")}
+                                                                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.type_odoo || "" : ""}
+                                                                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "type_odoo")}
                                                                                             >
                                                                                                 {
-                                                                                                    Data.secteurs.map((secteur, key) =>
+                                                                                                    Data.secteurs2.map((secteur, key) =>
                                                                                                         <option
                                                                                                             key={key}
                                                                                                             value={secteur}>{secteur}</option>
@@ -5511,7 +5662,7 @@ export default class DriveV3 extends React.Component {
                                                                                             Description du projet
                                                                                         </div>
                                                                                         <div>
-                                                                                            <textarea
+                                                                                            <textarea style={{color:"#000"}}
                                                                                                 className="form-control"
                                                                                                 value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
                                                                                                 onChange={this.handleObjectChange("selectedSociete", "mondat", "description")}
@@ -5544,8 +5695,20 @@ export default class DriveV3 extends React.Component {
 
                                                                                     </div>
                                                                                 </div>
-                                                                                <div
-                                                                                    className="row mt-4 align-items-center">
+                                                                                <div style={{margintop:10,textAlign:"right"}}>
+                                                                                    <button type="button"
+                                                                                            disabled={this.state.selectedSociete.ContactName === ""}
+                                                                                            onClick={() => {
+                                                                                                this.generateClientFolder(this.state.selectedSociete.ContactName,
+                                                                                                    this.state.selectedSociete.mondat.type_odoo || "corporate",localStorage.getItem("client_folder_id"),
+                                                                                                    this.state.selectedSociete.client_id || null)
+                                                                                            }}
+                                                                                            className="btn btn-blue waves-effect mb-2 waves-light m-1">
+                                                                                        <i className="fe-folder-plus"/>&nbsp;&nbsp;
+                                                                                        Créer Dossier Client
+                                                                                    </button>
+                                                                                </div>
+                                                                                <div className="row mt-4 align-items-center">
                                                                                     <div className="col-md-4">
                                                                                         <div>
                                                                                             <h6>Personne en charge
