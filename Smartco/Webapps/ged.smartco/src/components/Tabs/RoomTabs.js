@@ -127,17 +127,17 @@ export default function RoomTabs(props) {
     const contactSelectOptions=[];
     contactSelectOptions.push({label:"Aucun",value:""})
     props.annuaire_clients.map((client,key) => {
-        contactSelectOptions.push({value:client.ContactName,
-            label:<div><img alt="" src={client.ContactType === "Person" ? client.imageUrl ? client.imageUrl : userAvatar : entIcon}
-                            style={{width:30,height:30,objectFit:"cover"}}/>{" "}{client.ContactName}</div>
+        contactSelectOptions.push({value:client.Nom+" "+(client.Prenom ||""),
+            label:<div><img alt="" src={client.Type === "1" ? client.imageUrl ? client.imageUrl : userAvatar : entIcon}
+                            style={{width:30,height:30,objectFit:"cover"}}/>{" "}{client.Nom+" "+(client.Prenom || "")}</div>
         })
     })
 
     return (
         <div>
             <Tabs value={value} onChange={handleChange} aria-label="room tabs ">
-                <Tab label="Chat" {...a11yProps(0)} style={{fontWeight:600,textTransform:"capitalize"}} />
-                <Tab label="Fichiers" {...a11yProps(1)} style={{fontWeight:600,textTransform:"capitalize"}} />
+                <Tab label="Chat" {...a11yProps(0)} style={{fontWeight:600,textTransform:"capitalize"}} disabled={true} />
+                <Tab label="Fichiers" {...a11yProps(1)} style={{fontWeight:600,textTransform:"capitalize"}} disabled={true} />
                 <Tab label="Tâches" {...a11yProps(2)} style={{fontWeight:600,textTransform:"capitalize"}} />
             </Tabs>
             <TabPanel value={value} index={0}>
@@ -247,7 +247,7 @@ export default function RoomTabs(props) {
                                                 menuPortalTarget={document.body}
                                                 onChange={(e) => {
                                                     setSelectedClient(e.value)
-                                                    let find_annuaire = (props.annuaire_clients || []).find(x => x.ContactName === e.value);
+                                                    let find_annuaire = (props.annuaire_clients || []).find(x => (x.Nom +" "+ x.Prenom || "") === e.value);
                                                     let lead_email = find_annuaire ? find_annuaire.facturation ? find_annuaire.facturation.collaborateur_lead : "" : "";
                                                     let team_emails = find_annuaire ? find_annuaire.facturation ? find_annuaire.facturation.collaborateur_team : [] : [];
                                                     let team_emails_formated = [];

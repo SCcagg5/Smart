@@ -534,7 +534,7 @@ export default class Main extends React.Component {
                                         localStorage.setItem("client_folder_id", client_folder.id);
                                         console.log(client_folder.id);
                                    }
-                                   let meeturl = "https://meet.smartdom.ch/meet_" + moment().format("DDMMYYYYHHmmss");
+                                   let meeturl = "https://meet.smartdom.ch/oalegal_" + moment().format("DDMMYYYYHHmmss");
 
                                    firebase.database().ref("/")
                                         .on("value", (snapshot) => {
@@ -4670,7 +4670,7 @@ export default class Main extends React.Component {
                                                                                 style={{marginTop: -17}}
                                                                                 onClick={() => {
                                                                                      let meeturl =
-                                                                                          "https://meet.smartdom.ch/meet_" +
+                                                                                          "https://meet.smartdom.ch/oalegal_" +
                                                                                           moment().format("DDMMYYYYHHmmss");
                                                                                      this.setState({meeturl: meeturl});
                                                                                 }}
@@ -4736,7 +4736,7 @@ export default class Main extends React.Component {
                                                                            }}
                                                                            onClick={() => {
                                                                                 window.open(
-                                                                                     "https://meet.smartdom.ch/meet_" +
+                                                                                     "https://meet.smartdom.ch/oalegal_" +
                                                                                      this.state.meetCode,
                                                                                      "_blank",
                                                                                 );
@@ -4755,62 +4755,11 @@ export default class Main extends React.Component {
                                                                       <h4 className="mt-0 mb-1">Contacts de fournisseurs de prestations de services</h4>
                                                                       <div className="row">
                                                                            <div className="col-xl-12">
-                                                                                <div className="card">
-                                                                                     <div className="card-body">
-                                                                                          <div className="row mb-2">
-                                                                                               <div className="col-sm-4">
-                                                                                                    <form
-                                                                                                         className="form-inline">
-                                                                                                         <div className="form-group mb-2">
-                                                                                                              <label
-                                                                                                                   htmlFor="inputPassword2"
-                                                                                                                   className="sr-only">Chercher</label>
-                                                                                                              <input
-                                                                                                                   type="search"
-                                                                                                                   className="form-control"
-                                                                                                                   id="inputPassword2"
-                                                                                                                   placeholder="Chercher..." />
-                                                                                                         </div>
-                                                                                                    </form>
-                                                                                               </div>
-                                                                                               <div className="col-sm-8">
-                                                                                                    <div className="text-sm-right">
-                                                                                                         <button
-                                                                                                              type="button"
-                                                                                                              className="btn btn-success waves-effect waves-light mb-2 mr-1">
-                                                                                                              <i className="mdi mdi-settings" />
-                                                                                                         </button>
-                                                                                                         <button
-                                                                                                              onClick={() => {
-                                                                                                                   //console.log(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15));
-                                                                                                                   //this.genrateGed()
-                                                                                                                   /*let clients_oa = this.state.annuaire_clients_mondat;
-                                                                                                                   clients_oa.map((c,key) => {
-                                                                                                                        c.isActif = true;
-                                                                                                                        c.ID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                                                                                                                        c.created_at = new Date().toDateString()
-                                                                                                                   });
-                                                                                                                   firebase.database().ref("/annuaire_client_mondat").set(clients_oa).then(ok => {
-                                                                                                                        console.log("ok")
-                                                                                                                   })*/
-                                                                                                              }}
-                                                                                                              className="btn btn-danger waves-effect waves-light mb-2"
-                                                                                                              data-animation="fadein"
-                                                                                                              data-plugin="custommodal">
-                                                                                                              <i className="mdi mdi-plus-circle mr-1" /> Ajouter
-                                                                                                         </button>
-                                                                                                    </div>
-                                                                                               </div>
-                                                                                          </div>
-                                                                                     </div>
-                                                                                </div>
                                                                                 <div className="row">
                                                                                      <div className="col">
                                                                                           <div className="page-title-box">
-                                                                                               <div className="row ">
-                                                                                                    <div
-                                                                                                         className="col-md-2 bg-danger text-center "
-                                                                                                         style={{width: "10%"}}>
+                                                                                               <div className="row mt-3">
+                                                                                                    <div className="col-md-2 bg-danger text-center ">
                                                                                                          <h4 style={{color: "white"}}>OA Legal</h4>
                                                                                                     </div>
                                                                                                     <hr style={{
@@ -4843,7 +4792,7 @@ export default class Main extends React.Component {
                                                                                           }
                                                                                      </div>
                                                                                 </div>
-                                                                                <div className="row">
+                                                                                {/*<div className="row">
                                                                                      <div className="col">
                                                                                           <div className="page-title-box">
                                                                                                <div className="row ">
@@ -5186,7 +5135,7 @@ export default class Main extends React.Component {
                                                                                                </table>
                                                                                           </div>
                                                                                      </div>
-                                                                                </div>
+                                                                                </div>*/}
                                                                            </div>
                                                                       </div>
                                                                  </div>
@@ -5251,14 +5200,22 @@ export default class Main extends React.Component {
                                                                                           className="text-left">
                                                                                           <Tabs> <TabList>
                                                                                                <Tab>Informations générales</Tab>
-                                                                                               <Tab>Famille & Vie privée</Tab>
-                                                                                               <Tab>Parcours professionnel</Tab>
-                                                                                               <Tab>Formations</Tab>
-                                                                                               <Tab>Affiliations</Tab>
-                                                                                               <Tab>Domaine d'activités</Tab>
-                                                                                               <Tab>Langues</Tab>
-                                                                                               <Tab>Domaines d'intérêt, loisirs et sports</Tab>
-                                                                                          </TabList> <TabPanel>
+
+                                                                                               {
+                                                                                                    localStorage.getItem("role") === "admin" &&
+                                                                                                         [
+                                                                                                              <Tab>Famille & Vie privée</Tab>,
+                                                                                                              <Tab>Parcours professionnel</Tab>,
+                                                                                                              <Tab>Formations</Tab>,
+                                                                                                              <Tab>Affiliations</Tab>,
+                                                                                                              <Tab>Domaine d'activités</Tab>,
+                                                                                                              <Tab>Langues</Tab>,
+                                                                                                              <Tab>Domaines d'intérêt, loisirs et sports</Tab>
+                                                                                                         ]
+                                                                                               }
+
+                                                                                          </TabList>
+                                                                                               <TabPanel>
                                                                                                <h5 style={{marginTop: 20}}>Informations générales</h5>
                                                                                                <div className="row"
                                                                                                     style={{marginTop: 35}}>
@@ -5387,262 +5344,272 @@ export default class Main extends React.Component {
                                                                                                          </select>
                                                                                                     </div>
                                                                                                </div>
-                                                                                          </TabPanel> <TabPanel>
-                                                                                               <h5 style={{marginTop: 20}}>Famille & Vie privée</h5>
-                                                                                               <div className="row"
-                                                                                                    style={{marginTop: 35}}>
-                                                                                                    <div className="col-md-12">
-                                                                                                         <p style={{marginBottom: 10}}>Décrire en quelques lignes </p>
-                                                                                                         <textarea
-                                                                                                              rows={10}
-                                                                                                              className="form-control"
-                                                                                                              id="about"
-                                                                                                              name="about"
-                                                                                                              value={this.state.selectedContact.personalLife}
-                                                                                                              onChange={this.handleChange("selectedContact", "personalLife")} />
-                                                                                                    </div>
-                                                                                               </div>
-                                                                                          </TabPanel> <TabPanel>
-                                                                                               <h5 style={{marginTop: 20}}>Parcours professionnel</h5>
-                                                                                               <div style={{
-                                                                                                    display: "flex",
-                                                                                                    flexWrap: "wrap",
-                                                                                                    marginTop: 10,
-                                                                                               }}>
-                                                                                                    {
-                                                                                                         (this.state.selectedContact.parcoursP || []).map((item, key) => (
-                                                                                                              <div key={key}
-                                                                                                                   style={{margin: 3}}>
-                                                                                                                   <Chip
-                                                                                                                        icon={
-                                                                                                                             <Staricon />}
-                                                                                                                        label={item}
-                                                                                                                        color="secondary"
-                                                                                                                        onDelete={this.removeItem("parcour", key)}
-                                                                                                                        style={{
-                                                                                                                             fontWeight: "bold",
-                                                                                                                             backgroundColor: "cornflowerblue",
-                                                                                                                        }}
-                                                                                                                   />
-                                                                                                              </div>
-                                                                                                         ))
-                                                                                                    }
-                                                                                               </div>
-                                                                                               <div className="row"
-                                                                                                    style={{marginTop: 10}}>
-                                                                                                    <div
-                                                                                                         className="col-sm-12">
-                                                                                                         <a style={{
-                                                                                                              cursor: "pointer",
-                                                                                                              fontSize: "medium",
-                                                                                                              fontWeight: "bold",
-                                                                                                         }}
-                                                                                                            onClick={this.openAddModal("parcour")}>
+                                                                                          </TabPanel>
+                                                                                               {
+                                                                                                    localStorage.getItem("role") === "admin" &&
+                                                                                                         [
+                                                                                                              <TabPanel>
+                                                                                                                   <h5 style={{marginTop: 20}}>Famille & Vie privée</h5>
+                                                                                                                   <div className="row"
+                                                                                                                        style={{marginTop: 35}}>
+                                                                                                                        <div className="col-md-12">
+                                                                                                                             <p style={{marginBottom: 10}}>Décrire en quelques lignes </p>
+                                                                                                                             <textarea
+                                                                                                                                  rows={10}
+                                                                                                                                  className="form-control"
+                                                                                                                                  id="about"
+                                                                                                                                  name="about"
+                                                                                                                                  value={this.state.selectedContact.personalLife}
+                                                                                                                                  onChange={this.handleChange("selectedContact", "personalLife")} />
+                                                                                                                        </div>
+                                                                                                                   </div>
+                                                                                                              </TabPanel>,
+                                                                                                              <TabPanel>
+                                                                                                                   <h5 style={{marginTop: 20}}>Parcours professionnel</h5>
+                                                                                                                   <div style={{
+                                                                                                                        display: "flex",
+                                                                                                                        flexWrap: "wrap",
+                                                                                                                        marginTop: 10,
+                                                                                                                   }}>
+                                                                                                                        {
+                                                                                                                             (this.state.selectedContact.parcoursP || []).map((item, key) => (
+                                                                                                                                  <div key={key}
+                                                                                                                                       style={{margin: 3}}>
+                                                                                                                                       <Chip
+                                                                                                                                            icon={
+                                                                                                                                                 <Staricon />}
+                                                                                                                                            label={item}
+                                                                                                                                            color="secondary"
+                                                                                                                                            onDelete={this.removeItem("parcour", key)}
+                                                                                                                                            style={{
+                                                                                                                                                 fontWeight: "bold",
+                                                                                                                                                 backgroundColor: "cornflowerblue",
+                                                                                                                                            }}
+                                                                                                                                       />
+                                                                                                                                  </div>
+                                                                                                                             ))
+                                                                                                                        }
+                                                                                                                   </div>
+                                                                                                                   <div className="row"
+                                                                                                                        style={{marginTop: 10}}>
+                                                                                                                        <div
+                                                                                                                             className="col-sm-12">
+                                                                                                                             <a style={{
+                                                                                                                                  cursor: "pointer",
+                                                                                                                                  fontSize: "medium",
+                                                                                                                                  fontWeight: "bold",
+                                                                                                                             }}
+                                                                                                                                onClick={this.openAddModal("parcour")}>
                                                                                             <span className="btn__text"
                                                                                                   id="btn-add-child">
                                                                                                 <i
                                                                                                      className="fe-plus-square" /> Ajouter
                                                                                                 un parcour
                                                                                             </span> </a>
-                                                                                                    </div>
-                                                                                               </div>
-                                                                                          </TabPanel> <TabPanel>
-                                                                                               <h5 style={{marginTop: 20}}>Formation</h5>
-                                                                                               <div style={{
-                                                                                                    flexWrap: "wrap",
-                                                                                                    marginTop: 10,
-                                                                                               }}>
-                                                                                                    {
-                                                                                                         (this.state.selectedContact.formations || []).map((item, key) => (
-                                                                                                              <div key={key}
-                                                                                                                   style={{
-                                                                                                                        margin: 3,
-                                                                                                                        marginBottom: 6,
+                                                                                                                        </div>
+                                                                                                                   </div>
+                                                                                                              </TabPanel>,
+                                                                                                              <TabPanel>
+                                                                                                                   <h5 style={{marginTop: 20}}>Formation</h5>
+                                                                                                                   <div style={{
+                                                                                                                        flexWrap: "wrap",
+                                                                                                                        marginTop: 10,
                                                                                                                    }}>
-                                                                                                                   <Chip
-                                                                                                                        icon={
-                                                                                                                             <CheckCircle />}
-                                                                                                                        label={item}
-                                                                                                                        color="primary"
-                                                                                                                        onDelete={this.removeItem("formation", key)}
-                                                                                                                        style={{
-                                                                                                                             fontWeight: "bold",
-                                                                                                                             backgroundColor: "lightseagreen",
-                                                                                                                        }}
-                                                                                                                   />
-                                                                                                              </div>
-                                                                                                         ))
-                                                                                                    }
-                                                                                               </div>
-                                                                                               <div className="row"
-                                                                                                    style={{marginTop: 10}}>
-                                                                                                    <div
-                                                                                                         className="col-sm-12">
-                                                                                                         <a style={{
-                                                                                                              cursor: "pointer",
-                                                                                                              fontSize: "medium",
-                                                                                                              fontWeight: "bold",
-                                                                                                         }}
-                                                                                                            onClick={this.openAddModal("formation")}>
+                                                                                                                        {
+                                                                                                                             (this.state.selectedContact.formations || []).map((item, key) => (
+                                                                                                                                  <div key={key}
+                                                                                                                                       style={{
+                                                                                                                                            margin: 3,
+                                                                                                                                            marginBottom: 6,
+                                                                                                                                       }}>
+                                                                                                                                       <Chip
+                                                                                                                                            icon={
+                                                                                                                                                 <CheckCircle />}
+                                                                                                                                            label={item}
+                                                                                                                                            color="primary"
+                                                                                                                                            onDelete={this.removeItem("formation", key)}
+                                                                                                                                            style={{
+                                                                                                                                                 fontWeight: "bold",
+                                                                                                                                                 backgroundColor: "lightseagreen",
+                                                                                                                                            }}
+                                                                                                                                       />
+                                                                                                                                  </div>
+                                                                                                                             ))
+                                                                                                                        }
+                                                                                                                   </div>
+                                                                                                                   <div className="row"
+                                                                                                                        style={{marginTop: 10}}>
+                                                                                                                        <div
+                                                                                                                             className="col-sm-12">
+                                                                                                                             <a style={{
+                                                                                                                                  cursor: "pointer",
+                                                                                                                                  fontSize: "medium",
+                                                                                                                                  fontWeight: "bold",
+                                                                                                                             }}
+                                                                                                                                onClick={this.openAddModal("formation")}>
                                                                                             <span className="btn__text"
                                                                                                   id="btn-add-child">
                                                                                                 <i
                                                                                                      className="fe-plus-square" /> Ajouter
                                                                                                 une formation
                                                                                             </span> </a>
-                                                                                                    </div>
-                                                                                               </div>
-                                                                                          </TabPanel> <TabPanel>
-                                                                                               <h5 style={{marginTop: 20}}>Affiliations</h5>
-                                                                                               <div style={{marginTop: 15}}>
-                                                                                                    <Autocomplete
-                                                                                                         value={this.state.selectedContact.affiliations || []}
-                                                                                                         onChange={(event, values) => {
-                                                                                                              let selectedContact = this.state.selectedContact;
-                                                                                                              selectedContact.affiliations = values;
-                                                                                                              this.setState({selectedContact: selectedContact});
-                                                                                                         }}
-                                                                                                         title={"Affiliations"}
-                                                                                                         multiple
-                                                                                                         id="checkboxes-af-demo"
-                                                                                                         options={data.affiliations}
-                                                                                                         disableCloseOnSelect
-                                                                                                         getOptionLabel={(option) => option}
-                                                                                                         renderOption={(option, {selected}) => (
-                                                                                                              <React.Fragment>
-                                                                                                                   <MuiCheckbox
-                                                                                                                        icon={icon}
-                                                                                                                        checkedIcon={checkedIcon}
-                                                                                                                        style={{marginRight: 8}}
-                                                                                                                        checked={selected}
-                                                                                                                   /> {option}
-                                                                                                              </React.Fragment>
-                                                                                                         )}
-                                                                                                         style={{
-                                                                                                              width: 500,
-                                                                                                              marginLeft: 10,
-                                                                                                              borderColor: "#f0f0f0",
-                                                                                                         }}
-                                                                                                         renderInput={(params) => (
-                                                                                                              <TextField {...params}
-                                                                                                                         variant="outlined"
-                                                                                                                         placeholder="" />
-                                                                                                         )}
-                                                                                                    />
-                                                                                               </div>
-                                                                                          </TabPanel> <TabPanel>
-                                                                                               <h5 style={{marginTop: 20}}>Domaine d'activités</h5>
-                                                                                               <div style={{marginTop: 15}}>
-                                                                                                    <Autocomplete
-                                                                                                         value={this.state.selectedContact.domainesAct || []}
-                                                                                                         onChange={(event, values) => {
-                                                                                                              let selectedContact = this.state.selectedContact;
-                                                                                                              selectedContact.domainesAct = values;
-                                                                                                              this.setState({selectedContact: selectedContact});
-                                                                                                         }}
-                                                                                                         title={"Domaine d'activités"}
-                                                                                                         multiple
-                                                                                                         id="checkboxes-da-demo"
-                                                                                                         options={data.domainesAct}
-                                                                                                         disableCloseOnSelect
-                                                                                                         getOptionLabel={(option) => option}
-                                                                                                         renderOption={(option, {selected}) => (
-                                                                                                              <React.Fragment>
-                                                                                                                   <MuiCheckbox
-                                                                                                                        icon={icon}
-                                                                                                                        checkedIcon={checkedIcon}
-                                                                                                                        style={{marginRight: 8}}
-                                                                                                                        checked={selected}
-                                                                                                                   /> {option}
-                                                                                                              </React.Fragment>
-                                                                                                         )}
-                                                                                                         style={{
-                                                                                                              width: 500,
-                                                                                                              marginLeft: 10,
-                                                                                                              borderColor: "#f0f0f0",
-                                                                                                         }}
-                                                                                                         renderInput={(params) => (
-                                                                                                              <TextField {...params}
-                                                                                                                         variant="outlined"
-                                                                                                                         placeholder="" />
-                                                                                                         )}
-                                                                                                    />
-                                                                                               </div>
-                                                                                          </TabPanel> <TabPanel>
-                                                                                               <h5 style={{marginTop: 20}}>Langues</h5>
-                                                                                               <Autocomplete
-                                                                                                    value={this.state.selectedContact.langues || []}
-                                                                                                    onChange={(event, values) => {
-                                                                                                         let selectedContact = this.state.selectedContact;
-                                                                                                         selectedContact.langues = values;
-                                                                                                         this.setState({selectedContact: selectedContact});
-                                                                                                    }}
-                                                                                                    title={"langues"}
-                                                                                                    multiple
-                                                                                                    id="checkboxes-l-demo"
-                                                                                                    options={data.langues}
-                                                                                                    disableCloseOnSelect
-                                                                                                    getOptionLabel={(option) => option}
-                                                                                                    renderOption={(option, {selected}) => (
-                                                                                                         <React.Fragment>
-                                                                                                              <MuiCheckbox
-                                                                                                                   icon={icon}
-                                                                                                                   checkedIcon={checkedIcon}
-                                                                                                                   style={{marginRight: 8}}
-                                                                                                                   checked={selected}
-                                                                                                              /> {option}
-                                                                                                         </React.Fragment>
-                                                                                                    )}
-                                                                                                    style={{
-                                                                                                         width: 500,
-                                                                                                         marginLeft: 10,
-                                                                                                         borderColor: "#f0f0f0",
-                                                                                                    }}
-                                                                                                    renderInput={(params) => (
-                                                                                                         <TextField {...params}
-                                                                                                                    variant="outlined"
-                                                                                                                    placeholder="" />
-                                                                                                    )}
-                                                                                               /> </TabPanel> <TabPanel>
-                                                                                               <h5 style={{marginTop: 20}}>Domaines d'intérêt, loisirs et sports</h5>
-                                                                                               <div className="row">
-                                                                                                    <div className="col-md-8">
-                                                                                                         <div style={{
-                                                                                                              display: "flex",
-                                                                                                              flexWrap: "wrap",
-                                                                                                              marginTop: 10,
-                                                                                                         }}>
-                                                                                                              {
-                                                                                                                   (this.state.selectedContact.hobbies || []).map((item, key) => (
-                                                                                                                        <div key={key}
-                                                                                                                             style={{margin: 3}}>
-                                                                                                                             <Chip
-                                                                                                                                  icon={
-                                                                                                                                       <MoodIcon />}
-                                                                                                                                  label={item}
-                                                                                                                                  color="secondary"
-                                                                                                                                  onDelete={this.removeItem("hobbies", key)}
-                                                                                                                                  style={{
-                                                                                                                                       fontWeight: "bold",
-                                                                                                                                       backgroundColor: "lightpink",
-                                                                                                                                  }}
-                                                                                                                             />
                                                                                                                         </div>
-                                                                                                                   ))
-                                                                                                              }
-                                                                                                         </div>
-                                                                                                    </div>
-                                                                                               </div>
-                                                                                               <div className="row"
-                                                                                                    style={{marginTop: 20}}>
-                                                                                                    <div
-                                                                                                         className="col-sm-12">
-                                                                                                         <a style={{
-                                                                                                              cursor: "pointer",
-                                                                                                              fontSize: "medium",
-                                                                                                              fontWeight: "bold",
-                                                                                                         }}
-                                                                                                            onClick={this.openAddModal("hobbies")}>
+                                                                                                                   </div>
+                                                                                                              </TabPanel>,
+                                                                                                              <TabPanel>
+                                                                                                                   <h5 style={{marginTop: 20}}>Affiliations</h5>
+                                                                                                                   <div style={{marginTop: 15}}>
+                                                                                                                        <Autocomplete
+                                                                                                                             value={this.state.selectedContact.affiliations || []}
+                                                                                                                             onChange={(event, values) => {
+                                                                                                                                  let selectedContact = this.state.selectedContact;
+                                                                                                                                  selectedContact.affiliations = values;
+                                                                                                                                  this.setState({selectedContact: selectedContact});
+                                                                                                                             }}
+                                                                                                                             title={"Affiliations"}
+                                                                                                                             multiple
+                                                                                                                             id="checkboxes-af-demo"
+                                                                                                                             options={data.affiliations}
+                                                                                                                             disableCloseOnSelect
+                                                                                                                             getOptionLabel={(option) => option}
+                                                                                                                             renderOption={(option, {selected}) => (
+                                                                                                                                  <React.Fragment>
+                                                                                                                                       <MuiCheckbox
+                                                                                                                                            icon={icon}
+                                                                                                                                            checkedIcon={checkedIcon}
+                                                                                                                                            style={{marginRight: 8}}
+                                                                                                                                            checked={selected}
+                                                                                                                                       /> {option}
+                                                                                                                                  </React.Fragment>
+                                                                                                                             )}
+                                                                                                                             style={{
+                                                                                                                                  width: 500,
+                                                                                                                                  marginLeft: 10,
+                                                                                                                                  borderColor: "#f0f0f0",
+                                                                                                                             }}
+                                                                                                                             renderInput={(params) => (
+                                                                                                                                  <TextField {...params}
+                                                                                                                                             variant="outlined"
+                                                                                                                                             placeholder="" />
+                                                                                                                             )}
+                                                                                                                        />
+                                                                                                                   </div>
+                                                                                                              </TabPanel>,
+                                                                                                              <TabPanel>
+                                                                                                                   <h5 style={{marginTop: 20}}>Domaine d'activités</h5>
+                                                                                                                   <div style={{marginTop: 15}}>
+                                                                                                                        <Autocomplete
+                                                                                                                             value={this.state.selectedContact.domainesAct || []}
+                                                                                                                             onChange={(event, values) => {
+                                                                                                                                  let selectedContact = this.state.selectedContact;
+                                                                                                                                  selectedContact.domainesAct = values;
+                                                                                                                                  this.setState({selectedContact: selectedContact});
+                                                                                                                             }}
+                                                                                                                             title={"Domaine d'activités"}
+                                                                                                                             multiple
+                                                                                                                             id="checkboxes-da-demo"
+                                                                                                                             options={data.domainesAct}
+                                                                                                                             disableCloseOnSelect
+                                                                                                                             getOptionLabel={(option) => option}
+                                                                                                                             renderOption={(option, {selected}) => (
+                                                                                                                                  <React.Fragment>
+                                                                                                                                       <MuiCheckbox
+                                                                                                                                            icon={icon}
+                                                                                                                                            checkedIcon={checkedIcon}
+                                                                                                                                            style={{marginRight: 8}}
+                                                                                                                                            checked={selected}
+                                                                                                                                       /> {option}
+                                                                                                                                  </React.Fragment>
+                                                                                                                             )}
+                                                                                                                             style={{
+                                                                                                                                  width: 500,
+                                                                                                                                  marginLeft: 10,
+                                                                                                                                  borderColor: "#f0f0f0",
+                                                                                                                             }}
+                                                                                                                             renderInput={(params) => (
+                                                                                                                                  <TextField {...params}
+                                                                                                                                             variant="outlined"
+                                                                                                                                             placeholder="" />
+                                                                                                                             )}
+                                                                                                                        />
+                                                                                                                   </div>
+                                                                                                              </TabPanel>,
+                                                                                                              <TabPanel>
+                                                                                                                   <h5 style={{marginTop: 20}}>Langues</h5>
+                                                                                                                   <Autocomplete
+                                                                                                                        value={this.state.selectedContact.langues || []}
+                                                                                                                        onChange={(event, values) => {
+                                                                                                                             let selectedContact = this.state.selectedContact;
+                                                                                                                             selectedContact.langues = values;
+                                                                                                                             this.setState({selectedContact: selectedContact});
+                                                                                                                        }}
+                                                                                                                        title={"langues"}
+                                                                                                                        multiple
+                                                                                                                        id="checkboxes-l-demo"
+                                                                                                                        options={data.langues}
+                                                                                                                        disableCloseOnSelect
+                                                                                                                        getOptionLabel={(option) => option}
+                                                                                                                        renderOption={(option, {selected}) => (
+                                                                                                                             <React.Fragment>
+                                                                                                                                  <MuiCheckbox
+                                                                                                                                       icon={icon}
+                                                                                                                                       checkedIcon={checkedIcon}
+                                                                                                                                       style={{marginRight: 8}}
+                                                                                                                                       checked={selected}
+                                                                                                                                  /> {option}
+                                                                                                                             </React.Fragment>
+                                                                                                                        )}
+                                                                                                                        style={{
+                                                                                                                             width: 500,
+                                                                                                                             marginLeft: 10,
+                                                                                                                             borderColor: "#f0f0f0",
+                                                                                                                        }}
+                                                                                                                        renderInput={(params) => (
+                                                                                                                             <TextField {...params}
+                                                                                                                                        variant="outlined"
+                                                                                                                                        placeholder="" />
+                                                                                                                        )}
+                                                                                                                   /> </TabPanel>,
+                                                                                                              <TabPanel>
+                                                                                                                   <h5 style={{marginTop: 20}}>Domaines d'intérêt, loisirs et sports</h5>
+                                                                                                                   <div className="row">
+                                                                                                                        <div className="col-md-8">
+                                                                                                                             <div style={{
+                                                                                                                                  display: "flex",
+                                                                                                                                  flexWrap: "wrap",
+                                                                                                                                  marginTop: 10,
+                                                                                                                             }}>
+                                                                                                                                  {
+                                                                                                                                       (this.state.selectedContact.hobbies || []).map((item, key) => (
+                                                                                                                                            <div key={key}
+                                                                                                                                                 style={{margin: 3}}>
+                                                                                                                                                 <Chip
+                                                                                                                                                      icon={
+                                                                                                                                                           <MoodIcon />}
+                                                                                                                                                      label={item}
+                                                                                                                                                      color="secondary"
+                                                                                                                                                      onDelete={this.removeItem("hobbies", key)}
+                                                                                                                                                      style={{
+                                                                                                                                                           fontWeight: "bold",
+                                                                                                                                                           backgroundColor: "lightpink",
+                                                                                                                                                      }}
+                                                                                                                                                 />
+                                                                                                                                            </div>
+                                                                                                                                       ))
+                                                                                                                                  }
+                                                                                                                             </div>
+                                                                                                                        </div>
+                                                                                                                   </div>
+                                                                                                                   <div className="row"
+                                                                                                                        style={{marginTop: 20}}>
+                                                                                                                        <div
+                                                                                                                             className="col-sm-12">
+                                                                                                                             <a style={{
+                                                                                                                                  cursor: "pointer",
+                                                                                                                                  fontSize: "medium",
+                                                                                                                                  fontWeight: "bold",
+                                                                                                                             }}
+                                                                                                                                onClick={this.openAddModal("hobbies")}>
                                                                                             <span className="btn__text"
                                                                                                   id="btn-add-child">
                                                                                                 <i
@@ -5650,9 +5617,13 @@ export default class Main extends React.Component {
                                                                                                 un centre d'intérêt,
                                                                                                 loisir ou sport
                                                                                             </span> </a>
-                                                                                                    </div>
-                                                                                               </div>
-                                                                                          </TabPanel> </Tabs>
+                                                                                                                        </div>
+                                                                                                                   </div>
+                                                                                                              </TabPanel>
+                                                                                                         ]
+                                                                                               }
+
+                                                                                          </Tabs>
                                                                                      </div>
                                                                                 </div>
                                                                            </div>
