@@ -280,9 +280,11 @@ export default function LeftMenuV3(props) {
             <div style={{marginTop: 25, marginLeft: 5}}>
 
                 <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Drive" ? "aliceblue" : ""}}
-                     onDoubleClick={() => {
+                     /*onDoubleClick={() => {
                          props.setShowDriveMenuItems()
-                     }} onClick={() => {
+                     }} */
+                     onClick={() => {
+                    props.setShowDriveMenuItems()
                     props.setFocusedItem("Drive")
                 }}
                 >
@@ -388,7 +390,8 @@ export default function LeftMenuV3(props) {
                     <MenuItem  key={7} onClick={() => {
                         setAnchorElMenu(null);
                         setOpenDeleteModal(true)
-                    }} disabled={localStorage.getItem("role") !== "admin"}>
+                    }} disabled={localStorage.getItem("role") !== "admin"}
+                    >
                         <ListItemIcon>
                             <DeleteOutlineIcon fontSize="small"/>
                         </ListItemIcon>
@@ -472,20 +475,21 @@ export default function LeftMenuV3(props) {
                 </Modal>
 
                 {
-                    (localStorage.getItem("role") === "admin" || localStorage.getItem("role") === "client") &&
+                    (localStorage.getItem("role") === "admin" || localStorage.getItem("role") === "user") &&
                         <div>
                             <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Rooms" ? "aliceblue" : ""}}
-                                 onDoubleClick={() => {
+                                 /*onDoubleClick={() => {
                                      props.setShowRoomsMenuItems()
-                                 }}
+                                 }}*/
                                  onClick={() => {
                                      props.setFocusedItem("Rooms")
+                                     props.setShowRoomsMenuItems()
                                  }}
                             >
                                 <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                                 <div style={{display: "flex"}}>
                                     {
-                                        props.showRoomsMenuItems === true ?
+                                        props.showRoomsMenuItems === true && props.rooms.length > 0 ?
                                             <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                                     }
                                     <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Rooms</Typography>

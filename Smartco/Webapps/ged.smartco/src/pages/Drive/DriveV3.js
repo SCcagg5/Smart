@@ -114,7 +114,18 @@ import SearchIcon from '@material-ui/icons/Search';
 import "../../assets/css/react-select-search.css"
 import SearchClientsContainer from "../../components/Search/SearchClientsContainer";
 import Switch from '@material-ui/core/Switch';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import Autosuggest from 'react-autosuggest';
+import "../../assets/css/inputSuggestion.css"
+import RSelect from 'react-select';
+
+const getTimeSuggestions = value => {
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+
+    return inputLength === 0 ? [] : Data.timeSuggestions.filter(x =>
+        x.toLowerCase().slice(0, inputLength) === inputValue
+    );
+};
 
 
 function renderSearchOption(props, option, snapshot, className) {
@@ -144,6 +155,15 @@ const getLabel = ({option}) => {
             <img src={option.image} alt="" style={{width: 30, height: 30}}/>
             &nbsp;&nbsp;
             {option.id}
+        </React.Fragment>
+    );
+}
+const getOAContactLabel = ({option}) => {
+    return (
+        <React.Fragment>
+            <img src={option.imageUrl || userAvatar} alt="" style={{width: 30, height: 30}}/>
+            &nbsp;&nbsp;
+            {option.nom + " " + option.prenom}
         </React.Fragment>
     );
 }
@@ -327,7 +347,7 @@ export default class DriveV3 extends React.Component {
             newTime: {
                 duree: "",
                 client: "",
-                categoriesActivite: "",
+                categoriesActivite: "Temps facturé",
                 description: "",
                 date: new Date(),
                 utilisateurOA: "",
@@ -335,6 +355,7 @@ export default class DriveV3 extends React.Component {
             }
         },
         lignesFactures: [],
+        lignef_template: "0",
         TimeSheetData: [],
         DashboardPerson: {
             person: ""
@@ -344,7 +365,11 @@ export default class DriveV3 extends React.Component {
         selectedClientTimeEntree: "",
 
         showLignesFactureClient: false,
-        dateFacture:""
+        dateFacture: new Date(),
+
+        timeSuggestions: [],
+        timeSuggValue: ""
+
 
     }
 
@@ -366,33 +391,37 @@ export default class DriveV3 extends React.Component {
                     this.setState({TimeSheetData: d})
                 }
             })
+            firebase.database().ref('lignes_factures/').on('value', (snapshot) => {
+                let lignes_f = snapshot.val()
+                this.setState({lignesFactures: lignes_f || []})
+            })
 
             setTimeout(() => {
                 SmartService.getGed(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(gedRes => {
 
                     if (gedRes.succes === true && gedRes.status === 200) {
-
+                        let client_folder = gedRes.data.Proprietary.Content.folders.find(x => x.name === "CLIENTS");
+                        if (client_folder) {
+                            localStorage.setItem("client_folder_id", client_folder.id)
+                            console.log(client_folder.id)
+                        }
                         let meeturl = "https://meet.smartdom.ch/meet_" + moment().format("DDMMYYYYHHmmss")
-
-                        //console.log(gedRes.data.Proprietary)
 
                         firebase.database().ref('/').on('value', (snapshot) => {
 
                             const data = snapshot.val() || [];
                             let contacts = data.contacts || [];
-                            //console.log(contacts)
                             let rooms = data.rooms || [];
                             let societes = data.societes || [];
                             let annuaire_clients_mondat = data.annuaire_client_mondat || [];
-
                             let sharedFolders = gedRes.data.Shared.Content.folders || [];
                             let sharedFiles = gedRes.data.Shared.Content.files || [];
-                            let calls = [];
+                            /*let calls = [];
                             for (let i = 0; i < sharedFolders.length; i++) {
                                 calls.push(SmartService.getFile(sharedFolders[i].id, localStorage.getItem("token"), localStorage.getItem("usrtoken")))
-                            }
-                            Promise.all(calls).then(response => {
-                                console.log(response)
+                            }*/
+                            /*Promise.all(calls).then(response => {
+                                //console.log(response)
                                 response.map((item, key) => {
                                     sharedDrive.push(item.data)
                                 })
@@ -755,7 +784,365 @@ export default class DriveV3 extends React.Component {
 
                             }).catch(err => {
                                 console.log(err);
-                            })
+                            })*/
+
+                            if (this.props.match.params.section === "drive") {
+
+                                if (this.props.match.params.section_id === "0") {
+                                    this.setState({
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        selectedDriveItem: [],
+                                        expandedDriveItems: [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if (this.props.match.params.section_id === "shared") {
+                                    this.setState({
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        expanded: ["shared"],
+                                        breadcrumbs: "Mon drive / paratgés avec moi",
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else {
+                                    let folders = gedRes.data.Proprietary.Content.folders || [];
+                                    let folder_name = this.getFolderNameById(this.props.match.params.section_id, folders);
+                                    if (folder_name !== undefined && folder_name !== null) {
+                                        this.setState({
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedRootFiles: sharedFiles,
+                                            sharedDrive: sharedDrive,
+                                            selectedDriveItem: [this.props.match.params.section_id],
+                                            expandedDriveItems: [this.props.match.params.section_id],
+                                            selectedFoldername: folder_name,
+                                            breadcrumbs: this.getBreadcumpsPath(this.props.match.params.section_id, folders),
+                                            selectedFolderId: this.props.match.params.section_id,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            societes: societes,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
+                                            rooms: rooms,
+                                            selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                            selectedFolderFiles: this.getFolderFilesById(this.props.match.params.section_id, folders),
+                                            selectedFolderFolders: this.getFolderFoldersById(this.props.match.params.section_id, folders),
+                                            firstLoading: false,
+                                            loading: false
+                                        })
+                                    } else {
+                                        this.props.history.replace({pathname: '/drive/0'})
+                                        this.componentDidMount()
+                                    }
+
+                                }
+
+                            } else if (this.props.match.params.section === "rooms") {
+
+                                if (this.props.match.params.section_id === "all") {
+                                    if (rooms.length > 0) this.props.history.replace({pathname: '/rooms/0'});
+                                    this.setState({
+                                        showContainerSection: "Rooms",
+                                        focusedItem: "Rooms",
+                                        selectedRoomItems: rooms.length > 0 ? ["0"] : [],
+                                        expandedRoomItems: rooms.length > 0 ? ["0"] : [],
+                                        openRoomMenuItem: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if ((typeof parseInt(this.props.match.params.section_id)) === "number") {
+                                    if (rooms[parseInt(this.props.match.params.section_id)]) {
+                                        this.setState({
+                                            showContainerSection: "Rooms",
+                                            focusedItem: "Rooms",
+                                            selectedRoomItems: [this.props.match.params.section_id],
+                                            expandedRoomItems: rooms.length > 0 ? ["0"] : [],
+                                            openRoomMenuItem: true,
+                                            rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                            rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                            reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                            sharedDrive: sharedDrive,
+                                            sharedRootFiles: sharedFiles,
+                                            meeturl: meeturl,
+                                            contacts: contacts,
+                                            societes: societes,
+                                            annuaire_clients_mondat: annuaire_clients_mondat,
+                                            rooms: rooms,
+                                            selectedRoom: rooms[parseInt(this.props.match.params.section_id)],
+                                            selectedRoomKey: parseInt(this.props.match.params.section_id),
+                                            firstLoading: false,
+                                            loading: false
+                                        })
+                                    } else {
+                                        this.props.history.replace({pathname: '/rooms/all'})
+                                        this.componentDidMount()
+                                        console.log("URL ERROR")
+                                    }
+                                } else {
+                                    console.log("URL ERROR")
+                                }
+
+                            } else if (this.props.match.params.section === "meet") {
+
+                                if (this.props.match.params.section_id === "new") {
+                                    this.setState({
+                                        showContainerSection: "Meet",
+                                        focusedItem: "Meet",
+                                        selectedMeetMenuItem: ["new"],
+                                        openMeetMenuItem: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if (this.props.match.params.section_id === "rejoin") {
+                                    this.setState({
+                                        showContainerSection: "Meet",
+                                        focusedItem: "Meet",
+                                        selectedMeetMenuItem: ["rejoin"],
+                                        openMeetMenuItem: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else {
+                                    console.log("URL ERROR")
+                                }
+                            } else if (this.props.match.params.section === "contacts") {
+                                if (this.props.match.params.section_id === "all" || this.props.match.params.section_id === "aia" || this.props.match.params.section_id === "ae") {
+                                    this.setState({
+                                        showContainerSection: "Contacts",
+                                        focusedItem: "Contacts",
+                                        openContactsMenu: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else {
+                                    console.log("URL ERROR")
+                                }
+
+                            } else if (this.props.match.params.section === "society") {
+                                if (this.props.match.params.section_id === "clients_mondat") {
+                                    this.setState({
+                                        showContainerSection: "Societe",
+                                        focusedItem: "Societe",
+                                        selectedSocietyMenuItem: ["clients_mondat"],
+                                        openSocietyMenuItem: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else {
+                                    this.props.history.replace({pathname: '/society/clients_mondat'});
+                                    this.componentDidMount()
+                                }
+                            } else if (this.props.match.params.section === "TimeSheet") {
+                                if (this.props.match.params.section_id === "activities") {
+                                    this.setState({
+                                        showContainerSection: "TimeSheet",
+                                        focusedItem: "TimeSheet",
+                                        selectedTimeSheetMenuItem: ["activities"],
+                                        openTimeSheetsMenu: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if (this.props.match.params.section_id === "dashboard") {
+                                    this.setState({
+                                        showContainerSection: "TimeSheet",
+                                        focusedItem: "TimeSheet",
+                                        selectedTimeSheetMenuItem: ["dashboard"],
+                                        openTimeSheetsMenu: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if (this.props.match.params.section_id === "dashboardPerson") {
+                                    this.setState({
+                                        showContainerSection: "TimeSheet",
+                                        focusedItem: "TimeSheet",
+                                        selectedTimeSheetMenuItem: ["dashboardPerson"],
+                                        openTimeSheetsMenu: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else if (this.props.match.params.section_id === "dashboardProject") {
+                                    this.setState({
+                                        showContainerSection: "TimeSheet",
+                                        focusedItem: "TimeSheet",
+                                        selectedTimeSheetMenuItem: ["dashboardProject"],
+                                        openTimeSheetsMenu: true,
+                                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                        sharedDrive: sharedDrive,
+                                        sharedRootFiles: sharedFiles,
+                                        meeturl: meeturl,
+                                        contacts: contacts,
+                                        societes: societes,
+                                        annuaire_clients_mondat: annuaire_clients_mondat,
+                                        rooms: rooms,
+                                        selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                        firstLoading: false,
+                                        loading: false
+                                    })
+                                } else {
+                                    console.log("URL ERROR")
+                                }
+
+                            } else if (this.props.match.params.section === "search") {
+                                if (this.props.match.params.section_id) {
+                                    let textToSearch = this.props.match.params.section_id;
+                                    SmartService.search(textToSearch, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(searchRes => {
+                                        if (searchRes.succes === true && searchRes.status === 200) {
+                                            this.setState({
+                                                searchResult: searchRes.data,
+                                                textSearch: textToSearch,
+                                                rootFiles: gedRes.data.Proprietary.Content.files || [],
+                                                rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                                                folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                                                reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                                                sharedDrive: sharedDrive,
+                                                sharedRootFiles: sharedFiles,
+                                                meeturl: meeturl,
+                                                contacts: contacts,
+                                                societes: societes,
+                                                annuaire_clients_mondat: annuaire_clients_mondat,
+                                                rooms: rooms,
+                                                selectedRoom: rooms.length > 0 ? rooms[0] : "",
+                                                firstLoading: false,
+                                                loading: false
+                                            })
+                                        } else {
+                                            console.log(searchRes.error)
+                                        }
+                                    }).catch(err => {
+                                        console.log(err)
+                                    })
+
+                                }
+                            } else {
+                                console.log("URL ERROR")
+                                this.props.history.replace({pathname: '/drive/0'});
+                                this.componentDidMount()
+                            }
+
+
                         });
 
                     } else {
@@ -1160,10 +1547,10 @@ export default class DriveV3 extends React.Component {
         let key = this.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
         firebase.database().ref('contacts/' + key).set(
             this.state.selectedContact
-        ).then( res =>  {
+        ).then(res => {
             this.setState({loading: false})
             this.openSnackbar('success', "Modification effectuée avec succès");
-        }).catch( err => {
+        }).catch(err => {
             console.log(err)
         })
     };
@@ -1444,11 +1831,19 @@ export default class DriveV3 extends React.Component {
         firebase.database().ref('/TimeSheet').set(this.state.TimeSheetData)
     }
 
+    getOAContactByEmail(email) {
+        let OAcontact = ""
+        this.state.contacts.map((contact, key) => {
+            if (contact && contact.email && contact.email === email) OAcontact = contact;
+        })
+        return OAcontact;
+    }
 
-    createFacture(){
+
+    createFacture() {
         let lignes_factures = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
         let odoo_data = [{
-            "access_token":"eafd285777ggobfvxyvnx",
+            "access_token": "eafd285777ggobfvxyvnx",
             "state": "draft",
             "type": "out_invoice",
             "invoice_sent": false,
@@ -1510,7 +1905,7 @@ export default class DriveV3 extends React.Component {
             "invoice_line_ids": [
                 [
                     0,
-                    "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
+                    "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
                     {
                         "sequence": 10,
                         "account_id": 104,
@@ -1535,7 +1930,7 @@ export default class DriveV3 extends React.Component {
                         "price_unit": 400,
                         "tax_ids": [
                             [
-                                6,false,[]
+                                6, false, []
                             ]
                         ],
                         "amount_currency": 0,
@@ -1556,65 +1951,72 @@ export default class DriveV3 extends React.Component {
             "line_ids": []
         }]
         let total = 0;
-        lignes_factures.map((ligne,key) => {
-            total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation))
 
-            //console.log(ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
+
+        lignes_factures.map((ligne, key) => {
+            total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation))
+            let OAContact = this.getOAContactByEmail(ligne.newTime.utilisateurOA);
             odoo_data[0].line_ids.push(
                 [
-                        0,
-                        "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
-                        {
-                            "account_id": 104,
-                            "sequence": 10,
-                            "name": ligne.newTime.description,
-                            "quantity": ligne.newTime.duree,
-                            "price_unit": parseFloat(ligne.newTime.rateFacturation),
-                            "discount": 0,
-                            "debit": 0,
-                            "credit": ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation) ,
-                            "amount_currency": 0,
-                            "date_maturity": false,
-                            "currency_id": false,
-                            "partner_id": false,
-                            "product_uom_id": false,
-                            "product_id": 1,
-                            "payment_id": false,
-                            "tax_ids": [
-                                [
-                                    6,
-                                    false,
-                                    [
-
-                                    ]
-                                ]
-                            ],
-                            "tax_base_amount": 0,
-                            "tax_exigible": true,
-                            "tax_repartition_line_id": false,
-                            "tag_ids": [
-                                [
-                                    6,
-                                    false,
-                                    [
-
-                                    ]
-                                ]
-                            ],
-                            "analytic_account_id": false,
-                            "analytic_tag_ids": [
-                                [
-                                    6,
-                                    false,
-                                    []
-                                ]
-                            ],
-                            "recompute_tax_line": false,
-                            "display_type": false,
-                            "is_rounding_line": false,
-                            "exclude_from_invoice_tab": false
-                        }
-                    ],
+                    0,
+                    "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
+                    {
+                        "account_id": 104,
+                        "sequence": 10,
+                        "name":
+                            ligne.template === "0" ? moment(ligne.newTime.date).format("DD/MM/YYYY") :
+                                ligne.template === "1" ? moment(ligne.newTime.date).format("DD/MM/YYYY") + "; " + ligne.newTime.description :
+                                    ligne.template === "2" ? moment(ligne.newTime.date).format("DD/MM/YYYY") + " ; " + OAContact.nom + " " + OAContact.prenom :
+                                        ligne.template === "3" ? moment(ligne.newTime.date).format("DD/MM/YYYY") + "; " + ligne.newTime.description + " ; " + OAContact.nom + " " + OAContact.prenom :
+                                            ligne.template === "4" ? ligne.newTime.description :
+                                                ligne.template === "5" ? OAContact.nom + " " + OAContact.prenom :
+                                                    ligne.template === "6" ? ligne.newTime.duree + " Heures" :
+                                                        ligne.template === "7" ? ligne.newTime.description + " ; " + OAContact.nom + " " + OAContact.prenom :
+                                                            ligne.template === "8" ? ligne.newTime.description + " ; " + ligne.newTime.duree + " Heures" :
+                                                                ligne.template === "9" ? ligne.newTime.description + " ; " + OAContact.nom + " " + OAContact.prenom + " ; " + ligne.newTime.duree + " Heures" : ligne.newTime.description,
+                        "quantity": ligne.newTime.duree,
+                        "price_unit": parseFloat(ligne.newTime.rateFacturation),
+                        "discount": 0,
+                        "debit": 0,
+                        "credit": ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation),
+                        "amount_currency": 0,
+                        "date_maturity": false,
+                        "currency_id": false,
+                        "partner_id": false,
+                        "product_uom_id": false,
+                        "product_id": 1,
+                        "payment_id": false,
+                        "tax_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "tax_base_amount": 0,
+                        "tax_exigible": true,
+                        "tax_repartition_line_id": false,
+                        "tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "analytic_account_id": false,
+                        "analytic_tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "recompute_tax_line": false,
+                        "display_type": false,
+                        "is_rounding_line": false,
+                        "exclude_from_invoice_tab": false
+                    }
+                ],
             )
 
         })
@@ -1622,7 +2024,7 @@ export default class DriveV3 extends React.Component {
         odoo_data[0].line_ids.push(
             [
                 0,
-                "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
+                "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
                 {
                     "account_id": 6,
                     "sequence": 10,
@@ -1672,134 +2074,448 @@ export default class DriveV3 extends React.Component {
             ]
         )
 
-        SmartService.create_facture_odoo(localStorage.getItem("token"),localStorage.getItem("usrtoken"),{data:odoo_data}).then( createFactRes => {
+        SmartService.create_facture_odoo(localStorage.getItem("token"), localStorage.getItem("usrtoken"), {data: odoo_data}).then(createFactRes => {
             //console.log(createFactRes)
-            window.open("http://91.121.162.202:10013/my/invoices/"+createFactRes.data.id+"?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true","_blank")
+            window.open("http://91.121.162.202:10013/my/invoices/" + createFactRes.data.id + "?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true", "_blank")
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    createFacture_ForSelected() {
+        let lignes_factures = this.state.lignesFactures.filter((lf) => lf.checked === true);
+        let odoo_data = [{
+            "access_token": "eafd285777ggobfvxyvnx",
+            "state": "draft",
+            "type": "out_invoice",
+            "invoice_sent": false,
+            "l10n_ch_isr_sent": false,
+            "name": "",
+            "invoice_date": moment(this.state.dateFacture).format("YYYY-MM-DD"),
+            "date": moment(this.state.dateFacture).format("YYYY-MM-DD"),
+            "journal_id": 1,
+            "currency_id": 5,
+            "invoice_user_id": 3,
+            "invoice_incoterm_id": false,
+            "auto_post": false,
+            "to_check": false,
+            "authorized_transaction_ids": [
+                [
+                    6,
+                    false,
+                    []
+                ]
+            ],
+            "tax_lock_date_message": false,
+            "id": false,
+            "invoice_payment_state": "not_paid",
+            "invoice_filter_type_domain": "sale",
+            "company_currency_id": 5,
+            "commercial_partner_id": "",
+            "bank_partner_id": 1,
+            "invoice_has_outstanding": false,
+            "l10n_ch_currency_name": "CHF",
+            "invoice_sequence_number_next_prefix": false,
+            "invoice_sequence_number_next": false,
+            "invoice_has_matching_suspense_amount": false,
+            "has_reconciled_entries": false,
+            "restrict_mode_hash_table": false,
+            "partner_id": lignes_factures[0].newTime.company_id,
+            "ref": 121006,
+            "invoice_vendor_bill_id": false,
+            "invoice_payment_term_id": 1,
+            "invoice_date_due": "2020-09-06",
+            "company_id": 1,
+            "amount_untaxed": 0,
+            "amount_by_group": [],
+            "amount_total": 0,
+            "invoice_payments_widget": "False",
+            "amount_residual": 0,
+            "invoice_outstanding_credits_debits_widget": false,
+            "narration": false,
+            "invoice_origin": false,
+            "fiscal_position_id": 1,
+            "invoice_cash_rounding_id": false,
+            "invoice_source_email": false,
+            "invoice_payment_ref": false,
+            "invoice_partner_bank_id": false,
+            "reversed_entry_id": false,
+            "message_follower_ids": [],
+            "activity_ids": [],
+            "message_ids": [],
+            "message_attachment_count": 0,
+            "invoice_line_ids": [
+                [
+                    0,
+                    "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
+                    {
+                        "sequence": 10,
+                        "account_id": 104,
+                        "quantity": 0.15,
+                        "discount": 10,
+                        "partner_id": false,
+                        "currency_id": false,
+                        "debit": 0,
+                        "credit": 60,
+                        "display_type": false,
+                        "product_id": 1,
+                        "name": "/*/*/",
+                        "analytic_account_id": false,
+                        "analytic_tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+
+                        "price_unit": 400,
+                        "tax_ids": [
+                            [
+                                6, false, []
+                            ]
+                        ],
+                        "amount_currency": 0,
+                        "date_maturity": false,
+                        "tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "recompute_tax_line": false,
+                        "is_rounding_line": false,
+                        "exclude_from_invoice_tab": false
+                    }
+                ]
+            ],
+            "line_ids": []
+        }]
+        let total = 0;
+        lignes_factures.map((ligne, key) => {
+            total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation))
+            let OAContact = this.getOAContactByEmail(ligne.newTime.utilisateurOA);
+            odoo_data[0].line_ids.push(
+                [
+                    0,
+                    "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
+                    {
+                        "account_id": 104,
+                        "sequence": 10,
+                        "name":
+                            ligne.template === "0" ? moment(ligne.newTime.date).format("DD/MM/YYYY") :
+                                ligne.template === "1" ? moment(ligne.newTime.date).format("DD/MM/YYYY") + "; " + ligne.newTime.description :
+                                    ligne.template === "2" ? moment(ligne.newTime.date).format("DD/MM/YYYY") + " ; " + OAContact.nom + " " + OAContact.prenom :
+                                        ligne.template === "3" ? moment(ligne.newTime.date).format("DD/MM/YYYY") + "; " + ligne.newTime.description + " ; " + OAContact.nom + " " + OAContact.prenom :
+                                            ligne.template === "4" ? ligne.newTime.description :
+                                                ligne.template === "5" ? OAContact.nom + " " + OAContact.prenom :
+                                                    ligne.template === "6" ? ligne.newTime.duree + " Heures" :
+                                                        ligne.template === "7" ? ligne.newTime.description + " ; " + OAContact.nom + " " + OAContact.prenom :
+                                                            ligne.template === "8" ? ligne.newTime.description + " ; " + ligne.newTime.duree + " Heures" :
+                                                                ligne.template === "9" ? ligne.newTime.description + " ; " + OAContact.nom + " " + OAContact.prenom + " ; " + ligne.newTime.duree + " Heures" : ligne.newTime.description,
+                        "quantity": ligne.newTime.duree,
+                        "price_unit": parseFloat(ligne.newTime.rateFacturation),
+                        "discount": 0,
+                        "debit": 0,
+                        "credit": ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation),
+                        "amount_currency": 0,
+                        "date_maturity": false,
+                        "currency_id": false,
+                        "partner_id": false,
+                        "product_uom_id": false,
+                        "product_id": 1,
+                        "payment_id": false,
+                        "tax_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "tax_base_amount": 0,
+                        "tax_exigible": true,
+                        "tax_repartition_line_id": false,
+                        "tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "analytic_account_id": false,
+                        "analytic_tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "recompute_tax_line": false,
+                        "display_type": false,
+                        "is_rounding_line": false,
+                        "exclude_from_invoice_tab": false
+                    }
+                ],
+            )
+
+        })
+        //console.log(total)
+        odoo_data[0].line_ids.push(
+            [
+                0,
+                "virtual_" + (Math.floor(100 + Math.random() * 900)).toString(),
+                {
+                    "account_id": 6,
+                    "sequence": 10,
+                    "name": false,
+                    "quantity": 1,
+                    "price_unit": -total,
+                    "discount": 0,
+                    "debit": total,
+                    "credit": 0,
+                    "amount_currency": 0,
+                    "date_maturity": "2020-09-08",
+                    "currency_id": false,
+                    "partner_id": false,
+                    "product_uom_id": false,
+                    "product_id": false,
+                    "payment_id": false,
+                    "tax_ids": [
+                        [
+                            6,
+                            false,
+                            []
+                        ]
+                    ],
+                    "tax_base_amount": 0,
+                    "tax_exigible": true,
+                    "tax_repartition_line_id": false,
+                    "tag_ids": [
+                        [
+                            6,
+                            false,
+                            []
+                        ]
+                    ],
+                    "analytic_account_id": false,
+                    "analytic_tag_ids": [
+                        [
+                            6,
+                            false,
+                            []
+                        ]
+                    ],
+                    "recompute_tax_line": false,
+                    "display_type": false,
+                    "is_rounding_line": false,
+                    "exclude_from_invoice_tab": true
+                }
+            ]
+        )
+
+        SmartService.create_facture_odoo(localStorage.getItem("token"), localStorage.getItem("usrtoken"), {data: odoo_data}).then(createFactRes => {
+            //console.log(createFactRes)
+            window.open("http://91.121.162.202:10013/my/invoices/" + createFactRes.data.id + "?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true", "_blank")
         }).catch(err => {
             console.log(err);
         })
     }
 
 
-    deleteLigneFact(lf){
+    deleteLigneFact(lf) {
         const r = window.confirm("Voulez-vous vraiment supprimer cette ligne facture ?");
-        if(r === true){
+        if (r === true) {
             let lignes_facture = this.state.lignesFactures;
             let findIndex = lignes_facture.findIndex(x => x.uid === lf.uid);
-            lignes_facture.splice(findIndex,1);
-            this.setState({lignesFactures:lignes_facture})
+            lignes_facture.splice(findIndex, 1);
+            this.setState({lignesFactures: lignes_facture})
         }
 
     }
 
+    updateLignes_facture(lignes_factures) {
+        setTimeout(() => {
+            firebase.database().ref("/lignes_factures").set(lignes_factures);
+            //console.log(this.state.TimeSheet)
+        }, 300)
 
-    genrateGed(){
-        SmartService.addFolder({name:"SECRETARIAT",folder_id:null},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes => {
+    }
+
+
+    genrateGed() {
+        SmartService.addFolder({
+            name: "SECRETARIAT",
+            folder_id: null
+        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes => {
 
             console.log("OK")
 
-            SmartService.addFolder({name:"ETUDE",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes1 => {
+            SmartService.addFolder({
+                name: "ETUDE",
+                folder_id: addFolderRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes1 => {
 
                 console.log("OK")
-                SmartService.addFolder({name:"BCORP",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "BCORP",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"LOGOS",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "LOGOS",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PHOTOS",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "PHOTOS",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CONFERENCE - PUBLICATIONS",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "CONFERENCE - PUBLICATIONS",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"KNOW HOW",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "KNOW HOW",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"NEWSLETTER",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "NEWSLETTER",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PRESENTATION ETUDE",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "PRESENTATION ETUDE",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CALENDRIER",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "CALENDRIER",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"EVENT",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "EVENT",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"MODELES",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "MODELES",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"ARCHIVAGE",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "ARCHIVAGE",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"OUVERTURE DOSSIER",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "OUVERTURE DOSSIER",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"LISTE TELEPHONE INTERNE",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "LISTE TELEPHONE INTERNE",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"ASSOCIES ***",folder_id:addFolderRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes1_assoc => {
+                SmartService.addFolder({
+                    name: "ASSOCIES ***",
+                    folder_id: addFolderRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes1_assoc => {
                     console.log("OK")
 
-                    SmartService.addFolder({name:"CONVENTION D'ACTIONNAIRES",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "CONVENTION D'ACTIONNAIRES",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
                         console.log(err)
                     })
-                    SmartService.addFolder({name:"CONTRAT DE TRAVAIL",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "CONTRAT DE TRAVAIL",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
                         console.log(err)
                     })
-                    SmartService.addFolder({name:"DECISIONS CONSEIL D'ADMINISTRATION",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "DECISIONS CONSEIL D'ADMINISTRATION",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
                         console.log(err)
                     })
-                    SmartService.addFolder({name:"ASSEMBLEE GENERALE EXTRAORDINAIRE",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "ASSEMBLEE GENERALE EXTRAORDINAIRE",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
                         console.log(err)
                     })
-                    SmartService.addFolder({name:"ASSEMBLEE GENERALE ORDINAIRE",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "ASSEMBLEE GENERALE ORDINAIRE",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
                         console.log(err)
                     })
-                    SmartService.addFolder({name:"PV REUNION",folder_id:addFolderRes1_assoc.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                    SmartService.addFolder({
+                        name: "PV REUNION",
+                        folder_id: addFolderRes1_assoc.data.id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                         console.log("OK")
 
                     }).catch(err => {
@@ -1814,71 +2530,55 @@ export default class DriveV3 extends React.Component {
                 console.log(err)
             })
 
-            SmartService.addFolder({name:"LOCAUX",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes2 => {
+            SmartService.addFolder({
+                name: "LOCAUX",
+                folder_id: addFolderRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes2 => {
 
-                SmartService.addFolder({name:"ASSURANCES",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "ASSURANCES",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"BAIL A LOYER",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "BAIL A LOYER",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CAVES",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "CAVES",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"BAVITECH",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "BAVITECH",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"NETTOYAGE",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "NETTOYAGE",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"BADEL",folder_id:addFolderRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-
-            }).catch(err => {
-                console.log(err)
-            })
-
-            SmartService.addFolder({name:"COMPTABILITE *",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes3 => {
-
-                SmartService.addFolder({name:"BUDGET",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"FACTURATION CLIENTS",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"FACTURES FOURNISSEURS",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"TVA",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"LISTES IBAN",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"CAISSE ETUDE",folder_id:addFolderRes3.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "BADEL",
+                    folder_id: addFolderRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
@@ -1888,39 +2588,55 @@ export default class DriveV3 extends React.Component {
                 console.log(err)
             })
 
-            SmartService.addFolder({name:"RH *",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes4 => {
+            SmartService.addFolder({
+                name: "COMPTABILITE *",
+                folder_id: addFolderRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes3 => {
 
-                SmartService.addFolder({name:"EMPLOYES",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "BUDGET",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"WELCOME PACK",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "FACTURATION CLIENTS",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"LPP ETUDE",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "FACTURES FOURNISSEURS",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"FER CIAM",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "TVA",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"TELETRAVAIL",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "LISTES IBAN",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CANDIDATURES",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"OCAS",folder_id:addFolderRes4.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "CAISSE ETUDE",
+                    folder_id: addFolderRes3.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
@@ -1930,15 +2646,90 @@ export default class DriveV3 extends React.Component {
                 console.log(err)
             })
 
-            SmartService.addFolder({name:"LISTES",folder_id:addFolderRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes5 => {
+            SmartService.addFolder({
+                name: "RH *",
+                folder_id: addFolderRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes4 => {
 
-
-                SmartService.addFolder({name:"CLIENTS",folder_id:addFolderRes5.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "EMPLOYES",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"AVOCATS",folder_id:addFolderRes5.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderRes11 => {
+                SmartService.addFolder({
+                    name: "WELCOME PACK",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "LPP ETUDE",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "FER CIAM",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "TELETRAVAIL",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "CANDIDATURES",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "OCAS",
+                    folder_id: addFolderRes4.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+
+            }).catch(err => {
+                console.log(err)
+            })
+
+            SmartService.addFolder({
+                name: "LISTES",
+                folder_id: addFolderRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes5 => {
+
+
+                SmartService.addFolder({
+                    name: "CLIENTS",
+                    folder_id: addFolderRes5.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "AVOCATS",
+                    folder_id: addFolderRes5.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
@@ -1952,67 +2743,101 @@ export default class DriveV3 extends React.Component {
             console.log(err)
         })
 
-        SmartService.addFolder({name:"CLIENTS",folder_id:null},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes => {
+        SmartService.addFolder({
+            name: "CLIENTS",
+            folder_id: null
+        }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes => {
 
-            SmartService.addFolder({name:"HYPERSONIC LTD",folder_id:addFolderClientRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes1 => {
+            SmartService.addFolder({
+                name: "HYPERSONIC LTD",
+                folder_id: addFolderClientRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes1 => {
                 console.log("OK")
 
-                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "MÉMOIRE",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"MÉMOIRE",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CHARGE DE PIECES",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CHARGE DE PIECES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CONVOCATIONS",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CONVOCATIONS",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "ADMIN (Lettre d'engagement)",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "COMPTABILITE",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"COMPTABILITE",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CORRESPONDANCE",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CORRESPONDANCE",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "INTERNE ****",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"INTERNE ****",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "NOTES",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"NOTES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "PV RENDEZ-VOUS",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PV RENDEZ-VOUS",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "PROCEDURES",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PROCEDURES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
-                    console.log("OK")
-                }).catch(err => {
-                    console.log(err)
-                })
-                SmartService.addFolder({name:"RECHERCHES JURIDIQUES",folder_id:addFolderClientRes1.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "RECHERCHES JURIDIQUES",
+                    folder_id: addFolderClientRes1.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
@@ -2022,65 +2847,104 @@ export default class DriveV3 extends React.Component {
                 console.log(err)
             })
 
-            SmartService.addFolder({name:"Serge LICHTENSTEIN",folder_id:addFolderClientRes.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes2 => {
+            SmartService.addFolder({
+                name: "Serge LICHTENSTEIN",
+                folder_id: addFolderClientRes.data.id
+            }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes2 => {
                 console.log("OK")
 
-                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "ADMIN (Lettre d'engagement)",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"MÉMOIRE",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "MÉMOIRE",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CHARGE DE PIECES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CHARGE DE PIECES",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CONVOCATIONS",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CONVOCATIONS",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"ADMIN (Lettre d'engagement)",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "ADMIN (Lettre d'engagement)",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"COMPTABILITE",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "COMPTABILITE",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"CORRESPONDANCE",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "CORRESPONDANCE",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"INTERNE ****",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "INTERNE ****",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"NOTES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "NOTES",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PV RENDEZ-VOUS",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "PV RENDEZ-VOUS",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"PROCEDURES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "PROCEDURES",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
                 })
-                SmartService.addFolder({name:"RECHERCHES JURIDIQUES",folder_id:addFolderClientRes2.data.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFolderClientRes11 => {
+                SmartService.addFolder({
+                    name: "RECHERCHES JURIDIQUES",
+                    folder_id: addFolderClientRes2.data.id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
                     console.log("OK")
                 }).catch(err => {
                     console.log(err)
@@ -2095,10 +2959,302 @@ export default class DriveV3 extends React.Component {
         })
     }
 
+    onInputTimeSuggChange = (event, {newValue}) => {
+        console.log(newValue)
+        let d = this.state.TimeSheet
+        d.newTime.duree = newValue
+        this.setState({TimeSheet: d})
+    };
+
+    onTimeSuggestionsFetchRequested = ({value}) => {
+        this.setState({
+            timeSuggestions: getTimeSuggestions(value)
+        });
+    };
+
+    onTimeSuggestionsClearRequested = () => {
+        this.setState({
+            timeSuggestions: []
+        });
+    };
+
+    generateClientFolder(name, type, folder_id, client_id) {
+        this.setState({loading: true});
+        if (client_id === null) {
+            SmartService.create_client(localStorage.getItem("token"), localStorage.getItem("usrtoken"), {
+                param: {
+                    name: name,
+                    base64: false,
+                    parent_id: false,
+                    function: false,
+                    phone: false,
+                    mobile: false,
+                    email: false,
+                    website: false,
+                    title: false
+                }
+            }).then(createClientRes => {
+
+                SmartService.create_client_folder(localStorage.getItem("token"), localStorage.getItem("usrtoken"), {
+                    client_id: createClientRes.data.id,
+                    type: type,
+                    name: name,
+                    client_folder: folder_id
+                }).then(createClientFolderRes => {
+
+                    SmartService.addFolder({
+                        name: "MÉMOIRE",
+                        folder_id: createClientFolderRes.data.folder_id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                        console.log("OK")
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({
+                        name: "CHARGE DE PIECES",
+                        folder_id: createClientFolderRes.data.folder_id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                        console.log("OK")
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({
+                        name: "CONVOCATIONS",
+                        folder_id: createClientFolderRes.data.folder_id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                        console.log("OK")
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({
+                        name: "ADMIN (Lettre d'engagement)",
+                        folder_id: createClientFolderRes.data.folder_id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                        console.log("OK")
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({
+                        name: "COMPTABILITE",
+                        folder_id: createClientFolderRes.data.folder_id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                        console.log("OK")
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({
+                        name: "CORRESPONDANCE",
+                        folder_id: createClientFolderRes.data.folder_id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                        console.log("OK")
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({
+                        name: "INTERNE ****",
+                        folder_id: createClientFolderRes.data.folder_id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                        console.log("OK")
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({
+                        name: "NOTES",
+                        folder_id: createClientFolderRes.data.folder_id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                        console.log("OK")
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({
+                        name: "PV RENDEZ-VOUS",
+                        folder_id: createClientFolderRes.data.folder_id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                        console.log("OK")
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({
+                        name: "PROCEDURES",
+                        folder_id: createClientFolderRes.data.folder_id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                        console.log("OK")
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                    SmartService.addFolder({
+                        name: "RECHERCHES JURIDIQUES",
+                        folder_id: createClientFolderRes.data.folder_id
+                    }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                        console.log("OK")
+                    }).catch(err => {
+                        console.log(err)
+                    })
+
+                    setTimeout(() => {
+                        let selected = this.state.selectedSociete;
+                        selected.client_id = createClientRes.data.id;
+                        selected.folder_id = createClientFolderRes.data.folder_id;
+                        selected.type_odoo = type;
+                        let key = this.findClientMondatById(this.state.selectedSociete.ID, this.state.annuaire_clients_mondat);
+                        firebase.database().ref('annuaire_client_mondat/' + key).set(
+                            selected
+                        ).then(res => {
+                            this.setState({loading: false})
+                            this.reloadGed()
+                        });
+
+                    }, 2000)
+
+
+                }).catch(err => {
+                    console.log(err)
+                })
+
+            }).catch(err => {
+                console.log(err)
+            })
+        } else {
+
+            SmartService.create_client_folder(localStorage.getItem("token"), localStorage.getItem("usrtoken"), {
+                client_id: client_id,
+                type: type,
+                name: name,
+                client_folder: folder_id
+            }).then(createClientFolderRes => {
+
+                SmartService.addFolder({
+                    name: "MÉMOIRE",
+                    folder_id: createClientFolderRes.data.folder_id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "CHARGE DE PIECES",
+                    folder_id: createClientFolderRes.data.folder_id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "CONVOCATIONS",
+                    folder_id: createClientFolderRes.data.folder_id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "ADMIN (Lettre d'engagement)",
+                    folder_id: createClientFolderRes.data.folder_id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "COMPTABILITE",
+                    folder_id: createClientFolderRes.data.folder_id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "CORRESPONDANCE",
+                    folder_id: createClientFolderRes.data.folder_id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "INTERNE ****",
+                    folder_id: createClientFolderRes.data.folder_id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "NOTES",
+                    folder_id: createClientFolderRes.data.folder_id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "PV RENDEZ-VOUS",
+                    folder_id: createClientFolderRes.data.folder_id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "PROCEDURES",
+                    folder_id: createClientFolderRes.data.folder_id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+                SmartService.addFolder({
+                    name: "RECHERCHES JURIDIQUES",
+                    folder_id: createClientFolderRes.data.folder_id
+                }, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(addFolderClientRes11 => {
+                    console.log("OK")
+                }).catch(err => {
+                    console.log(err)
+                })
+
+                setTimeout(() => {
+                    let selected = this.state.selectedSociete;
+                    selected.client_id = client_id;
+                    selected.folder_id = createClientFolderRes.data.folder_id;
+                    selected.type_odoo = type;
+                    let key = this.findClientMondatById(this.state.selectedSociete.ID, this.state.annuaire_clients_mondat);
+                    firebase.database().ref('annuaire_client_mondat/' + key).set(
+                        selected
+                    ).then(res => {
+                        this.setState({loading: false})
+                        this.reloadGed()
+                    });
+
+                }, 2000)
+
+
+            }).catch(err => {
+                console.log(err)
+            })
+        }
+    }
+
 
     render() {
         var searchFilter = this.state.annuaire_clients_mondat.filter((soc) => soc.ContactName.toLowerCase().startsWith(this.state.searchSociete.toLowerCase()))
         var searchFilterLignesfacture = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
+
+        const inputSuggProps = {
+            placeholder: '0:1, 0:15, 0:30...',
+            value: this.state.TimeSheet.newTime.duree,
+            onChange: this.onInputTimeSuggChange
+        };
+
+        const contactSelectOptions = [];
+        contactSelectOptions.push({label: "Aucun", value: ""})
+        this.state.contacts.map((contact, key) => {
+            contactSelectOptions.push({
+                value: contact.email,
+                label: <div>
+                    <img alt="" src={contact.imageUrl || null} style={{width: 30, height: 30, objectFit: "cover"}}/>
+                    {" "}{contact.nom + " " + contact.prenom}</div>
+            })
+        })
         return (
             <div>
                 {
@@ -3206,20 +4362,22 @@ export default class DriveV3 extends React.Component {
                                             this.state.showContainerSection === "Rooms" && this.state.loading === false &&
                                             <Rooms rooms={this.state.rooms} selectedRoom={this.state.selectedRoom}
                                                    contacts={this.state.contacts}
+                                                   annuaire_clients={this.state.annuaire_clients_mondat}
                                                    openNewRoomModal={() => {
                                                        this.setState({
                                                            openNewRoomModal: true
                                                        })
                                                    }
                                                    }
-                                                   addNewtask={(title, assignedTo, team, selectedDateTime) => {
+                                                   addNewtask={(title, selectedClient, assignedTo, team, selectedDateTime) => {
                                                        let room = this.state.selectedRoom;
                                                        let tasks = room.tasks || [];
                                                        tasks.push({
                                                            title: title,
                                                            assignedTo: assignedTo,
                                                            team: team,
-                                                           dateTime: selectedDateTime
+                                                           dateTime: selectedDateTime,
+                                                           clientAttribution: selectedClient
                                                        })
                                                        room.tasks = tasks;
                                                        firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
@@ -3250,15 +4408,19 @@ export default class DriveV3 extends React.Component {
                                                        })
                                                    }}
                                                    onDeleteTask={(key) => {
-                                                       let room = this.state.selectedRoom;
-                                                       let tasks = room.tasks;
-                                                       tasks.splice(key, 1);
-                                                       room.tasks = tasks;
-                                                       firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
-                                                           room
-                                                       ).then(ok => {
-                                                           this.setState({selectedRoom: room})
-                                                       })
+                                                       const r = window.confirm("Voulez-vous vraiment supprimer cette tâche ?");
+                                                       if (r === true) {
+                                                           let room = this.state.selectedRoom;
+                                                           let tasks = room.tasks;
+                                                           tasks.splice(key, 1);
+                                                           room.tasks = tasks;
+                                                           firebase.database().ref("rooms/" + this.state.selectedRoomKey).set(
+                                                               room
+                                                           ).then(ok => {
+                                                               this.setState({selectedRoom: room})
+                                                           })
+                                                       }
+
                                                    }}
                                             />
                                         }
@@ -3386,7 +4548,8 @@ export default class DriveV3 extends React.Component {
                                                                                 <div
                                                                                     className="col-md-2 bg-danger text-center "
                                                                                     style={{width: "10%"}}>
-                                                                                    <h4 style={{color: "white"}}>OA Legal</h4>
+                                                                                    <h4 style={{color: "white"}}>OA
+                                                                                        Legal</h4>
                                                                                 </div>
                                                                                 <hr style={{
                                                                                     backgroundColor: "#c0c0c0",
@@ -3859,15 +5022,18 @@ export default class DriveV3 extends React.Component {
                                                                                 <Tab>Affiliations</Tab>
                                                                                 <Tab>Domaine d'activités</Tab>
                                                                                 <Tab>Langues</Tab>
-                                                                                <Tab>Domaines d'intérêt, loisirs et sports</Tab>
+                                                                                <Tab>Domaines d'intérêt, loisirs et
+                                                                                    sports</Tab>
                                                                             </TabList>
 
                                                                             <TabPanel>
                                                                                 <h5 style={{marginTop: 20}}>Informations
                                                                                     générales</h5>
-                                                                                <div className="row" style={{marginTop: 35}}>
+                                                                                <div className="row"
+                                                                                     style={{marginTop: 35}}>
                                                                                     <div className="col-md-8">
-                                                                                        <p style={{marginBottom: 10}}>À propos</p>
+                                                                                        <p style={{marginBottom: 10}}>À
+                                                                                            propos</p>
                                                                                         <textarea
                                                                                             rows={7}
                                                                                             className="form-control"
@@ -3878,7 +5044,7 @@ export default class DriveV3 extends React.Component {
                                                                                     </div>
                                                                                     <div className="col-md-4">
                                                                                         <h6>
-                                                                                            Rate de facturation
+                                                                                            Taux horaire
                                                                                         </h6>
                                                                                         <Input
                                                                                             className="form-control "
@@ -3893,7 +5059,7 @@ export default class DriveV3 extends React.Component {
 
                                                                                             value={this.state.selectedContact.rateFacturation}
                                                                                             onChange={this.handleChange('selectedContact', 'rateFacturation')}
-                                                                                            />
+                                                                                        />
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="row"
@@ -4299,14 +5465,31 @@ export default class DriveV3 extends React.Component {
                                                                 contacts={this.state.contacts}
                                                                 societes={this.state.annuaire_clients_mondat}
                                                                 onEditClick={(societe, key) => {
+                                                                    //this.props.history.push('/society/clients_mondat/'+societe.ID)
                                                                     this.setState({
                                                                             selectedSociete: societe,
                                                                             selectedSocieteKey: key,
                                                                             editSocieteForm: true
                                                                         }
                                                                     )
-                                                                }
-                                                                }/>
+                                                                }}
+                                                                onFolderClick={(folder_id) => {
+                                                                    if (folder_id) {
+                                                                        this.props.history.replace({pathname: '/drive/' + folder_id});
+                                                                        this.setState({
+                                                                            showContainerSection: "Drive",
+                                                                            focusedItem: "Drive",
+                                                                            selectedDriveItem: [folder_id],
+                                                                            expandedDriveItems: [folder_id, localStorage.getItem("client_folder_id")],
+                                                                            selectedFoldername: this.getFolderNameById(folder_id, this.state.reelFolders),
+                                                                            breadcrumbs: this.getBreadcumpsPath(folder_id, this.state.reelFolders),
+                                                                            selectedFolderId: folder_id,
+                                                                            selectedFolderFiles: this.getFolderFilesById(folder_id, this.state.reelFolders),
+                                                                            selectedFolderFolders: this.getFolderFoldersById(folder_id, this.state.reelFolders),
+                                                                        })
+                                                                    }
+                                                                }}
+                                                            />
                                                         }
                                                     </div> :
                                                     <div>
@@ -4574,23 +5757,26 @@ export default class DriveV3 extends React.Component {
                                                                                         </div>
                                                                                         <div>
                                                                                             <input
+                                                                                                style={{color: "#000"}}
                                                                                                 className="form-control"
                                                                                                 defaultValue={this.state.selectedSociete.ContactName}
-                                                                                                readOnly={true}/>
+                                                                                                readOnly={false}
+                                                                                                onChange={this.handleChange("selectedSociete", "ContactName")}
+                                                                                            />
                                                                                         </div>
                                                                                     </div>
                                                                                     <div className="col-md-4">
                                                                                         <div>
-                                                                                            Type de dossier
+                                                                                            Type
                                                                                         </div>
                                                                                         <div>
                                                                                             <select
                                                                                                 className="form-control custom-select"
-                                                                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.typeDossier || "" : ""}
-                                                                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "typeDossier")}
+                                                                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.type_odoo || "" : ""}
+                                                                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "type_odoo")}
                                                                                             >
                                                                                                 {
-                                                                                                    Data.secteurs.map((secteur, key) =>
+                                                                                                    Data.secteurs2.map((secteur, key) =>
                                                                                                         <option
                                                                                                             key={key}
                                                                                                             value={secteur}>{secteur}</option>
@@ -4607,6 +5793,7 @@ export default class DriveV3 extends React.Component {
                                                                                         </div>
                                                                                         <div>
                                                                                             <textarea
+                                                                                                style={{color: "#000"}}
                                                                                                 className="form-control"
                                                                                                 value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
                                                                                                 onChange={this.handleObjectChange("selectedSociete", "mondat", "description")}
@@ -4638,6 +5825,22 @@ export default class DriveV3 extends React.Component {
                                                                                         </div>
 
                                                                                     </div>
+                                                                                </div>
+                                                                                <div style={{
+                                                                                    margintop: 10,
+                                                                                    textAlign: "right"
+                                                                                }}>
+                                                                                    <button type="button"
+                                                                                            disabled={this.state.selectedSociete.ContactName === ""}
+                                                                                            onClick={() => {
+                                                                                                this.generateClientFolder(this.state.selectedSociete.ContactName,
+                                                                                                    this.state.selectedSociete.mondat.type_odoo ? this.state.selectedSociete.mondat.type_odoo : "corporate", localStorage.getItem("client_folder_id"),
+                                                                                                    this.state.selectedSociete.client_id || null)
+                                                                                            }}
+                                                                                            className="btn btn-blue waves-effect mb-2 waves-light m-1">
+                                                                                        <i className="fe-folder-plus"/>&nbsp;&nbsp;
+                                                                                        Créer Dossier Client
+                                                                                    </button>
                                                                                 </div>
                                                                                 <div
                                                                                     className="row mt-4 align-items-center">
@@ -5251,270 +6454,20 @@ export default class DriveV3 extends React.Component {
                                                                     <div style={{marginTop: 30}} className="text-left">
                                                                         <Tabs>
                                                                             <TabList>
-                                                                                <Tab>Imputation client </Tab>
-                                                                                <Tab>List imputation </Tab>
-                                                                                <Tab>Imputation team & scheduled
-                                                                                    time </Tab>
                                                                                 <Tab>New time Entree </Tab>
-                                                                                <Tab>New Expenses </Tab>
-                                                                            </TabList>
-
-                                                                            <TabPanel>
-                                                                                <h5 style={{
-                                                                                    marginTop: 20,
-                                                                                    color: "blue"
-                                                                                }}>Sélection du client à imputer</h5>
-                                                                                <div
-                                                                                    className="row border border-primary"
-                                                                                    style={{marginTop: 35}}>
-                                                                                    <div className="col-md-4">
-                                                                                        <input
-                                                                                            className="form-control "
-                                                                                            style={{width: "100%",borderColor:"transparent",marginTop:8}}
-                                                                                            id="search"
-                                                                                            type="text"
-                                                                                            placeholder="search"
-                                                                                            value={this.state.searchSociete}
-                                                                                            onChange={(e) => {
-                                                                                                this.setState({searchSociete: e.target.value})
-                                                                                            }}/>
-
-                                                                                    </div>
-                                                                                    <div className="col-md-1" style={{
-                                                                                        borderLeftColor: "#a6a6a6",
-                                                                                        borderLeftStyle: "solid",
-                                                                                        borderLeftWidth: 1
-                                                                                    }}>
-                                                                                        <h5>A-B-C</h5>
-                                                                                    </div>
-                                                                                    <div className="col-md-1" style={{
-                                                                                        borderLeftColor: "#a6a6a6",
-                                                                                        borderLeftStyle: "solid",
-                                                                                        borderLeftWidth: 1
-                                                                                    }}>
-                                                                                        <h5>D-E-F</h5>
-                                                                                    </div>
-                                                                                    <div className="col-md-1" style={{
-                                                                                        borderLeftColor: "#a6a6a6",
-                                                                                        borderLeftStyle: "solid",
-                                                                                        borderLeftWidth: 1
-                                                                                    }}>
-                                                                                        <h5>G-H-I</h5>
-                                                                                    </div>
-                                                                                    <div className="col-md-1" style={{
-                                                                                        borderLeftColor: "#a6a6a6",
-                                                                                        borderLeftStyle: "solid",
-                                                                                        borderLeftWidth: 1
-                                                                                    }}>
-                                                                                        <h5>J-K-L</h5>
-                                                                                    </div>
-                                                                                    <div className="col-md-1" style={{
-                                                                                        borderLeftColor: "#a6a6a6",
-                                                                                        borderLeftStyle: "solid",
-                                                                                        borderLeftWidth: 1
-                                                                                    }}>
-                                                                                        <h5>M-N-O</h5>
-                                                                                    </div>
-                                                                                    <div className="col-md-1" style={{
-                                                                                        borderLeftColor: "#a6a6a6",
-                                                                                        borderLeftStyle: "solid",
-                                                                                        borderLeftWidth: 1
-                                                                                    }}>
-                                                                                        <h5>P-Q-R</h5>
-                                                                                    </div>
-                                                                                    <div className="col-md-1" style={{
-                                                                                        borderLeftColor: "#a6a6a6",
-                                                                                        borderLeftStyle: "solid",
-                                                                                        borderLeftWidth: 1
-                                                                                    }}>
-                                                                                        <h5>S-T-U</h5>
-                                                                                    </div>
-                                                                                    <div className="col-md-1" style={{
-                                                                                        borderLeftColor: "#a6a6a6",
-                                                                                        borderLeftStyle: "solid",
-                                                                                        borderLeftWidth: 1
-                                                                                    }}>
-                                                                                        <h5>W-X-Y-Z</h5>
-                                                                                    </div>
-                                                                                </div>
-
-                                                                                <div className="row mt-3">
-                                                                                    <div className="col-md-3">
-                                                                                        <h5>Nom Sociéte</h5>
-
-                                                                                    </div>
-                                                                                    <div className="col-md-4">
-                                                                                        <h5>Nom du décideur / email</h5>
-
-                                                                                    </div>
-                                                                                    <div className="col-md-5">
-                                                                                        <h5>Nom du payeur / email</h5>
-
-                                                                                    </div>
-
-                                                                                </div>
-                                                                                <div className="mt-2">
-                                                                                    {this.state.searchSociete === "" ?
-                                                                                        <div>
-                                                                                            {this.state.societes.map((item, key) => (
-                                                                                                <div key={key}
-                                                                                                     className="row mt-2">
-                                                                                                    <div
-                                                                                                        className="col-md-3">
-                                                                                                        <div>{item.nomSociete}</div>
-
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        className="col-md-4">
-                                                                                                        <div>{item.nomDecideur + " / " + item.email}</div>
-
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        className="col-md-5">
-                                                                                                        <div>{item.nomPayeur + " / " + item.emailPayeur}</div>
-
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            ))}
-                                                                                        </div>
-                                                                                        :
-                                                                                        <div>
-                                                                                            {
-                                                                                                searchFilter.map((item, key) => (
-                                                                                                    <div key={key}
-                                                                                                         className="row mt-2">
-                                                                                                        <div
-                                                                                                            className="col-md-3">
-                                                                                                            <div>{item.nomSociete}</div>
-
-                                                                                                        </div>
-                                                                                                        <div
-                                                                                                            className="col-md-4">
-                                                                                                            <div>{item.nomDecideur + " / " + item.email}</div>
-
-                                                                                                        </div>
-                                                                                                        <div
-                                                                                                            className="col-md-5">
-                                                                                                            <div>{item.nomPayeur + " / " + item.emailPayeur}</div>
-
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                ))
-                                                                                            }
-                                                                                        </div>
-
-
-                                                                                    }
-
-                                                                                </div>
-
-                                                                            </TabPanel>
-
-                                                                            <TabPanel>
-                                                                                <div className="row align-items-center">
-                                                                                    <ButtonGroup color="#a6a6a6"
-                                                                                                 aria-label="outlined secondary button group">
-                                                                                        <BT>ALL</BT>
-                                                                                        <BT>
-                                                                                            <img src={time}
-                                                                                                 style={{width: 20}}/>
-                                                                                            Time</BT>
-                                                                                        <BT>
-                                                                                            <img src={money}
-                                                                                                 style={{width: 20}}/>
-                                                                                            Expense</BT>
-                                                                                    </ButtonGroup>
-
-                                                                                    <div className="ml-2">
-
-                                                                                        <DatePicker
-
-
-                                                                                            calendarIcon={<img
-                                                                                                src={calendar}
-                                                                                                style={{width: 20}}/>}
-                                                                                            onChange={(e) => {
-                                                                                                let d = this.state.TimeSheet
-                                                                                                d.newTime.date = e
-                                                                                                this.setState({TimeSheet: d})
-                                                                                            }}
-                                                                                            value={this.state.TimeSheet.newTime.date}
-                                                                                        />
-                                                                                    </div>
-                                                                                    <div className="ml-1">
-                                                                                        <h5>-</h5>
-                                                                                    </div>
-                                                                                    <div className="ml-1">
-                                                                                        <DatePicker
-                                                                                            calendarIcon={<img
-                                                                                                src={calendar}
-                                                                                                style={{width: 20}}/>}
-                                                                                            onChange={(e) => {
-                                                                                                let d = this.state.TimeSheet
-                                                                                                d.newTime.date = e
-                                                                                                this.setState({TimeSheet: d})
-                                                                                            }}
-                                                                                            value={this.state.TimeSheet.newTime.date}
-                                                                                        />
-                                                                                    </div>
-
-                                                                                    <div className="ml-2">
-                                                                                        <ButtonGroup color="#a6a6a6"
-                                                                                                     aria-label="outlined secondary button group">
-
-                                                                                            <BT>
-                                                                                                <img src={play} style={{
-                                                                                                    width: 18,
-                                                                                                    transform: 'rotate(180deg)'
-                                                                                                }}/>
-                                                                                            </BT>
-                                                                                            <BT>
-                                                                                                <img src={play}
-                                                                                                     style={{width: 18}}/>
-                                                                                            </BT>
-                                                                                        </ButtonGroup>
-                                                                                    </div>
-
-                                                                                    <div className="col-md-2 ml-2">
-                                                                                        <Select
-                                                                                            labelId="demo-simple-select-label"
-                                                                                            id="demo-simple-select"
-                                                                                            style={{width: "100%"}}
-                                                                                            defaultValue={"Custom"}
-
-
-                                                                                        >
-                                                                                            <MenuItem
-                                                                                                value={"Custom"}>Custom</MenuItem>
-                                                                                            <MenuItem value={"Associé"}>Custom
-                                                                                                2</MenuItem>
-                                                                                            <MenuItem
-                                                                                                value={"Collaborateur"}>Costim
-                                                                                                3</MenuItem>
-
-                                                                                        </Select>
-                                                                                    </div>
-                                                                                </div>
-
+                                                                                <Tab>List imputation </Tab>
                                                                                 {
-                                                                                    this.state.contacts.length > 0 &&
-                                                                                    <TableTimeSheet
-                                                                                        contacts={this.state.TimeSheetData}
-                                                                                        onEditClick={(contact, key) => {
-                                                                                            this.setState({
-                                                                                                    selectedSociete: contact,
-                                                                                                    selectedSocieteKey: key,
-                                                                                                    openRightSocieteModalDetail: true
-                                                                                                }
-                                                                                            )
-                                                                                        }
-                                                                                        }/>
+                                                                                    localStorage.getItem("role") === "admin" &&
+                                                                                    [
+                                                                                        <Tab key={0}>Imputation
+                                                                                            client </Tab>,
+                                                                                        <Tab key={1}>Imputation team &
+                                                                                            scheduled time </Tab>,
+                                                                                        <Tab key={2}>New Expenses </Tab>
+                                                                                    ]
                                                                                 }
 
-
-                                                                            </TabPanel>
-
-                                                                            <TabPanel/>
+                                                                            </TabList>
 
                                                                             <TabPanel>
                                                                                 {
@@ -5528,22 +6481,16 @@ export default class DriveV3 extends React.Component {
                                                                                                         className="row">
                                                                                                         <div
                                                                                                             className="col-md-5">
-                                                                                                            <Input
-                                                                                                                className="form-control "
-                                                                                                                id="duree"
-                                                                                                                style={{width: "100%"}}
-                                                                                                                name="duree"
-                                                                                                                type="text"
-                                                                                                                value={this.state.TimeSheet.newTime.duree}
-                                                                                                                endAdornment={
-                                                                                                                    <InputAdornment
-                                                                                                                        position="end">Heures</InputAdornment>}
-                                                                                                                onChange={(e) => {
-                                                                                                                    let d = this.state.TimeSheet
-                                                                                                                    d.newTime.duree = e.target.value
-                                                                                                                    this.setState({TimeSheet: d})
-                                                                                                                }}/>
-
+                                                                                                            <Autosuggest
+                                                                                                                suggestions={this.state.timeSuggestions}
+                                                                                                                onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
+                                                                                                                onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
+                                                                                                                onSuggestionSelected={(event, {suggestion}) => console.log(suggestion)}
+                                                                                                                getSuggestionValue={suggestion => suggestion}
+                                                                                                                renderSuggestion={suggestion => (
+                                                                                                                    <div>{suggestion}</div>)}
+                                                                                                                inputProps={inputSuggProps}
+                                                                                                            />
                                                                                                         </div>
                                                                                                         <div
                                                                                                             className="col-md-7">
@@ -5554,7 +6501,7 @@ export default class DriveV3 extends React.Component {
                                                                                                                     initialTime={0}
                                                                                                                     startImmediately={false}
                                                                                                                 >
-                                                                                                                    {({start, resume, pause, stop, reset, timerState, getTime}) => (
+                                                                                                                    {({start, resume, pause, stop, reset, getTimerState, getTime}) => (
                                                                                                                         <React.Fragment>
                                                                                                                             <div
                                                                                                                                 align="center"
@@ -5564,18 +6511,22 @@ export default class DriveV3 extends React.Component {
                                                                                                                                     color: "#000",
                                                                                                                                     height: 36,
                                                                                                                                     fontWeight: 700,
-                                                                                                                                    fontSize: 15
+                                                                                                                                    fontSize: 16,
+                                                                                                                                    letterSpacing: "0.1rem"
                                                                                                                                 }}>
-                                                                                                                                <Timer.Hours/> h:
-                                                                                                                                <Timer.Minutes/> m:
-                                                                                                                                <Timer.Seconds/> s
+                                                                                                                                <Timer.Hours
+                                                                                                                                    formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`}/>
+                                                                                                                                <Timer.Minutes
+                                                                                                                                    formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`}/>
+                                                                                                                                <Timer.Seconds
+                                                                                                                                    formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`}/>
                                                                                                                             </div>
                                                                                                                             <div
                                                                                                                                 style={{marginLeft: 10}}>
                                                                                                                                 <div
                                                                                                                                     align="center"
                                                                                                                                     style={{
-                                                                                                                                        backgroundColor: "green",
+                                                                                                                                        backgroundColor: (getTimerState() === "STOPPED" || getTimerState() === "INITED") ? "green" : "red",
                                                                                                                                         padding: 5,
                                                                                                                                         borderRadius: 10,
                                                                                                                                         width: 50,
@@ -5583,32 +6534,23 @@ export default class DriveV3 extends React.Component {
                                                                                                                                         fontWeight: 700,
                                                                                                                                         cursor: "pointer"
                                                                                                                                     }}
-                                                                                                                                    onClick={start}
-                                                                                                                                >
-                                                                                                                                    Start
-                                                                                                                                </div>
-                                                                                                                                <div
-                                                                                                                                    align="center"
-                                                                                                                                    style={{
-                                                                                                                                        backgroundColor: "red",
-                                                                                                                                        padding: 5,
-                                                                                                                                        borderRadius: 10,
-                                                                                                                                        width: 50,
-                                                                                                                                        color: "#fff",
-                                                                                                                                        fontWeight: 700,
-                                                                                                                                        cursor: "pointer",
-                                                                                                                                        marginTop: 3
-                                                                                                                                    }}
+
                                                                                                                                     onClick={() => {
-                                                                                                                                        let timeEtablished = getTime()
-                                                                                                                                        let timeH = ((timeEtablished / 1000) / 60) / 60;
-                                                                                                                                        let obj = this.state.TimeSheet;
-                                                                                                                                        obj.newTime.duree = timeH.toFixed(3)
-                                                                                                                                        this.setState({TimeSheet: obj})
-                                                                                                                                        stop();
+                                                                                                                                        if (getTimerState() === "STOPPED" || getTimerState() === "INITED") {
+                                                                                                                                            start()
+                                                                                                                                        } else {
+                                                                                                                                            let timeEtablished = getTime()
+                                                                                                                                            console.log(timeEtablished)
+                                                                                                                                            let timeH = ((timeEtablished / 1000) / 60) / 60;
+                                                                                                                                            console.log(timeH)
+                                                                                                                                            let obj = this.state.TimeSheet;
+                                                                                                                                            obj.newTime.duree = timeH.toFixed(3).replace(".", ":")
+                                                                                                                                            this.setState({TimeSheet: obj})
+                                                                                                                                            stop()
+                                                                                                                                        }
                                                                                                                                     }}
                                                                                                                                 >
-                                                                                                                                    Stop
+                                                                                                                                    {(getTimerState() === "STOPPED" || getTimerState() === "INITED") ? "Start" : "Stop"}
                                                                                                                                 </div>
                                                                                                                                 <div
                                                                                                                                     align="center"
@@ -5673,7 +6615,7 @@ export default class DriveV3 extends React.Component {
                                                                                                                     let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : "" : "";
                                                                                                                     console.log(partner_email)
                                                                                                                     this.setState({
-                                                                                                                        partnerFacture:partner_email,
+                                                                                                                        partnerFacture: partner_email,
                                                                                                                         selectedClientTimeEntree: e,
                                                                                                                         TimeSheet: obj
                                                                                                                     })
@@ -5695,7 +6637,8 @@ export default class DriveV3 extends React.Component {
                                                                                                 <div
                                                                                                     className="col-md-4">
                                                                                                     <div>
-                                                                                                        <h5>Catégorie d’activités </h5>
+                                                                                                        <h5>Catégorie
+                                                                                                            d’activités </h5>
                                                                                                         <MuiSelect
                                                                                                             labelId="demo-simple-select-label"
                                                                                                             id="demo-simple-select"
@@ -5711,13 +6654,13 @@ export default class DriveV3 extends React.Component {
                                                                                                                 value={"Temps facturé"}>Temps
                                                                                                                 facturé</MenuItem>
                                                                                                             <MenuItem
-                                                                                                                value={"Paiement avancée"}>Paiement
-                                                                                                                avancée</MenuItem>
+                                                                                                                value={"Paiement avancée"}>Provision</MenuItem>
                                                                                                         </MuiSelect>
                                                                                                     </div>
 
                                                                                                 </div>
-                                                                                                <div className="col-md-4">
+                                                                                                <div
+                                                                                                    className="col-md-4">
                                                                                                     <div
                                                                                                         style={{width: "100%"}}>
                                                                                                         <h5>Date</h5>
@@ -5725,9 +6668,11 @@ export default class DriveV3 extends React.Component {
 
                                                                                                             calendarIcon={
                                                                                                                 <img
+                                                                                                                    alt=""
                                                                                                                     src={calendar}
                                                                                                                     style={{width: 20}}/>}
                                                                                                             onChange={(e) => {
+                                                                                                                console.log(e)
                                                                                                                 let d = this.state.TimeSheet
                                                                                                                 d.newTime.date = e
                                                                                                                 this.setState({TimeSheet: d})
@@ -5764,42 +6709,48 @@ export default class DriveV3 extends React.Component {
                                                                                                 <div
                                                                                                     className="col-md-4">
                                                                                                     <div>
-                                                                                                        <h6>Utilisateur chez OA </h6>
+                                                                                                        <h6>Utilisateur
+                                                                                                            chez
+                                                                                                            OA </h6>
                                                                                                     </div>
 
-                                                                                                    <MuiSelect
-                                                                                                        labelId="demo-mutiple-chip-label"
-                                                                                                        id="demo-mutiple-chip"
-                                                                                                        style={{width: "100%"}}
-                                                                                                        value={this.state.TimeSheet.newTime.utilisateurOA}
+                                                                                                    <RSelect
+                                                                                                        defaultValue={this.state.TimeSheet.newTime.utilisateurOA}
+                                                                                                        options={contactSelectOptions}
+                                                                                                        closeMenuOnSelect={true}
+                                                                                                        isMulti={false}
+                                                                                                        hideSelectedOptions={true}
+                                                                                                        styles={{
+                                                                                                            container: (provided, state) => ({
+                                                                                                                ...provided,
+                                                                                                                width: 250
+                                                                                                            }),
+                                                                                                            menuPortal: styles => ({
+                                                                                                                ...styles,
+                                                                                                                zIndex: 9999
+                                                                                                            })
+                                                                                                        }}
+                                                                                                        menuPortalTarget={document.body}
                                                                                                         onChange={(e) => {
-                                                                                                            console.log(e)
+                                                                                                            console.log(e.value)
                                                                                                             let d = this.state.TimeSheet
-                                                                                                            d.newTime.utilisateurOA = e.target.value;
-                                                                                                            d.newTime.rateFacturation = e.target.value.rateFacturation || ""
+                                                                                                            d.newTime.utilisateurOA = e.value;
+                                                                                                            let OA_contacts = this.state.contacts;
+                                                                                                            let OA_contact = "";
+                                                                                                            OA_contacts.map((contact, key) => {
+                                                                                                                if (contact && contact.email && contact.email === e.value) {
+                                                                                                                    OA_contact = contact
+                                                                                                                }
+                                                                                                            })
+                                                                                                            d.newTime.rateFacturation = OA_contact.rateFacturation || ""
                                                                                                             this.setState({TimeSheet: d})
                                                                                                         }}
-                                                                                                        MenuProps={Data.MenuProps}
-                                                                                                    >
-                                                                                                        {this.state.contacts.map((name, key) => (
-                                                                                                            <MenuItem
-                                                                                                                key={key}
-                                                                                                                value={name}
-                                                                                                                s>
-                                                                                                                <div
-                                                                                                                    className="row align-items-center justify-content-center">
-                                                                                                                    <Avatar
-                                                                                                                        alt="Natacha"
-                                                                                                                        src={name.imageUrl}/>
-                                                                                                                    <div>{name.nom + " " + name.prenom}</div>
-                                                                                                                </div>
-                                                                                                            </MenuItem>
-                                                                                                        ))}
-                                                                                                    </MuiSelect>
+                                                                                                    />
 
-                                                                                                    <div className="mt-3">
+                                                                                                    <div
+                                                                                                        className="mt-3">
                                                                                                         <h6>
-                                                                                                            Rate de facturation
+                                                                                                            Taux horaire
                                                                                                         </h6>
                                                                                                         <Input
                                                                                                             className="form-control "
@@ -5811,7 +6762,6 @@ export default class DriveV3 extends React.Component {
                                                                                                                 <InputAdornment
                                                                                                                     position="end">CHF:Hr</InputAdornment>}
 
-
                                                                                                             value={this.state.TimeSheet.newTime.rateFacturation + ""}
                                                                                                             onChange={(e) => {
                                                                                                                 let d = this.state.TimeSheet
@@ -5820,6 +6770,66 @@ export default class DriveV3 extends React.Component {
                                                                                                             }}/>
                                                                                                     </div>
                                                                                                 </div>
+                                                                                                <div
+                                                                                                    className="col-md-4">
+                                                                                                    <h6>Choix du
+                                                                                                        template </h6>
+                                                                                                    <select
+                                                                                                        className="form-control custom-select"
+                                                                                                        value={this.state.lignef_template}
+                                                                                                        onChange={(e) => {
+                                                                                                            this.setState({lignef_template: e.target.value})
+                                                                                                        }}>
+                                                                                                        <option
+                                                                                                            value="0">Date
+                                                                                                            seulement
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="1">Date
+                                                                                                            +
+                                                                                                            Description
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="2">Date
+                                                                                                            + Nom avocat
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="3">Date
+                                                                                                            +
+                                                                                                            Description
+                                                                                                            + Nom avocat
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="4">Description
+                                                                                                            seulemnt
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="5">Nom
+                                                                                                            avocat
+                                                                                                            seulemnt
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="6">Nombre
+                                                                                                            d'heures
+                                                                                                            seulemnt
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="7">Description
+                                                                                                            + Nom avocat
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="8">Description
+                                                                                                            + Nombre
+                                                                                                            d'heures
+                                                                                                        </option>
+                                                                                                        <option
+                                                                                                            value="9">Description
+                                                                                                            + Nom avocat
+                                                                                                            + Nombre
+                                                                                                            d'heures
+                                                                                                        </option>
+                                                                                                    </select>
+                                                                                                </div>
 
                                                                                             </div>
                                                                                             <div align="center"
@@ -5827,40 +6837,60 @@ export default class DriveV3 extends React.Component {
                                                                                                 <AltButtonGroup>
                                                                                                     <AtlButton
                                                                                                         onClick={() => {
+
                                                                                                             let obj = this.state.TimeSheet;
-                                                                                                            obj.newTime.duree = parseFloat(obj.newTime.duree)
-                                                                                                            let lignes_fact = this.state.lignesFactures || [];
+                                                                                                            let time = obj.newTime.duree;
+                                                                                                            let timeFormated = ""
+                                                                                                            if (time.indexOf(":") > -1) {
+                                                                                                                timeFormated = parseFloat(time.replace(":", "."));
+                                                                                                            } else if (time.indexOf(".") > -1) {
+                                                                                                                timeFormated = parseFloat(time)
+                                                                                                            } else if (time.indexOf(":") === -1 && time.indexOf(".") === -1) {
+                                                                                                                timeFormated = parseInt(time);
+                                                                                                            } else {
+                                                                                                                this.openSnackbar("error", "Le format de la durée est invalide !")
+                                                                                                            }
+                                                                                                            if ((typeof timeFormated) !== "number" || isNaN(timeFormated)) {
+                                                                                                                this.openSnackbar("error", "Le format de la durée est invalide !")
+                                                                                                            } else {
+                                                                                                                obj.newTime.duree = timeFormated;
+                                                                                                                let lignes_fact = this.state.lignesFactures || [];
 
-                                                                                                            SmartService.create_company(localStorage.getItem("token"),localStorage.getItem("usrtoken"),{param:{name:obj.newTime.client}}).then(newCompRes => {
-                                                                                                                obj.newTime.company_id = newCompRes.data.id;
-                                                                                                                obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                                                                                                                lignes_fact.push(obj);
+                                                                                                                SmartService.create_company(localStorage.getItem("token"), localStorage.getItem("usrtoken"), {param: {name: obj.newTime.client}}).then(newCompRes => {
+                                                                                                                    obj.newTime.company_id = newCompRes.data.id;
+                                                                                                                    obj.newTime.date = moment(this.state.TimeSheet.newTime.data).format("YYYY-MM-DD");
+                                                                                                                    obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                                                                                                                    obj.user_email = localStorage.getItem("email");
+                                                                                                                    obj.template = this.state.lignef_template;
+                                                                                                                    lignes_fact.push(obj);
 
-                                                                                                                this.setState({
-                                                                                                                    lignesFactures: lignes_fact,
-                                                                                                                    TimeSheet: {
-                                                                                                                        newTime: {
-                                                                                                                            duree: "",
-                                                                                                                            client: obj.newTime.client,
-                                                                                                                            categoriesActivite: "",
-                                                                                                                            description: "",
-                                                                                                                            date: new Date(),
-                                                                                                                            utilisateurOA: obj.newTime.utilisateurOA,
-                                                                                                                            rateFacturation: obj.newTime.rateFacturation,
+                                                                                                                    this.setState({
+                                                                                                                        lignesFactures: lignes_fact,
+                                                                                                                        TimeSheet: {
+                                                                                                                            newTime: {
+                                                                                                                                duree: "",
+                                                                                                                                client: obj.newTime.client,
+                                                                                                                                categoriesActivite: "Temps facturé",
+                                                                                                                                description: "",
+                                                                                                                                date: new Date(),
+                                                                                                                                utilisateurOA: obj.newTime.utilisateurOA,
+                                                                                                                                rateFacturation: obj.newTime.rateFacturation,
+                                                                                                                            }
                                                                                                                         }
-                                                                                                                    }
-                                                                                                                })
-                                                                                                                //console.log(obj)
-                                                                                                                this.openSnackbar("success", "Enregistrement effectué avec succès")
-                                                                                                            }).catch(err => {
-                                                                                                                console.log(err)
-                                                                                                            })
+                                                                                                                    })
 
+                                                                                                                    this.updateLignes_facture(lignes_fact)
+                                                                                                                    this.openSnackbar("success", "Enregistrement effectué avec succès")
+
+
+                                                                                                                }).catch(err => {
+                                                                                                                    console.log(err)
+                                                                                                                })
+                                                                                                            }
 
                                                                                                         }}
                                                                                                         appearance="primary"
-                                                                                                        isDisabled={this.state.TimeSheet.newTime.duree === "" || this.state.TimeSheet.newTime.description === "" ||
-                                                                                                        this.state.TimeSheet.newTime.rateFacturation === "" || this.state.TimeSheet.newTime.client === ""}
+                                                                                                        isDisabled={this.state.TimeSheet.newTime.duree === "" || this.state.TimeSheet.newTime.description === "" || this.state.TimeSheet.newTime.rateFacturation === "" || this.state.TimeSheet.newTime.client === ""}
                                                                                                         style={{margin: 20}}>
                                                                                                         Enregistrer
                                                                                                     </AtlButton>
@@ -5898,7 +6928,8 @@ export default class DriveV3 extends React.Component {
                                                                                                         style={{marginTop: 10}}>
                                                                                                         <AtlButton
                                                                                                             appearance=""
-                                                                                                            onClick={() => this.setState({showLignesFactureClient: true})}>Etablir facture</AtlButton>
+                                                                                                            onClick={() => this.setState({showLignesFactureClient: true})}>Etablir
+                                                                                                            facture</AtlButton>
                                                                                                         <AtlButton
                                                                                                             appearance="">Histo.Fact.Clients</AtlButton>
                                                                                                     </AltButtonGroup>
@@ -5910,20 +6941,29 @@ export default class DriveV3 extends React.Component {
                                                                                         <div>
                                                                                             <div className="mt-1">
                                                                                                 <div>
-                                                                                                    <div style={{textAlign: "right",marginTop:15}}>
-                                                                                                        <button onClick={() => this.setState({
-                                                                                                            showLignesFactureClient: false
-                                                                                                        })}
-                                                                                                                className="btn btn-sm btn-outline-info">Retour
+                                                                                                    <div style={{
+                                                                                                        textAlign: "right",
+                                                                                                        marginTop: 15
+                                                                                                    }}>
+                                                                                                        <button
+                                                                                                            onClick={() => this.setState({
+                                                                                                                showLignesFactureClient: false
+                                                                                                            })}
+                                                                                                            className="btn btn-sm btn-outline-info">Retour
                                                                                                         </button>
                                                                                                     </div>
                                                                                                     {/*<IconButton
                                                                                                         onClick={() => this.setState({showLignesFactureClient: false})}>
                                                                                                         <ArrowBackIcon/>
                                                                                                     </IconButton>*/}
-                                                                                                    <div className="row mt-3">
-                                                                                                        <div className="col-md-6">
-                                                                                                            <h5>identification / Imputation client</h5>
+                                                                                                    <div
+                                                                                                        className="row mt-3">
+                                                                                                        <div
+                                                                                                            className="col-md-6">
+                                                                                                            <h5>identification
+                                                                                                                /
+                                                                                                                Imputation
+                                                                                                                client</h5>
                                                                                                             <div
                                                                                                                 style={{display: "flex"}}>
                                                                                                                 <SelectSearch
@@ -5941,7 +6981,7 @@ export default class DriveV3 extends React.Component {
                                                                                                                     renderOption={renderSearchOption}
                                                                                                                     search
                                                                                                                     placeholder="Chercher votre client"
-                                                                                                                    onChange={ e => {
+                                                                                                                    onChange={e => {
                                                                                                                         console.log(e)
                                                                                                                         let obj = this.state.TimeSheet;
                                                                                                                         obj.newTime.client = e;
@@ -5951,7 +6991,7 @@ export default class DriveV3 extends React.Component {
                                                                                                                         let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : "" : "";
                                                                                                                         console.log(partner_email)
                                                                                                                         this.setState({
-                                                                                                                            partnerFacture:partner_email,
+                                                                                                                            partnerFacture: partner_email,
                                                                                                                             selectedClientTimeEntree: e,
                                                                                                                             TimeSheet: obj
                                                                                                                         })
@@ -5964,13 +7004,18 @@ export default class DriveV3 extends React.Component {
                                                                                                                 </IconButton>
                                                                                                             </div>
                                                                                                         </div>
-                                                                                                        <div className="col-md-4">
+                                                                                                        <div
+                                                                                                            className="col-md-4">
                                                                                                             <div
                                                                                                                 style={{width: "100%"}}>
-                                                                                                                <h5>Date de la facture</h5>
+                                                                                                                <h5>Date
+                                                                                                                    de
+                                                                                                                    la
+                                                                                                                    facture</h5>
                                                                                                                 <DatePicker
                                                                                                                     calendarIcon={
-                                                                                                                        <img alt=""
+                                                                                                                        <img
+                                                                                                                            alt=""
                                                                                                                             src={calendar}
                                                                                                                             style={{width: 20}}/>}
                                                                                                                     onChange={(e) => {
@@ -5989,7 +7034,8 @@ export default class DriveV3 extends React.Component {
                                                                                             </div>
                                                                                             {
                                                                                                 searchFilterLignesfacture.length > 0 ?
-                                                                                                    <div className="mt-3">
+                                                                                                    <div
+                                                                                                        className="mt-3">
                                                                                                         <div style={{
                                                                                                             width: "100%",
                                                                                                             backgroundColor: "#D2DDFE",
@@ -5998,23 +7044,18 @@ export default class DriveV3 extends React.Component {
                                                                                                         }}>
                                                                                                             <div
                                                                                                                 align="center"
-                                                                                                                style={{width: "10%"}}>
+                                                                                                                style={{width: "15%"}}>
                                                                                                                 <h5>Date</h5>
                                                                                                             </div>
                                                                                                             <div
                                                                                                                 align="center"
-                                                                                                                style={{width: "55%"}}>
+                                                                                                                style={{width: "60%"}}>
                                                                                                                 <h5>Activités</h5>
                                                                                                             </div>
                                                                                                             <div
                                                                                                                 align="center"
-                                                                                                                style={{width: "10%"}}>
-                                                                                                                <h5>Heures</h5>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                align="center"
                                                                                                                 style={{width: "15%"}}>
-                                                                                                                <h5>Discount(%)</h5>
+                                                                                                                <h5>Heures</h5>
                                                                                                             </div>
                                                                                                             <div
                                                                                                                 align="center"
@@ -6045,32 +7086,19 @@ export default class DriveV3 extends React.Component {
                                                                                                                         </div>
                                                                                                                         <div
                                                                                                                             align="center"
-                                                                                                                            style={{width: "10%"}}>
+                                                                                                                            style={{width: "15%"}}>
                                                                                                                             <h5>{lf.newTime.duree}</h5>
                                                                                                                         </div>
-                                                                                                                        <div
-                                                                                                                            align="center"
-                                                                                                                            style={{width: "15%"}}>
-                                                                                                                            <input
-                                                                                                                                className="form-control"
-                                                                                                                                value={this.state.lignesFactures[key].discount || "0"}
-                                                                                                                                style={{width: 75}}
-                                                                                                                                onChange={e => {
-                                                                                                                                    let lignesF = this.state.lignesFactures;
-                                                                                                                                    let ligneF = this.state.lignesFactures[key];
-                                                                                                                                    ligneF.discount = e.target.value;
-                                                                                                                                    lignesF[key] = ligneF;
-                                                                                                                                    this.setState({lignesFactures: lignesF})
-                                                                                                                                }}
-                                                                                                                            />
-                                                                                                                        </div>
+
                                                                                                                         <div
                                                                                                                             align="center"
                                                                                                                             style={{width: "10%"}}>
-                                                                                                                            <IconButton onClick={() => {
-                                                                                                                                this.deleteLigneFact(lf)
-                                                                                                                            }}>
-                                                                                                                                <DeleteOutlineIcon color="error" />
+                                                                                                                            <IconButton
+                                                                                                                                onClick={() => {
+                                                                                                                                    this.deleteLigneFact(lf)
+                                                                                                                                }}>
+                                                                                                                                <DeleteOutlineIcon
+                                                                                                                                    color="error"/>
                                                                                                                             </IconButton>
                                                                                                                         </div>
                                                                                                                     </div>
@@ -6088,7 +7116,10 @@ export default class DriveV3 extends React.Component {
                                                                                                         }
                                                                                                         <div
                                                                                                             className="mt-3">
-                                                                                                            <h6>Partner validant cette facture</h6>
+                                                                                                            <h6>Partner
+                                                                                                                validant
+                                                                                                                cette
+                                                                                                                facture</h6>
                                                                                                             <MuiSelect
                                                                                                                 labelId="demo-mutiple-chip-label14545"
                                                                                                                 id="demo-mutiple-chip34688"
@@ -6122,7 +7153,8 @@ export default class DriveV3 extends React.Component {
                                                                                                                 onClick={() => {
                                                                                                                     this.createFacture()
                                                                                                                 }}>
-                                                                                                                ETABLIR FACTURE</AtlButton>
+                                                                                                                ETABLIR
+                                                                                                                FACTURE</AtlButton>
                                                                                                         </div>
                                                                                                     </div> :
 
@@ -6144,9 +7176,209 @@ export default class DriveV3 extends React.Component {
 
                                                                             </TabPanel>
 
-                                                                            <TabPanel/>
+                                                                            <TabPanel>
+
+                                                                                {
+                                                                                    this.state.lignesFactures.length > 0 &&
+                                                                                    <TableTimeSheet
+                                                                                        lignesFactures={this.state.lignesFactures}
+                                                                                        setLignesFactures={(lignes_factures) => this.setState({lignesFactures: lignes_factures})}
+                                                                                        OA_contacts={this.state.contacts}
+                                                                                        annuaire_clients_mondat={this.state.annuaire_clients_mondat}
+                                                                                        onClickFacture={() => {
+                                                                                            this.createFacture_ForSelected()
+                                                                                        }
+                                                                                        }
+                                                                                    />
+                                                                                }
+                                                                                {
+                                                                                    this.state.lignesFactures.length === 0 &&
+                                                                                    <div style={{
+                                                                                        marginTop: 30,
+                                                                                        marginLeft: 10
+                                                                                    }}>Aucune ligne facture encore
+                                                                                        ajoutée !</div>
+
+                                                                                }
 
 
+                                                                            </TabPanel>
+
+                                                                            {
+                                                                                localStorage.getItem("role") === "admin" &&
+                                                                                [
+                                                                                    <TabPanel key={0}>
+                                                                                        <h5 style={{
+                                                                                            marginTop: 20,
+                                                                                            color: "blue"
+                                                                                        }}>Sélection du client à
+                                                                                            imputer</h5>
+                                                                                        <div
+                                                                                            className="row border border-primary"
+                                                                                            style={{marginTop: 35}}>
+                                                                                            <div className="col-md-4">
+                                                                                                <input
+                                                                                                    className="form-control "
+                                                                                                    style={{
+                                                                                                        width: "100%",
+                                                                                                        borderColor: "transparent",
+                                                                                                        marginTop: 8
+                                                                                                    }}
+                                                                                                    id="search"
+                                                                                                    type="text"
+                                                                                                    placeholder="search"
+                                                                                                    value={this.state.searchSociete}
+                                                                                                    onChange={(e) => {
+                                                                                                        this.setState({searchSociete: e.target.value})
+                                                                                                    }}/>
+
+                                                                                            </div>
+                                                                                            <div className="col-md-1"
+                                                                                                 style={{
+                                                                                                     borderLeftColor: "#a6a6a6",
+                                                                                                     borderLeftStyle: "solid",
+                                                                                                     borderLeftWidth: 1
+                                                                                                 }}>
+                                                                                                <h5>A-B-C</h5>
+                                                                                            </div>
+                                                                                            <div className="col-md-1"
+                                                                                                 style={{
+                                                                                                     borderLeftColor: "#a6a6a6",
+                                                                                                     borderLeftStyle: "solid",
+                                                                                                     borderLeftWidth: 1
+                                                                                                 }}>
+                                                                                                <h5>D-E-F</h5>
+                                                                                            </div>
+                                                                                            <div className="col-md-1"
+                                                                                                 style={{
+                                                                                                     borderLeftColor: "#a6a6a6",
+                                                                                                     borderLeftStyle: "solid",
+                                                                                                     borderLeftWidth: 1
+                                                                                                 }}>
+                                                                                                <h5>G-H-I</h5>
+                                                                                            </div>
+                                                                                            <div className="col-md-1"
+                                                                                                 style={{
+                                                                                                     borderLeftColor: "#a6a6a6",
+                                                                                                     borderLeftStyle: "solid",
+                                                                                                     borderLeftWidth: 1
+                                                                                                 }}>
+                                                                                                <h5>J-K-L</h5>
+                                                                                            </div>
+                                                                                            <div className="col-md-1"
+                                                                                                 style={{
+                                                                                                     borderLeftColor: "#a6a6a6",
+                                                                                                     borderLeftStyle: "solid",
+                                                                                                     borderLeftWidth: 1
+                                                                                                 }}>
+                                                                                                <h5>M-N-O</h5>
+                                                                                            </div>
+                                                                                            <div className="col-md-1"
+                                                                                                 style={{
+                                                                                                     borderLeftColor: "#a6a6a6",
+                                                                                                     borderLeftStyle: "solid",
+                                                                                                     borderLeftWidth: 1
+                                                                                                 }}>
+                                                                                                <h5>P-Q-R</h5>
+                                                                                            </div>
+                                                                                            <div className="col-md-1"
+                                                                                                 style={{
+                                                                                                     borderLeftColor: "#a6a6a6",
+                                                                                                     borderLeftStyle: "solid",
+                                                                                                     borderLeftWidth: 1
+                                                                                                 }}>
+                                                                                                <h5>S-T-U</h5>
+                                                                                            </div>
+                                                                                            <div className="col-md-1"
+                                                                                                 style={{
+                                                                                                     borderLeftColor: "#a6a6a6",
+                                                                                                     borderLeftStyle: "solid",
+                                                                                                     borderLeftWidth: 1
+                                                                                                 }}>
+                                                                                                <h5>W-X-Y-Z</h5>
+                                                                                            </div>
+                                                                                        </div>
+
+                                                                                        <div className="row mt-3">
+                                                                                            <div className="col-md-3">
+                                                                                                <h5>Nom Sociéte</h5>
+
+                                                                                            </div>
+                                                                                            <div className="col-md-4">
+                                                                                                <h5>Nom du décideur /
+                                                                                                    email</h5>
+
+                                                                                            </div>
+                                                                                            <div className="col-md-5">
+                                                                                                <h5>Nom du payeur /
+                                                                                                    email</h5>
+
+                                                                                            </div>
+
+                                                                                        </div>
+                                                                                        <div className="mt-2">
+                                                                                            {this.state.searchSociete === "" ?
+                                                                                                <div>
+                                                                                                    {this.state.societes.map((item, key) => (
+                                                                                                        <div key={key}
+                                                                                                             className="row mt-2">
+                                                                                                            <div
+                                                                                                                className="col-md-3">
+                                                                                                                <div>{item.nomSociete}</div>
+
+                                                                                                            </div>
+                                                                                                            <div
+                                                                                                                className="col-md-4">
+                                                                                                                <div>{item.nomDecideur + " / " + item.email}</div>
+
+                                                                                                            </div>
+                                                                                                            <div
+                                                                                                                className="col-md-5">
+                                                                                                                <div>{item.nomPayeur + " / " + item.emailPayeur}</div>
+
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    ))}
+                                                                                                </div>
+                                                                                                :
+                                                                                                <div>
+                                                                                                    {
+                                                                                                        searchFilter.map((item, key) => (
+                                                                                                            <div
+                                                                                                                key={key}
+                                                                                                                className="row mt-2">
+                                                                                                                <div
+                                                                                                                    className="col-md-3">
+                                                                                                                    <div>{item.nomSociete}</div>
+
+                                                                                                                </div>
+                                                                                                                <div
+                                                                                                                    className="col-md-4">
+                                                                                                                    <div>{item.nomDecideur + " / " + item.email}</div>
+
+                                                                                                                </div>
+                                                                                                                <div
+                                                                                                                    className="col-md-5">
+                                                                                                                    <div>{item.nomPayeur + " / " + item.emailPayeur}</div>
+
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                        ))
+                                                                                                    }
+                                                                                                </div>
+
+
+                                                                                            }
+
+                                                                                        </div>
+
+                                                                                    </TabPanel>,
+
+                                                                                    <TabPanel key={1}/>,
+
+                                                                                    <TabPanel key={2}/>
+                                                                                ]
+                                                                            }
                                                                         </Tabs>
                                                                     </div>
                                                                 </div>
@@ -8756,7 +9988,7 @@ export default class DriveV3 extends React.Component {
 
                                                         this.setState({
                                                             openAdvancedSearchModal: false,
-                                                            partnerFacture:partner_email,
+                                                            partnerFacture: partner_email,
                                                             selectedClientTimeEntree: client.ContactName,
                                                             TimeSheet: obj
                                                         })

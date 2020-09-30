@@ -65,6 +65,7 @@ function StyledTreeItem(props) {
     return (
         <div>
             <TreeItem
+
                 onLabelClick={event => event.preventDefault()}
                 onIconClick={event => event.preventDefault()}
                 nodeId={props.nodeId}

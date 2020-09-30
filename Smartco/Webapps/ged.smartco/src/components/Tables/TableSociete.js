@@ -22,8 +22,6 @@ import countryList from "../../tools/countryList";
 import Select from 'react-select';
 import FolderIcon from '@material-ui/icons/Folder';
 import Data from "../../data/Data";
-import Switch from "@material-ui/core/Switch";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 
 const { Panel } = Collapse;
@@ -412,6 +410,7 @@ export default function TableSociete(props) {
                                                     <EditIcon fontSize="small" style={{color:"#1a73e8"}}/>
                                                 </IconButton>
                                                 <IconButton aria-label="folder" title="folder" color="default" size="small" onClick={() => {
+                                                    //props.onFolderClick(row.folder_id)
                                                 }}>
                                                     <FolderIcon fontSize="small" />
                                                 </IconButton>

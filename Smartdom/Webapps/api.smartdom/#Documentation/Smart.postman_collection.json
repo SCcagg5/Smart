@@ -3104,6 +3104,142 @@
 					"response": []
 				},
 				{
+					"name": "ged/<ged_id>/odoo/<odoo_id>/case",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"client_id\": 12, \r\n\"name\": \"test\",\r\n\"type\": \"corporate\", \r\n\"client_folder\": \"0c982622-19ac-42ec-a63d-584ebe5f069a\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/odoo/test/case",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9",
+								"odoo",
+								"test",
+								"case"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "/odoo/<odoo_id>/bill Copy",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"client_id\": 12, \r\n\"name\": \"test\",\r\n\"type\": \"corporate\", \r\n\"client_folder\": \"0c982622-19ac-42ec-a63d-584ebe5f069a\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{method}}{{url}}/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/odoo/test/case",
+									"host": [
+										"{{method}}{{url}}"
+									],
+									"path": [
+										"ged",
+										"896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9",
+										"odoo",
+										"test",
+										"case"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.17.6"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 24 Sep 2020 19:09:33 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1258"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "GET, POST, PUT, DELETE, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "*"
+								},
+								{
+									"key": "Strict-Transport-Security",
+									"value": "max-age=31536000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"queryInfos\": {\n        \"route\": \"/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/odoo/test/case\",\n        \"params\": {\n            \"client_id\": 12,\n            \"name\": \"test\",\n            \"type\": \"corporate\",\n            \"client_folder\": \"0c982622-19ac-42ec-a63d-584ebe5f069a\"\n        },\n        \"header\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDEwNjA5NTEsInBhc3N3b3JkIjotNzU0MTMyNTYyOTQ3MTQ5ODI4NX0.g7SjRzx_hyfHMYwojzvBvxyZ74pOGGtBto0o1_XbC4I\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDExNDczNTUsImlkIjoiNmFlY2RhNWQtOWI1MS00ZmI3LWE1Y2UtMDUyYWE3NWE5ZDU0IiwicGFzc3dvcmQiOi04NjMzNTcxNzAwNjE1MTAyMzk0fQ.qT1-IBMq2qStipI59z27YUT6PCAu6pcwDAefJXJCCcU\",\n            \"host\": \"api.smartdom.ch\",\n            \"postman-token\": \"89d7e94f-2266-4d35-8fb6-f644012fe231\"\n        },\n        \"cookie\": {\n            \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDEwNjA5NTEsInBhc3N3b3JkIjotNzU0MTMyNTYyOTQ3MTQ5ODI4NX0.g7SjRzx_hyfHMYwojzvBvxyZ74pOGGtBto0o1_XbC4I\",\n            \"usrtoken\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDExNDczNTUsImlkIjoiNmFlY2RhNWQtOWI1MS00ZmI3LWE1Y2UtMDUyYWE3NWE5ZDU0IiwicGFzc3dvcmQiOi04NjMzNTcxNzAwNjE1MTAyMzk0fQ.qT1-IBMq2qStipI59z27YUT6PCAu6pcwDAefJXJCCcU\"\n        }\n    },\n    \"status\": 200,\n    \"error\": null,\n    \"data\": {\n        \"case_id\": \"6119d7b1-0e91-489b-a448-e137181a0a7d\",\n        \"folder_id\": \"e79fe3d6-9e54-489e-b960-fe59c55a4ded\"\n    },\n    \"succes\": true,\n    \"mod\": \"DEV\"\n}"
+						}
+					]
+				},
+				{
+					"name": "ged/<ged_id>/odoo/<odoo_id>/case",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/odoo/test/case",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"ged",
+								"896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9",
+								"odoo",
+								"test",
+								"case"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/odoo/<odoo_id>/get/product_id",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
@@ -3464,7 +3600,7 @@
 					"response": []
 				},
 				{
-					"name": "/odoo/<odoo_id>/get/bill_id Copy",
+					"name": "/odoo/<odoo_id>/get/bill_pattern",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -3481,7 +3617,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{method}}{{url}}/odoo/test/get/bill_patern",
+							"raw": "{{method}}{{url}}/odoo/test/get/bill_pattern",
 							"host": [
 								"{{method}}{{url}}"
 							],
@@ -3489,7 +3625,39 @@
 								"odoo",
 								"test",
 								"get",
-								"bill_patern"
+								"bill_pattern"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/odoo/<odoo_id>/get/bill_line_pattern",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{method}}{{url}}/odoo/test/get/bill_line_pattern",
+							"host": [
+								"{{method}}{{url}}"
+							],
+							"path": [
+								"odoo",
+								"test",
+								"get",
+								"bill_line_pattern"
 							]
 						}
 					},
@@ -4087,17 +4255,17 @@
 	],
 	"variable": [
 		{
-			"id": "efcf74df-bfb3-47e8-a7df-1c5439ae4471",
+			"id": "ab16e9bd-468d-4596-8a42-6cd106c6a389",
 			"key": "url",
 			"value": "api.localhost"
 		},
 		{
-			"id": "46309592-a01e-43fd-8135-0a072c89d40d",
+			"id": "4df5b709-4d56-4cd4-800a-22fa988b652d",
 			"key": "password",
 			"value": "password"
 		},
 		{
-			"id": "582e11e9-35c4-4cef-84a8-0f733de80cf9",
+			"id": "e35ac812-c95f-4c46-8437-9605db055158",
 			"key": "method",
 			"value": "http://"
 		}
