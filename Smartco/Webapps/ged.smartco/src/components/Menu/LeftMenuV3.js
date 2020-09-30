@@ -68,7 +68,7 @@ export default function LeftMenuV3(props) {
 
 
     const  onChange = e => {
-
+        props.setAutoExpandParent(true)
         const {value} = e.target;
         const newExpandedKeys = dataList.map(item => {
 
@@ -77,9 +77,8 @@ export default function LeftMenuV3(props) {
                 }
                 return null;
             }).filter((item, i, self) => item && self.indexOf(item) === i);
-        setExpandedKeys(newExpandedKeys)
+        props.setExpandedDriveItems(newExpandedKeys)
         setSearchValue(value)
-        setAutoExpandParent(true)
     }
 
     const getParentKey = (key, tree) => {
@@ -266,7 +265,7 @@ export default function LeftMenuV3(props) {
                     </MenuItem>
                     <MenuItem key={3} onClick={() => {
                         setAnchorEl(null);
-                        props.onClickImportFolder()
+                        //props.onClickImportFolder()
                     }}>
                         <ListItemIcon>
                             <CloudUploadIcon fontSize="small"/>
@@ -284,6 +283,8 @@ export default function LeftMenuV3(props) {
                          props.setShowDriveMenuItems()
                      }} */
                      onClick={() => {
+                         props.setSelectedDriveItem([])
+                         props.setExpandedDriveItems([])
                     props.setShowDriveMenuItems()
                     props.setFocusedItem("Drive")
                 }}
@@ -345,7 +346,8 @@ export default function LeftMenuV3(props) {
                     <MenuItem key={1} onClick={() => {
                         setAnchorElMenu(null);
                         props.openNewFolderModal()
-                    }} disabled={localStorage.getItem("role") !== "admin"}>
+                    }} disabled={localStorage.getItem("role") !== "admin"}
+                    >
                         <ListItemIcon>
                             <NewFolderIcon fontSize="small"/>
                         </ListItemIcon>
@@ -489,8 +491,9 @@ export default function LeftMenuV3(props) {
                                 <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                                 <div style={{display: "flex"}}>
                                     {
-                                        props.showRoomsMenuItems === true && props.rooms.length > 0 ?
-                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
+                                        props.rooms.length > 0 ?
+                                            props.showRoomsMenuItems === true  ?
+                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/> : <div style={{marginLeft:20}}/>
                                     }
                                     <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Rooms</Typography>
 

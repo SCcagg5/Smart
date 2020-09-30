@@ -194,7 +194,8 @@ export default function ListDocs(props) {
                 <MenuItem key={6}  onClick={() => {
                     setAnchorEl(null);
                     setOpen(true)
-                }} disabled={localStorage.getItem("role") !== "admin"}>
+                }} //disabled={localStorage.getItem("role") !== "admin"}
+                >
                     <ListItemIcon>
                         <DeleteOutlineIcon fontSize="small"/>
                     </ListItemIcon>

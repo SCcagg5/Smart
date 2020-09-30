@@ -65,7 +65,7 @@ class login extends Component {
                                             localStorage.setItem("email",infoRes.data.email)
                                             localStorage.setItem("role",infoGedRes.data.self.role.role)
                                             this.setState({loading:false})
-                                            this.props.history.push('/drive/0');
+                                            this.props.history.push('/home/drive');
 
                                         }else{
                                             this.openSnackbar('error', infoGedRes.error);

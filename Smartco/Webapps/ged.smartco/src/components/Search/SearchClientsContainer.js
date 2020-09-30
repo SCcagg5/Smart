@@ -23,6 +23,7 @@ import Select from 'react-select';
 import FolderIcon from '@material-ui/icons/Folder';
 import Data from "../../data/Data";
 import {Button} from "@material-ui/core";
+import moment from "moment";
 
 
 const { Panel } = Collapse;
@@ -111,11 +112,11 @@ export default function SearchClientsContainer(props) {
     const [searchByLead, setSearchByLead] = React.useState("");
     const [selectedSearchLettre, setSelectedSearchLettre] = React.useState("");
 
-    const searchFilter= props.societes.filter((annuaire) => (  annuaire.ContactName.toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
-        annuaire.ContactName.toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
-        (annuaire.ContactType === searchByType || searchByType === "") &&
+    const searchFilter= props.societes.filter((annuaire) => (  (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
+         (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
+        (annuaire.Type === searchByType || searchByType === "") &&
         ((annuaire.secteur && annuaire.secteur === searchBySector)  || searchBySector === "" ) &&
-        ((annuaire.PrimaryAddressCountry && annuaire.PrimaryAddressCountry === searchByPays)  || searchByPays === "" ) &&
+        ((annuaire.country && annuaire.country === searchByPays)  || searchByPays === "" ) &&
         ((annuaire.facturation && annuaire.facturation.collaborateur_lead === searchByLead)  || searchByLead === "" )
 
     ))
@@ -320,12 +321,12 @@ export default function SearchClientsContainer(props) {
                             <Table className={classes.table} aria-label="custom pagination table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Type</TableCell>
-                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Nom</TableCell>
-                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Secteur</TableCell>
-                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Pays</TableCell>
-                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Date de création</TableCell>
-                                        <TableCell align="center" style={{width:"15%",fontWeight:600}}>Action</TableCell>
+                                        <TableCell style={{width:"15%",fontWeight:600}}>Type</TableCell>
+                                        <TableCell style={{width:"20%",fontWeight:600}}>Nom</TableCell>
+                                        <TableCell  style={{width:"20%",fontWeight:600}}>Prénom</TableCell>
+                                        <TableCell  style={{width:"15%",fontWeight:600}}>Pays</TableCell>
+                                        <TableCell  style={{width:"15%",fontWeight:600}}>Date de création</TableCell>
+                                        <TableCell  style={{width:"15%",fontWeight:600}}>Action</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -349,16 +350,16 @@ export default function SearchClientsContainer(props) {
                                                 </div>
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} align="center">
-                                                {row.ContactName}
+                                                {row.Nom || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} align="center">
-                                                {row.secteur || ""}
+                                                {row.Prenom || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} align="center">
-                                                {row.PrimaryAddressCountry}
+                                                {row.country || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} align="center">
-                                                {row.ContactCreatedDate}
+                                                {row.created_at ? moment(row.created_at).format("DD/MM/YYYY") : ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} align="center">
                                                 <Button color="default" size="small" style={{

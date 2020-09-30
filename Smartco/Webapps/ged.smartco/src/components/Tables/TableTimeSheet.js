@@ -448,12 +448,12 @@ export default function TableTimeSheet(props) {
                                                 style={{display: "flex"}}>
                                                 <SelectSearch
                                                     options={
-                                                        props.annuaire_clients_mondat.map(({ContactType, ContactName, imageUrl}) =>
+                                                        props.annuaire_clients_mondat.map(({Nom, Prenom, Type, imageUrl}) =>
                                                             ({
-                                                                value: ContactName,
-                                                                name: ContactName,
-                                                                ContactType: ContactType,
-                                                                ContactName: ContactName,
+                                                                value: Nom + " " + (Prenom || ""),
+                                                                name: Nom + " " + (Prenom || ""),
+                                                                ContactType: Type,
+                                                                ContactName: Nom + " " + (Prenom || ""),
                                                                 imageUrl: imageUrl
                                                             }))
                                                     }

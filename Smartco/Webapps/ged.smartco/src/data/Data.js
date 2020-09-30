@@ -381,10 +381,8 @@ let Data = {
     ],
     contactTypes:[
         {value:"",label:""},
-        {value:"Company",label:"Société"},
-        {value:"Person",label:"Personne physique"},
-        {value:"Association",label:"Association"},
-        {value:"Fondation",label:"Fondation"},
+        {value:"0",label:"Corporate"},
+        {value:"1",label:"Litige"}
     ],
 
     timeSuggestions: [

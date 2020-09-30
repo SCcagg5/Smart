@@ -402,6 +402,7 @@ select{
 }
 .sk_elupload_drag{
     margin-top: 30px;
+    margin-bottom: 35px;
     box-shadow: 0 1px 10px 0 rgba(41,61,102,.3);
     display: flex;
     flex-direction: column;

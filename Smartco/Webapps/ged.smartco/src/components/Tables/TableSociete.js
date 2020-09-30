@@ -22,6 +22,7 @@ import countryList from "../../tools/countryList";
 import Select from 'react-select';
 import FolderIcon from '@material-ui/icons/Folder';
 import Data from "../../data/Data";
+import moment from "moment";
 
 
 const { Panel } = Collapse;
@@ -111,9 +112,9 @@ export default function TableSociete(props) {
     const [searchByLead, setSearchByLead] = React.useState("");
     const [selectedSearchLettre, setSelectedSearchLettre] = React.useState("");
 
-    const searchFilter= props.societes.filter((annuaire) => (  annuaire.ContactName.toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
-                                                               annuaire.ContactName.toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
-        (annuaire.ContactType === searchByType || searchByType === "") &&
+    const searchFilter= props.societes.filter((annuaire) => (  (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
+         (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
+        (annuaire.Type === searchByType || searchByType === "") &&
         ((annuaire.isActif && annuaire.isActif  === searchByState) || searchByState === "") &&
         ((annuaire.secteur && annuaire.secteur === searchBySector)  || searchBySector === "" ) &&
         ((annuaire.PrimaryAddressCountry && annuaire.PrimaryAddressCountry === searchByPays)  || searchByPays === "" ) &&
@@ -145,6 +146,17 @@ export default function TableSociete(props) {
     return (
         <div>
             <h4 className="mt-0 mb-1">Clients (Mondat)</h4>
+            <div className="mt-2" style={{textAlign:"right"}}>
+                <div className="text-sm-right">
+                    <button
+                         onClick={() => {
+                             props.onAddBtnClick()
+                         }}
+                         className="btn btn-danger waves-effect waves-light mb-2">
+                        <i className="mdi mdi-plus-circle mr-1" /> Ajouter
+                    </button>
+                </div>
+            </div>
             <div className="row mt-3">
                 <div className="col-xl-12">
                     <div className="row">
@@ -366,7 +378,7 @@ export default function TableSociete(props) {
                                     <TableRow style={{padding:10}}>
                                         <TableCell style={{width:"15%",fontWeight:600}}>Type</TableCell>
                                         <TableCell style={{width:"20%",fontWeight:600}}>Nom</TableCell>
-                                        <TableCell  style={{width:"20%",fontWeight:600}}>Secteur</TableCell>
+                                        <TableCell  style={{width:"20%",fontWeight:600}}>Prénom</TableCell>
                                         <TableCell  style={{width:"15%",fontWeight:600}}>Pays</TableCell>
                                         <TableCell  style={{width:"15%",fontWeight:600}}>Date de création</TableCell>
                                         <TableCell  style={{width:"15%",fontWeight:600}}>Action</TableCell>
@@ -386,23 +398,23 @@ export default function TableSociete(props) {
                                                             height: 30,
                                                             objectFit: "cover"
                                                         }}
-                                                        src={row.imageUrl ? row.imageUrl : row.ContactType === "Company" ? entIcon : userAvatar}
+                                                        src={row.imageUrl ? row.imageUrl : row.Type === "0" ? entIcon : userAvatar}
                                                         alt=""/>
 
-                                                    <div className="ml-1">{row.ContactType === "Company" ? "Société" : "Personne physique"}</div>
+                                                    <div className="ml-1">{row.Type === "0" ? "Société" : "Personne physique"}</div>
                                                 </div>
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} >
-                                                {row.ContactName}
+                                                {row.Nom || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} >
-                                                {row.secteur || ""}
+                                                {row.Prenom || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} >
-                                                {row.PrimaryAddressCountry}
+                                                {row.country || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} >
-                                                {row.ContactCreatedDate}
+                                                {row.created_at ? moment(row.created_at).format("DD/MM/YYYY") : ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} >
                                                 <IconButton aria-label="Modifier" title="Modifier" color="default" size="small"

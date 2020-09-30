@@ -3,7 +3,6 @@ import moment from "moment";
 import Highlighter from "react-highlight-words";
 import IconButton from "@material-ui/core/IconButton";
 import PictureAsPdfIcon from "@material-ui/icons/PictureAsPdf";
-import CloudDownloadOutlinedIcon from "@material-ui/icons/CloudDownloadOutlined";
 import VerticalAlignBottomIcon from '@material-ui/icons/VerticalAlignBottom';
 import styles from "./highlight.css"
 import SmartService from "../../provider/SmartService";
