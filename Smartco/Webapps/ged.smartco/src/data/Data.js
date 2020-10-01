@@ -36,8 +36,8 @@ let Data = {
             nodeId:"clients_mondat",
             title:"Client (Mandat)",
             icon:HomeWorkIcon
-        },
-        {
+        }
+        /*{
             nodeId:"prospAc",
             title:"Prospect à contacter",
             icon:HomeWorkIcon
@@ -46,7 +46,7 @@ let Data = {
             nodeId:"prospEc",
             title:"Prospect en cours",
             icon:HomeWorkIcon
-        }
+        }*/
     ],
 
     ContactsMenuItem : [
@@ -54,12 +54,12 @@ let Data = {
             nodeId:"aia",
             title:"Annuaire in & alliance",
             icon:PeopleAltIcon
-        },
-        {
+        }
+        /*{
             nodeId:"ae",
             title:"Annuaire Ecosystème",
             icon:PeopleAltIcon
-        }
+        }*/
     ],
 
     TimeSheetMenuItem : [
@@ -67,8 +67,8 @@ let Data = {
             nodeId:"activities",
             title:"Activities",
             icon:VideoCallIcon
-        },
-        {
+        }
+        /*{
             nodeId:"dashboard",
             title:"DashBoard Team",
             icon:MeetingRoomIcon
@@ -82,7 +82,7 @@ let Data = {
             nodeId:"dashboardProject",
             title:"DashBoard Project",
             icon:MeetingRoomIcon
-        },
+        },*/
     ],
 
 

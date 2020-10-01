@@ -111,8 +111,8 @@ export default function TableContact(props) {
             <TableHead>
                 <TableRow>
                     <TableCell align="center" style={{width:"25%",fontWeight:600}}>Nom & Prénom</TableCell>
-                    <TableCell align="center" style={{width:"25%",fontWeight:600}}>Téléphone</TableCell>
-                    <TableCell align="center" style={{width:"30%",fontWeight:600}}>Email</TableCell>
+                     <TableCell align="center" style={{width:"30%",fontWeight:600}}>Email</TableCell>
+                    <TableCell align="center" style={{width:"25%",fontWeight:600}}>Taux horaire</TableCell>
                     <TableCell align="center" style={{width:"20%",fontWeight:600}}>Action</TableCell>
                 </TableRow>
             </TableHead>
@@ -122,12 +122,11 @@ export default function TableContact(props) {
                             <TableCell component="th" scope="row" style={{width:"25%"}}>
                                 <div
                                     className="media align-items-center">
-                                    <img
-                                        className=" rounded-circle text-center"
+                                    <img className=" rounded-circle text-center"
                                         style={{
-                                            width: 60,
-                                            height: 60,
-                                            objectFit: "cover"
+                                            width: 50,
+                                            height: 50,
+                                            objectFit: "contain"
                                         }}
                                         src={row.imageUrl || defaultAvatar}
                                         alt=""/>
@@ -142,11 +141,11 @@ export default function TableContact(props) {
                                     </div>
                                 </div>
                             </TableCell>
+                             <TableCell style={{ width: "30%" }} align="center">
+                                  {row.email}
+                             </TableCell>
                             <TableCell style={{ width: "25%" }} align="center">
-                                { row.phone || "" }
-                            </TableCell>
-                            <TableCell style={{ width: "30%" }} align="center">
-                                {row.email}
+                                { row.rateFacturation ? row.rateFacturation + " CHF/h" : "" }
                             </TableCell>
                             <TableCell style={{ width: "20%" }} align="center">
                                 <IconButton aria-label="Modifier" title="Modifier" color="default" size="small" onClick={() => props.onEditClick(row,key)}>
