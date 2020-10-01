@@ -2,6 +2,7 @@ import pypi_xmlrpc
 import xmlrpc.client
 import uuid
 import time
+import json
 from datetime import date
 from .ged import folder
 from .sql import sql
@@ -21,21 +22,26 @@ class odoo:
     def case(self, ged_id):
         ret = []
         i = 0
-        res = sql.get("SELECT `client_id`, `name`, `type`, `folder_id`, `date` FROM odoo_case WHERE ged_id = %s", (ged_id))
+        res = sql.get("SELECT `client_id`, `name`, `type`, `folder_id`, `date`, `team` FROM odoo_case WHERE ged_id = %s", (ged_id))
         while i < len(res):
-          ret.append({"client_id": res[i][0], "name": res[i][1], "type": res[i][2], "folder_id": res[i][3], "date": res[i][4]})
+          ret.append({"client_id": res[i][0],
+ 		      "name": res[i][1],
+ 		      "type": res[i][2],
+		      "folder_id": res[i][3], 
+  		      "date": res[i][4], 
+		      "team": json.loads(res[i][5])})
           i += 1
         return [True, {"client": ret}, None]
 
-    def new_case(self, client_id, type, name, folder_id, ged_id):
+    def new_case(self, client_id, type, name, folder_id, team, ged_id):
         fol = folder(self.usr_id, ged_id).new(name, folder_id)
         if not fol[0]:
            return fol
         folder_id = fol[1]["id"]
         id = str(uuid.uuid4())
         date = str(int(round(time.time() * 1000)))
-        succes = sql.input("INSERT INTO `odoo_case` (`id`,`ged_id`, `user_id`, `client_id`, `name`, `type`, `folder_id`, `date`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", \
-        (id, ged_id, self.usr_id, client_id, name, type, folder_id, date))
+        succes = sql.input("INSERT INTO `odoo_case` (`id`,`ged_id`, `user_id`, `client_id`, `name`, `type`, `team`, `folder_id`, `date`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", \
+        (id, ged_id, self.usr_id, client_id, name, type, json.dumps(team), folder_id, date))
         if not succes:
             return [False, "data input error", 500]
         return [True, {"case_id": id, "folder_id": folder_id}, None]

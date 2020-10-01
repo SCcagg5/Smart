@@ -387,11 +387,11 @@ def odoo_case(cn, nextc):
     return cn.call_next(nextc, err)
 
 def odoo_add_case(cn, nextc):
-    err = check.contain(cn.pr, ["client_id", "type", "name", "client_folder"])
+    err = check.contain(cn.pr, ["client_id", "type", "name", "client_folder", "team"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
-    err = cn.private["odoo"].new_case(cn.pr["client_id"], cn.pr["type"], cn.pr["name"], cn.pr["client_folder"], cn.private["ged"].ged_id)
+    err = cn.private["odoo"].new_case(cn.pr["client_id"], cn.pr["type"], cn.pr["name"], cn.pr["client_folder"], cn.pr["team"], cn.private["ged"].ged_id)
     return cn.call_next(nextc, err)
 
 def odoo_add_bill(cn, nextc):
