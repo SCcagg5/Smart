@@ -1,0 +1,48 @@
+version: '3'
+
+networks:
+    proxy:
+      external:
+        name: docker-compose_proxy
+    db-net-{{ID}}:
+      internal: true
+
+services:
+  db-{{ID}}:
+    container_name: odoo-${ID}-db
+    image: postgres:11
+    restart: always
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - proxy
+    environment:
+      POSTGRES_USER: $V_DB_USER
+      POSTGRES_PASSWORD: $V_DB_PASSWORD
+      POSTGRES_DB: postgres
+
+
+  odoo13-{{ID}}:
+    container_name: odoo-${ID}-web
+    image: odoo:13
+    restart: always
+    depends_on:
+      - db-{{ID}}
+    expose:
+      - 8069
+    volumes:
+      - ./addons:/mnt/extra-addons
+      - ./etc:/etc/odoo
+    networks:
+      - proxy
+      - db-net-{{ID}}
+    environment:
+      HOST: db-{{ID}}
+      USER: $V_DB_USER
+      PASSWORD: $V_DB_PASSWORD
+      VIRTUAL_HOST: $V_VIRTUAL_HOST
+      VIRTUAL_PORT: $V_VIRTUAL_PORT
+      LETSENCRYPT_HOST: $V_VIRTUAL_HOST
+      LETSENCRYPT_EMAIL: $V_LETSENCRYPT_EMAIL
+    tty: true
+    command: -- --proxy-mode --dev=reload
