@@ -33,7 +33,7 @@ class odoo:
             res.append({"cmd": c, "out": None if len(out) == 0 else out})
             if proc.poll() != 0:
                 return [False, "Command `"+ c + "` results in `" + (err.decode("utf-8") if isinstance(err, (bytes, bytearray)) else err)[:-1] + "`", 500]
-        for _ in range(0):
+        for _ in range(30):
             try:
                 r = requests.get("https://" + url)
                 if str(r.status_code) == "200":
