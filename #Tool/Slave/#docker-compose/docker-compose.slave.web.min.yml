@@ -36,12 +36,12 @@ services:
      networks:
        - proxy
      volumes:
-       - ../Slave/api:/home/api/
-       - ../Sources:/home/base
-       - ../Project:/home/base
+       - ../Slave/api:/home/api/:ro
+       - ../Sources:/home/base:ro
+       - ../Project:/home/project
        - /var/run/docker.sock:/var/run/docker.sock
-       - /usr/local/bin/docker-compose:/usr/bin/docker-compose
-       - /usr/bin/docker:/usr/bin/docker
+       - ${DOCKER_COMPOSE}:/usr/bin/docker-compose
+       - ${DOCKER}:/usr/bin/docker
      environment:
        VIRTUAL_HOST: slave.${ID}.${DOMAIN}
        VIRTUAL_PORT: 8080
