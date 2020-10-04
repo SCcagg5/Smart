@@ -4,12 +4,12 @@ networks:
     proxy:
       external:
         name: docker-compose_proxy
-    db-net:
+    db-net-{{ID}}:
       internal: true
 
 services:
 
-  db:
+  db-{{ID}}:
     container_name: wordpress-${ID}-db
     image: mariadb:latest
     restart: always
@@ -23,19 +23,19 @@ services:
       MYSQL_USER: $V_DB_USER
       MYSQL_PASSWORD: $V_DB_PASSWORD
 
-  wp:
+  wp-{{ID}}:
     container_name: wordpress-${ID}-web
     build: .
     depends_on:
-      - db
+      - db-{{ID}}
     restart: always
     volumes:
       - ./html:/var/www/html:rw
     networks:
       - proxy
-      - db-net
+      - db-net-{{ID}}
     environment:
-      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_HOST: db-{{ID}}
       WORDPRESS_DB_NAME: $V_DB_NAME
       WORDPRESS_DB_USER: $V_DB_USER
       WORDPRESS_DB_PASSWORD: $V_DB_PASSWORD
