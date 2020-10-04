@@ -1,0 +1,9 @@
+.env
+__pycache__
+Project
+Proxy/conf/default.conf
+Proxy/data
+Proxy/logs
+Proxy/passwd
+Proxy/vhost
+Slave/db/db

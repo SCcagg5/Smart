@@ -1,0 +1,48 @@
+version: '3'
+
+networks:
+    proxy:
+      external:
+        name: docker-compose_proxy
+    db-net:
+      internal: true
+
+services:
+
+  db:
+    container_name: wordpress-${ID}-db
+    image: mariadb:latest
+    restart: always
+    volumes:
+      - ./db_data:/var/lib/mysql
+    networks:
+      - proxy
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+      MYSQL_DATABASE: $V_DB_NAME
+      MYSQL_USER: $V_DB_USER
+      MYSQL_PASSWORD: $V_DB_PASSWORD
+
+  wp:
+    container_name: wordpress-${ID}-web
+    build: .
+    depends_on:
+      - db
+    restart: always
+    volumes:
+      - ./html:/var/www/html:rw
+    networks:
+      - proxy
+      - db-net
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: $V_DB_NAME
+      WORDPRESS_DB_USER: $V_DB_USER
+      WORDPRESS_DB_PASSWORD: $V_DB_PASSWORD
+      WORDPRESS_TABLE_PREFIX: $V_WP_TABLE_PREFIX
+      VIRTUAL_HOST: $V_VIRTUAL_HOST
+      VIRTUAL_PORT: $V_VIRTUAL_PORT
+      LETSENCRYPT_HOST: $V_VIRTUAL_HOST
+      LETSENCRYPT_EMAIL: $V_LETSENCRYPT_EMAIL
+
+networks:

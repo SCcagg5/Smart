@@ -1,0 +1,84 @@
+version: "3"
+
+networks:
+    proxy:
+      driver: bridge
+    db-net:
+      internal: true
+
+services:
+   nginx:
+     image: jwilder/nginx-proxy:alpine
+     container_name: nginx
+     restart: always
+     labels:
+       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: 'true'
+     ports:
+       - 80:80
+       - 443:443
+     volumes:
+       - ../Proxy/vhost:/etc/nginx/vhost.d
+       - ../Proxy/passwd:/etc/nginx/htpasswd
+       - ../Proxy/data/html:/usr/share/nginx/html
+       - ../Proxy/data/certs:/etc/nginx/certs:ro
+       - /var/run/docker.sock:/tmp/docker.sock:ro
+     networks:
+       - proxy
+
+   letsencrypt:
+     image: jrcs/letsencrypt-nginx-proxy-companion
+     container_name: letsencrypt
+     volumes:
+       - ../Proxy/vhost:/etc/nginx/vhost.d
+       - ../Proxy/data/html:/usr/share/nginx/html
+       - ../Proxy/data/certs:/etc/nginx/certs:rw
+       - /var/run/docker.sock:/var/run/docker.sock:ro
+     depends_on:
+       - nginx
+     networks:
+       - proxy
+
+   datab:
+     image: mysql:5.7
+     container_name: slave-${ID}-db
+     restart: always
+     networks:
+       - proxy
+     volumes:
+       - ../Slave/db/db:/var/lib/mysql
+     environment:
+       MYSQL_RANDOM_ROOT_PASSWORD: 1
+       MYSQL_USER: ${DB_USER}
+       MYSQL_DATABASE: slave
+       MYSQL_PASSWORD: ${DB_PASS}
+
+   bck-end:
+     build: ../Slave/api
+     container_name: slave-${ID}-api
+     tty: true
+     privileged: true
+     stdin_open: true
+     depends_on:
+       - datab
+     ports:
+       - 8080:8080
+     networks:
+       - proxy
+     volumes:
+       - ../Slave/api:/home/api/:ro
+       - ../Sources:/home/base:ro
+       - ../Project:/home/project
+       - /var/run/docker.sock:/var/run/docker.sock
+       - ${DOCKER_COMPOSE}:/usr/bin/docker-compose
+       - ${DOCKER}:/usr/bin/docker
+     environment:
+       VIRTUAL_HOST: slave.${ID}.${DOMAIN}
+       VIRTUAL_PORT: 8080
+       LETSENCRYPT_HOST: slave.${ID}.${DOMAIN}
+       LETSENCRYPT_EMAIL: ${EMAIL}
+       API_MOD: ${API_MOD}
+       API_PASS: 1q2W3e4R
+       DB_USER: ${DB_USER}
+       DB_PASS: ${DB_PASS}
+       API_DOMAIN: ${DOMAIN}
+       API_ID: ${ID}

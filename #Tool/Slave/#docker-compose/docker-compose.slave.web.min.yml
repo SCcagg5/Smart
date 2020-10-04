@@ -1,0 +1,53 @@
+version: "3"
+
+networks:
+    proxy:
+      external:
+        name: docker-compose_proxy
+    db-net:
+      internal: true
+
+services:
+   datab:
+     build: ./db
+     container_name: slave-${ID}-db
+     restart: always
+     networks:
+       - proxy
+       - db-net
+     volumes:
+       - ../Slave/db/db:/var/lib/mysql
+     environment:
+       MYSQL_RANDOM_ROOT_PASSWORD: 1
+       MYSQL_USER: ${DB_USER}
+       MYSQL_DATABASE: slave
+       MYSQL_PASSWORD: ${DB_PASS}
+
+   bck-end:
+     build: ./api
+     container_name: slave-${ID}-api
+     tty: true
+     privileged: true
+     stdin_open: true
+     depends_on:
+       - datab
+     port:
+       - 8080:8080
+     networks:
+       - proxy
+     volumes:
+       - ../Slave/api:/home/api/
+       - ../Sources:/home/base
+       - ../Project:/home/base
+       - /var/run/docker.sock:/var/run/docker.sock
+       - /usr/local/bin/docker-compose:/usr/bin/docker-compose
+       - /usr/bin/docker:/usr/bin/docker
+     environment:
+       VIRTUAL_HOST: slave.${ID}.${DOMAIN}
+       VIRTUAL_PORT: 8080
+       LETSENCRYPT_HOST: slave.${ID}.${DOMAIN}
+       LETSENCRYPT_EMAIL: ${EMAIL}
+       API_MOD: ${API_MOD}
+       API_PASS: 1q2W3e4R
+       DB_USER: ${DB_USER}
+       DB_PASS: ${DB_PASS}
