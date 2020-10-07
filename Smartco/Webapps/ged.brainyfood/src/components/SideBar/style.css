@@ -1,0 +1,49 @@
+.item {
+    display: grid;
+    cursor: pointer;
+    padding: 7px;
+    margin-top: 20px;
+}
+.item > i {
+    font-size: 28px;
+}
+.item > span {
+    font-weight: bold;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    line-height: 1rem;
+}
+
+.activeItem {
+    border-left: 4px solid blue;
+}
+
+.disabledItem {
+    border-style: none;
+}
+.disabledItem:hover {
+    background-color: rgba(0,111,230,.1);
+}
+
+.logoutItem {
+    display: grid;
+    position: absolute;
+    bottom: 15%;
+    left: 5px;
+    cursor: pointer;
+}
+
+.logoutItem > i {
+    color: red;
+}
+
+.logoutItem > div {
+    font-weight: bold;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    line-height: 1rem;
+    color: #000000;
+}
+.MuiDrawer-paper{
+    z-index: 500!important;
+}

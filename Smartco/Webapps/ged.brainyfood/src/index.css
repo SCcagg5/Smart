@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  font-family: "MyriadPro", sans-serif!important;
+}
+
+code {
+  font-family: "MyriadPro", sans-serif!important;
+}
+
+.webviewer {
+  flex: 1;
+  margin: 8px;
+  -webkit-box-shadow: 1px 1px 10px #999;
+  box-shadow: 1px 1px 10px #999;
+}

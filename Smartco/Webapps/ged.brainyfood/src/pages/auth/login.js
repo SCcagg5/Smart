@@ -1,0 +1,284 @@
+import React, {Component} from "react";
+import {Container, Row, Col, Card, CardBody, Label, FormGroup} from 'reactstrap';
+import {AvForm, AvGroup, AvInput, AvFeedback} from 'availity-reactstrap-validation';
+import Loader from '../../components/Loaders/Loader';
+import logo from "../../assets/images/logos/brainyfood_logo.jpeg"
+import "firebase/auth";
+import "firebase/database"
+import Snackbar from '@material-ui/core/Snackbar';
+import SmartService from "../../provider/SmartService";
+import Alert from '@material-ui/lab/Alert';
+
+class login extends Component {
+
+    state = {
+
+        loading: false,
+        error: '',
+        email: '',
+        password: '',
+        openAlert: false,
+        alertMessage: '',
+        alertType: '',
+    };
+
+    componentDidMount() {
+
+
+    }
+
+    openSnackbar = (type, msg) => {
+        this.setState({
+            openAlert: true,
+            alertMessage: msg, //***
+            alertType: type
+        });
+    };
+
+    closeSnackbar = (event, reason) => {
+        if (reason === 'clickaway') return;
+        this.setState({openAlert: false});
+    };
+
+    login = (event, values) => {
+
+        this.setState({
+            loading: true,
+        });
+
+            SmartService.getToken().then( tokenRes => {
+                if (tokenRes.succes === true && tokenRes.status === 200) {
+
+                    SmartService.login({email:values.email.trim().toLowerCase(),password1:values.password},tokenRes.data.token).then( loginRes => {
+
+                        if (loginRes.succes === true && loginRes.status === 200) {
+
+                            SmartService.getUserInfo(tokenRes.data.token,loginRes.data.usrtoken).then(infoRes => {
+
+                                if (infoRes.succes === true && infoRes.status === 200) {
+
+                                    SmartService.getInfoGed(tokenRes.data.token,loginRes.data.usrtoken).then( infoGedRes => {
+                                        if (infoGedRes.succes === true && infoGedRes.status === 200) {
+
+                                            localStorage.setItem("token",tokenRes.data.token)
+                                            localStorage.setItem("usrtoken",loginRes.data.usrtoken)
+                                            localStorage.setItem("email",infoRes.data.email)
+                                            localStorage.setItem("role",infoGedRes.data.self.role.role)
+
+                                            SmartService.getGed(
+                                                localStorage.getItem('token'),
+                                                localStorage.getItem('usrtoken')
+                                            )
+                                                .then((gedRes) => {
+                                                    if (gedRes.succes === true && gedRes.status === 200) {
+
+                                                        let headers = new Headers();
+                                                        headers.append('Content-Type', 'application/fhir+json');
+                                                        headers.append('Access-Control-Allow-Origin','*');
+                                                        headers.append('Access-Control-Allow-Headers','Content-Type');
+                                                        headers.append('Access-Control-Allow-Methods','POST, GET, OPTIONS')
+
+                                                        let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'CLIENTS');
+                                                        let recette_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'RECETTES');
+
+                                                        if(!client_folder){
+
+                                                            SmartService.addFolder({
+                                                                name: 'CLIENTS',
+                                                                folder_id: null
+                                                            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addClientFolderRes => {
+
+                                                                fetch('http://91.121.162.202:8199/Patient', {
+                                                                    method: 'GET',
+                                                                    headers:headers,
+                                                                }).then(response => response.json()).then((res)=>{
+
+                                                                    res.entry.map((item,key) => {
+
+                                                                        let family = item.resource.name ? item.resource.name[0].family : "";
+                                                                        let name = item.resource.name ? item.resource.name[0].given[0] : "";
+                                                                        let folder_name = family + " " + name;
+
+                                                                        SmartService.addFolder({
+                                                                            name: folder_name,
+                                                                            folder_id: addClientFolderRes.data.id
+                                                                        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
+                                                                            console.log("ok")
+                                                                        }).catch(err => {console.log(err)})
+
+                                                                    })
+                                                                    if (res.link[0].relation==="next"){
+                                                                        fetch(res.link[0].url,{
+                                                                            method:'GET',
+                                                                            headers:headers
+                                                                        }).then(fres=>fres.json()).then((ffres)=>{
+                                                                            ffres.entry.map((item,key)=>{
+
+                                                                                SmartService.addFolder({
+                                                                                    name: item.resource ? (item.resource.name[0].family || "" + " " + item.resource.name[0].given[0] || "") : "Inconu",
+                                                                                    folder_id: addClientFolderRes.data.id
+                                                                                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
+                                                                                    console.log("ok")
+                                                                                }).catch(err => {console.log(err)})
+
+                                                                            })
+                                                                        })
+                                                                    }
+                                                                }).catch(error => {
+                                                                    console.log(error);
+                                                                });
+
+                                                            }).catch(err => {console.log(err)})
+                                                        }else{
+
+                                                        }
+
+                                                        if(!recette_folder){
+                                                            SmartService.addFolder({
+                                                                name: 'RECETTES',
+                                                                folder_id: null
+                                                            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addRecFolderRes => {
+
+                                                            }).catch(err => {console.log(err)})
+                                                        }
+
+                                                        setTimeout(() => {
+                                                            this.setState({loading:false})
+                                                            this.props.history.push('/home/drive');
+                                                        },1500)
+
+                                                    }else{
+                                                        this.openSnackbar('error', gedRes.error);
+                                                        this.setState({loading: false})
+                                                    }
+                                                }).catch( err => {
+                                                this.openSnackbar('error', err);
+                                                this.setState({loading: false})
+                                            })
+
+
+
+                                        }else{
+                                            this.openSnackbar('error', infoGedRes.error);
+                                            this.setState({loading: false})
+                                        }
+                                    }).catch(err => {
+                                        this.openSnackbar('error', err);
+                                        this.setState({loading: false})
+                                    })
+
+                                }else{
+                                    this.openSnackbar('error', infoRes.error);
+                                    this.setState({loading: false})
+                                }
+
+                            }).catch( err => {
+                                this.openSnackbar('error', err);
+                                this.setState({loading: false})
+                            })
+
+                        }else{
+                            this.openSnackbar('error', loginRes.error);
+                            this.setState({loading: false})
+                        }
+                    }).catch(err => {
+                        this.openSnackbar('error', err);
+                        this.setState({loading: false})
+                    })
+
+                }else{
+                    this.openSnackbar('error', tokenRes.error);
+                    this.setState({loading: false})
+                }
+
+            }).catch(err => {
+                this.openSnackbar('error', err);
+                this.setState({loading: false})
+                setTimeout(() => {
+                    this.props.history.push("/error")
+                },2000)
+            })
+
+    };
+
+
+
+
+    render() {
+
+        return (
+            <React.Fragment>
+
+
+                <div style={{justifyContent:"center",marginTop:110}}>
+                    <Container>
+                        <Row className="justify-content-center">
+                            <Col md={8} lg={6} xl={5}>
+                                <Card>
+                                    <CardBody className="p-4 position-relative">
+                                        { /* preloader */}
+                                        {this.state.loading && <Loader/>}
+
+                                        <div align="center" className="mb-2">
+                                            <img style={{width:250,objectFit:"cover"}} src={logo} alt=""/>
+                                        </div>
+
+                                        <AvForm onValidSubmit={this.login}>
+
+                                            <AvGroup className="mb-3 mt-5">
+                                                <Label for="password">Email</Label>
+                                                <AvInput type="email" name="email" id="email"
+                                                         style={{height:45}}
+                                                         placeholder="Entrer votre mail"
+                                                         value={this.state.email} required/>
+                                                <AvFeedback>Email invalide</AvFeedback>
+                                            </AvGroup>
+
+                                            <AvGroup className="mb-3">
+                                                <Label for="password">Mot de passe</Label>
+                                                <AvInput type="password" name="password" id="password"
+                                                         placeholder="Entrer votre mot de passe"
+                                                         style={{height:45}}
+                                                         value={this.state.password} required/>
+                                                <AvFeedback>Mot de passe incorrect</AvFeedback>
+                                            </AvGroup>
+
+                                            <FormGroup>
+                                                <button className="btn-block btn" style={{backgroundColor:"#F7003C",marginTop:65}}>Se connecter</button>
+                                            </FormGroup>
+                                        </AvForm>
+                                    </CardBody>
+                                </Card>
+                            </Col>
+                        </Row>
+
+
+
+                    </Container>
+                </div>
+                <footer className="footer footer-alt">
+                    2020 - 2021 &copy; BrainyFood
+                </footer>
+
+                <Snackbar
+                    open={this.state.openAlert}
+                    autoHideDuration={7000}
+                    onClose={this.closeSnackbar}
+                >
+                    <Alert elevation={6} variant="filled" onClose={this.closeSnackbar} severity={this.state.alertType}>
+                        {this.state.alertMessage}
+                    </Alert>
+                </Snackbar>
+
+
+
+
+
+            </React.Fragment>
+        )
+
+    }
+
+}
+
+export default login;
