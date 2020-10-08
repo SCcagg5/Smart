@@ -378,7 +378,7 @@ export default class NewRecette extends Component {
             }
 
 
-        }).then(async () => {
+        }).then( async () => {
             let dd = await this.getingr()
             await this.getPreparation()
             return dd

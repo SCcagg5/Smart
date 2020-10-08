@@ -77,12 +77,12 @@ let Data = {
     ],
 
     TimeSheetMenuItem : [
-        {
+        /*{
             nodeId:"activities",
             title:"Activities",
             icon:VideoCallIcon
-        }
-        /*{
+        }*/
+        {
             nodeId:"dashboard",
             title:"DashBoard Team",
             icon:MeetingRoomIcon
@@ -96,7 +96,7 @@ let Data = {
             nodeId:"dashboardProject",
             title:"DashBoard Project",
             icon:MeetingRoomIcon
-        },*/
+        },
     ],
 
 

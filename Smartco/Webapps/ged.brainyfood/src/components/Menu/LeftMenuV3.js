@@ -603,7 +603,7 @@ export default function LeftMenuV3(props) {
                                 </div>
 
                             }
-                            {/*<div style={{cursor:"pointer",backgroundColor:props.focusedItem === "TimeSheet" ? "aliceblue":""}} onClick={() => {
+                            <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "TimeSheet" ? "aliceblue":""}} onClick={() => {
                                 props.setShowTimeSheetMenuItems()
                                 props.setFocusedItem("TimeSheet")
                             }}
@@ -626,7 +626,7 @@ export default function LeftMenuV3(props) {
                                     />
                                 </div>
 
-                            }*/}
+                            }
                             <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "marketplace" ? "aliceblue" : ""}}
                                  onClick={() => {
                                      props.setShowMarketplaceMenuItems()

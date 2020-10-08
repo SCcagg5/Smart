@@ -254,7 +254,7 @@ export default class Main extends React.Component {
     selectedMarketplaceMenuItem:['recettes'],
     selectedSocietyMenuItem: ['clients_mondat'],
     selectedContactsMenuItem: ['aia'],
-    selectedTimeSheetMenuItem: ['activities'],
+    selectedTimeSheetMenuItem: ['dashboard'],
 
     selectedSociete: '',
     selectedSocieteKey: '',
@@ -410,6 +410,136 @@ export default class Main extends React.Component {
     selectedRecetteIngredients:[]
   };
 
+  verifFolders(folders){
+
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/fhir+json');
+    headers.append('Access-Control-Allow-Origin','*');
+    headers.append('Access-Control-Allow-Headers','Content-Type');
+    headers.append('Access-Control-Allow-Methods','POST, GET, OPTIONS')
+
+    let client_folder = folders.find((x) => x.name === 'CLIENTS');
+    let recette_folder = folders.find((x) => x.name === 'RECETTES');
+
+
+    if(!client_folder){
+      console.log("NOT CLIENT FOLDER FOUNDED")
+      SmartService.addFolder({
+        name: 'CLIENTS',
+        folder_id: null
+      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addClientFolderRes => {
+
+        fetch('http://91.121.162.202:8199/Patient', {
+          method: 'GET',
+          headers:headers,
+        }).then(response => response.json()).then((res)=>{
+
+          res.entry.map((item,key) => {
+
+            let family = item.resource.name ? item.resource.name[0].family : "";
+            let name = item.resource.name ? item.resource.name[0].given[0] : "";
+            let folder_name = family + " " + name;
+
+            SmartService.addFolder({
+              name: folder_name,
+              folder_id: addClientFolderRes.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
+              console.log("ok")
+              this.justReloadGed()
+            }).catch(err => {console.log(err)})
+
+          })
+          if (res.link[0].relation==="next"){
+            fetch(res.link[0].url,{
+              method:'GET',
+              headers:headers
+            }).then(fres=>fres.json()).then((ffres)=>{
+              ffres.entry.map((item,key)=>{
+
+                SmartService.addFolder({
+                  name: item.resource ? (item.resource.name[0].family || "" + " " + item.resource.name[0].given[0] || "") : "Inconu",
+                  folder_id: addClientFolderRes.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
+                  console.log("ok")
+                  this.justReloadGed()
+                }).catch(err => {console.log(err)})
+
+              })
+            })
+          }
+        }).catch(error => {
+          console.log(error);
+        });
+
+      }).catch(err => {console.log(err)})
+    }
+    else{
+      console.log("CLIENT FOLDER FOUNDED")
+      fetch('http://91.121.162.202:8199/Patient', {
+        method: 'GET',
+        headers:headers,
+      }).then(response => response.json()).then((res)=>{
+
+        res.entry.map((item,key) => {
+
+          let family = item.resource.name ? item.resource.name[0].family : "";
+          let name = item.resource.name ? item.resource.name[0].given[0] : "";
+          let folder_name = family + " " + name;
+
+          let find = client_folder.Content.folders.find((x) => x.name === folder_name);
+
+          if(!find){
+            console.log(" not found")
+            SmartService.addFolder({
+              name: folder_name,
+              folder_id: localStorage.getItem("client_folder_id")
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then( addFolderRes => {
+              console.log("ok")
+              this.justReloadGed()
+            }).catch(err => {console.log(err)})
+            if (res.link[0].relation === "next"){
+              fetch(res.link[0].url,{
+                method:'GET',
+                headers:headers
+              }).then(fres=>fres.json()).then((ffres)=>{
+                ffres.entry.map((item,key)=>{
+
+                  SmartService.addFolder({
+                    name: item.resource ? (item.resource.name[0].family || "" + " " + item.resource.name[0].given[0] || "") : "Inconu",
+                    folder_id: localStorage.getItem("client_folder_id")
+                  }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
+                    console.log("ok")
+                    this.justReloadGed()
+                  }).catch(err => {console.log(err)})
+
+                })
+              })
+            }
+          }
+
+
+
+        })
+
+      }).catch(error => {
+        console.log(error);
+      });
+
+    }
+
+    if(!recette_folder){
+      SmartService.addFolder({
+        name: 'RECETTES',
+        folder_id: null
+      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addRecFolderRes => {
+        this.justReloadGed()
+      }).catch(err => {console.log(err)})
+    }
+
+  }
+
+
+
   componentDidMount() {
 
     window.onpopstate = () => {
@@ -522,10 +652,11 @@ export default class Main extends React.Component {
           expandedDriveItems: []
         });
       } else if(this.props.location.pathname === '/home/marketplace/recettes'){
+
         this.setState({
           showContainerSection: 'marketplace',
           focusedItem: 'marketplace',
-          selectedTimeSheetMenuItem: ['recettes'],
+          selectedMarketplaceMenuItem: ['recettes'],
           openMarketplaceMenuItem: true
         })
       }
@@ -570,6 +701,18 @@ export default class Main extends React.Component {
                   this.setState({
                     rooms: rooms
                   });
+
+                firebase.database().ref('/TimeSheet').on('value', (snapshot) => {
+                  const data = snapshot.val() || [];
+                  let timeSheetData = data || []
+                  this.setState({TimeSheetData:data})
+                });
+
+                firebase.database().ref('/contacts').on('value', (snapshot) => {
+                  const data = snapshot.val() || [];
+                  let contacts = data || []
+                  this.setState({contacts:data})
+                });
 
                   //let sharedFolders = gedRes.data.Shared.Content.folders || [];
                   let sharedFiles = gedRes.data.Shared.Content.files || [];
@@ -875,7 +1018,7 @@ export default class Main extends React.Component {
                           selectedRecetteIngredients:res2,
                           showContainerSection: 'marketplace',
                           focusedItem: 'marketplace',
-                          selectedTimeSheetMenuItem: ['recettes'],
+                          selectedMarketplaceMenuItem: ['recettes'],
                           openMarketplaceMenuItem: true,
                           rootFiles: gedRes.data.Proprietary.Content.files || [],
                           rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -896,7 +1039,7 @@ export default class Main extends React.Component {
                     this.setState({
                       showContainerSection: 'marketplace',
                       focusedItem: 'marketplace',
-                      selectedTimeSheetMenuItem: ['recettes'],
+                      selectedMarketplaceMenuItem: ['recettes'],
                       openMarketplaceMenuItem: true,
                       rootFiles: gedRes.data.Proprietary.Content.files || [],
                       rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -944,6 +1087,8 @@ export default class Main extends React.Component {
                   }
                 });
 
+              this.verifFolders(gedRes.data.Proprietary.Content.folders)
+
 
             } else {
               this.setState({ loading: false });
@@ -952,12 +1097,14 @@ export default class Main extends React.Component {
             }
           })
           .catch((err) => {
-            this.props.history.push('/error');
+            this.openSnackbar("error",err)
             console.log(err);
           });
       }, 200);
     }
   }
+
+
 
   openSnackbar = (type, msg) => {
     this.setState({
@@ -1726,7 +1873,7 @@ export default class Main extends React.Component {
                   : item === 'Societe'
                     ? this.props.history.push('/home/clients')
                     : item === 'TimeSheet'
-                      ? this.props.history.push('/home/timeSheet/activities') :
+                      ? this.props.history.push('/home/timeSheet/dashboard') :
                                 item === "marketplace" ? this.props.history.push('/home/marketplace/recettes') :
                                     this.props.history.push('/home/drive')
             this.setState({
@@ -1813,9 +1960,9 @@ export default class Main extends React.Component {
             this.setState({
               openTimeSheetsMenu: !this.state.openTimeSheetsMenu,
               showContainerSection: 'TimeSheet',
-              selectedTimeSheetMenuItem: ['activities']
+              selectedTimeSheetMenuItem: ['dashboard']
             });
-            this.props.history.push('/home/timeSheet/activities');
+            this.props.history.push('/home/timeSheet/dashboard');
           }}
           selectedTimeSheetItem={
             this.state.showContainerSection === 'TimeSheet'
@@ -3341,7 +3488,6 @@ export default class Main extends React.Component {
       res.entry.map((item,key)=>{
         resource.push(item)
       })
-      console.log(resource)
       this.setState({patients:resource})
       if (res.link[0].relation==="next"){
         fetch(res.link[0].url,{
@@ -3361,7 +3507,6 @@ export default class Main extends React.Component {
 
   getRecettes(){
     recetteService.getRecettes().then(res => {
-      console.log(res)
       this.setState({recettes:res})
     })
   }
@@ -5815,7 +5960,8 @@ export default class Main extends React.Component {
                                   </div>
                                   <div style={{ marginTop: 30 }}
                                        className="text-left">
-                                    <Tabs> <TabList>
+                                    <Tabs>
+                                      <TabList>
                                       <Tab>Informations générales</Tab>
                                       <Tab>Ouverture mandat </Tab>
                                     </TabList>
@@ -5916,619 +6062,534 @@ export default class Main extends React.Component {
 
                                       </TabPanel>
                                       <TabPanel>
-                                        <div className="row mt-4">
-                                          <div className="col-md-4">
+                                        <div className="row mt-2">
+                                          <div className="col-md-3">
                                             <div>
-                                              Nom du dossier
+                                              {
+                                                this.state.selectedSociete.resource.resourceType === "Patient" ? "Nom" : "Nom de la societé"
+                                              }
                                             </div>
                                             <div>
-                                              <input
-                                                style={{ color: '#000' }}
-                                                className="form-control"
-                                                defaultValue={this.state.newClientFolder.nom}
-                                                onChange={this.handleChange('newClientFolder', 'nom')}
-                                              />
+                                              <input className="form-control" defaultValue={(this.state.selectedSociete.resource.name===undefined? " ":this.state.selectedSociete.resource.name[0].family)+" "+(this.state.selectedSociete.resource.name===undefined? " ":this.state.selectedSociete.resource.name[0].given[0])} readOnly={true} />
                                             </div>
                                           </div>
                                           <div className="col-md-4">
                                             <div>
-                                              Type
+                                              Type de dossier
                                             </div>
                                             <div>
-                                              <select
-                                                className="form-control custom-select"
-                                                value={this.state.newClientFolder.type}
-                                                onChange={this.handleChange('newClientFolder', 'type')}
+                                              <select className="form-control custom-select" value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.typeDossier || "" : ""}
+                                                      onChange={this.handleObjectChange("selectedSociete","mondat","typeDossier")}
                                               >
                                                 {
-                                                  Data.secteurs2.map((secteur, key) =>
-                                                    <option
-                                                      key={key}
-                                                      value={secteur}>{secteur}</option>
+                                                  Data.secteurs.map((secteur,key) =>
+                                                      <option key={key} value={secteur}>{secteur}</option>
                                                   )
                                                 }
+
                                               </select>
                                             </div>
+
                                           </div>
-                                          {/*<div className="col-md-5">
-                                                                                                              <div>
-                                                                                                                   Description du dossier
-                                                                                                              </div>
-                                                                                                              <div>
-                                                                                                                   <textarea
-                                                                                                                        style={{color: "#000"}}
-                                                                                                                        className="form-control"
-                                                                                                                        value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
-                                                                                                                        onChange={this.handleObjectChange("selectedSociete", "mondat", "description")}
-                                                                                                                        rows={4} />
-                                                                                                              </div>
-                                                                                                         </div>*/}
+                                          <div className="col-md-5">
+                                            <div>
+                                              Description du projet
+                                            </div>
+                                            <div>
+                                                                                            <textarea className="form-control" value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
+                                                                                                      onChange={this.handleObjectChange("selectedSociete","mondat","description")} rows={4} />
+                                            </div>
+
+                                          </div>
                                         </div>
-                                        <hr style={{
-                                          width: '100%',
-                                          height: 1,
-                                          backgroundColor: '#c0c0c0',
-                                          marginTop: 35,
-                                          marginBottom: 30
-                                        }} />
+                                        <div className="row">
+                                          <div className="col-md-3 mt-1">
+                                            <div>
+                                              Dossier LBA ( intermédiaire financier)
+                                            </div>
+                                            <div>
+                                              <select className="form-control custom-select"
+                                                      style={{width:"80%"}}
+                                                      value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.dossierLBA || "" : ""}
+                                                      onChange={this.handleObjectChange("selectedSociete","mondat","dossierLBA")}
+                                              >
+                                                <option value={"Oui"}>Oui</option>
+                                                <option value={"Non"}>Non</option>
+                                              </select>
+                                            </div>
+
+                                          </div>
+                                        </div>
+                                        <div className="row mt-4 align-items-center">
+                                          <div className="col-md-4">
+                                            <div>
+                                              <h6>Personne en charge principale ( le client. ) </h6>
+                                            </div>
+                                            <div className="row justify-content-center align-items-center mt-2">
+                                              <div className="col-md-3">
+                                                <div>Prénom</div>
+                                              </div>
+                                              <div className="col-md-8">
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="nom"
+                                                    name="nom"
+                                                    value={this.state.selectedSociete.resource.name===undefined? " ":this.state.selectedSociete.resource.name[0].given[0]}
+
+                                                />
+
+                                              </div>
+
+                                            </div>
+                                            <div className="row justify-content-center align-items-center mt-2">
+                                              <div className="col-md-3">
+                                                <div>Nom</div>
+                                              </div>
+                                              <div className="col-md-8">
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="nom"
+                                                    name="nom"
+                                                    value={this.state.selectedSociete.resource.name===undefined? " ":this.state.selectedSociete.resource.name[0].family}
+                                                />
+                                              </div>
+
+                                            </div>
+                                            <div className="row justify-content-center align-items-center mt-2">
+                                              <div className="col-md-3">
+                                                <div>Email</div>
+                                              </div>
+                                              <div className="col-md-8">
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="nom"
+                                                    name="nom"
+                                                    value={this.state.selectedSociete.resource.telecom===undefined? " ":this.state.selectedSociete.resource.telecom[0].value}
+                                                />
+                                              </div>
+
+                                            </div>
+                                            <div className="row justify-content-center align-items-center mt-2">
+                                              <div className="col-md-3">
+                                                <div>Téléphone</div>
+                                              </div>
+                                              <div className="col-md-8">
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="nom"
+                                                    name="nom"
+                                                    value={this.state.selectedSociete.resource.telecom===undefined? " ":this.state.selectedSociete.resource.telecom[1].value}
+                                                />
+                                              </div>
+
+                                            </div>
+                                            <div className="row justify-content-center align-items-center mt-2">
+                                              <div className="col-md-3">
+                                                <div>Adresse</div>
+                                              </div>
+                                              <div className="col-md-8">
+                                                                                                <textarea
+                                                                                                    className="form-control"
+                                                                                                    id="Adresse"
+                                                                                                    name="Adresse"
+                                                                                                    value={this.state.selectedSociete.resource.address===undefined? " ":this.state.selectedSociete.resource.address[0].text}
+                                                                                                />
+                                              </div>
+
+                                            </div>
+
+                                          </div>
+                                          <div className="col-md-4">
+                                            <div>
+                                              <h6>Personne en charge pour les réglements  </h6>
+                                            </div>
+                                            <div className="row justify-content-center align-items-center mt-2">
+                                              <div className="col-md-3">
+                                                <div>Prénom</div>
+                                              </div>
+                                              <div className="col-md-8">
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="nom"
+                                                    name="nom"
+                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_prenom || "" : ""}
+                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_prenom")}
+
+                                                />
+
+                                              </div>
+
+                                            </div>
+                                            <div className="row justify-content-center align-items-center mt-2">
+                                              <div className="col-md-3">
+                                                <div>Nom</div>
+                                              </div>
+                                              <div className="col-md-8">
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="nom"
+                                                    name="nom"
+                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_nom || "" : ""}
+                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_nom")}
+                                                />
+                                              </div>
+
+                                            </div>
+                                            <div className="row justify-content-center align-items-center mt-2">
+                                              <div className="col-md-3">
+                                                <div>Email</div>
+                                              </div>
+                                              <div className="col-md-8">
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="nom"
+                                                    name="nom"
+                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_email || "" : ""}
+                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_email")}
+                                                />
+                                              </div>
+
+                                            </div>
+                                            <div className="row justify-content-center align-items-center mt-2">
+                                              <div className="col-md-3">
+                                                <div>Téléphone</div>
+                                              </div>
+                                              <div className="col-md-8">
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="nom"
+                                                    name="nom"
+                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_phone || "" : ""}
+                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_phone")}
+                                                />
+                                              </div>
+
+                                            </div>
+                                            <div className="row justify-content-center align-items-center mt-2">
+                                              <div className="col-md-3">
+                                                <div>Adresse</div>
+                                              </div>
+                                              <div className="col-md-8">
+                                                                                                <textarea
+                                                                                                    className="form-control"
+                                                                                                    id="Adresse"
+                                                                                                    name="Adresse"
+                                                                                                    value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_adress || "" : ""}
+                                                                                                    onChange={this.handleObjectChange("selectedSociete","mondat","pcr_adress")}
+                                                                                                />
+                                              </div>
+
+                                            </div>
+
+                                          </div>
+                                          <div className="col-md-4">
+
+                                            <div>
+                                              <h6>Autre parties</h6>
+                                              <input
+                                                  className="form-control"
+                                                  type="text"
+                                                  id="nom"
+                                                  name="nom"
+                                                  value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.autrePartie || "" : ""}
+                                                  onChange={this.handleObjectChange("selectedSociete","mondat","autrePartie")}
+                                              />
+
+                                            </div>
+                                            <div className="mt-3">
+                                              <h6>Contrepartie </h6>
+                                              <input
+                                                  className="form-control"
+                                                  type="text"
+                                                  id="nom"
+                                                  name="nom"
+                                                  value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.autrePartie || "" : ""}
+                                                  onChange={this.handleObjectChange("selectedSociete","mondat","autrePartie")}
+                                              />
+                                            </div>
+                                            <div className="mt-3">
+                                              <h6>Apporteur </h6>
+                                              <select className="form-control custom-select"
+                                                      style={{width:"80%"}}
+                                                      value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.apporteur || "" : ""}
+                                                      onChange={this.handleObjectChange("selectedSociete","mondat","apporteur")}
+                                              >
+                                                <option value={""}>{""}</option>
+                                                <option value={"Site web"}>Site web</option>
+                                                <option value={"Autre avocat"}>Autre avocat</option>
+                                                <option value={"Personne tierce"}>Personne tierce</option>
+
+                                              </select>
+                                            </div>
+
+
+                                          </div>
+
+                                        </div>
+                                        <hr style={{width:"100%",height:2,backgroundColor:"#a6a6a6",marginTop:25,marginBottom:25}}/>
+
                                         <div>
                                           <h5>Facturation</h5>
-                                          <div
-                                            className="row align-items-center">
-                                            <div className="col-md-5">
+                                          <div className="row align-items-center">
+                                            <div className="col-md-4">
                                               <div>Collaborateur-Lead</div>
                                               <div>
                                                 <MuiSelect
-                                                  labelId="demo-simple-select-label"
-                                                  id="demo-simple-select"
-                                                  style={{ width: '80%' }}
-                                                  onChange={(e) => {
-                                                    let contact_email = e.target.value;
-                                                    let contact = this.getOAContactByEmail(contact_email);
-                                                    if (contact) {
-                                                      this.setState({ lead_contact_horaire_tmp: contact.rateFacturation });
-                                                    }
-                                                    this.setState({ lead_contact_tmp: e.target.value });
-                                                  }}
-                                                  value={this.state.lead_contact_tmp}
+                                                    labelId="demo-simple-select-label"
+                                                    id="demo-simple-select"
+                                                    style={{width:"80%"}}
+                                                    onChange={(e)=>{
+                                                      let obj = this.state.selectedSociete;
+                                                      let container = obj["facturation"] || {};
+                                                      container.collaborateur_lead = e.target.value;
+                                                      obj["facturation"] = container;
+                                                      this.setState({selectedSociete:obj})
+                                                    }}
+                                                    value={this.state.selectedSociete.facturation ? this.state.selectedSociete.facturation.collaborateur_lead : ""}
+
                                                 >
-                                                  {this.state.contacts.map((contact, key) => (
-                                                    <MenuItem
-                                                      key={key}
-                                                      value={contact.email}>
-                                                      <div
-                                                        className="row align-items-center justify-content-center">
-                                                        <Avatar
-                                                          alt=""
-                                                          src={contact.imageUrl} />
-                                                        <div>{contact.nom + ' ' + contact.prenom}</div>
-                                                      </div>
-                                                    </MenuItem>
+                                                  {this.state.contacts.map((contact,key) => (
+                                                      <MenuItem key={key} value={contact.email}>
+                                                        <div className="row align-items-center justify-content-center">
+                                                          <Avatar alt="Natacha" src={contact.imageUrl} />
+                                                          <div>{contact.nom + " " + contact.prenom}</div>
+                                                        </div>
+                                                      </MenuItem>
                                                   ))}
                                                 </MuiSelect>
                                               </div>
-                                              {
-                                                this.state.lead_contact_tmp !== '' &&
-                                                <div className="mt-1">
-                                                  <div>
-                                                    Taux horaire
-                                                  </div>
-                                                  <Input
-                                                    className="form-control "
-                                                    id="duree35411"
-                                                    style={{ width: '80%' }}
-                                                    name="duree687811"
-                                                    type="text"
-                                                    endAdornment={
-                                                      <InputAdornment
-                                                        position="end">CHF/h</InputAdornment>}
-                                                    value={this.state.lead_contact_horaire_tmp}
-                                                    onChange={(e) => {
-                                                      this.setState({ lead_contact_horaire_tmp: e.target.value });
-                                                    }}
-                                                  />
-                                                </div>
-                                              }
+
                                             </div>
-                                            <div className="col-md-7">
-                                              <div style={{ display: 'flex' }}>
-                                                <div>Collaborateur-Team</div>
-                                                <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
-                                                            onClick={() => {
-                                                              let objCp = this.state.newClientFolder;
-                                                              objCp.team.push({
-                                                                fname: '',
-                                                                email: '',
-                                                                uid: '',
-                                                                tarif: '',
-                                                                type: 'team'
-                                                              });
-                                                              this.setState({ newClientFolder: objCp });
-                                                            }}>
-                                                  <AddCircleIcon color="primary" />
-                                                </IconButton>
+                                            <div className="col-md-5">
+                                              <div>
+                                                Collaborateur-Team
                                               </div>
-                                              {
-                                                this.state.newClientFolder.team.map((item, key) =>
-                                                  <div style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    marginTop: 8
-                                                  }}>
-                                                    <div>
-                                                      <div>Collaborateur</div>
-                                                      <div>
-                                                        <MuiSelect
-                                                          labelId="demo-simple-select-label"
-                                                          id="demo-simple-select"
-                                                          style={{ width: 250 }}
-                                                          onChange={(e) => {
-                                                            let contact_email = e.target.value;
-                                                            let contact = this.getOAContactByEmail(contact_email);
-                                                            if (contact) {
-                                                              let objCp = this.state.newClientFolder;
-                                                              objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
-                                                              objCp.team[key].email = contact_email;
-                                                              objCp.team[key].uid = contact.uid;
-                                                              objCp.team[key].tarif = contact.rateFacturation || '';
-                                                              this.setState({ newClientFolder: objCp });
-                                                            }
-                                                          }}
-                                                          value={this.state.newClientFolder.team[key].email}
-                                                        >
-                                                          {this.state.contacts.map((contact, key) => (
-                                                            <MenuItem
-                                                              key={key}
-                                                              value={contact.email}>
-                                                              <div
-                                                                className="row align-items-center justify-content-center">
-                                                                <Avatar
-                                                                  alt=""
-                                                                  src={contact.imageUrl} />
-                                                                <div>{contact.nom + ' ' + contact.prenom}</div>
-                                                              </div>
-                                                            </MenuItem>
+                                              <div>
+
+                                                <MuiSelect
+                                                    labelId="demo-mutiple-chip-label-1542"
+                                                    id="demo-mutiple-chip-1542"
+                                                    multiple
+                                                    style={{width:"100%"}}
+                                                    onChange={(e)=>{
+                                                      let obj = this.state.selectedSociete;
+                                                      let container = obj["facturation"] || {};
+                                                      container.collaborateur_team = e.target.value;
+                                                      obj["facturation"] = container;
+                                                      this.setState({selectedSociete:obj})
+                                                    }}
+                                                    value={this.state.selectedSociete.facturation ? this.state.selectedSociete.facturation.collaborateur_team || [] : []}
+                                                    input={<Input id="select-multiple-chip" />}
+                                                    renderValue={(selected) => (
+                                                        <div style={{display:"flex", flexWrap:"wrap"}}>
+                                                          {selected.map((value,key) => (
+                                                              <Chip key={key} label={value.email} style={{margin:2}} avatar={<Avatar alt="" src={value.imageUrl || null} />}
+                                                              />
                                                           ))}
-                                                        </MuiSelect>
-                                                      </div>
-                                                    </div>
-                                                    <div
-                                                      style={{ marginTop: this.state.newClientFolder.team[key].uid !== '' ? 12 : -7 }}>
-                                                      <div>
-                                                        Taux horaire
-                                                      </div>
-                                                      <Input
-                                                        className="form-control "
-                                                        id="duree35411"
-                                                        style={{ width: 250 }}
-                                                        name="duree687811"
-                                                        type="text"
-                                                        endAdornment={
-                                                          <InputAdornment
-                                                            position="end">CHF/h</InputAdornment>}
-                                                        value={this.state.newClientFolder.team[key].tarif}
-                                                        onChange={(e) => {
-                                                          let objCp = this.state.newClientFolder;
-                                                          objCp.team[key].tarif = e.target.value;
-                                                          this.setState({ newClientFolder: objCp });
-                                                        }}
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                )
-                                              }
+                                                        </div>
+                                                    )}
+                                                    MenuProps={Data.MenuProps}
+                                                >
+                                                  {this.state.contacts.map((contact,key) => (
+                                                      <MenuItem key={key} value={contact}>
+                                                        <div className="row align-items-center justify-content-center">
+                                                          <Avatar alt="" src={contact.imageUrl} />
+                                                          <div>{contact.nom + " " + contact.prenom}</div>
+                                                        </div>
+                                                      </MenuItem>
+                                                  ))}
+                                                </MuiSelect>
+                                              </div>
+
+                                            </div>
+                                            <div className="col-md-3">
+                                              <div>Taux Horaire collaborateur -B </div>
+
+                                              <input
+                                                  className="form-control"
+                                                  type="text"
+                                                  id="nom"
+                                                  name="nom"
+                                                  value={this.state.selectedSociete.facturation ? this.state.selectedSociete.facturation.tauxHoraireCollab || "" : ""}
+                                                  onChange={this.handleObjectChange("selectedSociete","facturation","tauxHoraireCollab")}
+                                              />
+
                                             </div>
 
                                           </div>
                                         </div>
                                         <div className="mt-4">
                                           <h5>FACTURATION-CLIENT</h5>
-                                          <div
-                                            className="row align-items-center">
+                                          <div className="row align-items-center">
                                             <div className="col-md-4">
-                                              <div
-                                                className="row justify-content-center align-items-center">
-                                                <div
-                                                  className="col-md-4">
+                                              <div className="row justify-content-center align-items-center">
+                                                <div className="col-md-4">
                                                   <div>Par eMail</div>
                                                 </div>
-                                                <div
-                                                  className="col-md-8">
-                                                  <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.parEmail || false}
-                                                      onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.parEmail = !this.state.mondat.facturationClient.parEmail;
-                                                        this.setState({ mondat: d });
+                                                <div className="col-md-8">
+                                                  <CB color="primary" checked={this.state.mondat.facturationClient.parEmail || false}
+                                                      onChange={(e)=>{let d = this.state.mondat
+                                                        d.facturationClient.parEmail= !this.state.mondat.facturationClient.parEmail
+                                                        this.setState({mondat:d})
                                                       }}
                                                   />
                                                 </div>
+
+
+
                                               </div>
-                                              <div
-                                                className="row justify-content-center align-items-center">
-                                                <div
-                                                  className="col-md-4">
-                                                  <div>Par courrier
-                                                  </div>
+                                              <div className="row justify-content-center align-items-center">
+
+                                                <div className="col-md-4">
+                                                  <div>Par courrier</div>
                                                 </div>
-                                                <div
-                                                  className="col-md-8">
+                                                <div className="col-md-8">
                                                   <CB color="primary"
                                                       checked={this.state.mondat.facturationClient.parCourrier || false}
-                                                      onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.parCourrier = !this.state.mondat.facturationClient.parCourrier;
-                                                        this.setState({ mondat: d });
-                                                      }} />
+                                                      onChange={(e)=>{let d = this.state.mondat
+                                                        d.facturationClient.parCourrier= !this.state.mondat.facturationClient.parCourrier
+                                                        this.setState({mondat:d})
+                                                      }}/>
                                                 </div>
+
+
+
                                               </div>
-                                              <div
-                                                className="row justify-content-center align-items-center">
-                                                <div
-                                                  className="col-md-4">
+                                              <div className="row justify-content-center align-items-center">
+
+                                                <div className="col-md-4">
                                                   <div>Fréquence</div>
                                                 </div>
-                                                <div
-                                                  className="col-md-8">
+                                                <div className="col-md-8">
                                                   <MuiSelect
-                                                    labelId="demo-simple-select-label"
-                                                    id="demo-simple-select"
-                                                    style={{ width: '100%' }}
-                                                    value={this.state.mondat.facturationClient.frequence}
-                                                    onChange={(e) => {
-                                                      let d = this.state.mondat;
-                                                      d.facturationClient.frequence = e.target.value;
-                                                      this.setState({ mondat: d });
-                                                    }}
+                                                      labelId="demo-simple-select-label"
+                                                      id="demo-simple-select"
+                                                      style={{width:"100%"}}
+                                                      value={this.state.mondat.facturationClient.frequence}
+                                                      onChange={(e)=>{let d = this.state.mondat
+                                                        d.facturationClient.frequence= e.target.value
+                                                        this.setState({mondat:d})
+                                                      }}
+
                                                   >
-                                                    <MenuItem
-                                                      value={'mission'}>Par mission</MenuItem>
-                                                    <MenuItem
-                                                      value={'Mensuellement'}>Mensuellement</MenuItem>
-                                                    <MenuItem
-                                                      value={'Quarter'}>Quarter</MenuItem>
-                                                    <MenuItem
-                                                      value={'Annuellement'}>Annuellement</MenuItem>
+                                                    <MenuItem value={"mission"}>Par mission</MenuItem>
+                                                    <MenuItem value={"Mensuellement"}>Mensuellement</MenuItem>
+                                                    <MenuItem value={"Quarter"}>Quarter</MenuItem>
+                                                    <MenuItem value={"Annuellement"}>Annuellement</MenuItem>
                                                   </MuiSelect>
                                                 </div>
+
                                               </div>
+
+
                                             </div>
                                             <div className="col-md-4">
-                                              <div
-                                                className="row justify-content-center align-items-center">
-                                                <div
-                                                  className="col-md-6">
-                                                  <div>Envoyé par le secrétariat
-                                                  </div>
+
+
+                                              <div className="row justify-content-center align-items-center">
+
+                                                <div className="col-md-6">
+                                                  <div>Envoyé par le secrétariat</div>
                                                 </div>
-                                                <div
-                                                  className="col-md-6">
-                                                  <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.EnvoyeParSecretariat || false}
-                                                      onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.EnvoyeParSecretariat = !this.state.mondat.facturationClient.EnvoyeParSecretariat;
-                                                        this.setState({ mondat: d });
+                                                <div className="col-md-6">
+                                                  <CB color="primary" checked={this.state.mondat.facturationClient.EnvoyeParSecretariat || false}
+                                                      onChange={(e)=>{let d = this.state.mondat
+                                                        d.facturationClient.EnvoyeParSecretariat= !this.state.mondat.facturationClient.EnvoyeParSecretariat
+                                                        this.setState({mondat:d})
                                                       }} />
                                                 </div>
+
+
+
                                               </div>
-                                              <div
-                                                className="row justify-content-center align-items-center">
-                                                <div
-                                                  className="col-md-6">
-                                                  <div>Envoyé par l’avocat
-                                                  </div>
+                                              <div className="row justify-content-center align-items-center">
+
+                                                <div className="col-md-6">
+                                                  <div>Envoyé par l’avocat </div>
                                                 </div>
-                                                <div
-                                                  className="col-md-6">
-                                                  <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.EnvoyeAvocat || false}
-                                                      onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.EnvoyeAvocat = !this.state.mondat.facturationClient.EnvoyeAvocat;
-                                                        this.setState({ mondat: d });
+                                                <div className="col-md-6">
+                                                  <CB color="primary" checked={this.state.mondat.facturationClient.EnvoyeAvocat || false}
+                                                      onChange={(e)=>{let d = this.state.mondat
+                                                        d.facturationClient.EnvoyeAvocat= !this.state.mondat.facturationClient.EnvoyeAvocat
+                                                        this.setState({mondat:d})
                                                       }} />
                                                 </div>
+
+
+
                                               </div>
-                                              <div
-                                                className="row justify-content-center align-items-center">
-                                                <div
-                                                  className="col-md-6">
-                                                  <div>Langue de Facturation
-                                                  </div>
+                                              <div className="row justify-content-center align-items-center">
+
+                                                <div className="col-md-6">
+                                                  <div>Langue de Facturation</div>
                                                 </div>
-                                                <div
-                                                  className="col-md-6">
+                                                <div className="col-md-6">
                                                   <MuiSelect
-                                                    labelId="demo-simple-select-label"
-                                                    id="demo-simple-select"
-                                                    style={{ width: '100%' }}
-                                                    value={this.state.mondat.facturationClient.LangueFacturation}
-                                                    onChange={(e) => {
-                                                      let d = this.state.mondat;
-                                                      d.facturationClient.LangueFacturation = e.target.value;
-                                                      this.setState({ mondat: d });
-                                                    }}
+                                                      labelId="demo-simple-select-label"
+                                                      id="demo-simple-select"
+                                                      style={{width:"100%"}}
+                                                      value={this.state.mondat.facturationClient.LangueFacturation}
+                                                      onChange={(e)=>{let d = this.state.mondat
+                                                        d.facturationClient.LangueFacturation= e.target.value
+                                                        this.setState({mondat:d})
+                                                      }}
+
                                                   >
-                                                    <MenuItem
-                                                      value={'Français'}>Français</MenuItem>
-                                                    <MenuItem
-                                                      value={'Anglais'}>Anglais</MenuItem>
+                                                    <MenuItem value={"Français"}>Français</MenuItem>
+                                                    <MenuItem value={"Anglais"}>Anglais</MenuItem>
+
                                                   </MuiSelect>
                                                 </div>
+
+
+
                                               </div>
-                                              <div
-                                                className="row justify-content-center align-items-center">
-                                                <div
-                                                  className="col-md-6">
-                                                  <div>Mode ( à envoyer par qui )
-                                                  </div>
+                                              <div className="row justify-content-center align-items-center">
+
+                                                <div className="col-md-6">
+                                                  <div>Mode ( à envoyer par qui ) </div>
                                                 </div>
-                                                <div
-                                                  className="col-md-6">
+                                                <div className="col-md-6">
                                                   <MuiSelect
-                                                    labelId="demo-simple-select-label"
-                                                    id="demo-simple-select"
-                                                    style={{ width: '100%' }}
-                                                    value={this.state.mondat.facturationClient.Mode}
-                                                    onChange={(e) => {
-                                                      let d = this.state.mondat;
-                                                      d.facturationClient.Mode = e.target.value;
-                                                      this.setState({ mondat: d });
-                                                    }}
+                                                      labelId="demo-simple-select-label"
+                                                      id="demo-simple-select"
+                                                      style={{width:"100%"}}
+                                                      value={this.state.mondat.facturationClient.Mode}
+                                                      onChange={(e)=>{let d = this.state.mondat
+                                                        d.facturationClient.Mode= e.target.value
+                                                        this.setState({mondat:d})
+                                                      }}
+
+
                                                   >
-                                                    <MenuItem
-                                                      value={'Sécretaria'}>Sécretariat</MenuItem>
-                                                    <MenuItem
-                                                      value={'Associé'}>Associé</MenuItem>
-                                                    <MenuItem
-                                                      value={'Collaborateur'}>Collaborateur</MenuItem>
+                                                    <MenuItem value={"Sécretaria"}>Sécretariat</MenuItem>
+                                                    <MenuItem value={"Associé"}>Associé</MenuItem>
+                                                    <MenuItem value={"Collaborateur"}>Collaborateur</MenuItem>
+
                                                   </MuiSelect>
                                                 </div>
+
                                               </div>
                                             </div>
+
                                           </div>
+                                          {/*<div className="row justify-content-end">
+                                                                                        <div>
+                                                                                            <BT variant="contained" color="primary">
+                                                                                                Enregistrer
+                                                                                            </BT>
 
+                                                                                        </div>
+                                                                                    </div>*/}
                                         </div>
-                                        <div style={{
-                                          margintop: 10,
-                                          textAlign: 'right'
-                                        }}>
-                                          <button
-                                            type="button"
-                                            disabled={this.state.newClientFolder.nom === ''}
-                                            onClick={() => {
-                                              let contact = this.getOAContactByEmail(this.state.lead_contact_tmp);
-                                              let objCp = this.state.newClientFolder;
-                                              objCp.team.push({
-                                                fname: contact.nom + ' ' + contact.prenom,
-                                                email: this.state.lead_contact_tmp,
-                                                uid: contact.uid,
-                                                tarif: this.state.lead_contact_horaire_tmp,
-                                                type: 'lead'
-                                              });
-                                              this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
-                                            }}
-                                            className="btn btn-blue waves-effect mb-2 waves-light m-1">
-                                            <i className="fe-folder-plus" />&nbsp;&nbsp;Créer Dossier Client
-                                          </button>
-                                        </div>
-                                        {/*<div className="row mt-4 align-items-center">
-                                                                                                         <div className="col-md-4">
-                                                                                                              <div>
-                                                                                                                   <h6>Personne en charge principale ( le client. ) </h6>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Prénom</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_prenom || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_prenom")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Nom</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_nom || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_nom")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Email</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_email || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_email")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Téléphone</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_phone || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_phone")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Adresse</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                  <textarea
-                                                       className="form-control"
-                                                       id="Adresse"
-                                                       name="Adresse"
-                                                       value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_adress || "" : ""}
-                                                       onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_adress")}
-                                                  />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                         </div>
-                                                                                                         <div className="col-md-4">
-                                                                                                              <div>
-                                                                                                                   <h6>Personne en charge pour les réglements </h6>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Prénom</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_prenom || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_prenom")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Nom</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_nom || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_nom")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Email</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_email || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_email")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Téléphone</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_phone || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_phone")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Adresse</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                <textarea
-                                                                                                     className="form-control"
-                                                                                                     id="Adresse"
-                                                                                                     name="Adresse"
-                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_adress || "" : ""}
-                                                                                                     onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_adress")}
-                                                                                                />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                         </div>
-                                                                                                         <div className="col-md-4">
-                                                                                                              <div>
-                                                                                                                   <h6>Autre parties</h6>
-                                                                                                                   <input
-                                                                                                                        className="form-control"
-                                                                                                                        type="text"
-                                                                                                                        id="nom"
-                                                                                                                        name="nom"
-                                                                                                                        value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.autrePartie || "" : ""}
-                                                                                                                        onChange={this.handleObjectChange("selectedSociete", "mondat", "autrePartie")}
-                                                                                                                   />
-                                                                                                              </div>
-                                                                                                              <div className="mt-3">
-                                                                                                                   <h6>Contrepartie </h6>
-                                                                                                                   <input
-                                                                                                                        className="form-control"
-                                                                                                                        type="text"
-                                                                                                                        id="nom"
-                                                                                                                        name="nom"
-                                                                                                                        value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.autrePartie || "" : ""}
-                                                                                                                        onChange={this.handleObjectChange("selectedSociete", "mondat", "autrePartie")}
-                                                                                                                   />
-                                                                                                              </div>
-                                                                                                              <div className="mt-3">
-                                                                                                                   <h6>Apporteur </h6>
-                                                                                                                   <select
-                                                                                                                        className="form-control custom-select"
-                                                                                                                        style={{width: "80%"}}
-                                                                                                                        value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.apporteur || "" : ""}
-                                                                                                                        onChange={this.handleObjectChange("selectedSociete", "mondat", "apporteur")}
-                                                                                                                   >
-                                                                                                                        <option
-                                                                                                                             value={""}>{""}</option>
-                                                                                                                        <option
-                                                                                                                             value={"Site web"}>Site web
-                                                                                                                        </option>
-                                                                                                                        <option
-                                                                                                                             value={"Autre avocat"}>Autre avocat
-                                                                                                                        </option>
-                                                                                                                        <option
-                                                                                                                             value={"Personne tierce"}>Personne tierce
-                                                                                                                        </option>
-                                                                                                                   </select>
-                                                                                                              </div>
-                                                                                                         </div>
-                                                                                                    </div>*/}
-
                                       </TabPanel>
                                     </Tabs>
                                   </div>
@@ -7395,10 +7456,11 @@ export default class Main extends React.Component {
                                      style={{ marginTop: 1 }}>
                                   <div style={{ marginTop: 10 }}
                                        className="text-left">
-                                    <Tabs> <TabList>
+                                    <Tabs>
+                                      <TabList>
                                       <Tab>This Week</Tab>
-                                      <Tab>Scheduled Next Week </Tab>
-                                    </TabList>
+                                      <Tab disabled={true}>Scheduled Next Week </Tab>
+                                      </TabList>
                                       <TabPanel>
                                         <div
                                           className="row justify-content-start align-items-center mt-3">
@@ -7552,7 +7614,8 @@ export default class Main extends React.Component {
                                               } />
                                           }
                                         </div>
-                                      </TabPanel> <TabPanel>
+                                      </TabPanel>
+                                      <TabPanel>
                                         <div className="row align-items-center">
                                           <ButtonGroup
                                             color="#a6a6a6"
@@ -7630,7 +7693,7 @@ export default class Main extends React.Component {
                                         {
                                           this.state.contacts.length > 0 &&
                                           <TableTimeSheet
-                                            contacts={this.state.TimeSheetData}
+                                            contacts={this.state.contacts}
                                             onEditClick={(contact, key) => {
                                               this.setState({
                                                   selectedSociete: contact,
@@ -7641,7 +7704,8 @@ export default class Main extends React.Component {
                                             }
                                             } />
                                         }
-                                      </TabPanel> </Tabs>
+                                      </TabPanel>
+                                    </Tabs>
                                   </div>
                                 </div>
                               </div>
@@ -7668,7 +7732,7 @@ export default class Main extends React.Component {
                                        className="text-left">
                                     <Tabs> <TabList>
                                       <Tab>This Week</Tab>
-                                      <Tab>Scheduled Next Week </Tab>
+                                      {/*<Tab>Scheduled Next Week </Tab>*/}
                                     </TabList>
                                       <TabPanel>
                                         <div
@@ -8240,7 +8304,8 @@ export default class Main extends React.Component {
 
 
                                         }
-                                      </TabPanel> <TabPanel>
+                                      </TabPanel>
+                                      {/*<TabPanel>
                                         <div className="row align-items-center">
                                           <ButtonGroup
                                             color="#a6a6a6"
@@ -8318,7 +8383,7 @@ export default class Main extends React.Component {
                                         {
                                           this.state.contacts.length > 0 &&
                                           <TableTimeSheet
-                                            contacts={this.state.TimeSheetData}
+                                            contacts={this.state.contacts}
                                             onEditClick={(contact, key) => {
                                               this.setState({
                                                   selectedSociete: contact,
@@ -8329,7 +8394,8 @@ export default class Main extends React.Component {
                                             }
                                             } />
                                         }
-                                      </TabPanel> </Tabs>
+                                      </TabPanel> */}
+                                    </Tabs>
                                   </div>
                                 </div>
                               </div>
@@ -8356,8 +8422,8 @@ export default class Main extends React.Component {
                                        className="text-left">
                                     <Tabs> <TabList>
                                       <Tab>All projects</Tab>
-                                      <Tab>This Week</Tab>
-                                      <Tab>Scheduled Next Week </Tab>
+                                      <Tab disabled={true}>This Week</Tab>
+                                      <Tab disabled={true}>Scheduled Next Week </Tab>
                                     </TabList> <TabPanel>
                                       <div
                                         className="row justify-content-start align-items-center mt-3">
@@ -8710,7 +8776,7 @@ export default class Main extends React.Component {
                                       {
                                         this.state.contacts.length > 0 &&
                                         <TableTimeSheet
-                                          contacts={this.state.TimeSheetData}
+                                          contacts={this.state.contacts}
                                           onEditClick={(contact, key) => {
                                             this.setState({
                                                 selectedSociete: contact,
