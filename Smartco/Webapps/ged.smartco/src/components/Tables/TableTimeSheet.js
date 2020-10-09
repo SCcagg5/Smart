@@ -306,11 +306,11 @@ export default function TableTimeSheet(props) {
                     <TableRow>
                         <TableCell align="left" style={{width:"5%"}}> <Checkbox checked={false}/>  </TableCell>
                         <TableCell align="center" style={{width:"5%",fontWeight:600}}>Actions</TableCell>
-                        <TableCell align="center" style={{width:"10%",fontWeight:600}}>Type</TableCell>
-                        <TableCell align="center" style={{width:"10%",fontWeight:600}}>Temps</TableCell>
-                        <TableCell align="center" style={{width:"40%",fontWeight:600}}>Description</TableCell>
+                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Nom du dossier</TableCell>
+                        <TableCell align="center" style={{width:"30%",fontWeight:600}}>Description</TableCell>
                         <TableCell align="center" style={{width:"20%",fontWeight:600}}>Utilisateur OA</TableCell>
                         <TableCell align="center" style={{width:"10%",fontWeight:600}}>Taux horaire</TableCell>
+                        <TableCell align="center" style={{width:"10%",fontWeight:600}}>Durée</TableCell>
 
 
 
@@ -344,13 +344,11 @@ export default function TableTimeSheet(props) {
                                     <EditIcon/>
                                 </IconButton>
                             </TableCell>
-                            <TableCell style={{ width: "10%" }} align="center">
-                                <img alt="" src={time} style={{height:25,width:25,objectFit:"cover"}}/>
+                            <TableCell style={{ width: "20%" }} align="center">
+                                {row.newTime.client || ""}
                             </TableCell>
-                            <TableCell style={{ width: "10%" }} align="center">
-                                <div>{row.newTime.duree+"h"}</div>
-                            </TableCell>
-                            <TableCell style={{ width: "40%" }} align="center">
+
+                            <TableCell style={{ width: "30%" }} align="center">
                                 {row.newTime.description}
                             </TableCell>
                             <TableCell style={{ width: "20%" }} align="center">
@@ -358,6 +356,9 @@ export default function TableTimeSheet(props) {
                             </TableCell>
                             <TableCell style={{ width: "10%" }} align="center">
                                 {row.newTime.rateFacturation +" CHF/h"}
+                            </TableCell>
+                            <TableCell style={{ width: "10%" }} align="center">
+                                <div>{row.newTime.duree+"h"}</div>
                             </TableCell>
                         </TableRow>
                     ))}

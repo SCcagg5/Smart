@@ -333,7 +333,9 @@ export default function RoomTabs(props) {
                                     </Grid>
                                     <div className="row" style={{marginTop:20}}>
                                         <div className="col-md-12" style={{paddingLeft:50,marginBottom:20}}>
-                                            <Button onClick={() => {
+                                            <Button
+                                              disabled={newTaskTitle === "" && selectedDateTime === "" }
+                                              onClick={() => {
                                                 setShowAddForm(false)
                                                 setSelectedAssign("")
                                                 setnewTaskTitle("")
@@ -410,7 +412,7 @@ export default function RoomTabs(props) {
                                     </Grid>
                                     <Grid item xs={1} >
                                         <IconButton aria-label="Supprimer" title="Supprimer" color="default" style={{marginTop:12}}
-                                                    onClick={() => props.onDeleteTask(props.room.tasks.length - key - 1)}
+                                                    //onClick={() => props.onDeleteTask(props.room.tasks.length - key - 1)}
                                         >
                                             <DeleteOutlineIcon color="secondary"/>
                                         </IconButton>
