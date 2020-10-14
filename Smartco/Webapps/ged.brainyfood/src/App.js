@@ -10,6 +10,7 @@ import Main from "./pages/Main/Main";
 import RedirectCp from "./pages/RedirectCp"
 import NewRecette from "./pages/Recettes/NewRecette";
 import 'semantic-ui-css/semantic.min.css'
+import Questions from "./pages/questions/questions";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -44,6 +45,7 @@ export default class App extends Component {
                     <Route exact path="/signDoc/doc/:doc_id" component={SignDocV3}/>
                     <Route exact path="/login" component={Login}/>
                     <Route exact path="/logout" component={Logout}/>
+                    <Route exact path="/bodycheck" component={Questions}/>
                     <Route component={Error}/>
                 </Switch>
             </Router>
