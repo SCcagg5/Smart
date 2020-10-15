@@ -17,6 +17,7 @@ services:
        - 80:80
        - 443:443
      volumes:
+       - ../Proxy/conf/proxy.conf:/etc/nginx/conf.d/my_proxy.conf:ro
        - ../Proxy/vhost:/etc/nginx/vhost.d
        - ../Proxy/passwd:/etc/nginx/htpasswd
        - ../Proxy/data/html:/usr/share/nginx/html
@@ -43,7 +44,7 @@ services:
      container_name: slave-${ID}-db
      restart: always
      networks:
-       - proxy
+       - db-net
      volumes:
        - ../Slave/db/db:/var/lib/mysql
      environment:
@@ -55,6 +56,7 @@ services:
    bck-end:
      build: ../Slave/api
      container_name: slave-${ID}-api
+     working_dir: ${PWD}  /../Slave/api
      tty: true
      privileged: true
      stdin_open: true
@@ -64,10 +66,11 @@ services:
        - 8080:8080
      networks:
        - proxy
+       - db-net
      volumes:
-       - ../Slave/api:/home/api/:ro
-       - ../Sources:/home/base:ro
-       - ../Project:/home/project
+       - ../Slave/api:${PWD}/../Slave/api:ro
+       - ../Sources:${PWD}/../Sources/:ro
+       - ../Project:${PWD}/../Project/
        - /var/run/docker.sock:/var/run/docker.sock
        - ${DOCKER_COMPOSE}:/usr/bin/docker-compose
        - ${DOCKER}:/usr/bin/docker
@@ -82,3 +85,23 @@ services:
        DB_PASS: ${DB_PASS}
        API_DOMAIN: ${DOMAIN}
        API_ID: ${ID}
+
+   smartco-admin-phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      container_name: smartco-admin-phpmyadmin
+      environment:
+        - PMA_ARBITRARY=1
+      restart: always
+      volumes:
+        - ../Slave/Admin/services/phpmyadmin/sessions:/sessions
+        - ../Slave/Admin/services/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php:ro
+      external_links:
+        - datab:db
+      networks:
+        - db-net
+        - proxy
+      environment:
+        PMA_USER: ${DB_USER}
+        PMA_PASSWORD: ${DB_PASS}
+        VIRTUAL_HOST: admin.${ID}.${DOMAIN}
+        VIRTUAL_PORT: 80

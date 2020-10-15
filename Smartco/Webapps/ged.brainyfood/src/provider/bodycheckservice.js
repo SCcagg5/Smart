@@ -139,8 +139,18 @@ let QuestionService ={
         }).then(response => response.json()).catch(error => {
             console.log(error);
         })
+    },
+
+    getMiniceur(id){
+        return fetch(endpoint+'ingredients/'+id, {
+            method: 'GET',
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+
     }
 }
+
 
 
 export default QuestionService;

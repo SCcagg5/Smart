@@ -1,6 +1,9 @@
 import React from 'react';
 import firebase from 'firebase';
 import 'firebase/database';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import { Line } from 'react-chartjs-2';
+import QuestionService from "../../provider/webserviceQuestions"
 import SmartService from '../../provider/SmartService';
 import moment from 'moment';
 import DescriptionIcon from '@material-ui/icons/Description';
@@ -129,6 +132,8 @@ import hourglass from "../../assets/images/hourglass.svg"
 import chef_hat from "../../assets/images/chef_hat.svg"
 import ClampLines from 'react-clamp-lines';
 import RecetteDetail from "../Recettes/RecetteDetail";
+import  bodyHomme from "../../assets/images/bodyHomme.png"
+import  bascule from "../../assets/images/bascule.png"
 
 const getTimeSuggestions = value => {
   const inputValue = value.trim().toLowerCase();
@@ -174,241 +179,250 @@ let expanded = [];
 let index = {};
 
 export default class Main extends React.Component {
+   constructor(props){
+       super(props);
+       this.state= {
+           patientData:"",
+           bodyCheck:"",
+           loading: true,
+           firstLoading: true,
+
+           openAlert: false,
+           alertMessage: '',
+           alertType: '',
+           openUploadToast: false,
+           uploadToastMessage: '',
+
+           anchorEl: null,
+           anchorElMenu: null,
+           anchorElContactsMenu: null,
+           openRightMenu: false,
+
+           selectedSieMenuItem: 'coffre',
+           openSideMenu: false,
+           showSecondSideBar: false,
+
+           showPDFModal: false,
+           pdfURL: '',
+
+           uploadedThumb: require('../../assets/icons/icon-pdf.png'),
+           uploadedName: '',
+
+           signDoc: 'true',
+           showBtnInviteSign: false,
+
+           signMySelf: true,
+           signatiaresEmails: [],
+           inviteEmails: [],
+           selectedSignatureType: { id: 'Swiss law (ZertES)', image: swissImg },
+
+           showUploadStep: '', //upload  // upload_succes // inviteSigners  // signForm  // successfulStep
+           selectedDoc: '',
+
+           folders: [],
+           reelFolders: [],
+           sharedDrive: [],
+           rootFiles: [],
+           rootFolders: [],
+           sharedRootFiles: [],
+
+           selectedFoldername: '',
+           breadcrumbs: '',
+           selectedFolder: '',
+           selectedFolderId: '',
+           selectedFile: '',
+           selectedFolderFiles: [],
+           selectedFolderFolders: [],
+
+           showNewDocScreen: false,
+
+           newFolderModal: false,
+
+           newFolderName: '',
+           newFolderFromRacine: false,
+           newFileFromRacine: false,
+           loadDocSpinner: false,
+
+           openDriveMenuItem: true,
+           openMeetMenuItem: false,
+           openMarketplaceMenuItem:false,
+           openRoomMenuItem: false,
+           openContactsMenu: false,
+           openSocietyMenuItem: false,
+           openTimeSheetsMenu: false,
+
+           showContainerSection: 'Drive',
+           selectedDriveItem: [],
+           expandedDriveItems: [],
+           autoExpandParent: true,
+           selectedMeetMenuItem: ['new'],
+           selectedMarketplaceMenuItem:['recettes'],
+           selectedSocietyMenuItem: ['clients_mondat'],
+           selectedContactsMenuItem: ['aia'],
+           selectedTimeSheetMenuItem: ['dashboard'],
+
+           selectedSociete: '',
+           selectedSocieteKey: '',
+
+           showInviteModal: false,
+           meetCode: '',
+           mondat: {
+               typeDossier: '',
+               DescriptionProjet: '',
+               DossierLBA: '',
+               PersonneChargePrincipale: {
+                   prenom: '',
+                   nom: '',
+                   email: '',
+                   telephone: '',
+                   adresse: ''
+               },
+               PersonneChargeReglement: {
+                   prenom: '',
+                   nom: '',
+                   email: '',
+                   telephone: '',
+                   adresse: ''
+               },
+               autrePartie: '',
+               contrePartie: '',
+               Apporteur: '',
+               collablead: '',
+               collabteam: [],
+               tauxHoraireCollab: '',
+               facturationClient: {
+                   parEmail: true,
+                   parCourrier: '',
+                   frequence: '',
+                   EnvoyeParSecretariat: '',
+                   EnvoyeAvocat: '',
+                   LangueFacturation: '',
+                   Mode: ''
+               }
+           },
+           contacts: [],
+           societes: [],
+           annuaire_clients_mondat: [],
+           rooms: [],
+           openRightContactModalDetail: false,
+           openRightSocieteModalDetail: false,
+           selectedContact: '',
+           selectedContactKey: '',
+           editContactForm: false,
+           editSocieteForm: false,
+           showModalAdd: false,
+           add: '',
+           domaine: {
+               domaine: '',
+               specialite: []
+           },
+           formationTmp: '',
+           fonctionTmp: '',
+           parcourTmp: '',
+           langueTmp: '',
+           hobbiesTmp: '',
+           affiliationTmp: '',
+
+           showPdfPreviewModal: false,
+           isDocPreviewReady: false,
+
+           showPdfFlipModal: false,
+
+           openShareDocModal: false,
+           checkedNotif: true,
+           msgNotif: '',
+           emailsDriveShare: [],
+
+           focusedItem: 'Drive', // => Drive || Rooms || Meet || Contacts
+           expanded: [],
+           expandedRoomItems: ['0'],
+
+           viewMode: 'list',
+
+           selectedRoomItems: ['0'],
+           openNewRoomModal: false,
+           newRoomTitle: '',
+           newRoomCheck1: false,
+           newRoomCheck2: true,
+           NewRoomEmails: [],
+           selectedRoom: '',
+           selectedRoomKey: 0,
+
+           textSearch: '',
+           searchSociete: '',
+           TimeSheet: {
+               newTime: {
+                   duree: '',
+                   client: '',
+                   categoriesActivite: 'Temps facturé',
+                   description: '',
+                   date: new Date(),
+                   utilisateurOA: '',
+                   rateFacturation: ''
+               }
+           },
+           lignesFactures: [],
+           lignef_template: '0',
+           TimeSheetData: [],
+           DashboardPerson: {
+               person: ''
+           },
+
+           openAdvancedSearchModal: false,
+           selectedClientTimeEntree: '',
+
+           showLignesFactureClient: false,
+           dateFacture: new Date(),
+
+           timeSuggestions: [],
+           timeSuggValue: '',
+
+           openNewDocModal: false,
+           openNewClientModal: false,
+
+           newClient: {
+               ID: '',
+               Nom: '',
+               Type: '0',
+               created_at: '',
+               country: '',
+               email: '',
+               phone: '',
+               isActif: true
+           },
+           newClientFolder: {
+               nom: '',
+               type: 'corporate',
+               team: []
+           },
+           lead_contact_tmp: '',
+           lead_contact_horaire_tmp: '',
+           team_contact_tmp: '',
+           clients_tempo: [],
+           clients_tempo_copie: [],
+
+           patients:[],
+
+           recettes:[],
+           percentage:"",
+           dataLength:"",
+           plat:{
+               dej:true,
+               dess:true
+
+           },
+           selectedRecette:"",
+           selectedRecetteIngredients:[]
+       };
+       this.getDataDashboard = this.getDataDashboard.bind(this)
+       this.sendBodyChekMail= this.sendBodyChekMail.bind(this)
+       this.getBodyCheckNl = this.getBodyCheckNl.bind(this)
+   }
 
   imageUpload = {};
   folderupload = {};
 
-  state = {
-    loading: true,
-    firstLoading: true,
 
-    openAlert: false,
-    alertMessage: '',
-    alertType: '',
-    openUploadToast: false,
-    uploadToastMessage: '',
-
-    anchorEl: null,
-    anchorElMenu: null,
-    anchorElContactsMenu: null,
-    openRightMenu: false,
-
-    selectedSieMenuItem: 'coffre',
-    openSideMenu: false,
-    showSecondSideBar: false,
-
-    showPDFModal: false,
-    pdfURL: '',
-
-    uploadedThumb: require('../../assets/icons/icon-pdf.png'),
-    uploadedName: '',
-
-    signDoc: 'true',
-    showBtnInviteSign: false,
-
-    signMySelf: true,
-    signatiaresEmails: [],
-    inviteEmails: [],
-    selectedSignatureType: { id: 'Swiss law (ZertES)', image: swissImg },
-
-    showUploadStep: '', //upload  // upload_succes // inviteSigners  // signForm  // successfulStep
-    selectedDoc: '',
-
-    folders: [],
-    reelFolders: [],
-    sharedDrive: [],
-    rootFiles: [],
-    rootFolders: [],
-    sharedRootFiles: [],
-
-    selectedFoldername: '',
-    breadcrumbs: '',
-    selectedFolder: '',
-    selectedFolderId: '',
-    selectedFile: '',
-    selectedFolderFiles: [],
-    selectedFolderFolders: [],
-
-    showNewDocScreen: false,
-
-    newFolderModal: false,
-
-    newFolderName: '',
-    newFolderFromRacine: false,
-    newFileFromRacine: false,
-    loadDocSpinner: false,
-
-    openDriveMenuItem: true,
-    openMeetMenuItem: false,
-    openMarketplaceMenuItem:false,
-    openRoomMenuItem: false,
-    openContactsMenu: false,
-    openSocietyMenuItem: false,
-    openTimeSheetsMenu: false,
-
-    showContainerSection: 'Drive',
-    selectedDriveItem: [],
-    expandedDriveItems: [],
-    autoExpandParent: true,
-    selectedMeetMenuItem: ['new'],
-    selectedMarketplaceMenuItem:['recettes'],
-    selectedSocietyMenuItem: ['clients_mondat'],
-    selectedContactsMenuItem: ['aia'],
-    selectedTimeSheetMenuItem: ['dashboard'],
-
-    selectedSociete: '',
-    selectedSocieteKey: '',
-
-    showInviteModal: false,
-    meetCode: '',
-    mondat: {
-      typeDossier: '',
-      DescriptionProjet: '',
-      DossierLBA: '',
-      PersonneChargePrincipale: {
-        prenom: '',
-        nom: '',
-        email: '',
-        telephone: '',
-        adresse: ''
-      },
-      PersonneChargeReglement: {
-        prenom: '',
-        nom: '',
-        email: '',
-        telephone: '',
-        adresse: ''
-      },
-      autrePartie: '',
-      contrePartie: '',
-      Apporteur: '',
-      collablead: '',
-      collabteam: [],
-      tauxHoraireCollab: '',
-      facturationClient: {
-        parEmail: true,
-        parCourrier: '',
-        frequence: '',
-        EnvoyeParSecretariat: '',
-        EnvoyeAvocat: '',
-        LangueFacturation: '',
-        Mode: ''
-      }
-    },
-    contacts: [],
-    societes: [],
-    annuaire_clients_mondat: [],
-    rooms: [],
-    openRightContactModalDetail: false,
-    openRightSocieteModalDetail: false,
-    selectedContact: '',
-    selectedContactKey: '',
-    editContactForm: false,
-    editSocieteForm: false,
-    showModalAdd: false,
-    add: '',
-    domaine: {
-      domaine: '',
-      specialite: []
-    },
-    formationTmp: '',
-    fonctionTmp: '',
-    parcourTmp: '',
-    langueTmp: '',
-    hobbiesTmp: '',
-    affiliationTmp: '',
-
-    showPdfPreviewModal: false,
-    isDocPreviewReady: false,
-
-    showPdfFlipModal: false,
-
-    openShareDocModal: false,
-    checkedNotif: true,
-    msgNotif: '',
-    emailsDriveShare: [],
-
-    focusedItem: 'Drive', // => Drive || Rooms || Meet || Contacts
-    expanded: [],
-    expandedRoomItems: ['0'],
-
-    viewMode: 'list',
-
-    selectedRoomItems: ['0'],
-    openNewRoomModal: false,
-    newRoomTitle: '',
-    newRoomCheck1: false,
-    newRoomCheck2: true,
-    NewRoomEmails: [],
-    selectedRoom: '',
-    selectedRoomKey: 0,
-
-    textSearch: '',
-    searchSociete: '',
-    TimeSheet: {
-      newTime: {
-        duree: '',
-        client: '',
-        categoriesActivite: 'Temps facturé',
-        description: '',
-        date: new Date(),
-        utilisateurOA: '',
-        rateFacturation: ''
-      }
-    },
-    lignesFactures: [],
-    lignef_template: '0',
-    TimeSheetData: [],
-    DashboardPerson: {
-      person: ''
-    },
-
-    openAdvancedSearchModal: false,
-    selectedClientTimeEntree: '',
-
-    showLignesFactureClient: false,
-    dateFacture: new Date(),
-
-    timeSuggestions: [],
-    timeSuggValue: '',
-
-    openNewDocModal: false,
-    openNewClientModal: false,
-
-    newClient: {
-      ID: '',
-      Nom: '',
-      Type: '0',
-      created_at: '',
-      country: '',
-      email: '',
-      phone: '',
-      isActif: true
-    },
-    newClientFolder: {
-      nom: '',
-      type: 'corporate',
-      team: []
-    },
-    lead_contact_tmp: '',
-    lead_contact_horaire_tmp: '',
-    team_contact_tmp: '',
-    clients_tempo: [],
-    clients_tempo_copie: [],
-
-    patients:[],
-
-    recettes:[],
-    percentage:"",
-    dataLength:"",
-    plat:{
-      dej:true,
-      dess:true
-
-    },
-    selectedRecette:"",
-    selectedRecetteIngredients:[]
-  };
 
   verifFolders(folders){
 
@@ -538,7 +552,64 @@ export default class Main extends React.Component {
 
   }
 
+    getDataDashboard(email){
 
+      fetch('http://34.250.15.8/api/questionbyEmail/'+email.trim(),{
+          method:'GET',
+
+      }).then((res)=>res.json()).then((result)=>{
+          if(result.length!==0){
+              this.setState({patientData:result[0]})
+              console.log(result[0])
+
+          }
+      })
+    }
+
+    getBodyCheckNl(email){
+
+      this.setState({bodyCheck:""})
+        fetch('http://34.250.15.8/api/BodyCheckByEmail/'+email.trim(),{
+            method:'GET',
+
+        }).then((res)=>res.json()).then((result)=>{
+            if(result.length!==0){
+                QuestionService.getBodyCheckdata(email).then((databd)=>{
+                    this.setState({bodyCheck:databd.data})
+                })
+
+
+            }
+        })
+
+    }
+
+    sendBodyChekMail(email){
+        let dd={
+            emailReciver:email,
+            subject:"bodycheckNL",
+            linkUrl :"Click ici ",
+            url:"http://localhost:3000/bodycheck", // à chnagé par l'address prod de brainyfood
+            msg:"Body Check Quizz NL",
+            footerMsg : "merci"
+        }
+
+        fetch('http://34.250.15.8/api/sendCustomMailWithUrl', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify(dd)
+        }).then(response => response.json()).then((res)=>{
+            if (res.status===200){
+                this.openSnackbar('success',
+                    'Un Mail a été envoyé avec succès')
+            }
+        }).catch(error => {
+            console.log(error);
+        })
+    }
 
   componentDidMount() {
 
@@ -5867,6 +5938,9 @@ export default class Main extends React.Component {
                           this.state.loading === false && this.state.firstLoading === false &&
                               <TablePatientsBrainy
                                   patients={this.state.patients}
+                                  bodycheck={this.sendBodyChekMail}
+                                  bodycheckNl={this.getBodyCheckNl}
+                                  getDataDashboard={this.getDataDashboard}
                                   onEditClick={(societe, key) => {
                                     this.setState({
                                       selectedSociete: societe,
@@ -5964,6 +6038,8 @@ export default class Main extends React.Component {
                                       <TabList>
                                       <Tab>Informations générales</Tab>
                                       <Tab>Ouverture mandat </Tab>
+                                        <Tab>Dashboard </Tab>
+                                          <Tab>Bodycheck</Tab>
                                     </TabList>
                                       <TabPanel>
                                         <h5 style={{ marginTop: 20 }}>Informations générales</h5>
@@ -6591,6 +6667,1154 @@ export default class Main extends React.Component {
                                                                                     </div>*/}
                                         </div>
                                       </TabPanel>
+                                      <TabPanel>
+                                          {this.state.patientData!==""&&
+                                          <div style={{marginTop: 30}} className="text-left">
+                                              <Tabs className="text-center">
+                                                  <TabList>
+                                                      <Tab >
+                                                          Ma fiche perso
+                                                      </Tab>
+
+                                                      <Tab>
+                                                          Activité physique
+                                                      </Tab>
+                                                      <Tab>
+                                                          Habitudes
+                                                      </Tab>
+                                                      <Tab>
+                                                          Objectifs
+                                                      </Tab>
+                                                      <Tab>
+                                                          Coeur
+                                                      </Tab>
+                                                      <Tab>
+                                                          Pb santé
+                                                      </Tab>
+
+                                                  </TabList>
+                                                  <TabPanel>
+                                                      <div className="row align-items-start" >
+                                                          <div className="col-md-5">
+                                                              <div className="text-left mt-5">
+                                                                  <div className="row justify-content-start">
+                                                                      <div className="col-md-6">
+                                                                          <h4 className="font-weight-bold">{this.state.selectedSociete.resource.name[0].family + " "+this.state.selectedSociete.resource.name[0].given[0]}</h4>
+
+                                                                      </div>
+                                                                      <div className="col-md-2">
+                                                                          <text>{this.state.patientData.taille}</text>
+                                                                      </div>
+
+                                                                  </div>
+                                                              </div>
+                                                              <div className="text-left mt-3">
+                                                                  <div className="row justify-content-start">
+                                                                      <div className="col-md-6">
+                                                                          <h4 className="font-weight-bold">Née le 29-04-1995</h4>
+
+                                                                      </div>
+                                                                      <div className="col-md-2">
+                                                                          <text>{this.state.patientData.poids +" kg"} </text>
+                                                                      </div>
+
+                                                                  </div>
+                                                              </div>
+                                                              <div className="text-left mt-3">
+                                                                  <div className="row justify-content-start align-items-center">
+                                                                      <div className="col-md-6">
+                                                                          <h4 className="font-weight-bold">Mon age </h4>
+
+                                                                      </div>
+                                                                      <div className="col-md-2 " style={{backgroundColor:"#ff0000"}}>
+                                                                          <text style={{color:"white"}}>{this.state.patientData.age} ans </text>
+                                                                      </div>
+
+                                                                  </div>
+                                                              </div>
+                                                          </div>
+                                                          <div className="col-md-7">
+                                                              <Tabs>
+                                                                  <TabList>
+                                                                      <Tab>
+                                                                          Mes Mensuration
+                                                                      </Tab>
+                                                                      <Tab>
+                                                                          Mes Mensuration
+                                                                      </Tab>
+                                                                      <Tab>
+                                                                          Mes Mensuration
+                                                                      </Tab>
+                                                                      <Tab>
+                                                                          Mes Mensuration
+                                                                      </Tab>
+
+                                                                  </TabList>
+                                                                  <TabPanel>
+                                                                      <div className="row ">
+
+                                                                          <div className="col-md-6 ">
+                                                                              <img src={bodyHomme} style={{width:"100%"}}/>
+
+                                                                          </div>
+                                                                          <div className="col-md-6 p-1" style={{borderColor:"black",borderStyle:"solid",borderRadius:8,borderWidth:0.8}}>
+                                                                              <div className="row align-items-center">
+                                                                                  <div className="col-md-2">
+                                                                                      <IconButton>
+                                                                                          <img src={back} style={{width:25}}/>
+
+                                                                                      </IconButton>
+                                                                                  </div>
+                                                                                  <div className="col-md-5">
+                                                                                      <Button  variant="contained" color="primary">
+                                                                                          Janvier 2020
+                                                                                      </Button>
+
+                                                                                  </div>
+                                                                                  <div className="col-md-5">
+                                                                                      <Button variant="contained" color="primary">
+                                                                                          Juin 2020
+                                                                                      </Button>
+
+                                                                                  </div>
+                                                                              </div>
+
+                                                                              <div style={{marginTop:"20%"}}>
+
+                                                                                  <div className="row ">
+                                                                                      <div className="col-md-6">
+                                                                                          <FormControl fullWidth  variant="outlined">
+                                                                                              <InputLabel htmlFor="outlined-adornment-amount">Taille vendre</InputLabel>
+                                                                                              <OutlinedInput
+                                                                                                  id="outlined-adornment-amount"
+                                                                                                  value=""
+                                                                                                  endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                  labelWidth={60}
+                                                                                              />
+                                                                                          </FormControl>
+                                                                                      </div>
+                                                                                      <div className="col-md-6">
+                                                                                          <FormControl fullWidth  variant="outlined">
+                                                                                              <InputLabel htmlFor="outlined-adornment-amount">Taille vendre</InputLabel>
+                                                                                              <OutlinedInput
+                                                                                                  id="outlined-adornment-amount"
+                                                                                                  value=""
+                                                                                                  endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                  labelWidth={60}
+                                                                                              />
+                                                                                          </FormControl>
+
+                                                                                      </div>
+                                                                                  </div>
+                                                                                  <div className="row mt-2">
+                                                                                      <div className="col-md-6">
+                                                                                          <FormControl fullWidth  variant="outlined">
+                                                                                              <InputLabel htmlFor="outlined-adornment-amount">Hanche</InputLabel>
+                                                                                              <OutlinedInput
+                                                                                                  id="outlined-adornment-amount"
+                                                                                                  value=""
+                                                                                                  endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                  labelWidth={60}
+                                                                                              />
+                                                                                          </FormControl>
+                                                                                      </div>
+                                                                                      <div className="col-md-6">
+                                                                                          <FormControl fullWidth  variant="outlined">
+                                                                                              <InputLabel htmlFor="outlined-adornment-amount">Hanche</InputLabel>
+                                                                                              <OutlinedInput
+                                                                                                  id="outlined-adornment-amount"
+                                                                                                  value=""
+                                                                                                  endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                  labelWidth={60}
+                                                                                              />
+                                                                                          </FormControl>
+
+                                                                                      </div>
+                                                                                  </div>
+                                                                                  <div className="row mt-2">
+                                                                                      <div className="col-md-6">
+                                                                                          <FormControl fullWidth  variant="outlined">
+                                                                                              <InputLabel htmlFor="outlined-adornment-amount">Cuisse droite</InputLabel>
+                                                                                              <OutlinedInput
+                                                                                                  id="outlined-adornment-amount"
+                                                                                                  value=""
+                                                                                                  endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                  labelWidth={60}
+                                                                                              />
+                                                                                          </FormControl>
+                                                                                      </div>
+                                                                                      <div className="col-md-6">
+                                                                                          <FormControl fullWidth  variant="outlined">
+                                                                                              <InputLabel htmlFor="outlined-adornment-amount">Cuisse droite</InputLabel>
+                                                                                              <OutlinedInput
+                                                                                                  id="outlined-adornment-amount"
+                                                                                                  value=""
+                                                                                                  endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                  labelWidth={60}
+                                                                                              />
+                                                                                          </FormControl>
+
+                                                                                      </div>
+                                                                                  </div>
+                                                                              </div>
+
+                                                                          </div>
+
+
+                                                                      </div>
+
+                                                                      <div className="mt-2">
+                                                                          <h4>
+                                                                              Evolution de mes mensurations
+
+                                                                          </h4>
+
+                                                                      </div>
+
+                                                                      <div>
+                                                                          <Line data={ data}
+                                                                          />
+                                                                      </div>
+                                                                  </TabPanel>
+                                                                  <TabPanel>
+                                                                      <div className="row ">
+
+                                                                          <div className="col-md-6  text-center">
+                                                                              <img src={bascule} style={{width:"50%"}}/>
+
+
+                                                                          </div>
+                                                                          <div className="col-md-6 p-1" style={{borderColor:"black",borderStyle:"solid",borderRadius:8,borderWidth:0.8}}>
+                                                                              <div className="row align-items-center">
+                                                                                  <div className="col-md-2">
+                                                                                      <IconButton>
+                                                                                          <img src={back} style={{width:25}}/>
+
+                                                                                      </IconButton>
+                                                                                  </div>
+                                                                                  <div className="col-md-5">
+                                                                                      <Button  variant="contained" color="primary">
+                                                                                          Janvier 2020
+                                                                                      </Button>
+
+                                                                                  </div>
+                                                                                  <div className="col-md-5">
+                                                                                      <Button variant="contained" color="primary">
+                                                                                          Juin 2020
+                                                                                      </Button>
+
+                                                                                  </div>
+                                                                              </div>
+
+                                                                              <div style={{marginTop:"20%"}}>
+
+
+                                                                                  <div className="row mt-2">
+                                                                                      <div className="col-md-6">
+                                                                                          <FormControl fullWidth  variant="outlined">
+                                                                                              <InputLabel htmlFor="outlined-adornment-amount">Poids</InputLabel>
+                                                                                              <OutlinedInput
+                                                                                                  id="outlined-adornment-amount"
+                                                                                                  value=""
+                                                                                                  endAdornment ={<InputAdornment position="end">Kg</InputAdornment>}
+                                                                                                  labelWidth={60}
+                                                                                              />
+                                                                                          </FormControl>
+                                                                                      </div>
+                                                                                      <div className="col-md-6">
+                                                                                          <FormControl fullWidth  variant="outlined">
+                                                                                              <InputLabel htmlFor="outlined-adornment-amount">Poids</InputLabel>
+                                                                                              <OutlinedInput
+                                                                                                  id="outlined-adornment-amount"
+                                                                                                  value=""
+                                                                                                  endAdornment ={<InputAdornment position="end">Kg</InputAdornment>}
+                                                                                                  labelWidth={60}
+                                                                                              />
+                                                                                          </FormControl>
+
+                                                                                      </div>
+                                                                                  </div>
+                                                                              </div>
+
+                                                                          </div>
+
+
+                                                                      </div>
+
+                                                                      <div className="mt-2">
+                                                                          <h4>
+                                                                              Evolution de mes mensurations
+
+                                                                          </h4>
+
+                                                                      </div>
+
+                                                                      <div>
+                                                                          <Line data={ data}
+                                                                          />
+                                                                      </div>
+                                                                  </TabPanel>
+                                                              </Tabs>
+
+                                                          </div>
+                                                      </div>
+
+
+                                                  </TabPanel>
+
+                                                  <TabPanel>
+                                                      <div className="col-md-12 text-left mt-5">
+                                                          <div>
+                                                              <text className="font-weight-bold" style={{fontSize:"1.2vw"}}>
+                                                                  Habitudes sportives
+                                                              </text>
+
+                                                          </div>
+                                                          <div className="row align-items-center mt-3 justify-content-start">
+                                                              <div className="col-md-4 " >
+                                                                  <text >
+                                                                      Activité sportive par jours
+                                                                  </text>
+
+                                                              </div>
+                                                              <div className="col-md-4 text-center " style={{backgroundColor:"#ff0000"}}>
+                                                                  <text style={{color:"white"}}>
+                                                                      {this.state.patientData.activite_sportive}
+                                                                  </text>
+
+                                                              </div>
+                                                              <div className="col-md-1">
+                                                                  <img src={edit} style={{width:20}}/>
+                                                              </div>
+                                                          </div>
+                                                          <div className="row align-items-center mt-3 justify-content-start">
+                                                              <div className="col-md-4 " >
+                                                                  <text >
+                                                                      Activité physique par jours
+                                                                  </text>
+
+                                                              </div>
+                                                              <div className="col-md-4 text-center " style={{backgroundColor:"#ff0000"}}>
+                                                                  <text style={{color:"white"}}>
+                                                                      {this.state.patientData.activite_physique}
+                                                                  </text>
+
+                                                              </div>
+                                                              <div className="col-md-1">
+                                                                  <img src={edit} style={{width:20}}/>
+                                                              </div>
+                                                          </div>
+
+                                                      </div>
+                                                  </TabPanel>
+                                                  <TabPanel>
+                                                      <div  className="row align-items-center mt-3">
+                                                          <div className="col-md-2 text-left">
+                                                              <text>
+                                                                  How much Pensez-vous expérimenter du stress ?
+                                                              </text>
+
+                                                          </div>
+                                                          <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
+                                                              <text style={{color:"white"}}>
+                                                                  {this.state.patientData.stress}
+                                                              </text>
+
+                                                          </div>
+                                                          <div className="col-md-1 ">
+                                                              <img src={edit} style={{width:20}}/>
+                                                          </div>
+                                                      </div>
+                                                      <div  className="row align-items-center mt-3">
+                                                          <div className="col-md-2 text-left">
+                                                              <text>
+                                                                  Habitudes alimentaires
+                                                              </text>
+
+                                                          </div>
+                                                          <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
+                                                              <text style={{color:"white"}}>
+                                                                  {this.state.patientData.habitude_alim}
+                                                              </text>
+
+                                                          </div>
+                                                          <div className="col-md-1 ">
+                                                              <img src={edit} style={{width:20}}/>
+                                                          </div>
+                                                      </div>
+                                                      <div  className="row align-items-start mt-3">
+                                                          <div className="col-md-2 text-left">
+                                                              <div>
+                                                                  <text >
+                                                                      Y-a-t-il des aliments que vous ne consommez pas ?
+                                                                  </text>
+                                                              </div>
+
+
+                                                          </div>
+                                                          <div className="col-md-3 text-center" >
+                                                              <div className="row justify-content-start">
+                                                                  <div  className="col-md-9" style={{padding:10,borderStyle:"solid",borderColor:"#ff0000",borderWidth:0.5,borderRadius:10}}>
+                                                                      <text style={{color:"#ff0000"}}>
+                                                                          {this.state.patientData.complement_alimentaire}
+                                                                      </text>
+
+
+                                                                  </div>
+                                                                  <div className="col-md-1 ">
+                                                                      <img src={edit} style={{width:20}}/>
+                                                                  </div>
+                                                              </div>
+
+
+                                                          </div>
+
+                                                      </div>
+                                                      <div  className="row align-items-center mt-3">
+                                                          <div className="col-md-2 text-left">
+                                                              <text>
+                                                                  lequels ?
+                                                              </text>
+
+                                                          </div>
+                                                          <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
+                                                              <text style={{color:"white"}}>
+                                                                  {this.state.patientData.lequels}
+                                                              </text>
+
+                                                          </div>
+                                                          <div className="col-md-1 ">
+                                                              <img src={edit} style={{width:20}}/>
+                                                          </div>
+                                                      </div>
+                                                      <div  className="row align-items-center mt-3">
+                                                          <div className="col-md-2 text-left">
+                                                              <text>
+                                                                  "What's your ethnicity?"
+                                                              </text>
+
+                                                          </div>
+                                                          <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
+                                                              <text style={{color:"white"}}>
+                                                                  {this.state.patientData.ethnicity}
+                                                              </text>
+
+                                                          </div>
+                                                          <div className="col-md-1 ">
+                                                              <img src={edit} style={{width:20}}/>
+                                                          </div>
+                                                      </div>
+                                                  </TabPanel>
+                                                  <TabPanel>
+                                                      <div className="row align-items-center mt-5">
+                                                          <div className="col-md-3 text-left">
+                                                              <text>
+                                                                  Quels sont vos objectifs pour votre programme 1Food1Me ?
+                                                              </text>
+
+                                                          </div>
+                                                          <div className="col-md-2 text-center p-1" style={{backgroundColor:"#ff0000"}}>
+                                                              <text style={{color:"white"}}>
+                                                                  {this.state.patientData.objectif}
+                                                              </text>
+
+                                                          </div>
+                                                          <div className="col-md-1 ">
+                                                              <img src={edit} style={{width:20}}/>
+                                                          </div>
+
+                                                      </div>
+
+                                                  </TabPanel>
+                                                  <TabPanel>
+                                                      le statistique de client indisponible pour le moment
+                                                  </TabPanel>
+
+                                              </Tabs>
+                                          </div>
+
+                                          }
+
+                                      </TabPanel>
+                                        <TabPanel>
+                                            {this.state.bodyCheck!==""&&
+                                            <div>
+                                                <div style={{marginTop: 30}} className="text-left">
+                                                    <Tabs className="text-center">
+                                                        <TabList>
+                                                            <Tab >
+                                                                Ma fiche perso
+                                                            </Tab>
+                                                            <Tab>
+                                                                Moi et la Cuisine
+                                                            </Tab>
+                                                            <Tab>
+                                                                Activité physique
+                                                            </Tab>
+                                                            <Tab>
+                                                                Habitudes
+                                                            </Tab>
+                                                            <Tab>
+                                                                Objectifs
+                                                            </Tab>
+                                                            <Tab>
+                                                                Pb santé
+                                                            </Tab>
+
+                                                        </TabList>
+                                                        <TabPanel>
+                                                            {this.state.bodycheck!==""&&
+                                                            <div className="row align-items-start" >
+                                                                <div className="col-md-5">
+                                                                    <div className="text-left mt-5">
+                                                                        <div className="row justify-content-start">
+                                                                            <div className="col-md-6">
+                                                                                <h4 className="font-weight-bold"></h4>
+
+                                                                            </div>
+                                                                            <div className="col-md-2">
+                                                                                <text></text>
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="text-left mt-3">
+                                                                        <div className="row justify-content-start">
+                                                                            <div className="col-md-6">
+                                                                                <h4 className="font-weight-bold"></h4>
+
+                                                                            </div>
+                                                                            <div className="col-md-2">
+                                                                                <text>{this.state.bodyCheck.objectif.poids} Kg</text>
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="text-left mt-3">
+                                                                        <div className="row justify-content-start align-items-center">
+                                                                            <div className="col-md-6">
+                                                                                <h4 className="font-weight-bold">Mon age </h4>
+
+                                                                            </div>
+                                                                            <div className="col-md-2 " style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>{this.state.bodyCheck.objectif.age} ans </text>
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="col-md-7">
+                                                                    <Tabs>
+                                                                        <TabList>
+                                                                            <Tab>
+                                                                                Mes Mensuration
+                                                                            </Tab>
+                                                                            <Tab>
+                                                                                Mes Mensuration
+                                                                            </Tab>
+                                                                            <Tab>
+                                                                                Mes Mensuration
+                                                                            </Tab>
+                                                                            <Tab>
+                                                                                Mes Mensuration
+                                                                            </Tab>
+
+                                                                        </TabList>
+                                                                        <TabPanel>
+                                                                            <div className="row ">
+
+                                                                                <div className="col-md-6 ">
+                                                                                    <img src={bodyHomme} style={{width:"100%"}}/>
+
+                                                                                </div>
+                                                                                <div className="col-md-6 p-1" style={{borderColor:"black",borderStyle:"solid",borderRadius:8,borderWidth:0.8}}>
+                                                                                    <div className="row align-items-center">
+                                                                                        <div className="col-md-2">
+                                                                                            <IconButton>
+                                                                                                <img src={back} style={{width:25}}/>
+
+                                                                                            </IconButton>
+                                                                                        </div>
+                                                                                        <div className="col-md-5">
+                                                                                            <Button  variant="contained" color="primary">
+                                                                                                Janvier 2020
+                                                                                            </Button>
+
+                                                                                        </div>
+                                                                                        <div className="col-md-5">
+                                                                                            <Button variant="contained" color="primary">
+                                                                                                Juin 2020
+                                                                                            </Button>
+
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <div style={{marginTop:"20%"}}>
+
+                                                                                        <div className="row ">
+                                                                                            <div className="col-md-6">
+                                                                                                <FormControl fullWidth  variant="outlined">
+                                                                                                    <InputLabel htmlFor="outlined-adornment-amount">Taille vendre</InputLabel>
+                                                                                                    <OutlinedInput
+                                                                                                        id="outlined-adornment-amount"
+                                                                                                        value=""
+                                                                                                        endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                        labelWidth={60}
+                                                                                                    />
+                                                                                                </FormControl>
+                                                                                            </div>
+                                                                                            <div className="col-md-6">
+                                                                                                <FormControl fullWidth  variant="outlined">
+                                                                                                    <InputLabel htmlFor="outlined-adornment-amount">Taille vendre</InputLabel>
+                                                                                                    <OutlinedInput
+                                                                                                        id="outlined-adornment-amount"
+                                                                                                        value=""
+                                                                                                        endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                        labelWidth={60}
+                                                                                                    />
+                                                                                                </FormControl>
+
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div className="row mt-2">
+                                                                                            <div className="col-md-6">
+                                                                                                <FormControl fullWidth  variant="outlined">
+                                                                                                    <InputLabel htmlFor="outlined-adornment-amount">Hanche</InputLabel>
+                                                                                                    <OutlinedInput
+                                                                                                        id="outlined-adornment-amount"
+                                                                                                        value=""
+                                                                                                        endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                        labelWidth={60}
+                                                                                                    />
+                                                                                                </FormControl>
+                                                                                            </div>
+                                                                                            <div className="col-md-6">
+                                                                                                <FormControl fullWidth  variant="outlined">
+                                                                                                    <InputLabel htmlFor="outlined-adornment-amount">Hanche</InputLabel>
+                                                                                                    <OutlinedInput
+                                                                                                        id="outlined-adornment-amount"
+                                                                                                        value=""
+                                                                                                        endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                        labelWidth={60}
+                                                                                                    />
+                                                                                                </FormControl>
+
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div className="row mt-2">
+                                                                                            <div className="col-md-6">
+                                                                                                <FormControl fullWidth  variant="outlined">
+                                                                                                    <InputLabel htmlFor="outlined-adornment-amount">Cuisse droite</InputLabel>
+                                                                                                    <OutlinedInput
+                                                                                                        id="outlined-adornment-amount"
+                                                                                                        value=""
+                                                                                                        endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                        labelWidth={60}
+                                                                                                    />
+                                                                                                </FormControl>
+                                                                                            </div>
+                                                                                            <div className="col-md-6">
+                                                                                                <FormControl fullWidth  variant="outlined">
+                                                                                                    <InputLabel htmlFor="outlined-adornment-amount">Cuisse droite</InputLabel>
+                                                                                                    <OutlinedInput
+                                                                                                        id="outlined-adornment-amount"
+                                                                                                        value=""
+                                                                                                        endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                                                                        labelWidth={60}
+                                                                                                    />
+                                                                                                </FormControl>
+
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                </div>
+
+
+                                                                            </div>
+
+                                                                            <div className="mt-2">
+                                                                                <h4>
+                                                                                    Evolution de mes mensurations
+
+                                                                                </h4>
+
+                                                                            </div>
+
+                                                                            <div>
+                                                                                <Line data={ data}
+                                                                                />
+                                                                            </div>
+                                                                        </TabPanel>
+                                                                        <TabPanel>
+                                                                            <div className="row ">
+
+                                                                                <div className="col-md-6  text-center">
+                                                                                    <img src={bascule} style={{width:"50%"}}/>
+
+
+                                                                                </div>
+                                                                                <div className="col-md-6 p-1" style={{borderColor:"black",borderStyle:"solid",borderRadius:8,borderWidth:0.8}}>
+                                                                                    <div className="row align-items-center">
+                                                                                        <div className="col-md-2">
+                                                                                            <IconButton>
+                                                                                                <img src={back} style={{width:25}}/>
+
+                                                                                            </IconButton>
+                                                                                        </div>
+                                                                                        <div className="col-md-5">
+                                                                                            <Button  variant="contained" color="primary">
+                                                                                                Janvier 2020
+                                                                                            </Button>
+
+                                                                                        </div>
+                                                                                        <div className="col-md-5">
+                                                                                            <Button variant="contained" color="primary">
+                                                                                                Juin 2020
+                                                                                            </Button>
+
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <div style={{marginTop:"20%"}}>
+
+
+                                                                                        <div className="row mt-2">
+                                                                                            <div className="col-md-6">
+                                                                                                <FormControl fullWidth  variant="outlined">
+                                                                                                    <InputLabel htmlFor="outlined-adornment-amount">Poids</InputLabel>
+                                                                                                    <OutlinedInput
+                                                                                                        id="outlined-adornment-amount"
+                                                                                                        value=""
+                                                                                                        endAdornment ={<InputAdornment position="end">Kg</InputAdornment>}
+                                                                                                        labelWidth={60}
+                                                                                                    />
+                                                                                                </FormControl>
+                                                                                            </div>
+                                                                                            <div className="col-md-6">
+                                                                                                <FormControl fullWidth  variant="outlined">
+                                                                                                    <InputLabel htmlFor="outlined-adornment-amount">Poids</InputLabel>
+                                                                                                    <OutlinedInput
+                                                                                                        id="outlined-adornment-amount"
+                                                                                                        value=""
+                                                                                                        endAdornment ={<InputAdornment position="end">Kg</InputAdornment>}
+                                                                                                        labelWidth={60}
+                                                                                                    />
+                                                                                                </FormControl>
+
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                </div>
+
+
+                                                                            </div>
+
+                                                                            <div className="mt-2">
+                                                                                <h4>
+                                                                                    Evolution de mes mensurations
+
+                                                                                </h4>
+
+                                                                            </div>
+
+                                                                            <div>
+                                                                                <Line data={ data}
+                                                                                />
+                                                                            </div>
+                                                                        </TabPanel>
+                                                                    </Tabs>
+
+                                                                </div>
+                                                            </div>
+                                                            }
+
+
+
+                                                        </TabPanel>
+                                                        <TabPanel>
+                                                            <div className="row align-items-start mt-3">
+                                                                <div className="col-md-6 text-left">
+                                                                    <div>
+                                                                        <text style={{fontWeight:"bold",fontSize:"1.2vw"}}>
+                                                                            Généraliste
+                                                                        </text>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-4">
+                                                                                <text className="font-weight-bold">
+                                                                                    Souhait sur Cuisine
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.alimentation1}
+                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-4">
+                                                                                <text className="font-weight-bold">
+                                                                                    Mon alimentation est
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.alimentation2}
+                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-4">
+                                                                                <text className="font-weight-bold">
+                                                                                    Mon budget alimentaire
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.budget_alimen}                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-4">
+                                                                                <text className="font-weight-bold">
+                                                                                    Est ce que vous grignotez :
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.vous_grignotez}
+                                                                                </text>
+
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-4">
+                                                                                <text className="font-weight-bold">
+                                                                                    Vous sautez des repas ?
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.saute_repas}
+                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-4">
+                                                                                <text className="font-weight-bold">
+                                                                                    Lequel ?
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.oui_lequel}
+                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                </div>
+                                                                <div className="col-md-6">
+                                                                    <div className="text-left">
+                                                                        <text style={{fontWeight:"bold",fontSize:"1.2vw"}}>
+                                                                            Habitudes alimentaires actuelles
+                                                                        </text>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-5 text-left">
+                                                                                <text className="font-weight-bold">
+                                                                                    Les Féculents pour moi, c’est :
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.consom_feculent}
+                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-5 text-left">
+                                                                                <text className="font-weight-bold">
+                                                                                    Les fruits , c’est :
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.consom_fruit}
+                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-5 text-left">
+                                                                                <text className="font-weight-bold">
+                                                                                    La viande, poisson, c’est
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.consom_viande}
+                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-5 text-left">
+                                                                                <text className="font-weight-bold">
+                                                                                    Les produits laitiers, c’est
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.consom_laitiers}
+
+                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-5 text-left">
+                                                                                <text className="font-weight-bold">
+                                                                                    La consommation produit gras
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.consom_prod_gras}
+
+                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-5 text-left">
+                                                                                <text className="font-weight-bold">
+                                                                                    Les produits sucrés c’est
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.consom_prod_sucre}
+
+                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div className="row justify-content-start mt-3">
+                                                                            <div className="col-md-5 text-left">
+                                                                                <text className="font-weight-bold">
+                                                                                    La consommation d’alcool c’est:
+                                                                                </text>
+                                                                            </div>
+                                                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
+                                                                                <text style={{color:"white"}}>
+                                                                                    {this.state.bodyCheck.question.consom_alcool}
+
+                                                                                </text>
+
+                                                                            </div>
+                                                                            <div className="col-md-1">
+                                                                                <img src={edit} style={{width:"100%"}}/>
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </TabPanel>
+                                                        <TabPanel>
+                                                            <div className="col-md-12 text-left mt-5">
+                                                                <div>
+                                                                    <text className="font-weight-bold" style={{fontSize:"1.2vw"}}>
+                                                                        Habitudes sportives
+                                                                    </text>
+
+                                                                </div>
+                                                                <div className="row align-items-center mt-3 justify-content-start">
+                                                                    <div className="col-md-4 " >
+                                                                        <text >
+                                                                            Par jour, vous faite 30 min d'activités
+                                                                        </text>
+
+                                                                    </div>
+                                                                    <div className="col-md-4 text-center " style={{backgroundColor:"#2eba5f"}}>
+                                                                        <text style={{color:"white"}}>
+                                                                            {this.state.bodyCheck.question.activite_jour}
+
+                                                                        </text>
+
+                                                                    </div>
+                                                                    <div className="col-md-1">
+                                                                        <img src={edit} style={{width:20}}/>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="row align-items-center mt-3 justify-content-start">
+                                                                    <div className="col-md-4">
+                                                                        <text>
+                                                                            Par semaine, l’activité sportive c’est :
+                                                                        </text>
+
+                                                                    </div>
+                                                                    <div className="col-md-4 text-center" style={{backgroundColor:"#2eba5f"}}>
+                                                                        <text style={{color:"white"}}>
+                                                                            {this.state.bodyCheck.question.heure_sport}
+
+                                                                        </text>
+
+                                                                    </div>
+                                                                    <div className="col-md-1">
+                                                                        <img src={edit} style={{width:20}}/>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </TabPanel>
+                                                        <TabPanel>
+                                                            <div  className="row align-items-center mt-3">
+                                                                <div className="col-md-2 text-left">
+                                                                    <text>
+                                                                        Travail en heure décalée
+                                                                    </text>
+
+                                                                </div>
+                                                                <div className="col-md-2 text-center" style={{backgroundColor:"#2eba5f"}}>
+                                                                    <text style={{color:"white"}}>
+                                                                        {this.state.bodyCheck.question.travaill_horraire_decale}
+
+                                                                    </text>
+
+                                                                </div>
+                                                                <div className="col-md-1 ">
+                                                                    <img src={edit} style={{width:20}}/>
+                                                                </div>
+                                                            </div>
+                                                            <div  className="row align-items-center mt-3">
+                                                                <div className="col-md-2 text-left">
+                                                                    <text>
+                                                                        Mon principale problème :
+                                                                    </text>
+
+                                                                </div>
+                                                                <div className="col-md-2 text-center" style={{backgroundColor:"#2eba5f"}}>
+                                                                    <text style={{color:"white"}}>
+                                                                        {this.state.bodyCheck.question.probleme_de}
+
+                                                                    </text>
+
+                                                                </div>
+                                                                <div className="col-md-1 ">
+                                                                    <img src={edit} style={{width:20}}/>
+                                                                </div>
+                                                            </div>
+
+                                                            <div  className="row align-items-center mt-3">
+                                                                <div className="col-md-2 text-left">
+                                                                    <text>
+                                                                        Est ce que je fumes ?
+                                                                    </text>
+
+                                                                </div>
+                                                                <div className="col-md-2 text-center" style={{backgroundColor:"#2eba5f"}}>
+                                                                    <text style={{color:"white"}}>
+                                                                        {this.state.bodyCheck.objectif.fumer_reg}
+                                                                    </text>
+
+                                                                </div>
+                                                                <div className="col-md-1 ">
+                                                                    <img src={edit} style={{width:20}}/>
+                                                                </div>
+                                                            </div>
+                                                        </TabPanel>
+                                                        <TabPanel>
+                                                            <div className="row align-items-center mt-5">
+                                                                <div className="col-md-3 text-left">
+                                                                    <text>
+                                                                        Mon objectif principale
+                                                                    </text>
+
+                                                                </div>
+                                                                <div className="col-md-2 text-center p-1" style={{backgroundColor:"#2eba5f"}}>
+                                                                    <text style={{color:"white"}}>
+                                                                        {this.state.bodyCheck.question.objectif}
+
+                                                                    </text>
+
+                                                                </div>
+                                                                <div className="col-md-1 ">
+                                                                    <img src={edit} style={{width:20}}/>
+                                                                </div>
+
+                                                            </div>
+
+                                                        </TabPanel>
+                                                    </Tabs>
+                                                </div>
+                                            </div>
+                                            }
+
+                                        </TabPanel>
+
                                     </Tabs>
                                   </div>
                                 </div>
@@ -7494,7 +8718,7 @@ export default class Main extends React.Component {
                                             <div
                                               className="row align-items-center justify-content-start">
                                               <h3 className="font-weight-bold">This Week : </h3>
-                                              <h3>08 - 14 may 2017</h3>
+                                              <h3 style={{marginTop:-10,marginLeft:10}}>08 - 14 may 2017</h3>
                                             </div>
                                           </div>
                                           <div

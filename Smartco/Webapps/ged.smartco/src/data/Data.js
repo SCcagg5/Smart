@@ -21,12 +21,12 @@ let Data = {
     MeetMenuItem : [
         {
             nodeId:"new",
-            title:"Démarer une réunion",
+            title:"Démarrer une réunion",
             icon:VideoCallIcon
         },
         {
             nodeId:"rejoin",
-            title:"Réjoindre une réunion",
+            title:"Rejoindre une réunion",
             icon:MeetingRoomIcon
         },
     ],
@@ -52,7 +52,7 @@ let Data = {
     ContactsMenuItem : [
         {
             nodeId:"aia",
-            title:"Annuaire in & alliance",
+            title:"Détails",
             icon:PeopleAltIcon
         }
         /*{
@@ -65,7 +65,7 @@ let Data = {
     TimeSheetMenuItem : [
         {
             nodeId:"activities",
-            title:"Activities",
+            title:"Activités",
             icon:VideoCallIcon
         }
         /*{
@@ -387,6 +387,19 @@ let Data = {
 
     timeSuggestions: [
         "0:10","0:15","0:20","0:30","0:40","0:50","0:60","0:70","0:80","0:90","1","1:5","2","2:5","3","3:5","4","4:5","5"
+    ],
+
+    lf_templates:[
+        {value:"0",label:"Date seulement"},
+        {value:"1",label:"Date + Description"},
+        {value:"2",label:"Date + Nom avocat"},
+        {value:"3",label:"Date + Description + Nom avocat"},
+        {value:"4",label:"Description seulemnt"},
+        {value:"5",label:"Nom avocat seulemnt"},
+        {value:"6",label:"Nombre d'heures seulemnt"},
+        {value:"7",label:"Description + Nom avocat"},
+        {value:"8",label:"Description + Nombre d'heures"},
+        {value:"9",label:"Description + Nom avocat + Nombre d'heures"},
     ]
 }
 export default Data;

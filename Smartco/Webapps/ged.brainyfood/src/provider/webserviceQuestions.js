@@ -1,4 +1,4 @@
-const endpoint = process.env.REACT_APP_endpoint;
+const endpoint = "http://34.250.15.8/api/"
 
 let QuestionService ={
 
@@ -34,7 +34,7 @@ let QuestionService ={
             formBody.push(encodedKey + "=" + encodedValue);
         }
         formBody = formBody.join("&");
-        return fetch(endpoint+'questionsCreate', {
+        return fetch(endpoint+'BodyCheckCreate', {
             method: 'POST',
             headers:this.loadHeaders(),
             body:formBody
@@ -118,6 +118,15 @@ let QuestionService ={
             console.log(error);
         });
     },
+
+   getBodyCheckdata(email){
+       return fetch(endpoint+'bodyCheck/'+email, {
+           method: 'GET',
+           headers:this.loadHeaders(),
+       }).then(response => response.json()).catch(error => {
+           console.log(error);
+       });
+   }
 }
 
 

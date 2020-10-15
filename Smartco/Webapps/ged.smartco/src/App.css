@@ -1074,3 +1074,17 @@ select{
     padding:10px!important;
     font-size: 0.865rem!important;
 }
+
+.react-date-picker__wrapper {
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 0;
+    border: 1px solid darkgray;
+}
+
+.react-date-picker__inputGroup {
+    min-width: calc((4px * 3) + 0.54em * 8 + 0.217em * 2);
+    flex-grow: 1;
+    padding: 6px 2px;
+    box-sizing: content-box;
+}

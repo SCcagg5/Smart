@@ -3,52 +3,51 @@ import uuid
 import os
 import time
 import requests
+from .h_service import service
 
 api_domain =   str(os.getenv('API_DOMAIN', None))
 api_id =       str(os.getenv('API_ID', None))
 email =        str(os.getenv('LETSENCRYPT_EMAIL', None))
 
-class wordpress:
-    def __init__(self):
-        self.path = "/home/base/wordpress"
-        self.projects = "/home/project"
+class wordpress(service):
+    def __init__(self, user_id, id = None):
+        self.path = "../../Sources/wordpress"
+        self.projects = "../../Project"
+        self.id = id
+        self.user_id = user_id
 
-    def new(self, data):
+    def new(self, hostnames):
         self.id = "smrt" + str(uuid.uuid4()).replace('-', '')
-        conf = self.__config()
-        url = self.id + "."  + api_id + "." + api_domain
+        url = self.url()
+        conf = self.__config(hostnames)
+        res = self.try_create(hostnames)
+        if not res[0]:
+            return res
         commands = [
+                    ["ls"],
                     ["cp", self.path, self.projects + '/' + self.id, "-r"],
                     ["echo", conf, ">", self.projects + '/' + self.id + "/.env"],
                     ["echo", conf, ">", self.projects + '/' + self.id + "/sample.env"],
-                    ["cat", self.projects + '/' + self.id + "/docker-compose.template.yml", "|", 'sed -e "s/{{ID}}/' + self.id + '/g" >',  self.projects + '/' + self.id + "/docker-compose.yml" ],
-                    ["cd", self.projects + '/' + self.id, "&&", "docker-compose", "up", "-d", "--build"]
+                    ["cat", self.projects + '/' + self.id + "/docker-compose.template.yml", "|", 'sed -e "s/{{ID}}/' + self.id + '/g" >',  self.projects + '/' + self.id + "/docker-compose.yml" ]
                    ]
-        res = []
-        for cmd in commands:
-            c = " ".join(cmd)
-            proc = subprocess.Popen([c], stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding = 'ascii', shell=True)
-            (out, err) = proc.communicate()
-            out = out.split('\n')[:-1]
-            res.append({"cmd": c, "out": None if len(out) == 0 else out})
-            if proc.poll() != 0:
-                return [False, "Command `"+ c + "` results in `" + (err.decode("utf-8") if isinstance(err, (bytes, bytearray)) else err)[:-1] + "`", 500]
-        for _ in range(30):
-            try:
-                r = requests.get("https://" + url)
-                if str(r.status_code) == "200":
-                    break;
-            except:
-                pass
-            time.sleep(3)
-        return [True, {"url": "https://" + url, "logs": res}, None]
+        test = ["cd", self.projects + '/' + self.id, "&&", "docker-compose", "up", "-d", "--build"]
+        res = self.command(commands)
+        if not res[0]:
+            return res
+        logs = res[1]
+        res = self.suc_create()
+        if not res[0]:
+            return res
+        return [True, {"url": ["https://" + url for url in self.host(hostnames)], "logs": logs}, None]
 
-    def __config(self):
+    def __config(self, hosts = []):
+        hosts = self.host(hosts)
+        print(hosts)
         conf = "\'V_DB_NAME={name}\nV_DB_USER={db_user}\nV_DB_PASSWORD={db_pass}\nV_WP_TABLE_PREFIX={prefix}\nV_VIRTUAL_HOST={vhost}\nV_VIRTUAL_PORT=80\nV_LETSENCRYPT_EMAIL={email}\nID={id}\n\'".format(name=uuid.uuid4(),
                           db_user=uuid.uuid4(),
                           db_pass=uuid.uuid4(),
                           prefix="wp",
-                          vhost=self.id + "." + api_id + "." + api_domain,
+                          vhost=",".join(hosts),
                           email=email,
                           id=self.id)
         return conf

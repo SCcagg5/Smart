@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -14,36 +14,26 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import TableHead from '@material-ui/core/TableHead';
 import {Avatar, Checkbox, Input, Select as MuiSelect} from "@material-ui/core";
-import time from"../../assets/icons/time.svg"
-import play from"../../assets/icons/play.svg"
-import down from"../../assets/icons/down.svg"
-import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import Button from "@material-ui/core/Button";
 import EditIcon from '@material-ui/icons/Edit';
-import ButtonGroup from "@material-ui/core/ButtonGroup";
-import BT from "@material-ui/core/Button";
-import money from "../../assets/icons/money.svg";
 import DatePicker from "react-date-picker";
-import calendar from "../../assets/icons/calendar.svg";
-import {keys} from "@material-ui/core/styles/createBreakpoints";
+import calendar from "../../assets/icons/calendar_icon.jpg";
 import AtlButton from "@atlaskit/button";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Typography from "@material-ui/core/Typography";
 import CloseIcon from "@material-ui/icons/Close";
 import DialogContent from "@material-ui/core/DialogContent";
-import SearchClientsContainer from "../Search/SearchClientsContainer";
 import Dialog from "@material-ui/core/Dialog";
 import Autosuggest from "react-autosuggest";
-import Timer from "react-compound-timer";
 import SelectSearch from "react-select-search";
-import SearchIcon from "@material-ui/icons/Search";
-import RSelect from "react-select";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Data from "../../data/Data";
 import userAvatar from "../../assets/images/users/user4.jpg";
 import entIcon from "../../assets/images/entreprise-icon.png";
 import moment from "moment";
+import data from '../../data/Data';
+import main_functions from '../../controller/main_functions';
+import ClearOutlinedIcon from '@material-ui/icons/ClearOutlined';
 
 const getTimeSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
@@ -144,13 +134,31 @@ export default function TableTimeSheet(props) {
     const [toUpdated_template, setToUpdated_template] = React.useState("");
     const [timeSuggestions, setTimeSuggestions] = React.useState([]);
 
+    const [lf_client_search, setLf_client_search] = React.useState("");
+    const [lf_sdate_search, setLf_sdate_search] = React.useState(null);
+    const [lf_edate_search, setLf_edate_search] = React.useState(null);
+    const [partner_facture, setPartner_facture] = React.useState("");
+    const [facture_date, setFacture_date] = React.useState(new Date());
+    const [check_all, setCheck_all] = React.useState(false);
+
 
 
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    const [lignes_facture, setLignes_facture] = React.useState(props.lignesFactures);
 
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, lignes_facture.length - page * rowsPerPage);
+    const searchFilter= props.lignesFactures.filter((lf) => ( (lf.newTime.client).toLowerCase().indexOf(lf_client_search.toLowerCase()) !== -1 &&
+      ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
+      ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= lf_edate_search.getTime()))  || lf_edate_search === null  )
+    ))
+
+    const selected = searchFilter.filter((lf) => lf.checked === true);
+    let total = 0;
+    selected.map((item,key) => {
+        let value = parseInt(item.newTime.rateFacturation) * item.newTime.duree;
+        total = total + value;
+    })
+
+    const emptyRows = rowsPerPage - Math.min(rowsPerPage, searchFilter.length - page * rowsPerPage);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -178,15 +186,15 @@ export default function TableTimeSheet(props) {
         })
         return(
             <div style={{display:"flex"}}>
-                <img alt="" src={Oa_user.imageUrl || ""} style={{width:35,height:35,objectFit:"cover"}}/>
-                <div style={{marginTop:7}}>{Oa_user.nom+" "+Oa_user.prenom}</div>
+                <img alt="" src={Oa_user.imageUrl || ""} style={{width:40,height:40,objectFit:"contain"}}/>
+                <div style={{marginTop:12,marginLeft:3}}>{Oa_user.nom+" "+Oa_user.prenom}</div>
             </div>
         )
     }
 
 
     let isOneSelected = false;
-    lignes_facture.map((item,key) => {
+    searchFilter.map((item,key) => {
         if(item.checked && item.checked === true) isOneSelected = true
     })
 
@@ -204,7 +212,7 @@ export default function TableTimeSheet(props) {
                 <span>
                     <img alt="" style={imgStyle}
                          src={option.ContactType === "Person" ? option.imageUrl ? option.imageUrl : userAvatar : entIcon}/>
-                    <span style={{fontSize: 13}}>{option.ContactName}</span>
+                    <span style={{fontSize: 13,marginTop:12,marginLeft:5}}>{option.ContactName}</span>
                 </span>
             </button>
         );
@@ -230,34 +238,21 @@ export default function TableTimeSheet(props) {
         onChange: onInputTimeSuggChange
     };
 
-    const contactSelectOptions = [];
-    contactSelectOptions.push({label: "Aucun", value: ""})
-    props.OA_contacts.map((contact, key) => {
-        contactSelectOptions.push({
-            value:contact.email,
-            label: <div>
-                <img alt="" src={contact.imageUrl || null} style={{width: 30, height: 30, objectFit: "cover"}}/>
-                {" "}{contact.nom + " " + contact.prenom}</div>
-        })
-    })
-
     return (
 
         <div>
             <div className="row align-items-center mt-1">
-                <ButtonGroup aria-label="outlined secondary button group">
-                    <BT>ALL</BT>
-                    <BT><img alt="" src={time} style={{width: 20}}/>Time</BT>
-                    <BT><img alt="" src={money} style={{width: 20}}/>Expense</BT>
-                </ButtonGroup>
 
                 <div className="ml-2">
-
                     <DatePicker
                         calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
                         onChange={(e) => {
+                            setLf_sdate_search(e)
                         }}
-                        value={new Date()}
+                        value={lf_sdate_search}
+                        dayPlaceholder="dd"
+                        monthPlaceholder="mm"
+                        yearPlaceholder="yyyy"
                     />
                 </div>
                 <div className="ml-1">
@@ -267,62 +262,79 @@ export default function TableTimeSheet(props) {
                     <DatePicker
                         calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
                         onChange={(e) => {
+                            setLf_edate_search(e)
                         }}
-                        value={new Date()}
+                        value={lf_edate_search}
+                        dayPlaceholder="dd"
+                        monthPlaceholder="mm"
+                        yearPlaceholder="yyyy"
                     />
                 </div>
-
                 <div className="ml-2">
-                    <ButtonGroup aria-label="outlined secondary button group">
-                        <BT>
-                            <img alt="" src={play} style={{
-                                width: 18,
-                                transform: 'rotate(180deg)'
-                            }}/>
-                        </BT>
-                        <BT>
-                            <img alt="" src={play}
-                                 style={{width: 18}}/>
-                        </BT>
-                    </ButtonGroup>
+                    <SelectSearch
+                      options={
+                          props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
+                            ({
+                                value: Nom + ' ' + (Prenom || ''),
+                                name: Nom + ' ' + (Prenom || ''),
+                                ContactType: Type,
+                                ContactName: Nom + ' ' + (Prenom || ''),
+                                imageUrl: imageUrl
+                            }))
+                      }
+                      value={lf_client_search}
+                      renderOption={main_functions.renderSearchOption}
+                      search
+                      placeholder="Par client"
+                      onChange={e => {
+                          console.log(e);
+                          setLf_client_search(e)
+                      }}
+                    />
                 </div>
-
-                <div className="col-md-2 ml-2">
-                    {/*<MuiSelect
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        style={{width: "100%"}}
-                        defaultValue={"Custom"}
-                    >
-                        <MenuItem value={"Custom"}>Custom</MenuItem>
-                        <MenuItem value={"Associé"}>Custom 2</MenuItem>
-                        <MenuItem value={"Collaborateur"}>Custom 3</MenuItem>
-                    </MuiSelect>*/}
+                <div className="ml-3">
+                    <IconButton title="Annuler le filtre" onClick={() => {
+                        setLf_client_search("")
+                        setLf_sdate_search(null)
+                        setLf_edate_search(null)
+                    }}>
+                        <ClearOutlinedIcon/>
+                    </IconButton>
                 </div>
             </div>
 
             <Table className={classes.table} aria-label="custom pagination table">
                 <TableHead>
-                    <TableRow>
-                        <TableCell align="left" style={{width:"5%"}}> <Checkbox checked={false}/>  </TableCell>
+                    <TableRow style={{padding:10}}>
+                        <TableCell align="left" style={{width:"5%"}}>
+                            {/*<Checkbox checked={check_all}
+                                      onChange={(event) => {
+                                          setCheck_all(event.target.checked)
+                                          let ch_rows = searchFilter;
+                                          ch_rows.map((item,key) => {
+                                              item.checked = ! check_all
+                                          })
+                                          props.setLignesFactures(ch_rows)
+
+                                      }}
+                            />*/}
+                        </TableCell>
                         <TableCell align="center" style={{width:"5%",fontWeight:600}}>Actions</TableCell>
-                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Nom du dossier</TableCell>
-                        <TableCell align="center" style={{width:"30%",fontWeight:600}}>Description</TableCell>
-                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Utilisateur OA</TableCell>
+                        <TableCell align="center" style={{width:"8%",fontWeight:600}}>Date</TableCell>
+                        <TableCell align="center" style={{width:"17%",fontWeight:600}}>Nom du dossier</TableCell>
+                        <TableCell align="center" style={{width:"25%",fontWeight:600}}>Description</TableCell>
+                        <TableCell  style={{width:"20%",fontWeight:600}}>Utilisateur OA</TableCell>
                         <TableCell align="center" style={{width:"10%",fontWeight:600}}>Taux horaire</TableCell>
                         <TableCell align="center" style={{width:"10%",fontWeight:600}}>Durée</TableCell>
-
-
-
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {(rowsPerPage > 0 ? lignes_facture.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : lignes_facture).map((row,key) => (
-                        <TableRow key={key}>
+                    {(rowsPerPage > 0 ? searchFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : searchFilter).reverse().map((row,key) => (
+                        <TableRow key={key} style={{padding:10}}>
                             <TableCell align="left"   style={{width:"5%"}}>
                                 <div className="media align-items-center">
-                                        <Checkbox  checked={lignes_facture[key].checked || false} onChange={(event) => {
-                                            let ch_rows = lignes_facture;
+                                        <Checkbox  checked={searchFilter[key].checked || false} onChange={(event) => {
+                                            let ch_rows = searchFilter;
                                             ch_rows[key].checked = event.target.checked
                                             props.setLignesFactures(ch_rows)
 
@@ -344,7 +356,10 @@ export default function TableTimeSheet(props) {
                                     <EditIcon/>
                                 </IconButton>
                             </TableCell>
-                            <TableCell style={{ width: "20%" }} align="center">
+                            <TableCell style={{ width: "8%" }} align="center">
+                                {moment(row.newTime.date).format("DD/MM/YYYY") || ""}
+                            </TableCell>
+                            <TableCell style={{ width: "17%" }} align="center">
                                 {row.newTime.client || ""}
                             </TableCell>
 
@@ -374,7 +389,7 @@ export default function TableTimeSheet(props) {
                         <TablePagination
                             rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
                             //colSpan={3}
-                            count={lignes_facture.length}
+                            count={searchFilter.length}
                             rowsPerPage={rowsPerPage}
                             page={page}
                             SelectProps={{
@@ -391,15 +406,66 @@ export default function TableTimeSheet(props) {
             </Table>
             {
                 isOneSelected === true &&
-                <div className="mt-3" style={{textAlign:"right"}}>
-                    <AtlButton
-                        appearance="primary"
-                        onClick={() => {
-                            props.onClickFacture()
-                            //this.createFacture()
-                        }}>
-                        ETABLIR FACTURE</AtlButton>
-                </div>
+                  <div>
+                      <div>
+                          <div className="row mt-1">
+                              <div className="col-md-4">
+                                  <h5>Partner validant cette facture</h5>
+                                  <MuiSelect
+                                    labelId="demo-mutiple-chip-label14545"
+                                    id="demo-mutiple-chip34688"
+                                    style={{ width: 250 }}
+                                    value={partner_facture}
+                                    onChange={(e) => {
+                                        console.log(e.target.value);
+                                        setPartner_facture(e.target.value)
+                                    }}
+                                    MenuProps={Data.MenuProps}
+                                  >
+                                      {props.OA_contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
+                                        <MenuItem
+                                          key={key}
+                                          value={contact.email}>
+                                            <div
+                                              className="row align-items-center justify-content-center">
+                                                <Avatar
+                                                  alt=""
+                                                  src={contact.imageUrl} />
+                                                <div>{contact.nom + ' ' + contact.prenom}</div>
+                                            </div>
+                                        </MenuItem>
+                                      ))}
+                                  </MuiSelect>
+                              </div>
+                              <div className="col-md-4">
+                                  <h5>Date de la facture</h5>
+                                  <DatePicker
+                                    calendarIcon={
+                                        <img
+                                          alt=""
+                                          src={calendar}
+                                          style={{ width: 20 }} />}
+                                    onChange={(e) => {
+                                        setFacture_date(e)
+                                    }}
+                                    value={facture_date}
+                                  />
+                              </div>
+                          </div>
+                      </div>
+                      <div className="mt-3" style={{textAlign:"right"}}>
+                          <h5>Total: {total+ " CHF"}</h5>
+                      </div>
+                      <div className="mt-3" style={{textAlign:"right"}}>
+                          <AtlButton
+                            appearance="primary"
+                            onClick={() => {
+                                props.onClickFacture(facture_date,partner_facture)
+                            }}>
+                              ETABLIR FACTURE</AtlButton>
+                      </div>
+                  </div>
+
             }
 
 
@@ -444,7 +510,7 @@ export default function TableTimeSheet(props) {
                                     </div>
                                     <div className="col-md-4">
                                         <div>
-                                            <h5>identification / Imputation client</h5>
+                                            <h5>Nom du client</h5>
                                             <div
                                                 style={{display: "flex"}}>
                                                 <SelectSearch
@@ -545,7 +611,7 @@ export default function TableTimeSheet(props) {
                                     <div
                                         className="col-md-4">
                                         <div>
-                                            <h6>Utilisateur chez OA </h6>
+                                            <h6>Utilisateur OA </h6>
                                         </div>
 
                                         <MuiSelect
@@ -573,12 +639,11 @@ export default function TableTimeSheet(props) {
                                                 <MenuItem
                                                     key={key}
                                                     value={contact.email}>
-                                                    <div
-                                                        className="row align-items-center justify-content-center">
-                                                        <Avatar
-                                                            alt=""
-                                                            src={contact.imageUrl}/>
-                                                        <div>{contact.nom + " " + contact.prenom}</div>
+                                                    <div style={{display:"flex"}}>
+                                                        <Avatar style={{marginLeft:10}}
+                                                                alt=""
+                                                                src={contact.imageUrl} />
+                                                        <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
                                                     </div>
                                                 </MenuItem>
                                             ))}
@@ -622,34 +687,11 @@ export default function TableTimeSheet(props) {
                                                 d.template = e.target.value
                                                 setLf_toUpdated(d)
                                             }}>
-                                            <option
-                                                value="0">Description seulemnt
-                                            </option>
-                                            <option
-                                                value="1">Nom
-                                                avocat
-                                                seulemnt
-                                            </option>
-                                            <option
-                                                value="2">Nombre
-                                                d'heures
-                                                seulemnt
-                                            </option>
-                                            <option
-                                                value="3">Description
-                                                + Nom avocat
-                                            </option>
-                                            <option
-                                                value="4">Description
-                                                + Nombre
-                                                d'heures
-                                            </option>
-                                            <option
-                                                value="5">Description
-                                                + Nom avocat
-                                                + Nombre
-                                                d'heures
-                                            </option>
+                                            {
+                                                data.lf_templates.map((item,key) =>
+                                                  <option key={key} value={item.value}>{item.label}</option>
+                                                )
+                                            }
                                         </select>
                                     </div>
 

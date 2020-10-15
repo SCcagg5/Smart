@@ -17,7 +17,6 @@ import {CirclePicker} from 'react-color';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import {Rnd} from 'react-rnd';
 import {scroller} from "react-scroll";
-/*import htmlToImage from "html-to-image";*/
 import domtoimage from 'dom-to-image';
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import {Checkbox as MuiCheckbox, Typography} from "@material-ui/core";

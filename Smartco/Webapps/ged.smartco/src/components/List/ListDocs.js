@@ -37,6 +37,7 @@ export default function ListDocs(props) {
     const [open, setOpen] = React.useState(false);
 
     return(
+      console.log(props.docs),
         <div>
             <h5 style={{marginTop:15}}>Fichiers ({props.docs.length})</h5>
             {
@@ -116,7 +117,7 @@ export default function ListDocs(props) {
                             </div>
                             <div
                                 style={{width: 215}}>
-                                <h6 style={{color: "grey"}}>Moi</h6>
+                                <h6 style={{color: "grey"}}>{item.proprietary || "Moi"}</h6>
                             </div>
                             <div
                                 style={{width: 200}}>

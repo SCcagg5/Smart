@@ -10,7 +10,6 @@ import NewFileIcon from "@material-ui/icons/AttachFile";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import ArrowRightIcon from "@material-ui/icons/ArrowRight";
 import MeetMenuItems from "./MeetMenuItems";
-import StarBorderIcon from "@material-ui/icons/StarBorder";
 import EditIcon from "@material-ui/icons/Edit";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
@@ -46,11 +45,7 @@ export default function LeftMenuV3(props) {
     const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
     const [openRenameeModal, setOpenRenameModal] = React.useState(false);
     const [newFolderName, setnewFolderName] = React.useState(props.selectedFolder.name);
-    const [expandedKeys, setExpandedKeys] = React.useState(props.selectedDriveItem);
-    const [selectedKeys, setSelectedKeys] = React.useState(props.selectedDriveItem);
     const [searchValue, setSearchValue] = React.useState("");
-    const [autoExpandParent, setAutoExpandParent] = React.useState(true);
-
 
 
     const dataList = [];
@@ -101,7 +96,6 @@ export default function LeftMenuV3(props) {
     }
 
     function onDrop(info) {
-        //console.log(info);
         /*let driveFolders  = props.driveFolders;
         const dropKey = info.node.props.eventKey;
         const dragKey = info.dragNode.props.eventKey;
@@ -163,15 +157,17 @@ export default function LeftMenuV3(props) {
     }
 
     function onExpand(expandedKeys) {
-        //setExpandedKeys(expandedKeys);
         props.setExpandedDriveItems(expandedKeys)
-        //setAutoExpandParent(false)
         props.setAutoExpandParent(false)
     }
 
-    function onSelect(selectedKeys, info) {
+    function onExpand_shared(expandedKeys) {
+        props.setExpandedDriveSharedItems(expandedKeys)
+        props.setAutoExpandSharedParent(false)
+    }
 
-        //setSelectedKeys(selectedKeys);
+    function onSelect(selectedKeys, info) {
+        props.setSelectedDriveSharedItem([])
         props.setSelectedDriveItem(selectedKeys)
         if (info.node.typeF === "folder") {
             props.setSelectedFolder(info.node)
@@ -179,6 +175,18 @@ export default function LeftMenuV3(props) {
             props.setFolderId(info.node.key)
             props.setSelectedFolderFiles(info.node.files)
             props.setSelectedFolderFolders(info.node.folders)
+        }
+    }
+
+    function onSelect_shared(selectedKeys, info) {
+        props.setSelectedDriveItem([])
+        props.setSelectedDriveSharedItem(selectedKeys)
+        if (info.node.typeF === "folder") {
+            props.setSelectedSharedFolder(info.node)
+            props.setSharedFolderName(info.node.title)
+            props.setSharedFolderId(info.node.key)
+            props.setSelectedSharedFolderFiles(info.node.files)
+            props.setSelectedSharedFolderFolders(info.node.children)
         }
     }
 
@@ -220,6 +228,9 @@ export default function LeftMenuV3(props) {
                 typeF:item.typeF
             };
         });
+
+
+
 
 
     return (
@@ -322,16 +333,35 @@ export default function LeftMenuV3(props) {
 
                                 }
                             }}
-                            //expandedKeys={expandedKeys}
                             expandedKeys={props.expandedDriveItems}
-                            //selectedKeys={selectedKeys}
                             selectedKeys={props.selectedDriveItem}
                             onDragStart={e => {
                                 let node = {key:e.node.key,typeF:e.node.typeF}
                                 e.event.dataTransfer.setData("node", JSON.stringify(node))
                             }}
-                            //autoExpandParent={autoExpandParent}
                             autoExpandParent={props.autoExpandParent}
+                        />
+                        <DirectoryTree
+                          loadData={props.onLoadSharedData}
+                          draggable
+                          showIcon={true}
+                          onExpand={onExpand_shared}
+                          onSelect={onSelect_shared}
+                          treeData={props.sharedFolders}
+                          expandAction="click"
+                          /*onRightClick={info => {
+                              if (info.node.typeF === "folder") {
+
+                                  setAnchorElMenu(info.event.currentTarget)
+                                  props.setSelectedFolder(info.node)
+                                  props.setFolderName(info.node.title)
+                                  props.setFolderId(info.node.key)
+
+                              }
+                          }}*/
+                          expandedKeys={props.expandedDriveSharedItems}
+                          selectedKeys={props.selectedDriveSharedItem}
+                          autoExpandParent={props.autoExpandSharedParent}
                         />
                     </div>
 
@@ -532,7 +562,7 @@ export default function LeftMenuV3(props) {
                                         props.showMeetMenuItems === true ?
                                             <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                                     }
-                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Meet</Typography>
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Vidéoconférence</Typography>
                                 </div>
                                 <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                             </div>
@@ -559,7 +589,7 @@ export default function LeftMenuV3(props) {
                                         props.showContacts === true ?
                                             <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                                     }
-                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Contacts</Typography>
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Equipe OA</Typography>
                                 </div>
                                 <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                             </div>
@@ -587,7 +617,7 @@ export default function LeftMenuV3(props) {
                                         props.showSocietyMenuItems === true ?
                                             <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                                     }
-                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Annuaire societés</Typography>
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Liste clients</Typography>
                                 </div>
                                 <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                             </div>

@@ -83,7 +83,7 @@
     "video-react": "^0.14.1"
   },
   "scripts": {
-    "start": "GENERATE_SOURCEMAP=false react-scripts start",
+    "start": "react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

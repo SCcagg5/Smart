@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+import deleteIcon from '../../assets/icons/delete.svg'
 import TableCell from '@material-ui/core/TableCell';
 import IconButton from '@material-ui/core/IconButton';
 import FirstPageIcon from '@material-ui/icons/FirstPage';
@@ -9,8 +10,6 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import { Collapse } from 'antd';
 import {Button} from "@material-ui/core";
-
-
 const { Panel } = Collapse;
 const useStyles1 = makeStyles((theme) => ({
     root: {
@@ -126,10 +125,11 @@ export default function TablePatientsBrainy(props) {
                                     <TableCell  style={{width:"10%",fontWeight:600}}>Email</TableCell>
                                     <TableCell  style={{width:"10%",fontWeight:600}}>Telephone</TableCell>
                                     <TableCell  style={{width:"10%",fontWeight:600}}>Parrainage</TableCell>
+                                    <TableCell  style={{width:"5%",fontWeight:600}}>Capteurs</TableCell>
                                     <TableCell  style={{width:"5%",fontWeight:600}}>Body Check</TableCell>
                                     <TableCell  style={{width:"5%",fontWeight:600}}>Ayure Check</TableCell>
                                     <TableCell  style={{width:"10%",fontWeight:600}}>Mot de passe et bienvenue</TableCell>
-                                    <TableCell  style={{width:"30%",fontWeight:600,minWidth:250}}>Actions</TableCell>
+                                    <TableCell  style={{width:"10%",fontWeight:600,minWidth:150}}>Actions</TableCell>
 
 
                                 </tr>
@@ -160,6 +160,14 @@ export default function TablePatientsBrainy(props) {
 
 
                                         </td>
+                                        <td className="text-center" style={{ width: "5%" }} >
+
+                                            <Button onClick={()=>{props.bodycheck(item.resource.telecom[0].value)}} size={"small"} variant="contained">
+                                                <text >Go</text>
+                                            </Button>
+
+
+                                        </td>
                                         <td style={{ width: "5%" }} >
                                             <Button size={"small"} variant="contained">
                                                 <text >Go</text>
@@ -170,18 +178,20 @@ export default function TablePatientsBrainy(props) {
                                                 <text style={{color:"#f8b901"}}>Envoyer </text>
                                             </Button>
                                         </td>
-                                        <td style={{ width: "30%",minWidth:250 }}>
+                                        <td style={{ width: "10%"}}>
 
-                                            <div className="row">
-                                                <div className="col-md-4">
-                                                    <Button onClick={()=>props.onEditClick(item,key)} size="small" variant="contained" style={{backgroundColor:"#e9f0fd"}} >
+                                            <div className="row justify-content-center">
+                                                <div className="col-md-auto">
+                                                    <Button onClick={()=>{props.onEditClick(item,key)
+                                                     props.getDataDashboard(item.resource.telecom[0].value)
+                                                        props.bodycheckNl(item.resource.telecom[0].value)}}
+                                                            size="small" variant="contained" style={{backgroundColor:"#e9f0fd"}} >
                                                         <small style={{color:"#b5c0ee"}}>Voir </small>
                                                     </Button>
                                                 </div>
-                                                <div className="col-md-8">
-                                                    <Button size="small" variant="contained" style={{backgroundColor:"#fde8e5"}} onClick={()=>props.onDelecteClick(item,key)}>
-                                                        <small style={{color:"#f9cace"}}>Supprimer</small>
-                                                    </Button>
+                                                <div className="col-md-4">
+
+                                                    <img src={deleteIcon} style={{width:"100%",cursor:"pointer"}} onClick={()=>props.onDelecteClick(item,key)}/>
                                                 </div>
 
                                             </div>

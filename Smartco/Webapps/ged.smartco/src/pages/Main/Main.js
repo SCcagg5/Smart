@@ -3,7 +3,6 @@ import firebase from 'firebase';
 import 'firebase/database';
 import SmartService from '../../provider/SmartService';
 import moment from 'moment';
-import DescriptionIcon from '@material-ui/icons/Description';
 import FolderIcon from '@material-ui/icons/Folder';
 import TopBar from '../../components/TopBar/TopBar';
 import logo from '../../assets/images/logos/OALegalLogoV2.jpeg';
@@ -28,25 +27,9 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import defaultAvatar from '../../assets/images/users/default_avatar.jpg';
 import { Modal, ModalBody, ModalHeader } from 'reactstrap';
 import PDFViewer from '../../customComponents/pdf-viewer-reactjs';
-import { PDFViewer as PdfView } from '@react-pdf/renderer';
-import Resume from '../../components/Pdf/Resume';
-import SwissWhoImage from '../../assets/images/SwissWhoWho.jpeg';
-import FlipPage from 'react-flip-page';
-import FHeader from '../../components/FlipPages/FHeader';
-import FTitle from '../../components/FlipPages/FTitle';
 import { isEmail, ReactMultiEmail } from 'react-multi-email';
 import '../../assets/css/multiEmail.css';
-import {
-  Avatar,
-  Button as MuiButton,
-  Checkbox as MuiCheckbox,
-  Chip,
-  FormControl,
-  Input,
-  InputLabel,
-  MenuItem,
-  Select as MuiSelect
-} from '@material-ui/core';
+import { Avatar, Button as MuiButton, Checkbox as MuiCheckbox, Chip, FormControl, Input, InputLabel, MenuItem, Select as MuiSelect } from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -64,8 +47,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import SearchClientsContainer from '../../components/Search/SearchClientsContainer';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import swissImg from '../../assets/images/flags/swiss.svg';
 import ViewComfyIcon from '@material-ui/icons/ViewComfy';
 import ListIcon from '@material-ui/icons/List';
@@ -74,29 +55,16 @@ import ListFolders from '../../components/List/ListFolders';
 import ListDocs from '../../components/List/ListDocs';
 import { FileUploader } from 'baseui/file-uploader';
 import axios from 'axios';
-import { Button, SHAPE, SIZE } from 'baseui/button';
-import { ALIGN, Radio, RadioGroup } from 'baseui/radio';
-import { Checkbox, LABEL_PLACEMENT, STYLE_TYPE } from 'baseui/checkbox';
-import { Select } from 'baseui/select';
-import euImg from '../../assets/images/flags/eu.svg';
-import frImg from '../../assets/images/flags/france.png';
-import { Textarea } from 'baseui/textarea';
-import Draggable from 'react-draggable';
-import Delete from 'baseui/icon/delete';
 import FolderDetail from '../Drive/FolderDetail';
 import TableContact from '../../components/Tables/TableContact';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import countryList from '../../tools/countryList';
-import Staricon from '@material-ui/icons/Star';
-import CheckCircle from '@material-ui/icons/CheckCircle';
-import MoodIcon from '@material-ui/icons/Mood';
 import 'react-tabs/style/react-tabs.css';
 import TableSociete from '../../components/Tables/TableSociete';
 import entIcon from '../../assets/images/entreprise-icon.png';
 import userAvatar from '../../assets/images/users/user4.jpg';
 import Data from '../../data/Data';
-import { Bubble } from 'react-chartjs-2';
 import CB from '@material-ui/core/Checkbox';
 import Autosuggest from 'react-autosuggest';
 import '../../assets/css/inputSuggestion.css';
@@ -105,65 +73,12 @@ import Timer from 'react-compound-timer';
 import SelectSearch from 'react-select-search';
 import SearchIcon from '@material-ui/icons/Search';
 import DatePicker from 'react-date-picker';
-import calendar from '../../assets/icons/calendar.svg';
-import RSelect from 'react-select';
+import calendar from '../../assets/icons/calendar_icon.jpg';
 import AtlButton, { ButtonGroup as AltButtonGroup } from '@atlaskit/button';
 import TableTimeSheet from '../../components/Tables/TableTimeSheet';
-import BT from '@material-ui/core/Button';
-import pluss from '../../assets/icons/pluss.svg';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
-import back from '../../assets/icons/back.svg';
-import HSBar from 'react-horizontal-stacked-bar-chart';
-import TableTimeSheetDashboard from '../../components/Tables/TableDashboardTimeSheet';
-import time from '../../assets/icons/time.svg';
-import money from '../../assets/icons/money.svg';
-import play from '../../assets/icons/play.svg';
-import edit from '../../assets/icons/edit.svg';
-import down from '../../assets/icons/down.svg';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-
-const getTimeSuggestions = value => {
-  const inputValue = value.trim().toLowerCase();
-  const inputLength = inputValue.length;
-
-  return inputLength === 0 ? [] : Data.timeSuggestions.filter(x =>
-    x.toLowerCase().slice(0, inputLength) === inputValue
-  );
-};
-
-function renderSearchOption(props, option, snapshot, className) {
-  const imgStyle = {
-    borderRadius: '50%',
-    verticalAlign: 'middle',
-    marginRight: 10,
-    width: 32, height: 32, objectFit: 'cover'
-  };
-
-  return (
-    <button {...props} className={className} type="button">
-            <span>
-                <img alt="" style={imgStyle}
-                     src={option.ContactType === '1' ? option.imageUrl ? option.imageUrl : userAvatar : entIcon} />
-                <span style={{ fontSize: 13 }}>{option.ContactName}</span>
-            </span>
-    </button>
-  );
-}
-
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
-const getLabel = ({ option }) => {
-  return (
-    <React.Fragment>
-      {' '}
-      <img src={option.image} alt="" style={{ width: 30, height: 30 }} />
-      &nbsp;&nbsp;{option.id}
-    </React.Fragment>
-  );
-};
-
-let expanded = [];
-let index = {};
+import main_functions from '../../controller/main_functions';
+import DescriptionIcon from '@material-ui/icons/Description';
 
 export default class Main extends React.Component {
 
@@ -183,34 +98,25 @@ export default class Main extends React.Component {
     anchorEl: null,
     anchorElMenu: null,
     anchorElContactsMenu: null,
-    openRightMenu: false,
 
-    selectedSieMenuItem: 'coffre',
+    openRightMenu: false,
     openSideMenu: false,
-    showSecondSideBar: false,
 
     showPDFModal: false,
     pdfURL: '',
 
-    uploadedThumb: require('../../assets/icons/icon-pdf.png'),
     uploadedName: '',
-
     signDoc: 'true',
-    showBtnInviteSign: false,
-
-    signMySelf: true,
-    signatiaresEmails: [],
     inviteEmails: [],
-    selectedSignatureType: { id: 'Swiss law (ZertES)', image: swissImg },
 
-    showUploadStep: '', //upload  // upload_succes // inviteSigners  // signForm  // successfulStep
     selectedDoc: '',
-
     folders: [],
     reelFolders: [],
-    sharedDrive: [],
+    sharedFolders: [],
+    sharedReelFolders: [],
     rootFiles: [],
     rootFolders: [],
+    sharedRootFolders: [],
     sharedRootFiles: [],
 
     selectedFoldername: '',
@@ -221,8 +127,13 @@ export default class Main extends React.Component {
     selectedFolderFiles: [],
     selectedFolderFolders: [],
 
-    showNewDocScreen: false,
+    selectedSharedFolder:'',
+    selectedSharedFolderId: '',
+    selectedSharedFoldername:'',
+    selectedSharedFolderFiles: [],
+    selectedSharedFolderFolders: [],
 
+    showNewDocScreen: false,
     newFolderModal: false,
 
     newFolderName: '',
@@ -240,7 +151,9 @@ export default class Main extends React.Component {
     showContainerSection: 'Drive',
     selectedDriveItem: [],
     expandedDriveItems: [],
+    expandedDriveSharedItems:[],
     autoExpandParent: true,
+    autoExpandSharedParent:true,
     selectedMeetMenuItem: ['new'],
     selectedSocietyMenuItem: ['clients_mondat'],
     selectedContactsMenuItem: ['aia'],
@@ -289,29 +202,10 @@ export default class Main extends React.Component {
     societes: [],
     annuaire_clients_mondat: [],
     rooms: [],
-    openRightContactModalDetail: false,
-    openRightSocieteModalDetail: false,
     selectedContact: '',
     selectedContactKey: '',
     editContactForm: false,
     editSocieteForm: false,
-    showModalAdd: false,
-    add: '',
-    domaine: {
-      domaine: '',
-      specialite: []
-    },
-    formationTmp: '',
-    fonctionTmp: '',
-    parcourTmp: '',
-    langueTmp: '',
-    hobbiesTmp: '',
-    affiliationTmp: '',
-
-    showPdfPreviewModal: false,
-    isDocPreviewReady: false,
-
-    showPdfFlipModal: false,
 
     openShareDocModal: false,
     checkedNotif: true,
@@ -319,7 +213,6 @@ export default class Main extends React.Component {
     emailsDriveShare: [],
 
     focusedItem: 'Drive', // => Drive || Rooms || Meet || Contacts
-    expanded: [],
     expandedRoomItems: ['0'],
 
     viewMode: 'list',
@@ -349,9 +242,6 @@ export default class Main extends React.Component {
     lignesFactures: [],
     lignef_template: '0',
     TimeSheetData: [],
-    DashboardPerson: {
-      person: ''
-    },
 
     openAdvancedSearchModal: false,
     selectedClientTimeEntree: '',
@@ -384,7 +274,9 @@ export default class Main extends React.Component {
     lead_contact_horaire_tmp: '',
     team_contact_tmp: '',
     clients_tempo: [],
-    clients_tempo_copie: []
+    clients_tempo_copie: [],
+
+    selectedTimeSheetIndex:0
   };
 
   componentDidMount() {
@@ -402,9 +294,9 @@ export default class Main extends React.Component {
           focusedItem: 'Drive',
           selectedDriveItem: [folder_id],
           expandedDriveItems: [folder_id],
-          breadcrumbs: this.getBreadcumpsPath(folder_id, this.state.reelFolders),
-          selectedFolderFiles: this.getFolderFilesById(folder_id, this.state.reelFolders),
-          selectedFolderFolders: this.getFolderFoldersById(folder_id, this.state.reelFolders),
+          breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
+          selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
+          selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders),
           selectedFolderId: folder_id
         });
 
@@ -505,7 +397,8 @@ export default class Main extends React.Component {
     if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
       this.props.history.push('/login');
     } else {
-      let sharedDrive = [];
+      let sharedFolders = [];
+
       this.setState({ firstLoading: true });
 
       setTimeout(() => {
@@ -515,6 +408,22 @@ export default class Main extends React.Component {
         )
           .then((gedRes) => {
             if (gedRes.succes === true && gedRes.status === 200) {
+
+              console.log(gedRes.data.Shared.Content.folders)
+              let parentSharedFolder = [{
+                id:"parent",
+                name:"Partagés avec moi",
+                Content:{
+                  files:[],
+                  folders:[]
+                }
+
+              }]
+              parentSharedFolder[0].Content.folders = gedRes.data.Shared.Content.folders || []
+              sharedFolders = main_functions.changeStructure(parentSharedFolder)
+              console.log(sharedFolders)
+
+
               let client_folder = gedRes.data.Proprietary.Content.folders.find(
                 (x) => x.name === 'CLIENTS'
               );
@@ -524,8 +433,7 @@ export default class Main extends React.Component {
               }
               let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
 
-              firebase.database().ref('/')
-                .on('value', (snapshot) => {
+              firebase.database().ref('/').on('value', (snapshot) => {
                   const data = snapshot.val() || [];
                   let contacts = data.contacts || [];
                   let rooms = (data.rooms || []).filter(x => x.ged_id === "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9");
@@ -546,7 +454,7 @@ export default class Main extends React.Component {
                   });
 
                   let connected_email = localStorage.getItem("email");
-                  let oa_contact = this.getOAContactByEmail2(contacts,connected_email);
+                  let oa_contact = main_functions.getOAContactByEmail2(contacts,connected_email);
                   if(oa_contact){
                     this.setState({
                       TimeSheet: {
@@ -563,31 +471,30 @@ export default class Main extends React.Component {
                     })
                   }
 
-                  //let sharedFolders = gedRes.data.Shared.Content.folders || [];
                   let sharedFiles = gedRes.data.Shared.Content.files || [];
-
 
                   if (this.props.location.pathname.indexOf('/home/drive/') > -1) {
                     let folders = gedRes.data.Proprietary.Content.folders || [];
                     let folder_id = this.props.location.pathname.replace('/home/drive/', '');
-                    let folder_name = this.getFolderNameById(folder_id, folders);
+                    let folder_name = main_functions.getFolderNameById(folder_id, folders);
                     if (folder_name !== undefined && folder_name !== null) {
                       this.setState({
-                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                        folders:main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                         reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                        sharedReelFolders: gedRes.data.Shared.Content.folders || [],
                         rootFiles: gedRes.data.Proprietary.Content.files || [],
                         rootFolders: gedRes.data.Proprietary.Content.folders || [],
                         sharedRootFiles: sharedFiles,
-                        sharedDrive: sharedDrive,
+                        sharedFolders: sharedFolders,
                         selectedDriveItem: [folder_id],
                         expandedDriveItems: [folder_id],
                         selectedFoldername: folder_name,
-                        breadcrumbs: this.getBreadcumpsPath(folder_id, folders),
+                        breadcrumbs: main_functions.getBreadcumpsPath(folder_id, folders),
                         selectedFolderId: folder_id,
                         meeturl: meeturl,
                         selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                        selectedFolderFiles: this.getFolderFilesById(folder_id, folders),
-                        selectedFolderFolders: this.getFolderFoldersById(folder_id, folders),
+                        selectedFolderFiles: main_functions.getFolderFilesById(folder_id, folders),
+                        selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, folders),
                         firstLoading: false,
                         loading: false
                       });
@@ -598,11 +505,12 @@ export default class Main extends React.Component {
                     this.setState({
                       rootFiles: gedRes.data.Proprietary.Content.files || [],
                       rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                       reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
                       selectedDriveItem: [],
                       expandedDriveItems: [],
-                      sharedDrive: sharedDrive,
+                      sharedFolders: sharedFolders,
                       sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
@@ -613,7 +521,32 @@ export default class Main extends React.Component {
                       firstLoading: false,
                       loading: false
                     });
-                  } else if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
+                  }
+                  else if (this.props.location.pathname === '/home/shared/parent') {
+                    this.setState({
+                      rootFiles: gedRes.data.Proprietary.Content.files || [],
+                      rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                      reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                      selectedDriveItem: [],
+                      expandedDriveItems: [],
+                      selectedDriveSharedItem:['parent'],
+                      expandedDriveSharedItems:['parent'],
+                      sharedFolders: sharedFolders,
+                      sharedRootFiles: sharedFiles,
+                      meeturl: meeturl,
+                      contacts: contacts,
+                      societes: societes,
+                      annuaire_clients_mondat: annuaire_clients_mondat,
+                      rooms: rooms,
+                      selectedRoom: rooms.length > 0 ? rooms[0] : '',
+                      breadcrumbs: 'Mon drive / Partagés avec moi',
+                      firstLoading: false,
+                      loading: false
+                    });
+                  }
+                  else if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
                     if (rooms.length > 0) {
                       let room_id = this.props.location.pathname.replace('/home/rooms/', '');
                       this.setState({
@@ -624,9 +557,10 @@ export default class Main extends React.Component {
                         openRoomMenuItem: true,
                         rootFiles: gedRes.data.Proprietary.Content.files || [],
                         rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                        folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                         reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                        sharedDrive: sharedDrive,
+                        sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                        sharedFolders: sharedFolders,
                         sharedRootFiles: sharedFiles,
                         meeturl: meeturl,
                         rooms: rooms,
@@ -644,9 +578,10 @@ export default class Main extends React.Component {
                         openRoomMenuItem: true,
                         rootFiles: gedRes.data.Proprietary.Content.files || [],
                         rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                        folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                         reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                        sharedDrive: sharedDrive,
+                        sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                        sharedFolders: sharedFolders,
                         sharedRootFiles: sharedFiles,
                         meeturl: meeturl,
                         rooms: rooms,
@@ -663,9 +598,10 @@ export default class Main extends React.Component {
                       openMeetMenuItem: true,
                       rootFiles: gedRes.data.Proprietary.Content.files || [],
                       rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                       reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedDrive: sharedDrive,
+                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                      sharedFolders: sharedFolders,
                       sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
@@ -684,9 +620,10 @@ export default class Main extends React.Component {
                       openMeetMenuItem: true,
                       rootFiles: gedRes.data.Proprietary.Content.files || [],
                       rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                       reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedDrive: sharedDrive,
+                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                      sharedFolders: sharedFolders,
                       sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
@@ -700,7 +637,7 @@ export default class Main extends React.Component {
                   } else if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
                     if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
                       let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
-                      let contact = this.getOAContactByUid(contact_id);
+                      let contact = main_functions.getOAContactByUid(contacts,contact_id);
                       if (contact) {
                         this.setState({
                           selectedContact: contact,
@@ -710,9 +647,10 @@ export default class Main extends React.Component {
                           openContactsMenu: true,
                           rootFiles: gedRes.data.Proprietary.Content.files || [],
                           rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                          folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                           reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                          sharedDrive: sharedDrive,
+                          sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                          sharedFolders: sharedFolders,
                           sharedRootFiles: sharedFiles,
                           meeturl: meeturl,
                           contacts: contacts,
@@ -734,9 +672,10 @@ export default class Main extends React.Component {
                         openContactsMenu: true,
                         rootFiles: gedRes.data.Proprietary.Content.files || [],
                         rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                        folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                         reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                        sharedDrive: sharedDrive,
+                        sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                        sharedFolders: sharedFolders,
                         sharedRootFiles: sharedFiles,
                         meeturl: meeturl,
                         contacts: contacts,
@@ -763,9 +702,10 @@ export default class Main extends React.Component {
                           openSocietyMenuItem: true,
                           rootFiles: gedRes.data.Proprietary.Content.files || [],
                           rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                          folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                           reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                          sharedDrive: sharedDrive,
+                          sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                          sharedFolders: sharedFolders,
                           sharedRootFiles: sharedFiles,
                           meeturl: meeturl,
                           contacts: contacts,
@@ -788,9 +728,10 @@ export default class Main extends React.Component {
                         openSocietyMenuItem: true,
                         rootFiles: gedRes.data.Proprietary.Content.files || [],
                         rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                        folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                        folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                         reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                        sharedDrive: sharedDrive,
+                        sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                        sharedFolders: sharedFolders,
                         sharedRootFiles: sharedFiles,
                         meeturl: meeturl,
                         contacts: contacts,
@@ -811,9 +752,10 @@ export default class Main extends React.Component {
                       openTimeSheetsMenu: true,
                       rootFiles: gedRes.data.Proprietary.Content.files || [],
                       rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                       reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedDrive: sharedDrive,
+                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                      sharedFolders: sharedFolders,
                       sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
@@ -832,9 +774,10 @@ export default class Main extends React.Component {
                       openTimeSheetsMenu: true,
                       rootFiles: gedRes.data.Proprietary.Content.files || [],
                       rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                       reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedDrive: sharedDrive,
+                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                      sharedFolders: sharedFolders,
                       sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
@@ -853,9 +796,10 @@ export default class Main extends React.Component {
                       openTimeSheetsMenu: true,
                       rootFiles: gedRes.data.Proprietary.Content.files || [],
                       rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                       reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedDrive: sharedDrive,
+                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                      sharedFolders: sharedFolders,
                       sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
@@ -874,9 +818,10 @@ export default class Main extends React.Component {
                       openTimeSheetsMenu: true,
                       rootFiles: gedRes.data.Proprietary.Content.files || [],
                       rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                       reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedDrive: sharedDrive,
+                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                      sharedFolders: sharedFolders,
                       sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
@@ -906,10 +851,10 @@ export default class Main extends React.Component {
                               rootFiles: gedRes.data.Proprietary.Content.files || [],
                               rootFolders:
                                 gedRes.data.Proprietary.Content.folders || [],
-                              folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                              reelFolders:
-                                gedRes.data.Proprietary.Content.folders || [],
-                              sharedDrive: sharedDrive,
+                              folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                              reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                              sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                              sharedFolders: sharedFolders,
                               sharedRootFiles: sharedFiles,
                               meeturl: meeturl,
                               contacts: contacts,
@@ -938,9 +883,10 @@ export default class Main extends React.Component {
                           textSearch: textToSearch,
                           rootFiles: gedRes.data.Proprietary.Content.files || [],
                           rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                          folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
                           reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                          sharedDrive: sharedDrive,
+                          sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                          sharedFolders: sharedFolders,
                           sharedRootFiles: sharedFiles,
                           meeturl: meeturl,
                           contacts: contacts,
@@ -977,10 +923,70 @@ export default class Main extends React.Component {
     }
   }
 
+   updateTreeData(list, key, children, files) {
+    return list.map((node) => {
+      if (node.key === key) {
+        node.files = files;
+        console.log(node)
+        return { ...node, children };
+      } else if (node.children) {
+        return { ...node, children: this.updateTreeData(node.children, key, children, files) };
+      }
+      return node;
+    });
+  }
+
+  onLoadSharedData = ({ key, children }) => {
+
+    return new Promise((resolve) => {
+      if (children) {
+        resolve();
+        return;
+      }
+      let origin = this.state.sharedFolders;
+      SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+          let sub_folders = Res.data.Content.folders || [];
+          let sub_files = Res.data.Content.files || [];
+          let childrens = [];
+          for(let i =0 ; i < sub_folders.length ; i++){
+            let treeNode = {
+              title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
+              key:sub_folders[i].id,
+              icon: sub_folders[i].type ? (
+                <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+              ) : (
+                ({ selected }) =>
+                  selected ? (
+                    <FolderIcon style={{ color: '#1a73e8' }} />
+                  ) : (
+                    <FolderIcon style={{ color: 'grey' }} />
+                  )
+              ),
+              files: [] ,
+              folders: [] ,
+              typeF: sub_folders[i].type ? 'file' : 'folder'
+            };
+            childrens.push(treeNode)
+          }
+          this.setState({
+            selectedSharedFolderFolders:Res.data.Content.folders,
+            selectedSharedFolderFiles:Res.data.Content.files
+          })
+          let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
+          this.setState({sharedFolders:update})
+        resolve();
+        }).catch(err => {
+          resolve();
+          console.log(err)})
+
+    });
+  }
+
+
   openSnackbar = (type, msg) => {
     this.setState({
       openAlert: true,
-      alertMessage: msg, //***
+      alertMessage: msg,
       alertType: type
     });
   };
@@ -1002,91 +1008,7 @@ export default class Main extends React.Component {
     this.setState({ openUploadToast: false });
   };
 
-  changeStructure = (drive) => {
-    const list = [];
-    for (let i = 0; i < drive.length; i++) {
-      const key = drive[i].id.toString();
-      const treeNode = {
-        title: drive[i].type ? drive[i].name + '.pdf' : drive[i].name,
-        key,
-        icon: drive[i].type ? (
-          <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
-        ) : (
-          ({ selected }) =>
-            selected ? (
-              <FolderIcon style={{ color: '#1a73e8' }} />
-            ) : (
-              <FolderIcon style={{ color: 'grey' }} />
-            )
-        ),
-        files: drive[i].Content ? drive[i].Content.files || [] : [],
-        folders: drive[i].Content ? drive[i].Content.folders || [] : [],
-        typeF: drive[i].type ? 'file' : 'folder'
-      };
-
-      if (drive[i].Content && (drive[i].Content.folders.length > 0)) {
-        treeNode.children = this.changeStructure(drive[i].Content.folders);
-      }
-      if (drive[i].Content && (drive[i].Content.files.length > 0)) {
-        treeNode.children = (treeNode.children || []).concat(this.changeStructure(drive[i].Content.files) || []);
-      }
-
-      list.push(treeNode);
-    }
-    return list;
-  };
-
-  buildIndex = (root, children) => {
-    for (let i in children) {
-      index[children[i].id] = root;
-      this.buildIndex(
-        children[i].id,
-        children[i].Content ? children[i].Content.folders : []
-      );
-    }
-  };
-
-  getPath = (id, drive) => {
-    if (drive) this.buildIndex('Mon drive', drive);
-    return index[id] ? this.getPath(index[id]).concat([id]) : [id];
-  };
-
-  getFolderNameById = (id, drive) => {
-    for (let i = 0; i < drive.length; i++) {
-      if (drive[i].id !== id) {
-        let found = this.getFolderNameById(id, drive[i].Content.folders);
-        if (found) return found;
-      } else return drive[i].name;
-    }
-  };
-
-  getFolderTypeById = (id, drive) => {
-    for (let i = 0; i < drive.length; i++) {
-      if (drive[i].id !== id) {
-        let found = this.getFolderNameById(id, drive[i].Content.folders);
-        if (found) return found;
-      } else return drive[i].proprietary ? 'shared' : 'proprietary';
-    }
-  };
-
-  getBreadcumpsPath = (idFolder, drive) => {
-    let breadCrumbArray = this.getPath(idFolder, drive);
-    let breadcrumbs = [];
-    breadCrumbArray.map((id, key) => {
-      if (id !== 'Mon drive') {
-        let name = this.getFolderNameById(id, drive);
-        if (this.getFolderTypeById(id, drive) === 'shared')
-          breadcrumbs.push('Partagés avec moi');
-        breadcrumbs.push(name);
-      } else {
-        breadcrumbs.push(id);
-      }
-    });
-    return breadcrumbs.join(' / ');
-  };
-
   deleteFile_Folder = (file) => {
-    //console.log(file)
     this.setState({ loading: true });
     SmartService.deleteFile(
       file.key || file.id,
@@ -1114,7 +1036,6 @@ export default class Main extends React.Component {
 
   renameFile_Folder = (file, newName) => {
     this.setState({ loading: true });
-    //console.log(file)
     SmartService.updateFileName(
       { name: newName },
       file.key || file.id,
@@ -1124,15 +1045,7 @@ export default class Main extends React.Component {
       .then((updateNameRes) => {
         if (updateNameRes.succes === true && updateNameRes.status === 200) {
           this.reloadGed();
-          this.openSnackbar(
-            'success',
-            file.type
-              ? file.name +
-              '.pdf a bien été renommé. Nouveau nom: ' +
-              newName +
-              '.pdf'
-              : file.name + ' a bien été renommé. Nouveau nom: ' + newName
-          );
+          this.openSnackbar('success', file.type ? file.name + '.pdf a bien été renommé. Nouveau nom: ' + newName + '.pdf' : file.name + ' a bien été renommé. Nouveau nom: ' + newName);
         } else {
           this.openSnackbar('error', updateNameRes.error);
         }
@@ -1141,40 +1054,6 @@ export default class Main extends React.Component {
         this.setState({ loading: false });
         this.openSnackbar('error', err);
       });
-  };
-
-  getFolderById = (id, drive) => {
-    for (let i = 0; i < drive.length; i++) {
-      if (drive[i].id) {
-        if (drive[i].id !== id) {
-          let found = this.getFolderById(id, drive[i].Content.folders);
-          if (found) return found;
-        } else return drive[i];
-      } else {
-        if (drive[i].key !== id) {
-          let found = this.getFolderById(id, drive[i].folders);
-          if (found) return found;
-        } else return drive[i];
-      }
-    }
-  };
-
-  getFolderFilesById = (id, drive) => {
-    for (let i = 0; i < drive.length; i++) {
-      if (drive[i].id !== id) {
-        let found = this.getFolderFilesById(id, drive[i].Content.folders);
-        if (found) return found;
-      } else return drive[i].Content.files;
-    }
-  };
-
-  getFolderFoldersById = (id, drive) => {
-    for (let i = 0; i < drive.length; i++) {
-      if (drive[i].id !== id) {
-        let found = this.getFolderFoldersById(id, drive[i].Content.folders);
-        if (found) return found;
-      } else return drive[i].Content.folders;
-    }
   };
 
   handleChange = (object, name) => event => {
@@ -1197,7 +1076,7 @@ export default class Main extends React.Component {
 
   saveContactChanges = () => {
     this.setState({ loading: true });
-    let key = this.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
+    let key = main_functions.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
     firebase.database().ref('contacts/' + key).set(
       this.state.selectedContact
     ).then(res => {
@@ -1210,36 +1089,13 @@ export default class Main extends React.Component {
 
   saveSocietyChanges = () => {
     this.setState({ loading: true });
-    let key = this.findClientMondatById(this.state.selectedSociete.ID, this.state.annuaire_clients_mondat);
+    let key = main_functions.findClientMondatById(this.state.selectedSociete.ID, this.state.annuaire_clients_mondat);
     firebase.database().ref('annuaire_client_mondat/' + key).set(
       this.state.selectedSociete
     ).then(res => {
       this.setState({ loading: false });
       this.openSnackbar('success', 'Modification effectuée avec succès');
     });
-  };
-
-  openAddModal = (type) => () => {
-    this.setState({
-      add: type,
-      showModalAdd: true
-    });
-  };
-
-  handleChangeDomaine = (event) => {
-    this.setState({
-      domaine: {
-        domaine: event.target.value,
-        specialite: []
-      }
-    });
-  };
-
-
-  handleChangeSpecialite = (event) => {
-    let domaine = this.state.domaine;
-    domaine.specialite = event.target.value;
-    this.setState({ domaine: domaine });
   };
 
   onInputTimeSuggChange = (event, { newValue }) => {
@@ -1251,7 +1107,7 @@ export default class Main extends React.Component {
 
   onTimeSuggestionsFetchRequested = ({ value }) => {
     this.setState({
-      timeSuggestions: getTimeSuggestions(value)
+      timeSuggestions: main_functions.getTimeSuggestions(value)
     });
   };
 
@@ -1276,7 +1132,7 @@ export default class Main extends React.Component {
     reader.onloadend = () => {
       let selectedContact = this.state.selectedContact;
       selectedContact.imageUrl = reader.result;
-      let key = this.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
+      let key = main_functions.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
       firebase.database().ref('contacts/' + key).set(
         this.state.selectedContact
       ).then(res => {
@@ -1321,7 +1177,6 @@ export default class Main extends React.Component {
         Promise.all(calls).then(response => {
           this.setState({ openUploadToast: false, uploadToastMessage: '' });
           this.reloadGed();
-          //console.log(response)
         }).catch(err => {
           this.setState({ loading: false });
           console.log(err);
@@ -1343,11 +1198,10 @@ export default class Main extends React.Component {
   justReloadGed = () => {
     SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(gedRes => {
       if (gedRes.succes === true && gedRes.status === 200) {
-
         this.setState({
           rootFiles: gedRes.data.Proprietary.Content.files || [],
           rootFolders: gedRes.data.Proprietary.Content.folders || [],
-          folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
           reelFolders: gedRes.data.Proprietary.Content.folders || []
         });
       } else {
@@ -1368,19 +1222,18 @@ export default class Main extends React.Component {
 
             let folders = gedRes.data.Proprietary.Content.folders || [];
             let folder_id = this.props.location.pathname.replace('/home/drive/', '');
-            let folder_name = this.getFolderNameById(folder_id, folders);
+            let folder_name = main_functions.getFolderNameById(folder_id, folders);
 
             this.setState({
-              folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+              folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
               reelFolders: gedRes.data.Proprietary.Content.folders || [],
               rootFiles: gedRes.data.Proprietary.Content.files || [],
               rootFolders: gedRes.data.Proprietary.Content.folders || [],
-              expanded: this.expandAll(folder_id, folders),
               selectedFoldername: folder_name,
-              breadcrumbs: this.getBreadcumpsPath(folder_id, folders),
+              breadcrumbs: main_functions.getBreadcumpsPath(folder_id, folders),
               selectedFolderId: folder_id,
-              selectedFolderFiles: this.getFolderFilesById(folder_id, folders),
-              selectedFolderFolders: this.getFolderFoldersById(folder_id, folders),
+              selectedFolderFiles: main_functions.getFolderFilesById(folder_id, folders),
+              selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, folders),
               showContainerSection: 'Drive',
               focusedItem: 'Drive',
               selectedDriveItem: [folder_id],
@@ -1392,7 +1245,7 @@ export default class Main extends React.Component {
             this.setState({
               rootFiles: gedRes.data.Proprietary.Content.files || [],
               rootFolders: gedRes.data.Proprietary.Content.folders || [],
-              folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+              folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
               reelFolders: gedRes.data.Proprietary.Content.folders || [],
               loading: false
             });
@@ -1401,7 +1254,7 @@ export default class Main extends React.Component {
             this.setState({
               rootFiles: gedRes.data.Proprietary.Content.files || [],
               rootFolders: gedRes.data.Proprietary.Content.folders || [],
-              folders: this.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+              folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
               reelFolders: gedRes.data.Proprietary.Content.folders || [],
               loading: false
             });
@@ -1418,234 +1271,6 @@ export default class Main extends React.Component {
         this.setState({ loading: false });
       });
     }, 200);
-  };
-
-  expandAll = (id, drive) => {
-    for (let i = 0; i < drive.length; i++) {
-      expanded.push(drive[i].id);
-      if (drive[i].id === id) {
-        return expanded;
-      }
-      var found = this.expandAll(id, drive[i].Content.folders);
-      if (found) return expanded;
-    }
-
-  };
-
-  addItem = (type) => event => {
-    if (type === 'domaine') {
-
-      let selectedContact = this.state.selectedContact;
-      var domaines = [];
-      if (selectedContact.domaine === 'null') {
-        domaines.push(this.state.domaine);
-        selectedContact.domaine = domaines;
-        this.setState({
-          selectedContact: selectedContact,
-          domaine: {
-            domaine: '',
-            specialite: []
-          },
-          showModalAdd: false
-        });
-      } else {
-        selectedContact.domaine.push(this.state.domaine);
-        this.setState({
-          selectedContact: selectedContact,
-          domaine: {
-            domaine: '',
-            specialite: []
-          },
-          showModalAdd: false
-        });
-      }
-    }
-
-    if (type === 'formation') {
-      let selectedContact = this.state.selectedContact;
-      if (selectedContact.formations === undefined) {
-        let formations = [];
-        formations.push(this.state.formationTmp);
-        selectedContact.formations = formations;
-        this.setState({
-          selectedContact: selectedContact,
-          formationTmp: '',
-          showModalAdd: false
-        });
-      } else {
-        selectedContact.formations.push(this.state.formationTmp);
-
-        this.setState({
-          selectedContact: selectedContact,
-          formationTmp: '',
-          showModalAdd: false
-        });
-      }
-    }
-    if (type === 'fonction') {
-      let selectedContact = this.state.selectedContact;
-      if (selectedContact.fonctions === undefined) {
-        let fonctions = [];
-        fonctions.push(this.state.fonctionTmp);
-        selectedContact.fonctions = fonctions;
-        this.setState({
-          selectedContact: selectedContact,
-          fonctionTmp: '',
-          showModalAdd: false
-        });
-      } else {
-        selectedContact.fonctions.push(this.state.fonctionTmp);
-
-        this.setState({
-          selectedContact: selectedContact,
-          fonctionTmp: '',
-          showModalAdd: false
-        });
-      }
-    }
-    if (type === 'affiliation') {
-      let selectedContact = this.state.selectedContact;
-
-      if (selectedContact.affiliations === undefined) {
-        let affiliation = [];
-        affiliation.push(this.state.affiliationTmp);
-        selectedContact.affiliations = affiliation;
-        this.setState({
-          selectedContact: selectedContact,
-          affiliationTmp: '',
-          showModalAdd: false
-        });
-      } else {
-
-        selectedContact.affiliations.push(this.state.affiliationTmp);
-
-        this.setState({
-          selectedContact: selectedContact,
-          affiliationTmp: '',
-          showModalAdd: false
-        });
-      }
-    }
-    if (type === 'parcour') {
-      let selectedContact = this.state.selectedContact;
-
-      if (selectedContact.parcoursP === undefined) {
-        let parcoursP = [];
-        parcoursP.push(this.state.parcourTmp);
-        selectedContact.parcoursP = parcoursP;
-        this.setState({
-          selectedContact: selectedContact,
-          parcourTmp: '',
-          showModalAdd: false
-        });
-      } else {
-
-        selectedContact.parcoursP.push(this.state.parcourTmp);
-        this.setState({
-          selectedContact: selectedContact,
-          parcourTmp: '',
-          showModalAdd: false
-        });
-      }
-    }
-    if (type === 'langue') {
-      let selectedContact = this.state.selectedContact;
-
-      if (selectedContact.langues === undefined) {
-        let langues = [];
-        langues.push(this.state.langueTmp);
-        selectedContact.langues = langues;
-        this.setState({
-          selectedContact: selectedContact,
-          langueTmp: '',
-          showModalAdd: false
-        });
-      } else {
-
-        selectedContact.langues.push(this.state.langueTmp);
-        this.setState({
-          selectedContact: selectedContact,
-          langueTmp: '',
-          showModalAdd: false
-        });
-      }
-    }
-    if (type === 'hobbies') {
-      let selectedContact = this.state.selectedContact;
-
-      if (selectedContact.hobbies === undefined) {
-        let hobbies = [];
-        hobbies.push(this.state.hobbiesTmp);
-        selectedContact.hobbies = hobbies;
-        this.setState({
-          selectedContact: selectedContact,
-          hobbiesTmp: '',
-          showModalAdd: false
-        });
-      } else {
-
-        selectedContact.hobbies.push(this.state.hobbiesTmp);
-        this.setState({
-          selectedContact: selectedContact,
-          hobbiesTmp: '',
-          showModalAdd: false
-        });
-      }
-    }
-  };
-
-  removeItem = (type, index) => event => {
-
-    if (type === 'domaine') {
-      let selectedContact = this.state.selectedContact;
-      selectedContact.domaine.splice(index, 1);
-      this.setState({
-        selectedContact: selectedContact
-      });
-    }
-
-    if (type === 'formation') {
-      let selectedContact = this.state.selectedContact;
-      selectedContact.formations.splice(index, 1);
-      this.setState({
-        selectedContact: selectedContact
-      });
-    }
-    if (type === 'fonction') {
-      let selectedContact = this.state.selectedContact;
-      selectedContact.fonctions.splice(index, 1);
-      this.setState({
-        selectedContact: selectedContact
-      });
-    }
-    if (type === 'affiliation') {
-      let selectedContact = this.state.selectedContact;
-      selectedContact.affiliations.splice(index, 1);
-      this.setState({
-        selectedContact: selectedContact
-      });
-    }
-    if (type === 'parcour') {
-      let selectedContact = this.state.selectedContact;
-      selectedContact.parcoursP.splice(index, 1);
-      this.setState({
-        selectedContact: selectedContact
-      });
-    }
-    if (type === 'langue') {
-      let selectedContact = this.state.selectedContact;
-      selectedContact.langues.splice(index, 1);
-      this.setState({
-        selectedContact: selectedContact
-      });
-    }
-    if (type === 'hobbies') {
-      let selectedContact = this.state.selectedContact;
-      selectedContact.hobbies.splice(index, 1);
-      this.setState({
-        selectedContact: selectedContact
-      });
-    }
   };
 
   addNewRoom = (room) => {
@@ -1680,30 +1305,6 @@ export default class Main extends React.Component {
       this.openSnackbar('error', err);
     });
 
-  };
-
-  findContactByEmail = (email, contacts) => {
-    let index;
-    contacts.map((contact, key) => {
-      if (contact.email && contact.email === email) index = key;
-    });
-    return index;
-  };
-
-  findContactByUid = (uid, contacts) => {
-    let index;
-    contacts.map((contact, key) => {
-      if (contact.uid && contact.uid === uid) index = key;
-    });
-    return index;
-  };
-
-  findClientMondatById = (id, clients) => {
-    let index;
-    clients.map((client, key) => {
-      if (client.ID && client.ID === id) index = key;
-    });
-    return index;
   };
 
   openPdfModal = (doc_id) => {
@@ -1884,6 +1485,7 @@ export default class Main extends React.Component {
           openShareModal={() => {
             this.setState({ openShareDocModal: true });
           }}
+
           driveFolders={this.state.folders || []}
           setDriveFolders={(drive) => this.setState({ folders: drive })}
           selectedFolder={this.state.selectedFolder}
@@ -1897,7 +1499,7 @@ export default class Main extends React.Component {
             this.props.history.push('/home/drive/' + id);
             this.setState({
               focusedItem: 'Drive',
-              breadcrumbs: this.getBreadcumpsPath(id, this.state.reelFolders),
+              breadcrumbs: main_functions.getBreadcumpsPath(id, this.state.reelFolders),
               selectedFolderId: id,
               showContainerSection: 'Drive'
             });
@@ -1916,6 +1518,51 @@ export default class Main extends React.Component {
           setExpandedDriveItems={(keys) =>
             this.setState({ expandedDriveItems: keys })
           }
+
+          sharedFolders={this.state.sharedFolders || []}
+          sharedRootFiles={this.state.sharedRootFiles}
+          expandedDriveSharedItems={this.state.showContainerSection === 'Drive' ? this.state.expandedDriveSharedItems : []}
+          setExpandedDriveSharedItems={(keys) =>
+            this.setState({ expandedDriveSharedItems: keys })
+          }
+          selectedDriveSharedItem={this.state.showContainerSection === 'Drive' ? this.state.selectedDriveSharedItem : []}
+          setSelectedDriveSharedItem={(keys) => this.setState({ selectedDriveSharedItem: keys })}
+          autoExpandSharedParent={this.state.autoExpandSharedParent}
+          setAutoExpandSharedParent={(b) =>
+            this.setState({ autoExpandSharedParent: b })
+          }
+          setSelectedSharedFolder={(folder) =>
+            this.setState({ selectedSharedFolder: folder })
+          }
+          setSharedFolderName={(name) =>
+            this.setState({ selectedSharedFoldername: name })
+          }
+          setSharedFolderId={(id) => {
+            this.props.history.push('/home/shared/' + id);
+            this.setState({
+              focusedItem: 'Drive',
+              breadcrumbs: 'Mon drive / Partagés avec moi',
+              selectedSharedFolderId: id,
+              showContainerSection: 'Drive'
+            });
+          }}
+          setSelectedSharedFolderFiles={(files) =>
+            this.setState({ selectedSharedFolderFiles: files })
+          }
+          setSelectedSharedFolderFolders={(folders) =>
+            this.setState({ selectedSharedFolderFolders: folders })
+          }
+          onLoadSharedData={this.onLoadSharedData}
+
+          onClickSharedRootItem={(key) => {
+            this.props.history.push('/home/shared/'+key);
+            this.setState({
+              breadcrumbs: 'Mon drive / Partagés avec moi',
+              focusedItem: 'Drive',
+              showContainerSection: 'Drive'
+            });
+          }}
+
           selectedMeetItem={
             this.state.showContainerSection === 'Meet'
               ? this.state.selectedMeetMenuItem
@@ -1942,30 +1589,14 @@ export default class Main extends React.Component {
             } else {
             }
           }}
-          sharedDrive={this.state.sharedDrive || []}
-          sharedRootFiles={this.state.sharedRootFiles}
-          onClickSharedRootItem={() => {
-            this.props.history.replace({
-              pathname: '/drive/shared'
-            });
-            this.setState({
-              breadcrumbs: 'Mon drive / Partagés avec moi',
-              focusedItem: 'Drive',
-              showContainerSection: 'Drive'
-            });
-          }}
-          handleToggle={(event, nodeIds) => {
-            this.setState({ expanded: nodeIds });
-          }}
+
+
           onClickNewFileFromRacine={() => {
             this.setState({
               showContainerSection: 'Drive',
               focusedItem: 'Drive',
               openDriveMenuItem: true,
               openNewDocModal: true
-              //newFileFromRacine: true,
-              //showNewDocScreen: true,
-              //showUploadStep: "upload",
             });
           }}
           rooms={this.state.rooms}
@@ -2022,30 +1653,6 @@ export default class Main extends React.Component {
     let timeSheet = this.state.TimeSheet;
     this.state.TimeSheetData.push(timeSheet);
     firebase.database().ref('/TimeSheet').set(this.state.TimeSheetData);
-  }
-
-  getOAContactByEmail(email) {
-    let OAcontact = '';
-    this.state.contacts.map((contact, key) => {
-      if (contact && contact.email && contact.email === email) OAcontact = contact;
-    });
-    return OAcontact;
-  }
-
-  getOAContactByEmail2(contacts, email) {
-    let OAcontact = '';
-    contacts.map((contact, key) => {
-      if (contact && contact.email && contact.email === email) OAcontact = contact;
-    });
-    return OAcontact;
-  }
-
-  getOAContactByUid(uid) {
-    let OAcontact = '';
-    this.state.contacts.map((contact, key) => {
-      if (contact && contact.uid && contact.uid === uid) OAcontact = contact;
-    });
-    return OAcontact;
   }
 
   createFacture() {
@@ -2163,7 +1770,7 @@ export default class Main extends React.Component {
 
     lignes_factures.map((ligne, key) => {
       total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
-      let OAContact = this.getOAContactByEmail(ligne.newTime.utilisateurOA);
+      let OAContact = main_functions.getOAContactByEmail2(this.state.contacts,ligne.newTime.utilisateurOA);
       odoo_data[0].line_ids.push(
         [
           0,
@@ -2290,7 +1897,7 @@ export default class Main extends React.Component {
     });
   }
 
-  createFacture_ForSelected() {
+  createFacture_ForSelected(facture_date,partner) {
     let lignes_factures = this.state.lignesFactures.filter((lf) => lf.checked === true);
     let odoo_data = [{
       'access_token': 'eafd285777ggobfvxyvnx',
@@ -2299,8 +1906,8 @@ export default class Main extends React.Component {
       'invoice_sent': false,
       'l10n_ch_isr_sent': false,
       'name': '',
-      'invoice_date': moment(this.state.dateFacture).format('YYYY-MM-DD'),
-      'date': moment(this.state.dateFacture).format('YYYY-MM-DD'),
+      'invoice_date': moment(facture_date).format('YYYY-MM-DD'),
+      'date': moment(facture_date).format('YYYY-MM-DD'),
       'journal_id': 1,
       'currency_id': 5,
       'invoice_user_id': 3,
@@ -2403,7 +2010,7 @@ export default class Main extends React.Component {
     let total = 0;
     lignes_factures.map((ligne, key) => {
       total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
-      let OAContact = this.getOAContactByEmail(ligne.newTime.utilisateurOA);
+      let OAContact = main_functions.getOAContactByEmail2(this.state.contacts,ligne.newTime.utilisateurOA);
       odoo_data[0].line_ids.push(
         [
           0,
@@ -2544,419 +2151,8 @@ export default class Main extends React.Component {
   updateLignes_facture(lignes_factures) {
     setTimeout(() => {
       firebase.database().ref('/lignes_factures').set(lignes_factures);
-      //console.log(this.state.TimeSheet)
     }, 300);
 
-  }
-
-  genrateGed() {
-    SmartService.addFolder({
-      name: 'SECRETARIAT',
-      folder_id: null
-    }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
-
-      console.log('OK');
-
-      SmartService.addFolder({
-        name: 'ETUDE',
-        folder_id: addFolderRes.data.id
-      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes1 => {
-
-        console.log('OK');
-        SmartService.addFolder({
-          name: 'BCORP',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'LOGOS',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'PHOTOS',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'CONFERENCE - PUBLICATIONS',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'KNOW HOW',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'NEWSLETTER',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'PRESENTATION ETUDE',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'CALENDRIER',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'EVENT',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'MODELES',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'ARCHIVAGE',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'OUVERTURE DOSSIER',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'LISTE TELEPHONE INTERNE',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'ASSOCIES ***',
-          folder_id: addFolderRes1.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes1_assoc => {
-          console.log('OK');
-
-          SmartService.addFolder({
-            name: 'CONVENTION D\'ACTIONNAIRES',
-            folder_id: addFolderRes1_assoc.data.id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-            console.log('OK');
-
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'CONTRAT DE TRAVAIL',
-            folder_id: addFolderRes1_assoc.data.id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-            console.log('OK');
-
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'DECISIONS CONSEIL D\'ADMINISTRATION',
-            folder_id: addFolderRes1_assoc.data.id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-            console.log('OK');
-
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'ASSEMBLEE GENERALE EXTRAORDINAIRE',
-            folder_id: addFolderRes1_assoc.data.id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-            console.log('OK');
-
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'ASSEMBLEE GENERALE ORDINAIRE',
-            folder_id: addFolderRes1_assoc.data.id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-            console.log('OK');
-
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'PV REUNION',
-            folder_id: addFolderRes1_assoc.data.id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-            console.log('OK');
-
-          }).catch(err => {
-            console.log(err);
-          });
-
-        }).catch(err => {
-          console.log(err);
-        });
-
-      }).catch(err => {
-        console.log(err);
-      });
-
-      SmartService.addFolder({
-        name: 'LOCAUX',
-        folder_id: addFolderRes.data.id
-      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes2 => {
-
-        SmartService.addFolder({
-          name: 'ASSURANCES',
-          folder_id: addFolderRes2.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'BAIL A LOYER',
-          folder_id: addFolderRes2.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'CAVES',
-          folder_id: addFolderRes2.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'BAVITECH',
-          folder_id: addFolderRes2.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'NETTOYAGE',
-          folder_id: addFolderRes2.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'BADEL',
-          folder_id: addFolderRes2.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-
-      }).catch(err => {
-        console.log(err);
-      });
-
-      SmartService.addFolder({
-        name: 'COMPTABILITE *',
-        folder_id: addFolderRes.data.id
-      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes3 => {
-
-        SmartService.addFolder({
-          name: 'BUDGET',
-          folder_id: addFolderRes3.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'FACTURATION CLIENTS',
-          folder_id: addFolderRes3.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'FACTURES FOURNISSEURS',
-          folder_id: addFolderRes3.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'TVA',
-          folder_id: addFolderRes3.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'LISTES IBAN',
-          folder_id: addFolderRes3.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'CAISSE ETUDE',
-          folder_id: addFolderRes3.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-
-      }).catch(err => {
-        console.log(err);
-      });
-
-      SmartService.addFolder({
-        name: 'RH *',
-        folder_id: addFolderRes.data.id
-      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes4 => {
-
-        SmartService.addFolder({
-          name: 'EMPLOYES',
-          folder_id: addFolderRes4.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'WELCOME PACK',
-          folder_id: addFolderRes4.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'LPP ETUDE',
-          folder_id: addFolderRes4.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'FER CIAM',
-          folder_id: addFolderRes4.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'TELETRAVAIL',
-          folder_id: addFolderRes4.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'CANDIDATURES',
-          folder_id: addFolderRes4.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'OCAS',
-          folder_id: addFolderRes4.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-
-      }).catch(err => {
-        console.log(err);
-      });
-
-      SmartService.addFolder({
-        name: 'LISTES',
-        folder_id: addFolderRes.data.id
-      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes5 => {
-
-
-        SmartService.addFolder({
-          name: 'CLIENTS',
-          folder_id: addFolderRes5.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'AVOCATS',
-          folder_id: addFolderRes5.data.id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes11 => {
-          console.log('OK');
-        }).catch(err => {
-          console.log(err);
-        });
-
-      }).catch(err => {
-        console.log(err);
-      });
-
-    }).catch(err => {
-      console.log(err);
-    });
-
-    SmartService.addFolder({
-      name: 'CLIENTS',
-      folder_id: null
-    }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes => {
-      console.log('ok');
-    }).catch(err => {
-      console.log(err);
-    });
   }
 
   generateClientFolder(ID, team) {
@@ -2964,9 +2160,7 @@ export default class Main extends React.Component {
     let clients_tmp = this.state.clients_tempo;
     let clients_tmp_copie = this.state.clients_tempo_copie;
     let find = clients_tmp.find(x => x.ID === ID);
-
     if (find) {
-
       SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
         client_id: find.client_id,
         type: this.state.newClientFolder.type,
@@ -2974,13 +2168,10 @@ export default class Main extends React.Component {
         client_folder: find.folder_id,
         team: team
       }).then(addFolderClient => {
-        console.log('OK 1');
-
         SmartService.addFolder({
           name: 'MÉMOIRE',
           folder_id: addFolderClient.data.folder_id
         }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
         }).catch(err => {
           console.log(err);
         });
@@ -2988,7 +2179,6 @@ export default class Main extends React.Component {
           name: 'CHARGE DE PIECES',
           folder_id: addFolderClient.data.folder_id
         }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
         }).catch(err => {
           console.log(err);
         });
@@ -2996,7 +2186,6 @@ export default class Main extends React.Component {
           name: 'CONVOCATIONS',
           folder_id: addFolderClient.data.folder_id
         }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
         }).catch(err => {
           console.log(err);
         });
@@ -3004,7 +2193,6 @@ export default class Main extends React.Component {
           name: 'ADMIN (Lettre d\'engagement)',
           folder_id: addFolderClient.data.folder_id
         }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
         }).catch(err => {
           console.log(err);
         });
@@ -3012,7 +2200,6 @@ export default class Main extends React.Component {
           name: 'COMPTABILITE',
           folder_id: addFolderClient.data.folder_id
         }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
         }).catch(err => {
           console.log(err);
         });
@@ -3020,7 +2207,6 @@ export default class Main extends React.Component {
           name: 'CORRESPONDANCE',
           folder_id: addFolderClient.data.folder_id
         }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
         }).catch(err => {
           console.log(err);
         });
@@ -3028,7 +2214,6 @@ export default class Main extends React.Component {
           name: 'INTERNE ****',
           folder_id: addFolderClient.data.folder_id
         }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
         }).catch(err => {
           console.log(err);
         });
@@ -3036,7 +2221,6 @@ export default class Main extends React.Component {
           name: 'NOTES',
           folder_id: addFolderClient.data.folder_id
         }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
         }).catch(err => {
           console.log(err);
         });
@@ -3046,13 +2230,11 @@ export default class Main extends React.Component {
         }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
           console.log('OK');
         }).catch(err => {
-          console.log(err);
         });
         SmartService.addFolder({
           name: 'PROCEDURES',
           folder_id: addFolderClient.data.folder_id
         }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
         }).catch(err => {
           console.log(err);
         });
@@ -3060,45 +2242,29 @@ export default class Main extends React.Component {
           name: 'RECHERCHES JURIDIQUES',
           folder_id: addFolderClient.data.folder_id
         }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
         }).catch(err => {
           console.log(err);
         });
-
         setTimeout(() => {
           this.setState({
             loading: false,
-            newClientFolder: {
-              nom: '',
-              type: '',
-              team: []
-            },
+            newClientFolder: { nom: '', type: '', team: [] },
             lead_contact_tmp: '',
             lead_contact_horaire_tmp: ''
           });
-
           this.justReloadGed();
           this.openSnackbar('success', 'Dossier ajouté avec succès');
-
         }, 750);
 
       }).catch(err => {
         console.log(err);
       });
-
-    } else {
-
+    }
+    else {
       SmartService.create_client(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
         param: {
           name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
-          base64: false,
-          parent_id: false,
-          function: false,
-          phone: false,
-          mobile: false,
-          email: false,
-          website: false,
-          title: false
+          base64: false, parent_id: false, function: false, phone: false, mobile: false, email: false, website: false, title: false
         }
       }).then(createClientRes => {
 
@@ -3214,44 +2380,27 @@ export default class Main extends React.Component {
               setTimeout(() => {
                 this.setState({
                   loading: false,
-                  newClientFolder: {
-                    nom: '',
-                    type: 'corporate',
-                    team: []
-                  },
+                  newClientFolder: { nom: '', type: 'corporate', team: [] },
                   lead_contact_tmp: '',
                   lead_contact_horaire_tmp: ''
                 });
-
-
                 this.justReloadGed();
                 this.openSnackbar('success', 'Dossier ajouté avec succès');
-
-
               }, 750);
             });
-
-
           }).catch(err => {
             console.log(err);
           });
-
         }).catch(err => {
           console.log(err);
         });
-
       }).catch(err => {
         console.log(err);
       });
-
-
     }
-
-
   }
 
   addNewClient() {
-
     this.setState({ firstLoading: true, loading: true, openNewClientModal: false });
     let all_clients = this.state.annuaire_clients_mondat;
     let newClient = this.state.newClient;
@@ -3269,48 +2418,22 @@ export default class Main extends React.Component {
       });
       setTimeout(() => {
         this.setState({
-          newClient: {
-            ID: '',
-            Nom: '',
-            Type: '0',
-            created_at: '',
-            country: '',
-            email: '',
-            phone: '',
-            isActif: true
-          }
+          newClient: { ID: '', Nom: '', Type: '0', created_at: '', country: '', email: '', phone: '', isActif: true }
         });
       }, 400);
     });
-
   }
+
 
   render() {
     var searchFilter = this.state.annuaire_clients_mondat.filter((soc) => (soc.Nom + ' ' + soc.Prenom).toLowerCase().startsWith(this.state.searchSociete.toLowerCase()));
     var searchFilterLignesfacture = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
-
     const inputSuggProps = {
       placeholder: '0:1, 0:15, 0:30...',
       value: this.state.TimeSheet.newTime.duree,
       onChange: this.onInputTimeSuggChange
     };
-
-    const contactSelectOptions = [];
-    contactSelectOptions.push({ label: 'Aucun', value: '' });
-    this.state.contacts.map((contact, key) => {
-      contactSelectOptions.push({
-        value: contact.email,
-        label: <div>
-          <img alt="" src={contact.imageUrl || null}
-               style={{
-                 width: 30,
-                 height: 30,
-                 objectFit: 'cover'
-               }} />{contact.nom + ' ' + contact.prenom}
-        </div>
-      });
-    });
-
+    const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts,localStorage.getItem("email"))
 
     return (
       <div>
@@ -3354,6 +2477,7 @@ export default class Main extends React.Component {
                     console.log(err);
                   });
               }}
+              current_user_contact={current_user_contact}
             />
             <SideMenu
               logo={logo}
@@ -3367,10 +2491,8 @@ export default class Main extends React.Component {
           </div>
         )}
 
-
         <MuiBackdrop open={this.state.firstLoading} />
         <MuiBackdrop open={this.state.loading} />
-
 
         <div style={{ marginRight: 50, marginTop: 75, marginLeft: 5 }}>
           <div>
@@ -3395,12 +2517,12 @@ export default class Main extends React.Component {
                   <div className="card-body" style={{ minHeight: 750 }}>
 
                     <Switch>
+
                       <Route exact path="/home/drive">
                         <div>
                           {
-                            this.state.showNewDocScreen === false ?
-                              (this.state.loading === false && this.state.firstLoading === false && (
-                                  <div>
+                            (this.state.loading === false && this.state.firstLoading === false) &&
+                            <div>
                                     <div
                                       style={{
                                         display: 'flex',
@@ -3465,50 +2587,8 @@ export default class Main extends React.Component {
                                         display: 'block'
                                       }}
                                     >
-                                      {this.props.match.params.section === 'search' ? (
-                                        <div>
-                                          <SearchResults
-                                            textSearch={this.state.textSearch}
-                                            data={this.state.searchResult}
-                                            viewMode={this.state.viewMode}
-                                            onClickDoc={(item) =>
-                                              this.setState({
-                                                selectedDoc: item,
-                                                openRightMenu: true
-                                              })
-                                            }
-                                            onPdfIconClick={(item) => {
-                                              this.setState({ loading: true });
-                                              //console.log(item)
-                                              SmartService.getFile(
-                                                item.file_id,
-                                                localStorage.getItem('token'),
-                                                localStorage.getItem('usrtoken')
-                                              )
-                                                .then((fileRes) => {
-                                                  if (
-                                                    fileRes.succes === true &&
-                                                    fileRes.status === 200
-                                                  ) {
-                                                    this.setState({
-                                                      loading: false
-                                                    });
-                                                    this.showDocInPdfModal(
-                                                      fileRes.data.Content.Data
-                                                    );
-                                                  } else {
-                                                    console.log(fileRes.error);
-                                                  }
-                                                })
-                                                .catch((err) => console.log(err));
-                                            }}
-                                            setLoading={(b) =>
-                                              this.setState({ loading: b })
-                                            }
-                                          />
-                                        </div>
-                                      ) : this.state.folders.length === 0 &&
-                                      this.state.rootFiles.length === 0 ? (
+                                      {
+                                        (this.state.folders.length === 0 && this.state.rootFiles.length === 0) ? (
                                         <div
                                           style={{
                                             marginTop: 25,
@@ -3552,17 +2632,14 @@ export default class Main extends React.Component {
                                                 selectedDriveItem: [folder.id],
                                                 expandedDriveItems: [folder.id],
                                                 autoExpandParent: true,
-                                                selectedFolder: this.getFolderById(
-                                                  folder.id,
-                                                  this.state.folders
-                                                ),
+                                                selectedFolder: main_functions.getFolderById(folder.id, this.state.folders),
                                                 selectedFoldername: folder.name,
                                                 selectedFolderFiles:
                                                   folder.Content.files || [],
                                                 selectedFolderFolders:
                                                   folder.Content.folders || [],
                                                 focusedItem: 'Drive',
-                                                breadcrumbs: this.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedDrive)),
+                                                breadcrumbs: main_functions.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedReelFolders)),
                                                 selectedFolderId: folder.id,
                                                 showContainerSection: 'Drive'
                                               });
@@ -3609,780 +2686,7 @@ export default class Main extends React.Component {
                                       )}
                                     </div>
                                   </div>
-                                )
-                              ) : (
-                                <div>
-                                  {this.state.showUploadStep === 'upload' && (
-                                    <div>
-                                      <div className="">
-                                        <button
-                                          className="btn btn-sm btn-light"
-                                          onClick={() =>
-                                            this.setState({
-                                              showNewDocScreen: false,
-                                              newFileFromRacine: false
-                                            })
-                                          }
-                                        >
-                                          <i
-                                            className="mdi mdi-arrow-left font-16"
-                                            style={{
-                                              color: '#000',
-                                              fontWeight: 'bold'
-                                            }}
-                                          />
-                                          &nbsp;Retour
-                                        </button>
-                                      </div>
-                                      <div align="center"
-                                           className="mt-5">
-                                        <h1 className="skh1">
-                                          Télécharger un document
-                                        </h1>
-                                        <p
-                                          style={{ fontSize: '1rem' }}
-                                          className="mt-2"
-                                        >
-                                          Faites glisser et déposez un documents PDF
-                                          sur le terrain ou sélectionnez un fichier
-                                          depuis votre ordinateur.
-                                        </p>
-                                        <div className="sk_elupload_drag">
-                                          <FileUploader
-                                            onCancel={() => {
-                                            }}
-                                            onDragEnter={() => console.log('ok')}
-                                            onDrop={(acceptedFiles, rejectedFiles) => {
-                                              let formData = new FormData();
-                                              formData.append('file', acceptedFiles[0]);
-                                              this.state.selectedFolderId !== '' &&
-                                              formData.append(
-                                                'folder_id',
-                                                this.state.selectedFolderId
-                                              );
-                                              axios.request({
-                                                method: 'POST',
-                                                url:
-                                                  data.endpoint +
-                                                  '/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfile',
-                                                data: formData,
-                                                headers: {
-                                                  'Content-Type':
-                                                    'multipart/form-data',
-                                                  token: localStorage.getItem(
-                                                    'token'
-                                                  ),
-                                                  usrtoken: localStorage.getItem(
-                                                    'usrtoken'
-                                                  )
-                                                },
-                                                onUploadProgress: (p) => {
-                                                  this.setState({
-                                                    progressUpload:
-                                                      (p.loaded / p.total) * 100
-                                                  });
-                                                }
-                                              })
-                                                .then((res) => {
-                                                  if (
-                                                    res.data.succes === true &&
-                                                    res.data.status === 200
-                                                  ) {
-                                                    SmartService.getFile(
-                                                      res.data.data.file_id,
-                                                      localStorage.getItem('token'),
-                                                      localStorage.getItem('usrtoken')
-                                                    )
-                                                      .then((fileRes) => {
-                                                        if (
-                                                          fileRes.succes === true &&
-                                                          fileRes.status === 200
-                                                        ) {
-                                                          this.setState({
-                                                            newFileFromRacine: false,
-                                                            showNewDocScreen: false,
-                                                            progressUpload: undefined,
-                                                            showUploadStep: '',
-                                                            uploadedName: fileRes.data.name + '.pdf',
-                                                            uploadedPath:
-                                                            fileRes.data.Content.Data
-                                                          });
-                                                          this.reloadGed();
-                                                        } else {
-                                                          console.log(fileRes.error);
-                                                        }
-                                                      })
-                                                      .catch((err) => {
-                                                        console.log(err);
-                                                      });
-                                                  } else {
-                                                    console.log(res.error);
-                                                  }
-                                                })
-                                                .catch((err) => {
-                                                  console.log(err);
-                                                });
-                                            }} // progressAmount is a number from 0 - 100 which indicates the percent of file transfer completed
-                                            progressAmount={this.state.progressUpload}
-                                            progressMessage={
-                                              this.state.progressUpload
-                                                ? 'Téléchargement de ' +
-                                                this.state.progressUpload.toFixed(
-                                                  2
-                                                ) +
-                                                '% de 100%'
-                                                : ''
-                                            }
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                  {this.state.showUploadStep === 'upload_succes' && (
-                                    <div>
-                                      <div align="center"
-                                           className="mt-5">
-                                        <h1 className="skh1">Téléchargement réussi</h1>
-                                        <p
-                                          style={{ fontSize: '1rem' }}
-                                          className="mt-2"
-                                        >
-                                          Continuez à utiliser le document suivant:
-                                        </p>
-                                        <div className="sk_upload_preview">
-                                          <div className="sk_upload_doc">
-                                            <img
-                                              className="cf-itemDoc_preview_staticImgUploaded"
-                                              alt=""
-                                              src={this.state.uploadedThumb}
-                                            />
-                                          </div>
-                                          <div className="sk_upload_filename">
-                                            {this.state.uploadedName}
-                                          </div>
-                                          <Button
-                                            shape={SHAPE.round}
-                                            size={SIZE.mini}
-                                            onClick={() => {
-                                            }}
-                                          >
-                                            {' '}
-                                            <Delete />{' '}
-                                          </Button>
-                                          <div
-                                            className="mt-2"
-                                            style={{ display: 'contents' }}
-                                          >
-                                            <h1 className="skh2">
-                                              Souhaitez-vous signer ce documents ?
-                                            </h1>
-                                            <RadioGroup
-                                              value={this.state.signDoc}
-                                              onChange={(e) =>
-                                                this.setState({
-                                                  signDoc: e.target.value
-                                                })
-                                              }
-                                              name="signDoc"
-                                              align={ALIGN.horizontal}
-                                            >
-                                              {' '}
-                                              <Radio
-                                                overrides={{
-                                                  RadioMarkOuter: {
-                                                    style: ({ $theme }) => ({
-                                                      backgroundColor:
-                                                      $theme.colors.negative300
-                                                    })
-                                                  }
-                                                }}
-                                                value="true"
-                                              >
-                                                Oui
-                                              </Radio>{' '}
-                                              <Radio
-                                                overrides={{
-                                                  RadioMarkOuter: {
-                                                    style: ({ $theme }) => ({
-                                                      backgroundColor:
-                                                      $theme.colors.negative300
-                                                    })
-                                                  }
-                                                }}
-                                                value="false"
-                                              >
-                                                Non
-                                              </Radio>
-                                            </RadioGroup>
-                                          </div>
-                                          {this.state.showBtnInviteSign === true && (
-                                            <div align="center">
-                                              <button
-                                                className=" mt-3 btn btn-lg text-white btn-danger font-18"
-                                                style={{
-                                                  backgroundColor: 'blue',
-                                                  borderColor: 'blue'
-                                                }}
-                                                onClick={() =>
-                                                  this.setState({
-                                                    showUploadStep: 'inviteSigners'
-                                                  })
-                                                }
-                                              >
-                                                inviter les signataires
-                                              </button>
-                                            </div>
-                                          )}
-                                        </div>
-                                      </div>
-                                      {this.state.showBtnInviteSign === false && (
-                                        <div className="float-right mt-1">
-                                          <button
-                                            className="btn btn-lg text-white btn-danger mr-2 font-18"
-                                            style={{
-                                              backgroundColor: 'blue',
-                                              borderColor: 'blue'
-                                            }}
-                                            onClick={() =>
-                                              this.setState({
-                                                showBtnInviteSign: true
-                                              })
-                                            }
-                                          >
-                                            Continuer
-                                          </button>
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                  {this.state.showUploadStep === 'inviteSigners' && (
-                                    <div align="center">
-                                      <div className="ml-2 mt-2">
-                                        <h1
-                                          className="skh1"
-                                          style={{ fontSize: '1.7rem' }}
-                                        >
-                                          Invitez les gens à signer
-                                        </h1>
-                                        <p
-                                          style={{ fontSize: '1.0rem' }}
-                                          className="mt-2"
-                                        >
-                                          Saisissez l'adresse e-mail des personnes qui
-                                          doivent signer ce document.
-                                        </p>
-                                        <div className="mt-4">
-                                          <strong
-                                            style={{
-                                              color: '#293d66',
-                                              fontSize: '1.1rem'
-                                            }}
-                                          >
-                                            Vous vous signez ?
-                                          </strong>
-                                          <div
-                                            className={
-                                              this.state.signMySelf === true
-                                                ? 'sk_signmyself sk_signmyself_active'
-                                                : 'sk_signmyself'
-                                            }
-                                          >
-                                            <div className="sk_signmyself_text">
-                                              {localStorage.getItem('email')}
-                                            </div>
-                                            <div className="sk_signmyself_switch">
-                                              <Checkbox
-                                                checked={this.state.signMySelf}
-                                                checkmarkType={STYLE_TYPE.toggle_round}
-                                                onChange={(e) =>
-                                                  this.setState({
-                                                    signMySelf: e.target.checked
-                                                  })
-                                                }
-                                                labelPlacement={LABEL_PLACEMENT.left}
-                                                overrides={{
-                                                  Label: {
-                                                    style: ({ $theme }) => ({
-                                                      color:
-                                                        this.state.signMySelf === true
-                                                          ? $theme.colors.positive300
-                                                          : $theme.colors.primary200
-                                                    })
-                                                  },
-                                                  Toggle: {
-                                                    style: ({ $checked, $theme }) => ({
-                                                      backgroundColor: $checked
-                                                        ? $theme.colors.positive300
-                                                        : $theme.colors.primary200
-                                                    })
-                                                  }
-                                                }}
-                                              >
-                                                {' '}
-                                                Je signe{' '}
-                                              </Checkbox>
-                                            </div>
-                                          </div>
-                                          <div className="mt-3">
-                                            <strong
-                                              style={{
-                                                color: '#293d66',
-                                                fontSize: '1.1rem'
-                                              }}
-                                            >
-                                              Ajouter d'autres signataires
-                                            </strong>
-                                            <ReactMultiEmail
-                                              placeholder="Cliquer sur 'Entrée' pour ajouter une adresse mail "
-                                              emails={this.state.signatiaresEmails}
-                                              onChange={(_emails) => {
-                                                this.setState({
-                                                  signatiaresEmails: _emails
-                                                });
-                                              }}
-                                              validateEmail={(email) => {
-                                                return isEmail(email); // return boolean
-                                              }}
-                                              getLabel={(
-                                                email,
-                                                index,
-                                                removeEmail = (index) => {
-                                                }
-                                              ) => {
-                                                return (
-                                                  <div data-tag=""
-                                                       key={index}>
-                                                    {email}{' '}
-                                                    <span
-                                                      data-tag-handle=""
-                                                      onClick={() =>
-                                                        removeEmail(index)
-                                                      }
-                                                    >
-                                                    ×
-                                                  </span>
-                                                  </div>
-                                                );
-                                              }}
-                                            />
-                                          </div>
-                                          <div className="mt-2">
-                                            <strong
-                                              className="mb-1"
-                                              style={{
-                                                color: '#293d66',
-                                                fontSize: '1.1rem'
-                                              }}
-                                            >
-                                              Exigences légales
-                                            </strong>
-                                            <div className="mt-2">
-                                              <div style={{ width: '70%' }}>
-                                                <Select
-                                                  options={[
-                                                    {
-                                                      id: 'Swiss law (ZertES)',
-                                                      image: swissImg
-                                                    },
-                                                    {
-                                                      id: 'EU law (eIDAS)',
-                                                      image: euImg
-                                                    },
-                                                    {
-                                                      id: 'France (eIDAS)',
-                                                      image: frImg
-                                                    }
-                                                  ]}
-                                                  labelKey="id"
-                                                  valueKey="id"
-                                                  onChange={(options) =>
-                                                    this.setState({
-                                                      selectedSignatureType:
-                                                      options.value
-                                                    })
-                                                  }
-                                                  value={
-                                                    this.state.selectedSignatureType
-                                                  }
-                                                  getOptionLabel={getLabel}
-                                                  getValueLabel={getLabel}
-                                                  placeholder=""
-                                                />
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div className="mt-2">
-                                            <strong
-                                              className="mb-1"
-                                              style={{
-                                                color: '#293d66',
-                                                fontSize: '1.1rem'
-                                              }}
-                                            >
-                                              {' '}
-                                              Message à tous les signataires
-                                            </strong>
-                                            <div
-                                              style={{ width: '70%' }}
-                                              className="mt-1"
-                                            >
-                                              <Textarea
-                                                value={this.state.messageToSignatories}
-                                                onChange={(e) =>
-                                                  this.setState({
-                                                    messageToSignatories:
-                                                    e.target.value
-                                                  })
-                                                }
-                                                placeholder=""
-                                              />
-                                            </div>
-                                            <div align="center"
-                                                 className="mt-2">
-                                              <button
-                                                className="btn btn-lg text-white btn-danger mr-2 font-18"
-                                                style={{
-                                                  backgroundColor: 'blue',
-                                                  borderColor: 'blue'
-                                                }}
-                                                onClick={() => {
-                                                  this.setState({
-                                                    showUploadStep: 'signForm'
-                                                  });
-                                                }}
-                                              >
-                                                Continuer
-                                              </button>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                  {this.state.showUploadStep === 'signForm' && (
-                                    <div>
-                                      <div className="sk_appwrap">
-                                        <div className="sk_viewr">
-                                          <div className="sk_pdfviewr">
-                                            <PDFViewer
-                                              document={{
-                                                base64: this.state.uploadedPath
-                                              }}
-                                              minScale={0.25}
-                                              scale={1.05}
-                                              navbarOnTop={true}
-                                              scaleStep={0.25}
-                                              loader={
-                                                <h5 style={{ color: '#fa5b35' }}>
-                                                  Chargement...
-                                                </h5>
-                                              }
-                                              alert={
-                                                <h5 style={{ color: 'red' }}>
-                                                  Une erreur s'est produite lors de
-                                                  chargement du doument !
-                                                </h5>
-                                              }
-                                            />
-                                          </div>
-                                          <div className="sk_signatures_viewr">
-                                            <div className="sk_signatures_viewr_content">
-                                              <div className="btn-group mb-2">
-                                                <button
-                                                  className="btn font-weight-bold   btn-light"
-                                                  onClick={() =>
-                                                    this.setState({
-                                                      showUploadStep: 'inviteSigners'
-                                                    })
-                                                  }
-                                                >
-                                                  Retour
-                                                </button>
-                                                &nbsp;&nbsp;
-                                                <button
-                                                  className="btn custom_p_btn  btn-blue"
-                                                  onClick={() => {
-                                                    this.setState({
-                                                      loading: true
-                                                    });
-                                                    let docs =
-                                                      this.state.documents || [];
-                                                    let signers = [];
-                                                    let signataires = this.state
-                                                      .signatiaresEmails;
-                                                    if (
-                                                      this.state.signMySelf === true
-                                                    ) {
-                                                      signers.push({
-                                                        email: localStorage.getItem(
-                                                          'email'
-                                                        ),
-                                                        signature: '',
-                                                        signed_at: new Date(),
-                                                        key: 1
-                                                      });
-                                                    }
-                                                    signataires.map((item, key) => {
-                                                      signers.push({
-                                                        email: item,
-                                                        signature: '',
-                                                        signed_at: '',
-                                                        key:
-                                                          this.state.signMySelf ===
-                                                          true
-                                                            ? key + 2
-                                                            : key + 1
-                                                      });
-                                                      return null;
-                                                    });
-
-                                                    docs.push({
-                                                      title: this.state.uploadedName,
-                                                      type: 'ad',
-                                                      desc: '',
-                                                      thumbnail: this.state
-                                                        .uploadedThumb,
-                                                      path: this.state.uploadedPath,
-                                                      created_at: new Date(),
-                                                      signers: signers
-                                                    });
-                                                    this.setState({
-                                                      showUploadStep: 'successfulStep',
-                                                      loading: false
-                                                    });
-                                                  }}
-                                                >
-                                                  <h1 className="skh_btn">
-                                                    {this.state.signMySelf === true
-                                                      ? 'Signer maintenant'
-                                                      : 'Envoyer les invitations'}
-                                                  </h1>
-                                                </button>
-                                              </div>
-                                              <h1 className="skh1">
-                                                Positionnez les champs de signature
-                                              </h1>
-                                              <p style={{ fontSize: '1.1rem' }}>
-                                                Faites glisser et déposez les champs de
-                                                signature à l'endroit où les gens
-                                                doivent signer.
-                                              </p>
-                                              <div style={{ marginTop: '2.8rem' }}>
-                                                {this.state.signMySelf === true && (
-                                                  <Draggable>
-                                                    <div className="sk_signature_sticker">
-                                                      <div
-                                                        id={'sk_signature'}
-                                                        className="sk_signature_card p-1"
-                                                      >
-                                                        <div align="center">
-                                                          <h1 className="skh3">
-                                                            {localStorage.getItem(
-                                                              'email'
-                                                            )}
-                                                          </h1>
-                                                        </div>
-                                                        <div
-                                                          style={{
-                                                            display: 'flex',
-                                                            marginBottom: 8
-                                                          }}
-                                                        >
-                                                          <button
-                                                            className=" mt-4 btn btn-sm btn-danger p-1 ml-3"
-                                                            style={{
-                                                              backgroundColor:
-                                                                'deepskyblue',
-                                                              borderColor:
-                                                                'deepskyblue'
-                                                            }}
-                                                          >
-                                                            SES
-                                                          </button>
-                                                          <h1
-                                                            className="skh4"
-                                                            style={{
-                                                              marginLeft: 15,
-                                                              marginTop: 42
-                                                            }}
-                                                          >
-                                                            Simple electronic signature
-                                                          </h1>
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </Draggable>
-                                                )}{' '}
-                                                {this.state.signatiaresEmails.map(
-                                                  (item, key) => (
-                                                    <Draggable
-                                                      key={key}>
-                                                      <div className="sk_signature_sticker">
-                                                        <div
-                                                          id={'sk_signature' + key}
-                                                          className="sk_signature_card p-1"
-                                                        >
-                                                          <div align="center">
-                                                            <h1 className="skh3">
-                                                              {item}
-                                                            </h1>
-                                                          </div>
-                                                          <div
-                                                            style={{
-                                                              display: 'flex',
-                                                              marginBottom: 8
-                                                            }}
-                                                          >
-                                                            <button
-                                                              className=" mt-4 btn btn-sm btn-danger p-1 ml-3"
-                                                              style={{
-                                                                backgroundColor:
-                                                                  'deepskyblue',
-                                                                borderColor:
-                                                                  'deepskyblue'
-                                                              }}
-                                                            >
-                                                              SES
-                                                            </button>
-                                                            <h1
-                                                              className="skh4"
-                                                              style={{
-                                                                marginLeft: 15,
-                                                                marginTop: 42
-                                                              }}
-                                                            >
-                                                              Simple electronic
-                                                              signature
-                                                            </h1>
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                    </Draggable>
-                                                  )
-                                                )}{' '}
-                                                {this.state.signatiaresEmails.length >
-                                                0 && (
-                                                  <p
-                                                    style={{
-                                                      fontSize: '1.1rem',
-                                                      marginTop: 25
-                                                    }}
-                                                  >
-                                                    Une invitation sera envoyé au
-                                                    signataires dés que vous validez
-                                                    votre signature.
-                                                  </p>
-                                                )}
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                  {this.state.showUploadStep === 'successfulStep' && (
-                                    <div>
-                                      <div className="sk_detail_container">
-                                        <div className="float-right">
-                                          <button
-                                            onClick={() => {
-                                              this.setState({
-                                                showUploadStep: '',
-                                                showNewDocScreen: false
-                                              });
-                                              this.reloadGed();
-                                            }}
-                                            className="btn-rounded btn-small btn-light"
-                                          >
-                                            <i className="mdi mdi-close font-18 font-weight-bold" />
-                                          </button>
-                                        </div>
-                                        <div className="mt-4">
-                                          <h1
-                                            className="skh1"
-                                            style={{ fontSize: '2.0rem' }}
-                                          >
-                                            Les invitations à signer sont envoyée avec succès
-                                          </h1>
-                                          <p style={{ fontSize: '1.2rem' }}>
-                                            Vous serez averti par e-mail dès la
-                                            signature du document.
-                                          </p>
-                                          <div className="sk_detail_upload">
-                                            <div className="sk_detail_upload_pic">
-                                              <img
-                                                src={this.state.uploadedThumb}
-                                                alt=""
-                                                style={{
-                                                  maxWidth: '100%',
-                                                  maxHeight: '100%'
-                                                }}
-                                              />
-                                            </div>
-                                            <div className="sk_detail_upload_text">
-                                              <div className="sk_detail_upload_text_row">
-                                                <strong
-                                                  style={{ color: '#293d66' }}>
-                                                  Document
-                                                </strong>
-                                                <br /> {this.state.uploadedName}
-                                              </div>
-                                              {this.state.signMySelf === true && (
-                                                <div className="sk_detail_upload_text_row">
-                                                  <strong
-                                                    style={{ color: '#293d66' }}>
-                                                    Signataire 1
-                                                  </strong>
-                                                  <br />{' '}
-                                                  {localStorage.getItem('email')}
-                                                </div>
-                                              )}{' '}
-                                              {this.state.signatiaresEmails.map(
-                                                (item, key) => (
-                                                  <div
-                                                    key={key}
-                                                    className="sk_detail_upload_text_row"
-                                                  >
-                                                    <strong
-                                                      style={{ color: '#293d66' }}
-                                                    >
-                                                      Signataire{' '}
-                                                      {this.state.signMySelf === true
-                                                        ? key + 2
-                                                        : key + 1}
-                                                    </strong>
-                                                    <br />{' '}
-                                                    {localStorage.getItem('email')}
-                                                  </div>
-                                                )
-                                              )}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div align="center" className="">
-                                        <div className="btn-group">
-                                          <button
-                                            className="btn btn-lg btn-outline-blue"
-                                            onClick={() =>
-                                              this.showDocInPdfModal(
-                                                this.state.uploadedPath
-                                              )
-                                            }
-                                          >
-                                            Visualiser
-                                          </button>
-                                          &nbsp;&nbsp;
-                                          <button
-                                            className="btn btn-lg btn-pink ">
-                                            Télécharger
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                          }
                         </div>
                       </Route>
 
@@ -4456,20 +2760,280 @@ export default class Main extends React.Component {
                                 this.setState({
                                   selectedDriveItem: [folder.id],
                                   expandedDriveItems: [folder.id],
-                                  selectedFolder: this.getFolderById(
-                                    folder.id,
-                                    this.state.folders
-                                  ),
+                                  selectedFolder: main_functions.getFolderById(folder.id, this.state.folders),
                                   autoExpandParent: true,
                                   selectedFoldername: folder.name,
                                   selectedFolderFiles: folder.Content.files || [],
                                   selectedFolderFolders:
                                     folder.Content.folders || [],
                                   focusedItem: 'Drive',
-                                  breadcrumbs: this.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedDrive)),
+                                  breadcrumbs: main_functions.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedReelFolders)),
                                   selectedFolderId: folder.id,
                                   showContainerSection: 'Drive'
                                 });
+                              }}
+                              onDocClick={(doc) => {
+                                this.setState({
+                                  selectedDoc: doc,
+                                  openRightMenu: true
+                                });
+                              }}
+                              showDoc={(doc) => this.openPdfModal(doc.id)}
+                              setLoading={(b) => this.setState({ loading: b })}
+                              setSelectedFile={(file) =>
+                                this.setState({ selectedFile: file })
+                              }
+                              openShareFileModal={() =>
+                                this.setState({ openShareDocModal: true })
+                              }
+                              onDeleteFile={(file) => {
+                                this.deleteFile_Folder(file);
+                              }}
+                              onRenameFile={(file, newName) => {
+                                this.renameFile_Folder(file, newName);
+                              }}
+                              onSignBtnClick={(id) => {
+                                this.props.history.push('/signDoc/doc/' + id);
+                              }}
+                            />
+                          </div>
+                        )}
+                      </Route>
+
+                      <Route exact path="/home/shared/parent">
+                        <div>
+                          {
+                            (this.state.loading === false && this.state.firstLoading === false) &&
+                            <div>
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between'
+                                }}
+                              >
+                                <div style={{ width: '100%' }}>
+                                  <h5 className="mt-0 mb-1">
+                                    {this.props.location.pathname.indexOf('/home/search/') > -1 ? 'Résultats de recherche'
+                                      : this.props.location.pathname === '/home/shared/parent' ? 'Mon drive / Partagés avec moi'
+                                        : this.state.breadcrumbs}
+                                  </h5>
+                                  <div
+                                    style={{
+                                      position: 'absolute',
+                                      right: 25,
+                                      marginTop: -44
+                                    }}
+                                  >
+                                    <IconButton
+                                      aria-label={
+                                        this.state.viewMode === 'list'
+                                          ? 'Vue liste'
+                                          : 'Vue grille'
+                                      }
+                                      onClick={() => {
+                                        this.state.viewMode === 'list'
+                                          ? this.setState({
+                                            viewMode: 'grid'
+                                          })
+                                          : this.setState({
+                                            viewMode: 'list'
+                                          });
+                                      }}
+                                      title={
+                                        this.state.viewMode === 'list'
+                                          ? 'Vue liste'
+                                          : 'Vue grille'
+                                      }
+                                      color="default"
+                                    >
+                                      {this.state.viewMode === 'list' ? (
+                                        <ViewComfyIcon />
+                                      ) : (
+                                        <ListIcon />
+                                      )}
+                                    </IconButton>
+                                  </div>
+                                  <div
+                                    style={{
+                                      height: 1,
+                                      backgroundColor: '#dadce0',
+                                      marginBottom: 15,
+                                      marginTop: 15
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <div
+                                style={{
+                                  flexWrap: 'wrap',
+                                  display: 'block'
+                                }}
+                              >
+                                {
+                                  (this.state.sharedFolders.length === 0 && this.state.sharedRootFiles.length === 0) ? (
+                                    <div
+                                      style={{
+                                        marginTop: 25,
+                                        display: 'flex'
+                                      }}
+                                    >
+                                      <h5
+                                        style={{
+                                          fontSize: 16,
+                                          color: 'gray'
+                                        }}
+                                      >
+                                        Aucun dossier ou fichier encore partagé avec vous !
+                                      </h5>
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <ListFolders
+                                        items={this.state.sharedReelFolders}
+                                        onDoubleClickFolder={(folder) => {
+                                          /*this.props.history.push('/home/shared/' + folder.id);
+                                          this.setState({
+                                            selectedDriveItem: [folder.id],
+                                            expandedDriveItems: [folder.id],
+                                            autoExpandParent: true,
+                                            selectedFolder: main_functions.getFolderById(folder.id, this.state.folders),
+                                            selectedFoldername: folder.name,
+                                            selectedFolderFiles:
+                                              folder.Content.files || [],
+                                            selectedFolderFolders:
+                                              folder.Content.folders || [],
+                                            focusedItem: 'Drive',
+                                            breadcrumbs: main_functions.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedReelFolders)),
+                                            selectedFolderId: folder.id,
+                                            showContainerSection: 'Drive'
+                                          });*/
+                                        }}
+                                      />
+                                      <ListDocs
+                                        docs={this.state.sharedRootFiles || []}
+                                        viewMode={this.state.viewMode}
+                                        onDocClick={(item) =>
+                                          this.setState({
+                                            selectedDoc: item,
+                                            openRightMenu: true
+                                          })
+                                        }
+                                        showDoc={(doc) =>
+                                          this.openPdfModal(doc.id)
+                                        }
+                                        setLoading={(b) =>
+                                          this.setState({ loading: b })
+                                        }
+                                        setSelectedFile={(file) =>
+                                          this.setState({
+                                            selectedFile: file
+                                          })
+                                        }
+                                        openShareFileModal={() =>
+                                          this.setState({
+                                            openShareDocModal: true
+                                          })
+                                        }
+                                        onDeleteFile={(file) => {
+                                          this.deleteFile_Folder(file);
+                                        }}
+                                        onRenameFile={(file, newName) => {
+                                          this.renameFile_Folder(file, newName);
+                                        }}
+                                        onSignBtnClick={(id) => {
+                                          this.props.history.push(
+                                            '/signDoc/doc/' + id
+                                          );
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      </Route>
+
+                      <Route exact path="/home/shared/:folder_id">
+                        {this.state.loading === false &&
+                        this.state.firstLoading === false && (
+                          <div>
+                            <div
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'space-between'
+                              }}
+                            >
+                              <div style={{ width: '100%' }}>
+                                <h5 className="mt-0 mb-1">
+                                  {this.state.breadcrumbs}
+                                </h5>
+                                <div
+                                  style={{
+                                    position: 'absolute',
+                                    right: 25,
+                                    marginTop: -44
+                                  }}
+                                >
+                                  <IconButton
+                                    aria-label={
+                                      this.state.viewMode === 'list'
+                                        ? 'Vue liste'
+                                        : 'Vue grille'
+                                    }
+                                    onClick={() => {
+                                      this.state.viewMode === 'list'
+                                        ? this.setState({
+                                          viewMode: 'grid'
+                                        })
+                                        : this.setState({
+                                          viewMode: 'list'
+                                        });
+                                    }}
+                                    title={
+                                      this.state.viewMode === 'list'
+                                        ? 'Vue liste'
+                                        : 'Vue grille'
+                                    }
+                                    color="default"
+                                  >
+                                    {this.state.viewMode === 'list' ? (
+                                      <ViewComfyIcon />
+                                    ) : (
+                                      <ListIcon />
+                                    )}
+                                  </IconButton>
+                                </div>
+                                <div
+                                  style={{
+                                    height: 1,
+                                    backgroundColor: '#dadce0',
+                                    marginBottom: 15,
+                                    marginTop: 15
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <FolderDetail
+                              selectedFolderFolders={
+                                this.state.selectedSharedFolderFolders
+                              }
+                              selectedFolderFiles={this.state.selectedSharedFolderFiles}
+                              viewMode={this.state.viewMode}
+                              onDoubleClickFolder={(folder) => {
+                                /*this.setState({
+                                  selectedDriveSharedItem: [folder.id],
+                                  expandedDriveSharedItems: [folder.id],
+                                  selectedSharedFolder: main_functions.getFolderById(folder.id, this.state.sharedFolders),
+                                  autoExpandSharedParent: true,
+                                  selectedSharedFoldername: folder.name,
+                                  selectedSharedFolderFiles: folder.Content.files || [],
+                                  selectedSharedFolderFolders: folder.Content.folders || [],
+                                  focusedItem: 'Drive',
+                                  breadcrumbs: 'Mon drive / Partagés avec moi',
+                                  selectedSharedFolderId: folder.id,
+                                  showContainerSection: 'Drive'
+                                });*/
                               }}
                               onDocClick={(doc) => {
                                 this.setState({
@@ -4795,350 +3359,6 @@ export default class Main extends React.Component {
                                     }
                                   </div>
                                 </div>
-                                {/*<div className="row">
-                                                                                     <div className="col">
-                                                                                          <div className="page-title-box">
-                                                                                               <div className="row ">
-                                                                                                    <div className="col-md-2 text-center "
-                                                                                                         style={{
-                                                                                                              width: "10%",
-                                                                                                              backgroundColor: "aquamarine",
-                                                                                                         }}>
-                                                                                                         <h4 style={{color: "white"}}>Sportifs</h4>
-                                                                                                    </div>
-                                                                                                    <hr style={{
-                                                                                                         backgroundColor: "#a6a6a6",
-                                                                                                         height: "2px",
-                                                                                                         borderStyle: "solid",
-                                                                                                         color: "red",
-                                                                                                         width: "80%",
-                                                                                                    }} />
-                                                                                               </div>
-                                                                                          </div>
-                                                                                     </div>
-                                                                                </div>
-                                                                                <div className="card  mt-1">
-                                                                                     <div className="card-body">
-                                                                                          <div className="table-responsive ">
-                                                                                               <table
-                                                                                                    className=" table table-centered  mb-0  ">
-                                                                                                    <tbody>
-                                                                                                    {this.state.contacts.map((contact, key) =>
-                                                                                                         contact.role === "sportif" &&
-                                                                                                         <tr key={key}>
-                                                                                                              <td style={{width: "25%"}}>
-                                                                                                                   <div
-                                                                                                                        className="media align-items-center   ">
-                                                                                                                        <img
-                                                                                                                             className=" rounded-circle text-center"
-                                                                                                                             style={{
-                                                                                                                                  width: 60,
-                                                                                                                                  height: 60,
-                                                                                                                                  objectFit: "cover",
-                                                                                                                             }}
-                                                                                                                             src={contact.imageUrl || defaultAvatar}
-                                                                                                                             alt="" />
-                                                                                                                        <div className="ml-1"
-                                                                                                                             style={{
-                                                                                                                                  color: "#000",
-                                                                                                                                  fontFamily: "sans-serif",
-                                                                                                                                  fontWeight: 600,
-                                                                                                                                  fontSize: 12,
-                                                                                                                             }}>{contact.nom} {contact.prenom} </div>
-                                                                                                                   </div>
-                                                                                                              </td>
-                                                                                                              <td style={{
-                                                                                                                   width: "25%",
-                                                                                                                   color: "#000",
-                                                                                                                   fontFamily: "sans-serif",
-                                                                                                                   fontWeight: 600,
-                                                                                                                   fontSize: 12,
-                                                                                                              }}>
-                                                                                                                   {contact.phone}
-                                                                                                              </td>
-                                                                                                              <td style={{
-                                                                                                                   width: "30%",
-                                                                                                                   color: "#000",
-                                                                                                                   fontFamily: "sans-serif",
-                                                                                                                   fontWeight: 600,
-                                                                                                                   fontSize: 12,
-                                                                                                              }}>
-                                                                                                                   {contact.email}
-                                                                                                              </td>
-                                                                                                              <td style={{width: "20%"}}>
-                                                                                                                   <i style={{cursor: "pointer"}}
-                                                                                                                      onClick={() => {} }
-                                                                                                                      className="m-2 mdi mdi-square-edit-outline text-blue font-weight-bold font-17" />
-                                                                                                                   <i className="m-2  mdi mdi-delete text-danger font-weight-bold font-17" />
-                                                                                                              </td>
-                                                                                                         </tr>,
-                                                                                                    )}
-                                                                                                    </tbody>
-                                                                                               </table>
-                                                                                          </div>
-                                                                                     </div>
-                                                                                </div>
-                                                                                <div className="row">
-                                                                                     <div className="col">
-                                                                                          <div className="page-title-box">
-                                                                                               <div className="row ">
-                                                                                                    <div className="col-md-2 text-center "
-                                                                                                         style={{
-                                                                                                              width: "10%",
-                                                                                                              backgroundColor: "#f79605",
-                                                                                                         }}>
-                                                                                                         <h4 style={{color: "white"}}>Notaires</h4>
-                                                                                                    </div>
-                                                                                                    <hr style={{
-                                                                                                         backgroundColor: "#a6a6a6",
-                                                                                                         height: "2px",
-                                                                                                         borderStyle: "solid",
-                                                                                                         color: "red",
-                                                                                                         width: "80%",
-                                                                                                    }} />
-                                                                                               </div>
-                                                                                          </div>
-                                                                                     </div>
-                                                                                </div>
-                                                                                <div className="card  mt-1">
-                                                                                     <div className="card-body">
-                                                                                          <div className="table-responsive ">
-                                                                                               <table
-                                                                                                    className=" table table-centered  mb-0  ">
-                                                                                                    <tbody>
-                                                                                                    {this.state.contacts.map((contact, key) =>
-                                                                                                         contact.role === "notaire" &&
-                                                                                                         <tr key={key}>
-                                                                                                              <td style={{width: "25%"}}>
-                                                                                                                   <div
-                                                                                                                        className="media align-items-center   ">
-                                                                                                                        <img
-                                                                                                                             className=" rounded-circle text-center"
-                                                                                                                             style={{
-                                                                                                                                  width: 60,
-                                                                                                                                  height: 60,
-                                                                                                                                  objectFit: "cover",
-                                                                                                                             }}
-                                                                                                                             src={contact.imageUrl || defaultAvatar}
-                                                                                                                             alt="" />
-                                                                                                                        <div className="ml-1"
-                                                                                                                             style={{
-                                                                                                                                  color: "#000",
-                                                                                                                                  fontFamily: "sans-serif",
-                                                                                                                                  fontWeight: 600,
-                                                                                                                                  fontSize: 12,
-                                                                                                                             }}>{contact.nom} {contact.prenom} </div>
-                                                                                                                   </div>
-                                                                                                              </td>
-                                                                                                              <td style={{
-                                                                                                                   width: "25%",
-                                                                                                                   color: "#000",
-                                                                                                                   fontFamily: "sans-serif",
-                                                                                                                   fontWeight: 600,
-                                                                                                                   fontSize: 12,
-                                                                                                              }}>
-                                                                                                                   {contact.phone}
-                                                                                                              </td>
-                                                                                                              <td style={{
-                                                                                                                   width: "30%",
-                                                                                                                   color: "#000",
-                                                                                                                   fontFamily: "sans-serif",
-                                                                                                                   fontWeight: 600,
-                                                                                                                   fontSize: 12,
-                                                                                                              }}>
-                                                                                                                   {contact.email}
-                                                                                                              </td>
-                                                                                                              <td style={{width: "20%"}}>
-                                                                                                                   <i style={{cursor: "pointer"}}
-                                                                                                                      onClick={() => this.setState({
-                                                                                                                           selectedContact: contact,
-                                                                                                                           selectedContactKey: key,
-                                                                                                                           openRightContactModalDetail: true,
-                                                                                                                      })}
-                                                                                                                      className="m-2 mdi mdi-square-edit-outline text-blue font-weight-bold font-17" />
-                                                                                                                   <i className="m-2  mdi mdi-delete text-danger font-weight-bold font-17" />
-                                                                                                              </td>
-                                                                                                         </tr>,
-                                                                                                    )}
-                                                                                                    </tbody>
-                                                                                               </table>
-                                                                                          </div>
-                                                                                     </div>
-                                                                                </div>
-                                                                                <div className="row">
-                                                                                     <div className="col">
-                                                                                          <div className="page-title-box">
-                                                                                               <div className="row ">
-                                                                                                    <div className="col-md-2 text-center "
-                                                                                                         style={{
-                                                                                                              width: "10%",
-                                                                                                              backgroundColor: "#f705d7",
-                                                                                                         }}>
-                                                                                                         <h4 style={{color: "white"}}>Fiduciaires</h4>
-                                                                                                    </div>
-                                                                                                    <hr style={{
-                                                                                                         backgroundColor: "#a6a6a6",
-                                                                                                         height: "2px",
-                                                                                                         borderStyle: "solid",
-                                                                                                         color: "red",
-                                                                                                         width: "80%",
-                                                                                                    }} />
-                                                                                               </div>
-                                                                                          </div>
-                                                                                     </div>
-                                                                                </div>
-                                                                                <div className="card  mt-1">
-                                                                                     <div className="card-body">
-                                                                                          <div className="table-responsive ">
-                                                                                               <table
-                                                                                                    className=" table table-centered  mb-0  ">
-                                                                                                    <tbody>
-                                                                                                    {this.state.contacts.map((contact, key) =>
-                                                                                                         contact.role === "fiducaire" &&
-                                                                                                         <tr key={key}>
-                                                                                                              <td style={{width: "25%"}}>
-                                                                                                                   <div
-                                                                                                                        className="media align-items-center   ">
-                                                                                                                        <img
-                                                                                                                             className=" rounded-circle text-center"
-                                                                                                                             style={{
-                                                                                                                                  width: 60,
-                                                                                                                                  height: 60,
-                                                                                                                                  objectFit: "cover",
-                                                                                                                             }}
-                                                                                                                             src={contact.imageUrl || defaultAvatar}
-                                                                                                                             alt="" />
-                                                                                                                        <div className="ml-1"
-                                                                                                                             style={{
-                                                                                                                                  color: "#000",
-                                                                                                                                  fontFamily: "sans-serif",
-                                                                                                                                  fontWeight: 600,
-                                                                                                                                  fontSize: 12,
-                                                                                                                             }}>{contact.nom} {contact.prenom} </div>
-                                                                                                                   </div>
-                                                                                                              </td>
-                                                                                                              <td style={{
-                                                                                                                   width: "25%",
-                                                                                                                   color: "#000",
-                                                                                                                   fontFamily: "sans-serif",
-                                                                                                                   fontWeight: 600,
-                                                                                                                   fontSize: 12,
-                                                                                                              }}>
-                                                                                                                   {contact.phone}
-                                                                                                              </td>
-                                                                                                              <td style={{
-                                                                                                                   width: "30%",
-                                                                                                                   color: "#000",
-                                                                                                                   fontFamily: "sans-serif",
-                                                                                                                   fontWeight: 600,
-                                                                                                                   fontSize: 12,
-                                                                                                              }}>
-                                                                                                                   {contact.email}
-                                                                                                              </td>
-                                                                                                              <td style={{width: "20%"}}>
-                                                                                                                   <i style={{cursor: "pointer"}}
-                                                                                                                      onClick={() => this.setState({
-                                                                                                                           selectedContact: contact,
-                                                                                                                           selectedContactKey: key,
-                                                                                                                           openRightContactModalDetail: true,
-                                                                                                                      })}
-                                                                                                                      className="m-2 mdi mdi-square-edit-outline text-blue font-weight-bold font-17" />
-                                                                                                                   <i className="m-2  mdi mdi-delete text-danger font-weight-bold font-17" />
-                                                                                                              </td>
-                                                                                                         </tr>,
-                                                                                                    )}
-                                                                                                    </tbody>
-                                                                                               </table>
-                                                                                          </div>
-                                                                                     </div>
-                                                                                </div>
-                                                                                <div className="row">
-                                                                                     <div className="col">
-                                                                                          <div className="page-title-box">
-                                                                                               <div className="row ">
-                                                                                                    <div className="col-md-2 text-center "
-                                                                                                         style={{
-                                                                                                              width: "10%",
-                                                                                                              backgroundColor: "aquamarine",
-                                                                                                         }}>
-                                                                                                         <h4 style={{color: "white"}}>Audit</h4>
-                                                                                                    </div>
-                                                                                                    <hr style={{
-                                                                                                         backgroundColor: "#a6a6a6",
-                                                                                                         height: "2px",
-                                                                                                         borderStyle: "solid",
-                                                                                                         color: "red",
-                                                                                                         width: "80%",
-                                                                                                    }} />
-                                                                                               </div>
-                                                                                          </div>
-                                                                                     </div>
-                                                                                </div>
-                                                                                <div className="card  mt-1">
-                                                                                     <div className="card-body">
-                                                                                          <div className="table-responsive ">
-                                                                                               <table
-                                                                                                    className=" table table-centered  mb-0  ">
-                                                                                                    <tbody>
-                                                                                                    {this.state.contacts.map((contact, key) =>
-                                                                                                         contact.role === "audit" &&
-                                                                                                         <tr key={key}>
-                                                                                                              <td style={{width: "25%"}}>
-                                                                                                                   <div
-                                                                                                                        className="media align-items-center   ">
-                                                                                                                        <img
-                                                                                                                             className=" rounded-circle text-center"
-                                                                                                                             style={{
-                                                                                                                                  width: 60,
-                                                                                                                                  height: 60,
-                                                                                                                                  objectFit: "cover",
-                                                                                                                             }}
-                                                                                                                             src={contact.imageUrl || defaultAvatar}
-                                                                                                                             alt="" />
-                                                                                                                        <div className="ml-1"
-                                                                                                                             style={{
-                                                                                                                                  color: "#000",
-                                                                                                                                  fontFamily: "sans-serif",
-                                                                                                                                  fontWeight: 600,
-                                                                                                                                  fontSize: 12,
-                                                                                                                             }}>{contact.nom} {contact.prenom} </div>
-                                                                                                                   </div>
-                                                                                                              </td>
-                                                                                                              <td style={{
-                                                                                                                   width: "25%",
-                                                                                                                   color: "#000",
-                                                                                                                   fontFamily: "sans-serif",
-                                                                                                                   fontWeight: 600,
-                                                                                                                   fontSize: 12,
-                                                                                                              }}>
-                                                                                                                   {contact.phone}
-                                                                                                              </td>
-                                                                                                              <td style={{
-                                                                                                                   width: "30%",
-                                                                                                                   color: "#000",
-                                                                                                                   fontFamily: "sans-serif",
-                                                                                                                   fontWeight: 600,
-                                                                                                                   fontSize: 12,
-                                                                                                              }}>
-                                                                                                                   {contact.email}
-                                                                                                              </td>
-                                                                                                              <td style={{width: "20%"}}>
-                                                                                                                   <i style={{cursor: "pointer"}}
-                                                                                                                      onClick={() => this.setState({
-                                                                                                                           selectedContact: contact,
-                                                                                                                           selectedContactKey: key,
-                                                                                                                           openRightContactModalDetail: true,
-                                                                                                                      })}
-                                                                                                                      className="m-2 mdi mdi-square-edit-outline text-blue font-weight-bold font-17" />
-                                                                                                                   <i className="m-2  mdi mdi-delete text-danger font-weight-bold font-17" />
-                                                                                                              </td>
-                                                                                                         </tr>,
-                                                                                                    )}
-                                                                                                    </tbody>
-                                                                                               </table>
-                                                                                          </div>
-                                                                                     </div>
-                                                                                </div>*/}
                               </div>
                             </div>
                           </div>
@@ -5161,19 +3381,17 @@ export default class Main extends React.Component {
                                     cursor: 'pointer',
                                     width: 120,
                                     height: 120,
-                                    objectFit: 'cover'
+                                    objectFit: 'contain'
                                   }} /> <input style={{
                                   visibility: 'hidden',
                                   width: 0,
                                   height: 0
                                 }}
-                                               type='file'
-                                               accept='.png,.jpeg,.jpg'
+                                               type='file' accept='.png,.jpeg,.jpg'
                                                onChange={(files) => this.uploadImage(files)}
                                                ref={(ref) => this.imageUpload = ref}
                                 />
-                                  <h4
-                                    className="mb-0">{this.state.selectedContact.prenom + ' ' + this.state.selectedContact.nom}</h4>
+                                  <h4 className="mb-0">{this.state.selectedContact.prenom + ' ' + this.state.selectedContact.nom}</h4>
                                   <p className="text-muted">{this.state.selectedContact.specialite} </p>
                                   <div style={{ display: 'contents' }}>
                                     <button type="button"
@@ -5182,42 +3400,22 @@ export default class Main extends React.Component {
                                       <i className="fe-edit" />&nbsp;&nbsp;Enregistrer
                                     </button>
                                     <button type="button"
-                                            onClick={() => {
-                                              this.setState({ showPdfPreviewModal: true });
-                                              setTimeout(() => {
-                                                this.setState({ isDocPreviewReady: true });
-                                              }, 1000);
-                                            }}
+                                            onClick={() => {}}
                                             className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
                                       <i className="fe-printer" />&nbsp;&nbsp;Aperçu
                                     </button>
                                     <button type="button"
-                                            onClick={() => {
-                                              this.setState({ showPdfFlipModal: true });
-                                            }}
+                                            onClick={() => {}}
                                             className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
                                       <i className="fe-printer" />&nbsp;&nbsp;Book
                                     </button>
                                   </div>
                                   <div style={{ marginTop: 30 }}
                                        className="text-left">
-                                    <Tabs> <TabList>
+                                    <Tabs>
+                                      <TabList>
                                       <Tab>Informations générales</Tab>
-
-                                      {
-                                        localStorage.getItem('role') === 'admin' &&
-                                        [
-                                          <Tab>Famille & Vie privée</Tab>,
-                                          <Tab>Parcours professionnel</Tab>,
-                                          <Tab>Formations</Tab>,
-                                          <Tab>Affiliations</Tab>,
-                                          <Tab>Domaine d'activités</Tab>,
-                                          <Tab>Langues</Tab>,
-                                          <Tab>Domaines d'intérêt, loisirs et sports</Tab>
-                                        ]
-                                      }
-
-                                    </TabList>
+                                      </TabList>
                                       <TabPanel>
                                         <h5 style={{ marginTop: 20 }}>Informations générales</h5>
                                         <div className="row"
@@ -5348,284 +3546,6 @@ export default class Main extends React.Component {
                                           </div>
                                         </div>
                                       </TabPanel>
-                                      {
-                                        localStorage.getItem('role') === 'admin' &&
-                                        [
-                                          <TabPanel>
-                                            <h5 style={{ marginTop: 20 }}>Famille & Vie privée</h5>
-                                            <div className="row"
-                                                 style={{ marginTop: 35 }}>
-                                              <div className="col-md-12">
-                                                <p style={{ marginBottom: 10 }}>Décrire en quelques lignes </p>
-                                                <textarea
-                                                  rows={10}
-                                                  className="form-control"
-                                                  id="about"
-                                                  name="about"
-                                                  value={this.state.selectedContact.personalLife}
-                                                  onChange={this.handleChange('selectedContact', 'personalLife')} />
-                                              </div>
-                                            </div>
-                                          </TabPanel>,
-                                          <TabPanel>
-                                            <h5 style={{ marginTop: 20 }}>Parcours professionnel</h5>
-                                            <div style={{
-                                              display: 'flex',
-                                              flexWrap: 'wrap',
-                                              marginTop: 10
-                                            }}>
-                                              {
-                                                (this.state.selectedContact.parcoursP || []).map((item, key) => (
-                                                  <div key={key}
-                                                       style={{ margin: 3 }}>
-                                                    <Chip
-                                                      icon={
-                                                        <Staricon />}
-                                                      label={item}
-                                                      color="secondary"
-                                                      onDelete={this.removeItem('parcour', key)}
-                                                      style={{
-                                                        fontWeight: 'bold',
-                                                        backgroundColor: 'cornflowerblue'
-                                                      }}
-                                                    />
-                                                  </div>
-                                                ))
-                                              }
-                                            </div>
-                                            <div className="row"
-                                                 style={{ marginTop: 10 }}>
-                                              <div
-                                                className="col-sm-12">
-                                                <a style={{
-                                                  cursor: 'pointer',
-                                                  fontSize: 'medium',
-                                                  fontWeight: 'bold'
-                                                }}
-                                                   onClick={this.openAddModal('parcour')}>
-                                                                                            <span className="btn__text"
-                                                                                                  id="btn-add-child">
-                                                                                                <i
-                                                                                                  className="fe-plus-square" /> Ajouter
-                                                                                                un parcour
-                                                                                            </span> </a>
-                                              </div>
-                                            </div>
-                                          </TabPanel>,
-                                          <TabPanel>
-                                            <h5 style={{ marginTop: 20 }}>Formation</h5>
-                                            <div style={{
-                                              flexWrap: 'wrap',
-                                              marginTop: 10
-                                            }}>
-                                              {
-                                                (this.state.selectedContact.formations || []).map((item, key) => (
-                                                  <div key={key}
-                                                       style={{
-                                                         margin: 3,
-                                                         marginBottom: 6
-                                                       }}>
-                                                    <Chip
-                                                      icon={
-                                                        <CheckCircle />}
-                                                      label={item}
-                                                      color="primary"
-                                                      onDelete={this.removeItem('formation', key)}
-                                                      style={{
-                                                        fontWeight: 'bold',
-                                                        backgroundColor: 'lightseagreen'
-                                                      }}
-                                                    />
-                                                  </div>
-                                                ))
-                                              }
-                                            </div>
-                                            <div className="row"
-                                                 style={{ marginTop: 10 }}>
-                                              <div
-                                                className="col-sm-12">
-                                                <a style={{
-                                                  cursor: 'pointer',
-                                                  fontSize: 'medium',
-                                                  fontWeight: 'bold'
-                                                }}
-                                                   onClick={this.openAddModal('formation')}>
-                                                                                            <span className="btn__text"
-                                                                                                  id="btn-add-child">
-                                                                                                <i
-                                                                                                  className="fe-plus-square" /> Ajouter
-                                                                                                une formation
-                                                                                            </span> </a>
-                                              </div>
-                                            </div>
-                                          </TabPanel>,
-                                          <TabPanel>
-                                            <h5 style={{ marginTop: 20 }}>Affiliations</h5>
-                                            <div style={{ marginTop: 15 }}>
-                                              <Autocomplete
-                                                value={this.state.selectedContact.affiliations || []}
-                                                onChange={(event, values) => {
-                                                  let selectedContact = this.state.selectedContact;
-                                                  selectedContact.affiliations = values;
-                                                  this.setState({ selectedContact: selectedContact });
-                                                }}
-                                                title={'Affiliations'}
-                                                multiple
-                                                id="checkboxes-af-demo"
-                                                options={data.affiliations}
-                                                disableCloseOnSelect
-                                                getOptionLabel={(option) => option}
-                                                renderOption={(option, { selected }) => (
-                                                  <React.Fragment>
-                                                    <MuiCheckbox
-                                                      icon={icon}
-                                                      checkedIcon={checkedIcon}
-                                                      style={{ marginRight: 8 }}
-                                                      checked={selected}
-                                                    /> {option}
-                                                  </React.Fragment>
-                                                )}
-                                                style={{
-                                                  width: 500,
-                                                  marginLeft: 10,
-                                                  borderColor: '#f0f0f0'
-                                                }}
-                                                renderInput={(params) => (
-                                                  <TextField {...params}
-                                                             variant="outlined"
-                                                             placeholder="" />
-                                                )}
-                                              />
-                                            </div>
-                                          </TabPanel>,
-                                          <TabPanel>
-                                            <h5 style={{ marginTop: 20 }}>Domaine d'activités</h5>
-                                            <div style={{ marginTop: 15 }}>
-                                              <Autocomplete
-                                                value={this.state.selectedContact.domainesAct || []}
-                                                onChange={(event, values) => {
-                                                  let selectedContact = this.state.selectedContact;
-                                                  selectedContact.domainesAct = values;
-                                                  this.setState({ selectedContact: selectedContact });
-                                                }}
-                                                title={'Domaine d\'activités'}
-                                                multiple
-                                                id="checkboxes-da-demo"
-                                                options={data.domainesAct}
-                                                disableCloseOnSelect
-                                                getOptionLabel={(option) => option}
-                                                renderOption={(option, { selected }) => (
-                                                  <React.Fragment>
-                                                    <MuiCheckbox
-                                                      icon={icon}
-                                                      checkedIcon={checkedIcon}
-                                                      style={{ marginRight: 8 }}
-                                                      checked={selected}
-                                                    /> {option}
-                                                  </React.Fragment>
-                                                )}
-                                                style={{
-                                                  width: 500,
-                                                  marginLeft: 10,
-                                                  borderColor: '#f0f0f0'
-                                                }}
-                                                renderInput={(params) => (
-                                                  <TextField {...params}
-                                                             variant="outlined"
-                                                             placeholder="" />
-                                                )}
-                                              />
-                                            </div>
-                                          </TabPanel>,
-                                          <TabPanel>
-                                            <h5 style={{ marginTop: 20 }}>Langues</h5>
-                                            <Autocomplete
-                                              value={this.state.selectedContact.langues || []}
-                                              onChange={(event, values) => {
-                                                let selectedContact = this.state.selectedContact;
-                                                selectedContact.langues = values;
-                                                this.setState({ selectedContact: selectedContact });
-                                              }}
-                                              title={'langues'}
-                                              multiple
-                                              id="checkboxes-l-demo"
-                                              options={data.langues}
-                                              disableCloseOnSelect
-                                              getOptionLabel={(option) => option}
-                                              renderOption={(option, { selected }) => (
-                                                <React.Fragment>
-                                                  <MuiCheckbox
-                                                    icon={icon}
-                                                    checkedIcon={checkedIcon}
-                                                    style={{ marginRight: 8 }}
-                                                    checked={selected}
-                                                  /> {option}
-                                                </React.Fragment>
-                                              )}
-                                              style={{
-                                                width: 500,
-                                                marginLeft: 10,
-                                                borderColor: '#f0f0f0'
-                                              }}
-                                              renderInput={(params) => (
-                                                <TextField {...params}
-                                                           variant="outlined"
-                                                           placeholder="" />
-                                              )}
-                                            /> </TabPanel>,
-                                          <TabPanel>
-                                            <h5 style={{ marginTop: 20 }}>Domaines d'intérêt, loisirs et sports</h5>
-                                            <div className="row">
-                                              <div className="col-md-8">
-                                                <div style={{
-                                                  display: 'flex',
-                                                  flexWrap: 'wrap',
-                                                  marginTop: 10
-                                                }}>
-                                                  {
-                                                    (this.state.selectedContact.hobbies || []).map((item, key) => (
-                                                      <div key={key}
-                                                           style={{ margin: 3 }}>
-                                                        <Chip
-                                                          icon={
-                                                            <MoodIcon />}
-                                                          label={item}
-                                                          color="secondary"
-                                                          onDelete={this.removeItem('hobbies', key)}
-                                                          style={{
-                                                            fontWeight: 'bold',
-                                                            backgroundColor: 'lightpink'
-                                                          }}
-                                                        />
-                                                      </div>
-                                                    ))
-                                                  }
-                                                </div>
-                                              </div>
-                                            </div>
-                                            <div className="row"
-                                                 style={{ marginTop: 20 }}>
-                                              <div
-                                                className="col-sm-12">
-                                                <a style={{
-                                                  cursor: 'pointer',
-                                                  fontSize: 'medium',
-                                                  fontWeight: 'bold'
-                                                }}
-                                                   onClick={this.openAddModal('hobbies')}>
-                                                                                            <span className="btn__text"
-                                                                                                  id="btn-add-child">
-                                                                                                <i
-                                                                                                  className="fe-plus-square" /> Ajouter
-                                                                                                un centre d'intérêt,
-                                                                                                loisir ou sport
-                                                                                            </span> </a>
-                                              </div>
-                                            </div>
-                                          </TabPanel>
-                                        ]
-                                      }
-
                                     </Tabs>
                                   </div>
                                 </div>
@@ -5655,11 +3575,11 @@ export default class Main extends React.Component {
                                   focusedItem: 'Drive',
                                   selectedDriveItem: [folder_id],
                                   expandedDriveItems: [folder_id, localStorage.getItem('client_folder_id')],
-                                  selectedFoldername: this.getFolderNameById(folder_id, this.state.reelFolders),
-                                  breadcrumbs: this.getBreadcumpsPath(folder_id, this.state.reelFolders),
+                                  selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
+                                  breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
                                   selectedFolderId: folder_id,
-                                  selectedFolderFiles: this.getFolderFilesById(folder_id, this.state.reelFolders),
-                                  selectedFolderFolders: this.getFolderFoldersById(folder_id, this.state.reelFolders)
+                                  selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
+                                  selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
                                 });
                               }
                             }}
@@ -5677,21 +3597,13 @@ export default class Main extends React.Component {
                           <div>
                             <div className="row">
                               <div className="col-lg-12">
-                                <div className="card-box text-center"
-                                     style={{ marginTop: 1 }}>
+                                <div className="card-box text-center">
                                   <img onClick={() => this.imageUpload.click()}
                                        src={this.state.selectedSociete.imageUrl ? this.state.selectedSociete.imageUrl : this.state.selectedSociete.Type === '0' ? entIcon : userAvatar}
                                        className="rounded-circle avatar-lg img-thumbnail"
-                                       alt="" style={{
-                                    cursor: 'pointer',
-                                    width: 120,
-                                    height: 120,
-                                    objectFit: 'cover'
-                                  }} /> <input style={{
-                                  visibility: 'hidden',
-                                  width: 0,
-                                  height: 0
-                                }}
+                                       alt="" style={{ cursor: 'pointer', width: 120, height: 120, objectFit: 'cover' }}
+                                  />
+                                  <input style={{ visibility: 'hidden', width: 0, height: 0 }}
                                                type='file'
                                                accept='.png,.jpeg,.jpg'
                                                onChange={(files) => this.uploadImage(files)}
@@ -5699,8 +3611,6 @@ export default class Main extends React.Component {
                                 />
                                   <h4
                                     className="mb-0">{this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '')}</h4>
-                                  <p
-                                    className="text-muted">{this.state.selectedContact.country || ''} </p>
                                   <div style={{ display: 'contents' }}>
                                     <button type="button"
                                             onClick={this.saveSocietyChanges}
@@ -5718,30 +3628,28 @@ export default class Main extends React.Component {
                                             onClick={() => {
                                             }}
                                             className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
-                                      <i className="fe-book-open" />&nbsp;&nbsp;Book
+                                      <i className="fe-book-open" />&nbsp;&nbsp;Livre
                                     </button>
                                   </div>
                                   <div style={{ marginTop: 30 }}
                                        className="text-left">
                                     <Tabs> <TabList>
                                       <Tab>Informations générales</Tab>
-                                      <Tab>Ouverture mandat </Tab>
+                                      <Tab>Ouverture mandat</Tab>
                                     </TabList>
                                       <TabPanel>
                                         <h5 style={{ marginTop: 20 }}>Informations générales</h5>
-                                        <div className="row"
-                                             style={{ marginTop: 35 }}>
+                                        <div className="row" style={{ marginTop: 30 }}>
                                           <div className="col-md-6">
-                                            <div className="col-md-12">
-                                              <p style={{ marginBottom: 10 }}>Email</p>
-                                              <input
-                                                type="email"
+                                            <p style={{ marginBottom: 10 }}>Nom du client </p>
+                                            <input
+                                                type="text"
                                                 className="form-control"
                                                 id="email"
                                                 name="email"
-                                                value={this.state.selectedSociete.email}
-                                                onChange={this.handleChange('selectedSociete', 'email')} />
-                                            </div>
+                                                value={this.state.selectedSociete.Nom}
+                                                onChange={this.handleChange('selectedSociete', 'Nom')} />
+
                                           </div>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Statut</p>
@@ -5759,80 +3667,49 @@ export default class Main extends React.Component {
                                             />
                                           </div>
                                         </div>
-                                        <div className="row"
-                                             style={{ marginTop: 35 }}>
-                                          <div className="col-md-12">
-                                            <p style={{ marginBottom: 10 }}>À propos</p>
+                                        <div className="row" style={{ marginTop: 20 }}>
+                                          <div className="col-md-6">
+                                            <p style={{ marginBottom: 10 }}>Adresse postale</p>
                                             <textarea
-                                              rows={4}
-                                              className="form-control"
+                                              rows={5}
+                                              className="form-control" style={{color:"#000"}}
                                               id="about"
                                               name="about"
-                                              value={this.state.selectedSociete.about}
-                                              onChange={this.handleChange('selectedSociete', 'about')} />
+                                              value={this.state.selectedSociete.adress}
+                                              onChange={this.handleChange('selectedSociete', 'adress')} />
                                           </div>
-                                        </div>
-                                        <div className="row"
-                                             style={{ marginTop: 35 }}>
                                           <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>
-                                              Nom du client
-                                            </p>
+                                            <p style={{ marginBottom: 10 }}>Adresse email</p>
                                             <input
                                               className="form-control"
-                                              type="text"
-                                              id="nom"
-                                              name="nom"
-                                              value={this.state.selectedSociete.Nom}
-                                              onChange={this.handleChange('selectedSociete', 'Nom')} />
-                                          </div>
-                                          <div
-                                            className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Secteur</p>
-                                            <select
-                                              className="form-control custom-select"
-                                              value={this.state.selectedSociete.secteur}
-                                              onChange={this.handleChange('selectedSociete', 'secteur')}
-                                            >
-                                              {
-                                                Data.secteurs.map((secteur, key) =>
-                                                  <option
-                                                    key={key}
-                                                    value={secteur}>{secteur}</option>
-                                                )
-                                              }
-                                            </select>
-                                          </div>
-                                        </div>
-                                        <div className="row"
-                                             style={{ marginTop: 20 }}>
-                                          <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Site web </p>
-                                            <input
-                                              className="form-control"
-                                              type="text"
+                                              type="email"
                                               id="email"
                                               name="email"
-                                              placeholder="https://..."//readOnly={true}
-                                              value={this.state.selectedSociete.siteweb}
-                                              onChange={this.handleChange('selectedSociete', 'siteweb')} />
-                                          </div>
-                                          <div
-                                            className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Taille de l'entreprise</p>
+                                              value={this.state.selectedSociete.email}
+                                              onChange={this.handleChange('selectedSociete', 'email')} />
+                                            <p style={{ marginBottom: 10,marginTop:10 }}>Téléphone</p>
                                             <input
                                               className="form-control"
                                               type="text"
                                               id="phone"
                                               name="phone"
-                                              value={this.state.selectedSociete.tailleEntreprise}
-                                              onChange={this.handleChange('selectedSociete', 'tailleEntreprise')} />
+                                              value={this.state.selectedSociete.phone}
+                                              onChange={this.handleChange('selectedSociete', 'phone')} />
+                                          </div>
+                                          <div className="col-md-12" style={{marginTop:20}}>
+                                            <p style={{ marginBottom: 10 }}>Remarques</p>
+                                            <textarea
+                                              rows={4}
+                                              className="form-control" style={{color:"#000"}}
+                                              id="about"
+                                              name="about"
+                                              value={this.state.selectedSociete.remarque}
+                                              onChange={this.handleChange('selectedSociete', 'remarque')} />
                                           </div>
                                         </div>
-                                        <div className="row"
-                                             style={{ marginTop: 20 }}>
-                                          <div className="col-sm-6">
-                                            <p style={{ marginBottom: 10 }}>Type</p>
+                                        <div className="row" style={{ marginTop: 20 }}>
+                                          <div className="col-md-6">
+                                            <p style={{ marginBottom: 10 }}>Type de dossier</p>
                                             <select
                                               className="form-control custom-select"
                                               value={this.state.selectedSociete.Type}
@@ -5847,48 +3724,27 @@ export default class Main extends React.Component {
                                               }
                                             </select>
                                           </div>
-                                          <div className="col-sm-6">
-                                            <p style={{ marginBottom: 10 }}>Fondée en </p>
+                                          <div className="col-md-6">
+                                            <p style={{ marginBottom: 10 }}>Dossier ouvert le </p>
                                             <Input
                                               type="date"
                                               className="form-control"
-                                              id="pays"
-                                              name="pays"
+                                              id="date_ouvert_dossier"
+                                              name="date_ouvert_dossier"
                                               placeholder=""
-                                              value={this.state.selectedSociete.fondee}
-                                              onChange={this.handleChange('selectedSociete', 'fondee')}> </Input>
+                                              value={this.state.selectedSociete.date_ouvert_dossier}
+                                              onChange={this.handleChange('selectedSociete', 'date_ouvert_dossier')}> </Input>
                                           </div>
                                         </div>
-                                        <div className="row"
-                                             style={{ marginTop: 20 }}>
-                                          <div className="col-sm-6">
-                                            <p style={{ marginBottom: 10 }}>Chiffre d'affaire</p>
-                                            <input
-                                              className="form-control custom-select"
-                                              id="titre"
-                                              name="titre"
-                                              type="text"
-                                              placeholder="Titre"
-                                              value={this.state.selectedSociete.chiffre_affaire}
-                                              onChange={this.handleChange('selectedSociete', 'chiffre_affaire')} />
-                                          </div>
-                                          <div className="col-sm-6">
-                                            <p style={{ marginBottom: 10 }}>Capitaux levée </p>
-                                            <Input
-                                              className="form-control"
-                                              id="pays"
-                                              name="pays"
-                                              placeholder=""
-                                              value={this.state.selectedSociete.capitaux_leves}
-                                              onChange={this.handleChange('selectedSociete', 'capitaux_leves')} />
-                                          </div>
-                                        </div>
+
+
                                       </TabPanel>
                                       <TabPanel>
+                                        <h5 style={{ marginTop: 20 }}>Ouverture mandat</h5>
                                         <div className="row mt-4">
-                                          <div className="col-md-4">
+                                          <div className="col-md-6">
                                             <div>
-                                              Nom du dossier
+                                              Nom du mandat
                                             </div>
                                             <div>
                                               <input
@@ -5899,9 +3755,9 @@ export default class Main extends React.Component {
                                               />
                                             </div>
                                           </div>
-                                          <div className="col-md-4">
+                                          <div className="col-md-6">
                                             <div>
-                                              Type
+                                              Type de mandat
                                             </div>
                                             <div>
                                               <select
@@ -5919,19 +3775,42 @@ export default class Main extends React.Component {
                                               </select>
                                             </div>
                                           </div>
-                                          {/*<div className="col-md-5">
-                                                                                                              <div>
-                                                                                                                   Description du dossier
-                                                                                                              </div>
-                                                                                                              <div>
-                                                                                                                   <textarea
-                                                                                                                        style={{color: "#000"}}
-                                                                                                                        className="form-control"
-                                                                                                                        value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
-                                                                                                                        onChange={this.handleObjectChange("selectedSociete", "mondat", "description")}
-                                                                                                                        rows={4} />
-                                                                                                              </div>
-                                                                                                         </div>*/}
+                                          <div className="col-md-12" style={{marginTop:20}}>
+                                            <div>
+                                              Description du mandat
+                                            </div>
+                                            <div>
+                                              <textarea
+                                                style={{color: "#000"}}
+                                                className="form-control"
+                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
+                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "description")}
+                                                rows={5}
+                                              />
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="row" style={{marginTop:20}}>
+                                          <div className="col-md-6">
+                                            <p style={{ marginBottom: 10 }}>Contrepartie</p>
+                                            <input
+                                              type="text"
+                                              className="form-control"
+                                              id="email"
+                                              name="email"
+                                              value={this.state.selectedSociete.contrepartie}
+                                              onChange={this.handleChange('selectedSociete', 'contrepartie')} />
+                                          </div>
+                                          <div className="col-md-6">
+                                            <p style={{ marginBottom: 10 }}>Autres parties</p>
+                                            <input
+                                              type="text"
+                                              className="form-control"
+                                              id="email"
+                                              name="email"
+                                              value={this.state.selectedSociete.autrepartie}
+                                              onChange={this.handleChange('selectedSociete', 'autrepartie')} />
+                                          </div>
                                         </div>
                                         <hr style={{
                                           width: '100%',
@@ -5940,10 +3819,8 @@ export default class Main extends React.Component {
                                           marginTop: 35,
                                           marginBottom: 30
                                         }} />
-                                        <div>
-                                          <h5>Facturation</h5>
-                                          <div
-                                            className="row align-items-center">
+                                        <div><h4>Facturation</h4>
+                                          <div className="row mt-2">
                                             <div className="col-md-5">
                                               <div>Collaborateur-Lead</div>
                                               <div>
@@ -5953,7 +3830,7 @@ export default class Main extends React.Component {
                                                   style={{ width: '80%' }}
                                                   onChange={(e) => {
                                                     let contact_email = e.target.value;
-                                                    let contact = this.getOAContactByEmail(contact_email);
+                                                    let contact = main_functions.getOAContactByEmail2(this.state.contacts,contact_email);
                                                     if (contact) {
                                                       this.setState({ lead_contact_horaire_tmp: contact.rateFacturation });
                                                     }
@@ -5961,16 +3838,15 @@ export default class Main extends React.Component {
                                                   }}
                                                   value={this.state.lead_contact_tmp}
                                                 >
-                                                  {this.state.contacts.map((contact, key) => (
+                                                  {this.state.contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
                                                     <MenuItem
                                                       key={key}
                                                       value={contact.email}>
-                                                      <div
-                                                        className="row align-items-center justify-content-center">
-                                                        <Avatar
+                                                      <div style={{display:"flex"}}>
+                                                        <Avatar style={{marginLeft:10}}
                                                           alt=""
                                                           src={contact.imageUrl} />
-                                                        <div>{contact.nom + ' ' + contact.prenom}</div>
+                                                        <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
                                                       </div>
                                                     </MenuItem>
                                                   ))}
@@ -5978,7 +3854,7 @@ export default class Main extends React.Component {
                                               </div>
                                               {
                                                 this.state.lead_contact_tmp !== '' &&
-                                                <div className="mt-1">
+                                                <div className="mt-2">
                                                   <div>
                                                     Taux horaire
                                                   </div>
@@ -6022,7 +3898,7 @@ export default class Main extends React.Component {
                                                   <div style={{
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
-                                                    marginTop: 8
+                                                    marginTop: 13
                                                   }}>
                                                     <div>
                                                       <div>Collaborateur</div>
@@ -6033,7 +3909,7 @@ export default class Main extends React.Component {
                                                           style={{ width: 250 }}
                                                           onChange={(e) => {
                                                             let contact_email = e.target.value;
-                                                            let contact = this.getOAContactByEmail(contact_email);
+                                                            let contact = main_functions.getOAContactByEmail2(this.state.contacts,contact_email);
                                                             if (contact) {
                                                               let objCp = this.state.newClientFolder;
                                                               objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
@@ -6045,16 +3921,15 @@ export default class Main extends React.Component {
                                                           }}
                                                           value={this.state.newClientFolder.team[key].email}
                                                         >
-                                                          {this.state.contacts.map((contact, key) => (
+                                                          {this.state.contacts.filter(x => !x.type ).map((contact, key) => (
                                                             <MenuItem
                                                               key={key}
                                                               value={contact.email}>
-                                                              <div
-                                                                className="row align-items-center justify-content-center">
-                                                                <Avatar
-                                                                  alt=""
-                                                                  src={contact.imageUrl} />
-                                                                <div>{contact.nom + ' ' + contact.prenom}</div>
+                                                              <div style={{display:"flex"}}>
+                                                                <Avatar style={{marginLeft:10}}
+                                                                        alt=""
+                                                                        src={contact.imageUrl} />
+                                                                <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
                                                               </div>
                                                             </MenuItem>
                                                           ))}
@@ -6099,7 +3974,7 @@ export default class Main extends React.Component {
                                                 className="row justify-content-center align-items-center">
                                                 <div
                                                   className="col-md-4">
-                                                  <div>Par eMail</div>
+                                                  <div>Par Email</div>
                                                 </div>
                                                 <div
                                                   className="col-md-8">
@@ -6113,21 +3988,6 @@ export default class Main extends React.Component {
                                                   />
                                                 </div>
                                               </div>
-                                              {/*<div className="row justify-content-center align-items-center">
-                                                <div className="col-md-4">
-                                                  <div>Par courrier</div>
-                                                </div>
-                                                <div
-                                                  className="col-md-8">
-                                                  <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.parCourrier || false}
-                                                      onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.parCourrier = !this.state.mondat.facturationClient.parCourrier;
-                                                        this.setState({ mondat: d });
-                                                      }} />
-                                                </div>
-                                              </div>*/}
                                               <div
                                                 className="row justify-content-center align-items-center">
                                                 <div
@@ -6148,13 +4008,13 @@ export default class Main extends React.Component {
                                                     }}
                                                   >
                                                     <MenuItem
-                                                      value={'mission'}>Par mission</MenuItem>
+                                                      value={'Mensuelle'}>Mensuelle</MenuItem>
                                                     <MenuItem
-                                                      value={'Mensuellement'}>Mensuellement</MenuItem>
+                                                      value={'Trimestrielle'}>Trimestrielle</MenuItem>
                                                     <MenuItem
-                                                      value={'Quarter'}>Quarter</MenuItem>
+                                                      value={'Semestrielle'}>Semestrielle</MenuItem>
                                                     <MenuItem
-                                                      value={'Annuellement'}>Annuellement</MenuItem>
+                                                      value={'Annuelle'}>Annuelle</MenuItem>
                                                   </MuiSelect>
                                                 </div>
                                               </div>
@@ -6223,35 +4083,6 @@ export default class Main extends React.Component {
                                                   </MuiSelect>
                                                 </div>
                                               </div>
-                                              <div
-                                                className="row justify-content-center align-items-center">
-                                                <div
-                                                  className="col-md-6">
-                                                  <div>Mode ( à envoyer par qui )
-                                                  </div>
-                                                </div>
-                                                <div
-                                                  className="col-md-6">
-                                                  <MuiSelect
-                                                    labelId="demo-simple-select-label"
-                                                    id="demo-simple-select"
-                                                    style={{ width: '100%' }}
-                                                    value={this.state.mondat.facturationClient.Mode}
-                                                    onChange={(e) => {
-                                                      let d = this.state.mondat;
-                                                      d.facturationClient.Mode = e.target.value;
-                                                      this.setState({ mondat: d });
-                                                    }}
-                                                  >
-                                                    <MenuItem
-                                                      value={'Sécretaria'}>Sécretariat</MenuItem>
-                                                    <MenuItem
-                                                      value={'Associé'}>Associé</MenuItem>
-                                                    <MenuItem
-                                                      value={'Collaborateur'}>Collaborateur</MenuItem>
-                                                  </MuiSelect>
-                                                </div>
-                                              </div>
                                             </div>
                                           </div>
 
@@ -6264,7 +4095,7 @@ export default class Main extends React.Component {
                                             type="button"
                                             disabled={this.state.newClientFolder.nom === ''}
                                             onClick={() => {
-                                              let contact = this.getOAContactByEmail(this.state.lead_contact_tmp);
+                                              let contact = main_functions.getOAContactByEmail2(this.state.contacts,this.state.lead_contact_tmp);
                                               let objCp = this.state.newClientFolder;
                                               objCp.team.push({
                                                 fname: contact.nom + ' ' + contact.prenom,
@@ -6279,222 +4110,6 @@ export default class Main extends React.Component {
                                             <i className="fe-folder-plus" />&nbsp;&nbsp;Créer Dossier Client
                                           </button>
                                         </div>
-                                        {/*<div className="row mt-4 align-items-center">
-                                                                                                         <div className="col-md-4">
-                                                                                                              <div>
-                                                                                                                   <h6>Personne en charge principale ( le client. ) </h6>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Prénom</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_prenom || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_prenom")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Nom</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_nom || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_nom")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Email</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_email || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_email")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Téléphone</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_phone || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_phone")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Adresse</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                  <textarea
-                                                       className="form-control"
-                                                       id="Adresse"
-                                                       name="Adresse"
-                                                       value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcp_adress || "" : ""}
-                                                       onChange={this.handleObjectChange("selectedSociete", "mondat", "pcp_adress")}
-                                                  />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                         </div>
-                                                                                                         <div className="col-md-4">
-                                                                                                              <div>
-                                                                                                                   <h6>Personne en charge pour les réglements </h6>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Prénom</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_prenom || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_prenom")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Nom</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_nom || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_nom")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Email</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_email || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_email")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Téléphone</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                                        <input
-                                                                                                                             className="form-control"
-                                                                                                                             type="text"
-                                                                                                                             id="nom"
-                                                                                                                             name="nom"
-                                                                                                                             value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_phone || "" : ""}
-                                                                                                                             onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_phone")}
-                                                                                                                        />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                              <div
-                                                                                                                   className="row justify-content-center align-items-center mt-2">
-                                                                                                                   <div className="col-md-3">
-                                                                                                                        <div>Adresse</div>
-                                                                                                                   </div>
-                                                                                                                   <div className="col-md-8">
-                                                                                                <textarea
-                                                                                                     className="form-control"
-                                                                                                     id="Adresse"
-                                                                                                     name="Adresse"
-                                                                                                     value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.pcr_adress || "" : ""}
-                                                                                                     onChange={this.handleObjectChange("selectedSociete", "mondat", "pcr_adress")}
-                                                                                                />
-                                                                                                                   </div>
-                                                                                                              </div>
-                                                                                                         </div>
-                                                                                                         <div className="col-md-4">
-                                                                                                              <div>
-                                                                                                                   <h6>Autre parties</h6>
-                                                                                                                   <input
-                                                                                                                        className="form-control"
-                                                                                                                        type="text"
-                                                                                                                        id="nom"
-                                                                                                                        name="nom"
-                                                                                                                        value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.autrePartie || "" : ""}
-                                                                                                                        onChange={this.handleObjectChange("selectedSociete", "mondat", "autrePartie")}
-                                                                                                                   />
-                                                                                                              </div>
-                                                                                                              <div className="mt-3">
-                                                                                                                   <h6>Contrepartie </h6>
-                                                                                                                   <input
-                                                                                                                        className="form-control"
-                                                                                                                        type="text"
-                                                                                                                        id="nom"
-                                                                                                                        name="nom"
-                                                                                                                        value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.autrePartie || "" : ""}
-                                                                                                                        onChange={this.handleObjectChange("selectedSociete", "mondat", "autrePartie")}
-                                                                                                                   />
-                                                                                                              </div>
-                                                                                                              <div className="mt-3">
-                                                                                                                   <h6>Apporteur </h6>
-                                                                                                                   <select
-                                                                                                                        className="form-control custom-select"
-                                                                                                                        style={{width: "80%"}}
-                                                                                                                        value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.apporteur || "" : ""}
-                                                                                                                        onChange={this.handleObjectChange("selectedSociete", "mondat", "apporteur")}
-                                                                                                                   >
-                                                                                                                        <option
-                                                                                                                             value={""}>{""}</option>
-                                                                                                                        <option
-                                                                                                                             value={"Site web"}>Site web
-                                                                                                                        </option>
-                                                                                                                        <option
-                                                                                                                             value={"Autre avocat"}>Autre avocat
-                                                                                                                        </option>
-                                                                                                                        <option
-                                                                                                                             value={"Personne tierce"}>Personne tierce
-                                                                                                                        </option>
-                                                                                                                   </select>
-                                                                                                              </div>
-                                                                                                         </div>
-                                                                                                    </div>*/}
-
                                       </TabPanel>
                                     </Tabs>
                                   </div>
@@ -6516,13 +4131,15 @@ export default class Main extends React.Component {
                                      style={{ marginTop: 1 }}>
                                   <div style={{ marginTop: 30 }}
                                        className="text-left">
-                                    <Tabs>
+                                    <Tabs selectedIndex={this.state.selectedTimeSheetIndex} onSelect={index => {
+                                      this.setState({selectedTimeSheetIndex:index})
+                                    }}>
                                       <TabList>
-                                        <Tab>New time Entree </Tab>
-                                        <Tab>List imputation </Tab> {
+                                        <Tab>Time Sheet</Tab>
+                                        <Tab>Activités </Tab> {
                                         localStorage.getItem('role') === 'admin' &&
                                         [
-                                          <Tab key={0}>Imputation client </Tab>,
+                                          <Tab key={0}>Recherche Clients </Tab>,
                                           <Tab key={1}>Imputation team & scheduled time </Tab>,
                                           <Tab key={2}>New Expenses </Tab>
                                         ]
@@ -6641,7 +4258,7 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-4">
                                                   <div>
-                                                    <h5>identification / Imputation client</h5>
+                                                    <h5>Nom du client</h5>
                                                     <div
                                                       style={{ display: 'flex' }}>
                                                       <SelectSearch
@@ -6656,7 +4273,7 @@ export default class Main extends React.Component {
                                                             }))
                                                         }
                                                         value={this.state.selectedClientTimeEntree}
-                                                        renderOption={renderSearchOption}
+                                                        renderOption={main_functions.renderSearchOption}
                                                         search
                                                         placeholder="Chercher votre client"
                                                         onChange={e => {
@@ -6752,7 +4369,7 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-4">
                                                   <div>
-                                                    <h6>Utilisateur chez OA </h6>
+                                                    <h6>Utilisateur OA </h6>
                                                   </div>
                                                   <MuiSelect
                                                     labelId="demo-simple-select-label4545"
@@ -6777,49 +4394,15 @@ export default class Main extends React.Component {
                                                       <MenuItem
                                                         key={key}
                                                         value={contact.email}>
-                                                        <div
-                                                          className="row align-items-center justify-content-center">
-                                                          <Avatar
-                                                            alt=""
-                                                            src={contact.imageUrl}/>
-                                                          <div>{contact.nom + " " + contact.prenom}</div>
+                                                        <div style={{display:"flex"}}>
+                                                          <Avatar style={{marginLeft:10}}
+                                                                  alt=""
+                                                                  src={contact.imageUrl} />
+                                                          <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
                                                         </div>
                                                       </MenuItem>
                                                     ))}
                                                   </MuiSelect>
-                                                  {/*<RSelect
-                                                    value={this.state.TimeSheet.newTime.utilisateurOA}
-                                                    //defaultValue={this.state.TimeSheet.newTime.utilisateurOA}
-                                                    options={contactSelectOptions}
-                                                    closeMenuOnSelect={true}
-                                                    isMulti={false}
-                                                    hideSelectedOptions={true}
-                                                    styles={{
-                                                      container: (provided, state) => ({
-                                                        ...provided,
-                                                        width: 250
-                                                      }),
-                                                      menuPortal: styles => ({
-                                                        ...styles,
-                                                        zIndex: 9999
-                                                      })
-                                                    }}
-                                                    menuPortalTarget={document.body}
-                                                    onChange={(e) => {
-                                                      console.log(e.value);
-                                                      let d = this.state.TimeSheet;
-                                                      d.newTime.utilisateurOA = e.value;
-                                                      let OA_contacts = this.state.contacts;
-                                                      let OA_contact = '';
-                                                      OA_contacts.map((contact, key) => {
-                                                        if (contact && contact.email && contact.email === e.value) {
-                                                          OA_contact = contact;
-                                                        }
-                                                      });
-                                                      d.newTime.rateFacturation = OA_contact.rateFacturation || '';
-                                                      this.setState({ TimeSheet: d });
-                                                    }}
-                                                  />*/}
                                                   <div
                                                     className="mt-3">
                                                     <h6>
@@ -6851,45 +4434,19 @@ export default class Main extends React.Component {
                                                     onChange={(e) => {
                                                       this.setState({ lignef_template: e.target.value });
                                                     }}>
-                                                    <option
-                                                      value="0">Date seulement
-                                                    </option>
-                                                    <option
-                                                      value="1">Date + Description
-                                                    </option>
-                                                    <option
-                                                      value="2">Date + Nom avocat
-                                                    </option>
-                                                    <option
-                                                      value="3">Date + Description + Nom avocat
-                                                    </option>
-                                                    <option
-                                                      value="4">Description seulemnt
-                                                    </option>
-                                                    <option
-                                                      value="5">Nom avocat seulemnt
-                                                    </option>
-                                                    <option
-                                                      value="6">Nombre d'heures seulemnt
-                                                    </option>
-                                                    <option
-                                                      value="7">Description + Nom avocat
-                                                    </option>
-                                                    <option
-                                                      value="8">Description + Nombre d'heures
-                                                    </option>
-                                                    <option
-                                                      value="9">Description + Nom avocat + Nombre d'heures
-                                                    </option>
+                                                    {
+                                                      data.lf_templates.map((item,key) =>
+                                                          <option key={key} value={item.value}>{item.label}</option>
+                                                      )
+                                                    }
+
                                                   </select>
                                                 </div>
                                               </div>
-                                              <div align="center"
-                                                   className=" mt-4">
+                                              <div align="center" className=" mt-4">
                                                 <AltButtonGroup>
                                                   <AtlButton
                                                     onClick={() => {
-
                                                       let obj = this.state.TimeSheet;
                                                       let time = obj.newTime.duree;
                                                       let timeFormated = '';
@@ -6974,7 +4531,11 @@ export default class Main extends React.Component {
                                                     style={{ marginTop: 10 }}>
                                                     <AtlButton
                                                       appearance=""
-                                                      onClick={() => this.setState({ showLignesFactureClient: true })}>Etablir facture</AtlButton>
+                                                      //onClick={() => this.setState({ showLignesFactureClient: true })}
+                                                      onClick={() => this.setState({selectedTimeSheetIndex:1})}
+                                                    >
+                                                      Etablir facture
+                                                    </AtlButton>
                                                     <AtlButton
                                                       appearance="">Histo.Fact.Clients</AtlButton>
                                                   </AltButtonGroup>
@@ -7000,7 +4561,7 @@ export default class Main extends React.Component {
                                                   <div className="row mt-3">
                                                     <div
                                                       className="col-md-6">
-                                                      <h5>identification / Imputation client</h5>
+                                                      <h5>Nom du client</h5>
                                                       <div
                                                         style={{ display: 'flex' }}>
                                                         <SelectSearch
@@ -7015,7 +4576,7 @@ export default class Main extends React.Component {
                                                               }))
                                                           }
                                                           value={this.state.selectedClientTimeEntree}
-                                                          renderOption={renderSearchOption}
+                                                          renderOption={main_functions.renderSearchOption}
                                                           search
                                                           placeholder="Chercher votre client"
                                                           onChange={e => {
@@ -7198,10 +4759,9 @@ export default class Main extends React.Component {
                                             setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
                                             OA_contacts={this.state.contacts}
                                             annuaire_clients_mondat={this.state.annuaire_clients_mondat}
-                                            onClickFacture={() => {
-                                              this.createFacture_ForSelected();
-                                            }
-                                            }
+                                            onClickFacture={(facture_date,partner) => {
+                                              this.createFacture_ForSelected(facture_date,partner);
+                                            }}
                                           />
                                         } {
                                         this.state.lignesFactures.length === 0 &&
@@ -7378,1365 +4938,12 @@ export default class Main extends React.Component {
                         }
                       </Route>
 
-                      <Route exact path="/home/timeSheet/dashboard">
-                        {
-                          this.state.loading === false && this.state.firstLoading === false &&
-                          <div>
-                            <div className="row">
-                              <div className="col-lg-12">
-                                <div className="row align-items-center²">
-                                  <div className="col-md-12 text-left">
-                                    <h5 className="font-weight-bold">Time Sheet</h5>
-                                    <h6 className="ml-2"> > Dashboard </h6>
-                                  </div>
-                                </div>
-                                <div className="card-box text-center"
-                                     style={{ marginTop: 1 }}>
-                                  <div style={{ marginTop: 10 }}
-                                       className="text-left">
-                                    <Tabs> <TabList>
-                                      <Tab>This Week</Tab>
-                                      <Tab>Scheduled Next Week </Tab>
-                                    </TabList>
-                                      <TabPanel>
-                                        <div
-                                          className="row justify-content-start align-items-center mt-3">
-                                          <div>
-                                            <BT
-                                              variant="contained"
-                                              style={{
-                                                backgroundColor: '#17a51b',
-                                                color: 'white'
-                                              }}
-                                              startIcon={
-                                                <img src={pluss}
-                                                     style={{ width: 10 }} />}
-                                            > Add Person </BT>
-                                          </div>
-                                          <div className="ml-1">
-                                            <BT
-                                              variant="contained"
-                                              style={{ color: '#a6a6a6' }}
-                                            > Import </BT>
-                                          </div>
-                                          <div className="ml-1">
-                                            <BT
-                                              variant="contained"
-                                              style={{ color: '#a6a6a6' }}
-                                            > Export </BT>
-                                          </div>
-                                        </div>
-                                        <div className="row mt-2">
-                                          <div className="col-md-4">
-                                            <div
-                                              className="row align-items-center justify-content-start">
-                                              <h3 className="font-weight-bold">This Week : </h3>
-                                              <h3>08 - 14 may 2017</h3>
-                                            </div>
-                                          </div>
-                                          <div
-                                            className="col-md-8 text-right">
-                                            <ButtonGroup
-                                              color="#a6a6a6"
-                                              aria-label="outlined secondary button group">
-                                              <BT> <img
-                                                src={back}
-                                                style={{ width: 18 }} />
-                                              </BT> <BT
-                                              style={{ backgroundColor: '#e6e6e6' }}> This Week</BT>
-                                              <BT> <img
-                                                src={back}
-                                                style={{
-                                                  width: 18,
-                                                  transform: 'rotate(180deg)'
-                                                }} />
-                                              </BT>
-                                            </ButtonGroup>
-                                          </div>
-                                        </div>
-                                        <div
-                                          className="row align-items-center w-100">
-                                          <div className="col-md-4 text-left">
-                                            <hr style={{
-                                              width: '80%',
-                                              height: 1,
-                                              backgroundColor: '#a6a6a6',
-                                              marginRight: '100%'
-                                            }} />
-                                          </div>
-                                          <div
-                                            className="col-md-8 text-right ">
-                                            <hr style={{
-                                              width: '100%',
-                                              height: 1,
-                                              backgroundColor: '#a6a6a6'
-                                            }} />
-                                          </div>
-                                        </div>
-                                        <div className="row align-items-center">
-                                          <div className="col-md-4">
-                                            <div
-                                              className="row align-items-center">
-                                              <div
-                                                className="col-md-6 text-left">
-                                                <h6>Total Hours</h6>
-                                                <h3>236.59</h3>
-                                              </div>
-                                              <div
-                                                className="col-md-6 text-left">
-                                                <h6>Total Capacity</h6>
-                                                <h3>280.00</h3>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div
-                                            className="col-md-8 text-right">
-                                            <div
-                                              className="row align-items-center">
-                                              <div className="col-md-2">
-                                                <div>
-                                                  <div>176.91</div>
-                                                </div>
-                                                <div>
-                                                  <div>59.66</div>
-                                                </div>
-                                              </div>
-                                              <div className="col-md-10">
-                                                <div style={{
-                                                  padding: 20,
-                                                  width: '80%'
-                                                }}>
-                                                  <HSBar
-                                                    showTextDown
-                                                    id="hsbarExample"
-                                                    outlineWidth={0.2}
-                                                    outlineRadius={10}
-                                                    outlineColor="#a6a6a6"
-                                                    data={[
-                                                      {
-                                                        value: 60,
-                                                        description: '0%',
-                                                        color: '#1998ed'
-                                                      },
-                                                      {
-                                                        value: 20,
-                                                        description: '60%',
-                                                        color: '#a5d6fa'
-                                                      },
-                                                      {
-                                                        value: 20,
-                                                        description: '80%',
-                                                        color: 'white'
-                                                      }
-                                                    ]}
-                                                  />
-                                                </div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div>
-                                          {
-                                            this.state.contacts.length > 0 &&
-                                            <TableTimeSheetDashboard
-                                              contacts={this.state.contacts}
-                                              onEditClick={(contact, key) => {
-                                                this.setState({
-                                                    selectedSociete: contact,
-                                                    selectedSocieteKey: key,
-                                                    openRightSocieteModalDetail: true
-                                                  }
-                                                );
-                                              }
-                                              } />
-                                          }
-                                        </div>
-                                      </TabPanel> <TabPanel>
-                                        <div className="row align-items-center">
-                                          <ButtonGroup
-                                            color="#a6a6a6"
-                                            aria-label="outlined secondary button group">
-                                            <BT>ALL</BT>
-                                            <BT> <img
-                                              src={time}
-                                              style={{ width: 20 }} /> Time</BT>
-                                            <BT> <img
-                                              src={money}
-                                              style={{ width: 20 }} /> Expense</BT>
-                                          </ButtonGroup>
-                                          <div className="ml-2">
-                                            <DatePicker
-                                              calendarIcon={
-                                                <img
-                                                  src={calendar}
-                                                  style={{ width: 20 }} />}
-                                              onChange={(e) => {
-                                                let d = this.state.TimeSheet;
-                                                d.newTime.date = e;
-                                                this.setState({ TimeSheet: d });
-                                              }}
-                                              value={this.state.TimeSheet.newTime.date}
-                                            />
-                                          </div>
-                                          <div className="ml-1">
-                                            <h5>-</h5>
-                                          </div>
-                                          <div className="ml-1">
-                                            <DatePicker
-                                              calendarIcon={
-                                                <img
-                                                  src={calendar}
-                                                  style={{ width: 20 }} />}
-                                              onChange={(e) => {
-                                                let d = this.state.TimeSheet;
-                                                d.newTime.date = e;
-                                                this.setState({ TimeSheet: d });
-                                              }}
-                                              value={this.state.TimeSheet.newTime.date}
-                                            />
-                                          </div>
-                                          <div className="ml-2">
-                                            <ButtonGroup
-                                              color="#a6a6a6"
-                                              aria-label="outlined secondary button group">
-                                              <BT> <img
-                                                src={play}
-                                                style={{
-                                                  width: 18,
-                                                  transform: 'rotate(180deg)'
-                                                }} />
-                                              </BT> <BT>
-                                              <img src={play}
-                                                   style={{ width: 18 }} />
-                                            </BT>
-                                            </ButtonGroup>
-                                          </div>
-                                          <div className="col-md-2 ml-2">
-                                            <Select
-                                              labelId="demo-simple-select-label"
-                                              id="demo-simple-select"
-                                              style={{ width: '100%' }}
-                                              defaultValue={'Custom'}
-                                            > <MenuItem
-                                              value={'Custom'}>Custom</MenuItem>
-                                              <MenuItem
-                                                value={'Associé'}>Custom 2</MenuItem>
-                                              <MenuItem
-                                                value={'Collaborateur'}>Costim 3</MenuItem>
-                                            </Select>
-                                          </div>
-                                        </div>
-                                        {
-                                          this.state.contacts.length > 0 &&
-                                          <TableTimeSheet
-                                            contacts={this.state.TimeSheetData}
-                                            onEditClick={(contact, key) => {
-                                              this.setState({
-                                                  selectedSociete: contact,
-                                                  selectedSocieteKey: key,
-                                                  openRightSocieteModalDetail: true
-                                                }
-                                              );
-                                            }
-                                            } />
-                                        }
-                                      </TabPanel> </Tabs>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        }
-                      </Route>
-
-                      <Route exact path="/home/timeSheet/dashboardPerson">
-                        {
-                          this.state.loading === false && this.state.firstLoading === false &&
-                          <div>
-                            <div className="row">
-                              <div className="col-lg-12">
-                                <div className="row align-items-center²">
-                                  <div className="col-md-12 text-left">
-                                    <h5 className="font-weight-bold">Time Sheet</h5>
-                                    <h6 className="ml-2"> > Dashboard </h6>
-                                  </div>
-                                </div>
-                                <div className="card-box text-center"
-                                     style={{ marginTop: 1 }}>
-                                  <div style={{ marginTop: 10 }}
-                                       className="text-left">
-                                    <Tabs> <TabList>
-                                      <Tab>This Week</Tab>
-                                      <Tab>Scheduled Next Week </Tab>
-                                    </TabList>
-                                      <TabPanel>
-                                        <div
-                                          className="row border border-primary"
-                                          style={{ marginTop: 35 }}>
-                                          <div className="col-md-4">
-                                            <FormControl
-                                              variant="outlined"
-                                              style={{ width: '100%' }}>
-                                              <MuiSelect
-                                                labelId="demo-simple-select-filled-label"
-                                                id="demo-simple-select-filled"
-                                                style={{ width: '100%' }}
-                                                value={this.state.DashboardPerson.person}
-                                                onChange={(e) => {
-                                                  let d = this.state.DashboardPerson;
-                                                  d.person = e.target.value;
-
-                                                  this.setState({ DashboardPerson: d });
-                                                  //console.log(e.target.value)
-                                                }}
-                                                MenuProps={Data.MenuProps}
-                                              >
-                                                {this.state.contacts.map((name, key) => (
-                                                  <MenuItem
-                                                    key={key}
-                                                    value={name}>
-                                                    <div
-                                                      className="row align-items-center">
-                                                      <Avatar
-                                                        alt="Natacha"
-                                                        src={name.imageUrl}
-                                                        style={{ marginLeft: 10 }} />
-                                                      <div
-                                                        className="ml-2">  {name.nom + ' ' + name.prenom} </div>
-                                                    </div>
-                                                  </MenuItem>
-                                                ))}
-                                              </MuiSelect>
-                                            </FormControl>
-                                          </div>
-                                          <div className="col-md-1"
-                                               style={{
-                                                 borderLeftColor: '#a6a6a6',
-                                                 borderLeftStyle: 'solid',
-                                                 borderLeftWidth: 1
-                                               }}>
-                                            <h5>A-B-C</h5>
-                                          </div>
-                                          <div className="col-md-1"
-                                               style={{
-                                                 borderLeftColor: '#a6a6a6',
-                                                 borderLeftStyle: 'solid',
-                                                 borderLeftWidth: 1
-                                               }}>
-                                            <h5>D-E-F</h5>
-                                          </div>
-                                          <div className="col-md-1"
-                                               style={{
-                                                 borderLeftColor: '#a6a6a6',
-                                                 borderLeftStyle: 'solid',
-                                                 borderLeftWidth: 1
-                                               }}>
-                                            <h5>G-H-I</h5>
-                                          </div>
-                                          <div className="col-md-1"
-                                               style={{
-                                                 borderLeftColor: '#a6a6a6',
-                                                 borderLeftStyle: 'solid',
-                                                 borderLeftWidth: 1
-                                               }}>
-                                            <h5>J-K-L</h5>
-                                          </div>
-                                          <div className="col-md-1"
-                                               style={{
-                                                 borderLeftColor: '#a6a6a6',
-                                                 borderLeftStyle: 'solid',
-                                                 borderLeftWidth: 1
-                                               }}>
-                                            <h5>M-N-O</h5>
-                                          </div>
-                                          <div className="col-md-1"
-                                               style={{
-                                                 borderLeftColor: '#a6a6a6',
-                                                 borderLeftStyle: 'solid',
-                                                 borderLeftWidth: 1
-                                               }}>
-                                            <h5>P-Q-R</h5>
-                                          </div>
-                                          <div className="col-md-1"
-                                               style={{
-                                                 borderLeftColor: '#a6a6a6',
-                                                 borderLeftStyle: 'solid',
-                                                 borderLeftWidth: 1
-                                               }}>
-                                            <h5>S-T-U</h5>
-                                          </div>
-                                          <div className="col-md-1"
-                                               style={{
-                                                 borderLeftColor: '#a6a6a6',
-                                                 borderLeftStyle: 'solid',
-                                                 borderLeftWidth: 1
-                                               }}>
-                                            <h5>W-X-Y-Z</h5>
-                                          </div>
-                                        </div>
-                                        <div className="row mt-2">
-                                          <div className="col-md-4">
-                                            <div
-                                              className="row align-items-center justify-content-start">
-                                              <h3 className="font-weight-bold">This Week : </h3>
-                                              <h3>08 - 14 may 2017</h3>
-                                            </div>
-                                          </div>
-                                          <div
-                                            className="col-md-8 text-right">
-                                            <ButtonGroup
-                                              color="#a6a6a6"
-                                              aria-label="outlined secondary button group">
-                                              <BT> <img
-                                                src={back}
-                                                style={{ width: 18 }} />
-                                              </BT> <BT
-                                              style={{ backgroundColor: '#e6e6e6' }}> This Week</BT>
-                                              <BT> <img
-                                                src={back}
-                                                style={{
-                                                  width: 18,
-                                                  transform: 'rotate(180deg)'
-                                                }} />
-                                              </BT>
-                                            </ButtonGroup>
-                                          </div>
-                                        </div>
-                                        <div>
-                                          <hr style={{
-                                            width: '100%',
-                                            height: 1,
-                                            backgroundColor: '#a6a6a6'
-                                          }} />
-                                        </div>
-                                        {this.state.DashboardPerson.person != '' &&
-                                        <div>
-                                          <div
-                                            className="row align-items-center mt-3 ">
-                                            <div className="col-md-4">
-                                              <div
-                                                className="row align-items-center">
-                                                <div
-                                                  className="col-md-4">
-                                                  <img
-                                                    src={this.state.DashboardPerson.person.imageUrl}
-                                                    style={{ width: '100%' }} />
-                                                </div>
-                                                <div
-                                                  className="col-md-8">
-                                                  <div>
-                                                    <h4
-                                                      className="font-weight-bold">{this.state.DashboardPerson.person.nom + ' ' + this.state.DashboardPerson.person.prenom}</h4>
-                                                  </div>
-                                                  <div>
-                                                    <h5>{this.state.DashboardPerson.person.role}</h5>
-                                                  </div>
-                                                  <div>
-                                                    <h5>{this.state.DashboardPerson.person.email}</h5>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </div>
-                                            <div
-                                              className="col-md-8 text-right">
-                                              <div
-                                                className="row justify-content-end w-100">
-                                                <BT
-                                                  variant="contained"
-                                                  style={{
-                                                    backgroundColor: '#e6e6e6',
-                                                    color: 'black',
-                                                    textTransform: 'none'
-                                                  }}
-                                                  startIcon={
-                                                    <img
-                                                      src={edit}
-                                                      style={{ width: 10 }} />}
-                                                > Edit profile </BT>
-                                                <BT
-                                                  variant="contained"
-                                                  endIcon={
-                                                    <img
-                                                      src={down}
-                                                      style={{ width: 10 }} />}
-                                                  style={{
-                                                    backgroundColor: '#e6e6e6',
-                                                    color: 'black',
-                                                    marginLeft: 5,
-                                                    textTransform: 'none'
-                                                  }}
-                                                  aria-controls="simple-menu"
-                                                  aria-haspopup="true"> Actions </BT>
-                                                <Menu
-                                                  id="simple-menu"
-                                                  anchorEl={''}
-                                                  keepMounted
-                                                >
-                                                  <MenuItem>Profile</MenuItem>
-                                                  <MenuItem>My account</MenuItem>
-                                                  <MenuItem>Logout</MenuItem>
-                                                </Menu>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div className="row mt-4">
-                                            <div className="col-md-4">
-                                              <div className="col-md-12 "
-                                                   style={{
-                                                     borderStyle: 'solid',
-                                                     borderRadius: 10,
-                                                     borderWidth: 0.5,
-                                                     borderColor: '#a6a6a6'
-                                                   }}>
-                                                <div className="row">
-                                                  <div
-                                                    className="col-md-6 text-left">
-                                                    <h5 style={{ color: '#a6a6a6' }}>
-                                                      Total Hours
-                                                    </h5>
-                                                    <h4 className="font-weight-bold">
-                                                      30.75
-                                                    </h4>
-                                                  </div>
-                                                  <div
-                                                    className="col-md-6 text-left">
-                                                    <h5 style={{ color: '#a6a6a6' }}>
-                                                      Capacity
-                                                    </h5>
-                                                    <h4 className="font-weight-bold">
-                                                      35.00
-                                                    </h4>
-                                                  </div>
-                                                </div>
-                                                <div className="mt-2">
-                                                  <HSBar
-                                                    showTextDown={false}
-                                                    id="hsbarExample"
-                                                    outlineWidth={0.2}
-                                                    outlineColor="#a6a6a6"
-                                                    data={[
-                                                      {
-                                                        value: 60,
-                                                        description: '0%',
-                                                        color: '#1998ed'
-                                                      },
-                                                      {
-                                                        value: 20,
-                                                        description: '60%',
-                                                        color: '#a5d6fa'
-                                                      },
-                                                      {
-                                                        value: 20,
-                                                        description: '80%',
-                                                        color: 'white'
-                                                      }
-                                                    ]}
-                                                  />
-                                                </div>
-                                                <div
-                                                  className="row mt-2 align-items-center  ml-1 "
-                                                  style={{ width: '100%' }}>
-                                                  <div
-                                                    className="col-md-6">
-                                                    <div
-                                                      className="row align-items-center   ">
-                                                      <div
-                                                        style={{
-                                                          height: 15,
-                                                          width: 15,
-                                                          borderRadius: 2,
-                                                          backgroundColor: '#1998ed'
-                                                        }}>
-                                                      </div>
-                                                      <div
-                                                        className="ml-1">
-                                                        <div>Billable</div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                    className="col-md-6 text-right font-weight-bold">
-                                                    <h5>19.91</h5>
-                                                  </div>
-                                                </div>
-                                                <div
-                                                  className="row mt-1 align-items-center  ml-1 "
-                                                  style={{ width: '100%' }}>
-                                                  <div
-                                                    className="col-md-6">
-                                                    <div
-                                                      className="row align-items-center   ">
-                                                      <div
-                                                        style={{
-                                                          height: 15,
-                                                          width: 15,
-                                                          borderRadius: 2,
-                                                          backgroundColor: '#a5d6fa'
-                                                        }}>
-                                                      </div>
-                                                      <div
-                                                        className="ml-1">
-                                                        <div>Non-Billable</div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                    className="col-md-6 text-right">
-                                                    <h5 className="font-weight-bold">10.81</h5>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                              <div
-                                                className="col-md-12 mt-3 "
-                                                style={{
-                                                  borderStyle: 'solid',
-                                                  borderRadius: 10,
-                                                  borderWidth: 0.5,
-                                                  borderColor: '#a6a6a6'
-                                                }}>
-                                                <div
-                                                  className="row justify-content-center align-items-center">
-                                                  <div
-                                                    style={{ width: '12%' }}>
-                                                    <div>Mon</div>
-                                                    <h6>6.50</h6>
-                                                  </div>
-                                                  <div
-                                                    style={{ width: '12%' }}>
-                                                    <div>Tue</div>
-                                                    <h6>7.58</h6>
-                                                  </div>
-                                                  <div
-                                                    style={{ width: '12%' }}>
-                                                    <div>Wed</div>
-                                                    <h6>6.23</h6>
-                                                  </div>
-                                                  <div
-                                                    style={{ width: '12%' }}>
-                                                    <div>Thu</div>
-                                                    <h6>7.33</h6>
-                                                  </div>
-                                                  <div
-                                                    style={{ width: '12%' }}>
-                                                    <div>Fri</div>
-                                                    <h6>3.10</h6>
-                                                  </div>
-                                                  <div
-                                                    style={{ width: '12%' }}>
-                                                    <div>Sat</div>
-                                                    <h6>0.00</h6>
-                                                  </div>
-                                                  <div
-                                                    style={{ width: '12%' }}>
-                                                    <div>Sun</div>
-                                                    <h6>0.00</h6>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                              <div
-                                                className="col-md-12 mt-3 "
-                                                style={{
-                                                  borderStyle: 'solid',
-                                                  borderRadius: 10,
-                                                  borderWidth: 0.5,
-                                                  borderColor: '#a6a6a6',
-                                                  paddingTop: 5
-                                                }}>
-                                                <HSBar
-                                                  showTextDown={false}
-                                                  id="hsbarExample"
-                                                  outlineWidth={0.2}
-                                                  outlineColor="#a6a6a6"
-                                                  data={[
-                                                    {
-                                                      value: 50,
-                                                      description: '0%',
-                                                      color: '#5cb31f'
-                                                    },
-                                                    {
-                                                      value: 20,
-                                                      description: '60%',
-                                                      color: '#fc6420'
-                                                    },
-                                                    {
-                                                      value: 20,
-                                                      description: '80%',
-                                                      color: '#e1c92c'
-                                                    },
-                                                    {
-                                                      value: 10,
-                                                      description: '80%',
-                                                      color: '#20bde8'
-                                                    }
-                                                  ]}
-                                                />
-                                                <div
-                                                  className="row mt-2 align-items-center  ml-1 "
-                                                  style={{ width: '100%' }}>
-                                                  <div
-                                                    className="col-md-8">
-                                                    <div
-                                                      className="row align-items-center   ">
-                                                      <div
-                                                        style={{
-                                                          height: 15,
-                                                          width: 15,
-                                                          borderRadius: 2,
-                                                          backgroundColor: '#5cb31f'
-                                                        }}>
-                                                      </div>
-                                                      <div
-                                                        className="ml-1">
-                                                        <div>Autumn 2016 Campaign Launch
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                    className="col-md-4 text-right font-weight-bold">
-                                                    <h5>17.83</h5>
-                                                  </div>
-                                                </div>
-                                                <div
-                                                  className="row mt-1 align-items-center  ml-1 "
-                                                  style={{ width: '100%' }}>
-                                                  <div
-                                                    className="col-md-8">
-                                                    <div
-                                                      className="row align-items-center   ">
-                                                      <div
-                                                        style={{
-                                                          height: 15,
-                                                          width: 15,
-                                                          borderRadius: 2,
-                                                          backgroundColor: '#fc6420'
-                                                        }}>
-                                                      </div>
-                                                      <div
-                                                        className="ml-1">
-                                                        <div>Website Redisgn 2017 - Phase
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                    className="col-md-4 text-right font-weight-bold">
-                                                    <h5>5.83</h5>
-                                                  </div>
-                                                </div>
-                                                <div
-                                                  className="row mt-1 align-items-center  ml-1 "
-                                                  style={{ width: '100%' }}>
-                                                  <div
-                                                    className="col-md-8">
-                                                    <div
-                                                      className="row align-items-center   ">
-                                                      <div
-                                                        style={{
-                                                          height: 15,
-                                                          width: 15,
-                                                          borderRadius: 2,
-                                                          backgroundColor: '#e1c92c'
-                                                        }}>
-                                                      </div>
-                                                      <div
-                                                        className="ml-1">
-                                                        <div>Signage Redesign 2017
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                    className="col-md-4 text-right font-weight-bold">
-                                                    <h5>5.33</h5>
-                                                  </div>
-                                                </div>
-                                                <div
-                                                  className="row mt-1 align-items-center  ml-1 "
-                                                  style={{ width: '100%' }}>
-                                                  <div
-                                                    className="col-md-8">
-                                                    <div
-                                                      className="row align-items-center   ">
-                                                      <div
-                                                        style={{
-                                                          height: 15,
-                                                          width: 15,
-                                                          borderRadius: 2,
-                                                          backgroundColor: '#20bde8'
-                                                        }}>
-                                                      </div>
-                                                      <div
-                                                        className="ml-1">
-                                                        <div>Internal Office
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                    className="col-md-4 text-right font-weight-bold">
-                                                    <h5>1.75</h5>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </div>
-                                            <div className="col-md-8">
-                                              <div
-                                                className="row justify-content-start"
-                                                style={{
-                                                  borderBottomStyle: 'solid',
-                                                  borderBottomColor: '#a6a6a6'
-                                                }}>
-                                                <div
-                                                  className="col-md-auto">
-                                                  <div
-                                                    className="font-weight-bold"
-                                                    style={{ color: 'black' }}>Monday
-                                                  </div>
-                                                  {' ' + data.dashboardTab.monday.date}
-                                                </div>
-                                              </div>
-                                              {data.dashboardTab.monday.data.map((item, key) => (
-                                                <div
-                                                  className="row align-items-center"
-                                                  style={{
-                                                    borderBottomStyle: 'solid',
-                                                    borderBottomColor: '#a6a6a6',
-                                                    borderBottomWidth: 0.2,
-                                                    marginTop: 8,
-                                                    paddingBottom: 10
-                                                  }}>
-                                                  <div
-                                                    className="col-md-9 text-left">
-                                                    <div>
-                                                      <div
-                                                        className="font-weight-bold"
-                                                        style={{ color: 'black' }}>{item.title}</div>
-                                                    </div>
-                                                    <div>
-                                                      <div>{item.work}</div>
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                    className="col-md-2">
-                                                    <div
-                                                      className="font-weight-bold"
-                                                      style={{ color: 'black' }}>{item.value}</div>
-                                                  </div>
-                                                  <div
-                                                    className="col-md-1">
-                                                    <IconButton>
-                                                      <img
-                                                        src={edit}
-                                                        style={{ width: '100%' }} />
-                                                    </IconButton>
-                                                  </div>
-                                                </div>
-                                              ))}
-                                            </div>
-                                          </div>
-                                        </div>
-
-
-                                        }
-                                      </TabPanel> <TabPanel>
-                                        <div className="row align-items-center">
-                                          <ButtonGroup
-                                            color="#a6a6a6"
-                                            aria-label="outlined secondary button group">
-                                            <BT>ALL</BT>
-                                            <BT> <img
-                                              src={time}
-                                              style={{ width: 20 }} /> Time</BT>
-                                            <BT> <img
-                                              src={money}
-                                              style={{ width: 20 }} /> Expense</BT>
-                                          </ButtonGroup>
-                                          <div className="ml-2">
-                                            <DatePicker
-                                              calendarIcon={
-                                                <img
-                                                  src={calendar}
-                                                  style={{ width: 20 }} />}
-                                              onChange={(e) => {
-                                                let d = this.state.TimeSheet;
-                                                d.newTime.date = e;
-                                                this.setState({ TimeSheet: d });
-                                              }}
-                                              value={this.state.TimeSheet.newTime.date}
-                                            />
-                                          </div>
-                                          <div className="ml-1">
-                                            <h5>-</h5>
-                                          </div>
-                                          <div className="ml-1">
-                                            <DatePicker
-                                              calendarIcon={
-                                                <img
-                                                  src={calendar}
-                                                  style={{ width: 20 }} />}
-                                              onChange={(e) => {
-                                                let d = this.state.TimeSheet;
-                                                d.newTime.date = e;
-                                                this.setState({ TimeSheet: d });
-                                              }}
-                                              value={this.state.TimeSheet.newTime.date}
-                                            />
-                                          </div>
-                                          <div className="ml-2">
-                                            <ButtonGroup
-                                              color="#a6a6a6"
-                                              aria-label="outlined secondary button group">
-                                              <BT> <img
-                                                src={play}
-                                                style={{
-                                                  width: 18,
-                                                  transform: 'rotate(180deg)'
-                                                }} />
-                                              </BT> <BT>
-                                              <img src={play}
-                                                   style={{ width: 18 }} />
-                                            </BT>
-                                            </ButtonGroup>
-                                          </div>
-                                          <div className="col-md-2 ml-2">
-                                            <Select
-                                              labelId="demo-simple-select-label"
-                                              id="demo-simple-select"
-                                              style={{ width: '100%' }}
-                                              defaultValue={'Custom'}
-                                            > <MenuItem
-                                              value={'Custom'}>Custom</MenuItem>
-                                              <MenuItem
-                                                value={'Associé'}>Custom 2</MenuItem>
-                                              <MenuItem
-                                                value={'Collaborateur'}>Costim 3</MenuItem>
-                                            </Select>
-                                          </div>
-                                        </div>
-                                        {
-                                          this.state.contacts.length > 0 &&
-                                          <TableTimeSheet
-                                            contacts={this.state.TimeSheetData}
-                                            onEditClick={(contact, key) => {
-                                              this.setState({
-                                                  selectedSociete: contact,
-                                                  selectedSocieteKey: key,
-                                                  openRightSocieteModalDetail: true
-                                                }
-                                              );
-                                            }
-                                            } />
-                                        }
-                                      </TabPanel> </Tabs>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        }
-                      </Route>
-
-                      <Route exact path="/home/timeSheet/dashboardProject">
-                        {
-                          this.state.loading === false && this.state.firstLoading === false &&
-                          <div>
-                            <div className="row">
-                              <div className="col-lg-12">
-                                <div className="row align-items-center²">
-                                  <div className="col-md-12 text-left">
-                                    <h5 className="font-weight-bold">Time Sheet</h5>
-                                    <h6 className="ml-2"> > Dashboard Project </h6>
-                                  </div>
-                                </div>
-                                <div className="card-box text-center"
-                                     style={{ marginTop: 1 }}>
-                                  <div style={{ marginTop: 10 }}
-                                       className="text-left">
-                                    <Tabs> <TabList>
-                                      <Tab>All projects</Tab>
-                                      <Tab>This Week</Tab>
-                                      <Tab>Scheduled Next Week </Tab>
-                                    </TabList> <TabPanel>
-                                      <div
-                                        className="row justify-content-start align-items-center mt-3">
-                                        <div>
-                                          <BT
-                                            variant="contained"
-                                            style={{
-                                              backgroundColor: '#17a51b',
-                                              color: 'white'
-                                            }}
-                                            startIcon={<img
-                                              src={pluss}
-                                              style={{ width: 10 }} />}
-                                          > Add Person </BT>
-                                        </div>
-                                        <div className="ml-1">
-                                          <BT
-                                            variant="contained"
-                                            style={{ color: '#a6a6a6' }}
-                                          > Import </BT>
-                                        </div>
-                                        <div className="ml-1">
-                                          <BT
-                                            variant="contained"
-                                            style={{ color: '#a6a6a6' }}
-                                          > Export </BT>
-                                        </div>
-                                      </div>
-                                      <div
-                                        className="row justify-content-start">
-                                        <div
-                                          className="mt-3 text-left col-md-3">
-                                          <BT
-                                            variant="contained"
-                                            endIcon={<img
-                                              alt=""
-                                              src={down}
-                                              style={{ width: 10 }} />}
-                                            style={{
-                                              backgroundColor: '#e6e6e6',
-                                              color: 'black',
-                                              marginLeft: 5,
-                                              textTransform: 'none',
-                                              width: '100%'
-                                            }}
-                                            aria-controls="simple-menu"
-                                            aria-haspopup="true"> Budgeted Project (9) </BT>
-                                        </div>
-                                      </div>
-                                      <div className="mt-3">
-                                        <table className="table">
-                                          <thead
-                                            className="thead-light">
-                                          <tr>
-                                            <th scope="col">ACME CORPORATION
-                                            </th>
-                                            <th scope="col">Budget</th>
-                                            <th scope="col">Spent</th>
-                                            <th scope="col"
-                                                style={{ width: '20%' }} />
-                                            <th scope="col">Remaining</th>
-                                            <th scope="col" />
-                                            <th scope="col">Cost</th>
-                                          </tr>
-                                          </thead>
-                                          <tbody>
-                                          {data.dashbordProject.acme.map((item, key) => (
-                                            <tr key={key}>
-                                              <td>{item.title}</td>
-                                              <td>{item.budget}</td>
-                                              <td>{item.spent}</td>
-                                              <td>
-                                                <div
-                                                  className="progress ml-auto mr-auto w-100 ">
-                                                  <div
-                                                    className="progress-bar"
-                                                    role="progressbar"
-                                                    style={{
-                                                      width: item.chart + '%',
-                                                      backgroundColor: '#1fbce7'
-                                                    }}
-                                                    aria-valuenow="10"
-                                                    aria-valuemin='0'
-                                                    aria-valuemax="100" />
-                                                </div>
-                                              </td>
-                                              <td>{item.romaining} </td>
-                                              <td>{item.purcent}</td>
-                                              <td>{item.costs}</td>
-                                            </tr>
-                                          ))
-
-                                          }
-                                          </tbody>
-                                        </table>
-                                        <table className="table">
-                                          <thead
-                                            className="thead-light">
-                                          <tr>
-                                            <th scope="col">ASTORIAN PUBLISHING
-                                            </th>
-                                            <th scope="col">Budget</th>
-                                            <th scope="col">Spent</th>
-                                            <th scope="col"
-                                                style={{ width: '20%' }} />
-                                            <th scope="col">Remaining</th>
-                                            <th scope="col" />
-                                            <th scope="col">Cost</th>
-                                          </tr>
-                                          </thead>
-                                          <tbody>
-                                          {data.dashbordProject.astorian.map((item, key) => (
-                                            <tr key={key}>
-                                              <td>{item.title}</td>
-                                              <td>{item.budget}</td>
-                                              <td>{item.spent}</td>
-                                              <td>
-                                                <div
-                                                  className="progress ml-auto mr-auto w-100 ">
-                                                  <div
-                                                    className="progress-bar"
-                                                    role="progressbar"
-                                                    style={{
-                                                      width: item.chart + '%',
-                                                      backgroundColor: '#1fbce7'
-                                                    }}
-                                                    aria-valuenow="10"
-                                                    aria-valuemin='0'
-                                                    aria-valuemax="100" />
-                                                </div>
-                                              </td>
-                                              <td>{item.romaining} </td>
-                                              <td>{item.purcent}</td>
-                                              <td>{item.costs}</td>
-                                            </tr>
-                                          ))
-
-                                          }
-                                          </tbody>
-                                        </table>
-                                        <table className="table">
-                                          <thead
-                                            className="thead-light">
-                                          <tr>
-                                            <th scope="col">BARRINGTON PUBLISHERS
-                                            </th>
-                                            <th scope="col">Budget</th>
-                                            <th scope="col">Spent</th>
-                                            <th scope="col"
-                                                style={{ width: '20%' }} />
-                                            <th scope="col">Remaining</th>
-                                            <th scope="col" />
-                                            <th scope="col">Cost</th>
-                                          </tr>
-                                          </thead>
-                                          <tbody>
-                                          {data.dashbordProject.barrington.map((item, key) => (
-                                            <tr key={key}>
-                                              <td>{item.title}</td>
-                                              <td>{item.budget}</td>
-                                              <td>{item.spent}</td>
-                                              <td>
-                                                <div
-                                                  className="progress ml-auto mr-auto w-100 ">
-                                                  <div
-                                                    className="progress-bar"
-                                                    role="progressbar"
-                                                    style={{
-                                                      width: item.chart + '%',
-                                                      backgroundColor: '#1fbce7'
-                                                    }}
-                                                    aria-valuenow="10"
-                                                    aria-valuemin='0'
-                                                    aria-valuemax="100" />
-                                                </div>
-                                              </td>
-                                              <td>{item.romaining} </td>
-                                              <td>{item.purcent}</td>
-                                              <td>{item.costs}</td>
-                                            </tr>
-                                          ))
-
-                                          }
-                                          </tbody>
-                                        </table>
-                                        <table className="table">
-                                          <thead
-                                            className="thead-light">
-                                          <tr>
-                                            <th scope="col">BRITISH MUSEUM
-                                            </th>
-                                            <th scope="col">Budget</th>
-                                            <th scope="col">Spent</th>
-                                            <th scope="col"
-                                                style={{ width: '20%' }} />
-                                            <th scope="col">Remaining</th>
-                                            <th scope="col" />
-                                            <th scope="col">Cost</th>
-                                          </tr>
-                                          </thead>
-                                          <tbody>
-                                          {data.dashbordProject.british.map((item, key) => (
-                                            <tr key={key}>
-                                              <td>{item.title}</td>
-                                              <td>{item.budget}</td>
-                                              <td>{item.spent}</td>
-                                              <td>
-                                                <div
-                                                  className="progress ml-auto mr-auto w-100 ">
-                                                  <div
-                                                    className="progress-bar"
-                                                    role="progressbar"
-                                                    style={{
-                                                      width: item.chart + '%',
-                                                      backgroundColor: '#1fbce7'
-                                                    }}
-                                                    aria-valuenow="10"
-                                                    aria-valuemin='0'
-                                                    aria-valuemax="100" />
-                                                </div>
-                                              </td>
-                                              <td>{item.romaining} </td>
-                                              <td>{item.purcent}</td>
-                                              <td>{item.costs}</td>
-                                            </tr>
-                                          ))
-
-                                          }
-                                          </tbody>
-                                        </table>
-                                        <table className="table">
-                                          <thead
-                                            className="thead-light">
-                                          <tr>
-                                            <th scope="col">BROADSTREET INC
-                                            </th>
-                                            <th scope="col">Budget</th>
-                                            <th scope="col">Spent</th>
-                                            <th scope="col"
-                                                style={{ width: '20%' }} />
-                                            <th scope="col">Remaining</th>
-                                            <th scope="col" />
-                                            <th scope="col">Cost</th>
-                                          </tr>
-                                          </thead>
-                                          <tbody>
-                                          {data.dashbordProject.broadstreet.map((item, key) => (
-                                            <tr key={key}>
-                                              <td>{item.title}</td>
-                                              <td>{item.budget}</td>
-                                              <td>{item.spent}</td>
-                                              <td>
-                                                <div
-                                                  className="progress ml-auto mr-auto w-100 ">
-                                                  <div
-                                                    className="progress-bar"
-                                                    role="progressbar"
-                                                    style={{
-                                                      width: item.chart + '%',
-                                                      backgroundColor: '#1fbce7'
-                                                    }}
-                                                    aria-valuenow="10"
-                                                    aria-valuemin='0'
-                                                    aria-valuemax="100" />
-                                                </div>
-                                              </td>
-                                              <td>{item.romaining} </td>
-                                              <td>{item.purcent}</td>
-                                              <td>{item.costs}</td>
-                                            </tr>
-                                          ))
-
-                                          }
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                    </TabPanel> <TabPanel>
-                                      <div className="row align-items-center">
-                                        <ButtonGroup
-                                          color="#a6a6a6"
-                                          aria-label="outlined secondary button group">
-                                          <BT>ALL</BT> <BT>
-                                          <img src={time}
-                                               style={{ width: 20 }} /> Time</BT>
-                                          <BT> <img
-                                            src={money}
-                                            style={{ width: 20 }} /> Expense</BT>
-                                        </ButtonGroup>
-                                        <div className="ml-2">
-                                          <DatePicker
-                                            calendarIcon={
-                                              <img
-                                                src={calendar}
-                                                style={{ width: 20 }} />}
-                                            onChange={(e) => {
-                                              let d = this.state.TimeSheet;
-                                              d.newTime.date = e;
-                                              this.setState({ TimeSheet: d });
-                                            }}
-                                            value={this.state.TimeSheet.newTime.date}
-                                          />
-                                        </div>
-                                        <div className="ml-1">
-                                          <h5>-</h5>
-                                        </div>
-                                        <div className="ml-1">
-                                          <DatePicker
-                                            calendarIcon={
-                                              <img
-                                                src={calendar}
-                                                style={{ width: 20 }} />}
-                                            onChange={(e) => {
-                                              let d = this.state.TimeSheet;
-                                              d.newTime.date = e;
-                                              this.setState({ TimeSheet: d });
-                                            }}
-                                            value={this.state.TimeSheet.newTime.date}
-                                          />
-                                        </div>
-                                        <div className="ml-2">
-                                          <ButtonGroup
-                                            color="#a6a6a6"
-                                            aria-label="outlined secondary button group">
-                                            <BT> <img
-                                              src={play}
-                                              style={{
-                                                width: 18,
-                                                transform: 'rotate(180deg)'
-                                              }} />
-                                            </BT> <BT> <img
-                                            src={play}
-                                            style={{ width: 18 }} />
-                                          </BT> </ButtonGroup>
-                                        </div>
-                                        <div className="col-md-2 ml-2">
-                                          <Select
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                            style={{ width: '100%' }}
-                                            defaultValue={'Custom'}
-                                          > <MenuItem
-                                            value={'Custom'}>Custom</MenuItem>
-                                            <MenuItem
-                                              value={'Associé'}>Custom 2</MenuItem>
-                                            <MenuItem
-                                              value={'Collaborateur'}>Costim 3</MenuItem>
-                                          </Select>
-                                        </div>
-                                      </div>
-                                      {
-                                        this.state.contacts.length > 0 &&
-                                        <TableTimeSheet
-                                          contacts={this.state.TimeSheetData}
-                                          onEditClick={(contact, key) => {
-                                            this.setState({
-                                                selectedSociete: contact,
-                                                selectedSocieteKey: key,
-                                                openRightSocieteModalDetail: true
-                                              }
-                                            );
-                                          }
-                                          } />
-                                      }
-                                    </TabPanel> <TabPanel> </TabPanel>
-                                    </Tabs>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        }
-                      </Route>
-
                     </Switch>
 
                   </div>
                 </div>
               </div>
             </div>
-
 
           </div>
 
@@ -8785,9 +4992,8 @@ export default class Main extends React.Component {
                         .catch((err) => console.log(err));
                     }}
                   >
-                    {' '}
-                    <FindInPageOutlinedIcon />{' '}
-                  </IconButton>{' '}
+                    <FindInPageOutlinedIcon />
+                  </IconButton>
                   <IconButton
                     aria-label="Télécharger"
                     title="Télécharger"
@@ -8795,18 +5001,17 @@ export default class Main extends React.Component {
                     download={true}
                     target="_blank"
                   >
-                    {' '}
-                    <CloudDownloadOutlinedIcon />{' '}
+                    <CloudDownloadOutlinedIcon />
                   </IconButton>
                   <IconButton aria-label="Inviter" title="Inviter" color="primary">
-                    <PersonAddOutlinedIcon />{' '}
-                  </IconButton>{' '}
+                    <PersonAddOutlinedIcon />
+                  </IconButton>
                   <IconButton
                     aria-label="Supprimer"
                     title="Supprimer"
                     color="secondary"
                   >
-                    <DeleteOutlineIcon />{' '}
+                    <DeleteOutlineIcon />
                   </IconButton>
                 </div>
                 <div className="rs_row">
@@ -8818,7 +5023,7 @@ export default class Main extends React.Component {
                       <strong>Crée par</strong>
                     </div>
                     <div className="rs_row_text">
-                      {localStorage.getItem('email')}
+                      {this.state.selectedDoc.proprietary || "Moi"}
                     </div>
                   </div>
                 </div>
@@ -8838,217 +5043,11 @@ export default class Main extends React.Component {
                   </div>
                 </div>
                 <h3 className="rs_signers_title">Signataires</h3>
-                {(this.state.selectedDoc.signers || []).map((signer, key) => (
-                  <div key={key} className="rs_row">
-                    <div className="rs_row_icon">
-                      <CreateOutlinedIcon color="secondary" />
-                    </div>
-                    <div>
-                      <div className="rs_row_text">
-                        <strong>Email</strong>
-                      </div>
-                      <div className="rs_row_text">{signer.email}</div>
-                    </div>
-                    <div className="rs_row_span rs_row_span">
-                      <div className="badge bg-soft-warning text-warning p-1 ">
-                        En attente
-                      </div>
-                    </div>
-                  </div>
-                ))}{' '}
                 {this.state.loadDocSpinner === true && (
                   <div align="center" style={{ marginTop: 120 }}>
                     <CircularProgress color="secondary" />
                   </div>
                 )}
-              </div>
-            </div>
-          </Drawer>
-
-
-          <Drawer
-            anchor="right"
-            open={this.state.openRightContactModalDetail}
-            onClose={() => {
-              this.setState({ openRightContactModalDetail: false });
-            }}
-          >
-            <div style={{ width: 420 }}>
-              <div style={{ padding: '1.1rem 1.1rem' }}>
-                <div className="card-box">
-                  <div className="media mb-3">
-                    <div className="media-body text-center ">
-                      <div className="row">
-                        <div className="col-12">
-                          <div className="media justify-content-center">
-                            <img
-                              className=" rounded-circle "
-                              src={
-                                this.state.selectedContact.imageUrl || defaultAvatar
-                              }
-                              alt=""
-                              style={{
-                                height: 80,
-                                width: 80,
-                                objectFit: 'cover'
-                              }}
-                            />
-                          </div>
-                          <div className="mt-1">
-                            <div className="ml-1 font-weight-bold">
-                              {this.state.selectedContact.nom}{' '}
-                              {this.state.selectedContact.prenom}{' '}
-                            </div>
-                          </div>
-                          <div className="">
-                            <small>{this.state.selectedContact.specialite}</small>
-                          </div>
-                          <button
-                            className="btn btn-xs btn-info"
-                            style={{ margin: '0.2rem' }}
-                          >
-                            Envoyer email
-                          </button>
-                          <button
-                            className="btn btn-xs btn-danger"
-                            style={{ margin: '0.2rem' }}
-                          >
-                            Appeler
-                          </button>
-                          <button
-                            className="btn btn-xs btn-light"
-                            style={{ margin: '0.2rem' }}
-                            onClick={() => {
-                              this.setState({
-                                openRightContactModalDetail: false
-                              });
-                              setTimeout(() => {
-                                this.setState({ editContactForm: true });
-                              }, 400);
-                            }}
-                          >
-                            Éditer
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <h5 className="mb-3 mt-4 text-uppercase bg-light p-2">
-                    <i className="mdi mdi-account-circle mr-1" />
-                    Renseignements personnels
-                  </h5>
-                  <div className="">
-                    <h4 className="font-13 text-muted text-uppercase">APARTÉ :</h4>
-                    <p className="mb-3">{this.state.selectedContact.aparte}</p>
-                    <h4 className="font-13 text-muted text-uppercase mb-1">
-                      Langues
-                    </h4>
-                    <p className="mb-3"> {this.state.selectedContact.langues}</p>
-                    <h4 className="font-13 text-muted text-uppercase mb-1">
-                      Numéro de téléphone
-                    </h4>
-                    <p className="mb-3">{this.state.selectedContact.phone}</p>
-                    <h4 className="font-13 text-muted text-uppercase mb-1">Email</h4>
-                    <p className="mb-3"> {this.state.selectedContact.email}</p>
-                    <h4 className="font-13 text-muted text-uppercase mb-1">Pays</h4>
-                    <p className="mb-0"> {this.state.selectedContact.pays}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Drawer>
-
-
-          <Drawer
-            anchor="right"
-            open={this.state.openRightSocieteModalDetail}
-            onClose={() => {
-              this.setState({ openRightSocieteModalDetail: false });
-            }}
-          >
-            <div style={{ width: 420 }}>
-              <div style={{ padding: '1.1rem 1.1rem' }}>
-                <div className="card-box">
-                  <div className="media mb-3">
-                    <div className="media-body text-center ">
-                      <div className="row">
-                        <div className="col-12">
-                          <div className="media justify-content-center">
-                            <img
-                              className=" rounded-circle "
-                              src={
-                                this.state.selectedSociete
-                                  ? this.state.selectedSociete.imageUrl ||
-                                  defaultAvatar
-                                  : null
-                              }
-                              alt=""
-                              style={{
-                                height: 80,
-                                width: 80,
-                                objectFit: 'cover'
-                              }}
-                            />
-                          </div>
-                          <div className="mt-1">
-                            <div className="ml-1 font-weight-bold">
-                              {this.state.selectedSociete.nomSociete}{' '}
-                            </div>
-                          </div>
-                          <div className="">
-                            <small>{this.state.selectedSociete.specialite}</small>
-                          </div>
-                          <button
-                            className="btn btn-xs btn-info"
-                            style={{ margin: '0.2rem' }}
-                          >
-                            Envoyer email
-                          </button>
-                          <button
-                            className="btn btn-xs btn-danger"
-                            style={{ margin: '0.2rem' }}
-                          >
-                            Appeler
-                          </button>
-                          <button
-                            className="btn btn-xs btn-light"
-                            style={{ margin: '0.2rem' }}
-                            onClick={() => {
-                              this.setState({
-                                openRightSocieteModalDetail: false
-                              });
-                              setTimeout(() => {
-                                this.setState({ editSocieteForm: true });
-                              }, 400);
-                            }}
-                          >
-                            Éditer
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <h5 className="mb-3 mt-4 text-uppercase bg-light p-2">
-                    <i className="mdi mdi-account-circle mr-1" />
-                    Renseignements personnels
-                  </h5>
-                  <div className="">
-                    <h4 className="font-13 text-muted text-uppercase">APARTÉ :</h4>
-                    <p className="mb-3">{this.state.selectedSociete.aparte}</p>
-                    <h4 className="font-13 text-muted text-uppercase mb-1">
-                      Langues
-                    </h4>
-                    <p className="mb-3"> {this.state.selectedSociete.langues}</p>
-                    <h4 className="font-13 text-muted text-uppercase mb-1">
-                      Numéro de téléphone
-                    </h4>
-                    <p className="mb-3">{this.state.selectedSociete.phone}</p>
-                    <h4 className="font-13 text-muted text-uppercase mb-1">Email</h4>
-                    <p className="mb-3"> {this.state.selectedSociete.email}</p>
-                    <h4 className="font-13 text-muted text-uppercase mb-1">Pays</h4>
-                    <p className="mb-0"> {this.state.selectedSociete.pays}</p>
-                  </div>
-                </div>
               </div>
             </div>
           </Drawer>
@@ -9060,14 +5059,10 @@ export default class Main extends React.Component {
             zIndex={1500}
             toggle={() => this.setState({ showPDFModal: !this.state.showPDFModal })}
           >
-            {' '}
             <ModalHeader
-              toggle={() =>
-                this.setState({ showPDFModal: !this.state.showPDFModal })
-              }
+              toggle={() => this.setState({ showPDFModal: !this.state.showPDFModal })}
             >
-              {' '}
-              Document{' '}
+              Document
             </ModalHeader>
             <ModalBody>
               <PDFViewer
@@ -9083,224 +5078,8 @@ export default class Main extends React.Component {
                     Une erreur s'est produite lors de chargement du doument !
                   </h5>
                 }
-              />{' '}
-            </ModalBody>{' '}
-          </Modal>
-
-
-          <Modal
-            isOpen={this.state.showPdfPreviewModal}
-            size="lg"
-            zIndex={1500}
-            toggle={() =>
-              this.setState({
-                showPdfPreviewModal: !this.state.showPdfPreviewModal,
-                isDocPreviewReady: false
-              })
-            }
-          >
-            <ModalHeader
-              toggle={() =>
-                this.setState({
-                  showPdfPreviewModal: !this.state.showPdfPreviewModal,
-                  isDocPreviewReady: false
-                })
-              }
-            >
-              {' '}
-              Document{' '}
-            </ModalHeader>{' '}
-            <ModalBody>
-              {this.state.isDocPreviewReady === true && (
-                <PdfView width={'100%'} height={800}>
-                  {' '}
-                  <Resume
-                    title={'Resume of ' + this.state.selectedContact.nom}
-                    name={this.state.selectedContact.nom}
-                    speciality={
-                      this.state.selectedContact.specialite ||
-                      this.state.selectedContact.titre +
-                      '(' +
-                      this.state.selectedContact.pays +
-                      ')'
-                    }
-                    email={this.state.selectedContact.email}
-                    image={this.state.selectedContact.imageUrl}
-                    about={this.state.selectedContact.about}
-                    personalLife={this.state.selectedContact.personalLife}
-                    parcoursP={this.state.selectedContact.parcoursP || []}
-                    langues={this.state.selectedContact.langues || []}
-                    hobbies={this.state.selectedContact.hobbies || []}
-                    formations={this.state.selectedContact.formations || []}
-                    affiliations={this.state.selectedContact.affiliations || []}
-                    domainesAct={this.state.selectedContact.domainesAct || []}
-                    firstPageImage={SwissWhoImage}
-                  />{' '}
-                </PdfView>
-              )}
-            </ModalBody>{' '}
-          </Modal>
-
-
-          <Modal
-            isOpen={this.state.showPdfFlipModal}
-            size="lg"
-            zIndex={1500}
-            toggle={() =>
-              this.setState({ showPdfFlipModal: !this.state.showPdfFlipModal })
-            }
-          >
-            <ModalHeader
-              toggle={() =>
-                this.setState({
-                  showPdfFlipModal: !this.state.showPdfFlipModal
-                })
-              }
-            >
-              {' '}
-              Document{' '}
-            </ModalHeader>
-            <ModalBody>
-              <FlipPage
-                orientation="horizontal"
-                uncutPages={true}
-                width={'100%'}
-                height={800}
-                showSwipeHint={true}
-                showHint={true}
-                showTouchHint={true}
-              >
-                <article>
-                  <img
-                    alt=""
-                    src={SwissWhoImage}
-                    style={{ width: '100%', height: 750, objectFit: 'contain' }}
-                  />
-                </article>
-                <article style={{ padding: 30 }}>
-                  <FHeader
-                    name={this.state.selectedContact.nom}
-                    speciality={this.state.selectedContact.speciality}
-                    email={this.state.selectedContact.email}
-                  />
-                  <div>
-                    <img
-                      alt=""
-                      src={this.state.selectedContact.imageUrl}
-                      style={{
-                        marginTop: 20,
-                        marginBottom: 10,
-                        width: 200,
-                        height: 200,
-                        objectFit: 'cover'
-                      }}
-                    />
-                  </div>
-                  <div style={{ marginTop: 40 }}>
-                    <FTitle>À propos</FTitle>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        color: '#000'
-                      }}
-                    >
-                      {this.state.selectedContact.about || ''}
-                    </div>
-                  </div>
-                  <div style={{ marginTop: 40 }}>
-                    <FTitle>Famille & Vie privée</FTitle>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        color: '#000'
-                      }}
-                    >
-                      {this.state.selectedContact.personalLife || ''}
-                    </div>
-                  </div>
-                </article>
-                <article style={{ padding: 30 }}>
-                  <div className="row">
-                    <div className="col-md-4">
-                      <div style={{ marginTop: 40 }}>
-                        <FTitle>Langues</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.langues || []).map(
-                            (item, i) => (
-                              <li key={i} style={{ color: '#000' }}>
-                                {item}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      </div>
-                      <div style={{ marginTop: 55 }}>
-                        <FTitle>Domaines d'intérêt, loisirs et sports</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.hobbies || []).map(
-                            (item, i) => (
-                              <li key={i} style={{ color: '#000' }}>
-                                {item}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      </div>
-                    </div>
-                    <div className="col-md-8">
-                      <div style={{ marginTop: 40 }}>
-                        <FTitle>Parcour professionnel</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.parcoursP || []).map(
-                            (item, i) => (
-                              <li key={i} style={{ color: '#000' }}>
-                                {item}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      </div>
-                      <div style={{ marginTop: 55 }}>
-                        <FTitle>Formations</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.formations || []).map(
-                            (item, i) => (
-                              <li key={i} style={{ color: '#000' }}>
-                                {item}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      </div>
-                      <div style={{ marginTop: 55 }}>
-                        <FTitle>Affiliations</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.affiliations || []).map(
-                            (item, i) => (
-                              <li key={i} style={{ color: '#000' }}>
-                                {item}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      </div>
-                      <div style={{ marginTop: 55 }}>
-                        <FTitle>Domaines d'activités</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.domainesAct || []).map(
-                            (item, i) => (
-                              <li key={i} style={{ color: '#000' }}>
-                                {item}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </FlipPage>{' '}
-            </ModalBody>{' '}
+              />
+            </ModalBody>
           </Modal>
 
 
@@ -9481,202 +5260,6 @@ export default class Main extends React.Component {
             </ModalBody>{' '}
           </Modal>
 
-
-          <Modal
-            isOpen={this.state.showModalAdd}
-            size="md"
-            centered={true}
-            zIndex={1500}
-            toggle={() => this.setState({ showModalAdd: !this.state.showModalAdd })}
-          >
-            <ModalHeader
-              toggle={() =>
-                this.setState({
-                  showModalAdd: !this.state.showModalAdd
-                })
-              }
-            >
-              {this.state.add === 'formation'
-                ? 'Ajouter une formation'
-                : this.state.add === 'fonction'
-                  ? 'Ajouter une fonction'
-                  : this.state.add === 'domaine'
-                    ? 'Ajouter un domaine'
-                    : this.state.add === 'affiliation'
-                      ? 'Ajouter une affiliation'
-                      : this.state.add === 'parcour'
-                        ? 'Ajouter un parcour'
-                        : this.state.add === 'langue'
-                          ? 'Ajouter une langue'
-                          : this.state.add === 'hobbies'
-                            ? 'Ajouter un centre d\'intérêt, loisir ou sport'
-                            : null}
-            </ModalHeader>{' '}
-            <ModalBody>
-              <p style={{ marginBottom: 10 }}>
-                {this.state.add === 'formation'
-                  ? 'Formation'
-                  : this.state.add === 'fonction'
-                    ? 'Fonction'
-                    : this.state.add === 'domaine'
-                      ? 'Domaine'
-                      : this.state.add === 'affiliation'
-                        ? 'Affiliation'
-                        : this.state.add === 'parcour'
-                          ? 'Parcour'
-                          : this.state.add === 'langue'
-                            ? 'Langue'
-                            : this.state.add === 'hobbies'
-                              ? 'Centre d\'intérêt'
-                              : null}
-              </p>
-              {(this.state.add === 'formation' ||
-                this.state.add === 'fonction' ||
-                this.state.add === 'formation' ||
-                this.state.add === 'affiliation' ||
-                this.state.add === 'parcour' ||
-                this.state.add === 'langue' ||
-                this.state.add === 'hobbies') && (
-                <textarea
-                  className="form-control"
-                  id="inputText"
-                  name="inputText"
-                  style={{ width: 400 }}
-                  value={
-                    this.state.add === 'formation'
-                      ? this.state.formationTmp
-                      : this.state.add === 'fonction'
-                      ? this.state.fonctionTmp
-                      : this.state.add === 'affiliation'
-                        ? this.state.affiliationTmp
-                        : this.state.add === 'parcour'
-                          ? this.state.parcourTmp
-                          : this.state.add === 'langue'
-                            ? this.state.langueTmp
-                            : this.state.add === 'hobbies'
-                              ? this.state.hobbiesTmp
-                              : null
-                  }
-                  onChange={(event) =>
-                    this.state.add === 'formation'
-                      ? this.setState({ formationTmp: event.target.value })
-                      : this.state.add === 'fonction'
-                      ? this.setState({ fonctionTmp: event.target.value })
-                      : this.state.add === 'affiliation'
-                        ? this.setState({ affiliationTmp: event.target.value })
-                        : this.state.add === 'parcour'
-                          ? this.setState({ parcourTmp: event.target.value })
-                          : this.state.add === 'langue'
-                            ? this.setState({ langueTmp: event.target.value })
-                            : this.state.add === 'hobbies'
-                              ? this.setState({ hobbiesTmp: event.target.value })
-                              : null
-                  }
-                />
-              )}
-              {this.state.add === 'domaine' && (
-                <div style={{ width: 400 }}>
-                  <FormControl style={{ width: '80%' }}>
-                    <InputLabel
-                      shrink
-                      id="demo-simple-select-placeholder-label-label"
-                    >
-                      Domaine n°1
-                    </InputLabel>
-                    <MuiSelect
-                      style={{ width: '100%' }}
-                      labelId="demo-simple-select-placeholder-label-label"
-                      id="demo-simple-select-placeholder-label"
-                      value={this.state.domaine.domaine}
-                      onChange={(e) => {
-                        this.handleChangeDomaine(e);
-                      }}
-                    >
-                      <MenuItem value={'COMPTABILITE'}>COMPTABILITÉ</MenuItem>
-                      <MenuItem value={'SALAIRES'}>SALAIRES</MenuItem>
-                      <MenuItem value={'TVA'}>TVA</MenuItem>
-                      <MenuItem value={'IMPOTS'}>IMPOTS</MenuItem>
-                    </MuiSelect>
-                  </FormControl>
-                  <FormControl style={{ width: '80%' }}>
-                    <InputLabel
-                      style={{ fontSize: '100%' }}
-                      id="demo-mutiple-chip-label"
-                    >
-                      Les spécialités recherchées
-                    </InputLabel>
-                    <MuiSelect
-                      labelId="demo-mutiple-chip-label"
-                      id="demo-mutiple-chip"
-                      multiple
-                      value={this.state.domaine.specialite}
-                      onChange={(e) => {
-                        this.handleChangeSpecialite(e);
-                      }}
-                      input={<Input id="select-multiple-chip" />}
-                      renderValue={(selected) => (
-                        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                          {selected.map((value) => (
-                            <Chip
-                              style={{ margin: '2%' }}
-                              key={value}
-                              label={value}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    >
-                      {this.state.domaine.domaine === 'COMPTABILITE' &&
-                      data.comptabilite.map((name) => (
-                        <MenuItem key={name} value={name}>
-                          {name}
-                        </MenuItem>
-                      ))}
-                      {this.state.domaine.domaine === 'SALAIRES' &&
-                      data.salaire.map((name) => (
-                        <MenuItem key={name} value={name}>
-                          {name}
-                        </MenuItem>
-                      ))}
-                      {this.state.domaine.domaine === 'IMPOTS' &&
-                      data.map((name) => (
-                        <MenuItem key={name} value={name}>
-                          {name}
-                        </MenuItem>
-                      ))}
-                    </MuiSelect>
-                  </FormControl>
-                </div>
-              )}
-              <div className="text-center" style={{ marginTop: 10 }}>
-                <button
-                  type="button"
-                  onClick={
-                    this.state.add === 'formation'
-                      ? this.addItem('formation')
-                      : this.state.add === 'fonction'
-                      ? this.addItem('fonction')
-                      : this.state.add === 'domaine'
-                        ? this.addItem('domaine')
-                        : this.state.add === 'affiliation'
-                          ? this.addItem('affiliation')
-                          : this.state.add === 'parcour'
-                            ? this.addItem('parcour')
-                            : this.state.add === 'langue'
-                              ? this.addItem('langue')
-                              : this.state.add === 'hobbies'
-                                ? this.addItem('hobbies')
-                                : null
-                  }
-                  className="btn btn-success btn waves-effect mb-2 waves-light"
-                >
-                  Valider
-                </button>
-              </div>
-            </ModalBody>
-          </Modal>
-
-
           {/*Share folder Modal*/}
           <Dialog
             open={this.state.openShareDocModal}
@@ -9726,8 +5309,8 @@ export default class Main extends React.Component {
                     renderOption={(option, { selected }) => (
                       <React.Fragment>
                         <MuiCheckbox
-                          icon={icon}
-                          checkedIcon={checkedIcon}
+                          icon={main_functions.icon}
+                          checkedIcon={main_functions.checkedIcon}
                           style={{ marginRight: 8 }}
                           checked={selected}
                         />
@@ -10051,7 +5634,6 @@ export default class Main extends React.Component {
                   aria-labelledby="form-dialog-title"
           >
             <DialogTitle disableTypography id="form-dialog-title">
-              {/*<Typography variant="h6">Nouveau fichier</Typography>*/}
               <IconButton
                 aria-label="close"
                 style={{
@@ -10136,7 +5718,6 @@ export default class Main extends React.Component {
                                       newFileFromRacine: false,
                                       showNewDocScreen: false,
                                       progressUpload: undefined,
-                                      showUploadStep: '',
                                       uploadedName: fileRes.data.name + '.pdf',
                                       uploadedPath:
                                       fileRes.data.Content.Data
@@ -10233,7 +5814,6 @@ export default class Main extends React.Component {
               />
             </DialogContent>
           </Dialog>
-
 
           <Dialog
             maxWidth="xl"
@@ -10378,7 +5958,6 @@ export default class Main extends React.Component {
             </Alert>
           </Snackbar>
 
-
           <Snackbar
             open={this.state.openUploadToast}
             onClose={this.closeUploadToastSnackbar}
@@ -10392,7 +5971,6 @@ export default class Main extends React.Component {
               {this.state.uploadToastMessage}
             </Alert>
           </Snackbar>
-
 
         </div>
       </div>
