@@ -1,4 +1,4 @@
-const endpoint = "http://localhost:3001/api/"
+const endpoint = "http://34.250.15.8/api/"
 
 let QuestionService ={
 

@@ -554,7 +554,7 @@ export default class Main extends React.Component {
 
     getDataDashboard(email){
 
-      fetch('http://localhost:3001/api/questionbyEmail/'+email.trim(),{
+      fetch('http://34.250.15.8/api/questionbyEmail/'+email.trim(),{
           method:'GET',
 
       }).then((res)=>res.json()).then((result)=>{
@@ -564,13 +564,12 @@ export default class Main extends React.Component {
 
           }
       })
-
     }
 
     getBodyCheckNl(email){
 
       this.setState({bodyCheck:""})
-        fetch('http://localhost:3001/api/BodyCheckByEmail/'+email.trim(),{
+        fetch('http://34.250.15.8/api/BodyCheckByEmail/'+email.trim(),{
             method:'GET',
 
         }).then((res)=>res.json()).then((result)=>{
@@ -585,18 +584,17 @@ export default class Main extends React.Component {
 
     }
 
-
     sendBodyChekMail(email){
         let dd={
             emailReciver:email,
             subject:"bodycheckNL",
             linkUrl :"Click ici ",
-            url:"http://localhost:3000/bodycheck",
+            url:"http://localhost:3000/bodycheck", // à chnagé par l'address prod de brainyfood
             msg:"Body Check Quizz NL",
             footerMsg : "merci"
         }
 
-        fetch('http://localhost:3001/api/sendCustomMailWithUrl', {
+        fetch('http://34.250.15.8/api/sendCustomMailWithUrl', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -606,7 +604,7 @@ export default class Main extends React.Component {
         }).then(response => response.json()).then((res)=>{
             if (res.status===200){
                 this.openSnackbar('success',
-                    'Mail a été envoyé avec succès')
+                    'Un Mail a été envoyé avec succès')
             }
         }).catch(error => {
             console.log(error);
@@ -8720,7 +8718,7 @@ export default class Main extends React.Component {
                                             <div
                                               className="row align-items-center justify-content-start">
                                               <h3 className="font-weight-bold">This Week : </h3>
-                                              <h3>08 - 14 may 2017</h3>
+                                              <h3 style={{marginTop:-10,marginLeft:10}}>08 - 14 may 2017</h3>
                                             </div>
                                           </div>
                                           <div

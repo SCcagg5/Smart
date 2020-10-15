@@ -5,8 +5,7 @@ import  QuestionService from "../../provider/webserviceQuestions"
 import Snackbar from "@material-ui/core/Snackbar"
 import MySnackbarContentWrapper from "../../tools/customSnackBar";
 
-import firebase from "firebase";
-const url = process.env.REACT_APP_endpoint
+
 class Questions extends Component {
     constructor(props) {
         super(props);
@@ -31,8 +30,6 @@ class Questions extends Component {
                 laitiers:"",
                 feculents:"",
             }
-
-
         }
     }
 
@@ -91,7 +88,7 @@ sendMail(){
 
          console.log(questions)
         QuestionService.CreateQuestions(questions).then(res=> {
-            if (quest[19].rep==="Minceur" && (res!=null && res!=undefined)){
+            if (quest[19].rep==="Minceur" && (res !== null && res !== undefined)){
                 let miniceur={
                     question_id : res.data,
                     poids_souhaite:quest[20].rep,
