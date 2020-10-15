@@ -31,6 +31,8 @@ export default function TopBar(props) {
         setOpen(false);
     };
 
+
+
     return(
         <AppBar position="fixed" color="default" className="fe-ai" >
             <Toolbar style={{height:props.height}} onAuxClick={event => event.preventDefault()}>
@@ -44,14 +46,21 @@ export default function TopBar(props) {
                     onChange={(newValue) => {props.onChangeSearch(newValue)}}
                     onRequestSearch={() => {props.onRequestSearch()}}
                 />
-                <div style={{position:"absolute",right:10}}>
-                    <Avatar onClick={handleToggle} ref={anchorRef}
-                            aria-controls={open ? 'menu-list-grow' : undefined}
-                            aria-haspopup="true" style={{width:40,height:40,cursor:"pointer",fontWeight:"bold",
-                        backgroundColor:utilFunctions.getCharColor(localStorage.getItem("email").charAt(0))}}>
-                        {localStorage.getItem("email").charAt(0).toUpperCase()}
+                <div style={{position:"absolute",right:13}}>
 
-                    </Avatar>
+                    {
+                        (props.current_user_contact && props.current_user_contact !== "") ?
+                          <img alt="" src={props.current_user_contact.imageUrl} onClick={handleToggle} ref={anchorRef}
+                               aria-controls={open ? 'menu-list-grow' : undefined} aria-haspopup="true"
+                               style={{width:50,height:50,objectFit:"contain",borderRadius:"50%",border:"2px solid gainsboro",cursor:"pointer"}}/> :
+                          <Avatar onClick={handleToggle} ref={anchorRef}
+                                  aria-controls={open ? 'menu-list-grow' : undefined}
+                                  aria-haspopup="true" style={{width:40,height:40,cursor:"pointer",fontWeight:"bold",
+                              backgroundColor:utilFunctions.getCharColor(localStorage.getItem("email").charAt(0))}}>
+                              {localStorage.getItem("email").charAt(0).toUpperCase()}
+                          </Avatar>
+                    }
+
                 </div>
                 <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
                     {({ TransitionProps, placement }) => (

@@ -19,7 +19,7 @@ export default function ListFolders(props) {
                                     <FolderIcon style={{color:"rgb(95, 99, 104)"}}/>
                                 </div>
                                 <div style={{marginTop:4,marginLeft:8,color:"rgb(95, 99, 104)"}}>
-                                    {folder.name}
+                                    {folder.name || folder.title}
                                 </div>
                             </div>
                         </div>

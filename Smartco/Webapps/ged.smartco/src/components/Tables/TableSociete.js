@@ -122,6 +122,7 @@ export default function TableSociete(props) {
 
     ))
 
+
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, searchFilter - page * rowsPerPage);
 
     const handleChangePage = (event, newPage) => {
@@ -137,7 +138,11 @@ export default function TableSociete(props) {
     contactSelectOptions.push({label:"Aucun",value:""})
     props.contacts.map((contact,key) => {
         contactSelectOptions.push({value:contact.email,
-            label:<div><img alt="" src={contact.imageUrl || null} style={{width:30,height:30,objectFit:"cover"}}/>{" "}{contact.nom+" "+contact.prenom}</div>
+            label:
+              <div>
+                <img alt="" src={contact.imageUrl || null} style={{width:30,height:30,objectFit:"contain"}}/>
+                {"  "}{contact.nom+" "+contact.prenom}
+              </div>
         })
     })
 
@@ -379,7 +384,7 @@ export default function TableSociete(props) {
                                         <TableCell style={{width:"15%",fontWeight:600}}>Type</TableCell>
                                         <TableCell style={{width:"20%",fontWeight:600}}>Nom</TableCell>
                                         <TableCell  style={{width:"20%",fontWeight:600}}>Prénom</TableCell>
-                                        <TableCell  style={{width:"15%",fontWeight:600}}>Pays</TableCell>
+                                        <TableCell  style={{width:"15%",fontWeight:600}}>Téléphone</TableCell>
                                         <TableCell  style={{width:"15%",fontWeight:600}}>Date de création</TableCell>
                                         <TableCell  style={{width:"15%",fontWeight:600}}>Action</TableCell>
                                     </TableRow>
@@ -411,7 +416,7 @@ export default function TableSociete(props) {
                                                 {row.Prenom || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} >
-                                                {row.country || ""}
+                                                {row.phone || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} >
                                                 {row.created_at ? moment(row.created_at).format("DD/MM/YYYY") : ""}

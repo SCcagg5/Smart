@@ -136,7 +136,7 @@ export default function SearchClientsContainer(props) {
     contactSelectOptions.push({label:"Aucun",value:""})
     props.contacts.map((contact,key) => {
         contactSelectOptions.push({value:contact.email,
-            label:<div><img alt="" src={contact.imageUrl || null} style={{width:30,height:30,objectFit:"cover"}}/>{" "}{contact.nom+" "+contact.prenom}</div>
+            label:<div><img alt="" src={contact.imageUrl || null} style={{width:30,height:30,objectFit:"contain"}}/>{"  "}{contact.nom+" "+contact.prenom}</div>
         })
     })
 
