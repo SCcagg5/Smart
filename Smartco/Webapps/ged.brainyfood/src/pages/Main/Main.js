@@ -589,7 +589,7 @@ export default class Main extends React.Component {
             emailReciver:email,
             subject:"bodycheckNL",
             linkUrl :"Click ici ",
-            url:"http://localhost:3000/bodycheck", // à chnagé par l'address prod de brainyfood
+            url:"http://brainy.smartdom.ch/bodycheck", // à chnagé par l'address prod de brainyfood
             msg:"Body Check Quizz NL",
             footerMsg : "merci"
         }

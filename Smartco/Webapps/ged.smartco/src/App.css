@@ -125,6 +125,16 @@
     url('assets/fonts/Helvetica.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #F0F0F0;
+    border-radius: 10px;
+}
+
+
 .App {
     text-align: center;
     font-family: "MyriadPro", sans-serif!important;
@@ -925,12 +935,17 @@ select{
     width: 100%;
     height: 48px;
     line-height: 48px;
+    cursor: pointer;
 }
 .list_view_item:hover{
-    cursor: pointer;
     background-color: #e8f0fe;
     color: #1967d2;
 }
+.list_view_item_selected{
+    background-color: #e8f0fe;
+    color: #1967d2;
+}
+
 .list_view_item:focus-visible{
     cursor: pointer;
     background-color: #e8f0fe;

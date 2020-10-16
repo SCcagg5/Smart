@@ -1010,14 +1010,12 @@ export default class Main extends React.Component {
 
   deleteFile_Folder = (file) => {
     this.setState({ loading: true });
-    SmartService.deleteFile(
-      file.key || file.id,
-      localStorage.getItem('token'),
-      localStorage.getItem('usrtoken')
-    )
+    SmartService.deleteFile(file.key || file.id, localStorage.getItem('token'), localStorage.getItem('usrtoken'))
       .then((deleteRes) => {
         if (deleteRes.succes === true && deleteRes.status === 200) {
-          if (file.typeF === 'file') this.reloadGed();
+          if (file.typeF === 'file' || file.type === 'pdf'){
+            this.reloadGed()
+          }
           else {
             this.setState({ selectedFolderId: '' });
             this.props.history.push('/home/drive');
@@ -1224,7 +1222,10 @@ export default class Main extends React.Component {
             let folder_id = this.props.location.pathname.replace('/home/drive/', '');
             let folder_name = main_functions.getFolderNameById(folder_id, folders);
 
+            console.log(folder_id,folder_name)
+
             this.setState({
+              autoExpandParent:true,
               folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
               reelFolders: gedRes.data.Proprietary.Content.folders || [],
               rootFiles: gedRes.data.Proprietary.Content.files || [],
@@ -2424,6 +2425,66 @@ export default class Main extends React.Component {
     });
   }
 
+  uploadFilesToGed(files){
+    let calls = [];
+    this.setState({ openUploadToast: true });
+    for (let i = 0; i < files.length; i++) {
+      if(files[i].type === "application/pdf"){
+        let formData = new FormData();
+        formData.append('file', files[i]);
+        this.state.selectedFolderId !== '' &&
+        formData.append(
+          'folder_id',
+          this.state.selectedFolderId
+        );
+        calls.push(axios.request({
+            method: 'POST', url: data.endpoint + '/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfile',
+            data: formData,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'token': localStorage.getItem('token'),
+              'usrtoken': localStorage.getItem('usrtoken')
+            },
+            onUploadProgress: (p) => {
+              this.setState({ uploadToastMessage: files[i].name + ' : ' + ((p.loaded / p.total) * 100).toFixed(2).concat(' %').toString() });
+            }
+          })
+        );
+      }
+    }
+    Promise.all(calls).then(response => {
+      this.setState({ openUploadToast: false, uploadToastMessage: '' });
+      this.openSnackbar('success', calls.length === 1 ? calls.length +  ' fichier est ajouté avec succès' : calls.length +" fichiers sont ajoutés avec succès");
+      this.reloadGed();
+    }).catch(err => {
+      this.setState({ loading: false });
+      console.log(err);
+    });
+  }
+
+  deleteManyFiles(files){
+    const r = window.confirm(
+      'Voulez-vous vraiment supprimer les fichiers sélectionnés ?'
+    );
+    if (r === true) {
+      this.setState({ loading: true });
+      let calls = [];
+      for (let i = 0; i < files.length; i++) {
+        let file = files[i];
+        calls.push(
+          SmartService.deleteFile(file.key || file.id, localStorage.getItem('token'), localStorage.getItem('usrtoken'))
+        )
+      }
+      Promise.all(calls).then(response => {
+        this.openSnackbar('success', calls.length === 1 ? calls.length + ' 1 fichier est supprimé' : calls.length +" fichiers sont supprimés avec succès");
+        this.reloadGed();
+      }).catch(err => {
+        this.setState({ loading: false });
+        console.log(err);
+      });
+    }
+
+  }
 
   render() {
     var searchFilter = this.state.annuaire_clients_mondat.filter((soc) => (soc.Nom + ' ' + soc.Prenom).toLowerCase().startsWith(this.state.searchSociete.toLowerCase()));
@@ -2681,6 +2742,11 @@ export default class Main extends React.Component {
                                                 '/signDoc/doc/' + id
                                               );
                                             }}
+                                            onDropFile={(files) => {
+                                              this.uploadFilesToGed(files)
+                                            }}
+                                            setDocs={(docs) => this.setState({rootFiles:docs})}
+                                            onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
                                           />
                                         </div>
                                       )}
@@ -2795,6 +2861,11 @@ export default class Main extends React.Component {
                               onSignBtnClick={(id) => {
                                 this.props.history.push('/signDoc/doc/' + id);
                               }}
+                              onDropFile={(files) => {
+                                this.uploadFilesToGed(files)
+                              }}
+                              setDocs={(docs) => this.setState({rootFiles:docs})}
+                              onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
                             />
                           </div>
                         )}
@@ -2945,6 +3016,11 @@ export default class Main extends React.Component {
                                             '/signDoc/doc/' + id
                                           );
                                         }}
+                                        onDropFile={(node) => {
+                                          console.log(node)
+                                        }}
+                                        setDocs={(docs) => {}}
+                                        onDeleteFiles={(files) => {}}
                                       />
                                     </div>
                                   )}
@@ -5670,84 +5746,47 @@ export default class Main extends React.Component {
                       onCancel={() => {
                       }}
                       onDrop={(acceptedFiles, rejectedFiles) => {
-                        let formData = new FormData();
-                        formData.append('file', acceptedFiles[0]);
-                        this.state.selectedFolderId !== '' &&
-                        formData.append(
-                          'folder_id',
-                          this.state.selectedFolderId
-                        );
-                        axios.request({
-                          method: 'POST',
-                          url: data.endpoint + '/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfile',
-                          data: formData,
-                          headers: {
-                            'Content-Type':
-                              'multipart/form-data',
-                            token: localStorage.getItem(
-                              'token'
-                            ),
-                            usrtoken: localStorage.getItem(
-                              'usrtoken'
-                            )
-                          },
-                          onUploadProgress: (p) => {
-                            this.setState({
-                              progressUpload:
-                                (p.loaded / p.total) * 100
-                            });
+                        let calls = [];
+                        for (let i = 0; i < acceptedFiles.length; i++) {
+                          if(acceptedFiles[i].type === "application/pdf"){
+                            let formData = new FormData();
+                            formData.append('file', acceptedFiles[i]);
+                            this.state.selectedFolderId !== '' &&
+                            formData.append(
+                              'folder_id',
+                              this.state.selectedFolderId
+                            );
+                            calls.push(axios.request({
+                                method: 'POST', url: data.endpoint + '/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfile',
+                                data: formData,
+                                headers: {
+                                  'Content-Type': 'multipart/form-data',
+                                  'token': localStorage.getItem('token'),
+                                  'usrtoken': localStorage.getItem('usrtoken')
+                                },
+                                onUploadProgress: (p) => {
+                                  this.setState({ progressUpload: (p.loaded / p.total) * 100 });
+                                }
+                              })
+                            );
                           }
-                        })
-                          .then((res) => {
-                            if (
-                              res.data.succes === true &&
-                              res.data.status === 200
-                            ) {
-                              SmartService.getFile(
-                                res.data.data.file_id,
-                                localStorage.getItem('token'),
-                                localStorage.getItem('usrtoken')
-                              )
-                                .then((fileRes) => {
-                                  if (
-                                    fileRes.succes === true &&
-                                    fileRes.status === 200
-                                  ) {
-                                    this.setState({
-                                      openNewDocModal: false,
-                                      newFileFromRacine: false,
-                                      showNewDocScreen: false,
-                                      progressUpload: undefined,
-                                      uploadedName: fileRes.data.name + '.pdf',
-                                      uploadedPath:
-                                      fileRes.data.Content.Data
-                                    });
-                                    this.openSnackbar('success', fileRes.data.name + '.pdf est ajouté avec succès');
-                                    this.reloadGed();
-                                  } else {
-                                    console.log(fileRes.error);
-                                  }
-                                })
-                                .catch((err) => {
-                                  console.log(err);
-                                });
-                            } else {
-                              console.log(res.error);
-                            }
-                          })
-                          .catch((err) => {
-                            console.log(err);
+                        }
+                        Promise.all(calls).then( response => {
+                          this.setState({
+                            openNewDocModal: false,
+                            newFileFromRacine: false,
+                            showNewDocScreen: false,
+                            progressUpload: undefined
                           });
-                      }} // progressAmount is a number from 0 - 100 which indicates the percent of file transfer completed
+                          this.openSnackbar('success', calls.length === 1 ? calls.length + ' fichier est ajouté avec succès' : calls.length +" fichiers sont ajoutés avec succès");
+                          this.reloadGed();
+                        }).catch(err => {
+                          console.log(err);
+                        });
+                      }}
                       progressAmount={this.state.progressUpload}
                       progressMessage={
-                        this.state.progressUpload
-                          ? 'Téléchargement de ' +
-                          this.state.progressUpload.toFixed(
-                            2
-                          ) +
-                          '% de 100%'
-                          : ''
+                        this.state.progressUpload ? 'Téléchargement de ' + this.state.progressUpload.toFixed(2) + '% de 100%' : ''
                       }
                     />
                   </div>
