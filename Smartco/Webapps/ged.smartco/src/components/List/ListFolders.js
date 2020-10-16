@@ -7,7 +7,7 @@ export default function ListFolders(props) {
 
     return(
         <div>
-            <h5 style={{marginTop:15}}>Dossiers({props.items.length || 0})</h5>
+            <h5 style={{marginTop:20}}>Dossiers({props.items.length || 0})</h5>
             <div className="folders_container">
                 {
                     props.items.map((folder,key) =>
