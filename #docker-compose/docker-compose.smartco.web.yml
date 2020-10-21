@@ -110,6 +110,22 @@ services:
        LETSENCRYPT_HOST: ged.${SMARTDOM_DOMAIN}
        LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
 
+  enfin-ged:
+     build: ../Smartco/Webapps/ged.brainyfood/
+     container_name: enfin-ged-nginx
+     restart: always
+     tty: true
+     stdin_open: true
+     ports:
+      - 8036:80
+     volumes:
+       - ../Smartco/Webapps/ged.enfin/build/:/app
+     networks:
+       - proxy
+     environment:
+       VIRTUAL_HOST: enfin.${SMARTDOM_DOMAIN}        
+       VIRTUAL_PORT: 80
+
   brainy-ged:
      build: ../Smartco/Webapps/ged.brainyfood/
      container_name: brainy-ged-nginx
@@ -117,7 +133,7 @@ services:
      tty: true
      stdin_open: true
      ports:
-      - 8036:80
+      - 8037:80
      volumes:
        - ../Smartco/Webapps/ged.brainyfood/build/:/app
      networks:
@@ -125,8 +141,6 @@ services:
      environment:
        VIRTUAL_HOST: brainy.${SMARTDOM_DOMAIN}
        VIRTUAL_PORT: 80
-       LETSENCRYPT_HOST: brainy.${SMARTDOM_DOMAIN}
-       LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
 
 
   db-smartco:

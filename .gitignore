@@ -35,6 +35,10 @@ Smartdom/Micro/sqlwp/
 Smartdom/Webapps/wp.smartdom/
 Smartdom/Webapps/doc.smartdom/
 
+*.py.save
+test.pdf
+yarn.lock
+
 node_modules
 .pnp
 .pnp.js
