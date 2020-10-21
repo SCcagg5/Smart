@@ -1,6 +1,8 @@
 .env
 __pycache__
 
+\#Tool/Slave/Slave/db/sql/data
+
 Proxy/conf/default.conf
 Proxy/data
 Proxy/logs

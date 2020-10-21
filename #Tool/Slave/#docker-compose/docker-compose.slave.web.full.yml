@@ -46,7 +46,7 @@ services:
      networks:
        - db-net
      volumes:
-       - ../Slave/db/db:/var/lib/mysql
+       - ../Slave/db/sql/data:/var/lib/mysql
      environment:
        MYSQL_RANDOM_ROOT_PASSWORD: 1
        MYSQL_USER: ${DB_USER}
@@ -56,7 +56,7 @@ services:
    bck-end:
      build: ../Slave/api
      container_name: slave-${ID}-api
-     working_dir: ${PWD}  /../Slave/api
+     working_dir: ${PWD}/../Slave/api
      tty: true
      privileged: true
      stdin_open: true
