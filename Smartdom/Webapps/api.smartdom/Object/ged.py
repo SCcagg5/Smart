@@ -401,7 +401,7 @@ class file:
         (file_id, self.ged_id, self.usr_id, name, ext, folder_id, timestamp))
         if not succes:
             return [False, "data input error", 500]
-        input = {"name": name, "ext": ext, "date": timestamp, "file_id": file_id}
+        input = {"name": name, "vpath": "/" + "/".join(ged.vpath(file_id)[::-1]), "ext": ext, "date": timestamp, "file_id": file_id}
         if ext == 'pdf':
             res = pdf.get_text(path)
             if res[0]:
