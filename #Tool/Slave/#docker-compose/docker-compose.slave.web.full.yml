@@ -30,6 +30,7 @@ services:
      image: jrcs/letsencrypt-nginx-proxy-companion
      container_name: letsencrypt
      volumes:
+       - ../Proxy/conf/proxy.conf:/etc/nginx/conf.d/my_proxy.conf:ro
        - ../Proxy/vhost:/etc/nginx/vhost.d
        - ../Proxy/data/html:/usr/share/nginx/html
        - ../Proxy/data/certs:/etc/nginx/certs:rw
@@ -39,20 +40,26 @@ services:
      networks:
        - proxy
 
-   datab:
-     image: mysql:5.7
-     container_name: slave-${ID}-db
-     restart: always
-     networks:
-       - db-net
-     volumes:
-       - ../Slave/db/sql/data:/var/lib/mysql
-       - ../Slave/db/sql/dumps/database.sql:/docker-entrypoint-initdb.d/dump.sql
-     environment:
-       MYSQL_RANDOM_ROOT_PASSWORD: 1
-       MYSQL_USER: ${DB_USER}
-       MYSQL_DATABASE: slave
-       MYSQL_PASSWORD: ${DB_PASS}
+     datab:
+      image: mariadb:latest
+      container_name: slave-${ID}-db
+      restart: always
+      networks:
+        - db-net
+      volumes:
+        - ../Slave/db/sql/data:/var/lib/mysql
+        - ../Slave/db/sql/dumps/database.sql:/docker-entrypoint-initdb.d/dump.sql:ro
+      environment:
+        MYSQL_RANDOM_ROOT_PASSWORD: 1
+        MYSQL_RANDOM_ROOT_PASSWORD: yes^M
+        MYSQL_USER: ${DB_USER}
+        MYSQL_DATABASE: slave
+        MYSQL_PASSWORD: ${DB_PASS}
+     healthcheck:
+        test: "/usr/bin/mysql --user=$$MYSQL_USER --password=$$MYSQL_PASSWORD --execute \"SHOW DATABASES;\""
+        interval: 30s
+        timeout: 3s
+        retries: 2
 
    bck-end:
      build: ../Slave/api
@@ -86,23 +93,3 @@ services:
        DB_PASS: ${DB_PASS}
        API_DOMAIN: ${DOMAIN}
        API_ID: ${ID}
-
-   smartco-admin-phpmyadmin:
-      image: phpmyadmin/phpmyadmin
-      container_name: smartco-admin-phpmyadmin
-      environment:
-        - PMA_ARBITRARY=1
-      restart: always
-      volumes:
-        - ../Slave/Admin/services/phpmyadmin/sessions:/sessions
-        - ../Slave/Admin/services/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php:ro
-      external_links:
-        - datab:db
-      networks:
-        - db-net
-        - proxy
-      environment:
-        PMA_USER: ${DB_USER}
-        PMA_PASSWORD: ${DB_PASS}
-        VIRTUAL_HOST: admin.${ID}.${DOMAIN}
-        VIRTUAL_PORT: 80

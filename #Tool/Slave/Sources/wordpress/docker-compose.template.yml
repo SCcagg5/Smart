@@ -16,7 +16,7 @@ services:
     volumes:
       - ./db_data:/var/lib/mysql
     networks:
-      - proxy
+      - db-net-{{ID}}
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: 1
       MYSQL_DATABASE: $V_DB_NAME
