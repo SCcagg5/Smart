@@ -1,4 +1,4 @@
-const endpoint = "http://34.250.15.8/api/"
+const endpoint = process.env.REACT_APP_endpoint
 
 let QuestionService ={
 
