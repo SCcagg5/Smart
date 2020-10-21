@@ -56,7 +56,7 @@ services:
    bck-end:
      build: ../Slave/api
      container_name: slave-${ID}-api
-     working_dir: ${PWD}  /../Slave/api
+     working_dir: ${PWD}/../Slave/api
      tty: true
      privileged: true
      stdin_open: true

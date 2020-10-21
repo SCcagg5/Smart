@@ -37,6 +37,7 @@ services:
     restart: always
     volumes:
       - ./html:/var/www/html:rw
+      - ./.htaccess:/var/www/html:ro
     networks:
       - proxy
       - db-net-{{ID}}
