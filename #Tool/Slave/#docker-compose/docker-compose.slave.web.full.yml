@@ -40,7 +40,7 @@ services:
      networks:
        - proxy
 
-     datab:
+   datab:
       image: mariadb:latest
       container_name: slave-${ID}-db
       restart: always
@@ -55,7 +55,7 @@ services:
         MYSQL_USER: ${DB_USER}
         MYSQL_DATABASE: slave
         MYSQL_PASSWORD: ${DB_PASS}
-     healthcheck:
+      healthcheck:
         test: "/usr/bin/mysql --user=$$MYSQL_USER --password=$$MYSQL_PASSWORD --execute \"SHOW DATABASES;\""
         interval: 30s
         timeout: 3s
