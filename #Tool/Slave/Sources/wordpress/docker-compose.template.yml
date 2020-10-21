@@ -23,7 +23,7 @@ services:
       MYSQL_USER: $V_DB_USER
       MYSQL_PASSWORD: $V_DB_PASSWORD
     healthcheck:
-      test: "/usr/bin/mysql --user=$$MYSQL_USER --password=$$MYSQL_PASSWORD --execute \"SHOW DATABASES;\""
+      test: "/usr/bin/mysql --user=$$MYSQL_USER --password=$$MYSQL_PASSWORD -s --database=$$MYSQL_DATABASE -e 'SHOW TABLES;'"
       interval: 30s
       timeout: 3s
       retries: 2
@@ -36,7 +36,7 @@ services:
     restart: always
     volumes:
       - ./html:/var/www/html:rw
-      - ./.htaccess:/var/www/html:ro
+      - ./.htaccess:/var/www/html/.htaccess:ro
     networks:
       - proxy
       - db-net-{{ID}}
@@ -51,7 +51,7 @@ services:
       LETSENCRYPT_HOST: $V_VIRTUAL_HOST
       LETSENCRYPT_EMAIL: $V_LETSENCRYPT_EMAIL
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:$$VIRTUAL_PORT"]
+      test: "curl -Ls -o /dev/null -w \"%{http_code}\n%{url_effective}\n\" http://localhost:$$VIRTUAL_PORT"
       interval: 30s
       timeout: 3s
-      retries: 5
+      retries: 2

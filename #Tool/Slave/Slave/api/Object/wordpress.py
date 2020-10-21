@@ -28,7 +28,8 @@ class wordpress(service):
                     ["cp", self.path, self.projects + '/' + self.id, "-r"],
                     ["echo", conf, ">", self.projects + '/' + self.id + "/.env"],
                     ["echo", conf, ">", self.projects + '/' + self.id + "/sample.env"],
-                    ["cat", self.projects + '/' + self.id + "/docker-compose.template.yml", "|", 'sed -e "s/{{ID}}/' + self.id + '/g" >',  self.projects + '/' + self.id + "/docker-compose.yml" ]
+                    ["cat", self.projects + '/' + self.id + "/docker-compose.template.yml", "|", 'sed -e "s/{{ID}}/' + self.id + '/g" >',  self.projects + '/' + self.id + "/docker-compose.yml" ],
+                    ["cd", self.projects + '/' + self.id, "&&", "docker-compose", "up", "-d", "--build"]
                    ]
         test = ["cd", self.projects + '/' + self.id, "&&", "docker-compose", "up", "-d", "--build"]
         res = self.command(commands)
