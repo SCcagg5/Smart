@@ -134,7 +134,10 @@ import ClampLines from 'react-clamp-lines';
 import RecetteDetail from "../Recettes/RecetteDetail";
 import  bodyHomme from "../../assets/images/bodyHomme.png"
 import  bascule from "../../assets/images/bascule.png"
-
+import PatientService from "../../provider/patientservice";
+const url=process.env.REACT_APP_endpoint
+const question1food1me=process.env.REACT_APP_question1food1me
+const bodycheckQuestion=process.env.REACT_APP_bodycheckQuestion
 const getTimeSuggestions = value => {
   const inputValue = value.trim().toLowerCase();
   const inputLength = inputValue.length;
@@ -554,7 +557,7 @@ export default class Main extends React.Component {
 
     getDataDashboard(email){
 
-      fetch('http://34.250.15.8/api/questionbyEmail/'+email.trim(),{
+      fetch(url+'questionbyEmail/'+email.trim(),{
           method:'GET',
 
       }).then((res)=>res.json()).then((result)=>{
@@ -564,12 +567,13 @@ export default class Main extends React.Component {
 
           }
       })
+
     }
 
     getBodyCheckNl(email){
 
       this.setState({bodyCheck:""})
-        fetch('http://34.250.15.8/api/BodyCheckByEmail/'+email.trim(),{
+        fetch(url+'BodyCheckByEmail/'+email.trim(),{
             method:'GET',
 
         }).then((res)=>res.json()).then((result)=>{
@@ -584,17 +588,35 @@ export default class Main extends React.Component {
 
     }
 
-    sendBodyChekMail(email){
-        let dd={
-            emailReciver:email,
-            subject:"bodycheckNL",
-            linkUrl :"Click ici ",
-            url:"http://brainy.smartdom.ch/bodycheck", // à chnagé par l'address prod de brainyfood
-            msg:"Body Check Quizz NL",
-            footerMsg : "merci"
-        }
 
-        fetch('http://34.250.15.8/api/sendCustomMailWithUrl', {
+    sendBodyChekMail(email,name){
+      let dd =""
+      if(name === "parrainage" ){
+          dd={
+              emailReciver:email,
+              subject:"1foof1me Quizz",
+              linkUrl :"Click ici ",
+
+              ////url 1foof1me project
+              url:question1food1me,
+              msg:"1foof1me  Quizz ",
+              footerMsg : "merci"
+          }
+      }else if(name==="bodycheck"){
+          dd={
+              emailReciver:email,
+              subject:"BodyCheck NL ",
+              linkUrl :"Click ici ",
+
+              ////url 1foof1me project
+              url:bodycheckQuestion,
+              msg:"body check quizz NL  ",
+              footerMsg : "merci"
+          }
+      }
+
+
+        fetch(url+'sendCustomMailWithUrl', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -604,7 +626,7 @@ export default class Main extends React.Component {
         }).then(response => response.json()).then((res)=>{
             if (res.status===200){
                 this.openSnackbar('success',
-                    'Un Mail a été envoyé avec succès')
+                    'Mail a été envoyé avec succès')
             }
         }).catch(error => {
             console.log(error);
@@ -959,7 +981,7 @@ export default class Main extends React.Component {
                   } else if (this.props.location.pathname.indexOf('/home/clients') > -1) {
                     if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
                       let client_id = this.props.location.pathname.replace('/home/clients/', '');
-                      let client = this.state.patients.find(x => x.resource.id === client_id);
+                      let client = this.state.patients.find(x => x.id_user === client_id);
                       if (client) {
                         this.setState({
                           selectedSociete: client,
@@ -3513,17 +3535,11 @@ export default class Main extends React.Component {
   }
 
   deletepatient(id){
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/fhir+json');
-    headers.append('Access-Control-Allow-Origin','*');
-    headers.append('Access-Control-Allow-Headers','Content-Type');
-    headers.append('Access-Control-Allow-Methods','POST, GET, OPTIONS')
-    let resource=this.state.resource
-    fetch('http://91.121.162.202:8199/Patient/'+id, {
+
+    fetch(url+'deletePatient/'+id, {
 
 
-      method: 'DELETE',
-      headers:headers,
+      method: 'GET',
 
 
     }).then(()=>{this.componentDidMount()})
@@ -3545,35 +3561,11 @@ export default class Main extends React.Component {
   }
 
   getpatient(){
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/fhir+json');
-    headers.append('Access-Control-Allow-Origin','*');
-    headers.append('Access-Control-Allow-Headers','Content-Type');
-    headers.append('Access-Control-Allow-Methods','POST, GET, OPTIONS')
-    let resource=[]
-    fetch('http://91.121.162.202:8199/Patient', {
-      method: 'GET',
-      headers:headers,
-    }).then(response => response.json()).then((res)=>{
-
-      res.entry.map((item,key)=>{
-        resource.push(item)
-      })
-      this.setState({patients:resource})
-      if (res.link[0].relation==="next"){
-        fetch(res.link[0].url,{
-          method:'GET',
-          headers:headers
-        }).then(fres=>fres.json()).then((ffres)=>{
-          ffres.entry.map((item,key)=>{
-            resource.push(item)
-            this.setState({patients:resource})
-          })
-        })
-      }
-    }).catch(error => {
-          console.log(error);
-    });
+   PatientService.getPatients().then((res)=>{
+       if (res){
+           this.setState({patients:res})
+       }
+   })
   }
 
   getRecettes(){
@@ -5946,10 +5938,10 @@ export default class Main extends React.Component {
                                       selectedSociete: societe,
                                       selectedSocieteKey: key
                                         })
-                                    this.props.history.push('/home/clients/' + societe.resource.id);
+                                    this.props.history.push('/home/clients/' + societe.id_user);
                                   }}
                                   onDelecteClick={(societe,key)=>{
-                                    this.deletepatient(societe.resource.id)
+                                    this.deletepatient(societe.id_user)
                                   }}
                               />
                           /*<TableSociete
@@ -6011,8 +6003,8 @@ export default class Main extends React.Component {
                                                onChange={(files) => this.uploadImage(files)}
                                                ref={(ref) => this.imageUpload = ref}
                                 />
-                                  <h4 className="mb-0">{this.state.selectedSociete.resource.name[0].family + ' ' + (this.state.selectedSociete.resource.name[0].given[0] || '')}</h4>
-                                  <p className="text-muted">{this.state.selectedSociete.resource.gender || ''} </p>
+                                  <h4 className="mb-0">{this.state.selectedSociete.nom + ' ' + (this.state.selectedSociete.prenom || '')}</h4>
+                                  <p className="text-muted"> </p>
                                   <div style={{ display: 'contents' }}>
                                     <button type="button"
                                             onClick={() => {}}
@@ -6053,7 +6045,7 @@ export default class Main extends React.Component {
                                                 className="form-control"
                                                 id="email"
                                                 name="email"
-                                                value={this.state.selectedSociete.resource.telecom[0].value}
+                                                value={this.state.selectedSociete.email}
                                                 onChange={this.handleChange('selectedSociete', 'email')}
                                               />
                                             </div>
@@ -6098,7 +6090,7 @@ export default class Main extends React.Component {
                                               type="text"
                                               id="nom"
                                               name="nom"
-                                              value={this.state.selectedSociete.resource.name[0].family+' ' + this.state.selectedSociete.resource.name[0].given[0]}
+                                              value={this.state.selectedSociete.nom+' ' + this.state.selectedSociete.prenom}
                                               onChange={this.handleChange('selectedSociete', 'Nom')} />
                                           </div>
                                           <div
@@ -6141,12 +6133,10 @@ export default class Main extends React.Component {
                                         <div className="row mt-2">
                                           <div className="col-md-3">
                                             <div>
-                                              {
-                                                this.state.selectedSociete.resource.resourceType === "Patient" ? "Nom" : "Nom de la societé"
-                                              }
+                                              Patient
                                             </div>
                                             <div>
-                                              <input className="form-control" defaultValue={(this.state.selectedSociete.resource.name===undefined? " ":this.state.selectedSociete.resource.name[0].family)+" "+(this.state.selectedSociete.resource.name===undefined? " ":this.state.selectedSociete.resource.name[0].given[0])} readOnly={true} />
+                                              <input className="form-control" defaultValue={(this.state.selectedSociete.nom===undefined? " ":this.state.selectedSociete.nom)+" "+(this.state.selectedSociete.prenom===undefined? " ":this.state.selectedSociete.prenom)} readOnly={true} />
                                             </div>
                                           </div>
                                           <div className="col-md-4">
@@ -6172,8 +6162,8 @@ export default class Main extends React.Component {
                                               Description du projet
                                             </div>
                                             <div>
-                                                                                            <textarea className="form-control" value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
-                                                                                                      onChange={this.handleObjectChange("selectedSociete","mondat","description")} rows={4} />
+                                                <textarea className="form-control" value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
+                                                          onChange={this.handleObjectChange("selectedSociete","mondat","description")} rows={4} />
                                             </div>
 
                                           </div>
@@ -6211,7 +6201,7 @@ export default class Main extends React.Component {
                                                     type="text"
                                                     id="nom"
                                                     name="nom"
-                                                    value={this.state.selectedSociete.resource.name===undefined? " ":this.state.selectedSociete.resource.name[0].given[0]}
+                                                    value={this.state.selectedSociete.prenom===undefined? " ":this.state.selectedSociete.prenom}
 
                                                 />
 
@@ -6228,7 +6218,7 @@ export default class Main extends React.Component {
                                                     type="text"
                                                     id="nom"
                                                     name="nom"
-                                                    value={this.state.selectedSociete.resource.name===undefined? " ":this.state.selectedSociete.resource.name[0].family}
+                                                    value={this.state.selectedSociete.nom===undefined? " ":this.state.selectedSociete.nom}
                                                 />
                                               </div>
 
@@ -6243,7 +6233,7 @@ export default class Main extends React.Component {
                                                     type="text"
                                                     id="nom"
                                                     name="nom"
-                                                    value={this.state.selectedSociete.resource.telecom===undefined? " ":this.state.selectedSociete.resource.telecom[0].value}
+                                                    value={this.state.selectedSociete.email===undefined? " ":this.state.selectedSociete.email}
                                                 />
                                               </div>
 
@@ -6258,7 +6248,7 @@ export default class Main extends React.Component {
                                                     type="text"
                                                     id="nom"
                                                     name="nom"
-                                                    value={this.state.selectedSociete.resource.telecom===undefined? " ":this.state.selectedSociete.resource.telecom[1].value}
+                                                    value={this.state.selectedSociete.telephone===undefined? " ":this.state.selectedSociete.telephone}
                                                 />
                                               </div>
 
@@ -6268,12 +6258,12 @@ export default class Main extends React.Component {
                                                 <div>Adresse</div>
                                               </div>
                                               <div className="col-md-8">
-                                                                                                <textarea
-                                                                                                    className="form-control"
-                                                                                                    id="Adresse"
-                                                                                                    name="Adresse"
-                                                                                                    value={this.state.selectedSociete.resource.address===undefined? " ":this.state.selectedSociete.resource.address[0].text}
-                                                                                                />
+                                                  <textarea
+                                                      className="form-control"
+                                                      id="Adresse"
+                                                      name="Adresse"
+                                                      value={this.state.selectedSociete.num_nom_rue+" "+this.state.selectedSociete.ville}
+                                                  />
                                               </div>
 
                                             </div>
@@ -6699,7 +6689,7 @@ export default class Main extends React.Component {
                                                               <div className="text-left mt-5">
                                                                   <div className="row justify-content-start">
                                                                       <div className="col-md-6">
-                                                                          <h4 className="font-weight-bold">{this.state.selectedSociete.resource.name[0].family + " "+this.state.selectedSociete.resource.name[0].given[0]}</h4>
+                                                                          <h4 className="font-weight-bold">{this.state.selectedSociete.nom + " "+this.state.selectedSociete.prenom}</h4>
 
                                                                       </div>
                                                                       <div className="col-md-2">
@@ -8718,7 +8708,7 @@ export default class Main extends React.Component {
                                             <div
                                               className="row align-items-center justify-content-start">
                                               <h3 className="font-weight-bold">This Week : </h3>
-                                              <h3 style={{marginTop:-10,marginLeft:10}}>08 - 14 may 2017</h3>
+                                              <h3>08 - 14 may 2017</h3>
                                             </div>
                                           </div>
                                           <div

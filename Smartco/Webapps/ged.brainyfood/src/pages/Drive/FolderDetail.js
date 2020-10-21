@@ -41,6 +41,9 @@ export default class FolderDetail extends React.Component{
                     onSignBtnClick={(id) => {
                         this.props.onSignBtnClick(id)
                     }}
+                    onDropFile={(node) => this.props.onDropFile(node)}
+                    setDocs={(docs) => this.props.setDocs(docs)}
+                    onDeleteFiles={(files) => this.props.onDeleteFiles(files)}
                 />
             </div>
         )

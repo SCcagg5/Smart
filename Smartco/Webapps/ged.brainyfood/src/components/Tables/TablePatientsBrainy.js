@@ -4,12 +4,16 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import deleteIcon from '../../assets/icons/delete.svg'
 import TableCell from '@material-ui/core/TableCell';
 import IconButton from '@material-ui/core/IconButton';
+import Checkbox from '@material-ui/core/Checkbox';
+
 import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import { Collapse } from 'antd';
 import {Button} from "@material-ui/core";
+import mailSend from "../../assets/icons/mail-send.svg"
+import loope from "../../assets/icons/loupe.svg"
 const { Panel } = Collapse;
 const useStyles1 = makeStyles((theme) => ({
     root: {
@@ -128,6 +132,7 @@ export default function TablePatientsBrainy(props) {
                                     <TableCell  style={{width:"5%",fontWeight:600}}>Capteurs</TableCell>
                                     <TableCell  style={{width:"5%",fontWeight:600}}>Body Check</TableCell>
                                     <TableCell  style={{width:"5%",fontWeight:600}}>Ayure Check</TableCell>
+                                    <TableCell  style={{width:"5%",fontWeight:600}}>MEDVIR Quizz</TableCell>
                                     <TableCell  style={{width:"10%",fontWeight:600}}>Mot de passe et bienvenue</TableCell>
                                     <TableCell  style={{width:"10%",fontWeight:600,minWidth:150}}>Actions</TableCell>
 
@@ -138,56 +143,121 @@ export default function TablePatientsBrainy(props) {
                                 {clients.map((item,key)=>(
                                     <tr key={key} style={{padding:10}}>
                                         <td   style={{width:"10%",minWidth:100}}>
-                                            {item.resource.name===undefined? " ":item.resource.name[0].family}
+                                            {item.nom}
                                         </td>
                                         <td style={{ width: "10%",minWidth:100 }} >
-                                            {item.resource.name===undefined? " ":item.resource.name[0].given[0]}
+                                            {item.prenom}
                                         </td>
                                         <td style={{ width: "10%" }} >
-                                            {item.resource.telecom===undefined? " ":item.resource.telecom[0].value}
+                                            {item.email}
                                         </td>
                                         <td style={{ width: "10%" }} >
-                                            {item.resource.telecom===undefined? " ":item.resource.telecom[1].value}
+                                            {item.telephone}
                                         </td>
-                                        <td style={{ width: "10%" }} >
+                                        <td  className="text-center"style={{ width: "10%" }} >
+                                            {
+                                                item.parrainage==="false"?
+                                                    <Checkbox
+
+
+                                                        onChange={(e)=>{props.bodycheck(item.email,"parrainage")}}
+                                                        style={{color:"black"}}
+
+                                                        size="medium"
+
+                                                    />
+                                                    :
+                                                    <Checkbox
+                                                        checked={true}
+                                                         onChange={(e)=>{console.log(e.target.checked)}}
+                                                         style={{color:"#07b550"}}
+
+                                                        size="medium"
+
+                                                    />
+
+
+                                            }
 
                                         </td>
                                         <td className="text-center" style={{ width: "5%" }} >
 
-                                            <Button size={"small"} variant="contained">
-                                                <text >Go</text>
-                                            </Button>
+                                            <Checkbox
+
+                                                onChange={(e)=>{console.log(e.target.checked)}}
+                                                style={{color:"black"}}
+
+                                                size="medium"
+
+                                            />
+
 
 
                                         </td>
                                         <td className="text-center" style={{ width: "5%" }} >
 
-                                            <Button onClick={()=>{props.bodycheck(item.resource.telecom[0].value)}} size={"small"} variant="contained">
-                                                <text >Go</text>
-                                            </Button>
+                                            {
+                                                item.bodycheck==="false"?
+                                                    <Checkbox
+
+                                                        onChange={(e)=>{props.bodycheck(item.email,"bodycheck")}}
+                                                        style={{color:"black"}}
+
+                                                        size="medium"
+
+                                                    />
+                                                    :
+                                                    <Checkbox
+
+                                                        checked={true}
+                                                        onChange={(e)=>{console.log(e.target.checked)}}
+                                                        style={{color:"#07b550"}}
+
+                                                        size="medium"
+
+                                                    />
+
+
+                                            }
+
 
 
                                         </td>
                                         <td style={{ width: "5%" }} >
-                                            <Button size={"small"} variant="contained">
-                                                <text >Go</text>
-                                            </Button>
+                                            <Checkbox
+
+                                                onChange={(e)=>{console.log(e.target.checked)}}
+                                                style={{color:"black"}}
+
+                                                size="medium"
+
+                                            />
+
                                         </td>
-                                        <td style={{ width: "10%" }} >
-                                            <Button size="small" variant="contained" style={{backgroundColor:"#fdf4da"}}>
-                                                <text style={{color:"#f8b901"}}>Envoyer </text>
-                                            </Button>
+                                        <td style={{ width: "5%" }} >
+                                            <Checkbox
+
+                                                onChange={(e)=>{console.log(e.target.checked)}}
+                                                style={{color:"black"}}
+
+                                                size="medium"
+
+                                            />
+
+                                        </td>
+                                        <td className="text-center" style={{ width: "10%" }} >
+                                            <img src={mailSend} style={{width:35,cursor:"pointer"}}/>
                                         </td>
                                         <td style={{ width: "10%"}}>
 
                                             <div className="row justify-content-center">
                                                 <div className="col-md-auto">
-                                                    <Button onClick={()=>{props.onEditClick(item,key)
-                                                     props.getDataDashboard(item.resource.telecom[0].value)
-                                                        props.bodycheckNl(item.resource.telecom[0].value)}}
-                                                            size="small" variant="contained" style={{backgroundColor:"#e9f0fd"}} >
-                                                        <small style={{color:"#b5c0ee"}}>Voir </small>
-                                                    </Button>
+                                                    <img src={loope}  onClick={()=>{props.onEditClick(item,key)
+                                                     props.getDataDashboard(item.email)
+                                                        props.bodycheckNl(item.email)}}
+                                                             style={{width:30,height:30,cursor:"pointer"}} >
+
+                                                    </img>
                                                 </div>
                                                 <div className="col-md-4">
 

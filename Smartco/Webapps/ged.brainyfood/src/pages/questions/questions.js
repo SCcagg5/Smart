@@ -4,8 +4,10 @@ import  data from "./data"
 import  QuestionService from "../../provider/webserviceQuestions"
 import Snackbar from "@material-ui/core/Snackbar"
 import MySnackbarContentWrapper from "../../tools/customSnackBar";
+import PatientService from "../../provider/patientservice"
 
-
+import firebase from "firebase";
+const url = process.env.REACT_APP_endpoint
 class Questions extends Component {
     constructor(props) {
         super(props);
@@ -30,6 +32,8 @@ class Questions extends Component {
                 laitiers:"",
                 feculents:"",
             }
+
+
         }
     }
 
@@ -84,62 +88,94 @@ sendMail(){
         objectif  : quest[19].rep,
     }
 
+    PatientService.getPatientbyEmail(questions.email_user).then((result)=>result).then((resss)=>{
+        if (resss.length!=0){
+
+           let  patient = resss[0]
+            patient.bodycheck="true"
+
+            console.log(questions)
+            QuestionService.CreateQuestions(questions).then(res=> {
+                if (quest[19].rep==="Minceur" && (res!=null && res!=undefined)){
+                    let miniceur={
+                        question_id : res.data,
+                        poids_souhaite:quest[20].rep,
+                        ou_surpoids:quest[21].rep,
+                        cause_surpoids:quest[23].rep,
+                        souffrez_pathologies:quest[26].rep,
+                        fumer_reg:quest[29].rep,
+                        arret_fumer:quest[30].rep,
+                        age:quest[31].rep,
+                        taille: quest[32].rep,
+                        poids : quest[33].rep,
+
+                    }
+
+                    QuestionService.CreateMiniceur(miniceur).then(res => {
+
+                        if (res.error===false){
+                            PatientService.UpdatePatient(patient).then((resUp)=>{
+                                this.setState({openAlert:true,alertMessage:"BodyCheck creer avec success",alertType:'success'})
+                            })
+                        }
+                    })
+                }else if (quest[19].rep==="Sport" && (res!=null && res!=undefined)){
+                    let sport = {
+                        question_id : res.data,
+                        motivation:quest[24].rep,
+                        souffrez_pathologies:quest[26].rep,
+                        fumer_reg:quest[29].rep,
+                        arret_fumer:quest[30].rep,
+                        age:quest[31].rep,
+                        taille: quest[32].rep,
+                        poids : quest[33].rep,
 
 
-         console.log(questions)
-        QuestionService.CreateQuestions(questions).then(res=> {
-            if (quest[19].rep==="Minceur" && (res !== null && res !== undefined)){
-                let miniceur={
-                    question_id : res.data,
-                    poids_souhaite:quest[20].rep,
-                    ou_surpoids:quest[21].rep,
-                    cause_surpoids:quest[23].rep,
-                    souffrez_pathologies:quest[26].rep,
-                    fumer_reg:quest[29].rep,
-                    arret_fumer:quest[30].rep,
-                    age:quest[31].rep,
-                    taille: quest[32].rep,
-                    poids : quest[33].rep,
+                    }
+                    QuestionService.CreateSport(sport).then(res => {
 
+                        if (res.error===false){
+                            PatientService.UpdatePatient(patient).then((resUp)=>{
+                                this.setState({openAlert:true,alertMessage:"BodyCheck creer avec success",alertType:'success'})
+                            })
+                        }
+                    })
+                }else if (quest[19].rep==="Bien-être" && (res!=null && res!=undefined)){
+                    let BienEtre = {
+                        question_id : res.data,
+                        motivation:quest[25].rep,
+                        souffrez_pathologies:quest[26].rep,
+                        fumer_reg:quest[29].rep,
+                        arret_fumer:quest[30].rep,
+                        age:quest[31].rep,
+                        taille: quest[32].rep,
+                        poids : quest[33].rep,
+
+
+                    }
+                    QuestionService.CreateBienEtre(BienEtre).then(res => {
+
+                        if (res.error===false){
+                            PatientService.UpdatePatient(patient).then((resUp)=>{
+                                this.setState({openAlert:true,alertMessage:"BodyCheck creer avec success",alertType:'success'})
+                            })
+                        }
+                    })
                 }
+            }).then((ress)=>{
 
-                QuestionService.CreateMiniceur(miniceur).then(res => {console.log(res)}).then(()=>
-                    this.setState({openAlert:true,alertMessage:"BodyCheck creer avec success",alertType:'success'})
-                )
-            }else if (quest[19].rep==="Sport" && (res!=null && res!=undefined)){
-                let sport = {
-                    question_id : res.data,
-                    motivation:quest[24].rep,
-                    souffrez_pathologies:quest[26].rep,
-                    fumer_reg:quest[29].rep,
-                    arret_fumer:quest[30].rep,
-                    age:quest[31].rep,
-                    taille: quest[32].rep,
-                    poids : quest[33].rep,
+               /* if (ress.error===false){
+
+                }*/
+               console.log(ress)
+
+            })
+        }
+
+    })
 
 
-                }
-                QuestionService.CreateSport(sport).then(res => {console.log(res)}).then(()=>
-                    this.setState({openAlert:true,alertMessage:"BodyCheck creer avec success",alertType:'success'})
-                )
-            }else if (quest[19].rep==="Bien-être" && (res!=null && res!=undefined)){
-                let BienEtre = {
-                    question_id : res.data,
-                    motivation:quest[25].rep,
-                    souffrez_pathologies:quest[26].rep,
-                    fumer_reg:quest[29].rep,
-                    arret_fumer:quest[30].rep,
-                    age:quest[31].rep,
-                    taille: quest[32].rep,
-                    poids : quest[33].rep,
 
-
-                }
-                QuestionService.CreateBienEtre(BienEtre).then(res => {console.log(res)}).then(()=>
-                    this.setState({openAlert:true,alertMessage:"BodyCheck creer avec success",alertType:'success'})
-                )
-            }
-        })
 
 
 /*
