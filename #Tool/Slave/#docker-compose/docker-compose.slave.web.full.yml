@@ -47,6 +47,7 @@ services:
        - db-net
      volumes:
        - ../Slave/db/sql/data:/var/lib/mysql
+       - ../Slave/db/sql/dumps/database.sql:/docker-entrypoint-initdb.d/dump.sql
      environment:
        MYSQL_RANDOM_ROOT_PASSWORD: 1
        MYSQL_USER: ${DB_USER}
