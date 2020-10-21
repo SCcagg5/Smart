@@ -24,7 +24,6 @@ services:
       MYSQL_PASSWORD: $V_DB_PASSWORD
     healthcheck:
       test: "/usr/bin/mysql --user=$$MYSQL_USER --password=$$MYSQL_PASSWORD --execute \"SHOW DATABASES;\""
-      start_period: 20s
       interval: 30s
       timeout: 3s
       retries: 2
@@ -53,7 +52,6 @@ services:
       LETSENCRYPT_EMAIL: $V_LETSENCRYPT_EMAIL
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:$$VIRTUAL_PORT"]
-      start_period: 20s
       interval: 30s
       timeout: 3s
       retries: 5
