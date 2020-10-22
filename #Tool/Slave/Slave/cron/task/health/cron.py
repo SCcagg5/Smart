@@ -15,7 +15,7 @@ def ex(c):
 def main():
     dockers = ex("docker ps -a | tail -n $(($(docker ps -a | wc -l) - 1)) | rev | cut -d\" \" -f 1 | rev")
     for docker in dockers.split('\n'):
-        print(ex("docker inspect --format='{{json .State.Health}}' slave-1-db"))
-        print(f"{docker}")
+        res = ex("docker inspect --format='{{json .State.Health}}' " + docker )
+        print(f"{docker} {res}")
 
 main()
