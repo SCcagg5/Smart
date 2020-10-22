@@ -51,7 +51,7 @@ def main():
               })
         helpers.bulk(es, inputs, True)
 
-main()
+
 mapping = {
     "mappings" : {
       "properties" : {
@@ -117,3 +117,4 @@ mapping = {
       }
     }
   }
+main()
