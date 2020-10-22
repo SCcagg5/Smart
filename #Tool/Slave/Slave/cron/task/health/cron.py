@@ -24,7 +24,6 @@ def main():
             es.indices.refresh(index=index)
         else:
             es.indices.create(index=index, body=mapping)
-            es.index(index=index, body=input, request_timeout=30)
         res = json.loads(ex("docker inspect --format='{{json .State}}' " + docker ))
         logs = res['Health']['Log'] if 'Health' in res else []
         for log in logs:
