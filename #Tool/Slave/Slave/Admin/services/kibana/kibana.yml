@@ -1,0 +1,7 @@
+server.name: smartdom-admin-kibana
+server.host: "0"
+elasticsearch.hosts: [ "http://smartdom-web-elasticsearch:9200" ]
+xpack.monitoring.ui.container.elasticsearch.enabled: true
+server:
+  basePath: "/elastic"
+  host: "smartdom-admin-kibana"
