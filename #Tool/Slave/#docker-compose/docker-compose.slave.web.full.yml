@@ -101,6 +101,9 @@ services:
      stdin_open: true
      networks:
        - db-net
+     volumes:
+       - /var/run/docker.sock:/var/run/docker.sock:ro
+       - ${DOCKER}:/usr/bin/docker
      environment:
        HEALTH: "*/1 * * * *"
        TEST: "*/1 * * * *"
