@@ -1,14 +1,11 @@
 #/bin/bash
 echo -e "Starting"
-for i in $(ls -d */)
-do
+for i in $(ls -d */); do
 
   folder=${i%%/}
-  folder="user"
   CRON_SCHEDULE=$(printenv ${folder^^} || printenv ${folder})
 
-  if [ -z "${CRON_SCHEDULE}" ]
-  then
+  if [ -z "${CRON_SCHEDULE}" ]; then
       >&2 echo -ne "Empty ${folder^^} environment variable\n"
   else
       mkdir "/home/cron/logs/$folder"
