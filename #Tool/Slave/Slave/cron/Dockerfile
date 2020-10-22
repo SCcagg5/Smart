@@ -15,4 +15,4 @@ RUN pip install --upgrade -r requirements.txt
 COPY ./init.sh ./
 COPY ./task ./
 
-ENTRYPOINT /bin/bash ./init.sh $(tty)
+ENTRYPOINT /bin/bash ./init.sh

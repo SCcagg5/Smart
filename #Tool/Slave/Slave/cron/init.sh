@@ -1,5 +1,4 @@
 #/bin/bash
-echo $1
 echo -e $(date "+[%Y-%m-%d %H:%M:%S]")" Starting"
 cron=""
 for i in $(ls -d */); do
@@ -16,12 +15,12 @@ for i in $(ls -d */); do
 
       touch "$STDOUT_LOC"
       touch "$STDERR_LOC"
-
-      cron+="${CRON_SCHEDULE} echo \$(date \"+[%Y-%m-%d %H:%M:%S]\") \"Launching ${folder} cron job.\" > /home/logs/log.cron\n"
+      tty=$(tty)
+      cron+="${CRON_SCHEDULE} echo \$(date \"+[%Y-%m-%d %H:%M:%S]\") \"Launching ${folder} cron job.\" > ${tty}\n"
       cron+="${CRON_SCHEDULE} /usr/local/bin/python3 /home/cron/${folder}/cron.py > ${STDOUT_LOC} 2> ${STDERR_LOC}\n"
   fi
 
 done
 echo -ne "$cron" | crontab -
 echo -e $(date "+[%Y-%m-%d %H:%M:%S]")" Done\n"
-su -c "/usr/sbin/cron -f"
+/usr/sbin/cron -f
