@@ -16,7 +16,7 @@ for i in $(ls -d */); do
       touch "$STDOUT_LOC"
       touch "$STDERR_LOC"
       tty=$(tty)
-      cron+="${CRON_SCHEDULE} echo \$(date \"+[%Y-%m-%d %H:%M:%S]\") \"Launching ${folder} cron job.\" > ${tty}\n"
+      cron+="${CRON_SCHEDULE} echo \$(date \"+[%Y-%m-%d %H:%M:%S]\") \"Launching ${folder} cron job.\" > /home/logs/logs.all\n"
       cron+="${CRON_SCHEDULE} /usr/local/bin/python3 /home/cron/${folder}/cron.py > ${STDOUT_LOC} 2> ${STDERR_LOC}\n"
   fi
 

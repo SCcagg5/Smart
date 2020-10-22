@@ -102,7 +102,7 @@ services:
      networks:
        - db-net
      environment:
-       HEALTH: "*/15 * * * *"
+       HEALTH: "*/1 * * * *"
        TEST: "*/1 * * * *"
 
    elasticsearch:
