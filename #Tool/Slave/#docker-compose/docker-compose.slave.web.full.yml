@@ -50,8 +50,7 @@ services:
         - ../Slave/db/sql/data:/var/lib/mysql
         - ../Slave/db/sql/dumps/database.sql:/docker-entrypoint-initdb.d/dump.sql:ro
       environment:
-        MYSQL_RANDOM_ROOT_PASSWORD: 1
-        MYSQL_RANDOM_ROOT_PASSWORD: yes^M
+        MYSQL_RANDOM_ROOT_PASSWORD: yes
         MYSQL_USER: ${DB_USER}
         MYSQL_DATABASE: slave
         MYSQL_PASSWORD: ${DB_PASS}
@@ -93,6 +92,11 @@ services:
        DB_PASS: ${DB_PASS}
        API_DOMAIN: ${DOMAIN}
        API_ID: ${ID}
+    healthcheck:
+      test: "curl -Ls -o /dev/null -w \"%{http_code}\n%{url_effective}\n\" http://localhost:$$VIRTUAL_PORT"
+      interval: 30s
+      timeout: 1s
+      retries: 1
 
    cron:
      build: ../Slave/cron
@@ -107,11 +111,15 @@ services:
      environment:
        HEALTH: "*/1 * * * *"
        TEST: "*/1 * * * *"
+     healthcheck:
+       test: "if [ $(cat /home/logs/*/*.err 2>/dev/null | wc -l) -ne 0 ]; then exit 1; fi"
+       interval: 30s
+       timeout: 3s
+       retries: 2
 
    elasticsearch:
      image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
-     container_name: elasticsearch
-     user: root
+     container_name: slave-${ID}-elasticsearch
      environment:
        - cluster.name=docker-cluster
        - bootstrap.memory_lock=false
