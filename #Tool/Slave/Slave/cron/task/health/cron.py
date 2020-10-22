@@ -3,6 +3,7 @@ from elasticsearch import Elasticsearch, helpers
 import random
 import json
 import hashlib
+from datetime import date
 
 es = Elasticsearch(["http://elasticsearch:9200"])
 
