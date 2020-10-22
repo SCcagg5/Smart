@@ -92,11 +92,11 @@ services:
        DB_PASS: ${DB_PASS}
        API_DOMAIN: ${DOMAIN}
        API_ID: ${ID}
-    healthcheck:
-      test: "curl -Ls -o /dev/null -w \"%{http_code}\n%{url_effective}\n\" http://localhost:$$VIRTUAL_PORT"
-      interval: 30s
-      timeout: 1s
-      retries: 1
+     healthcheck:
+       test: "curl -Ls -o /dev/null -w \"%{http_code}\n%{url_effective}\n\" http://localhost:$$VIRTUAL_PORT"
+       interval: 30s
+       timeout: 1s
+       retries: 1
 
    cron:
      build: ../Slave/cron
