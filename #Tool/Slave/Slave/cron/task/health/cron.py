@@ -3,7 +3,7 @@ from elasticsearch import Elasticsearch, helpers
 import random
 import json
 import hashlib
-from datetime import date
+from datetime import date, datetime
 
 es = Elasticsearch(["http://elasticsearch:9200"])
 
@@ -14,6 +14,10 @@ def ex(c):
     out = "\n".join(out.split('\n')[:-1])
     return out
 
+def diff_dates(date1, date2):
+    date1=datetime.strptime(date1[:26], '%Y-%m-%dT%H:%M:%S.%f')
+    date2=datetime.strptime(date2[:26], '%Y-%m-%dT%H:%M:%S.%f')
+    return abs(date2-date1).microseconds
 
 def main():
     dockers = ex("docker ps -a | tail -n $(($(docker ps -a | wc -l) - 1)) | rev | cut -d\" \" -f 1 | rev")
@@ -28,6 +32,7 @@ def main():
         logs = res['Health']['Log'] if 'Health' in res else []
         for log in logs:
              id = hashlib.sha256((docker + log['Start']).encode('utf-8')).hexdigest()
+             log['Time'] =  diff_dates(log['Start'], log['End'])
              log['Health'] = {}
              log['Health']['Output'] = str(log['Output'].split('\n')[:-1])
              log['Health']['ExitCode'] = log['ExitCode']
