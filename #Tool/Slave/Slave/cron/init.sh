@@ -1,4 +1,5 @@
 #/bin/bash
+echo $1
 echo -e $(date "+[%Y-%m-%d %H:%M:%S]")" Starting"
 cron=""
 for i in $(ls -d */); do
@@ -8,7 +9,7 @@ for i in $(ls -d */); do
   if [ -z "${CRON_SCHEDULE}" ]; then
       >&2 echo -ne $(date "+[%Y-%m-%d %H:%M:%S]")" Empty ${folder^^} environment variable\n"
   else
-      >&1 echo -ne $(date "+[%Y-%m-%d %H:%M:%S]")" Setting up ${folder^^} cron job\n"
+      echo -e $(date "+[%Y-%m-%d %H:%M:%S]")" Setting up ${folder^^} cron job"
       mkdir "/home/logs/$folder"
       STDOUT_LOC="/home/logs/$folder/log.suc"
       STDERR_LOC="/home/logs/$folder/log.err"
