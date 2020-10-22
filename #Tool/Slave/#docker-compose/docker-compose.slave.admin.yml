@@ -51,12 +51,12 @@ services:
       container_name: admin-${ID}-web
       restart: always
       volumes:
-        - ../Wellcheck/Admin/front:/usr/share/nginx/html:ro
-        - ../Wellcheck/Admin/conf/admin.conf:/etc/nginx/conf.d/default.conf:ro
+        - ../Slave/Admin/front:/usr/share/nginx/html:ro
+        - ../Slave/Admin/conf/admin.conf:/etc/nginx/conf.d/default.conf:ro
       links:
         - phpmyadmin
         - kibana
-        - php2
+        - php
       networks:
         - proxy
       environment:
