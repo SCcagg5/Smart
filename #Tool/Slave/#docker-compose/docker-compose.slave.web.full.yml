@@ -50,7 +50,7 @@ services:
         - ../Slave/db/sql/data:/var/lib/mysql
         - ../Slave/db/sql/dumps/database.sql:/docker-entrypoint-initdb.d/dump.sql:ro
       environment:
-        MYSQL_RANDOM_ROOT_PASSWORD: yes
+        MYSQL_RANDOM_ROOT_PASSWORD: true
         MYSQL_USER: ${DB_USER}
         MYSQL_DATABASE: slave
         MYSQL_PASSWORD: ${DB_PASS}
