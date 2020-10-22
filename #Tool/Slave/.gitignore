@@ -6,4 +6,5 @@ Proxy/data
 Proxy/logs
 Proxy/passwd
 Proxy/vhost
-Slave/db/db
+Slave/db/sql/data
+Slave/db/elastic/

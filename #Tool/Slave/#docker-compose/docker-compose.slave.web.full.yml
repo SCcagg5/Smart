@@ -123,6 +123,6 @@ services:
          soft: -1
          hard: -1
      volumes:
-       - ../Wellcheck/Micro/elastic/data:/usr/share/elasticsearch/data
+       - ../Slave/db/elastic/data:/usr/share/elasticsearch/data
      networks:
        - db-net
