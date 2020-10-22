@@ -27,26 +27,8 @@
   <div class="bg-light border-right" id="sidebar-wrapper">
     <div class="sidebar-heading">Smartdom</div>
     <div class="list-group list-group-flush">
-
-      <a onclick="switchiframe('./app/')" class="choice list-group-item list-group-item-action bg-light">Gestion webapp</a>
-      <?php
-      $available = scandir("/stats/");
-      foreach ($available as $file){
-        $res = explode(".html", $file);
-        if (count($res) > 1){
-          echo "<a onclick=\"switchiframe('./stats/".$res[0].".html')\" class=\"choice list-group-item list-group-item-action bg-light\">Stats ".$res[0]."</a>\n";
-        }
-      }
-      ?>
-
       <a onclick="switchiframe('./elastic/')" class="choice list-group-item list-group-item-action bg-light">Elasticsearch</a>
       <a onclick="switchiframe('./phpmyadmin/')" class="choice list-group-item list-group-item-action bg-light">SQL</a>
-      <a onclick="switchiframe('./postman/')" class="choice list-group-item list-group-item-action bg-light">Postman</a>
-      
-      <a onclick="switchiframe('./kanban/')" class="choice list-group-item list-group-item-action bg-light">Task</a>
-      <a href='<?= $htt . '://mail.' . $_ENV['HOST']; ?>/webmail/' class="choice list-group-item list-group-item-action bg-light">Mail</a>
-      <a onclick="switchiframe('<?= $htt . '://mail.' . $_ENV['HOST']; ?>/admin/')" class="choice list-group-item list-group-item-action bg-light">Admin Mail</a>
-      <a onclick="switchiframe('<?= $htt . '://rocket.' . $_ENV['HOST']; ?>/')" class="choice list-group-item list-group-item-action bg-light">Rocket</a>
     </div>
   </div>
   <!-- /#sidebar-wrapper -->
@@ -70,9 +52,6 @@
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="https://github.com/SCcagg5/Smart">Github Prod</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="<?= $htt . '://' . $_ENV['HOST']; ?>/">Landing</a>
-              <a class="dropdown-item" href="<?= $htt . '://dashboard.' . $_ENV['HOST']; ?>/">Dashboard</a>
-              <a class="dropdown-item" href="<?= $htt . '://api.' . $_ENV['HOST']; ?>/test/">API</a>
             </div>
           </li>
         </ul>
@@ -80,7 +59,7 @@
     </nav>
 
     <div class="container-fluid container-extend">
-      <iframe frameborder="0" id="iframe" src="./app/" class="all" onLoad="check(this.contentWindow.location);">
+      <iframe frameborder="0" id="iframe" src="./elastic/" class="all" onLoad="check(this.contentWindow.location);">
       </iframe>
     </div>
   </div>
