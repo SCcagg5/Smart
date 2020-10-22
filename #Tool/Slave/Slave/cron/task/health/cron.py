@@ -45,7 +45,6 @@ def main():
              log['Status']['FinishedAt'] = res['FinishedAt'] if res['FinishedAt'] != "0001-01-01T00:00:00Z" else None
              inputs.append({
                   "_index": index,
-                  "_type": "_doc",
                   "_id": id,
                   "_score": 1,
                   "_source": log
