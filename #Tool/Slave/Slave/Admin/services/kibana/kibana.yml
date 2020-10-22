@@ -1,7 +1,7 @@
-server.name: smartdom-admin-kibana
+server.name: admin-1-kibana
 server.host: "0"
-elasticsearch.hosts: [ "http://smartdom-web-elasticsearch:9200" ]
+elasticsearch.hosts: [ "http://slave-1-elasticsearch:9200" ]
 xpack.monitoring.ui.container.elasticsearch.enabled: true
 server:
   basePath: "/elastic"
-  host: "smartdom-admin-kibana"
+  host: "admin-1-kibana"
