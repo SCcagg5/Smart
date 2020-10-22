@@ -20,11 +20,11 @@ def main():
     inputs = []
     for docker in dockers.split('\n'):
         index = "service_health_" + date.today().strftime("%Y%m%d") + '_' + docker
-        #if es.indices.exists(index=index):
-        #    es.indices.refresh(index=index)
-        #else:
-        #    es.indices.create(index=index, body=elastic.doc_mapping)
-        #    es.index(index=index, body=input, request_timeout=30)
+        if es.indices.exists(index=index):
+            es.indices.refresh(index=index)
+        else:
+            es.indices.create(index=index, body=mapping)
+            es.index(index=index, body=input, request_timeout=30)
         res = json.loads(ex("docker inspect --format='{{json .State}}' " + docker ))
         logs = res['Health']['Log'] if 'Health' in res else []
         for log in logs:
@@ -52,3 +52,68 @@ def main():
         helpers.bulk(es, inputs, True)
 
 main()
+mapping = {
+    "mappings" : {
+      "properties" : {
+        "End" : {
+          "type" : "date"
+        },
+        "Health" : {
+          "properties" : {
+            "ExitCode" : {
+              "type" : "long"
+            },
+            "Output" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
+                }
+              }
+            }
+          }
+        },
+        "Start" : {
+          "type" : "date"
+        },
+        "Status" : {
+          "properties" : {
+            "Dead" : {
+              "type" : "boolean"
+            },
+            "Error" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
+                }
+              }
+            },
+            "Paused" : {
+              "type" : "boolean"
+            },
+            "Restarting" : {
+              "type" : "boolean"
+            },
+            "Running" : {
+              "type" : "boolean"
+            },
+            "StartedAt" : {
+              "type" : "date"
+            },
+            "Status" : {
+              "type" : "text",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword",
+                  "ignore_above" : 256
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
