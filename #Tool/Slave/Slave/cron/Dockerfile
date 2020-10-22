@@ -4,7 +4,7 @@ LABEL maintainer="Courtel Eliot"
 LABEL maintainermail="eliot.courtel@wanadoo.fr"
 
 WORKDIR /home/cron
-RUN mkdir /home/cron/logs
+RUN mkdir /home/logs
 
 RUN apt-get update && apt-get install cron -y
 
