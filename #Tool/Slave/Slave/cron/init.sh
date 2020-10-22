@@ -1,5 +1,5 @@
 #/bin/bash
-echo -e $(date "+[%Y-%m-%d %H:%M:%S]")"Starting"
+echo -e $(date "+[%Y-%m-%d %H:%M:%S]")" Starting"
 cron=""
 for i in $(ls -d */); do
 
@@ -8,12 +8,15 @@ for i in $(ls -d */); do
   if [ -z "${CRON_SCHEDULE}" ]; then
       >&2 echo -ne $(date "+[%Y-%m-%d %H:%M:%S]")" Empty ${folder^^} environment variable\n"
   else
+      >&1 echo -ne $(date "+[%Y-%m-%d %H:%M:%S]")" Setting up ${folder^^} cron job\n"
       mkdir "/home/logs/$folder"
       STDOUT_LOC="/home/logs/$folder/log.suc"
       STDERR_LOC="/home/logs/$folder/log.err"
-      tty=$(tty)
 
-      cron+="${CRON_SCHEDULE} echo \$(date \"+[%Y-%m-%d %H:%M:%S]\") \"Launching ${folder} process.\" > ${tty}\n"
+      touch "$STDOUT_LOC"
+      touch "$STDERR_LOC"
+
+      cron+="${CRON_SCHEDULE} echo \$(date \"+[%Y-%m-%d %H:%M:%S]\") \"Launching ${folder} cron job.\" > /home/logs/log.cron\n"
       cron+="${CRON_SCHEDULE} /usr/local/bin/python3 /home/cron/${folder}/cron.py > ${STDOUT_LOC} 2> ${STDERR_LOC}\n"
   fi
 
