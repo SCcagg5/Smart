@@ -1,4 +1,4 @@
-from Model.basic import check, auth
+from Model.basic import check, auth, master
 from Object.users import user
 from Object.tpe import tpe
 from Object.order import order
@@ -25,6 +25,43 @@ def myauth(cn, nextc):
         return cn.toret.add_error(err[1], err[2])
     cn.hd = err[1]
     err = auth.verify(cn.hd["token"])
+    print(err)
+    return cn.call_next(nextc, err)
+
+def mas_getauth(cn, nextc):
+    err = check.contain(cn.pr, ["pass"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = master.gettoken(cn.pr["pass"])
+    return cn.call_next(nextc, err)
+
+def mas_chkauth(cn, nextc):
+    err = check.contain(cn.hd, ["mastoken"], "HEAD")
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.hd = err[1]
+    err = master.verify(cn.hd["mastoken"])
+    return cn.call_next(nextc, err)
+
+
+def mas_auth_user(cn, nextc):
+    err = check.contain(cn.hd, ["token"], "HEAD")
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.hd = err[1]
+    err = check.contain(cn.pr, ["pass"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = master.verify(cn.hd["token"], cn.pr["pass"])
+    return cn.call_next(nextc, err)
+
+def check_user_service(cn, nextc):
+    err=[True, None, None]
+    return cn.call_next(nextc, err)
+def add_user_service(cn, nextc):
+    err=[True, None, None]
     return cn.call_next(nextc, err)
 
 def signup(cn, nextc):
@@ -230,11 +267,19 @@ def ged_search(cn, nextc):
                      )
     return cn.call_next(nextc, err)
 
+def ged_add_b64file(cn, nextc):
+    err = check.contain(cn.pr, ["b64file"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = check.setnoneopt(cn.pr, ["folder_id"])
+    err = file(usr_id=cn.private["user"].id,  ged_id=cn.private["ged"].ged_id).b64new(cn.pr["b64file"], cn.pr["folder_id"])
+    return cn.call_next(nextc, err)
+
 def ged_add_file(cn, nextc):
     err = check.contain(cn.req.files, ["file"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
-    cn.pr = check.setnoneopt(cn.req.forms, ["folder_id"])
+    cn.req.forms = check.setnoneopt(cn.req.forms, ["folder_id"])
     err = file(usr_id=cn.private["user"].id,  ged_id=cn.private["ged"].ged_id).new(cn.req.files["file"], cn.req.forms["folder_id"])
     return cn.call_next(nextc, err)
 

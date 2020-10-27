@@ -2,7 +2,16 @@ from .routesfunc import *
 
 def setuproute(app, call):
     @app.route('/test/',                    ['OPTIONS', 'GET'],         lambda x = None: call([])                                                                                         )
-    @app.route('/login/',    	            ['OPTIONS', 'POST'],        lambda x = None: call([getauth])                                                                                  )
+    @app.route('/login/',    	            ['OPTIONS', 'POST'],        lambda x = None: call([getauth]))
+
+
+    @app.route('/slave',                    ['OPTIONS', 'POST'],        lambda x = None: call([mas_getauth]))
+    @app.route('/slave/auth',               ['OPTIONS', 'GET'],         lambda x = None: call([mas_chkauth, myauth]))
+    @app.route('/slave/auth',               ['OPTIONS', 'POST'],        lambda x = None: call([mas_chkauth, getauth]))
+    @app.route('/slave/auth/user',          ['OPTIONS', 'POST'],        lambda x = None: call([mas_chkauth, myauth, signin, gettoken]))
+    @app.route('/slave/auth/user/new',      ['OPTIONS', 'POST'],        lambda x = None: call([mas_chkauth, myauth, signup, signin, gettoken]))
+    @app.route('/slave/service/<>/user/<>', ['OPTIONS', 'GET'],         lambda x = None: call([mas_chkauth, myauth, authuser, check_user_service]))
+    @app.route('/slave/service/<>/user/<>', ['OPTIONS', 'POST'],        lambda x = None: call([mas_chkauth, myauth, authuser, add_user_service]))
 
     @app.route('/signup/',    	            ['OPTIONS', 'POST'],        lambda x = None: call([myauth, signup, signin, wallet_create, gettoken])                                          )
     @app.route('/signin/',    	            ['OPTIONS', 'POST'],        lambda x = None: call([myauth, signin, gettoken])                                                                 )
@@ -34,6 +43,7 @@ def setuproute(app, call):
     @app.route('/ged/<>/doc/<>',            ['OPTIONS', 'DELETE'],       lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_delete])                                 )
     @app.route('/ged/<>/doc/addfolder',     ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_add_folder])                             )
     @app.route('/ged/<>/doc/addfile',       ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_add_file])                               )
+    @app.route('/ged/<>/doc/addb64file',    ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_add_b64file])                               )
     @app.route('/ged/<>/doc/<>/share',      ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_share]))
     @app.route('/ged/<>/sign',              ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_new]))
     @app.route('/ged/<>/sign',              ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_get_all]))

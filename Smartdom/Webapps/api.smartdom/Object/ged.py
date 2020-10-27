@@ -142,7 +142,7 @@ class room:
         ret = []
         for i in res:
             ret.append({
-                "original_id": i[2], "id": i[6], 
+                "original_id": i[2], "id": i[6],
                 "name": res[0][3], "type": res[0][4], "date": res[0][5],
                 "by": i[0] ,"in": i[1]
                 })
@@ -415,6 +415,40 @@ class file:
             es.indices.create(index=index, body=elastic.doc_mapping)
         es.index(index=index, body=input, request_timeout=30)
         return [True, {"file_id": file_id}, None]
+
+    def b64new(self, b64, folder_id, name = "Nouveau fichier"):
+        file_id = str(uuid.uuid4())
+        timestamp = str(int(round(time.time() * 1000)))
+        bytes = b64decode(b64, validate=True)
+        if bytes[0:4] != b'%PDF':
+            return [False, "File extension not allowed.", 401]
+        if folder_id is not None and not folder.exist(folder_id):
+            return [False, "folder_id does not exist", 400]
+        if not folder(self.usr_id).is_proprietary(folder_id) and folder_id is not None:
+            return [False, "Invalid rights", 403]
+        path = self.path(file_id)
+        f = open(path, 'wb')
+        f.write(bytes)
+        f.close()
+        ext = "pdf"
+        succes = sql.input("INSERT INTO `ged_file` (`id`, `ged_id`, `user_id`, `name`, `type`, `inside`, `date`) VALUES (%s, %s, %s, %s, %s, %s, %s)", \
+        (file_id, self.ged_id, self.usr_id, name, ext, folder_id, timestamp))
+        if not succes:
+            return [False, "data input error", 500]
+        input = {"name": name, "vpath": "/" + "/".join(ged.vpath(file_id)[::-1]), "ext": ext, "date": timestamp, "file_id": file_id}
+        if ext == 'pdf':
+            res = pdf.get_text(path)
+            if res[0]:
+                input["text"] = res[1]["text"]
+                input["map"] = res[1]["map"]
+                input["lexiq"] = res[1]["lexiq"]
+        index = "ged_search_" + self.ged_id + "_" + self.usr_id + "_" + date.today().strftime("%m%Y")
+        if es.indices.exists(index=index):
+            es.indices.refresh(index=index)
+        else:
+            es.indices.create(index=index, body=elastic.doc_mapping)
+        es.index(index=index, body=input, request_timeout=30)
+        return [True, {"file_id": file_id, "input": input}, None]
 
     def share(self, email, file_id, access):
         if not self.is_proprietary(file_id) and not self.is_sharer(file_id):

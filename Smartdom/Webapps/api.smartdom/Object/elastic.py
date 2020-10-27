@@ -1,8 +1,9 @@
 from elasticsearch import Elasticsearch
 
-
-es = Elasticsearch(["http://smartdom-web-elasticsearch:9200"])
-
+try:
+    es = Elasticsearch(["http://smartdom-web-elasticsearch:9200"])
+except:
+    es = None
 class elastic:
     doc_mapping = {
         "mappings" : {

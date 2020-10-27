@@ -3,6 +3,29 @@ import os, datetime, re
 import json as JSON
 import jwt
 
+class master:
+    def gettoken(mypass):
+        secret =    str(os.getenv('API_SCRT', '!@ws4RT4ws212@#%'))
+        password =  str(os.getenv('API_MAS_PASS', 'slave_password'))
+        if mypass == password:
+            exp = datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+            ret = jwt.encode({'exp': exp, 'password': hash(password + secret)}, secret).decode('utf-8')
+            return [True, {'exp': str(exp), "mastoken": str(ret)}, None, {"mastoken": str(ret)}]
+        return [False, "Invalid password", 403]
+
+    def verify(token):
+        secret =    str(os.getenv('API_SCRT', '!@ws4RT4ws212@#%'))
+        password =  str(os.getenv('API_MAS_PASS', 'slave_password'))
+        try:
+            decoded = jwt.decode(token, secret, leeway=10, algorithms=['HS256'])
+            if decoded["password"] != hash(password + secret):
+                 raise
+        except jwt.ExpiredSignature:
+            return [False, "Signature expired", 403]
+        except:
+            return  [False, "Invalid token", 403]
+        return [True, None, None]
+
 class auth:
     def gettoken(mypass):
         secret =    str(os.getenv('API_SCRT', '!@ws4RT4ws212@#%'))
@@ -88,12 +111,9 @@ class ret:
         return self.ret()
 
     def add_data(self, data = None):
-        self.data['data'] = data
-        self.set_code(200)
-        if data is None:
-            raise
-            self.add_error("Bad data input", 500)
-            return 1
+        if data is not None:
+            self.data['data'] = data
+            self.set_code(200)
         return 0
 
     def set_code(self, code = None):
