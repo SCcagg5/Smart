@@ -18,7 +18,6 @@ db_pass =   str(os.getenv('DB_PASS', 'password'))
 call = lambda x : callnext(request, response).call(x)
 
 BaseRequest.MEMFILE_MAX = 1024 * 1024 * 256
-print(app.BaseRequest)
 
 @app.hook('after_request')
 def enable_cors():
