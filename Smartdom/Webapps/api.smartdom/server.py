@@ -1,4 +1,4 @@
-from bottle import Bottle, run, route, response, request, hook, error
+from bottle import Bottle, run, route, response, request, hook, error, BaseRequest
 from Model.basic import ret, check, callnext
 from Controller.routes import *
 import json as JSON
@@ -16,6 +16,9 @@ db_user =   str(os.getenv('DB_USER', 'password'))
 db_pass =   str(os.getenv('DB_PASS', 'password'))
 
 call = lambda x : callnext(request, response).call(x)
+
+BaseRequest.MEMFILE_MAX = 1024 * 1024 * 256
+print(app.BaseRequest)
 
 @app.hook('after_request')
 def enable_cors():
