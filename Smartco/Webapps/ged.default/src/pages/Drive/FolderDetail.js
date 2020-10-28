@@ -5,13 +5,6 @@ import ListDocs from "../../components/List/ListDocs";
 
 export default class FolderDetail extends React.Component{
 
-    constructor(props) {
-        super(props);
-    }
-    state={
-
-    }
-
 
     render() {
         return(

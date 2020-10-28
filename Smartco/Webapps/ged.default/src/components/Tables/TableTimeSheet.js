@@ -34,7 +34,9 @@ import moment from "moment";
 import data from '../../data/Data';
 import main_functions from '../../controller/main_functions';
 import ClearOutlinedIcon from '@material-ui/icons/ClearOutlined';
+import defaultAvatar from '../../assets/images/users/default_avatar.jpg';
 
+const ent_name = process.env.REACT_APP_ENT_NAME;
 const getTimeSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
@@ -139,7 +141,6 @@ export default function TableTimeSheet(props) {
     const [lf_edate_search, setLf_edate_search] = React.useState(null);
     const [partner_facture, setPartner_facture] = React.useState("");
     const [facture_date, setFacture_date] = React.useState(new Date());
-    const [check_all, setCheck_all] = React.useState(false);
 
 
 
@@ -169,25 +170,17 @@ export default function TableTimeSheet(props) {
         setPage(0);
     };
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
     const renderOA_user = (email) => {
         let Oa_user = ""
         props.OA_contacts.map((contact,key) => {
-            if(contact && contact.email && contact.email === email){
+            if(contact && contact.Email && contact.Email === email){
                 Oa_user = contact
             }
         })
         return(
             <div style={{display:"flex"}}>
-                <img alt="" src={Oa_user.imageUrl || ""} style={{width:40,height:40,objectFit:"contain"}}/>
-                <div style={{marginTop:12,marginLeft:3}}>{Oa_user.nom+" "+Oa_user.prenom}</div>
+                <img alt="" src={Oa_user.imageUrl || defaultAvatar} style={{width:40,height:40,objectFit:"contain"}}/>
+                <div style={{marginTop:12,marginLeft:3}}>{Oa_user.FirstName+" "+Oa_user.LastName}</div>
             </div>
         )
     }
@@ -273,12 +266,12 @@ export default function TableTimeSheet(props) {
                 <div className="ml-2">
                     <SelectSearch
                       options={
-                          props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
+                          props.annuaire_clients_mondat.map(({ Name, ContactFullName, Type, imageUrl }) =>
                             ({
-                                value: Nom + ' ' + (Prenom || ''),
-                                name: Nom + ' ' + (Prenom || ''),
-                                ContactType: Type,
-                                ContactName: Nom + ' ' + (Prenom || ''),
+                                value: Name || ContactFullName,
+                                name: Name || ContactFullName,
+                                ContactType: Name ? "0" : "1",
+                                ContactName: Name || ContactFullName,
                                 imageUrl: imageUrl
                             }))
                       }
@@ -323,7 +316,7 @@ export default function TableTimeSheet(props) {
                         <TableCell align="center" style={{width:"8%",fontWeight:600}}>Date</TableCell>
                         <TableCell align="center" style={{width:"17%",fontWeight:600}}>Nom du dossier</TableCell>
                         <TableCell align="center" style={{width:"25%",fontWeight:600}}>Description</TableCell>
-                        <TableCell  style={{width:"20%",fontWeight:600}}>Utilisateur Enfin</TableCell>
+                        <TableCell  style={{width:"20%",fontWeight:600}}>Utilisateur {ent_name}</TableCell>
                         <TableCell align="center" style={{width:"10%",fontWeight:600}}>Taux horaire</TableCell>
                         <TableCell align="center" style={{width:"10%",fontWeight:600}}>Durée</TableCell>
                     </TableRow>
@@ -422,16 +415,15 @@ export default function TableTimeSheet(props) {
                                     }}
                                     MenuProps={Data.MenuProps}
                                   >
-                                      {props.OA_contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
+                                      {props.OA_contacts.map((contact, key) => (
                                         <MenuItem
                                           key={key}
-                                          value={contact.email}>
-                                            <div
-                                              className="row align-items-center justify-content-center">
-                                                <Avatar
-                                                  alt=""
-                                                  src={contact.imageUrl} />
-                                                <div>{contact.nom + ' ' + contact.prenom}</div>
+                                          value={contact.Email}>
+                                            <div style={{display:"flex"}}>
+                                                <Avatar style={{marginLeft:10}}
+                                                        alt=""
+                                                        src={contact.imageUrl} />
+                                                <div style={{marginTop:10,marginLeft:8}}>{contact.FirstName + ' ' + contact.LastName}</div>
                                             </div>
                                         </MenuItem>
                                       ))}

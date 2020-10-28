@@ -443,10 +443,11 @@ export default class Main extends React.Component {
               firebase.database().ref('/').on('value', (snapshot) => {
                   const data = snapshot.val() || [];
                   let contacts = data[ent_name+"-contacts-"+ged_id] || [];
-                  let rooms = (data.rooms || []).filter(x => x.ged_id === ged_id);
-                  let societes = data.societes || [];
                   let annuaire_clients_mondat = data[ent_name+"-clients-"+ged_id] || [];
-                  let lignes_f = data.enfin_lignes_factures || [];
+                  let rooms = data[ent_name+"-rooms-"+ged_id] || [];
+                  let lignes_f = data[ent_name+"-lignes_f-"+ged_id] || [];
+
+                  let societes = data.societes || [];
                   let clients_tempo = (data.clients_tempo || []).filter(x => x.email === localStorage.getItem('email'));
                   let clients_tempo_copie = (data.clients_tempo || []);
 
@@ -953,7 +954,7 @@ export default class Main extends React.Component {
       let origin = this.state.sharedFolders;
       SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
           let sub_folders = Res.data.Content.folders || [];
-          let sub_files = Res.data.Content.files || [];
+          //let sub_files = Res.data.Content.files || [];
           let childrens = [];
           for(let i =0 ; i < sub_folders.length ; i++){
             let treeNode = {
@@ -1131,21 +1132,27 @@ export default class Main extends React.Component {
   };
 
   uploadImage = (image) => {
-    this.setState({ loading: true });
+    //this.setState({ loading: true });
     let imgToUpload = image.target.files[0];
-    var reader = new FileReader();
+    if(imgToUpload.type === "image/png" || imgToUpload.type === "image/jpeg" || imgToUpload.type === "image/jpg"){
+      var reader = new FileReader();
     reader.onloadend = () => {
       let selectedContact = this.state.selectedContact;
       selectedContact.imageUrl = reader.result;
       let key = main_functions.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
-      firebase.database().ref('contacts/' + key).set(
+      firebase.database().ref('/'+ent_name+'-contacts-'+ged_id+'/' + key).set(
         this.state.selectedContact
-      ).then(res => {
+      ).then( res => {
         this.setState({ loading: false });
         this.openSnackbar('success', 'Modification effectuée avec succès');
       });
     };
     reader.readAsDataURL(imgToUpload);
+    }else{
+      this.openSnackbar("error","Type de fichier erroné ! ")
+    }
+    console.log(imgToUpload)
+
 
   };
 
@@ -1166,7 +1173,7 @@ export default class Main extends React.Component {
           formData.append('file', files[i]);
           formData.append('folder_id', addFolderRes.data.id);
           calls.push(axios.request({
-              method: 'POST', url: data.endpoint + '/ged/896ca0ed-8b4a-41fd-aeff-8de26ee1bcf9/doc/addfile',
+              method: 'POST', url: data.endpoint + '/ged/'+ged_id+'/doc/addfile',
               data: formData,
               headers: {
                 'Content-Type': 'multipart/form-data',
@@ -1289,7 +1296,7 @@ export default class Main extends React.Component {
         room.id = addRoomRes.data.id;
         let rooms = this.state.rooms;
         rooms.push(room);
-        firebase.database().ref('/rooms').set(
+        firebase.database().ref('/'+ent_name+'-rooms-'+ged_id).set(
           rooms
         ).then(res => {
           this.setState({
@@ -1657,7 +1664,6 @@ export default class Main extends React.Component {
   };
 
   saveTimeSheet() {
-    let email = localStorage.getItem('email');
     let timeSheet = this.state.TimeSheet;
     this.state.TimeSheetData.push(timeSheet);
     firebase.database().ref('/TimeSheet').set(this.state.TimeSheetData);
@@ -2029,14 +2035,14 @@ export default class Main extends React.Component {
             'name':
               ligne.template === '0' ? moment(ligne.newTime.date).format('DD/MM/YYYY') :
                 ligne.template === '1' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description :
-                  ligne.template === '2' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
-                    ligne.template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                  ligne.template === '2' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + ' ; ' + OAContact.FirstName + ' ' + OAContact.LastName :
+                    ligne.template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.FirstName + ' ' + OAContact.LastName :
                       ligne.template === '4' ? ligne.newTime.description :
-                        ligne.template === '5' ? OAContact.nom + ' ' + OAContact.prenom :
+                        ligne.template === '5' ? OAContact.FirstName + ' ' + OAContact.LastName :
                           ligne.template === '6' ? ligne.newTime.duree + ' Heures' :
-                            ligne.template === '7' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                            ligne.template === '7' ? ligne.newTime.description + ' ; ' + OAContact.FirstName + ' ' + OAContact.LastName :
                               ligne.template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree + ' Heures' :
-                                ligne.template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree + ' Heures' : ligne.newTime.description,
+                                ligne.template === '9' ? ligne.newTime.description + ' ; ' + OAContact.FirstName + ' ' + OAContact.LastName + ' ; ' + ligne.newTime.duree + ' Heures' : ligne.newTime.description,
             'quantity': ligne.newTime.duree,
             'price_unit': parseFloat(ligne.newTime.rateFacturation),
             'discount': 0,
@@ -2158,7 +2164,7 @@ export default class Main extends React.Component {
 
   updateLignes_facture(lignes_factures) {
     setTimeout(() => {
-      firebase.database().ref('/enfin_lignes_factures').set(lignes_factures);
+      firebase.database().ref('/'+ent_name+'-lignes_f-'+ged_id).set(lignes_factures);
     }, 300);
 
   }
@@ -2445,7 +2451,7 @@ export default class Main extends React.Component {
           this.state.selectedFolderId
         );
         calls.push(axios.request({
-            method: 'POST', url: data.endpoint + '/ged/896ca0ed-8b4a-41fd-aeff-8de26ee1bcf9/doc/addfile',
+            method: 'POST', url: data.endpoint + '/ged/'+ged_id+'/doc/addfile',
             data: formData,
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -3228,7 +3234,7 @@ export default class Main extends React.Component {
                               });
                               room.tasks = tasks;
                               firebase.database()
-                                .ref('rooms/' + this.state.selectedRoomKey)
+                                .ref('/'+ent_name+'-rooms-'+ged_id+'/' + this.state.selectedRoomKey)
                                 .set(room)
                                 .then((ok) => {
                                   this.setState({ selectedRoom: room });
@@ -3688,7 +3694,8 @@ export default class Main extends React.Component {
                             <div className="row">
                               <div className="col-lg-12">
                                 <div className="card-box text-center">
-                                  <img onClick={() => this.imageUpload.click()}
+                                  <img onClick={() => {} //this.imageUpload.click()
+                                     }
                                        src={this.state.selectedSociete.imageUrl ? this.state.selectedSociete.imageUrl : this.state.selectedSociete.name ? entIcon : userAvatar}
                                        className="rounded-circle avatar-lg img-thumbnail"
                                        alt="" style={{ cursor: 'pointer', width: 120, height: 120, objectFit: 'cover' }}
@@ -3718,7 +3725,7 @@ export default class Main extends React.Component {
                                             onClick={() => {
                                             }}
                                             className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
-                                      <i className="fe-book-open" />&nbsp;&nbsp;Livre
+                                      <i className="fe-book-open" />&nbsp;&nbsp;Book
                                     </button>
                                   </div>
                                   <div style={{ marginTop: 30 }}
@@ -4353,12 +4360,12 @@ export default class Main extends React.Component {
                                                       style={{ display: 'flex' }}>
                                                       <SelectSearch
                                                         options={
-                                                          this.state.annuaire_clients_mondat.map(({ name, contactName, imageUrl }) =>
+                                                          this.state.annuaire_clients_mondat.map(({ Name, ContactFullName, imageUrl }) =>
                                                             ({
-                                                              value: name || contactName,
-                                                              name: name || contactName,
-                                                              ContactType: name ? "0":"1",
-                                                              ContactName: name || contactName,
+                                                              value: Name || ContactFullName,
+                                                              name: Name || ContactFullName,
+                                                              ContactType: Name ? "0":"1",
+                                                              ContactName: Name || ContactFullName,
                                                               imageUrl: imageUrl
                                                             }))
                                                         }
@@ -4370,7 +4377,7 @@ export default class Main extends React.Component {
                                                           //console.log(e)
                                                           let obj = this.state.TimeSheet;
                                                           obj.newTime.client = e;
-                                                          let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => (x.name || x.contactName) === e);
+                                                          let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => (x.Name || x.ContactFullName) === e);
                                                           console.log(find_annuaire_fact_lead);
                                                           let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
                                                           console.log(partner_email);
@@ -4457,7 +4464,7 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-4">
                                                   <div>
-                                                    <h6>Utilisateur Enfin </h6>
+                                                    <h6>Utilisateur {ent_name} </h6>
                                                   </div>
                                                   <MuiSelect
                                                     labelId="demo-simple-select-label4545"
@@ -4469,11 +4476,11 @@ export default class Main extends React.Component {
                                                       let OA_contacts = this.state.contacts;
                                                       let OA_contact = '';
                                                       OA_contacts.map((contact, key) => {
-                                                        if (contact && contact.email && contact.email === e.target.value) {
+                                                        if (contact && contact.Email && contact.Email === e.target.value) {
                                                           OA_contact = contact;
                                                         }
                                                       });
-                                                      d.newTime.rateFacturation = OA_contact.rateFacturation || '';
+                                                      d.newTime.rateFacturation = OA_contact.TauxHoraire || '';
                                                       this.setState({ TimeSheet: d });
                                                     }}
                                                     value={this.state.TimeSheet.newTime.utilisateurOA}
@@ -4481,12 +4488,12 @@ export default class Main extends React.Component {
                                                     {this.state.contacts.map((contact, key) => (
                                                       <MenuItem
                                                         key={key}
-                                                        value={contact.email}>
+                                                        value={contact.Email}>
                                                         <div style={{display:"flex"}}>
                                                           <Avatar style={{marginLeft:10}}
                                                                   alt=""
                                                                   src={contact.imageUrl} />
-                                                          <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                          <div style={{marginTop:10,marginLeft:8}}>{contact.FirstName + ' ' + contact.LastName}</div>
                                                         </div>
                                                       </MenuItem>
                                                     ))}
@@ -4558,7 +4565,6 @@ export default class Main extends React.Component {
                                                           obj.newTime.date = moment(this.state.TimeSheet.newTime.data).format('YYYY-MM-DD');
                                                           obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
                                                           obj.user_email = localStorage.getItem('email');
-                                                          obj.ged_id = "896ca0ed-8b4a-41fd-aeff-8de26ee1bcf9";
                                                           obj.template = this.state.lignef_template;
                                                           lignes_fact.push(obj);
 
@@ -4576,19 +4582,16 @@ export default class Main extends React.Component {
                                                               }
                                                             }
                                                           });
-
                                                           this.updateLignes_facture(lignes_fact);
                                                           this.openSnackbar('success', 'Enregistrement effectué avec succès');
-
-
                                                         }).catch(err => {
                                                           console.log(err);
                                                         });
                                                       }
-
                                                     }}
                                                     appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.TimeSheet.newTime.client === ''}
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' ||
+                                                    this.state.TimeSheet.newTime.rateFacturation === '' || this.state.TimeSheet.newTime.client === ''}
                                                     style={{ margin: 20 }}> Enregistrer </AtlButton>
                                                   <AtlButton
                                                     appearance=""
@@ -4809,13 +4812,13 @@ export default class Main extends React.Component {
                                                         {this.state.contacts.map((contact, key) => (
                                                           <MenuItem
                                                             key={key}
-                                                            value={contact.email}>
+                                                            value={contact.Email}>
                                                             <div
                                                               className="row align-items-center justify-content-center">
                                                               <Avatar
                                                                 alt=""
                                                                 src={contact.imageUrl} />
-                                                              <div>{contact.nom + ' ' + contact.prenom}</div>
+                                                              <div>{contact.FirstName + ' ' + contact.LastName}</div>
                                                             </div>
                                                           </MenuItem>
                                                         ))}
@@ -5616,15 +5619,13 @@ export default class Main extends React.Component {
                       open={Boolean(this.state.anchorElContactsMenu)}
                       onClose={() => this.setState({ anchorElContactsMenu: null })}
                     >
-                      {this.state.contacts
-                        .filter((x) => x.role === 'avocat')
-                        .map((contact, key) => (
+                      {this.state.contacts.map((contact, key) => (
                           <MenuItem
                             key={key}
                             onClick={() => {
                               let emails = this.state.NewRoomEmails;
                               emails.push({
-                                email: contact.email,
+                                email: contact.Email,
                                 valid: true,
                                 key: parseInt(moment().format('DDMMYYYYHHmmss'))
                               });
@@ -5634,13 +5635,11 @@ export default class Main extends React.Component {
                               });
                             }}
                           >
-                            {' '}
                             <ListItemIcon>
-                              {' '}
-                              <Avatar src={contact.imageUrl} />
-                            </ListItemIcon>{' '}
+                              <Avatar src={contact.imageUrl || defaultAvatar} />
+                            </ListItemIcon>
                             <Typography variant="inherit">
-                              {contact.prenom + ' ' + contact.nom}
+                              {contact.FirstName + ' ' + contact.LastName}
                             </Typography>
                           </MenuItem>
                         ))}
@@ -5701,8 +5700,7 @@ export default class Main extends React.Component {
                     title: this.state.newRoomTitle,
                     members: this.state.NewRoomEmails,
                     created_at: new Date().getTime(),
-                    created_by:localStorage.getItem("email"),
-                    ged_id:"896ca0ed-8b4a-41fd-aeff-8de26ee1bcf9"
+                    created_by:localStorage.getItem("email")
                   });
                 }}
                 color="primary"
@@ -5770,7 +5768,7 @@ export default class Main extends React.Component {
                               this.state.selectedFolderId
                             );
                             calls.push(axios.request({
-                                method: 'POST', url: data.endpoint + '/ged/896ca0ed-8b4a-41fd-aeff-8de26ee1bcf9/doc/addfile',
+                                method: 'POST', url: data.endpoint + '/ged/'+ged_id+'/doc/addfile',
                                 data: formData,
                                 headers: {
                                   'Content-Type': 'multipart/form-data',

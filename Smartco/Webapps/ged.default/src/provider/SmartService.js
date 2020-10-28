@@ -4,7 +4,6 @@ const odoo_id = process.env.REACT_APP_ODOO_ID;
 const password = "password"
 
 
-
 let SmartService = {
 
     loadHeadersWithoutToken() {

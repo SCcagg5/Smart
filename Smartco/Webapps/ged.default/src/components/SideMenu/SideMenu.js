@@ -1,9 +1,8 @@
-import logo from "../../assets/images/logos/logo_enfin_fidu.jpg";
 import Drawer from "@material-ui/core/Drawer";
 import React from "react";
 import "./style.css"
-import main_functions from "../../controller/main_functions";
 
+const logo = localStorage.getItem("logo")
 
 export default function SideMenu(props) {
 
