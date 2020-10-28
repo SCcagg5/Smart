@@ -1,6 +1,7 @@
 const endpoint = "https://api.smartdom.ch"
 const password = "password"
 const OALegalGedId = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
+const odoo_id = "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
 const contractAdr = "0x9520c239bae78a4a672a70370d85051fcd8dd6c9"
 
 let SmartService = {
@@ -183,7 +184,7 @@ let SmartService = {
 
 
     create_company(token,usrtoken,data){
-        return fetch(endpoint + '/odoo/test/company', {
+        return fetch(endpoint + '/odoo/'+odoo_id+'/company', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
@@ -193,7 +194,7 @@ let SmartService = {
     },
 
     create_client(token,usrtoken,data){
-        return fetch(endpoint + '/odoo/test/user', {
+        return fetch(endpoint + '/odoo/'+odoo_id+'/user', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
@@ -203,7 +204,7 @@ let SmartService = {
     },
 
     create_client_folder(token,usrtoken,data){
-        return fetch(endpoint + '/ged/'+OALegalGedId+'/odoo/test/case', {
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/odoo/'+odoo_id+'/case', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
@@ -213,7 +214,7 @@ let SmartService = {
     },
 
     create_facture_odoo(token,usrtoken,data){
-        return fetch(endpoint + '/odoo/test/bill', {
+        return fetch(endpoint + '/odoo/'+odoo_id+'/bill', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
