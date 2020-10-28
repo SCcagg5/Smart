@@ -33,7 +33,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import SmartService from "../../provider/SmartService";
 import entIcon from "../../assets/images/entreprise-icon.png";
 import userAvatar from "../../assets/images/users/user4.jpg";
-import SelectSearch from "react-select-search";
 import Select from "react-select";
 
 
@@ -70,32 +69,11 @@ function a11yProps(index) {
     };
 }
 
-function renderSearchOption(props, option, snapshot, className) {
-    const imgStyle = {
-        borderRadius: '50%',
-        verticalAlign: 'middle',
-        marginRight: 10,
-        width: 32, height: 32, objectFit: "cover"
-    };
-
-    return (
-        <button {...props} className={className} type="button">
-            <span>
-                <img alt="" style={imgStyle}
-                     src={option.ContactType === "Person" ? option.imageUrl ? option.imageUrl : userAvatar : entIcon}/>
-                <span style={{fontSize: 13}}>{option.ContactName}</span>
-            </span>
-        </button>
-    );
-}
-
 export default function RoomTabs(props) {
-    let inputDateRef = {}
 
     const [value, setValue] = React.useState(2);
     const [newTaskTitle, setnewTaskTitle] = React.useState("");
     const [anchorEl, setAnchorEl] = useState(null);
-    const [anchorEl_annuaire, setAnchorEl_annuaire] = useState(null);
     const [selectedAssign, setSelectedAssign] = useState("");
     const [showAddForm, setShowAddForm] = useState(false);
     const [openDateTimePickerModal, setOpenDateTimePickerModal] = useState(false);
@@ -127,9 +105,9 @@ export default function RoomTabs(props) {
     const contactSelectOptions=[];
     contactSelectOptions.push({label:"Aucun",value:""})
     props.annuaire_clients.map((client,key) => {
-        contactSelectOptions.push({value:client.name || client.contactName,
-            label:<div><img alt="" src={!client.name ? client.imageUrl ? client.imageUrl : userAvatar : entIcon}
-                            style={{width:30,height:30,objectFit:"cover"}}/>{" "}{client.name || client.contactName}</div>
+        contactSelectOptions.push({value:client.Name || client.ContactFullName,
+            label:<div><img alt="" src={!client.Name ? client.imageUrl ? client.imageUrl : userAvatar : entIcon}
+                            style={{width:30,height:30,objectFit:"cover"}}/>{" "}{client.Name || client.ContactFullName}</div>
         })
     })
 
@@ -282,7 +260,7 @@ export default function RoomTabs(props) {
                                                     /> :
                                                     <Chip style={{backgroundColor:"#fff",marginTop:55,maxWidth:150}}
                                                           avatar={<Avatar src={selectedAssign.imageUrl} />}
-                                                          label={selectedAssign.nom +" "+selectedAssign.prenom }
+                                                          label={selectedAssign.FirstName +" "+selectedAssign.LastName }
                                                           variant="outlined" onClick={(event) => setAnchorEl(event.currentTarget)}
                                                     />
                                             }
@@ -303,7 +281,7 @@ export default function RoomTabs(props) {
                                                             <ListItemIcon>
                                                                 <Avatar src={contact.imageUrl} />
                                                             </ListItemIcon>
-                                                            <Typography variant="inherit">{contact.prenom+" "+contact.nom}</Typography>
+                                                            <Typography variant="inherit">{contact.FirstName+" "+contact.LastName}</Typography>
                                                         </MenuItem>
                                                     )
                                                 }
@@ -396,7 +374,7 @@ export default function RoomTabs(props) {
                                         <div style={{padding:"20px 0"}}>
                                             <Chip style={{backgroundColor:"#fff",maxWidth:150}}
                                                   avatar={<Avatar src={task.assignedTo.imageUrl} />}
-                                                  label={task.assignedTo.prenom+" "+task.assignedTo.nom}
+                                                  label={task.assignedTo.FirstName+" "+task.assignedTo.LastName}
                                                   variant="outlined"
                                             />
                                         </div>
@@ -485,15 +463,15 @@ export default function RoomTabs(props) {
                                     onClose={() => setAnchorElContactsMenu(null)}
                                 >
                                     {
-                                        props.contacts.filter(x => x.role === "avocat").map((contact, key) =>
+                                        props.contacts.map((contact, key) =>
                                             <MenuItem key={key} onClick={() => {
                                                 let emails = teamEmails;
                                                 emails.push({
-                                                    email: contact.email,
+                                                    email: contact.Email,
                                                     valid: true,
                                                     key: parseInt(moment().format("DDMMYYYYHHmmss")),
                                                     avatar:contact.imageUrl || "",
-                                                    fname:contact.prenom +" "+contact.nom
+                                                    fname:contact.FirstName +" "+contact.LastName
                                                 })
                                                 setAnchorElContactsMenu(null)
                                                 setTeamEmails(emails)
@@ -502,7 +480,7 @@ export default function RoomTabs(props) {
                                                     <Avatar src={contact.imageUrl}/>
                                                 </ListItemIcon>
                                                 <Typography
-                                                    variant="inherit">{contact.prenom + " " + contact.nom}</Typography>
+                                                    variant="inherit">{contact.FirstName + " " + contact.LastName}</Typography>
                                             </MenuItem>
                                         )
                                     }

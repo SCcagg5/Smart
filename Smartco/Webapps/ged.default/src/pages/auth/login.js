@@ -125,7 +125,6 @@ class login extends Component {
                             <Col md={8} lg={6} xl={5}>
                                 <Card>
                                     <CardBody className="p-4 position-relative">
-                                        { /* preloader */}
                                         {this.state.loading && <Loader/>}
 
                                         <div align="center" className="mb-2">

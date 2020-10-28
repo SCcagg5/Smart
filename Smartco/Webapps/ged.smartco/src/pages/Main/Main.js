@@ -80,6 +80,8 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import main_functions from '../../controller/main_functions';
 import DescriptionIcon from '@material-ui/icons/Description';
 
+const ged_id = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
+
 export default class Main extends React.Component {
 
   imageUpload = {};
@@ -1159,7 +1161,7 @@ export default class Main extends React.Component {
           formData.append('file', files[i]);
           formData.append('folder_id', addFolderRes.data.id);
           calls.push(axios.request({
-              method: 'POST', url: data.endpoint + '/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfile',
+              method: 'POST', url: data.endpoint + '/ged/'+ged_id+'/doc/addfile',
               data: formData,
               headers: {
                 'Content-Type': 'multipart/form-data',
@@ -2438,7 +2440,7 @@ export default class Main extends React.Component {
           this.state.selectedFolderId
         );
         calls.push(axios.request({
-            method: 'POST', url: data.endpoint + '/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfile',
+            method: 'POST', url: data.endpoint + '/ged/'+ged_id+'/doc/addfile',
             data: formData,
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -3816,11 +3818,11 @@ export default class Main extends React.Component {
 
                                       </TabPanel>
                                       <TabPanel>
-                                        <h5 style={{ marginTop: 20 }}>Ouverture mandat</h5>
+                                        <h5 style={{ marginTop: 20 }}>Ouverture du dossier</h5>
                                         <div className="row mt-4">
                                           <div className="col-md-6">
                                             <div>
-                                              Nom du mandat
+                                              Nom du dossier
                                             </div>
                                             <div>
                                               <input
@@ -3833,7 +3835,7 @@ export default class Main extends React.Component {
                                           </div>
                                           <div className="col-md-6">
                                             <div>
-                                              Type de mandat
+                                              Type de dossier
                                             </div>
                                             <div>
                                               <select
@@ -3898,7 +3900,7 @@ export default class Main extends React.Component {
                                         <div><h4>Facturation</h4>
                                           <div className="row mt-2">
                                             <div className="col-md-5">
-                                              <div>Collaborateur-Lead</div>
+                                              <div>Associé</div>
                                               <div>
                                                 <MuiSelect
                                                   labelId="demo-simple-select-label"
@@ -3953,7 +3955,7 @@ export default class Main extends React.Component {
                                             </div>
                                             <div className="col-md-7">
                                               <div style={{ display: 'flex' }}>
-                                                <div>Collaborateur-Team</div>
+                                                <div>Collaborateur/Stagiaire</div>
                                                 <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
                                                             onClick={() => {
                                                               let objCp = this.state.newClientFolder;
@@ -3977,7 +3979,7 @@ export default class Main extends React.Component {
                                                     marginTop: 13
                                                   }}>
                                                     <div>
-                                                      <div>Collaborateur</div>
+                                                      <div>Collaborateur/Stagiaire</div>
                                                       <div>
                                                         <MuiSelect
                                                           labelId="demo-simple-select-label"
@@ -5757,7 +5759,7 @@ export default class Main extends React.Component {
                               this.state.selectedFolderId
                             );
                             calls.push(axios.request({
-                                method: 'POST', url: data.endpoint + '/ged/896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9/doc/addfile',
+                                method: 'POST', url: data.endpoint + '/ged/'+ged_id+'/doc/addfile',
                                 data: formData,
                                 headers: {
                                   'Content-Type': 'multipart/form-data',
