@@ -11,12 +11,7 @@ class odoo:
     def __init__(self, usr_id = -1, odoo_id = -1):
         self.usr_id = str(usr_id)
         self.odoo_id = str(odoo_id)
-        self.opt = {
-	    "url": "http://91.121.162.202:10013",
-            "username" : "eliot.courtel@gmail.com",
-            "db": "odoo",
-            "password": "test"
-        }
+        self.opt = {}
         self.uid = None
 
     def case(self, ged_id):
@@ -27,8 +22,8 @@ class odoo:
           ret.append({"client_id": res[i][0],
  		      "name": res[i][1],
  		      "type": res[i][2],
-		      "folder_id": res[i][3], 
-  		      "date": res[i][4], 
+		      "folder_id": res[i][3],
+  		      "date": res[i][4],
 		      "team": json.loads(res[i][5])})
           i += 1
         return [True, {"client": ret}, None]
@@ -52,6 +47,15 @@ class odoo:
         return [True, ret, None]
 
     def connection(self):
+        res = sql.get("SELECT `url`, `db`, `user`, `password` FROM odoo WHERE id = %s", (self.odoo_id))
+        if len(res) < 1:
+            return [False, "Invalid odoo id", 400]
+        self.opt = {
+	        "url": res[0][0],
+            "username" : res[0][2],
+            "db": res[0][1],
+            "password": res[0][3]
+        }
         try:
             common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(self.opt['url']))
             self.uid = int(common.authenticate(self.opt['db'],
@@ -170,7 +174,7 @@ class odoo:
         "exclude_from_invoice_tab": False
       }
     ]
-  ], 
+  ],
   "line_ids": [
     [
       0,
