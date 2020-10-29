@@ -34,6 +34,7 @@ export default function ListDocs(props) {
   const [openRenameeModal, setOpenRenameModal] = useState(false);
   const [newFileName, setNewFileName] = useState('');
   const [open, setOpen] = React.useState(false);
+  const [rights, setRights] = React.useState(null );
 
   const selected_docs = props.docs.filter(x => x.selected && x.selected === true);
 
@@ -165,6 +166,9 @@ export default function ListDocs(props) {
                    props.setDocs(update_docs)
                    props.setSelectedFile(item);
                    setDoc(item);
+                   if(props.applyRights === true && item.rights){
+                     setRights(item.rights)
+                   }
                    setNewFileName(item.name);
                    setAnchorEl(event.currentTarget);
             }}
@@ -207,7 +211,9 @@ export default function ListDocs(props) {
         <MenuItem key={1} onClick={() => {
           setAnchorEl(null);
           props.showDoc(doc);
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.read === false) : false }
+        >
           <ListItemIcon>
             <VisibilityIcon fontSize="small" />
           </ListItemIcon>
@@ -216,7 +222,9 @@ export default function ListDocs(props) {
         <MenuItem key={2} onClick={() => {
           setAnchorEl(null);
           props.openShareFileModal();
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.share === false) : false }
+        >
           <ListItemIcon>
             <PersonAddIcon fontSize="small" />
           </ListItemIcon>
@@ -225,7 +233,9 @@ export default function ListDocs(props) {
         <MenuItem key={3} onClick={() => {
           setAnchorEl(null);
           props.onSignBtnClick(doc.id);
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.edit === false) : false }
+        >
           <ListItemIcon>
             <GestureIcon fontSize="small" />
           </ListItemIcon>
@@ -234,7 +244,9 @@ export default function ListDocs(props) {
         <MenuItem key={4} onClick={() => {
           setAnchorEl(null);
           setOpenRenameModal(true);
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.edit === false) : false }
+        >
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
@@ -254,7 +266,9 @@ export default function ListDocs(props) {
               console.log(fileRes.error);
             }
           }).catch(err => console.log(err));
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.read === false) : false }
+        >
           <ListItemIcon>
             <GetAppIcon fontSize="small" />
           </ListItemIcon>
@@ -264,6 +278,7 @@ export default function ListDocs(props) {
           setAnchorEl(null);
           setOpen(true);
         }} //disabled={localStorage.getItem("role") !== "admin"}
+                  disabled={props.applyRights === true && rights !== null ? (rights.administrate === false) : false }
         >
           <ListItemIcon>
             <DeleteOutlineIcon fontSize="small" />

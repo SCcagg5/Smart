@@ -137,7 +137,8 @@ const getTimeSuggestions = value => {
       ),
       files: drive[i].Content ? drive[i].Content.files || [] : [],
       folders: drive[i].Content ? drive[i].Content.folders || [] : [],
-      typeF: drive[i].type ? 'file' : 'folder'
+      typeF: drive[i].type ? 'file' : 'folder',
+      rights:drive[i].rights || undefined
     };
 
     if (drive[i].Content && (drive[i].Content.folders.length > 0)) {

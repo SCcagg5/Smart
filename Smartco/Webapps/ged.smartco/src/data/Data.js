@@ -279,10 +279,10 @@ let Data = {
     ],
 
     Acces: [
-        'Lire',
-        'Editer',
-        'Administrateur',
-        'Partager',
+        {label:"Lire",value:"read"},
+        {label:"Editer",value:"edit"},
+        {label:"Administrateur",value:"administrate"},
+        {label:"Partager",value:"share"}
     ],
 
     times: [

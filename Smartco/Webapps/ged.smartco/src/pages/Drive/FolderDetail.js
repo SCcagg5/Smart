@@ -26,6 +26,7 @@ export default class FolderDetail extends React.Component{
                     docs={this.props.selectedFolderFiles || []}
                     viewMode={this.props.viewMode}
                     onDocClick={(item) => {
+                      console.log(item)
                         this.props.onDocClick(item)
                     }}
                     showDoc={(doc) => this.props.showDoc(doc)}
@@ -44,6 +45,7 @@ export default class FolderDetail extends React.Component{
                     onDropFile={(node) => this.props.onDropFile(node)}
                     setDocs={(docs) => this.props.setDocs(docs)}
                     onDeleteFiles={(files) => this.props.onDeleteFiles(files)}
+                    applyRights={this.props.applyRights}
                 />
             </div>
         )
