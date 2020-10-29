@@ -74,7 +74,7 @@ export default function TopBar(props) {
                                         backgroundColor:utilFunctions.getCharColor(localStorage.getItem("email").charAt(0))}}>
                                         {localStorage.getItem("email").charAt(0).toUpperCase()}
                                     </Avatar>
-                                    <p>{localStorage.getItem("email")}</p>
+                                    <p>{localStorage.getItem("email")+" ("+localStorage.getItem("role")+")"}</p>
                                 </div>
                                 <ClickAwayListener onClickAway={handleClose}>
                                     <MenuList autoFocusItem={open} id="menu-list-grow" style={{marginTop:-15}}>

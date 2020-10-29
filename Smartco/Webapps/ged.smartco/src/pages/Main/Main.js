@@ -411,7 +411,6 @@ export default class Main extends React.Component {
           .then((gedRes) => {
             if (gedRes.succes === true && gedRes.status === 200) {
 
-              console.log(gedRes.data.Shared.Content.folders)
               let parentSharedFolder = [{
                 id:"parent",
                 name:"Partagés avec moi",
@@ -423,15 +422,12 @@ export default class Main extends React.Component {
               }]
               parentSharedFolder[0].Content.folders = gedRes.data.Shared.Content.folders || []
               sharedFolders = main_functions.changeStructure(parentSharedFolder)
-              console.log(sharedFolders)
-
 
               let client_folder = gedRes.data.Proprietary.Content.folders.find(
                 (x) => x.name === 'CLIENTS'
               );
               if (client_folder) {
                 localStorage.setItem('client_folder_id', client_folder.id);
-                console.log(client_folder.id);
               }
               let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
 
@@ -502,8 +498,11 @@ export default class Main extends React.Component {
                       });
                     } else {
                       console.log('ERROR FOLDER ID');
+                      this.props.history.push("/home/drive")
+                      this.componentDidMount();
                     }
-                  } else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
+                  }
+                  else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
                     this.setState({
                       rootFiles: gedRes.data.Proprietary.Content.files || [],
                       rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -929,7 +928,6 @@ export default class Main extends React.Component {
     return list.map((node) => {
       if (node.key === key) {
         node.files = files;
-        console.log(node)
         return { ...node, children };
       } else if (node.children) {
         return { ...node, children: this.updateTreeData(node.children, key, children, files) };
@@ -966,7 +964,8 @@ export default class Main extends React.Component {
               ),
               files: [] ,
               folders: [] ,
-              typeF: sub_folders[i].type ? 'file' : 'folder'
+              typeF: sub_folders[i].type ? 'file' : 'folder',
+              rights:sub_folders[i].rights
             };
             childrens.push(treeNode)
           }
@@ -1011,6 +1010,7 @@ export default class Main extends React.Component {
   };
 
   deleteFile_Folder = (file) => {
+    console.log(file)
     this.setState({ loading: true });
     SmartService.deleteFile(file.key || file.id, localStorage.getItem('token'), localStorage.getItem('usrtoken'))
       .then((deleteRes) => {
@@ -1019,11 +1019,18 @@ export default class Main extends React.Component {
             this.reloadGed()
           }
           else {
-            this.setState({ selectedFolderId: '' });
-            this.props.history.push('/home/drive');
-            this.reloadGed();
+            if(file.title){
+              this.props.history.push('/home/shared/parent');
+              this.componentDidMount()
+            }else{
+              this.setState({ selectedFolderId: '' });
+              this.props.history.push('/home/drive');
+              this.reloadGed();
+            }
+
+
           }
-          this.openSnackbar('success', file.typeF === 'file' ? file.name + '.pdf est supprimé avec succès' : file.name + ' est supprimé avec succès');
+          this.openSnackbar('success', file.typeF === 'file' ? file.name || file.title + '.pdf est supprimé avec succès' : file.name || file.title + ' est supprimé avec succès');
         } else {
           this.openSnackbar('error', deleteRes.error);
         }
@@ -1047,6 +1054,8 @@ export default class Main extends React.Component {
           this.reloadGed();
           this.openSnackbar('success', file.type ? file.name + '.pdf a bien été renommé. Nouveau nom: ' + newName + '.pdf' : file.name + ' a bien été renommé. Nouveau nom: ' + newName);
         } else {
+          this.setState({ loading: false });
+          console.log(updateNameRes)
           this.openSnackbar('error', updateNameRes.error);
         }
       })
@@ -1218,13 +1227,13 @@ export default class Main extends React.Component {
     setTimeout(() => {
       SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(gedRes => {
         if (gedRes.succes === true && gedRes.status === 200) {
+
           if (this.props.location.pathname.indexOf('/home/drive/') > -1) {
 
             let folders = gedRes.data.Proprietary.Content.folders || [];
             let folder_id = this.props.location.pathname.replace('/home/drive/', '');
             let folder_name = main_functions.getFolderNameById(folder_id, folders);
 
-            console.log(folder_id,folder_name)
 
             this.setState({
               autoExpandParent:true,
@@ -1244,7 +1253,8 @@ export default class Main extends React.Component {
               loading: false
             });
             this.props.history.push('/home/drive/' + folder_id);
-          } else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
+          }
+          else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
             this.setState({
               rootFiles: gedRes.data.Proprietary.Content.files || [],
               rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -1253,7 +1263,31 @@ export default class Main extends React.Component {
               loading: false
             });
             this.props.history.push('/home/drive');
-          } else {
+          }
+          else if(this.props.location.pathname.indexOf('/home/shared') > -1){
+            let parentSharedFolder = [{
+              id:"parent",
+              name:"Partagés avec moi",
+              Content:{
+                files:[],
+                folders:[]
+              }
+            }]
+            parentSharedFolder[0].Content.folders = gedRes.data.Shared.Content.folders || []
+            let sharedFolders = main_functions.changeStructure(parentSharedFolder);
+            let sharedFiles = gedRes.data.Shared.Content.files;
+            this.setState({
+              sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+              sharedRootFiles: sharedFiles,
+              sharedFolders: sharedFolders,
+              selectedDriveSharedItem:['parent'],
+              expandedDriveSharedItems:[],
+              loading: false
+            })
+            this.props.history.push("/home/shared/parent")
+            this.componentDidMount()
+          }
+          else {
             this.setState({
               rootFiles: gedRes.data.Proprietary.Content.files || [],
               rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -1493,7 +1527,9 @@ export default class Main extends React.Component {
           setDriveFolders={(drive) => this.setState({ folders: drive })}
           selectedFolder={this.state.selectedFolder}
           setSelectedFolder={(folder) =>
-            this.setState({ selectedFolder: folder })
+          {
+            this.setState({ selectedFolder: folder,selectedFile:'' })
+          }
           }
           setFolderName={(name) =>
             this.setState({ selectedFoldername: name })
@@ -1504,6 +1540,16 @@ export default class Main extends React.Component {
               focusedItem: 'Drive',
               breadcrumbs: main_functions.getBreadcumpsPath(id, this.state.reelFolders),
               selectedFolderId: id,
+              showContainerSection: 'Drive'
+            });
+          }}
+          setSharedFolderId={(id) => {
+            this.props.history.push('/home/shared/' + id);
+            this.setState({
+              focusedItem: 'Drive',
+              breadcrumbs: "Mon drive / Partagés avec moi",
+              selectedFolderId: id,
+              selectedSharedFolderId: id,
               showContainerSection: 'Drive'
             });
           }}
@@ -1540,7 +1586,7 @@ export default class Main extends React.Component {
           setSharedFolderName={(name) =>
             this.setState({ selectedSharedFoldername: name })
           }
-          setSharedFolderId={(id) => {
+          /*setSharedFolderId={(id) => {
             this.props.history.push('/home/shared/' + id);
             this.setState({
               focusedItem: 'Drive',
@@ -1548,7 +1594,7 @@ export default class Main extends React.Component {
               selectedSharedFolderId: id,
               showContainerSection: 'Drive'
             });
-          }}
+          }}*/
           setSelectedSharedFolderFiles={(files) =>
             this.setState({ selectedSharedFolderFiles: files })
           }
@@ -2489,6 +2535,7 @@ export default class Main extends React.Component {
   }
 
   render() {
+    console.log(this.state.selectedFile)
     var searchFilter = this.state.annuaire_clients_mondat.filter((soc) => (soc.Nom + ' ' + soc.Prenom).toLowerCase().startsWith(this.state.searchSociete.toLowerCase()));
     var searchFilterLignesfacture = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
     const inputSuggProps = {
@@ -2711,12 +2758,13 @@ export default class Main extends React.Component {
                                           <ListDocs
                                             docs={this.state.rootFiles || []}
                                             viewMode={this.state.viewMode}
-                                            onDocClick={(item) =>
-                                              this.setState({
+                                            onDocClick={(item) => {
+                                              this.openPdfModal(item.id || item.key)
+                                              /*this.setState({
                                                 selectedDoc: item,
                                                 openRightMenu: true
-                                              })
-                                            }
+                                              })*/
+                                            }}
                                             showDoc={(doc) =>
                                               this.openPdfModal(doc.id)
                                             }
@@ -2749,6 +2797,7 @@ export default class Main extends React.Component {
                                             }}
                                             setDocs={(docs) => this.setState({rootFiles:docs})}
                                             onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
+                                            applyRights={false}
                                           />
                                         </div>
                                       )}
@@ -2841,10 +2890,7 @@ export default class Main extends React.Component {
                                 });
                               }}
                               onDocClick={(doc) => {
-                                this.setState({
-                                  selectedDoc: doc,
-                                  openRightMenu: true
-                                });
+                                this.openPdfModal(doc.id || doc.key)
                               }}
                               showDoc={(doc) => this.openPdfModal(doc.id)}
                               setLoading={(b) => this.setState({ loading: b })}
@@ -2868,6 +2914,7 @@ export default class Main extends React.Component {
                               }}
                               setDocs={(docs) => this.setState({rootFiles:docs})}
                               onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
+                              applyRights={false}
                             />
                           </div>
                         )}
@@ -2986,10 +3033,7 @@ export default class Main extends React.Component {
                                         docs={this.state.sharedRootFiles || []}
                                         viewMode={this.state.viewMode}
                                         onDocClick={(item) =>
-                                          this.setState({
-                                            selectedDoc: item,
-                                            openRightMenu: true
-                                          })
+                                          this.openPdfModal(item.id || item.key)
                                         }
                                         showDoc={(doc) =>
                                           this.openPdfModal(doc.id)
@@ -3023,6 +3067,7 @@ export default class Main extends React.Component {
                                         }}
                                         setDocs={(docs) => {}}
                                         onDeleteFiles={(files) => {}}
+                                        applyRights={true}
                                       />
                                     </div>
                                   )}
@@ -3114,10 +3159,7 @@ export default class Main extends React.Component {
                                 });*/
                               }}
                               onDocClick={(doc) => {
-                                this.setState({
-                                  selectedDoc: doc,
-                                  openRightMenu: true
-                                });
+                                this.openPdfModal(doc.id || doc.key)
                               }}
                               showDoc={(doc) => this.openPdfModal(doc.id)}
                               setLoading={(b) => this.setState({ loading: b })}
@@ -3136,6 +3178,8 @@ export default class Main extends React.Component {
                               onSignBtnClick={(id) => {
                                 this.props.history.push('/signDoc/doc/' + id);
                               }}
+                              setDocs={(docs) => {}}
+                              applyRights={true}
                             />
                           </div>
                         )}
@@ -5207,10 +5251,8 @@ export default class Main extends React.Component {
                       localStorage.getItem('usrtoken')
                     )
                       .then((addfolderRes) => {
-                        if (
-                          addfolderRes.succes === true &&
-                          addfolderRes.status === 200
-                        ) {
+                        if (addfolderRes.succes === true && addfolderRes.status === 200) {
+                          this.openSnackbar("success","Nouveau dossier ajouté avec succès")
                           this.reloadGed();
                           setTimeout(() => {
                             this.setState({
@@ -5219,6 +5261,7 @@ export default class Main extends React.Component {
                             });
                           }, 500);
                         } else {
+                          this.openSnackbar("error",addfolderRes.error)
                           console.log(addfolderRes.error);
                         }
                       })
@@ -5383,7 +5426,7 @@ export default class Main extends React.Component {
                     id="checkboxes-tags-demo"
                     options={data.Acces}
                     disableCloseOnSelect
-                    getOptionLabel={(option) => option}
+                    getOptionLabel={(option) => option.label}
                     renderOption={(option, { selected }) => (
                       <React.Fragment>
                         <MuiCheckbox
@@ -5392,7 +5435,7 @@ export default class Main extends React.Component {
                           style={{ marginRight: 8 }}
                           checked={selected}
                         />
-                        {option}
+                        {option.label}
                       </React.Fragment>
                     )}
                     style={{
@@ -5403,6 +5446,10 @@ export default class Main extends React.Component {
                     renderInput={(params) => (
                       <TextField {...params} variant="outlined" placeholder="" />
                     )}
+                    onChange={(event, values) => {
+                      console.log(values)
+                      this.setState({shareRights:values})
+                    }}
                   />
                 </div>
                 <div className="col-md-12" style={{ marginTop: 20 }}>
@@ -5440,7 +5487,7 @@ export default class Main extends React.Component {
                 <div className="col-md-12" style={{ marginTop: 15 }}>
                   <Chip
                     icon={
-                      this.state.selectedFile === '' ? (
+                      this.state.selectedFile  === '' ? (
                         <FolderIcon />
                       ) : (
                         <PictureAsPdfIcon
@@ -5475,10 +5522,11 @@ export default class Main extends React.Component {
               <MuiButton
                 disabled={
                   (this.state.checkedNotif === true && this.state.msgNotif === '') ||
-                  this.state.emailsDriveShare.length === 0
+                  this.state.emailsDriveShare.length === 0 || this.state.shareRights.length === 0
                 }
                 onClick={() => {
                   this.setState({ loading: true, openShareDocModal: false });
+                  let rights = this.state.shareRights || [];
                   SmartService.share(
                     this.state.selectedFile === ''
                       ? this.state.selectedFolderId
@@ -5486,20 +5534,25 @@ export default class Main extends React.Component {
                     {
                       to: this.state.emailsDriveShare[0].email,
                       access: {
-                        administrate: true,
-                        share: true,
-                        edit: false,
-                        read: true
+                        administrate: rights.find(x => x.value === "administrate") !== undefined ,
+                        share: rights.find(x => x.value === "share") !== undefined,
+                        edit:  rights.find(x => x.value === "edit") !== undefined,
+                        read: rights.find(x => x.value === "read") !== undefined
                       }
                     },
                     localStorage.getItem('token'),
                     localStorage.getItem('usrtoken')
                   )
                     .then((share) => {
+                      console.log(share)
                       if (share.succes === true && share.status === 200) {
                         this.setState({
                           loading: false,
-                          openShareDocModal: false
+                          openShareDocModal: false,
+                          selectedFile:"",
+                          shareRights:[],
+                          emailsDriveShare:[],
+                          checkedNotif:false
                         });
                         this.openSnackbar(
                           'success',
@@ -5753,6 +5806,7 @@ export default class Main extends React.Component {
                           if(acceptedFiles[i].type === "application/pdf"){
                             let formData = new FormData();
                             formData.append('file', acceptedFiles[i]);
+                            console.log(this.state.selectedFolderId)
                             this.state.selectedFolderId !== '' &&
                             formData.append(
                               'folder_id',
@@ -5769,11 +5823,12 @@ export default class Main extends React.Component {
                                 onUploadProgress: (p) => {
                                   this.setState({ progressUpload: (p.loaded / p.total) * 100 });
                                 }
-                              })
+                              }).then( res => {})
                             );
                           }
                         }
                         Promise.all(calls).then( response => {
+                          console.log(response)
                           this.setState({
                             openNewDocModal: false,
                             newFileFromRacine: false,
@@ -5781,6 +5836,7 @@ export default class Main extends React.Component {
                             progressUpload: undefined
                           });
                           this.openSnackbar('success', calls.length === 1 ? calls.length + ' fichier est ajouté avec succès' : calls.length +" fichiers sont ajoutés avec succès");
+
                           this.reloadGed();
                         }).catch(err => {
                           console.log(err);
