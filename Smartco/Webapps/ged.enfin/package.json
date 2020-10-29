@@ -13,7 +13,7 @@
     "availity-reactstrap-validation": "^2.5.1",
     "axios": "^0.19.2",
     "baseui": "^9.78.0",
-    "bootstrap": "^4.2.1",
+    "bootstrap": "^4.5.3",
     "chart.js": "^2.9.3",
     "classnames": "^2.2.6",
     "dom-to-image": "^2.6.0",
@@ -33,6 +33,7 @@
     "react-autosuggest": "^10.0.2",
     "react-beautiful-dnd": "^13.0.0",
     "react-big-calendar": "^0.23.0",
+    "react-bootstrap": "^1.4.0",
     "react-chartjs-2": "^2.10.0",
     "react-chat-elements": "^10.10.2",
     "react-chat-widget": "^2.1.5",
@@ -77,8 +78,8 @@
     "timeago.js": "^4.0.0-beta.2"
   },
   "scripts": {
-    "start": "GENERATE_SOURCEMAP=false react-scripts start",
-    "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

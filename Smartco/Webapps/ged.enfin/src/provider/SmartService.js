@@ -214,7 +214,7 @@ let SmartService = {
     },
 
     create_facture_odoo(token,usrtoken,data){
-        return fetch(endpoint + '/odoo/'+odooId+'/bill', {
+        return fetch(endpoint + '/odoo/test/bill', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),

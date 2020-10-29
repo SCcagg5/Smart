@@ -79,6 +79,7 @@ import TableTimeSheet from '../../components/Tables/TableTimeSheet';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import main_functions from '../../controller/main_functions';
 import DescriptionIcon from '@material-ui/icons/Description';
+import Facturation from "../Facturation/Facturation"
 
 export default class Main extends React.Component {
 
@@ -3711,6 +3712,7 @@ export default class Main extends React.Component {
                                     <Tabs> <TabList>
                                       <Tab>Informations générales</Tab>
                                       <Tab>Ouverture mandat</Tab>
+                                      <Tab>Facturation</Tab>
                                     </TabList>
                                       <TabPanel>
                                         <h5 style={{ marginTop: 20 }}>Informations générales</h5>
@@ -4184,6 +4186,11 @@ export default class Main extends React.Component {
                                             className="btn btn-blue waves-effect mb-2 waves-light m-1">
                                             <i className="fe-folder-plus" />&nbsp;&nbsp;Créer Dossier Client
                                           </button>
+                                        </div>
+                                      </TabPanel>
+                                      <TabPanel>
+                                        <div style={{height:500}}>
+                                          <Facturation fullname={this.state.selectedSociete.name} email={this.state.selectedSociete.email}/>
                                         </div>
                                       </TabPanel>
                                     </Tabs>
