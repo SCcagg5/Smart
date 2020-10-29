@@ -25,7 +25,6 @@ def myauth(cn, nextc):
         return cn.toret.add_error(err[1], err[2])
     cn.hd = err[1]
     err = auth.verify(cn.hd["token"])
-    print(err)
     return cn.call_next(nextc, err)
 
 def mas_getauth(cn, nextc):
@@ -57,9 +56,26 @@ def mas_auth_user(cn, nextc):
     err = master.verify(cn.hd["token"], cn.pr["pass"])
     return cn.call_next(nextc, err)
 
+def service_check(cn, nextc):
+    ged_id = cn.rt["service"] if "service" in cn.rt else None
+    cn.private["ged"] = ged(usr_id=cn.private["user"].id, ged_id=ged_id)
+    err = cn.private["ged"].check_exist()
+    return cn.call_next(nextc, err)
+
+def gettuserbyemail(cn, nextc):
+    email = cn.rt["email"] if "email" in cn.rt else None
+    err = [True, {"id": user.fromemail(email)}, None]
+    return cn.call_next(nextc, err)
+
+def gettuserbyid(cn, nextc):
+    id = cn.rt["id"] if "id" in cn.rt else None
+    err = user(id).fromemail()
+    return cn.call_next(nextc, err)
+
 def check_user_service(cn, nextc):
     err=[True, None, None]
     return cn.call_next(nextc, err)
+
 def add_user_service(cn, nextc):
     err=[True, None, None]
     return cn.call_next(nextc, err)

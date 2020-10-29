@@ -38,7 +38,7 @@ class user:
             return [False, "Signature expired", 403]
         except:
             return  [False, "Invalid usrtoken", 400]
-        return [True, {}, None]
+        return [True, {"usr_id": id}, None]
 
     def register(self, email, pass1, pass2, role = 0):
         if pass1 != pass2:
