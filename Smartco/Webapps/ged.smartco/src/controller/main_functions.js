@@ -138,15 +138,16 @@ const getTimeSuggestions = value => {
       files: drive[i].Content ? drive[i].Content.files || [] : [],
       folders: drive[i].Content ? drive[i].Content.folders || [] : [],
       typeF: drive[i].type ? 'file' : 'folder',
-      rights:drive[i].rights || undefined
+      rights:drive[i].rights || undefined,
+      proprietary:drive[i].proprietary || undefined
     };
 
     if (drive[i].Content && (drive[i].Content.folders.length > 0)) {
       treeNode.children = changeStructure(drive[i].Content.folders);
     }
-    if (drive[i].Content && (drive[i].Content.files.length > 0)) {
+    /*if (drive[i].Content && (drive[i].Content.files.length > 0)) {
       treeNode.children = (treeNode.children || []).concat(changeStructure(drive[i].Content.files) || []);
-    }
+    }*/
 
     list.push(treeNode);
   }

@@ -38,8 +38,6 @@ export default function ListDocs(props) {
 
   const selected_docs = props.docs.filter(x => x.selected && x.selected === true);
 
-
-
   return (
     <div
       onDragOver={e => {
@@ -189,7 +187,7 @@ export default function ListDocs(props) {
               </div>
               <div
                 style={{ width: 215 }}>
-                <h6 style={{ color: 'grey' }}>{item.proprietary || 'Moi'}</h6>
+                <h6 style={{ color: 'grey' }}>{item.proprietary  || 'Moi'}</h6>
               </div>
               <div
                 style={{ width: 200 }}>
@@ -197,7 +195,7 @@ export default function ListDocs(props) {
               </div>
               <div
                 style={{ width: 150 }}>
-                <h6 style={{ color: 'grey' }}>50 Ko</h6>
+                <h6 style={{ color: 'grey' }}>-- Ko</h6>
               </div>
             </div>
         )

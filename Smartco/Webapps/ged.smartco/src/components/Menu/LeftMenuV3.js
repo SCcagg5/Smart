@@ -234,9 +234,6 @@ export default function LeftMenuV3(props) {
         });
 
 
-
-
-
     return (
 
         <div style={{marginTop: 20, paddingRight: 10}}>
@@ -354,7 +351,7 @@ export default function LeftMenuV3(props) {
                           treeData={props.sharedFolders}
                           expandAction="click"
                           onRightClick={info => {
-                              console.log(info.node)
+
                               if (info.node.typeF === "folder" && info.node.key !== "parent") {
                                   let rights = info.node.rights || [];
                                   setRights(rights);
@@ -368,9 +365,6 @@ export default function LeftMenuV3(props) {
                           expandedKeys={props.expandedDriveSharedItems}
                           selectedKeys={props.selectedDriveSharedItem}
                           autoExpandParent={props.autoExpandSharedParent}
-                          onLoad={(loadedKeys, {event, node}) => {
-
-                          }}
                         />
                     </div>
 

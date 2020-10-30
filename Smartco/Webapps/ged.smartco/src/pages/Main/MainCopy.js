@@ -510,7 +510,7 @@ export default class MainCopy extends React.Component {
               );
               if (client_folder) {
                 localStorage.setItem('client_folder_id', client_folder.id);
-                console.log(client_folder.id);
+
               }
               let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
 

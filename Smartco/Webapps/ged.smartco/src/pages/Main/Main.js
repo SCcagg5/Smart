@@ -877,7 +877,7 @@ export default class Main extends React.Component {
                   } else if (this.props.location.pathname.indexOf('/home/search/') > -1) {
                     let textToSearch = this.props.location.pathname.replace('/home/search/', '');
                     SmartService.search(textToSearch, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(searchRes => {
-                      console.log(searchRes);
+
                       if (searchRes.succes === true && searchRes.status === 200) {
                         this.setState({
                           searchResult: searchRes.data,
@@ -965,7 +965,8 @@ export default class Main extends React.Component {
               files: [] ,
               folders: [] ,
               typeF: sub_folders[i].type ? 'file' : 'folder',
-              rights:sub_folders[i].rights
+              rights:sub_folders[i].rights,
+              proprietary:sub_folders[i].proprietary || undefined
             };
             childrens.push(treeNode)
           }
@@ -981,6 +982,43 @@ export default class Main extends React.Component {
           console.log(err)})
 
     });
+  }
+
+  updateShared = (key, origin) => {
+    SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+      let sub_folders = Res.data.Content.folders || [];
+      let sub_files = Res.data.Content.files || [];
+      let childrens = [];
+      for(let i =0 ; i < sub_folders.length ; i++){
+        let treeNode = {
+          title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
+          key:sub_folders[i].id,
+          icon: sub_folders[i].type ? (
+            <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+          ) : (
+            ({ selected }) =>
+              selected ? (
+                <FolderIcon style={{ color: '#1a73e8' }} />
+              ) : (
+                <FolderIcon style={{ color: 'grey' }} />
+              )
+          ),
+          files: [] ,
+          folders: [] ,
+          typeF: sub_folders[i].type ? 'file' : 'folder',
+          rights:sub_folders[i].rights,
+          proprietary:sub_folders[i].proprietary || undefined
+        };
+        childrens.push(treeNode)
+      }
+      this.setState({
+        selectedSharedFolderFolders:Res.data.Content.folders,
+        selectedSharedFolderFiles:Res.data.Content.files
+      })
+      let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
+      this.setState({sharedFolders:update,loading:false})
+    }).catch(err => {
+      console.log(err)})
   }
 
 
@@ -1010,7 +1048,7 @@ export default class Main extends React.Component {
   };
 
   deleteFile_Folder = (file) => {
-    console.log(file)
+
     this.setState({ loading: true });
     SmartService.deleteFile(file.key || file.id, localStorage.getItem('token'), localStorage.getItem('usrtoken'))
       .then((deleteRes) => {
@@ -1055,7 +1093,7 @@ export default class Main extends React.Component {
           this.openSnackbar('success', file.type ? file.name + '.pdf a bien été renommé. Nouveau nom: ' + newName + '.pdf' : file.name + ' a bien été renommé. Nouveau nom: ' + newName);
         } else {
           this.setState({ loading: false });
-          console.log(updateNameRes)
+
           this.openSnackbar('error', updateNameRes.error);
         }
       })
@@ -1264,7 +1302,7 @@ export default class Main extends React.Component {
             });
             this.props.history.push('/home/drive');
           }
-          else if(this.props.location.pathname.indexOf('/home/shared') > -1){
+          else if(this.props.location.pathname.indexOf('/home/shared/parent') > -1){
             let parentSharedFolder = [{
               id:"parent",
               name:"Partagés avec moi",
@@ -1284,8 +1322,11 @@ export default class Main extends React.Component {
               expandedDriveSharedItems:[],
               loading: false
             })
-            this.props.history.push("/home/shared/parent")
             this.componentDidMount()
+          }
+          else if(this.props.location.pathname.indexOf('/home/shared/') > -1){
+            let key = this.props.location.pathname.replace('/home/shared/', '');
+            this.updateShared(key,this.state.sharedFolders);
           }
           else {
             this.setState({
@@ -2760,10 +2801,6 @@ export default class Main extends React.Component {
                                             viewMode={this.state.viewMode}
                                             onDocClick={(item) => {
                                               this.openPdfModal(item.id || item.key)
-                                              /*this.setState({
-                                                selectedDoc: item,
-                                                openRightMenu: true
-                                              })*/
                                             }}
                                             showDoc={(doc) =>
                                               this.openPdfModal(doc.id)
@@ -2798,6 +2835,7 @@ export default class Main extends React.Component {
                                             setDocs={(docs) => this.setState({rootFiles:docs})}
                                             onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
                                             applyRights={false}
+                                            selectedSharedFolder={this.state.selectedSharedFolder}
                                           />
                                         </div>
                                       )}
@@ -2915,6 +2953,7 @@ export default class Main extends React.Component {
                               setDocs={(docs) => this.setState({rootFiles:docs})}
                               onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
                               applyRights={false}
+                              selectedSharedFolder={this.state.selectedSharedFolder}
                             />
                           </div>
                         )}
@@ -3068,6 +3107,7 @@ export default class Main extends React.Component {
                                         setDocs={(docs) => {}}
                                         onDeleteFiles={(files) => {}}
                                         applyRights={true}
+                                        selectedSharedFolder={this.state.selectedSharedFolder}
                                       />
                                     </div>
                                   )}
@@ -3143,21 +3183,7 @@ export default class Main extends React.Component {
                               }
                               selectedFolderFiles={this.state.selectedSharedFolderFiles}
                               viewMode={this.state.viewMode}
-                              onDoubleClickFolder={(folder) => {
-                                /*this.setState({
-                                  selectedDriveSharedItem: [folder.id],
-                                  expandedDriveSharedItems: [folder.id],
-                                  selectedSharedFolder: main_functions.getFolderById(folder.id, this.state.sharedFolders),
-                                  autoExpandSharedParent: true,
-                                  selectedSharedFoldername: folder.name,
-                                  selectedSharedFolderFiles: folder.Content.files || [],
-                                  selectedSharedFolderFolders: folder.Content.folders || [],
-                                  focusedItem: 'Drive',
-                                  breadcrumbs: 'Mon drive / Partagés avec moi',
-                                  selectedSharedFolderId: folder.id,
-                                  showContainerSection: 'Drive'
-                                });*/
-                              }}
+                              onDoubleClickFolder={(folder) => {}}
                               onDocClick={(doc) => {
                                 this.openPdfModal(doc.id || doc.key)
                               }}
@@ -3180,6 +3206,7 @@ export default class Main extends React.Component {
                               }}
                               setDocs={(docs) => {}}
                               applyRights={true}
+                              selectedSharedFolder={this.state.selectedSharedFolder}
                             />
                           </div>
                         )}
