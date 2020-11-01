@@ -30,8 +30,6 @@ import ContactsMenuItems from "./ContactsMenuItems";
 import '../../assets/css/antDesign.css';
 import {Input, Tree} from 'antd';
 import TimeSheetMenuItems from "./TimeSheetMenuItems";
-import LockOpenIcon from '@material-ui/icons/LockOpen';
-import LockIcon from '@material-ui/icons/Lock';
 
 const {DirectoryTree} = Tree;
 const {Search} = Input;

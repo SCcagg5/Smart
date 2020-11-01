@@ -142,19 +142,20 @@ export default function TableTimeSheet(props) {
     const [facture_date, setFacture_date] = React.useState(new Date());
     const [check_all, setCheck_all] = React.useState(false);
     const [client_folder, setClient_folder] = React.useState("");
+    const [x_update, setX_update] = React.useState(false);
 
 
 
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
-    const searchFilter= props.lignesFactures.filter((lf) => ( (lf.newTime.client).toLowerCase().indexOf(lf_client_search.toLowerCase()) !== -1 &&
+    const searchFilter= props.lignesFactures.filter((lf) => ( (lf.newTime.client.trim() === lf_client_search.trim() ) &&
       ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
       ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  )
     ))
 
 
-    const selected = searchFilter.filter((lf) => lf.checked === true);
+    const selected = searchFilter.filter((lf) => (lf.checked === true));
     let total = 0;
     let nb_heures = 0;
     selected.map((item,key) => {
@@ -196,13 +197,6 @@ export default function TableTimeSheet(props) {
             </div>
         )
     }
-
-
-    let isOneSelected = false;
-    searchFilter.map((item,key) => {
-        if(item.checked && item.checked === true) isOneSelected = true
-    })
-
 
     function renderSearchOption(props, option, snapshot, className) {
         const imgStyle = {
@@ -246,6 +240,9 @@ export default function TableTimeSheet(props) {
     let client_folders = props.client_folders || [];
     let selected_client = client_folders.Content.folders.find(x => x.name === lf_client_search)
     let selected_client_folders = selected_client ?  selected_client.Content.folders : [];
+
+    console.log(selected)
+    console.log(props.lignesFactures)
 
     return (
 
@@ -296,14 +293,18 @@ export default function TableTimeSheet(props) {
                       search
                       placeholder="Par client"
                       onChange={e => {
-                          console.log(e);
                           setLf_client_search(e)
+                          let ch_rows = props.lignesFactures;
+                          ch_rows.map((item,key) => {
+                              item.checked = false
+                          })
+                          props.setLignesFactures(ch_rows)
+                          setCheck_all(false)
                       }}
                     />
                 </div>
                 <div className="ml-3">
                     <IconButton title="Annuler le filtre" onClick={() => {
-                        //setLf_client_search("")
                         setLf_sdate_search(null)
                         setLf_edate_search(null)
                     }}>
@@ -321,17 +322,15 @@ export default function TableTimeSheet(props) {
                 <TableHead>
                     <TableRow style={{padding:10}}>
                         <TableCell align="left" style={{width:"5%"}}>
-                            {/*<Checkbox checked={check_all}
+                            <Checkbox checked={check_all}
                                       onChange={(event) => {
                                           setCheck_all(event.target.checked)
-                                          let ch_rows = searchFilter;
-                                          ch_rows.map((item,key) => {
-                                              item.checked = ! check_all
+                                          searchFilter.map((item,key) => {
+                                              searchFilter[key].checked = event.target.checked
                                           })
-                                          props.setLignesFactures(ch_rows)
-
+                                          //props.setLignesFactures(ch_rows)
                                       }}
-                            />*/}
+                            />
                         </TableCell>
                         <TableCell align="center" style={{width:"5%",fontWeight:600}}>Actions</TableCell>
                         <TableCell align="center" style={{width:"8%",fontWeight:600}}>Date</TableCell>
@@ -345,12 +344,13 @@ export default function TableTimeSheet(props) {
                 <TableBody>
                     {(rowsPerPage > 0 ? searchFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : searchFilter).reverse().map((row,key) => (
                         <TableRow key={key} style={{padding:10}}>
-                            <TableCell align="left"   style={{width:"5%"}}>
+                            <TableCell align="left"   style={{width:"5%",backgroundColor:searchFilter[key].checked && searchFilter[key].checked === true ? "rgba(220, 0, 78, 0.08)" : "transparent"}}>
                                 <div className="media align-items-center">
-                                        <Checkbox  checked={searchFilter[key].checked || false} onChange={(event) => {
-                                            let ch_rows = searchFilter;
-                                            ch_rows[key].checked = event.target.checked
-                                            props.setLignesFactures(ch_rows)
+                                        <Checkbox  checked={searchFilter[key].checked ? searchFilter[key].checked : false} onChange={(event) => {
+                                            setX_update(!x_update)
+                                            searchFilter[key].checked = event.target.checked
+                                            if(searchFilter[key].checked === false) setCheck_all(false)
+                                            //props.setLignesFactures(ch_rows)
 
                                         }}  />
                                 </div>
@@ -419,7 +419,7 @@ export default function TableTimeSheet(props) {
                 </TableFooter>
             </Table>
             {
-                isOneSelected === true &&
+                selected.length > 0 &&
                   <div>
                       <div>
                           <div className="row mt-1">

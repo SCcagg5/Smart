@@ -22,7 +22,6 @@ import CloudDownloadOutlinedIcon from '@material-ui/icons/CloudDownloadOutlined'
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import DateRangeOutlinedIcon from '@material-ui/icons/DateRangeOutlined';
-import CreateOutlinedIcon from '@material-ui/icons/CreateOutlined';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import defaultAvatar from '../../assets/images/users/default_avatar.jpg';
 import { Modal, ModalBody, ModalHeader } from 'reactstrap';
@@ -47,7 +46,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import SearchClientsContainer from '../../components/Search/SearchClientsContainer';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
-import swissImg from '../../assets/images/flags/swiss.svg';
 import ViewComfyIcon from '@material-ui/icons/ViewComfy';
 import ListIcon from '@material-ui/icons/List';
 import SearchResults from '../../components/Search/SearchResults';
@@ -244,6 +242,7 @@ export default class Main extends React.Component {
       }
     },
     lignesFactures: [],
+    lignesFacturesCopy: [],
     lignef_template: '0',
     TimeSheetData: [],
 
@@ -435,12 +434,12 @@ export default class Main extends React.Component {
               firebase.database().ref('/').on('value', (snapshot) => {
                   const data = snapshot.val() || [];
                   let contacts = data.contacts || [];
-                  let rooms = (data.rooms || []).filter(x => x.ged_id === "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9");
+                  let rooms = (data.rooms || []).filter(x => x.ged_id === ged_id);
                   let societes = data.societes || [];
                   let annuaire_clients_mondat = data.annuaire_client_mondat || [];
                   let lignes_f = data[ent_name+"-lignes_f-"+ged_id] || [];
                   //let clients_tempo = (data.clients_tempo || []).filter(x => x.email === localStorage.getItem('email'));
-                //let clients_tempo_copie = (data.clients_tempo || []);
+                  //let clients_tempo_copie = (data.clients_tempo || []);
                   let clients_tempo = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
                   let clients_tempo_copie = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
                   let facturesToValidated = data[ent_name+"-factures_to_Validated-"+ged_id] || []
@@ -452,6 +451,7 @@ export default class Main extends React.Component {
                     annuaire_clients_mondat: annuaire_clients_mondat,
                     rooms: rooms,
                     lignesFactures: lignes_f,
+                    lignesFacturesCopy: lignes_f,
                     clients_tempo: clients_tempo,
                     clients_tempo_copie: clients_tempo_copie,
                     facturesToValidated:facturesToValidated
@@ -1244,6 +1244,11 @@ export default class Main extends React.Component {
   justReloadGed = () => {
     SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(gedRes => {
       if (gedRes.succes === true && gedRes.status === 200) {
+        let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'CLIENTS');
+        if (client_folder) {
+          localStorage.setItem('client_folder_id', client_folder.id);
+          this.setState({client_folders:client_folder})
+        }
         this.setState({
           rootFiles: gedRes.data.Proprietary.Content.files || [],
           rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -1264,6 +1269,12 @@ export default class Main extends React.Component {
     setTimeout(() => {
       SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(gedRes => {
         if (gedRes.succes === true && gedRes.status === 200) {
+
+          let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'CLIENTS');
+          if (client_folder) {
+            localStorage.setItem('client_folder_id', client_folder.id);
+            this.setState({client_folders:client_folder})
+          }
 
           if (this.props.location.pathname.indexOf('/home/drive/') > -1) {
 
@@ -2651,9 +2662,7 @@ export default class Main extends React.Component {
   }
 
   render() {
-    console.log(this.state.selectedFile)
-    var searchFilter = this.state.annuaire_clients_mondat.filter((soc) => (soc.Nom + ' ' + soc.Prenom).toLowerCase().startsWith(this.state.searchSociete.toLowerCase()));
-    var searchFilterLignesfacture = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
+
     const inputSuggProps = {
       placeholder: '0:1, 0:15, 0:30...',
       value: this.state.TimeSheet.newTime.duree,
@@ -4485,6 +4494,36 @@ export default class Main extends React.Component {
                                                     <h5>Nom du client</h5>
                                                     <div
                                                       style={{ display: 'flex' }}>
+                                                      {/*<Dropdown
+                                                        button
+                                                        className='icon'
+                                                        //selection
+                                                        floating
+                                                        labeled
+                                                        icon='user'
+                                                        options={this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl },key) =>
+                                                          ({
+                                                            key:key,
+                                                            value: Nom + ' ' + (Prenom || ''),
+                                                            text: Nom + ' ' + (Prenom || ''),
+                                                            //image: { avatar: true, src: Type === "0" ? entIcon : userAvatar },
+                                                          }))}
+                                                        search
+                                                        placeholder='Chercher votre client'
+                                                        value={this.state.selectedClientTimeEntree}
+                                                        onChange={(e,{value}) => {
+
+                                                          let obj = this.state.TimeSheet;
+                                                          obj.newTime.client = value;
+                                                          let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => (x.Nom + ' ' + x.Prenom) === value);
+                                                          let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
+                                                          this.setState({
+                                                            partnerFacture: partner_email,
+                                                            selectedClientTimeEntree: value,
+                                                            TimeSheet: obj
+                                                          });
+                                                        }}
+                                                      />*/}
                                                       <SelectSearch
                                                         options={
                                                           this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
@@ -4500,8 +4539,8 @@ export default class Main extends React.Component {
                                                         renderOption={main_functions.renderSearchOption}
                                                         search
                                                         placeholder="Chercher votre client"
-                                                        onChange={e => {
-                                                          //console.log(e)
+                                                        onChange={ e => {
+                                                          console.log(e)
                                                           let obj = this.state.TimeSheet;
                                                           obj.newTime.client = e;
                                                           let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => (x.Nom + ' ' + x.Prenom) === e);
@@ -4690,12 +4729,13 @@ export default class Main extends React.Component {
                                                         let lignes_fact = this.state.lignesFactures || [];
 
                                                         SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
-                                                          console.log(newCompRes)
+
                                                           obj.newTime.company_id = newCompRes.data.id;
                                                           obj.newTime.date = moment(this.state.TimeSheet.newTime.data).format('YYYY-MM-DD');
                                                           obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
                                                           obj.user_email = localStorage.getItem('email');
                                                           obj.template = this.state.lignef_template;
+                                                          obj.newTime.client = this.state.selectedClientTimeEntree;
                                                           lignes_fact.push(obj);
 
                                                           this.setState({
@@ -4703,7 +4743,7 @@ export default class Main extends React.Component {
                                                             TimeSheet: {
                                                               newTime: {
                                                                 duree: '',
-                                                                client: obj.newTime.client,
+                                                                client: this.state.selectedClientTimeEntree,
                                                                 categoriesActivite: 'Temps facturé',
                                                                 description: '',
                                                                 date: new Date(),
@@ -4848,10 +4888,9 @@ export default class Main extends React.Component {
                                                   </div>
                                                 </div>
                                               </div>
-                                              {
+                                              {/*{
                                                 searchFilterLignesfacture.length > 0 ?
-                                                  <div
-                                                    className="mt-3">
+                                                  <div className="mt-3">
                                                     <div style={{
                                                       width: '100%',
                                                       backgroundColor: '#D2DDFE',
@@ -4972,7 +5011,7 @@ export default class Main extends React.Component {
                                                     <h5
                                                       style={{ color: '#f50' }}>Aucune ligne facture encore ajoutée pour ce client !</h5>
                                                   </div>
-                                              }
+                                              }*/}
                                             </div>
                                         }
                                       </TabPanel>
@@ -4981,6 +5020,7 @@ export default class Main extends React.Component {
                                           this.state.lignesFactures.length > 0 &&
                                           <TableTimeSheet
                                             lignesFactures={this.state.lignesFactures}
+                                            lignesFacturesCopy={this.state.lignesFacturesCopy}
                                             setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
                                             OA_contacts={this.state.contacts}
                                             annuaire_clients_mondat={this.state.annuaire_clients_mondat}
