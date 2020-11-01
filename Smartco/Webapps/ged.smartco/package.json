@@ -26,6 +26,7 @@
     "mgr-pdf-viewer-react": "^1.0.3",
     "moment": "^2.24.0",
     "node-sass": "^4.11.0",
+    "pdf-to-base64": "^1.0.3",
     "pdf-viewer-reactjs": "^1.0.5",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
@@ -92,7 +93,6 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "prettier": "2.1.2",
     "eslint": "^6.2.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-config-prettier": "^6.0.0",
@@ -101,6 +101,7 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "1.7.0",
-    "jest": "^24.9.0"
+    "jest": "^24.9.0",
+    "prettier": "2.1.2"
   }
 }

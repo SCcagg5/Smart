@@ -1,7 +1,8 @@
 const endpoint = "https://api.smartdom.ch"
 const password = "password"
 const OALegalGedId = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
-const odoo_id = "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
+//const odoo_id = "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
+const odoo_id = "test"
 const contractAdr = "0x9520c239bae78a4a672a70370d85051fcd8dd6c9"
 
 let SmartService = {
@@ -119,6 +120,15 @@ let SmartService = {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:data,
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+    addFileFromBas64(data,token,usrtoken){
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/doc/addb64file', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
         }).then(response => response.json()).catch(error => {
             console.log(error);
         });

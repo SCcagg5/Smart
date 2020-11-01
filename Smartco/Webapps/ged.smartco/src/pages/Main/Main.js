@@ -79,8 +79,10 @@ import TableTimeSheet from '../../components/Tables/TableTimeSheet';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import main_functions from '../../controller/main_functions';
 import DescriptionIcon from '@material-ui/icons/Description';
+import TableFactures from '../../components/Tables/TableFactures';
 
-const ged_id = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
+const ged_id = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9";
+const ent_name = "OaLegal";
 
 export default class Main extends React.Component {
 
@@ -423,11 +425,10 @@ export default class Main extends React.Component {
               parentSharedFolder[0].Content.folders = gedRes.data.Shared.Content.folders || []
               sharedFolders = main_functions.changeStructure(parentSharedFolder)
 
-              let client_folder = gedRes.data.Proprietary.Content.folders.find(
-                (x) => x.name === 'CLIENTS'
-              );
+              let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'CLIENTS');
               if (client_folder) {
                 localStorage.setItem('client_folder_id', client_folder.id);
+                this.setState({client_folders:client_folder})
               }
               let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
 
@@ -437,9 +438,13 @@ export default class Main extends React.Component {
                   let rooms = (data.rooms || []).filter(x => x.ged_id === "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9");
                   let societes = data.societes || [];
                   let annuaire_clients_mondat = data.annuaire_client_mondat || [];
-                  let lignes_f = data.lignes_factures || [];
-                  let clients_tempo = (data.clients_tempo || []).filter(x => x.email === localStorage.getItem('email'));
-                  let clients_tempo_copie = (data.clients_tempo || []);
+                  let lignes_f = data[ent_name+"-lignes_f-"+ged_id] || [];
+                  //let clients_tempo = (data.clients_tempo || []).filter(x => x.email === localStorage.getItem('email'));
+                //let clients_tempo_copie = (data.clients_tempo || []);
+                  let clients_tempo = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
+                  let clients_tempo_copie = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
+                  let facturesToValidated = data[ent_name+"-factures_to_Validated-"+ged_id] || []
+
 
                   this.setState({
                     contacts: contacts,
@@ -448,7 +453,8 @@ export default class Main extends React.Component {
                     rooms: rooms,
                     lignesFactures: lignes_f,
                     clients_tempo: clients_tempo,
-                    clients_tempo_copie: clients_tempo_copie
+                    clients_tempo_copie: clients_tempo_copie,
+                    facturesToValidated:facturesToValidated
                   });
 
                   let connected_email = localStorage.getItem("email");
@@ -1057,18 +1063,11 @@ export default class Main extends React.Component {
             this.reloadGed()
           }
           else {
-            if(file.title){
-              this.props.history.push('/home/shared/parent');
-              this.componentDidMount()
-            }else{
               this.setState({ selectedFolderId: '' });
               this.props.history.push('/home/drive');
               this.reloadGed();
-            }
-
-
           }
-          this.openSnackbar('success', file.typeF === 'file' ? file.name || file.title + '.pdf est supprimé avec succès' : file.name || file.title + ' est supprimé avec succès');
+          this.openSnackbar('success', file.typeF === 'file' ? (file.name || file.title) + '.pdf est supprimé avec succès' : (file.name || file.title) + ' est supprimé avec succès');
         } else {
           this.openSnackbar('error', deleteRes.error);
         }
@@ -1745,6 +1744,40 @@ export default class Main extends React.Component {
     firebase.database().ref('/TimeSheet').set(this.state.TimeSheetData);
   }
 
+  addFactureToValidated(client,client_folder,date,createdBy,partnerEmail,lignes_facture){
+    this.setState({loading:true})
+    SmartService.getFile(client_folder,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( res => {
+      let lf_to_validated = this.state.facturesToValidated;
+      lf_to_validated.push({
+        created_at:date,
+        created_by:createdBy,
+        client:client,
+        partner:partnerEmail,
+        lignes_facture:lignes_facture,
+        statut:"wait",
+        client_folder:{
+          id:client_folder,
+          name:res.data.name
+        }
+      })
+
+      firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id).set(lf_to_validated).then( ok => {
+        this.setState({partnerFacture:"",loading:false})
+        this.openSnackbar("success","La facture est bien envoyé au partner pour validation")
+      })
+
+    }).catch( err => {
+      console.log(err)
+      this.setState({loading:false})
+    })
+
+  }
+
+  redirectToFolder(folder_id){
+    this.props.history.push("/home/drive/"+folder_id);
+    this.reloadGed()
+  }
+
   createFacture() {
     let lignes_factures = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
     let odoo_data = [{
@@ -1987,8 +2020,9 @@ export default class Main extends React.Component {
     });
   }
 
-  createFacture_ForSelected(facture_date,partner) {
-    let lignes_factures = this.state.lignesFactures.filter((lf) => lf.checked === true);
+  createFacture_ForSelected(facture_date,lignes_f,folder_id,facture,key) {
+    this.setState({loading:true})
+    let lignes_factures = lignes_f;
     let odoo_data = [{
       'access_token': 'eafd285777ggobfvxyvnx',
       'state': 'draft',
@@ -2165,7 +2199,6 @@ export default class Main extends React.Component {
       );
 
     });
-    //console.log(total)
     odoo_data[0].line_ids.push(
       [
         0,
@@ -2220,8 +2253,48 @@ export default class Main extends React.Component {
     );
 
     SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
-      //console.log(createFactRes)
-      window.open('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true', '_blank');
+      const pdf2base64 = require('pdf-to-base64');
+      pdf2base64('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf')
+        .then(
+          (response) => {
+            SmartService.getFile(folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+              if(resF.succes === true && resF.status === 200){
+                let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+
+                SmartService.addFileFromBas64({b64file:response,folder_id:comptaFolder.id},
+                  localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+                    console.log(ok)
+                  if(ok.succes === true && ok.status === 200){
+                    SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                      ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+                      if(updateRes.succes === true && updateRes.status === 200){
+                        firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id + "/"+key).update({
+                          statut:"accepted",
+                          file_id:ok.data.file_id
+                        });
+                        this.justReloadGed();
+                        this.setState({loading:false})
+                        this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+                        window.open('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true', '_blank');
+                      }else{
+                        this.openSnackbar("error",updateRes.error)
+                      }
+                    }).catch(err => {console.log(err)})
+
+                  }else{
+                    this.openSnackbar("error",ok.error)
+                    this.setState({loading:false})
+                  }
+                }).catch(err => console.log(err))
+              }else{
+                this.openSnackbar("error",resF.error)
+                this.setState({loading:false})
+              }
+            }).catch( err => {console.log(err)})
+          }).catch((error) => {
+            this.setState({loading:false})
+            console.log(error);
+          })
     }).catch(err => {
       console.log(err);
     });
@@ -2240,7 +2313,7 @@ export default class Main extends React.Component {
 
   updateLignes_facture(lignes_factures) {
     setTimeout(() => {
-      firebase.database().ref('/lignes_factures').set(lignes_factures);
+      firebase.database().ref('/'+ent_name+'-lignes_f-'+ged_id).set(lignes_factures);
     }, 300);
 
   }
@@ -2250,6 +2323,7 @@ export default class Main extends React.Component {
     let clients_tmp = this.state.clients_tempo;
     let clients_tmp_copie = this.state.clients_tempo_copie;
     let find = clients_tmp.find(x => x.ID === ID);
+    console.log(find)
     if (find) {
       SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
         client_id: find.client_id,
@@ -2258,6 +2332,7 @@ export default class Main extends React.Component {
         client_folder: find.folder_id,
         team: team
       }).then(addFolderClient => {
+        console.log(addFolderClient)
         SmartService.addFolder({
           name: 'MÉMOIRE',
           folder_id: addFolderClient.data.folder_id
@@ -2466,7 +2541,7 @@ export default class Main extends React.Component {
               folder_id: addParentClientFolderRes.data.id, ID: ID,
               email: localStorage.getItem('email'), client_id: createClientRes.data.id
             });
-            firebase.database().ref('/clients_tempo').set(clients_tmp_copie).then(ok => {
+            firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id).set(clients_tmp_copie).then( ok => {
               setTimeout(() => {
                 this.setState({
                   loading: false,
@@ -4275,24 +4350,24 @@ export default class Main extends React.Component {
                           <div>
                             <div className="row">
                               <div className="col-lg-12">
-
-                                <div className="card-box text-center"
-                                     style={{ marginTop: 1 }}>
-                                  <div style={{ marginTop: 30 }}
-                                       className="text-left">
+                                <h5 className="mt-0 mb-1">TimeSheet / Activités</h5>
+                                <div className="card-box text-center" style={{ marginTop: 1 }}>
+                                  <div style={{ marginTop: 30 }} className="text-left">
                                     <Tabs selectedIndex={this.state.selectedTimeSheetIndex} onSelect={index => {
                                       this.setState({selectedTimeSheetIndex:index})
                                     }}>
                                       <TabList>
                                         <Tab>Time Sheet</Tab>
-                                        <Tab>Activités </Tab> {
+                                        <Tab>Activités </Tab>
+                                        <Tab>Partner </Tab>
+                                        {/*{
                                         localStorage.getItem('role') === 'admin' &&
                                         [
                                           <Tab key={0}>Recherche Clients </Tab>,
                                           <Tab key={1}>Imputation team & scheduled time </Tab>,
                                           <Tab key={2}>New Expenses </Tab>
                                         ]
-                                      }
+                                        }*/}
                                       </TabList>
                                       <TabPanel>
                                         {
@@ -4615,6 +4690,7 @@ export default class Main extends React.Component {
                                                         let lignes_fact = this.state.lignesFactures || [];
 
                                                         SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
+                                                          console.log(newCompRes)
                                                           obj.newTime.company_id = newCompRes.data.id;
                                                           obj.newTime.date = moment(this.state.TimeSheet.newTime.data).format('YYYY-MM-DD');
                                                           obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -4648,7 +4724,7 @@ export default class Main extends React.Component {
 
                                                     }}
                                                     appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.TimeSheet.newTime.client === ''}
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === ''}
                                                     style={{ margin: 20 }}> Enregistrer </AtlButton>
                                                   <AtlButton
                                                     appearance=""
@@ -4886,7 +4962,7 @@ export default class Main extends React.Component {
                                                       <AtlButton
                                                         appearance="primary"
                                                         onClick={() => {
-                                                          this.createFacture();
+                                                          //this.createFacture();
                                                         }}> ETABLIR FACTURE</AtlButton>
                                                     </div>
                                                   </div> :
@@ -4908,9 +4984,11 @@ export default class Main extends React.Component {
                                             setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
                                             OA_contacts={this.state.contacts}
                                             annuaire_clients_mondat={this.state.annuaire_clients_mondat}
-                                            onClickFacture={(facture_date,partner) => {
-                                              this.createFacture_ForSelected(facture_date,partner);
+                                            onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
+                                              this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
+                                                partner,lignes_facture)
                                             }}
+                                            client_folders={this.state.client_folders}
                                           />
                                         } {
                                         this.state.lignesFactures.length === 0 &&
@@ -4920,7 +4998,22 @@ export default class Main extends React.Component {
                                         }}>Aucune ligne facture encore ajoutée !</div>
 
                                       }
-                                      </TabPanel> {
+                                      </TabPanel>
+                                      <TabPanel>
+                                        <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
+                                        <TableFactures factures={this.state.facturesToValidated}
+                                                       validateFacture={(row,key) => {
+                                                         this.createFacture_ForSelected(row.created_at, row.lignes_facture,row.client_folder.id,row,key);
+                                                       }}
+                                                       openFacture={(id) => {
+                                                         this.openPdfModal(id)
+                                                       }}
+                                                       openFactureFolder={(id) => {
+                                                         this.redirectToFolder(id)
+                                                       }}
+                                        />
+                                      </TabPanel>  
+                                      {/*{
                                       localStorage.getItem('role') === 'admin' &&
                                       [
                                         <TabPanel key={0}>
@@ -5077,7 +5170,7 @@ export default class Main extends React.Component {
 
                                         <TabPanel key={2} />
                                       ]
-                                    }
+                                      }*/}
                                     </Tabs>
                                   </div>
                                 </div>

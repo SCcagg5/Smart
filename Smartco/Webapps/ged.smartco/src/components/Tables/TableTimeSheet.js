@@ -134,12 +134,14 @@ export default function TableTimeSheet(props) {
     const [toUpdated_template, setToUpdated_template] = React.useState("");
     const [timeSuggestions, setTimeSuggestions] = React.useState([]);
 
-    const [lf_client_search, setLf_client_search] = React.useState("");
+    const [lf_client_search, setLf_client_search] = React.useState(props.annuaire_clients_mondat[0].Nom + ' ' + (props.annuaire_clients_mondat[0].Prenom || '') );
+
     const [lf_sdate_search, setLf_sdate_search] = React.useState(null);
     const [lf_edate_search, setLf_edate_search] = React.useState(null);
     const [partner_facture, setPartner_facture] = React.useState("");
     const [facture_date, setFacture_date] = React.useState(new Date());
     const [check_all, setCheck_all] = React.useState(false);
+    const [client_folder, setClient_folder] = React.useState("");
 
 
 
@@ -148,14 +150,17 @@ export default function TableTimeSheet(props) {
 
     const searchFilter= props.lignesFactures.filter((lf) => ( (lf.newTime.client).toLowerCase().indexOf(lf_client_search.toLowerCase()) !== -1 &&
       ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
-      ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= lf_edate_search.getTime()))  || lf_edate_search === null  )
+      ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  )
     ))
+
 
     const selected = searchFilter.filter((lf) => lf.checked === true);
     let total = 0;
+    let nb_heures = 0;
     selected.map((item,key) => {
         let value = parseInt(item.newTime.rateFacturation) * item.newTime.duree;
         total = total + value;
+        nb_heures = nb_heures + item.newTime.duree;
     })
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, searchFilter.length - page * rowsPerPage);
@@ -238,6 +243,10 @@ export default function TableTimeSheet(props) {
         onChange: onInputTimeSuggChange
     };
 
+    let client_folders = props.client_folders || [];
+    let selected_client = client_folders.Content.folders.find(x => x.name === lf_client_search)
+    let selected_client_folders = selected_client ?  selected_client.Content.folders : [];
+
     return (
 
         <div>
@@ -294,7 +303,7 @@ export default function TableTimeSheet(props) {
                 </div>
                 <div className="ml-3">
                     <IconButton title="Annuler le filtre" onClick={() => {
-                        setLf_client_search("")
+                        //setLf_client_search("")
                         setLf_sdate_search(null)
                         setLf_edate_search(null)
                     }}>
@@ -302,8 +311,13 @@ export default function TableTimeSheet(props) {
                     </IconButton>
                 </div>
             </div>
-
-            <Table className={classes.table} aria-label="custom pagination table">
+            {
+                selected.length > 0 &&
+                <h5 style={{marginTop:20,color:"blue"}}>
+                    {selected.length === 1 ? "Une ligne facture sélectionnée" : selected.length + " lignes factures sélectionnées"}
+                </h5>
+            }
+            <Table className={classes.table} aria-label="custom pagination table" style={{marginTop:20}}>
                 <TableHead>
                     <TableRow style={{padding:10}}>
                         <TableCell align="left" style={{width:"5%"}}>
@@ -438,6 +452,25 @@ export default function TableTimeSheet(props) {
                                   </MuiSelect>
                               </div>
                               <div className="col-md-4">
+                                  <h5>Dossier client</h5>
+                                  <MuiSelect
+                                    labelId="demo-simple-select-label68798"
+                                    id="demo-simple-select776879"
+                                    style={{ width: '100%' }}
+                                    value={client_folder}
+                                    onChange={(e) => {
+                                        setClient_folder(e.target.value)
+                                    }}
+                                  >
+                                      {
+                                          selected_client_folders.map((folder,key) => (
+                                            <MenuItem key={key}
+                                              value={folder.id || folder.key}>{folder.name}</MenuItem>
+                                          ))
+                                      }
+                                  </MuiSelect>
+                              </div>
+                              <div className="col-md-4">
                                   <h5>Date de la facture</h5>
                                   <DatePicker
                                     calendarIcon={
@@ -454,15 +487,22 @@ export default function TableTimeSheet(props) {
                           </div>
                       </div>
                       <div className="mt-3" style={{textAlign:"right"}}>
-                          <h5>Total: {total+ " CHF"}</h5>
+                          <span className="badge badge-blue text-white p-2 font-16">Total heures: {nb_heures.toFixed(2) + " h"}</span><br/>
+                          <span className="badge badge-blue text-white p-2 font-16" style={{marginTop:7}}>Total: {total+ " CHF"}</span>
                       </div>
                       <div className="mt-3" style={{textAlign:"right"}}>
                           <AtlButton
                             appearance="primary"
+                            isDisabled={partner_facture === "" || client_folder === ""}
                             onClick={() => {
-                                props.onClickFacture(facture_date,partner_facture)
+                                if(partner_facture === ""){
+                                    alert("Vous devez sélectionner un partner pour la validation")
+                                }else{
+                                    props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD"),partner_facture,selected)
+                                }
+
                             }}>
-                              ETABLIR FACTURE</AtlButton>
+                              Envoyer la facture pour validation</AtlButton>
                       </div>
                   </div>
 
