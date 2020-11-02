@@ -13,7 +13,6 @@ from reportlab.lib.utils import ImageReader
 from base64 import b64decode
 from datetime import date
 from .sql import sql
-from .users import user
 from .pdf import pdf
 from .elastic import es, elastic
 
@@ -117,7 +116,7 @@ class room:
         self.room_id = str(room_id)
 
     def all(self):
-        res = sql.get("SELECT ged_room.name, ged_room.date_start, ged_room.date_end, ged_room.duration, ged_room.date, user.email, ged_room.id FROM ged_room INNER JOIN `user` ON `ged_room`.`user_id` = `user`.id WHERE ged_room.ged_id = %s", (self.ged_id, ))
+        res = sql.get("SELECT ged_room.name, ged_room.date_start, ged_room.date_end, ged_room.duration, ged_room.date, ged_room.user_id, ged_room.id FROM ged_room WHERE ged_room.ged_id = %s", (self.ged_id, ))
         ret = []
         for i in res:
             ret.append({ "id": i[6], "name": i[0], "time": {"start": i[1], "end": i[2], "duration": i[3]}, "date": i[4], "by": i[5]})
@@ -177,7 +176,7 @@ class folder:
         date = str(int(round(time.time() * 1000)))
         if folder_id is not None and not folder.exist(folder_id):
             return [False, "folder_id does not exist", 400]
-        if not self.is_proprietary(folder_id) and not self.is_editor(folder_id) and folder_id is not None:
+        if not self.is_proprietary(folder_id) and not self.is_admin(folder_id) and folder_id is not None:
             return [False, "Invalid rights", 403]
         succes = sql.input("INSERT INTO `ged_folder` (`id`,`ged_id`, `user_id`, `name`, `inside`, `date`) VALUES (%s, %s, %s, %s, %s, %s)", \
         (id, self.ged_id, self.usr_id, name, folder_id, date))
@@ -185,7 +184,7 @@ class folder:
             return [False, "data input error", 500]
         return [True, {"id": id}, None]
 
-    def share(self, email, folder_id, access):
+    def share(self, user_id, folder_id, access, email):
         if not self.is_proprietary(folder_id) and not self.is_sharer(folder_id):
             return [False, "Can't share this file, invalid rights", 403]
         if "administrate" not in access or "share" not in access or "edit" not in access or "read" not in access:
@@ -196,7 +195,6 @@ class folder:
             access["edit"] = True
         if access["edit"]:
             access["read"] = True
-        user_id = user.fromemail(email)
         table = "ged_share_folder"
         if not user_id:
             user_id = email
@@ -222,7 +220,7 @@ class folder:
         if folder_id is not None:
             if not self.is_reader(folder_id):
                 return {}
-            res = sql.get("SELECT ged_folder.id, ged_folder.name, ged_folder.date, user.`email`, user.`id` FROM `ged_folder` INNER JOIN `user` ON `ged_folder`.`user_id` = `user`.id WHERE ged_folder.id = %s", \
+            res = sql.get("SELECT ged_folder.id, ged_folder.name, ged_folder.date, `ged_folder`.`user_id` FROM `ged_folder` WHERE ged_folder.id = %s", \
             (folder_id, ))
             if len(res) != 0:
                 ret = {"id": res[0][0], "name": res[0][1], "date": res[0][2], "proprietary": res[0][3], "sharing_date": None, "Content": {"files": [], "folders": []},
@@ -259,11 +257,11 @@ class folder:
                 })
             return ret
         else:
-            files = sql.get("SELECT ged_file.`id`, `name`, ged_file.type, ged_file.`date`, user.`email`, ged_share_file.`date` FROM `ged_share_file` INNER JOIN `ged_file` ON `ged_share_file`.`file_id` = `ged_file`.`id` INNER JOIN `user` ON `ged_file`.`user_id` = `user`.id WHERE active IS TRUE AND ged_share_file.user_id = %s", \
+            files = sql.get("SELECT ged_file.`id`, `name`, ged_file.type, ged_file.`date`, ged_share_file.`shared_by`, ged_share_file.`date`, `ged_file`.`user_id` FROM `ged_share_file` INNER JOIN `ged_file` ON `ged_share_file`.`file_id` = `ged_file`.`id` WHERE active IS TRUE AND ged_share_file.user_id = %s", \
             (self.usr_id, ))
             for i2 in files:
                 ret["Content"]["files"].append({
-                "id": i2[0], "name": i2[1], "type": i2[2], "date": i2[3], "proprietary": i2[4], "sharing_date": i2[5],
+                "id": i2[0], "name": i2[1], "type": i2[2], "date": i2[3], "proprietary": i2[6], "shared_by": i2[4], "sharing_date": i2[5],
                 "rights": {
                         "read": file(self.usr_id).is_reader(i2[0]),
                         "edit": file(self.usr_id).is_editor(i2[0]),
@@ -271,11 +269,11 @@ class folder:
                         "administrate": file(self.usr_id).is_admin(i2[0])
                         }
                 })
-            folders = sql.get("SELECT ged_folder.`id`, `name`, ged_folder.`date`, user.`email`, ged_share_folder.`date` FROM `ged_share_folder` INNER JOIN `ged_folder` ON `ged_share_folder`.`folder_id` = `ged_folder`.`id` INNER JOIN `user` ON `ged_folder`.`user_id` = `user`.id WHERE active IS TRUE AND ged_share_folder.user_id = %s", \
+            folders = sql.get("SELECT ged_folder.`id`, `name`, ged_folder.`date`, ged_share_folder.`shared_by`, ged_share_folder.`date`, `ged_folder`.`user_id` FROM `ged_share_folder` INNER JOIN `ged_folder` ON `ged_share_folder`.`folder_id` = `ged_folder`.`id` WHERE active IS TRUE AND ged_share_folder.user_id = %s", \
             (self.usr_id, ))
             for i2 in folders:
                 ret["Content"]["folders"].append({
-                "id": i2[0], "name": i2[1], "date": i2[2], "proprietary": i2[3], "sharing_date": i2[4],
+                "id": i2[0], "name": i2[1], "date": i2[2], "proprietary": i2[6], "shared_by": i2[4], "sharing_date": i2[4],
                 "rights": {
                             "read": self.is_reader(i2[0]),
                             "edit": self.is_editor(i2[0]),
@@ -392,7 +390,7 @@ class file:
             return [False, "File extension not allowed.", 401]
         if folder_id is not None and not folder.exist(folder_id):
             return [False, "folder_id does not exist", 400]
-        if not folder(self.usr_id).is_proprietary(folder_id) and not folder(self.usr_id).is_editor(folder_id) and folder_id is not None:
+        if not folder(self.usr_id).is_proprietary(folder_id) and folder_id is not None:
             return [False, "Invalid rights", 403]
         path = self.path(file_id)
         file.save(path)
@@ -424,7 +422,7 @@ class file:
             return [False, "File extension not allowed.", 401]
         if folder_id is not None and not folder.exist(folder_id):
             return [False, "folder_id does not exist", 400]
-        if not folder(self.usr_id).is_proprietary(folder_id) and not folder(self.usr_id).is_editor(folder_id) and folder_id is not None:
+        if not folder(self.usr_id).is_proprietary(folder_id) and folder_id is not None:
             return [False, "Invalid rights", 403]
         path = self.path(file_id)
         f = open(path, 'wb')
@@ -450,7 +448,7 @@ class file:
         es.index(index=index, body=input, request_timeout=30)
         return [True, {"file_id": file_id, "input": input}, None]
 
-    def share(self, email, file_id, access):
+    def share(self, user_id, file_id, access, email):
         if not self.is_proprietary(file_id) and not self.is_sharer(file_id):
             return [False, "Can't share this file, invalid rights", 403]
         if "administrate" not in access or "share" not in access or "edit" not in access or "read" not in access:
@@ -461,7 +459,6 @@ class file:
             access["edit"] = True
         if access["edit"]:
             access["read"] = True
-        user_id = user.fromemail(email)
         table = "ged_share_file"
         if not user_id:
             user_id = email
@@ -660,14 +657,13 @@ class ged:
         self.usr_id = str(usr_id)
         self.ged_id = str(ged_id)
 
-    def create(self, name):
-        id = str(uuid.uuid4())
+    def create(self,name=None, imageb64=None):
         date = str(int(round(time.time() * 1000)))
-        succes = sql.input("INSERT INTO `ged` (`id`, `name`, `user_id`, `date`) VALUES (%s, %s, %s, %s)", \
-          (id, name, self.usr_id, date))
+        succes = sql.input("INSERT INTO `ged` (`id`, `name`, `date`, `b64`, `start`) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE `ged`.start = %s" , \
+          (self.ged_id, name, date, imageb64, date, date))
         if not succes:
             return [False, "data input error", 500]
-        return [True, {"id": res[0][0]}, None]
+        return [True, {}, None]
 
     def check_exist(self):
         res = sql.get("SELECT `id` FROM `ged` WHERE id = %s", (self.ged_id, ))
@@ -676,23 +672,11 @@ class ged:
         return [True, {"id": res[0][0]}, None]
 
     def infos(self):
-        res = sql.get("SELECT `ged`.`name`, `user`.`email`, `ged`.`date`, `ged`.user_id FROM `ged` INNER JOIN user ON `ged`.user_id = `user`.id WHERE `ged`.id = %s", (self.ged_id, ))
-        if len(res) != 1:
-            return [False, "Invalid Ged ID", 404]
-        if res[0][3] == self.usr_id:
-            res2 = [["0", None, res[0][2]]]
-        else:
-            res2 = sql.get("SELECT `ged_user`.role, `user`.`email`,  `ged_user`.date  FROM `ged_user` INNER JOIN user ON `ged_user`.shared_by = `user`.id WHERE `ged_user`.ged_id = %s AND `ged_user`.user_id = %s", (self.ged_id, self.usr_id))
-        if len(res2) != 1:
-            return [False, "Invalid User ID", 404]
-        role = {"2": "client", "1": "user", "0": "admin"}[str(res2[0][0])]
-        return [True, {"name": res[0][0], "admin": res[0][1], "date": res[0][2], "self": {"added_by": res2[0][1], "date": res2[0][2], "role": {"role_id": res2[0][0], "role": role}}}, None]
-
-    def check_user(self):
-        res = sql.get("SELECT `id` FROM `ged_user` WHERE ged_id = %s AND user_id = %s", (self.ged_id, self.usr_id, ))
-        if len(res) != 1:
-            return [False, "User hasn't access to this ged", 404]
-        return [True, {"access_id": res[0][0]}, None]
+        res = sql.get("SELECT `ged`.`name`, `ged`.`date`, `ged`.`start`, `ged`.`b64` FROM `ged` WHERE `ged`.id = %s", (self.ged_id, ))
+        ret = {"name": res[0][0], "creation": res[0][1], "since": res[0][2], "image": res[0][3]}
+        if self.usr_id  == str(None):
+            ret = {"name": res[0][0], "image": res[0][3]}
+        return [True, ret, None]
 
     def create_user(self, email, role):
         if role not in ["admin", "user", "client"]:
@@ -736,13 +720,13 @@ class ged:
             return fil.content(doc_id)
         return [False, "document doesn't exist", 404]
 
-    def share(self, doc_id, email, access):
+    def share(self, user_id, email, doc_id, access):
         if folder.exist(doc_id):
             fol = folder(self.usr_id, self.ged_id)
-            ret = fol.share(email, doc_id, access)
+            ret = fol.share(user_id, doc_id, access, email)
         elif file.exist(doc_id):
             fil = file(self.usr_id, self.ged_id)
-            ret = fil.share(email, doc_id, access)
+            ret = fil.share(user_id, doc_id, access, email)
         else:
             ret = [False, "Doc_id isn't a valid file_id or folder_id", 404]
         return ret

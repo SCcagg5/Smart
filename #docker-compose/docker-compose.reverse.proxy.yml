@@ -40,6 +40,7 @@ services:
     letsencrypt:
         image: jrcs/letsencrypt-nginx-proxy-companion
         container_name: letsencrypt
+        restart: always
         volumes:
             - ../Proxy/vhost:/etc/nginx/vhost.d
             - ../Proxy/data/html:/usr/share/nginx/html

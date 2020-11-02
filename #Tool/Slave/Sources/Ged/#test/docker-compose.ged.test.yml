@@ -1,0 +1,70 @@
+version: '3'
+
+networks:
+  proxy:
+    driver: bridge
+  db-net:
+    internal: true
+
+services:
+  ged-1-sql:
+      image: mysql:5.7
+      container_name: ged-1-sql
+      restart: always
+      networks:
+        - db-net
+      volumes:
+        - ./db/sql/data:/var/lib/mysql
+        - ./db/sql/dumps:/docker-entrypoint-initdb.d
+      environment:
+        MYSQL_RANDOM_ROOT_PASSWORD: 1
+        MYSQL_USER: $V_DB_USER
+        MYSQL_DATABASE: ged
+        MYSQL_PASSWORD: $V_DB_PASS
+
+  ged-1-back:
+    build: ../back
+    container_name: ged-1-back
+    restart: always
+    ports:
+      - 8080:8080
+    tty: true
+    stdin_open: true
+    depends_on:
+      - ged-1-sql
+      - ged-1-esl
+    networks:
+      - db-net
+      - proxy
+    volumes:
+      - ../back:/home/api/
+      - ../doc:/home/ged/
+    environment:
+      DB_HOST: ged-1-sql
+      ES_HOST: ged-1-esl
+      API_MOD: $V_API_MOD
+      API_PASS: password
+      DB_USER: $V_DB_USER
+      DB_PASS: $V_DB_PASS
+      GED_ID: $V_GED_ID
+      MASTER_URL: $V_MASTER_URL
+      MASTER_PASS: $V_MASTER_PASS
+
+  ged-1-esl:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    container_name: ged-1-esl
+    restart: always
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=false
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./db/elastic/data:/usr/share/elasticsearch/data
+    networks:
+      - db-net

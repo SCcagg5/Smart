@@ -1,0 +1,47 @@
+from .routesfunc import *
+
+def setuproute(app, call):
+    @app.route('/',                    ['OPTIONS', 'GET'],          lambda x = None: call([ged_infos])                                                  )
+    @app.route('/login',    	       ['OPTIONS', 'POST'],         lambda x = None: call([sl_getauth])                                                 )
+    @app.route('/signin',    	       ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_signin])                                      )
+    @app.route('/signup',    	       ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_signup])                                      )
+
+    @app.route('/ged',                 ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_infos])          )
+    #@app.route('/ged/adduser',         ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_add_user])      )
+    @app.route('/ged/doc',             ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_get_content])    )
+    @app.route('/ged/doc/<>',          ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_get_content])    )
+    @app.route('/ged/doc/<>',          ['OPTIONS', 'PUT'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_update])         )
+    @app.route('/ged/doc/<>',          ['OPTIONS', 'DELETE'],       lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_delete])         )
+    @app.route('/ged/doc/search',      ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_search])         )
+    @app.route('/ged/doc/addfolder',   ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_add_folder])     )
+    @app.route('/ged/doc/addfile',     ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_add_file])       )
+    @app.route('/ged/doc/addb64file',  ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_add_b64file])    )
+    @app.route('/ged/doc/<>/share',    ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_share])          )
+
+    @app.route('/odoo',                ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, odoo_check, odoo_infos]) )
+    @app.route('/odoo/case',           ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, odoo_check, odoo_case])                     )
+    @app.route('/odoo/case',           ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, odoo_check, odoo_add_case])                     )
+
+    @app.route('/odoo/users',          ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, odoo_check, odoo_users]) )
+    @app.route('/odoo/user/<>',        ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, odoo_check, odoo_user]) )
+    @app.route('/odoo/user',           ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, odoo_check, odoo_add_user]) )
+    @app.route('/odoo/companies',      ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, odoo_check, odoo_companies]) )
+    @app.route('/odoo/company/<>',     ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, odoo_check, odoo_company]) )
+    @app.route('/odoo/company',        ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, odoo_check, odoo_add_company]) )
+    @app.route('/odoo/bill',           ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, odoo_check, odoo_add_bill]) )
+    @app.route('/odoo/get/<>',         ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, odoo_check, odoo_get_data]) )
+    #@app.route('/sign',              ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_sign_init, ged_sign_new])                   )
+    #@app.route('/sign',              ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_sign_init, ged_sign_get_all])               )
+    #@app.route('/sign/<>',           ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_sign_init, ged_sign_get])                   )
+    #@app.route('/sign/<>',           ['OPTIONS', 'DELETE'],       lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_sign_init, ged_sign_delete])                )
+    #@app.route('/doc/<>/sign/<>',    ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_sign_init, ged_sign_sign])                  )
+    #@app.route('/room',              ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_room_new])                                  )
+    #@app.route('/rooms',             ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_room_all])                                  )
+    #@app.route('/rooms/<>/user',     ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_room_all])                                  )
+    #@app.route('/rooms/<>/user',     ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_room_all])                                  )
+    #@app.route('/rooms/<>/user',     ['OPTIONS', 'DELETE'],       lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_room_all])                                  )
+    #@app.route('/rooms/<>/file',     ['OPTIONS', 'POST'],         lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_room_file_new])                             )
+    #@app.route('/rooms/<>/file',     ['OPTIONS', 'DELETE'],       lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_room_all])                                  )
+    #@app.route('/rooms/<>/files',    ['OPTIONS', 'GET'],          lambda x = None: call([sl_chkauth, sl_authuser, sl_check_user, ged_room_files_get])                            )
+    def base():
+        return

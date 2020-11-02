@@ -1,0 +1,16 @@
+bottle
+pymysql
+requests
+pyjwt
+phonenumbers
+stripe
+elasticsearch
+uuid
+web3
+eth_account
+pdftotext
+unidecode
+reportlab
+PyPDF2
+fpdf
+pypi_xmlrpc

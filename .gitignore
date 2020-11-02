@@ -26,7 +26,7 @@ Smartdom/Admin/services/kanboard/plugins
 Smartdom/Admin/services/phpmyadmin/sessions
 
 Smartdom/Micro/elasticsearch/data
-Smartdom/Micro/sql/data
+Smartdom/Micro/sql/data*
 Smartdom/Micro/jitsi/
 Smartdom/Micro/posteio/
 Smartdom/Micro/rocket/

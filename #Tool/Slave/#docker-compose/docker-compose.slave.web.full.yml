@@ -112,8 +112,8 @@ services:
        HEALTH: "*/1 * * * *"
        TEST: "*/1 * * * *"
      healthcheck:
-       test: "if [ $$(cat /home/logs/*/*.err 2>/dev/null | wc -l) -ne 0 ]; then exit 1; fi"
-       interval: 30s
+       test: "if [ $$(cat /home/logs/*/*.err 2>/dev/null | wc -l) -ne 0 ]; then cat /home/logs/*/*.err 2>/dev/null; exit 1; fi"
+       interval: 15s
        timeout: 3s
        retries: 2
 

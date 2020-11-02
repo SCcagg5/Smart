@@ -15,6 +15,7 @@ services:
    smartdom-admin-kibana:
      image: docker.elastic.co/kibana/kibana:7.6.0
      container_name: smartdom-admin-kibana
+     restart: always
      volumes:
        - ../Smartdom/Admin/services/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
      networks:
@@ -24,6 +25,7 @@ services:
    smartdom-admin-kanboard:
      image: kanboard/kanboard:latest
      container_name: smartdom-admin-kanboard
+     restart: always
      volumes:
        - ../Smartdom/Admin/services/kanboard/conf/config.php:/var/www/app/config.php
        - ../Smartdom/Admin/services/kanboard/data:/var/www/app/data
@@ -72,6 +74,7 @@ services:
    smartdom-admin-goaccesscli:
      image: allinurl/goaccess
      container_name: smartdom-admin-goaccesscli
+     restart: always
      volumes:
        - ../Proxy/logs/services:/logs/:ro
        - ../Smartdom/Admin/services/goaccess/conf:/etc/goaccess/
@@ -84,6 +87,7 @@ services:
    smartdom-admin-php:
      image: php:fpm-alpine
      container_name: smartdom-admin-php
+     restart: always
      volumes:
        - ../Smartdom/Admin/front:/script:ro
        - ../Smartdom/Admin/services/goaccess/front:/stats:ro

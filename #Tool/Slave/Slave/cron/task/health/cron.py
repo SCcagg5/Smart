@@ -117,6 +117,9 @@ mapping = {
               }
             }
           }
+        },
+        "Time" : {
+          "type" : "long"
         }
       }
     }
