@@ -2679,6 +2679,109 @@ export default class Main extends React.Component {
 
   }
 
+  createLignefacture(duplicate){
+
+    let obj = this.state.TimeSheet;
+    let objCopy = this.state.TimeSheet;
+    let time = obj.newTime.duree;
+    let timeFormated = '';
+    if (time.indexOf(':') > -1) {
+      timeFormated = parseFloat(time.replace(':', '.'));
+    } else if (time.indexOf('.') > -1) {
+      timeFormated = parseFloat(time);
+    } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
+      timeFormated = parseInt(time);
+    } else {
+      this.openSnackbar('error', 'Le format de la durée est invalide !');
+    }
+    if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
+      this.openSnackbar('error', 'Le format de la durée est invalide !');
+    } else {
+
+      if(timeFormated === 0 ){
+        this.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
+      }else{
+
+        obj.newTime.duree = timeFormated;
+        let lignes_fact = this.state.lignesFactures || [];
+
+        SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
+
+          if(newCompRes.succes === true && newCompRes.status === 200){
+
+            obj.newTime.company_id = newCompRes.data.id;
+            obj.newTime.date = moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD');
+            obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            obj.user_email = localStorage.getItem('email');
+            obj.template = this.state.lignef_template;
+            obj.newTime.client = this.state.selectedClientTimeEntree;
+            lignes_fact.push(obj);
+
+            if(duplicate === false){
+              this.setState({
+                lignesFactures: lignes_fact,
+                TimeSheet: {
+                  newTime: {
+                    duree: '',
+                    client: this.state.selectedClientTimeEntree,
+                    categoriesActivite: 'Temps facturé',
+                    description: '',
+                    date: new Date(),
+                    utilisateurOA: obj.newTime.utilisateurOA,
+                    rateFacturation: obj.newTime.rateFacturation
+                  }
+                }
+              });
+            }else{
+              this.setState({
+                lignesFactures: lignes_fact,
+                TimeSheet: {
+                  newTime: {
+                    duree: '',
+                    client: this.state.selectedClientTimeEntree,
+                    categoriesActivite: objCopy.newTime.categoriesActivite,
+                    description: objCopy.newTime.description,
+                    date: new Date(objCopy.newTime.date),
+                    utilisateurOA: objCopy.newTime.utilisateurOA,
+                    rateFacturation: objCopy.newTime.rateFacturation
+                  }
+                }
+              })
+            }
+            this.updateLignes_facture(lignes_fact);
+            this.openSnackbar('success', 'Enregistrement effectué avec succès');
+          }else{
+            console.log(newCompRes.error)
+            //this.openSnackbar("error",newCompRes.error)
+          }
+
+        }).catch(err => {
+          console.log(err);
+        });
+
+      }
+
+
+
+    }
+
+  }
+
+  updateLigneFacture(id,ligne){
+    let key = this.state.lignesFacturesCopy.findIndex(x => x.uid === id);
+    if(key){
+      firebase.database().ref('/'+ent_name+'-lignes_f-'+ged_id+'/'+key).set(ligne).then( ok => {
+        this.openSnackbar("success","Modification effectuée avec succès")
+      }).catch(err => {
+        console.log(err)
+        this.openSnackbar("error","Une erreur est survenue !")
+      })
+    }else{
+      this.openSnackbar("error","Une erreur est survenue !")
+    }
+
+  }
+
   render() {
 
     const inputSuggProps = {
@@ -3917,7 +4020,23 @@ export default class Main extends React.Component {
                                               label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === true ? 'Actif' : 'Non actif' : 'Non actif'}
                                             />
                                           </div>
+
                                         </div>
+                                        {
+                                          this.state.selectedSociete.Type === "1" &&
+                                          <div className="row" style={{ marginTop: 5 }}>
+                                            <div className="col-md-6">
+                                              <p style={{ marginBottom: 10 }}>Prénom du client </p>
+                                              <input
+                                                type="text"
+                                                className="form-control"
+                                                id="email"
+                                                name="email"
+                                                value={this.state.selectedSociete.Prenom}
+                                                onChange={this.handleChange('selectedSociete', 'Prenom')} />
+                                            </div>
+                                          </div>
+                                        }
                                         <div className="row" style={{ marginTop: 20 }}>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Adresse postale</p>
@@ -4387,14 +4506,6 @@ export default class Main extends React.Component {
                                         <Tab>Time Sheet</Tab>
                                         <Tab>Activités </Tab>
                                         <Tab>Partner </Tab>
-                                        {/*{
-                                        localStorage.getItem('role') === 'admin' &&
-                                        [
-                                          <Tab key={0}>Recherche Clients </Tab>,
-                                          <Tab key={1}>Imputation team & scheduled time </Tab>,
-                                          <Tab key={2}>New Expenses </Tab>
-                                        ]
-                                        }*/}
                                       </TabList>
                                       <TabPanel>
                                         {
@@ -4512,36 +4623,6 @@ export default class Main extends React.Component {
                                                     <h5>Nom du client</h5>
                                                     <div
                                                       style={{ display: 'flex' }}>
-                                                      {/*<Dropdown
-                                                        button
-                                                        className='icon'
-                                                        //selection
-                                                        floating
-                                                        labeled
-                                                        icon='user'
-                                                        options={this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl },key) =>
-                                                          ({
-                                                            key:key,
-                                                            value: Nom + ' ' + (Prenom || ''),
-                                                            text: Nom + ' ' + (Prenom || ''),
-                                                            //image: { avatar: true, src: Type === "0" ? entIcon : userAvatar },
-                                                          }))}
-                                                        search
-                                                        placeholder='Chercher votre client'
-                                                        value={this.state.selectedClientTimeEntree}
-                                                        onChange={(e,{value}) => {
-
-                                                          let obj = this.state.TimeSheet;
-                                                          obj.newTime.client = value;
-                                                          let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => (x.Nom + ' ' + x.Prenom) === value);
-                                                          let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
-                                                          this.setState({
-                                                            partnerFacture: partner_email,
-                                                            selectedClientTimeEntree: value,
-                                                            TimeSheet: obj
-                                                          });
-                                                        }}
-                                                      />*/}
                                                       <SelectSearch
                                                         options={
                                                           this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
@@ -4728,72 +4809,17 @@ export default class Main extends React.Component {
                                                 <AltButtonGroup>
                                                   <AtlButton
                                                     onClick={() => {
-                                                      let obj = this.state.TimeSheet;
-                                                      let time = obj.newTime.duree;
-                                                      let timeFormated = '';
-                                                      if (time.indexOf(':') > -1) {
-                                                        timeFormated = parseFloat(time.replace(':', '.'));
-                                                      } else if (time.indexOf('.') > -1) {
-                                                        timeFormated = parseFloat(time);
-                                                      } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
-                                                        timeFormated = parseInt(time);
-                                                      } else {
-                                                        this.openSnackbar('error', 'Le format de la durée est invalide !');
-                                                      }
-                                                      if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
-                                                        this.openSnackbar('error', 'Le format de la durée est invalide !');
-                                                      } else {
-                                                        obj.newTime.duree = timeFormated;
-                                                        let lignes_fact = this.state.lignesFactures || [];
-
-                                                        SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
-
-                                                          if(newCompRes.succes === true && newCompRes.status === 200){
-
-                                                            obj.newTime.company_id = newCompRes.data.id;
-                                                            obj.newTime.date = moment(this.state.TimeSheet.newTime.data).format('YYYY-MM-DD');
-                                                            obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                                                            obj.user_email = localStorage.getItem('email');
-                                                            obj.template = this.state.lignef_template;
-                                                            obj.newTime.client = this.state.selectedClientTimeEntree;
-                                                            lignes_fact.push(obj);
-
-                                                            this.setState({
-                                                              lignesFactures: lignes_fact,
-                                                              TimeSheet: {
-                                                                newTime: {
-                                                                  duree: '',
-                                                                  client: this.state.selectedClientTimeEntree,
-                                                                  categoriesActivite: 'Temps facturé',
-                                                                  description: '',
-                                                                  date: new Date(),
-                                                                  utilisateurOA: obj.newTime.utilisateurOA,
-                                                                  rateFacturation: obj.newTime.rateFacturation
-                                                                }
-                                                              }
-                                                            });
-
-                                                            this.updateLignes_facture(lignes_fact);
-                                                            this.openSnackbar('success', 'Enregistrement effectué avec succès');
-                                                          }else{
-                                                            console.log(newCompRes.error)
-                                                            //this.openSnackbar("error",newCompRes.error)
-                                                          }
-
-                                                        }).catch(err => {
-                                                          console.log(err);
-                                                        });
-                                                      }
-
+                                                      this.createLignefacture(false)
+                                                    }}
+                                                    appearance="primary"
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === ''}
+                                                    style={{ margin: 20 }}> Enregistrer </AtlButton>
+                                                  <AtlButton
+                                                    onClick={() => {
+                                                      this.createLignefacture(true)
                                                     }}
                                                     appearance="primary"
                                                     isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === ''}
-                                                    style={{ margin: 20 }}> Enregistrer </AtlButton>
-                                                  <AtlButton
-                                                    appearance=""
-                                                    style={{ margin: 20 }}>Enregistrer et créer une autre</AtlButton>
-                                                  <AtlButton
-                                                    appearance=""
                                                     style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
                                                   <AtlButton
                                                     appearance=""
@@ -4808,24 +4834,23 @@ export default class Main extends React.Component {
                                                             description: '',
                                                             date: new Date(),
                                                             utilisateurOA: '',
-                                                            rateFacturation: ''
+                                                            rateFacturation: '',
+                                                            selectedClientTimeEntree:''
                                                           }
                                                         }
                                                       });
-                                                    }}>Annuler</AtlButton>
+                                                    }}>Réinitialiser</AtlButton>
                                                 </AltButtonGroup>
                                                 <div>
                                                   <AltButtonGroup
                                                     style={{ marginTop: 10 }}>
                                                     <AtlButton
-                                                      appearance=""
-                                                      //onClick={() => this.setState({ showLignesFactureClient: true })}
+                                                      isSelected
+                                                      appearance="default"
                                                       onClick={() => this.setState({selectedTimeSheetIndex:1})}
                                                     >
                                                       Etablir facture
                                                     </AtlButton>
-                                                    <AtlButton
-                                                      appearance="">Histo.Fact.Clients</AtlButton>
                                                   </AltButtonGroup>
                                                 </div>
                                               </div>
@@ -5052,6 +5077,8 @@ export default class Main extends React.Component {
                                                 partner,lignes_facture)
                                             }}
                                             client_folders={this.state.client_folders}
+                                            updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
+                                            openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
                                           />
                                         } {
                                         this.state.lignesFactures.length === 0 &&

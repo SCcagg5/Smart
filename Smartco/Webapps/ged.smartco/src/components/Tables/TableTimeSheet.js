@@ -149,13 +149,13 @@ export default function TableTimeSheet(props) {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
-    const searchFilter= props.lignesFactures.filter((lf) => ( (lf.newTime.client.trim() === lf_client_search.trim() ) &&
+    const searchFilter = props.lignesFactures.filter((lf) => ( (lf.newTime.client.trim() === lf_client_search.trim() ) &&
       ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
       ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  )
     ))
 
 
-    const selected = searchFilter.filter((lf) => (lf.checked === true));
+    const selected = searchFilter.filter((lf) => ( lf.checked === true ));
     let total = 0;
     let nb_heures = 0;
     selected.map((item,key) => {
@@ -241,8 +241,8 @@ export default function TableTimeSheet(props) {
     let selected_client = client_folders.Content ? client_folders.Content.folders.find(x => x.name === lf_client_search) : undefined
     let selected_client_folders = selected_client ?  selected_client.Content.folders : [];
 
+    console.log(searchFilter)
     console.log(selected)
-    console.log(props.lignesFactures)
 
     return (
 
@@ -327,6 +327,7 @@ export default function TableTimeSheet(props) {
                                           setCheck_all(event.target.checked)
                                           searchFilter.map((item,key) => {
                                               searchFilter[key].checked = event.target.checked
+                                                //item.checked = event.target.checked
                                           })
                                           //props.setLignesFactures(ch_rows)
                                       }}
@@ -342,7 +343,7 @@ export default function TableTimeSheet(props) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {(rowsPerPage > 0 ? searchFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : searchFilter).reverse().map((row,key) => (
+                    {(rowsPerPage > 0 ? searchFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : searchFilter).map((row,key) => (
                         <TableRow key={key} style={{padding:10}}>
                             <TableCell align="left"   style={{width:"5%",backgroundColor:searchFilter[key].checked && searchFilter[key].checked === true ? "rgba(220, 0, 78, 0.08)" : "transparent"}}>
                                 <div className="media align-items-center">
@@ -740,8 +741,36 @@ export default function TableTimeSheet(props) {
                                     <AtlButton
                                         appearance="primary"
                                         onClick={() => {
+
+                                            let time = lf_toUpdated.newTime.duree;
+                                            let timeFormated = '';
+                                            if(typeof time !== "number"){
+                                                if (time.indexOf(':') > -1) {
+                                                    timeFormated = parseFloat(time.replace(':', '.'));
+                                                } else if (time.indexOf('.') > -1) {
+                                                    timeFormated = parseFloat(time);
+                                                } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
+                                                    timeFormated = parseInt(time);
+                                                } else {
+                                                    props.openSnackbar('error', 'Le format de la durée est invalide !');
+                                                }
+                                                if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
+                                                    props.openSnackbar('error', 'Le format de la durée est invalide !');
+                                                } else {
+                                                    if(timeFormated === 0 ){
+                                                        props.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
+                                                    }else {
+                                                        lf_toUpdated.newTime.duree = timeFormated;
+                                                    }
+                                                }
+                                            }else{
+
+                                            }
+
                                             console.log(lf_toUpdated)
                                             setShowUpdateModal(false)
+                                            props.updateLigneFacture(lf_toUpdated.uid,lf_toUpdated)
+
                                         }}>
                                         Modifier</AtlButton>
                                 </div>
