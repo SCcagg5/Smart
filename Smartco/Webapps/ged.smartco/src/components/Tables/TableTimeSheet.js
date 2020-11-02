@@ -238,7 +238,7 @@ export default function TableTimeSheet(props) {
     };
 
     let client_folders = props.client_folders || [];
-    let selected_client = client_folders.Content.folders.find(x => x.name === lf_client_search)
+    let selected_client = client_folders.Content ? client_folders.Content.folders.find(x => x.name === lf_client_search) : undefined
     let selected_client_folders = selected_client ?  selected_client.Content.folders : [];
 
     console.log(selected)
