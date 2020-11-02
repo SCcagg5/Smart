@@ -1,0 +1,12 @@
+.shadow{
+    -webkit-box-shadow: -1px 18px 63px -11px rgba(0,0,0,0.75);
+    -moz-box-shadow: -1px 18px 63px -11px rgba(0,0,0,0.75);
+    box-shadow: -1px 18px 63px -11px rgba(0,0,0,0.75);
+}
+.shadow2{
+    -webkit-box-shadow: 17px 54px 154px -35px rgba(0,0,0,0.75);
+    -moz-box-shadow: 17px 54px 154px -35px rgba(0,0,0,0.75);
+    box-shadow: 17px 54px 154px -35px rgba(0,0,0,0.75);
+
+
+}
