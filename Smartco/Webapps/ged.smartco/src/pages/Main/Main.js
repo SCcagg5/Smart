@@ -441,7 +441,7 @@ export default class Main extends React.Component {
                   //let clients_tempo = (data.clients_tempo || []).filter(x => x.email === localStorage.getItem('email'));
                   //let clients_tempo_copie = (data.clients_tempo || []);
                   let clients_tempo = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
-                  let clients_tempo_copie = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
+                  let clients_tempo_copie = data[ent_name+"-clients_tempo-"+ged_id] || [];
                   let facturesToValidated = data[ent_name+"-factures_to_Validated-"+ged_id] || []
 
 
@@ -2555,8 +2555,10 @@ export default class Main extends React.Component {
                 });
 
                 clients_tmp_copie.push({
-                  folder_id: addParentClientFolderRes.data.id, ID: ID,
-                  email: localStorage.getItem('email'), client_id: createClientRes.data.id
+                  folder_id: addParentClientFolderRes.data.id,
+                  ID: ID,
+                  email: localStorage.getItem('email'),
+                  client_id: createClientRes.data.id
                 });
                 firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id).set(clients_tmp_copie).then( ok => {
                   setTimeout(() => {
@@ -3988,11 +3990,11 @@ export default class Main extends React.Component {
                                   <div style={{ marginTop: 30 }}
                                        className="text-left">
                                     <Tabs> <TabList>
-                                      <Tab>Informations générales</Tab>
-                                      <Tab>Ouverture mandat</Tab>
+                                      <Tab>Informations client</Tab>
+                                      <Tab>Ouverture dossier</Tab>
                                     </TabList>
                                       <TabPanel>
-                                        <h5 style={{ marginTop: 20 }}>Informations générales</h5>
+                                        <h5 style={{ marginTop: 20 }}>Informations Client</h5>
                                         <div className="row" style={{ marginTop: 30 }}>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Nom du client </p>
