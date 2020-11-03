@@ -234,7 +234,12 @@ export default class Main extends React.Component {
       newTime: {
         duree: '',
         client: '',
-        dossier_client:'',
+        dossier_client: {
+          name:'',
+          facturation: {
+            language:''
+          },
+        },
         langue:'',
         categoriesActivite: 'Temps facturé',
         description: '',
@@ -476,6 +481,12 @@ export default class Main extends React.Component {
                         newTime: {
                           duree: '',
                           client: '',
+                          dossier_client: {
+                            facturation: {
+                              language:''
+                            },
+                          },
+                          langue:'',
                           categoriesActivite: 'Temps facturé',
                           description: '',
                           date: new Date(),
@@ -2275,48 +2286,56 @@ export default class Main extends React.Component {
     );
 
     SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
-      const pdf2base64 = require('pdf-to-base64');
-      pdf2base64('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf')
-        .then(
-          (response) => {
-            SmartService.getFile(folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
-              if(resF.succes === true && resF.status === 200){
-                let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+      if(createFactRes.succes === true && createFactRes.status === 200){
 
-                SmartService.addFileFromBas64({b64file:response,folder_id:comptaFolder.id},
-                  localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+        const pdf2base64 = require('pdf-to-base64');
+        pdf2base64('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf')
+          .then(
+            (response) => {
+              SmartService.getFile(folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+                if(resF.succes === true && resF.status === 200){
+                  let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+
+                  SmartService.addFileFromBas64({b64file:response,folder_id:comptaFolder.id},
+                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
                     console.log(ok)
-                  if(ok.succes === true && ok.status === 200){
-                    SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                      ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
-                      if(updateRes.succes === true && updateRes.status === 200){
-                        firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id + "/"+key).update({
-                          statut:"accepted",
-                          file_id:ok.data.file_id
-                        });
-                        this.justReloadGed();
-                        this.setState({loading:false})
-                        this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
-                        window.open('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true', '_blank');
-                      }else{
-                        this.openSnackbar("error",updateRes.error)
-                      }
-                    }).catch(err => {console.log(err)})
+                    if(ok.succes === true && ok.status === 200){
+                      SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                        ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+                        if(updateRes.succes === true && updateRes.status === 200){
+                          firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id + "/"+key).update({
+                            statut:"accepted",
+                            file_id:ok.data.file_id
+                          });
+                          this.justReloadGed();
+                          this.setState({loading:false})
+                          this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+                          window.open('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true', '_blank');
+                        }else{
+                          this.openSnackbar("error",updateRes.error)
+                        }
+                      }).catch(err => {console.log(err)})
 
-                  }else{
-                    this.openSnackbar("error",ok.error)
-                    this.setState({loading:false})
-                  }
-                }).catch(err => console.log(err))
-              }else{
-                this.openSnackbar("error",resF.error)
-                this.setState({loading:false})
-              }
-            }).catch( err => {console.log(err)})
-          }).catch((error) => {
-            this.setState({loading:false})
-            console.log(error);
-          })
+                    }else{
+                      this.openSnackbar("error",ok.error)
+                      this.setState({loading:false})
+                    }
+                  }).catch(err => console.log(err))
+                }else{
+                  this.openSnackbar("error",resF.error)
+                  this.setState({loading:false})
+                }
+              }).catch( err => {console.log(err)})
+            }).catch((error) => {
+          this.setState({loading:false})
+          console.log(error);
+        })
+
+      }else{
+        this.setState({loading:false})
+        this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
+      }
+
     }).catch(err => {
       console.log(err);
     });
@@ -2805,7 +2824,11 @@ export default class Main extends React.Component {
                   newTime: {
                     duree: '',
                     client: '',
-                    dossier_client:'',
+                    dossier_client:{
+                      facturation:{
+                        language:''
+                      }
+                    },
                     categoriesActivite: 'Temps facturé',
                     description: '',
                     date: new Date(),
@@ -2874,8 +2897,9 @@ export default class Main extends React.Component {
     };
     const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts,localStorage.getItem("email"))
 
-    let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation ?
-      this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ? "Description (français)" : "Description (anglais)" :"Description"
+    let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ?
+      "Description (français)" : this.state.TimeSheet.newTime.dossier_client.facturation.language === "Anglais" ?
+        "Description (anglais)" : "Description"
 
     return (
       <div>
@@ -4737,7 +4761,10 @@ export default class Main extends React.Component {
                                                           if(findClientTempo){
                                                             this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
                                                           }else{
-                                                            obj.newTime.dossier_client = ''
+                                                            obj.newTime.dossier_client =  {
+                                                              facturation: {
+                                                                language:''
+                                                              }}
                                                             this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: e})
                                                           }
                                                         }}
@@ -4923,14 +4950,14 @@ export default class Main extends React.Component {
                                                       this.createLignefacture(false)
                                                     }}
                                                     appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client === ''}
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client.name === ''}
                                                     style={{ margin: 20 }}> Enregistrer </AtlButton>
                                                   <AtlButton
                                                     onClick={() => {
                                                       this.createLignefacture(true)
                                                     }}
                                                     appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client === ''}
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client.name === ''}
                                                     style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
                                                   <AtlButton
                                                     appearance=""
@@ -4941,7 +4968,10 @@ export default class Main extends React.Component {
                                                           newTime: {
                                                             duree: '',
                                                             client: '',
-                                                            dossier_client:'',
+                                                            dossier_client: {
+                                                              facturation: {
+                                                                language:''
+                                                              }},
                                                             categoriesActivite: 'Temps facturé',
                                                             description: '',
                                                             date: new Date(),
