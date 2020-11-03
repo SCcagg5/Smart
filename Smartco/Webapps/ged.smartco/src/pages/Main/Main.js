@@ -234,6 +234,8 @@ export default class Main extends React.Component {
       newTime: {
         duree: '',
         client: '',
+        dossier_client:'',
+        langue:'',
         categoriesActivite: 'Temps facturé',
         description: '',
         date: new Date(),
@@ -271,7 +273,15 @@ export default class Main extends React.Component {
     newClientFolder: {
       nom: '',
       type: 'corporate',
-      team: []
+      team: [],
+      contrepartie:'',
+      autrepartie:'',
+      desc:'',
+      byEmail:true,
+      sentBySecr:false,
+      sentByAvocat:false,
+      frequence:'',
+      language:"Francais"
     },
     lead_contact_tmp: '',
     lead_contact_horaire_tmp: '',
@@ -279,7 +289,8 @@ export default class Main extends React.Component {
     clients_tempo: [],
     clients_tempo_copie: [],
 
-    selectedTimeSheetIndex:0
+    selectedTimeSheetIndex:0,
+    selectedClientFolders:[]
   };
 
   componentDidMount() {
@@ -2339,6 +2350,11 @@ export default class Main extends React.Component {
       let find = clients_tmp.find(x => x.ID === ID);
 
       if (find) {
+
+        let findInCopyKey = clients_tmp_copie.findIndex(x => x.ID === find.ID && x.email === localStorage.getItem("email"));
+        let findCopy = find;
+
+
         SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
           client_id: find.client_id,
           type: this.state.newClientFolder.type,
@@ -2424,16 +2440,48 @@ export default class Main extends React.Component {
           }).catch(err => {
             console.log(err);
           });
-          setTimeout(() => {
-            this.setState({
-              loading: false,
-              newClientFolder: { nom: '', type: '', team: [] },
-              lead_contact_tmp: '',
-              lead_contact_horaire_tmp: ''
-            });
-            this.justReloadGed();
-            this.openSnackbar('success', 'Dossier ajouté avec succès');
-          }, 750);
+          (findCopy.folders).push(
+            {
+              folder_id:addFolderClient.data.folder_id,
+              team:team,
+              name:this.state.newClientFolder.nom,
+              contrepartie:this.state.newClientFolder.contrepartie,
+              autrepartie:this.state.newClientFolder.autrepartie,
+              desc:this.state.newClientFolder.desc,
+              created_at:moment().format("YYYY-MM-DD"),
+              facturation:{
+                byEmail:this.state.newClientFolder.byEmail,
+                sentBySecr:this.state.newClientFolder.sentBySecr,
+                sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                language:this.state.newClientFolder.language,
+                frequence:this.state.newClientFolder.frequence
+              }
+            }
+          )
+          firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id+'/'+findInCopyKey).set(findCopy).then( ok => {
+            setTimeout(() => {
+              this.setState({
+                loading: false,
+                newClientFolder: {
+                  nom: '',
+                  type: 'corporate',
+                  team: [],
+                  contrepartie:'',
+                  autrepartie:'',
+                  desc:'',
+                  byEmail:true,
+                  sentBySecr:false,
+                  sentByAvocat:false,
+                  frequence:'',
+                  language:"Francais"
+                },
+                lead_contact_tmp: '',
+                lead_contact_horaire_tmp: ''
+              });
+              this.justReloadGed();
+              this.openSnackbar('success', 'Dossier ajouté avec succès');
+            }, 750);
+          });
 
         }).catch(err => {
           console.log(err);
@@ -2558,13 +2606,43 @@ export default class Main extends React.Component {
                   folder_id: addParentClientFolderRes.data.id,
                   ID: ID,
                   email: localStorage.getItem('email'),
-                  client_id: createClientRes.data.id
+                  client_id: createClientRes.data.id,
+                  folders:[
+                    {
+                      folder_id:addFolderClient.data.folder_id,
+                      team:team,
+                      name:this.state.newClientFolder.nom,
+                      contrepartie:this.state.newClientFolder.contrepartie,
+                      autrepartie:this.state.newClientFolder.autrepartie,
+                      desc:this.state.newClientFolder.desc,
+                      created_at:moment().format("YYYY-MM-DD"),
+                      facturation:{
+                        byEmail:this.state.newClientFolder.byEmail,
+                        sentBySecr:this.state.newClientFolder.sentBySecr,
+                        sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                        language:this.state.newClientFolder.language,
+                        frequence:this.state.newClientFolder.frequence
+                      }
+                    }
+                  ]
                 });
                 firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id).set(clients_tmp_copie).then( ok => {
                   setTimeout(() => {
                     this.setState({
                       loading: false,
-                      newClientFolder: { nom: '', type: 'corporate', team: [] },
+                      newClientFolder: {
+                        nom: '',
+                        type: 'corporate',
+                        team: [],
+                        contrepartie:'',
+                        autrepartie:'',
+                        desc:'',
+                        byEmail:true,
+                        sentBySecr:false,
+                        sentByAvocat:false,
+                        frequence:'',
+                        language:"Francais"
+                      },
                       lead_contact_tmp: '',
                       lead_contact_horaire_tmp: ''
                     });
@@ -2716,16 +2794,18 @@ export default class Main extends React.Component {
             obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             obj.user_email = localStorage.getItem('email');
             obj.template = this.state.lignef_template;
-            obj.newTime.client = this.state.selectedClientTimeEntree;
+            //obj.newTime.client = this.state.selectedClientTimeEntree;
             lignes_fact.push(obj);
 
             if(duplicate === false){
               this.setState({
                 lignesFactures: lignes_fact,
+                selectedClientTimeEntree:'',
                 TimeSheet: {
                   newTime: {
                     duree: '',
-                    client: this.state.selectedClientTimeEntree,
+                    client: '',
+                    dossier_client:'',
                     categoriesActivite: 'Temps facturé',
                     description: '',
                     date: new Date(),
@@ -2740,7 +2820,8 @@ export default class Main extends React.Component {
                 TimeSheet: {
                   newTime: {
                     duree: '',
-                    client: this.state.selectedClientTimeEntree,
+                    client: objCopy.newTime.client,
+                    dossier_client:objCopy.newTime.dossier_client,
                     categoriesActivite: objCopy.newTime.categoriesActivite,
                     description: objCopy.newTime.description,
                     date: new Date(objCopy.newTime.date),
@@ -2792,6 +2873,9 @@ export default class Main extends React.Component {
       onChange: this.onInputTimeSuggChange
     };
     const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts,localStorage.getItem("email"))
+
+    let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation ?
+      this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ? "Description (français)" : "Description (anglais)" :"Description"
 
     return (
       <div>
@@ -4155,8 +4239,8 @@ export default class Main extends React.Component {
                                               <textarea
                                                 style={{color: "#000"}}
                                                 className="form-control"
-                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
-                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "description")}
+                                                value={this.state.newClientFolder.desc}
+                                                onChange={this.handleChange( "newClientFolder", "desc")}
                                                 rows={5}
                                               />
                                             </div>
@@ -4170,8 +4254,8 @@ export default class Main extends React.Component {
                                               className="form-control"
                                               id="email"
                                               name="email"
-                                              value={this.state.selectedSociete.contrepartie}
-                                              onChange={this.handleChange('selectedSociete', 'contrepartie')} />
+                                              value={this.state.newClientFolder.contrepartie}
+                                              onChange={this.handleChange('newClientFolder', 'contrepartie')} />
                                           </div>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Autres parties</p>
@@ -4180,8 +4264,8 @@ export default class Main extends React.Component {
                                               className="form-control"
                                               id="email"
                                               name="email"
-                                              value={this.state.selectedSociete.autrepartie}
-                                              onChange={this.handleChange('selectedSociete', 'autrepartie')} />
+                                              value={this.state.newClientFolder.autrepartie}
+                                              onChange={this.handleChange('newClientFolder', 'autrepartie')} />
                                           </div>
                                         </div>
                                         <hr style={{
@@ -4351,11 +4435,12 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-8">
                                                   <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.parEmail || false}
+                                                      checked={this.state.newClientFolder.byEmail}
                                                       onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.parEmail = !this.state.mondat.facturationClient.parEmail;
-                                                        this.setState({ mondat: d });
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.byEmail = e.target.checked
+                                                        this.setState({newClientFolder:obj})
+                                                        //this.handleChange("newClientFolder",e.target.checked)
                                                       }}
                                                   />
                                                 </div>
@@ -4372,11 +4457,11 @@ export default class Main extends React.Component {
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
                                                     style={{ width: '100%' }}
-                                                    value={this.state.mondat.facturationClient.frequence}
+                                                    value={this.state.newClientFolder.frequence}
                                                     onChange={(e) => {
-                                                      let d = this.state.mondat;
-                                                      d.facturationClient.frequence = e.target.value;
-                                                      this.setState({ mondat: d });
+                                                      let obj = this.state.newClientFolder;
+                                                      obj.frequence = e.target.value
+                                                      this.setState({newClientFolder:obj})
                                                     }}
                                                   >
                                                     <MenuItem
@@ -4402,11 +4487,11 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-6">
                                                   <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.EnvoyeParSecretariat || false}
+                                                      checked={this.state.newClientFolder.sentBySecr}
                                                       onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.EnvoyeParSecretariat = !this.state.mondat.facturationClient.EnvoyeParSecretariat;
-                                                        this.setState({ mondat: d });
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.sentBySecr = e.target.checked
+                                                        this.setState({newClientFolder:obj})
                                                       }} />
                                                 </div>
                                               </div>
@@ -4420,11 +4505,11 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-6">
                                                   <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.EnvoyeAvocat || false}
+                                                      checked={this.state.newClientFolder.sentByAvocat}
                                                       onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.EnvoyeAvocat = !this.state.mondat.facturationClient.EnvoyeAvocat;
-                                                        this.setState({ mondat: d });
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.sentByAvocat = e.target.checked
+                                                        this.setState({newClientFolder:obj})
                                                       }} />
                                                 </div>
                                               </div>
@@ -4441,15 +4526,15 @@ export default class Main extends React.Component {
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
                                                     style={{ width: '100%' }}
-                                                    value={this.state.mondat.facturationClient.LangueFacturation}
+                                                    value={this.state.newClientFolder.language}
                                                     onChange={(e) => {
-                                                      let d = this.state.mondat;
-                                                      d.facturationClient.LangueFacturation = e.target.value;
-                                                      this.setState({ mondat: d });
+                                                      let obj = this.state.newClientFolder;
+                                                      obj.language = e.target.value
+                                                      this.setState({newClientFolder:obj})
                                                     }}
                                                   >
                                                     <MenuItem
-                                                      value={'Français'}>Français</MenuItem>
+                                                      value={'Francais'}>Français</MenuItem>
                                                     <MenuItem
                                                       value={'Anglais'}>Anglais</MenuItem>
                                                   </MuiSelect>
@@ -4469,13 +4554,15 @@ export default class Main extends React.Component {
                                             onClick={() => {
                                               let contact = main_functions.getOAContactByEmail2(this.state.contacts,this.state.lead_contact_tmp);
                                               let objCp = this.state.newClientFolder;
-                                              objCp.team.push({
-                                                fname: contact.nom + ' ' + contact.prenom,
-                                                email: this.state.lead_contact_tmp,
-                                                uid: contact.uid,
-                                                tarif: this.state.lead_contact_horaire_tmp,
-                                                type: 'lead'
-                                              });
+                                              if(contact){
+                                                objCp.team.push({
+                                                  fname: contact.nom + ' ' + contact.prenom,
+                                                  email: this.state.lead_contact_tmp,
+                                                  uid: contact.uid,
+                                                  tarif: this.state.lead_contact_horaire_tmp,
+                                                  type: 'lead'
+                                                });
+                                              }
                                               this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
                                             }}
                                             className="btn btn-blue waves-effect mb-2 waves-light m-1">
@@ -4623,13 +4710,12 @@ export default class Main extends React.Component {
                                                   className="col-md-4">
                                                   <div>
                                                     <h5>Nom du client</h5>
-                                                    <div
-                                                      style={{ display: 'flex' }}>
+                                                    <div style={{ display: 'flex' }}>
                                                       <SelectSearch
                                                         options={
-                                                          this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
+                                                          this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
                                                             ({
-                                                              value: Nom + ' ' + (Prenom || ''),
+                                                              value: ID,
                                                               name: Nom + ' ' + (Prenom || ''),
                                                               ContactType: Type,
                                                               ContactName: Nom + ' ' + (Prenom || ''),
@@ -4640,19 +4726,20 @@ export default class Main extends React.Component {
                                                         renderOption={main_functions.renderSearchOption}
                                                         search
                                                         placeholder="Chercher votre client"
-                                                        onChange={ e => {
+                                                        onChange={ (e) => {
                                                           console.log(e)
                                                           let obj = this.state.TimeSheet;
-                                                          obj.newTime.client = e;
-                                                          let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => (x.Nom + ' ' + x.Prenom) === e);
-                                                          console.log(find_annuaire_fact_lead);
-                                                          let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
-                                                          console.log(partner_email);
-                                                          this.setState({
-                                                            partnerFacture: partner_email,
-                                                            selectedClientTimeEntree: e,
-                                                            TimeSheet: obj
-                                                          });
+
+                                                          let findClientTempo = this.state.clients_tempo.find(x => x.ID === e)
+                                                          let findClientFname = this.state.annuaire_clients_mondat.find(x => x.ID === e)
+                                                          console.log(findClientFname)
+                                                          obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                                                          if(findClientTempo){
+                                                            this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
+                                                          }else{
+                                                            obj.newTime.dossier_client = ''
+                                                            this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: e})
+                                                          }
                                                         }}
                                                       />
                                                       <IconButton
@@ -4661,6 +4748,28 @@ export default class Main extends React.Component {
                                                         <SearchIcon />
                                                       </IconButton>
                                                     </div>
+                                                    <h5 style={{marginTop:10}}>Dossier du client </h5>
+                                                    <MuiSelect
+
+                                                      labelId="demo-simple-select-label"
+                                                      id="demo-simple-select"
+                                                      style={{ width: 217 }}
+                                                      value={this.state.TimeSheet.newTime.dossier_client}
+                                                      onChange={(e) => {
+                                                        console.log(e.target.value)
+                                                        let d = this.state.TimeSheet;
+                                                        d.newTime.dossier_client = e.target.value;
+                                                        this.setState({ TimeSheet: d });
+                                                      }}
+                                                    >
+                                                      {
+                                                        this.state.selectedClientFolders.map((item,key) => (
+                                                          <MenuItem key={key} value={item}>{item.name}</MenuItem>
+                                                        ))
+                                                      }
+
+
+                                                    </MuiSelect>
                                                   </div>
                                                 </div>
                                               </div>
@@ -4714,7 +4823,7 @@ export default class Main extends React.Component {
                                                   className="col-md-4">
                                                   <div>
                                                     <div>
-                                                      <h5>Description</h5>
+                                                      <h5>{new_timeSheet_desc}</h5>
                                                     </div>
                                                     <textarea
                                                       className="form-control "
@@ -4814,14 +4923,14 @@ export default class Main extends React.Component {
                                                       this.createLignefacture(false)
                                                     }}
                                                     appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === ''}
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client === ''}
                                                     style={{ margin: 20 }}> Enregistrer </AtlButton>
                                                   <AtlButton
                                                     onClick={() => {
                                                       this.createLignefacture(true)
                                                     }}
                                                     appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === ''}
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client === ''}
                                                     style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
                                                   <AtlButton
                                                     appearance=""
@@ -4832,7 +4941,8 @@ export default class Main extends React.Component {
                                                           newTime: {
                                                             duree: '',
                                                             client: '',
-                                                            categoriesActivite: '',
+                                                            dossier_client:'',
+                                                            categoriesActivite: 'Temps facturé',
                                                             description: '',
                                                             date: new Date(),
                                                             utilisateurOA: '',
@@ -4938,130 +5048,6 @@ export default class Main extends React.Component {
                                                   </div>
                                                 </div>
                                               </div>
-                                              {/*{
-                                                searchFilterLignesfacture.length > 0 ?
-                                                  <div className="mt-3">
-                                                    <div style={{
-                                                      width: '100%',
-                                                      backgroundColor: '#D2DDFE',
-                                                      padding: 5,
-                                                      display: 'flex'
-                                                    }}>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '15%' }}>
-                                                        <h5>Date</h5>
-                                                      </div>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '60%' }}>
-                                                        <h5>Activités</h5>
-                                                      </div>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '15%' }}>
-                                                        <h5>Heures</h5>
-                                                      </div>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '10%' }}>
-                                                        <h5>Action</h5>
-                                                      </div>
-                                                    </div>
-                                                    {
-                                                      searchFilterLignesfacture.map((lf, key) =>
-                                                        <div
-                                                          key={key}>
-                                                          <div
-                                                            style={{
-                                                              width: '100%',
-                                                              backgroundColor: '#fff',
-                                                              padding: 5,
-                                                              display: 'flex'
-                                                            }}>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '15%' }}>
-                                                              <h5>{moment(lf.newTime.date).format('DD-MM-YYYY')}</h5>
-                                                            </div>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '60%' }}>
-                                                              <h5>{lf.newTime.description}</h5>
-                                                            </div>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '15%' }}>
-                                                              <h5>{lf.newTime.duree}</h5>
-                                                            </div>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '10%' }}>
-                                                              <IconButton
-                                                                onClick={() => {
-                                                                  this.deleteLigneFact(lf);
-                                                                }}>
-                                                                <DeleteOutlineIcon
-                                                                  color="error" />
-                                                              </IconButton>
-                                                            </div>
-                                                          </div>
-                                                          {
-                                                            key < searchFilterLignesfacture.length &&
-                                                            <div
-                                                              style={{
-                                                                backgroundColor: '#f0f0f0',
-                                                                height: 2
-                                                              }} />
-                                                          }
-                                                        </div>
-                                                      )
-                                                    }
-                                                    <div
-                                                      className="mt-3">
-                                                      <h6>Partner validant cette facture</h6>
-                                                      <MuiSelect
-                                                        labelId="demo-mutiple-chip-label14545"
-                                                        id="demo-mutiple-chip34688"
-                                                        style={{ width: 250 }}
-                                                        value={this.state.partnerFacture}
-                                                        onChange={(e) => {
-                                                          console.log(e.target.value);
-                                                          this.setState({ partnerFacture: e.target.value });
-                                                        }}
-                                                        MenuProps={Data.MenuProps}
-                                                      >
-                                                        {this.state.contacts.map((contact, key) => (
-                                                          <MenuItem
-                                                            key={key}
-                                                            value={contact.email}>
-                                                            <div
-                                                              className="row align-items-center justify-content-center">
-                                                              <Avatar
-                                                                alt=""
-                                                                src={contact.imageUrl} />
-                                                              <div>{contact.nom + ' ' + contact.prenom}</div>
-                                                            </div>
-                                                          </MenuItem>
-                                                        ))}
-                                                      </MuiSelect>
-                                                    </div>
-                                                    <div
-                                                      className="mt-4 text-right">
-                                                      <AtlButton
-                                                        appearance="primary"
-                                                        onClick={() => {
-                                                          //this.createFacture();
-                                                        }}> ETABLIR FACTURE</AtlButton>
-                                                    </div>
-                                                  </div> :
-
-                                                  <div
-                                                    className="mt-4">
-                                                    <h5
-                                                      style={{ color: '#f50' }}>Aucune ligne facture encore ajoutée pour ce client !</h5>
-                                                  </div>
-                                              }*/}
                                             </div>
                                         }
                                       </TabPanel>

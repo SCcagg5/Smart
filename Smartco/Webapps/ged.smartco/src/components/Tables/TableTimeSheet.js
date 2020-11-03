@@ -375,7 +375,10 @@ export default function TableTimeSheet(props) {
                                 {moment(row.newTime.date).format("DD/MM/YYYY") || ""}
                             </TableCell>
                             <TableCell style={{ width: "17%" }} align="center">
-                                {row.newTime.client || ""}
+                                {
+                                    row.newTime.dossier_client ? (row.newTime.client || "") + " - " + row.newTime.dossier_client.name : (row.newTime.client || "")
+
+                                }
                             </TableCell>
 
                             <TableCell style={{ width: "30%" }} align="center">
