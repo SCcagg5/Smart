@@ -233,6 +233,15 @@ let SmartService = {
         });
     },
 
+    generate_facture_odoo(token,usrtoken,id,accestoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/bill/'+id+'?access_token='+accestoken, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
 
 
 

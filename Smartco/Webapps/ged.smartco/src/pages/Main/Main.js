@@ -295,7 +295,9 @@ export default class Main extends React.Component {
     clients_tempo_copie: [],
 
     selectedTimeSheetIndex:0,
-    selectedClientFolders:[]
+    selectedClientFolders:[],
+    facturesToValidated:[],
+    facturesToValidatedCopy:[]
   };
 
   componentDidMount() {
@@ -454,11 +456,11 @@ export default class Main extends React.Component {
                   let societes = data.societes || [];
                   let annuaire_clients_mondat = data.annuaire_client_mondat || [];
                   let lignes_f = data[ent_name+"-lignes_f-"+ged_id] || [];
-                  //let clients_tempo = (data.clients_tempo || []).filter(x => x.email === localStorage.getItem('email'));
-                  //let clients_tempo_copie = (data.clients_tempo || []);
+
                   let clients_tempo = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
                   let clients_tempo_copie = data[ent_name+"-clients_tempo-"+ged_id] || [];
                   let facturesToValidated = data[ent_name+"-factures_to_Validated-"+ged_id] || []
+                  let facturesToValidatedCopy = data[ent_name+"-factures_to_Validated-"+ged_id] || []
 
 
                   this.setState({
@@ -470,7 +472,8 @@ export default class Main extends React.Component {
                     lignesFacturesCopy: lignes_f,
                     clients_tempo: clients_tempo,
                     clients_tempo_copie: clients_tempo_copie,
-                    facturesToValidated:facturesToValidated
+                    facturesToValidated:facturesToValidated,
+                    facturesToValidatedCopy:facturesToValidatedCopy
                   });
 
                   let connected_email = localStorage.getItem("email");
@@ -1780,8 +1783,9 @@ export default class Main extends React.Component {
   addFactureToValidated(client,client_folder,date,createdBy,partnerEmail,lignes_facture){
     this.setState({loading:true})
     SmartService.getFile(client_folder,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( res => {
-      let lf_to_validated = this.state.facturesToValidated;
+      let lf_to_validated = this.state.facturesToValidatedCopy;
       lf_to_validated.push({
+        ID:Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
         created_at:date,
         created_by:createdBy,
         client:client,
@@ -2046,14 +2050,14 @@ export default class Main extends React.Component {
     );
 
     SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
-      //console.log(createFactRes)
       window.open('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true', '_blank');
     }).catch(err => {
       console.log(err);
     });
   }
 
-  createFacture_ForSelected(facture_date,lignes_f,folder_id,facture,key) {
+  createFacture_ForSelected(facture_date,lignes_f,folder_id,facture) {
+    let id_facture = this.state.facturesToValidatedCopy.findIndex(x => x.ID === facture.ID)
     this.setState({loading:true})
     let lignes_factures = lignes_f;
     let odoo_data = [{
@@ -2061,8 +2065,9 @@ export default class Main extends React.Component {
       'state': 'draft',
       'type': 'out_invoice',
       'invoice_sent': false,
+      "move_name":false,"user_id":6,"team_id":1,"comment":false,
       'l10n_ch_isr_sent': false,
-      'name': '',
+      'name': false,
       'invoice_date': moment(facture_date).format('YYYY-MM-DD'),
       'date': moment(facture_date).format('YYYY-MM-DD'),
       'journal_id': 1,
@@ -2106,7 +2111,6 @@ export default class Main extends React.Component {
       'invoice_outstanding_credits_debits_widget': false,
       'narration': false,
       'invoice_origin': false,
-      'fiscal_position_id': 1,
       'invoice_cash_rounding_id': false,
       'invoice_source_email': false,
       'invoice_payment_ref': false,
@@ -2116,65 +2120,25 @@ export default class Main extends React.Component {
       'activity_ids': [],
       'message_ids': [],
       'message_attachment_count': 0,
-      'invoice_line_ids': [
-        [
-          0,
-          'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
-          {
-            'sequence': 10,
-            'account_id': 104,
-            'quantity': 0.15,
-            'discount': 10,
-            'partner_id': false,
-            'currency_id': false,
-            'debit': 0,
-            'credit': 60,
-            'display_type': false,
-            'product_id': 1,
-            'name': '/*/*/',
-            'analytic_account_id': false,
-            'analytic_tag_ids': [
-              [
-                6,
-                false,
-                []
-              ]
-            ],
-
-            'price_unit': 400,
-            'tax_ids': [
-              [
-                6, false, []
-              ]
-            ],
-            'amount_currency': 0,
-            'date_maturity': false,
-            'tag_ids': [
-              [
-                6,
-                false,
-                []
-              ]
-            ],
-            'recompute_tax_line': false,
-            'is_rounding_line': false,
-            'exclude_from_invoice_tab': false
-          }
-        ]
-      ],
-      'line_ids': []
+      'invoice_line_ids': [],
+      "account_id": 6,
+      "reference": false,
+      "fiscal_position_id": false,
+      "origin": false,
+      //'line_ids': []
     }];
     let total = 0;
     lignes_factures.map((ligne, key) => {
       total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
       let OAContact = main_functions.getOAContactByEmail2(this.state.contacts,ligne.newTime.utilisateurOA);
-      odoo_data[0].line_ids.push(
+      odoo_data[0].invoice_line_ids.push(
         [
           0,
           'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
           {
-            'account_id': 104,
+            'account_id': 103,
             'sequence': 10,
+            'origin': false,
             'name':
               ligne.template === '0' ? moment(ligne.newTime.date).format('DD/MM/YYYY') :
                 ligne.template === '1' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description :
@@ -2196,9 +2160,9 @@ export default class Main extends React.Component {
             'currency_id': false,
             'partner_id': false,
             'product_uom_id': false,
-            'product_id': 1,
+            'product_id': 2,
             'payment_id': false,
-            'tax_ids': [
+            'invoice_line_tax_ids': [
               [
                 6,
                 false,
@@ -2232,103 +2196,79 @@ export default class Main extends React.Component {
       );
 
     });
-    odoo_data[0].line_ids.push(
-      [
-        0,
-        'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
-        {
-          'account_id': 6,
-          'sequence': 10,
-          'name': false,
-          'quantity': 1,
-          'price_unit': -total,
-          'discount': 0,
-          'debit': total,
-          'credit': 0,
-          'amount_currency': 0,
-          'date_maturity': '2020-09-08',
-          'currency_id': false,
-          'partner_id': false,
-          'product_uom_id': false,
-          'product_id': false,
-          'payment_id': false,
-          'tax_ids': [
-            [
-              6,
-              false,
-              []
-            ]
-          ],
-          'tax_base_amount': 0,
-          'tax_exigible': true,
-          'tax_repartition_line_id': false,
-          'tag_ids': [
-            [
-              6,
-              false,
-              []
-            ]
-          ],
-          'analytic_account_id': false,
-          'analytic_tag_ids': [
-            [
-              6,
-              false,
-              []
-            ]
-          ],
-          'recompute_tax_line': false,
-          'display_type': false,
-          'is_rounding_line': false,
-          'exclude_from_invoice_tab': true
-        }
-      ]
-    );
 
     SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+
       if(createFactRes.succes === true && createFactRes.status === 200){
+        SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,"eafd285777ggobfvxyvnx").then(genFactRes => {
 
-        const pdf2base64 = require('pdf-to-base64');
-        pdf2base64('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf')
-          .then(
-            (response) => {
-              SmartService.getFile(folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
-                if(resF.succes === true && resF.status === 200){
-                  let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+          if(genFactRes.succes === true && genFactRes.status === 200){
 
-                  SmartService.addFileFromBas64({b64file:response,folder_id:comptaFolder.id},
-                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
-                    console.log(ok)
-                    if(ok.succes === true && ok.status === 200){
-                      SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                        ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
-                        if(updateRes.succes === true && updateRes.status === 200){
-                          firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id + "/"+key).update({
-                            statut:"accepted",
-                            file_id:ok.data.file_id
-                          });
-                          this.justReloadGed();
-                          this.setState({loading:false})
-                          this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
-                          window.open('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true', '_blank');
-                        }else{
-                          this.openSnackbar("error",updateRes.error)
+            SmartService.getFile(folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+              if(resF.succes === true && resF.status === 200){
+                let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+
+                SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
+                  localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+
+                  if(ok.succes === true && ok.status === 200){
+
+                    SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                      ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+
+                      if(updateRes.succes === true && updateRes.status === 200){
+
+                        let secretariat_folder = this.state.reelFolders.find(x => x.name === "SECRETARIAT");
+                        console.log(secretariat_folder)
+                        if(secretariat_folder){
+                          let compta_secretariat_folder = secretariat_folder.Content.folders.find(x => x.name === "COMPTABILITE");
+                          if(compta_secretariat_folder){
+                            console.log(compta_secretariat_folder)
+                            SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
+                              if(r.succes === true && r.status === 200){
+                                SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                                  r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
+                                  if(updateRes2.succes === true && updateRes2.status === 200){
+                                    this.justReloadGed()
+                                  }else{
+                                    console.log(updateRes2.error)
+                                  }
+                                }).catch(err => {console.log(err)})
+                              }else{
+                                console.log(r.error)
+                              }
+                            }).catch(err => {console.log(err)})
+                          }
                         }
-                      }).catch(err => {console.log(err)})
+                        console.log("FIREBASE")
+                        firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id + "/"+id_facture).update({
+                          statut:"accepted",
+                          file_id:ok.data.file_id
+                        }).catch(err => console.log(err))
+                        this.justReloadGed();
+                        this.setState({loading:false})
+                        this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+                      }else{
+                        this.openSnackbar("error",updateRes.error)
+                      }
+                    }).catch(err => {console.log(err)})
 
-                    }else{
-                      this.openSnackbar("error",ok.error)
-                      this.setState({loading:false})
-                    }
-                  }).catch(err => console.log(err))
-                }else{
-                  this.openSnackbar("error",resF.error)
-                  this.setState({loading:false})
-                }
-              }).catch( err => {console.log(err)})
-            }).catch((error) => {
-          this.setState({loading:false})
-          console.log(error);
+                  }else{
+                    this.openSnackbar("error",ok.error)
+                    this.setState({loading:false})
+                  }
+                }).catch(err => console.log(err))
+              }else{
+                this.openSnackbar("error",resF.error)
+                this.setState({loading:false})
+              }
+            }).catch( err => {console.log(err)})
+
+          }else{
+            console.log(genFactRes.error)
+          }
+        }).catch( err => {
+          console.log(err)
         })
 
       }else{
@@ -5111,7 +5051,7 @@ export default class Main extends React.Component {
                                         <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
                                         <TableFactures factures={this.state.facturesToValidated}
                                                        validateFacture={(row,key) => {
-                                                         this.createFacture_ForSelected(row.created_at, row.lignes_facture,row.client_folder.id,row,key);
+                                                         this.createFacture_ForSelected(row.created_at, row.lignes_facture,row.client_folder.id,row);
                                                        }}
                                                        openFacture={(id) => {
                                                          this.openPdfModal(id)

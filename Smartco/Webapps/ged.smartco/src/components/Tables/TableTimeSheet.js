@@ -241,8 +241,7 @@ export default function TableTimeSheet(props) {
     let selected_client = client_folders.Content ? client_folders.Content.folders.find(x => x.name === lf_client_search) : undefined
     let selected_client_folders = selected_client ?  selected_client.Content.folders : [];
 
-    console.log(searchFilter)
-    console.log(selected)
+
 
     return (
 
@@ -327,9 +326,7 @@ export default function TableTimeSheet(props) {
                                           setCheck_all(event.target.checked)
                                           searchFilter.map((item,key) => {
                                               searchFilter[key].checked = event.target.checked
-                                                //item.checked = event.target.checked
                                           })
-                                          //props.setLignesFactures(ch_rows)
                                       }}
                             />
                         </TableCell>
@@ -351,8 +348,6 @@ export default function TableTimeSheet(props) {
                                             setX_update(!x_update)
                                             searchFilter[key].checked = event.target.checked
                                             if(searchFilter[key].checked === false) setCheck_all(false)
-                                            //props.setLignesFactures(ch_rows)
-
                                         }}  />
                                 </div>
                             </TableCell>
@@ -377,7 +372,6 @@ export default function TableTimeSheet(props) {
                             <TableCell style={{ width: "17%" }} align="center">
                                 {
                                     row.newTime.dossier_client ? (row.newTime.client || "") + " - " + row.newTime.dossier_client.name : (row.newTime.client || "")
-
                                 }
                             </TableCell>
 
@@ -517,7 +511,8 @@ export default function TableTimeSheet(props) {
             <Dialog open={showUpdateModal} maxWidth="xl" onClose={() => {
                 setShowUpdateModal(!showUpdateModal)
             }}
-                    aria-labelledby="form-dialog-title">
+                    aria-labelledby="form-dialog-title"
+            >
                 <DialogTitle disableTypography id="form-dialog-title">
                     <Typography variant="h6">Modifier ligne facture</Typography>
                     <IconButton aria-label="close"
