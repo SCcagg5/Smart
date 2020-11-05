@@ -1,0 +1,62 @@
+@font-face {
+    font-family: "MyriadPro";
+    src: url('./assets/fonts/MyriadProRegular.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.App {
+    text-align: center;
+}
+
+.App-logo {
+    height: 40vmin;
+}
+
+.App-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
+.App-link {
+    color: #09d3ac;
+}
+
+.selectedItem {
+    background-color: #abcdff;
+    color: white;
+}
+
+.background-gainboro {
+    background-color: #ebf2ff;
+}
+
+.customFormControlLabel {
+    margin-top: 8px;
+    padding: 18px;
+    background-color: #fff;
+    width: 135px;
+    height: 1.825rem;
+    border: 2px solid #F0F0F0;
+}
+
+.customUILabel {
+    font-size: 1.0rem !important;
+    color: rgb(34,34,34);
+    font-weight: bold!important;
+}
+
+.customUILabel-root{
+    margin-left: 5px!important;
+    margin-right: 5px!important;
+}
+
+
+
+

@@ -42,10 +42,12 @@ export default function LeftMenuV3(props) {
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [anchorElMenu, setAnchorElMenu] = useState(null);
+    const [anchorShareElMenu, setShareAnchorElMenu] = useState(null);
     const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
     const [openRenameeModal, setOpenRenameModal] = React.useState(false);
     const [newFolderName, setnewFolderName] = React.useState(props.selectedFolder.name);
     const [searchValue, setSearchValue] = React.useState("");
+    const [rights, setRights] = React.useState({});
 
 
     const dataList = [];
@@ -230,9 +232,6 @@ export default function LeftMenuV3(props) {
         });
 
 
-
-
-
     return (
 
         <div style={{marginTop: 20, paddingRight: 10}}>
@@ -296,6 +295,8 @@ export default function LeftMenuV3(props) {
                      onClick={() => {
                          props.setSelectedDriveItem([])
                          props.setExpandedDriveItems([])
+                         props.setSelectedDriveSharedItem([])
+                         props.setExpandedDriveSharedItems([])
                     props.setShowDriveMenuItems()
                     props.setFocusedItem("Drive")
                 }}
@@ -325,12 +326,10 @@ export default function LeftMenuV3(props) {
                             expandAction="click"
                             onRightClick={info => {
                                 if (info.node.typeF === "folder") {
-
                                         setAnchorElMenu(info.event.currentTarget)
                                         props.setSelectedFolder(info.node)
                                         props.setFolderName(info.node.title)
                                         props.setFolderId(info.node.key)
-
                                 }
                             }}
                             expandedKeys={props.expandedDriveItems}
@@ -349,16 +348,18 @@ export default function LeftMenuV3(props) {
                           onSelect={onSelect_shared}
                           treeData={props.sharedFolders}
                           expandAction="click"
-                          /*onRightClick={info => {
-                              if (info.node.typeF === "folder") {
+                          onRightClick={info => {
 
-                                  setAnchorElMenu(info.event.currentTarget)
+                              if (info.node.typeF === "folder" && info.node.key !== "parent") {
+                                  let rights = info.node.rights || [];
+                                  setRights(rights);
+                                  setShareAnchorElMenu(info.event.currentTarget)
                                   props.setSelectedFolder(info.node)
                                   props.setFolderName(info.node.title)
-                                  props.setFolderId(info.node.key)
+                                  props.setSharedFolderId(info.node.key)
 
                               }
-                          }}*/
+                          }}
                           expandedKeys={props.expandedDriveSharedItems}
                           selectedKeys={props.selectedDriveSharedItem}
                           autoExpandParent={props.autoExpandSharedParent}
@@ -422,7 +423,78 @@ export default function LeftMenuV3(props) {
                     <MenuItem  key={7} onClick={() => {
                         setAnchorElMenu(null);
                         setOpenDeleteModal(true)
-                    }} disabled={localStorage.getItem("role") !== "admin"}
+                    }} //disabled={localStorage.getItem("role") !== "admin"}
+                    >
+                        <ListItemIcon>
+                            <DeleteOutlineIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Supprimer</Typography>
+                    </MenuItem>
+                </Menu>
+
+                <Menu
+                  id="tree-menu-click111"
+                  anchorEl={anchorShareElMenu}
+                  keepMounted
+                  open={Boolean(anchorShareElMenu)}
+                  onClose={() => setShareAnchorElMenu(null)}
+                >
+                    <MenuItem key={1} onClick={() => {
+                        setShareAnchorElMenu(null);
+                        props.openNewFolderModal()
+                    }} disabled={rights.edit === false}
+                    >
+                        <ListItemIcon>
+                            <NewFolderIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Nouveau dossier</Typography>
+                    </MenuItem>
+                    <MenuItem key={2} onClick={() => {
+                        setShareAnchorElMenu(null);
+                        props.showNewFileScreen()
+                    }}
+                              disabled={rights.edit === false}
+                    >
+                        <ListItemIcon>
+                            <NewFileIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Nouveau fichier</Typography>
+                    </MenuItem>
+                    <MenuItem key={3} onClick={() => {
+                        setShareAnchorElMenu(null);
+                        props.openShareModal()
+                    }} disabled={rights.share === false}
+                    >
+                        <ListItemIcon>
+                            <PersonAddIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Partager</Typography>
+                    </MenuItem>
+                    <MenuItem key={5} onClick={() => {
+                        setShareAnchorElMenu(null);
+                        setOpenRenameModal(true);
+                        setnewFolderName(props.selectedFolder.title)
+                    }} disabled={rights.edit === false}
+                    >
+                        <ListItemIcon>
+                            <EditIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Rennomer</Typography>
+                    </MenuItem>
+                    <MenuItem key={6} onClick={() => {
+
+                    }}
+                              disabled={rights.read === false}
+                    >
+                        <ListItemIcon>
+                            <GetAppIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Télécharger</Typography>
+                    </MenuItem>
+                    <MenuItem  key={7} onClick={() => {
+                        setShareAnchorElMenu(null);
+                        setOpenDeleteModal(true)
+                    }} disabled={rights.administrate === false}
                     >
                         <ListItemIcon>
                             <DeleteOutlineIcon fontSize="small"/>
@@ -589,7 +661,7 @@ export default function LeftMenuV3(props) {
                                         props.showContacts === true ?
                                             <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                                     }
-                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Contacts</Typography>
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Equipe OA</Typography>
                                 </div>
                                 <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                             </div>
@@ -617,7 +689,7 @@ export default function LeftMenuV3(props) {
                                         props.showSocietyMenuItems === true ?
                                             <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                                     }
-                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Liste des clients</Typography>
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Liste clients</Typography>
                                 </div>
                                 <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                             </div>

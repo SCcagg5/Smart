@@ -9,10 +9,6 @@ import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import SmartService from '../provider/SmartService';
 import PeopleOutlineOutlinedIcon from '@material-ui/icons/PeopleOutlineOutlined';
 
-const enfin_clients = ["Rocket","SmartCo","RectoVerso"]
-const enfin_sub_folders = ["Compta client","Compta fournis.","Compta.Autres","Livre banque","RH","Clients.Info",
-  "Clients.Fournisseur","Fabrication","Assistance","Rendez vous","To be signed","Urgence","Actionnaires"];
-
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -141,15 +137,17 @@ const getTimeSuggestions = value => {
       ),
       files: drive[i].Content ? drive[i].Content.files || [] : [],
       folders: drive[i].Content ? drive[i].Content.folders || [] : [],
-      typeF: drive[i].type ? 'file' : 'folder'
+      typeF: drive[i].type ? 'file' : 'folder',
+      rights:drive[i].rights || undefined,
+      proprietary:drive[i].proprietary || undefined
     };
 
     if (drive[i].Content && (drive[i].Content.folders.length > 0)) {
       treeNode.children = changeStructure(drive[i].Content.folders);
     }
-    if (drive[i].Content && (drive[i].Content.files.length > 0)) {
+    /*if (drive[i].Content && (drive[i].Content.files.length > 0)) {
       treeNode.children = (treeNode.children || []).concat(changeStructure(drive[i].Content.files) || []);
-    }
+    }*/
 
     list.push(treeNode);
   }
@@ -622,67 +620,24 @@ const generateGed = () => {
   });
 }
 
-const generateComptaGed = () => {
-
-  SmartService.addFolder({
-    name: 'CLIENTS',
-    folder_id: null
-  }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes => {
-    console.log('ok1');
-    enfin_clients.map((item,key) => {
-
-      SmartService.addFolder({
-        name: item,
-        folder_id: addFolderClientRes.data.id
-      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addSubFolderRes => {
-        console.log('ok2');
-
-        enfin_sub_folders.map((item2,key2) => {
-          SmartService.addFolder({
-            name: item2,
-            folder_id: addSubFolderRes.data.id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(res => {
-            console.log('ok3');
-          }).catch(err => {
-            console.log(err);
-          });
-        })
-      }).catch(err => {
-        console.log(err);
-      });
-
-    })
-
-  }).catch(err => {
-    console.log(err);
-  });
-
-}
-
 function exportCSVFile( items, fileTitle) {
   var headers = {
-    Name: "Name",
-    ContactFullName: "ContactFullName",
-    Email: "Email",
-    Phone: "Phone",
-    Street1: "Street1",
-    Street2: "Street2",
-    Zip:"Zip",
-    City: "City",
-    Country: "Country"
+    Nom: "Nom",
+    Prenom: "Prenom",
+    email: "email",
+    phone: "phone",
+    adress: "adress",
+    Type:"Type"
   };
   var itemsFormatted = [];
   items.forEach((item) => {
     itemsFormatted.push({
-      Name: item.Name || " ",
-      ContactFullName: item.ContactFullName || " ",
-      Email: item.Email || " ",
-      Phone: item.Phone || " ",
-      Street1: item.Street1 || " ",
-      Street2: item.Street2 || " ",
-      Zip: item.Zip || " ",
-      City: item.City || " ",
-      Country: item.Country || " "
+      Nom: item.Nom || " ",
+      Prenom: item.Prenom || " ",
+      email: item.email || " ",
+      phone: item.phone || " ",
+      adress: item.adress || " ",
+      Type: item.Type || "0"
     });
   });
   if (headers) {
@@ -716,30 +671,22 @@ function exportCSVFile( items, fileTitle) {
 
 function exportContactCSVFile( items, fileTitle) {
   var headers = {
-    FirstName: "FirstName",
-    LastName: "LastName",
-    Email: "Email",
-    Phone: "Phone",
-    Street1: "Street1",
-    Street2: "Street2",
-    Zip:"Zip",
-    City: "City",
-    Country: "Country",
-    TauxHoraire:"TauxHoraire"
+    nom: "nom",
+    prenom: "prenom",
+    email: "email",
+    phone: "phone",
+    adress: "adress",
+    rateFacturation:"rateFacturation"
   };
   var itemsFormatted = [];
   items.forEach((item) => {
     itemsFormatted.push({
-      FirstName: item.FirstName || " ",
-      LastName: item.LastName || " ",
-      Email: item.Email || " ",
-      Phone: item.Phone || " ",
-      Street1: item.Street1 || " ",
-      Street2: item.Street2 || " ",
-      Zip: item.Zip || " ",
-      City: item.City || " ",
-      Country: item.Country || " ",
-      TauxHoraire: item.TauxHoraire || " "
+      nom: item.nom || " ",
+      prenom: item.prenom || " ",
+      email: item.email || " ",
+      phone: item.phone || " ",
+      adress: item.adress || " ",
+      rateFacturation: item.rateFacturation || " "
     });
   });
   if (headers) {
@@ -789,6 +736,6 @@ function convertToCSV(objArray) {
 
 
 
- export default {renderSearchOption,getTimeSuggestions,icon,getLabel,checkedIcon,getPath,generateGed,generateComptaGed,buildIndex,exportCSVFile,exportContactCSVFile,
+ export default {renderSearchOption,getTimeSuggestions,icon,getLabel,checkedIcon,getPath,generateGed,buildIndex,exportCSVFile,exportContactCSVFile,convertToCSV,
    changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,
    getBreadcumpsPath,getFolderNameById,getFolderTypeById,findClientMondatById,findContactByEmail,findContactByUid,getOAContactByEmail2,getOAContactByUid};

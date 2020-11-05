@@ -7,7 +7,16 @@ const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 
 let Data = {
+    endpoint : "https://api.smartdom.ch",
     emailPatern : new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/),
+
+    sideBarItems: [
+        {key: "coffre", title: "Drive", icon: "fe-folder", to: "/drive"},
+        {key: "rooms", title: "Rooms", icon: "fe-grid", to: "/rooms"},
+        {key: "Meet", title: "Meet", icon: "fe-video", to: "/meet"},
+        {key: "Chat", title: "Chat", icon: "fe-message-circle", to: "/chat"},
+        {key: "avocat", title: "Avocats", icon: "fe-users", to: "/avocats"},
+    ],
 
     MeetMenuItem : [
         {
@@ -28,6 +37,16 @@ let Data = {
             title:"Client (Mandat)",
             icon:HomeWorkIcon
         }
+        /*{
+            nodeId:"prospAc",
+            title:"Prospect à contacter",
+            icon:HomeWorkIcon
+        },
+        {
+            nodeId:"prospEc",
+            title:"Prospect en cours",
+            icon:HomeWorkIcon
+        }*/
     ],
 
     ContactsMenuItem : [
@@ -36,6 +55,11 @@ let Data = {
             title:"Détails",
             icon:PeopleAltIcon
         }
+        /*{
+            nodeId:"ae",
+            title:"Annuaire Ecosystème",
+            icon:PeopleAltIcon
+        }*/
     ],
 
     TimeSheetMenuItem : [
@@ -44,6 +68,7 @@ let Data = {
             title:"Activités",
             icon:VideoCallIcon
         }
+
         /*{
             nodeId:"dashboard",
             title:"DashBoard Team",
@@ -255,10 +280,10 @@ let Data = {
     ],
 
     Acces: [
-        'Lire',
-        'Editer',
-        'Administrateur',
-        'Partager',
+        {label:"Lire",value:"read"},
+        {label:"Editer",value:"edit"},
+        {label:"Administrateur",value:"administrate"},
+        {label:"Partager",value:"share"}
     ],
 
     times: [

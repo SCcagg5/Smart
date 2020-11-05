@@ -1,6 +1,6 @@
 {
-  "name": "ent_ged",
-  "version": "1.1.0",
+  "name": "OALegalGed",
+  "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@atlaskit/button": "^14.0.3",
@@ -26,6 +26,7 @@
     "mgr-pdf-viewer-react": "^1.0.3",
     "moment": "^2.24.0",
     "node-sass": "^4.11.0",
+    "pdf-to-base64": "^1.0.3",
     "pdf-viewer-reactjs": "^1.0.5",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
@@ -71,7 +72,6 @@
     "react-tabs": "^3.1.1",
     "react-window-size": "^1.2.2",
     "reactstrap": "^8.0.0",
-    "source-map-explorer": "^2.5.0",
     "styled-components": "^4.4.1",
     "styletron-engine-atomic": "^1.4.6",
     "styletron-react": "^5.2.7",
@@ -79,7 +79,6 @@
     "xlsx-parse-json": "^3.1.0"
   },
   "scripts": {
-    "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "GENERATE_SOURCEMAP=false react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",

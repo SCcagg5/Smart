@@ -76,11 +76,13 @@ import TableTimeSheet from '../../components/Tables/TableTimeSheet';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import main_functions from '../../controller/main_functions';
 import DescriptionIcon from '@material-ui/icons/Description';
+import TableFactures from '../../components/Tables/TableFactures';
 import xlsxParser from 'xlsx-parse-json';
 
-const meet_url_begin = process.env.REACT_APP_MEET_URL_TITLE;
 const ged_id = process.env.REACT_APP_GED_ID;
 const ent_name = process.env.REACT_APP_ENT_NAME;
+const firebase_ent_begin_name = process.env.REACT_APP_ENT_FIREBASE_BEGIN_NAME;
+const meet_url = process.env.REACT_APP_MEET_URL;
 const logo = localStorage.getItem("logo")
 
 export default class Main extends React.Component {
@@ -235,6 +237,13 @@ export default class Main extends React.Component {
       newTime: {
         duree: '',
         client: '',
+        dossier_client: {
+          name:'',
+          facturation: {
+            language:''
+          },
+        },
+        langue:'',
         categoriesActivite: 'Temps facturé',
         description: '',
         date: new Date(),
@@ -243,6 +252,7 @@ export default class Main extends React.Component {
       }
     },
     lignesFactures: [],
+    lignesFacturesCopy: [],
     lignef_template: '0',
     TimeSheetData: [],
 
@@ -260,23 +270,27 @@ export default class Main extends React.Component {
 
     newClient: {
       ID: '',
-      Name: '',
-      ContactFullName:'',
+      nom: '',
+      prenom:'',
       Type: '0',
       created_at: '',
-      Email: '',
-      Phone: '',
-      Street1:'',
-      Street2:'',
-      City:'',
-      Zip:'',
-      Country: '',
+      country: '',
+      email: '',
+      phone: '',
       isActif: true
     },
     newClientFolder: {
       nom: '',
       type: 'corporate',
-      team: []
+      team: [],
+      contrepartie:'',
+      autrepartie:'',
+      desc:'',
+      byEmail:true,
+      sentBySecr:false,
+      sentByAvocat:false,
+      frequence:'',
+      language:"Francais"
     },
     lead_contact_tmp: '',
     lead_contact_horaire_tmp: '',
@@ -284,7 +298,8 @@ export default class Main extends React.Component {
     clients_tempo: [],
     clients_tempo_copie: [],
 
-    selectedTimeSheetIndex:0
+    selectedTimeSheetIndex:0,
+    selectedClientFolders:[]
   };
 
   componentDidMount() {
@@ -417,7 +432,6 @@ export default class Main extends React.Component {
           .then((gedRes) => {
             if (gedRes.succes === true && gedRes.status === 200) {
 
-              console.log(gedRes.data.Shared.Content.folders)
               let parentSharedFolder = [{
                 id:"parent",
                 name:"Partagés avec moi",
@@ -425,31 +439,33 @@ export default class Main extends React.Component {
                   files:[],
                   folders:[]
                 }
+
               }]
               parentSharedFolder[0].Content.folders = gedRes.data.Shared.Content.folders || []
               sharedFolders = main_functions.changeStructure(parentSharedFolder)
-              console.log(sharedFolders)
 
-
-              let client_folder = gedRes.data.Proprietary.Content.folders.find(
-                (x) => x.name === 'CLIENTS'
-              );
+              let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'CLIENTS');
               if (client_folder) {
                 localStorage.setItem('client_folder_id', client_folder.id);
-                console.log(client_folder.id);
+                this.setState({client_folders:client_folder})
               }
-              let meeturl = 'https://meet.smartdom.ch/'+meet_url_begin+'_' + moment().format('DDMMYYYYHHmmss');
+              let meeturl = meet_url + '_' + moment().format('DDMMYYYYHHmmss');
 
               firebase.database().ref('/').on('value', (snapshot) => {
                   const data = snapshot.val() || [];
-                  let contacts = data[ent_name+"-contacts-"+ged_id] || [];
-                  let annuaire_clients_mondat = data[ent_name+"-clients-"+ged_id] || [];
-                  let rooms = data[ent_name+"-rooms-"+ged_id] || [];
-                  let lignes_f = data[ent_name+"-lignes_f-"+ged_id] || [];
+                  let contacts = data[firebase_ent_begin_name+"-contacts-"+ged_id] || [];
+                  let rooms = data[firebase_ent_begin_name+"-rooms-"+ged_id] || [];
 
                   let societes = data.societes || [];
-                  let clients_tempo = (data.clients_tempo || []).filter(x => x.email === localStorage.getItem('email'));
-                  let clients_tempo_copie = (data.clients_tempo || []);
+
+                  let annuaire_clients_mondat = data[firebase_ent_begin_name+"-clients-"+ged_id] || [];
+
+
+                  let lignes_f = data[firebase_ent_begin_name+"-lignes_f-"+ged_id] || [];
+                  let clients_tempo = (data[firebase_ent_begin_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
+                  let clients_tempo_copie = data[firebase_ent_begin_name+"-clients_tempo-"+ged_id] || [];
+                  let facturesToValidated = data[firebase_ent_begin_name+"-factures_to_Validated-"+ged_id] || []
+
 
                   this.setState({
                     contacts: contacts,
@@ -457,8 +473,10 @@ export default class Main extends React.Component {
                     annuaire_clients_mondat: annuaire_clients_mondat,
                     rooms: rooms,
                     lignesFactures: lignes_f,
+                    lignesFacturesCopy: lignes_f,
                     clients_tempo: clients_tempo,
-                    clients_tempo_copie: clients_tempo_copie
+                    clients_tempo_copie: clients_tempo_copie,
+                    facturesToValidated:facturesToValidated
                   });
 
                   let connected_email = localStorage.getItem("email");
@@ -469,6 +487,12 @@ export default class Main extends React.Component {
                         newTime: {
                           duree: '',
                           client: '',
+                          dossier_client: {
+                            facturation: {
+                              language:''
+                            },
+                          },
+                          langue:'',
                           categoriesActivite: 'Temps facturé',
                           description: '',
                           date: new Date(),
@@ -508,8 +532,11 @@ export default class Main extends React.Component {
                       });
                     } else {
                       console.log('ERROR FOLDER ID');
+                      this.props.history.push("/home/drive")
+                      this.componentDidMount();
                     }
-                  } else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
+                  }
+                  else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
                     this.setState({
                       rootFiles: gedRes.data.Proprietary.Content.files || [],
                       rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -884,7 +911,7 @@ export default class Main extends React.Component {
                   } else if (this.props.location.pathname.indexOf('/home/search/') > -1) {
                     let textToSearch = this.props.location.pathname.replace('/home/search/', '');
                     SmartService.search(textToSearch, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(searchRes => {
-                      console.log(searchRes);
+
                       if (searchRes.succes === true && searchRes.status === 200) {
                         this.setState({
                           searchResult: searchRes.data,
@@ -935,7 +962,6 @@ export default class Main extends React.Component {
     return list.map((node) => {
       if (node.key === key) {
         node.files = files;
-        console.log(node)
         return { ...node, children };
       } else if (node.children) {
         return { ...node, children: this.updateTreeData(node.children, key, children, files) };
@@ -954,7 +980,7 @@ export default class Main extends React.Component {
       let origin = this.state.sharedFolders;
       SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
           let sub_folders = Res.data.Content.folders || [];
-          //let sub_files = Res.data.Content.files || [];
+          let sub_files = Res.data.Content.files || [];
           let childrens = [];
           for(let i =0 ; i < sub_folders.length ; i++){
             let treeNode = {
@@ -972,7 +998,9 @@ export default class Main extends React.Component {
               ),
               files: [] ,
               folders: [] ,
-              typeF: sub_folders[i].type ? 'file' : 'folder'
+              typeF: sub_folders[i].type ? 'file' : 'folder',
+              rights:sub_folders[i].rights,
+              proprietary:sub_folders[i].proprietary || undefined
             };
             childrens.push(treeNode)
           }
@@ -988,6 +1016,43 @@ export default class Main extends React.Component {
           console.log(err)})
 
     });
+  }
+
+  updateShared = (key, origin) => {
+    SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+      let sub_folders = Res.data.Content.folders || [];
+      let sub_files = Res.data.Content.files || [];
+      let childrens = [];
+      for(let i =0 ; i < sub_folders.length ; i++){
+        let treeNode = {
+          title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
+          key:sub_folders[i].id,
+          icon: sub_folders[i].type ? (
+            <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+          ) : (
+            ({ selected }) =>
+              selected ? (
+                <FolderIcon style={{ color: '#1a73e8' }} />
+              ) : (
+                <FolderIcon style={{ color: 'grey' }} />
+              )
+          ),
+          files: [] ,
+          folders: [] ,
+          typeF: sub_folders[i].type ? 'file' : 'folder',
+          rights:sub_folders[i].rights,
+          proprietary:sub_folders[i].proprietary || undefined
+        };
+        childrens.push(treeNode)
+      }
+      this.setState({
+        selectedSharedFolderFolders:Res.data.Content.folders,
+        selectedSharedFolderFiles:Res.data.Content.files
+      })
+      let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
+      this.setState({sharedFolders:update,loading:false})
+    }).catch(err => {
+      console.log(err)})
   }
 
 
@@ -1017,6 +1082,7 @@ export default class Main extends React.Component {
   };
 
   deleteFile_Folder = (file) => {
+
     this.setState({ loading: true });
     SmartService.deleteFile(file.key || file.id, localStorage.getItem('token'), localStorage.getItem('usrtoken'))
       .then((deleteRes) => {
@@ -1025,11 +1091,11 @@ export default class Main extends React.Component {
             this.reloadGed()
           }
           else {
-            this.setState({ selectedFolderId: '' });
-            this.props.history.push('/home/drive');
-            this.reloadGed();
+              this.setState({ selectedFolderId: '' });
+              this.props.history.push('/home/drive');
+              this.reloadGed();
           }
-          this.openSnackbar('success', file.typeF === 'file' ? file.name + '.pdf est supprimé avec succès' : file.name + ' est supprimé avec succès');
+          this.openSnackbar('success', file.typeF === 'file' ? (file.name || file.title) + '.pdf est supprimé avec succès' : (file.name || file.title) + ' est supprimé avec succès');
         } else {
           this.openSnackbar('error', deleteRes.error);
         }
@@ -1053,6 +1119,8 @@ export default class Main extends React.Component {
           this.reloadGed();
           this.openSnackbar('success', file.type ? file.name + '.pdf a bien été renommé. Nouveau nom: ' + newName + '.pdf' : file.name + ' a bien été renommé. Nouveau nom: ' + newName);
         } else {
+          this.setState({ loading: false });
+
           this.openSnackbar('error', updateNameRes.error);
         }
       })
@@ -1083,7 +1151,7 @@ export default class Main extends React.Component {
   saveContactChanges = () => {
     this.setState({ loading: true });
     let key = main_functions.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
-    firebase.database().ref('/'+ent_name+'-contacts-'+ged_id+'/'+ + key).set(
+    firebase.database().ref('/'+firebase_ent_begin_name+'-contacts-'+ged_id+'/' + key).set(
       this.state.selectedContact
     ).then(res => {
       this.setState({ loading: false });
@@ -1096,7 +1164,7 @@ export default class Main extends React.Component {
   saveSocietyChanges = () => {
     this.setState({ loading: true });
     let key = main_functions.findClientMondatById(this.state.selectedSociete.ID, this.state.annuaire_clients_mondat);
-    firebase.database().ref("/"+ent_name+"-clients-"+ged_id+'/' + key).set(
+    firebase.database().ref("/"+firebase_ent_begin_name+"-clients-"+ged_id+'/' + key).set(
       this.state.selectedSociete
     ).then(res => {
       this.setState({ loading: false });
@@ -1132,28 +1200,26 @@ export default class Main extends React.Component {
   };
 
   uploadImage = (image) => {
-    //this.setState({ loading: true });
+    this.setState({ loading: true });
     let imgToUpload = image.target.files[0];
+
     if(imgToUpload.type === "image/png" || imgToUpload.type === "image/jpeg" || imgToUpload.type === "image/jpg"){
       var reader = new FileReader();
-    reader.onloadend = () => {
-      let selectedContact = this.state.selectedContact;
-      selectedContact.imageUrl = reader.result;
-      let key = main_functions.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
-      firebase.database().ref('/'+ent_name+'-contacts-'+ged_id+'/' + key).set(
-        this.state.selectedContact
-      ).then( res => {
-        this.setState({ loading: false });
-        this.openSnackbar('success', 'Modification effectuée avec succès');
-      });
-    };
-    reader.readAsDataURL(imgToUpload);
+      reader.onloadend = () => {
+        let selectedContact = this.state.selectedContact;
+        selectedContact.imageUrl = reader.result;
+        let key = main_functions.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
+        firebase.database().ref('/'+firebase_ent_begin_name+'-contacts-'+ged_id+'/' + key).set(
+            this.state.selectedContact
+        ).then(res => {
+          this.setState({ loading: false });
+          this.openSnackbar('success', 'Modification effectuée avec succès');
+        });
+      };
+      reader.readAsDataURL(imgToUpload);
     }else{
       this.openSnackbar("error","Type de fichier erroné ! ")
     }
-    console.log(imgToUpload)
-
-
   };
 
   uploadFolder = (event) => {
@@ -1210,6 +1276,11 @@ export default class Main extends React.Component {
   justReloadGed = () => {
     SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(gedRes => {
       if (gedRes.succes === true && gedRes.status === 200) {
+        let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'CLIENTS');
+        if (client_folder) {
+          localStorage.setItem('client_folder_id', client_folder.id);
+          this.setState({client_folders:client_folder})
+        }
         this.setState({
           rootFiles: gedRes.data.Proprietary.Content.files || [],
           rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -1230,13 +1301,19 @@ export default class Main extends React.Component {
     setTimeout(() => {
       SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(gedRes => {
         if (gedRes.succes === true && gedRes.status === 200) {
+
+          let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'CLIENTS');
+          if (client_folder) {
+            localStorage.setItem('client_folder_id', client_folder.id);
+            this.setState({client_folders:client_folder})
+          }
+
           if (this.props.location.pathname.indexOf('/home/drive/') > -1) {
 
             let folders = gedRes.data.Proprietary.Content.folders || [];
             let folder_id = this.props.location.pathname.replace('/home/drive/', '');
             let folder_name = main_functions.getFolderNameById(folder_id, folders);
 
-            console.log(folder_id,folder_name)
 
             this.setState({
               autoExpandParent:true,
@@ -1256,7 +1333,8 @@ export default class Main extends React.Component {
               loading: false
             });
             this.props.history.push('/home/drive/' + folder_id);
-          } else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
+          }
+          else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
             this.setState({
               rootFiles: gedRes.data.Proprietary.Content.files || [],
               rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -1265,7 +1343,34 @@ export default class Main extends React.Component {
               loading: false
             });
             this.props.history.push('/home/drive');
-          } else {
+          }
+          else if(this.props.location.pathname.indexOf('/home/shared/parent') > -1){
+            let parentSharedFolder = [{
+              id:"parent",
+              name:"Partagés avec moi",
+              Content:{
+                files:[],
+                folders:[]
+              }
+            }]
+            parentSharedFolder[0].Content.folders = gedRes.data.Shared.Content.folders || []
+            let sharedFolders = main_functions.changeStructure(parentSharedFolder);
+            let sharedFiles = gedRes.data.Shared.Content.files;
+            this.setState({
+              sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+              sharedRootFiles: sharedFiles,
+              sharedFolders: sharedFolders,
+              selectedDriveSharedItem:['parent'],
+              expandedDriveSharedItems:[],
+              loading: false
+            })
+            this.componentDidMount()
+          }
+          else if(this.props.location.pathname.indexOf('/home/shared/') > -1){
+            let key = this.props.location.pathname.replace('/home/shared/', '');
+            this.updateShared(key,this.state.sharedFolders);
+          }
+          else {
             this.setState({
               rootFiles: gedRes.data.Proprietary.Content.files || [],
               rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -1289,15 +1394,16 @@ export default class Main extends React.Component {
   };
 
   addNewRoom = (room) => {
+
     this.setState({ loading: true, openNewRoomModal: false });
     SmartService.addRoom({ name: room.title, start: moment().add('hour', 1).unix() * 1000, duration: 30 },
-      localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addRoomRes => {
+        localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addRoomRes => {
       if (addRoomRes.status === 200 && addRoomRes.succes === true) {
         room.id = addRoomRes.data.id;
         let rooms = this.state.rooms;
         rooms.push(room);
-        firebase.database().ref('/'+ent_name+'-rooms-'+ged_id).set(
-          rooms
+        firebase.database().ref('/'+firebase_ent_begin_name+'-rooms-'+ged_id).set(
+            rooms
         ).then(res => {
           this.setState({
             loading: false,
@@ -1505,7 +1611,9 @@ export default class Main extends React.Component {
           setDriveFolders={(drive) => this.setState({ folders: drive })}
           selectedFolder={this.state.selectedFolder}
           setSelectedFolder={(folder) =>
-            this.setState({ selectedFolder: folder })
+          {
+            this.setState({ selectedFolder: folder,selectedFile:'' })
+          }
           }
           setFolderName={(name) =>
             this.setState({ selectedFoldername: name })
@@ -1516,6 +1624,16 @@ export default class Main extends React.Component {
               focusedItem: 'Drive',
               breadcrumbs: main_functions.getBreadcumpsPath(id, this.state.reelFolders),
               selectedFolderId: id,
+              showContainerSection: 'Drive'
+            });
+          }}
+          setSharedFolderId={(id) => {
+            this.props.history.push('/home/shared/' + id);
+            this.setState({
+              focusedItem: 'Drive',
+              breadcrumbs: "Mon drive / Partagés avec moi",
+              selectedFolderId: id,
+              selectedSharedFolderId: id,
               showContainerSection: 'Drive'
             });
           }}
@@ -1552,7 +1670,7 @@ export default class Main extends React.Component {
           setSharedFolderName={(name) =>
             this.setState({ selectedSharedFoldername: name })
           }
-          setSharedFolderId={(id) => {
+          /*setSharedFolderId={(id) => {
             this.props.history.push('/home/shared/' + id);
             this.setState({
               focusedItem: 'Drive',
@@ -1560,7 +1678,7 @@ export default class Main extends React.Component {
               selectedSharedFolderId: id,
               showContainerSection: 'Drive'
             });
-          }}
+          }}*/
           setSelectedSharedFolderFiles={(files) =>
             this.setState({ selectedSharedFolderFiles: files })
           }
@@ -1664,9 +1782,44 @@ export default class Main extends React.Component {
   };
 
   saveTimeSheet() {
+    let email = localStorage.getItem('email');
     let timeSheet = this.state.TimeSheet;
     this.state.TimeSheetData.push(timeSheet);
     firebase.database().ref('/TimeSheet').set(this.state.TimeSheetData);
+  }
+
+  addFactureToValidated(client,client_folder,date,createdBy,partnerEmail,lignes_facture){
+    this.setState({loading:true})
+    SmartService.getFile(client_folder,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( res => {
+      let lf_to_validated = this.state.facturesToValidated;
+      lf_to_validated.push({
+        created_at:date,
+        created_by:createdBy,
+        client:client,
+        partner:partnerEmail,
+        lignes_facture:lignes_facture,
+        statut:"wait",
+        client_folder:{
+          id:client_folder,
+          name:res.data.name
+        }
+      })
+
+      firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id).set(lf_to_validated).then( ok => {
+        this.setState({partnerFacture:"",loading:false})
+        this.openSnackbar("success","La facture est bien envoyé au partner pour validation")
+      })
+
+    }).catch( err => {
+      console.log(err)
+      this.setState({loading:false})
+    })
+
+  }
+
+  redirectToFolder(folder_id){
+    this.props.history.push("/home/drive/"+folder_id);
+    this.reloadGed()
   }
 
   createFacture() {
@@ -1911,8 +2064,9 @@ export default class Main extends React.Component {
     });
   }
 
-  createFacture_ForSelected(facture_date,partner) {
-    let lignes_factures = this.state.lignesFactures.filter((lf) => lf.checked === true);
+  createFacture_ForSelected(facture_date,lignes_f,folder_id,facture,key) {
+    this.setState({loading:true})
+    let lignes_factures = lignes_f;
     let odoo_data = [{
       'access_token': 'eafd285777ggobfvxyvnx',
       'state': 'draft',
@@ -2035,14 +2189,14 @@ export default class Main extends React.Component {
             'name':
               ligne.template === '0' ? moment(ligne.newTime.date).format('DD/MM/YYYY') :
                 ligne.template === '1' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description :
-                  ligne.template === '2' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + ' ; ' + OAContact.FirstName + ' ' + OAContact.LastName :
-                    ligne.template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.FirstName + ' ' + OAContact.LastName :
+                  ligne.template === '2' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                    ligne.template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
                       ligne.template === '4' ? ligne.newTime.description :
-                        ligne.template === '5' ? OAContact.FirstName + ' ' + OAContact.LastName :
+                        ligne.template === '5' ? OAContact.nom + ' ' + OAContact.prenom :
                           ligne.template === '6' ? ligne.newTime.duree + ' Heures' :
-                            ligne.template === '7' ? ligne.newTime.description + ' ; ' + OAContact.FirstName + ' ' + OAContact.LastName :
+                            ligne.template === '7' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
                               ligne.template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree + ' Heures' :
-                                ligne.template === '9' ? ligne.newTime.description + ' ; ' + OAContact.FirstName + ' ' + OAContact.LastName + ' ; ' + ligne.newTime.duree + ' Heures' : ligne.newTime.description,
+                                ligne.template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree + ' Heures' : ligne.newTime.description,
             'quantity': ligne.newTime.duree,
             'price_unit': parseFloat(ligne.newTime.rateFacturation),
             'discount': 0,
@@ -2089,7 +2243,6 @@ export default class Main extends React.Component {
       );
 
     });
-    //console.log(total)
     odoo_data[0].line_ids.push(
       [
         0,
@@ -2144,8 +2297,56 @@ export default class Main extends React.Component {
     );
 
     SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
-      //console.log(createFactRes)
-      window.open('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true', '_blank');
+      if(createFactRes.succes === true && createFactRes.status === 200){
+
+        const pdf2base64 = require('pdf-to-base64');
+        pdf2base64('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf')
+          .then(
+            (response) => {
+              SmartService.getFile(folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+                if(resF.succes === true && resF.status === 200){
+                  let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+
+                  SmartService.addFileFromBas64({b64file:response,folder_id:comptaFolder.id},
+                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+                    console.log(ok)
+                    if(ok.succes === true && ok.status === 200){
+                      SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                        ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+                        if(updateRes.succes === true && updateRes.status === 200){
+                          firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id + "/"+key).update({
+                            statut:"accepted",
+                            file_id:ok.data.file_id
+                          });
+                          this.justReloadGed();
+                          this.setState({loading:false})
+                          this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+                          window.open('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true', '_blank');
+                        }else{
+                          this.openSnackbar("error",updateRes.error)
+                        }
+                      }).catch(err => {console.log(err)})
+
+                    }else{
+                      this.openSnackbar("error",ok.error)
+                      this.setState({loading:false})
+                    }
+                  }).catch(err => console.log(err))
+                }else{
+                  this.openSnackbar("error",resF.error)
+                  this.setState({loading:false})
+                }
+              }).catch( err => {console.log(err)})
+            }).catch((error) => {
+          this.setState({loading:false})
+          console.log(error);
+        })
+
+      }else{
+        this.setState({loading:false})
+        this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
+      }
+
     }).catch(err => {
       console.log(err);
     });
@@ -2171,247 +2372,336 @@ export default class Main extends React.Component {
 
   generateClientFolder(ID, team) {
     this.setState({ loading: true });
-    let clients_tmp = this.state.clients_tempo;
-    let clients_tmp_copie = this.state.clients_tempo_copie;
-    let find = clients_tmp.find(x => x.ID === ID);
-    if (find) {
-      SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
-        client_id: find.client_id,
-        type: this.state.newClientFolder.type,
-        name: this.state.newClientFolder.nom,
-        client_folder: find.folder_id,
-        team: team
-      }).then(addFolderClient => {
-        SmartService.addFolder({
-          name: 'MÉMOIRE',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'CHARGE DE PIECES',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'CONVOCATIONS',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'ADMIN (Lettre d\'engagement)',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'COMPTABILITE',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'CORRESPONDANCE',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'INTERNE ****',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'NOTES',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'PV RENDEZ-VOUS',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
-        }).catch(err => {
-        });
-        SmartService.addFolder({
-          name: 'PROCEDURES',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'RECHERCHES JURIDIQUES',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        setTimeout(() => {
-          this.setState({
-            loading: false,
-            newClientFolder: { nom: '', type: '', team: [] },
-            lead_contact_tmp: '',
-            lead_contact_horaire_tmp: ''
-          });
-          this.justReloadGed();
-          this.openSnackbar('success', 'Dossier ajouté avec succès');
-        }, 750);
+    let CLIENTS_folder_id = localStorage.getItem("client_folder_id");
+    if(CLIENTS_folder_id && CLIENTS_folder_id !== "" ){
 
-      }).catch(err => {
-        console.log(err);
-      });
-    }
-    else {
-      SmartService.create_client(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
-        param: {
-          name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
-          base64: false, parent_id: false, function: false, phone: false, mobile: false, email: false, website: false, title: false
-        }
-      }).then(createClientRes => {
+      let clients_tmp = this.state.clients_tempo;
+      let clients_tmp_copie = this.state.clients_tempo_copie;
+      let find = clients_tmp.find(x => x.ID === ID);
 
-        SmartService.addFolder({
-          name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
-          folder_id: localStorage.getItem('client_folder_id')
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
-          console.log('OK');
+      if (find) {
 
-          SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
-            client_id: createClientRes.data.id,
-            type: this.state.newClientFolder.type,
-            name: this.state.newClientFolder.nom,
-            client_folder: addParentClientFolderRes.data.id,
-            team: team
-          }).then(addFolderClient => {
-            console.log('OK 1');
+        let findInCopyKey = clients_tmp_copie.findIndex(x => x.ID === find.ID && x.email === localStorage.getItem("email"));
+        let findCopy = find;
 
-            SmartService.addFolder({
-              name: 'MÉMOIRE',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'CHARGE DE PIECES',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'CONVOCATIONS',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'ADMIN (Lettre d\'engagement)',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'COMPTABILITE',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'CORRESPONDANCE',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'INTERNE ****',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'NOTES',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'PV RENDEZ-VOUS',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'PROCEDURES',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'RECHERCHES JURIDIQUES',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
 
-            clients_tmp_copie.push({
-              folder_id: addParentClientFolderRes.data.id, ID: ID,
-              email: localStorage.getItem('email'), client_id: createClientRes.data.id
-            });
-            firebase.database().ref('/clients_tempo').set(clients_tmp_copie).then(ok => {
-              setTimeout(() => {
-                this.setState({
-                  loading: false,
-                  newClientFolder: { nom: '', type: 'corporate', team: [] },
-                  lead_contact_tmp: '',
-                  lead_contact_horaire_tmp: ''
-                });
-                this.justReloadGed();
-                this.openSnackbar('success', 'Dossier ajouté avec succès');
-              }, 750);
-            });
+        SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
+          client_id: find.client_id,
+          type: this.state.newClientFolder.type,
+          name: this.state.newClientFolder.nom,
+          client_folder: find.folder_id,
+          team: team
+        }).then(addFolderClient => {
+          console.log(addFolderClient)
+          SmartService.addFolder({
+            name: 'MÉMOIRE',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
           }).catch(err => {
             console.log(err);
           });
+          SmartService.addFolder({
+            name: 'CHARGE DE PIECES',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'CONVOCATIONS',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'ADMIN (Lettre d\'engagement)',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'COMPTABILITE',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'CORRESPONDANCE',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'INTERNE ****',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'NOTES',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'PV RENDEZ-VOUS',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            console.log('OK');
+          }).catch(err => {
+          });
+          SmartService.addFolder({
+            name: 'PROCEDURES',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'RECHERCHES JURIDIQUES',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          (findCopy.folders).push(
+            {
+              folder_id:addFolderClient.data.folder_id,
+              team:team,
+              name:this.state.newClientFolder.nom,
+              contrepartie:this.state.newClientFolder.contrepartie,
+              autrepartie:this.state.newClientFolder.autrepartie,
+              desc:this.state.newClientFolder.desc,
+              created_at:moment().format("YYYY-MM-DD"),
+              facturation:{
+                byEmail:this.state.newClientFolder.byEmail,
+                sentBySecr:this.state.newClientFolder.sentBySecr,
+                sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                language:this.state.newClientFolder.language,
+                frequence:this.state.newClientFolder.frequence
+              }
+            }
+          )
+          firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id+'/'+findInCopyKey).set(findCopy).then( ok => {
+            setTimeout(() => {
+              this.setState({
+                loading: false,
+                newClientFolder: {
+                  nom: '',
+                  type: 'corporate',
+                  team: [],
+                  contrepartie:'',
+                  autrepartie:'',
+                  desc:'',
+                  byEmail:true,
+                  sentBySecr:false,
+                  sentByAvocat:false,
+                  frequence:'',
+                  language:"Francais"
+                },
+                lead_contact_tmp: '',
+                lead_contact_horaire_tmp: ''
+              });
+              this.justReloadGed();
+              this.openSnackbar('success', 'Dossier ajouté avec succès');
+            }, 750);
+          });
+
         }).catch(err => {
           console.log(err);
         });
-      }).catch(err => {
-        console.log(err);
-      });
+      }
+
+      else {
+        SmartService.create_client(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
+          param: {
+            name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+            base64: false, parent_id: false, function: false, phone: false, mobile: false, email: false, website: false, title: false
+          }
+        }).then(createClientRes => {
+
+
+            SmartService.addFolder({
+              name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+              folder_id: CLIENTS_folder_id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
+              console.log('OK');
+
+              SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
+                client_id: createClientRes.data.id,
+                type: this.state.newClientFolder.type,
+                name: this.state.newClientFolder.nom,
+                client_folder: addParentClientFolderRes.data.id,
+                team: team
+              }).then(addFolderClient => {
+
+                console.log('OK 1');
+
+                SmartService.addFolder({
+                  name: 'MÉMOIRE',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'CHARGE DE PIECES',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'CONVOCATIONS',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'ADMIN (Lettre d\'engagement)',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'COMPTABILITE',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'CORRESPONDANCE',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'INTERNE ****',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'NOTES',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'PV RENDEZ-VOUS',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'PROCEDURES',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'RECHERCHES JURIDIQUES',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+
+                clients_tmp_copie.push({
+                  folder_id: addParentClientFolderRes.data.id,
+                  ID: ID,
+                  email: localStorage.getItem('email'),
+                  client_id: createClientRes.data.id,
+                  folders:[
+                    {
+                      folder_id:addFolderClient.data.folder_id,
+                      team:team,
+                      name:this.state.newClientFolder.nom,
+                      contrepartie:this.state.newClientFolder.contrepartie,
+                      autrepartie:this.state.newClientFolder.autrepartie,
+                      desc:this.state.newClientFolder.desc,
+                      created_at:moment().format("YYYY-MM-DD"),
+                      facturation:{
+                        byEmail:this.state.newClientFolder.byEmail,
+                        sentBySecr:this.state.newClientFolder.sentBySecr,
+                        sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                        language:this.state.newClientFolder.language,
+                        frequence:this.state.newClientFolder.frequence
+                      }
+                    }
+                  ]
+                });
+                firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id).set(clients_tmp_copie).then( ok => {
+                  setTimeout(() => {
+                    this.setState({
+                      loading: false,
+                      newClientFolder: {
+                        nom: '',
+                        type: 'corporate',
+                        team: [],
+                        contrepartie:'',
+                        autrepartie:'',
+                        desc:'',
+                        byEmail:true,
+                        sentBySecr:false,
+                        sentByAvocat:false,
+                        frequence:'',
+                        language:"Francais"
+                      },
+                      lead_contact_tmp: '',
+                      lead_contact_horaire_tmp: ''
+                    });
+                    this.justReloadGed();
+                    this.openSnackbar('success', 'Dossier ajouté avec succès');
+                  }, 750);
+                });
+              }).catch(err => {
+                console.log(err);
+              });
+            }).catch(err => {
+              console.log(err);
+            });
+
+
+
+
+
+
+        }).catch(err => {
+          console.log(err);
+        });
+      }
+
+    }else{
+      this.setState({loading:false})
+      this.openSnackbar("error","Opération annulée, une erreur est survenue ! Dossier CLIENTS inexistant")
     }
+
   }
 
   addNewClient() {
@@ -2422,7 +2712,7 @@ export default class Main extends React.Component {
     newClient.created_at = (new Date()).toDateString();
     all_clients.push(newClient);
 
-    firebase.database().ref('/'+ent_name+'-'+ged_id+'/' + (all_clients.length - 1)).set(newClient).then(ok => {
+    firebase.database().ref('/'+firebase_ent_begin_name+'-clients-'+ged_id+'/' + (all_clients.length - 1)).set(newClient).then(ok => {
       this.openSnackbar('success', newClient.Nom + ' est ajouté avec succès ');
       this.props.history.push('/home/clients/' + newClient.ID);
       this.setState({
@@ -2432,7 +2722,7 @@ export default class Main extends React.Component {
       });
       setTimeout(() => {
         this.setState({
-          newClient: { ID: '', Name: '', Type: '0', created_at: '', Country: '', Email: '', Phone: '', isActif: true }
+          newClient: { ID: '', nom: '',prenom:'', Type: '0', created_at: '', country: '', email: '', phone: '', isActif: true }
         });
       }, 400);
     });
@@ -2499,15 +2789,206 @@ export default class Main extends React.Component {
 
   }
 
+  createLignefacture(duplicate){
+
+    let obj = this.state.TimeSheet;
+    let objCopy = this.state.TimeSheet;
+    let time = obj.newTime.duree;
+    let timeFormated = '';
+    if (time.indexOf(':') > -1) {
+      timeFormated = parseFloat(time.replace(':', '.'));
+    } else if (time.indexOf('.') > -1) {
+      timeFormated = parseFloat(time);
+    } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
+      timeFormated = parseInt(time);
+    } else {
+      this.openSnackbar('error', 'Le format de la durée est invalide !');
+    }
+    if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
+      this.openSnackbar('error', 'Le format de la durée est invalide !');
+    } else {
+
+      if(timeFormated === 0 ){
+        this.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
+      }else{
+
+        obj.newTime.duree = timeFormated;
+        let lignes_fact = this.state.lignesFactures || [];
+
+        SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
+
+          if(newCompRes.succes === true && newCompRes.status === 200){
+
+            obj.newTime.company_id = newCompRes.data.id;
+            obj.newTime.date = moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD');
+            obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            obj.user_email = localStorage.getItem('email');
+            obj.template = this.state.lignef_template;
+            //obj.newTime.client = this.state.selectedClientTimeEntree;
+            lignes_fact.push(obj);
+
+            if(duplicate === false){
+              this.setState({
+                lignesFactures: lignes_fact,
+                selectedClientTimeEntree:'',
+                TimeSheet: {
+                  newTime: {
+                    duree: '',
+                    client: '',
+                    dossier_client:{
+                      facturation:{
+                        language:''
+                      }
+                    },
+                    categoriesActivite: 'Temps facturé',
+                    description: '',
+                    date: new Date(),
+                    utilisateurOA: obj.newTime.utilisateurOA,
+                    rateFacturation: obj.newTime.rateFacturation
+                  }
+                }
+              });
+            }else{
+              this.setState({
+                lignesFactures: lignes_fact,
+                TimeSheet: {
+                  newTime: {
+                    duree: '',
+                    client: objCopy.newTime.client,
+                    dossier_client:objCopy.newTime.dossier_client,
+                    categoriesActivite: objCopy.newTime.categoriesActivite,
+                    description: objCopy.newTime.description,
+                    date: new Date(objCopy.newTime.date),
+                    utilisateurOA: objCopy.newTime.utilisateurOA,
+                    rateFacturation: objCopy.newTime.rateFacturation
+                  }
+                }
+              })
+            }
+            this.updateLignes_facture(lignes_fact);
+            this.openSnackbar('success', 'Enregistrement effectué avec succès');
+          }else{
+            console.log(newCompRes.error)
+            //this.openSnackbar("error",newCompRes.error)
+          }
+
+        }).catch(err => {
+          console.log(err);
+        });
+
+      }
+
+
+
+    }
+
+  }
+
+  updateLigneFacture(id,ligne){
+    let key = this.state.lignesFacturesCopy.findIndex(x => x.uid === id);
+    if(key){
+      firebase.database().ref('/'+ent_name+'-lignes_f-'+ged_id+'/'+key).set(ligne).then( ok => {
+        this.openSnackbar("success","Modification effectuée avec succès")
+      }).catch(err => {
+        console.log(err)
+        this.openSnackbar("error","Une erreur est survenue !")
+      })
+    }else{
+      this.openSnackbar("error","Une erreur est survenue !")
+    }
+
+  }
+
+  addNewroomTask(title, selectedClient, assignedTo, team, selectedDateTime){
+    let room = this.state.selectedRoom;
+    let tasks = room.tasks || [];
+    tasks.push({
+      title: title,
+      assignedTo: assignedTo,
+      team: team,
+      dateTime: selectedDateTime,
+      clientAttribution: selectedClient
+    });
+    room.tasks = tasks;
+    firebase.database()
+        .ref('/'+firebase_ent_begin_name+'-rooms-'+ged_id+'/' + this.state.selectedRoomKey)
+        .set(room)
+        .then((ok) => {
+          this.setState({ selectedRoom: room });
+          let emails = [];
+          let teamNames = [];
+          team.map((t, key) => {
+            emails.push(t.email);
+            teamNames.push(t.fname);
+          });
+          emails.push(assignedTo.email);
+          maillingService
+              .sendCustomMailsWithUrl({
+                recipients: emails,
+                subject: 'Nouvelle tâche ajoutée ',
+                msg:
+                    'Bonjour, <br> Une tâche avec le nom \'' +
+                    title +
+                    '\' vous a été attribué pour la date du ' +
+                    selectedDateTime +
+                    ' .<br><br> <b>Team: </b> ' +
+                    teamNames.join(', ') +
+                    '<br><b>Lead: </b> ' +
+                    assignedTo.prenom +
+                    ' ' +
+                    assignedTo.nom +
+                    '<br><br>' +
+                    'Pour plus de détails, merci de consulter votre compte sur OA Legal.<br><br>',
+                footerMsg:
+                    '<br><br> Cordialement<br>L\'équipe OA Legal',
+                linkUrl: 'Consulter',
+                url:
+                    'https://smartdom.ch:8035/home/rooms/' +
+                    this.state.selectedRoomKey
+              })
+              .then((ok) => {
+
+              })
+              .catch((err) => {
+                this.openSnackbar(
+                    'error',
+                    'L\'envoi du mail de notification à été échoué ! '
+                );
+              });
+          this.openSnackbar(
+              'success',
+              'Une notification par mail à été bien envoyé au Lead et au différents membre du Team'
+          );
+        });
+  }
+
+  deleteRoomTask(key){
+    const r = window.confirm(
+        'Voulez-vous vraiment supprimer cette tâche ?'
+    );
+    if (r === true) {
+      let room = this.state.selectedRoom;
+      let tasks = room.tasks;
+      tasks.splice(key, 1);
+      room.tasks = tasks;
+      firebase.database().ref('rooms/' + this.state.selectedRoomKey).set(room).then((ok) => {
+            this.setState({ selectedRoom: room });
+          });
+    }
+  }
+
   render() {
-    var searchFilter = this.state.annuaire_clients_mondat.filter((soc) => (soc.Nom + ' ' + soc.Prenom).toLowerCase().startsWith(this.state.searchSociete.toLowerCase()));
-    var searchFilterLignesfacture = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
+
     const inputSuggProps = {
       placeholder: '0:1, 0:15, 0:30...',
       value: this.state.TimeSheet.newTime.duree,
       onChange: this.onInputTimeSuggChange
     };
     const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts,localStorage.getItem("email"))
+
+    let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ?
+      "Description (français)" : this.state.TimeSheet.newTime.dossier_client.facturation.language === "Anglais" ?
+        "Description (anglais)" : "Description"
 
     return (
       <div>
@@ -2518,9 +2999,7 @@ export default class Main extends React.Component {
               height={70}
               onClickMenuIcon={() => this.setState({ openSideMenu: true })}
               onLogoutClick={() => {
-                let logoCp = localStorage.getItem("logo");
                 localStorage.clear();
-                localStorage.setItem("logo",logoCp)
                 this.props.history.push('/login');
               }}
               textSearch={this.state.textSearch}
@@ -2557,6 +3036,7 @@ export default class Main extends React.Component {
             />
             <SideMenu
               logo={logo}
+              items={data.sideBarItems}
               iconColor={'blue'}
               textColor={'#65728E'}
               history={this.props.history}
@@ -2587,7 +3067,7 @@ export default class Main extends React.Component {
                 )}
               </div>
 
-              <div style={{ flexWrap: 'wrap', flex: '1 1 auto' }}>
+              <div style={{ flexWrap: 'wrap', flex: '1 1 auto',overflowY:"auto" }}>
                 <div className="card">
                   <div className="card-body" style={{ minHeight: 750 }}>
 
@@ -2723,12 +3203,9 @@ export default class Main extends React.Component {
                                           <ListDocs
                                             docs={this.state.rootFiles || []}
                                             viewMode={this.state.viewMode}
-                                            onDocClick={(item) =>
-                                              this.setState({
-                                                selectedDoc: item,
-                                                openRightMenu: true
-                                              })
-                                            }
+                                            onDocClick={(item) => {
+                                              this.openPdfModal(item.id || item.key)
+                                            }}
                                             showDoc={(doc) =>
                                               this.openPdfModal(doc.id)
                                             }
@@ -2761,6 +3238,8 @@ export default class Main extends React.Component {
                                             }}
                                             setDocs={(docs) => this.setState({rootFiles:docs})}
                                             onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
+                                            applyRights={false}
+                                            selectedSharedFolder={this.state.selectedSharedFolder}
                                           />
                                         </div>
                                       )}
@@ -2853,10 +3332,7 @@ export default class Main extends React.Component {
                                 });
                               }}
                               onDocClick={(doc) => {
-                                this.setState({
-                                  selectedDoc: doc,
-                                  openRightMenu: true
-                                });
+                                this.openPdfModal(doc.id || doc.key)
                               }}
                               showDoc={(doc) => this.openPdfModal(doc.id)}
                               setLoading={(b) => this.setState({ loading: b })}
@@ -2880,6 +3356,8 @@ export default class Main extends React.Component {
                               }}
                               setDocs={(docs) => this.setState({rootFiles:docs})}
                               onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
+                              applyRights={false}
+                              selectedSharedFolder={this.state.selectedSharedFolder}
                             />
                           </div>
                         )}
@@ -2998,10 +3476,7 @@ export default class Main extends React.Component {
                                         docs={this.state.sharedRootFiles || []}
                                         viewMode={this.state.viewMode}
                                         onDocClick={(item) =>
-                                          this.setState({
-                                            selectedDoc: item,
-                                            openRightMenu: true
-                                          })
+                                          this.openPdfModal(item.id || item.key)
                                         }
                                         showDoc={(doc) =>
                                           this.openPdfModal(doc.id)
@@ -3035,6 +3510,8 @@ export default class Main extends React.Component {
                                         }}
                                         setDocs={(docs) => {}}
                                         onDeleteFiles={(files) => {}}
+                                        applyRights={true}
+                                        selectedSharedFolder={this.state.selectedSharedFolder}
                                       />
                                     </div>
                                   )}
@@ -3110,26 +3587,9 @@ export default class Main extends React.Component {
                               }
                               selectedFolderFiles={this.state.selectedSharedFolderFiles}
                               viewMode={this.state.viewMode}
-                              onDoubleClickFolder={(folder) => {
-                                /*this.setState({
-                                  selectedDriveSharedItem: [folder.id],
-                                  expandedDriveSharedItems: [folder.id],
-                                  selectedSharedFolder: main_functions.getFolderById(folder.id, this.state.sharedFolders),
-                                  autoExpandSharedParent: true,
-                                  selectedSharedFoldername: folder.name,
-                                  selectedSharedFolderFiles: folder.Content.files || [],
-                                  selectedSharedFolderFolders: folder.Content.folders || [],
-                                  focusedItem: 'Drive',
-                                  breadcrumbs: 'Mon drive / Partagés avec moi',
-                                  selectedSharedFolderId: folder.id,
-                                  showContainerSection: 'Drive'
-                                });*/
-                              }}
+                              onDoubleClickFolder={(folder) => {}}
                               onDocClick={(doc) => {
-                                this.setState({
-                                  selectedDoc: doc,
-                                  openRightMenu: true
-                                });
+                                this.openPdfModal(doc.id || doc.key)
                               }}
                               showDoc={(doc) => this.openPdfModal(doc.id)}
                               setLoading={(b) => this.setState({ loading: b })}
@@ -3148,6 +3608,9 @@ export default class Main extends React.Component {
                               onSignBtnClick={(id) => {
                                 this.props.history.push('/signDoc/doc/' + id);
                               }}
+                              setDocs={(docs) => {}}
+                              applyRights={true}
+                              selectedSharedFolder={this.state.selectedSharedFolder}
                             />
                           </div>
                         )}
@@ -3216,91 +3679,11 @@ export default class Main extends React.Component {
                             selectedRoom={this.state.selectedRoom}
                             contacts={this.state.contacts}
                             annuaire_clients={this.state.annuaire_clients_mondat}
-                            addNewtask={(
-                              title,
-                              selectedClient,
-                              assignedTo,
-                              team,
-                              selectedDateTime
-                            ) => {
-                              let room = this.state.selectedRoom;
-                              let tasks = room.tasks || [];
-                              tasks.push({
-                                title: title,
-                                assignedTo: assignedTo,
-                                team: team,
-                                dateTime: selectedDateTime,
-                                clientAttribution: selectedClient
-                              });
-                              room.tasks = tasks;
-                              firebase.database()
-                                .ref('/'+ent_name+'-rooms-'+ged_id+'/' + this.state.selectedRoomKey)
-                                .set(room)
-                                .then((ok) => {
-                                  this.setState({ selectedRoom: room });
-                                  let emails = [];
-                                  let teamNames = [];
-                                  team.map((t, key) => {
-                                    emails.push(t.email);
-                                    teamNames.push(t.fname);
-                                  });
-                                  emails.push(assignedTo.email);
-                                  maillingService
-                                    .sendCustomMailsWithUrl({
-                                      recipients: emails,
-                                      subject: 'Nouvelle tâche ajoutée ',
-                                      msg:
-                                        'Bonjour, <br> Une tâche avec le nom \'' +
-                                        title +
-                                        '\' vous a été attribué pour la date du ' +
-                                        selectedDateTime +
-                                        ' .<br><br> <b>Team: </b> ' +
-                                        teamNames.join(', ') +
-                                        '<br><b>Lead: </b> ' +
-                                        assignedTo.prenom +
-                                        ' ' +
-                                        assignedTo.nom +
-                                        '<br><br>' +
-                                        'Pour plus de détails, merci de consulter votre compte sur OA Legal.<br><br>',
-                                      footerMsg:
-                                        '<br><br> Cordialement<br>L\'équipe OA Legal',
-                                      linkUrl: 'Consulter',
-                                      url:
-                                        'https://smartdom.ch:8035/home/rooms/' +
-                                        this.state.selectedRoomKey
-                                    })
-                                    .then((ok) => {
-
-                                    })
-                                    .catch((err) => {
-                                      this.openSnackbar(
-                                        'error',
-                                        'L\'envoi du mail de notification à été échoué ! '
-                                      );
-                                    });
-                                  this.openSnackbar(
-                                    'success',
-                                    'Une notification par mail à été bien envoyé au Lead et au différents membre du Team'
-                                  );
-                                });
+                            addNewtask={(title, selectedClient, assignedTo, team, selectedDateTime) => {
+                              this.addNewroomTask(title, selectedClient, assignedTo, team, selectedDateTime)
                             }}
                             onDeleteTask={(key) => {
-                              const r = window.confirm(
-                                'Voulez-vous vraiment supprimer cette tâche ?'
-                              );
-                              if (r === true) {
-                                let room = this.state.selectedRoom;
-                                let tasks = room.tasks;
-                                tasks.splice(key, 1);
-                                room.tasks = tasks;
-                                firebase
-                                  .database()
-                                  .ref('rooms/' + this.state.selectedRoomKey)
-                                  .set(room)
-                                  .then((ok) => {
-                                    this.setState({ selectedRoom: room });
-                                  });
-                              }
+                              this.deleteRoomTask(key)
                             }}
                           />
                         )}
@@ -3326,9 +3709,7 @@ export default class Main extends React.Component {
                                 color="primary"
                                 style={{ marginTop: -17 }}
                                 onClick={() => {
-                                  let meeturl =
-                                      'https://meet.smartdom.ch/'+meet_url_begin+'_' +
-                                    moment().format('DDMMYYYYHHmmss');
+                                  let meeturl = meet_url + '_' + moment().format('DDMMYYYYHHmmss');
                                   this.setState({ meeturl: meeturl });
                                 }}
                               >
@@ -3392,11 +3773,7 @@ export default class Main extends React.Component {
                                 marginRight: 15
                               }}
                               onClick={() => {
-                                window.open(
-                                  'https://meet.smartdom.ch/'+meet_url_begin+'_' +
-                                  this.state.meetCode,
-                                  '_blank'
-                                );
+                                window.open(meet_url + '_' + this.state.meetCode, '_blank');
                               }}
                             >
                               Participer
@@ -3409,42 +3786,44 @@ export default class Main extends React.Component {
                         {
                           this.state.loading === false && this.state.firstLoading === false &&
                           <div>
-                              <TableContact
-                                  contacts={this.state.contacts}
-                                  onEditClick={(contact, key) => {
-                                    this.setState({
-                                      selectedContact: contact,
-                                      selectedContactKey: contact.uid
-                                    });
-                                    this.props.history.push('/home/contacts/' + contact.uid);
-                                  }}
-                                  onImportClick={(e) => {
-                                    let file = e.target.files[0];
-                                    if(file.type === "application/vnd.oasis.opendocument.spreadsheet" || file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-                                        file.type === "application/vnd.ms-excel" || file.type === "text/csv"){
-                                      xlsxParser.onFileSelection(e.target.files[0])
-                                          .then( data => {
-                                            let parsedData = Object.entries(data);
-                                            let contacts = parsedData[0][1];
-                                            contacts.map((c,key) => {
-                                              c.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                                            })
-                                            firebase.database().ref("/"+ent_name+"-contacts-"+ged_id).set(contacts).then( ok => {
-                                              this.openSnackbar("success","Votre fichier est importé avec succès")
-                                            }).catch(err => {console.log(err)})
-                                            console.log(contacts)
-                                          }).catch(err => {
-                                        console.log(err)
-                                        this.openSnackbar("error",err)
-                                      })
-                                    }else{
-                                      this.openSnackbar("error","Type de fichier erroné ! Seulement les formats .xls, .xls, .csv sont acceptés")
-                                    }
-                                  }}
-                              />
+                            <TableContact
+                                contacts={this.state.contacts}
+                                onEditClick={(contact, key) => {
+                                  this.setState({
+                                    selectedContact: contact,
+                                    selectedContactKey: contact.uid
+                                  });
+                                  this.props.history.push('/home/contacts/' + contact.uid);
+                                }}
+                                onImportClick={(e) => {
+                                  let file = e.target.files[0];
+                                  if(file.type === "application/vnd.oasis.opendocument.spreadsheet" || file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+                                      file.type === "application/vnd.ms-excel" || file.type === "text/csv"){
+                                    xlsxParser.onFileSelection(e.target.files[0])
+                                        .then( data => {
+                                          let parsedData = Object.entries(data);
+                                          let contacts = parsedData[0][1];
+                                          contacts.map((c,key) => {
+                                            c.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                                          })
+                                          firebase.database().ref("/"+firebase_ent_begin_name+"-contacts-"+ged_id).set(contacts).then( ok => {
+                                            this.openSnackbar("success","Votre fichier est importé avec succès")
+                                          }).catch(err => {console.log(err)})
+                                          console.log(contacts)
+                                        }).catch(err => {
+                                      console.log(err)
+                                      this.openSnackbar("error",err)
+                                    })
+                                  }else{
+                                    this.openSnackbar("error","Type de fichier erroné ! Seulement les formats .xls, .xls, .csv sont acceptés")
+                                  }
+                                }}
+                                /*onAddBtnClick={() => {
+                                  this.setState({ openNewClientModal: true });
+                                }}*/
+                            />
                           </div>
                         }
-
                       </Route>
 
                       <Route exact path="/home/contacts/:contact_id">
@@ -3472,7 +3851,8 @@ export default class Main extends React.Component {
                                                onChange={(files) => this.uploadImage(files)}
                                                ref={(ref) => this.imageUpload = ref}
                                 />
-                                  <h4 className="mb-0">{this.state.selectedContact.FirstName + ' ' + this.state.selectedContact.LastName}</h4>
+                                  <h4 className="mb-0">{this.state.selectedContact.prenom + ' ' + this.state.selectedContact.nom}</h4>
+                                  <p className="text-muted">{this.state.selectedContact.specialite} </p>
                                   <div style={{ display: 'contents' }}>
                                     <button type="button"
                                             onClick={this.saveContactChanges}
@@ -3523,8 +3903,8 @@ export default class Main extends React.Component {
                                               endAdornment={
                                                 <InputAdornment
                                                   position="end">CHF/h</InputAdornment>}
-                                              value={this.state.selectedContact.TauxHoraire}
-                                              onChange={this.handleChange('selectedContact', 'TauxHoraire')}
+                                              value={this.state.selectedContact.rateFacturation}
+                                              onChange={this.handleChange('selectedContact', 'rateFacturation')}
                                             />
                                           </div>
                                         </div>
@@ -3537,8 +3917,15 @@ export default class Main extends React.Component {
                                               type="text"
                                               id="nom"
                                               name="nom"
-                                              value={this.state.selectedContact.FirstName}
-                                              onChange={this.handleChange('selectedContact','FirstName')} />
+                                              value={this.state.selectedContact.nom}
+                                              onChange={this.handleChange('selectedContact', /*let clients_oa = this.state.annuaire_clients_mondat;
+                                                                                                                   clients_oa.map((c,key) => {
+                                                                                                                        c.ID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                                                                                                                        c.created_at = new Date().toDateString();
+                                                                                                                   });
+                                                                                                                   firebase.database().ref("/annuaire_client_mondat").set(clients_oa).then(ok => {
+                                                                                                                        console.log("ok")
+                                                                                                                   })*/'nom')} />
                                           </div>
                                           <div
                                             className="col-md-6">
@@ -3548,8 +3935,8 @@ export default class Main extends React.Component {
                                               type="text"
                                               id="prenom"
                                               name="prenom"
-                                              value={this.state.selectedContact.LastName}
-                                              onChange={this.handleChange('selectedContact', 'LastName')} />
+                                              value={this.state.selectedContact.prenom}
+                                              onChange={this.handleChange('selectedContact', 'prenom')} />
                                           </div>
                                         </div>
                                         <div className="row"
@@ -3561,8 +3948,8 @@ export default class Main extends React.Component {
                                               type="text"
                                               id="email"
                                               name="email"//readOnly={true}
-                                              value={this.state.selectedContact.Email}
-                                              onChange={this.handleChange('selectedContact', 'Email')} />
+                                              value={this.state.selectedContact.email}
+                                              onChange={this.handleChange('selectedContact', 'email')} />
                                           </div>
                                           <div
                                             className="col-md-6">
@@ -3572,8 +3959,8 @@ export default class Main extends React.Component {
                                               type="text"
                                               id="phone"
                                               name="phone"
-                                              value={this.state.selectedContact.Phone}
-                                              onChange={this.handleChange('selectedContact', 'Phone')} />
+                                              value={this.state.selectedContact.phone}
+                                              onChange={this.handleChange('selectedContact', 'phone')} />
                                           </div>
                                         </div>
                                         <div className="row"
@@ -3605,8 +3992,8 @@ export default class Main extends React.Component {
                                               id="pays"
                                               name="pays"
                                               placeholder="Pays"
-                                              value={this.state.selectedContact.Country}
-                                              onChange={this.handleChange('selectedContact', 'Country')}>
+                                              value={this.state.selectedContact.pays}
+                                              onChange={this.handleChange('selectedContact', 'pays')}>
                                               {
                                                 countryList.map((country, key) =>
                                                   <option
@@ -3670,7 +4057,7 @@ export default class Main extends React.Component {
                                       clients.map((c,key) => {
                                         c.ID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
                                       })
-                                      firebase.database().ref("/"+ent_name+"-clients-"+ged_id).set(clients).then( ok => {
+                                      firebase.database().ref("/"+firebase_ent_begin_name+"-clients-"+ged_id).set(clients).then( ok => {
                                         this.openSnackbar("success","Votre fichier est importé avec succès")
                                       }).catch(err => {console.log(err)})
                                       console.log(clients)
@@ -3694,9 +4081,8 @@ export default class Main extends React.Component {
                             <div className="row">
                               <div className="col-lg-12">
                                 <div className="card-box text-center">
-                                  <img onClick={() => {} //this.imageUpload.click()
-                                     }
-                                       src={this.state.selectedSociete.imageUrl ? this.state.selectedSociete.imageUrl : this.state.selectedSociete.name ? entIcon : userAvatar}
+                                  <img onClick={() => {}}  //this.imageUpload.click()
+                                       src={this.state.selectedSociete.imageUrl ? this.state.selectedSociete.imageUrl : this.state.selectedSociete.Type === '0' ? entIcon : userAvatar}
                                        className="rounded-circle avatar-lg img-thumbnail"
                                        alt="" style={{ cursor: 'pointer', width: 120, height: 120, objectFit: 'cover' }}
                                   />
@@ -3707,7 +4093,7 @@ export default class Main extends React.Component {
                                                ref={(ref) => this.imageUpload = ref}
                                 />
                                   <h4
-                                    className="mb-0">{this.state.selectedSociete.name || this.state.selectedSociete.contactName}</h4>
+                                    className="mb-0">{this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '')}</h4>
                                   <div style={{ display: 'contents' }}>
                                     <button type="button"
                                             onClick={this.saveSocietyChanges}
@@ -3725,17 +4111,17 @@ export default class Main extends React.Component {
                                             onClick={() => {
                                             }}
                                             className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
-                                      <i className="fe-book-open" />&nbsp;&nbsp;Book
+                                      <i className="fe-book-open" />&nbsp;&nbsp;Livre
                                     </button>
                                   </div>
                                   <div style={{ marginTop: 30 }}
                                        className="text-left">
                                     <Tabs> <TabList>
-                                      <Tab>Informations générales</Tab>
-                                      <Tab>Ouverture mandat</Tab>
+                                      <Tab>Informations client</Tab>
+                                      <Tab>Ouverture dossier</Tab>
                                     </TabList>
                                       <TabPanel>
-                                        <h5 style={{ marginTop: 20 }}>Informations générales</h5>
+                                        <h5 style={{ marginTop: 20 }}>Informations Client</h5>
                                         <div className="row" style={{ marginTop: 30 }}>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Nom du client </p>
@@ -3744,8 +4130,8 @@ export default class Main extends React.Component {
                                                 className="form-control"
                                                 id="email"
                                                 name="email"
-                                                value={this.state.selectedSociete.ContactFullName}
-                                                onChange={this.handleChange('selectedSociete', 'ContactFullName')} />
+                                                value={this.state.selectedSociete.Nom}
+                                                onChange={this.handleChange('selectedSociete', 'Nom')} />
 
                                           </div>
                                           <div className="col-md-6">
@@ -3763,7 +4149,23 @@ export default class Main extends React.Component {
                                               label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === true ? 'Actif' : 'Non actif' : 'Non actif'}
                                             />
                                           </div>
+
                                         </div>
+                                        {
+                                          this.state.selectedSociete.Type === "1" &&
+                                          <div className="row" style={{ marginTop: 5 }}>
+                                            <div className="col-md-6">
+                                              <p style={{ marginBottom: 10 }}>Prénom du client </p>
+                                              <input
+                                                type="text"
+                                                className="form-control"
+                                                id="email"
+                                                name="email"
+                                                value={this.state.selectedSociete.Prenom}
+                                                onChange={this.handleChange('selectedSociete', 'Prenom')} />
+                                            </div>
+                                          </div>
+                                        }
                                         <div className="row" style={{ marginTop: 20 }}>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Adresse postale</p>
@@ -3772,8 +4174,8 @@ export default class Main extends React.Component {
                                               className="form-control" style={{color:"#000"}}
                                               id="about"
                                               name="about"
-                                              value={this.state.selectedSociete.Street1}
-                                              onChange={this.handleChange('selectedSociete', 'Street1')} />
+                                              value={this.state.selectedSociete.adress}
+                                              onChange={this.handleChange('selectedSociete', 'adress')} />
                                           </div>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Adresse email</p>
@@ -3782,16 +4184,16 @@ export default class Main extends React.Component {
                                               type="email"
                                               id="email"
                                               name="email"
-                                              value={this.state.selectedSociete.Email}
-                                              onChange={this.handleChange('selectedSociete', 'Email')} />
+                                              value={this.state.selectedSociete.email}
+                                              onChange={this.handleChange('selectedSociete', 'email')} />
                                             <p style={{ marginBottom: 10,marginTop:10 }}>Téléphone</p>
                                             <input
                                               className="form-control"
                                               type="text"
                                               id="phone"
                                               name="phone"
-                                              value={this.state.selectedSociete.Phone}
-                                              onChange={this.handleChange('selectedSociete', 'Phone')} />
+                                              value={this.state.selectedSociete.phone}
+                                              onChange={this.handleChange('selectedSociete', 'phone')} />
                                           </div>
                                           <div className="col-md-12" style={{marginTop:20}}>
                                             <p style={{ marginBottom: 10 }}>Remarques</p>
@@ -3837,11 +4239,11 @@ export default class Main extends React.Component {
 
                                       </TabPanel>
                                       <TabPanel>
-                                        <h5 style={{ marginTop: 20 }}>Ouverture mandat</h5>
+                                        <h5 style={{ marginTop: 20 }}>Ouverture du dossier</h5>
                                         <div className="row mt-4">
                                           <div className="col-md-6">
                                             <div>
-                                              Nom du mandat
+                                              Nom du dossier
                                             </div>
                                             <div>
                                               <input
@@ -3854,7 +4256,7 @@ export default class Main extends React.Component {
                                           </div>
                                           <div className="col-md-6">
                                             <div>
-                                              Type de mandat
+                                              Type de dossier
                                             </div>
                                             <div>
                                               <select
@@ -3880,8 +4282,8 @@ export default class Main extends React.Component {
                                               <textarea
                                                 style={{color: "#000"}}
                                                 className="form-control"
-                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
-                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "description")}
+                                                value={this.state.newClientFolder.desc}
+                                                onChange={this.handleChange( "newClientFolder", "desc")}
                                                 rows={5}
                                               />
                                             </div>
@@ -3895,8 +4297,8 @@ export default class Main extends React.Component {
                                               className="form-control"
                                               id="email"
                                               name="email"
-                                              value={this.state.selectedSociete.contrepartie}
-                                              onChange={this.handleChange('selectedSociete', 'contrepartie')} />
+                                              value={this.state.newClientFolder.contrepartie}
+                                              onChange={this.handleChange('newClientFolder', 'contrepartie')} />
                                           </div>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Autres parties</p>
@@ -3905,8 +4307,8 @@ export default class Main extends React.Component {
                                               className="form-control"
                                               id="email"
                                               name="email"
-                                              value={this.state.selectedSociete.autrepartie}
-                                              onChange={this.handleChange('selectedSociete', 'autrepartie')} />
+                                              value={this.state.newClientFolder.autrepartie}
+                                              onChange={this.handleChange('newClientFolder', 'autrepartie')} />
                                           </div>
                                         </div>
                                         <hr style={{
@@ -3919,7 +4321,7 @@ export default class Main extends React.Component {
                                         <div><h4>Facturation</h4>
                                           <div className="row mt-2">
                                             <div className="col-md-5">
-                                              <div>Collaborateur-Lead</div>
+                                              <div>Associé</div>
                                               <div>
                                                 <MuiSelect
                                                   labelId="demo-simple-select-label"
@@ -3935,7 +4337,7 @@ export default class Main extends React.Component {
                                                   }}
                                                   value={this.state.lead_contact_tmp}
                                                 >
-                                                  {this.state.contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
+                                                  {this.state.contacts.map((contact, key) => (
                                                     <MenuItem
                                                       key={key}
                                                       value={contact.email}>
@@ -3974,7 +4376,7 @@ export default class Main extends React.Component {
                                             </div>
                                             <div className="col-md-7">
                                               <div style={{ display: 'flex' }}>
-                                                <div>Collaborateur-Team</div>
+                                                <div>Collaborateur/Stagiaire</div>
                                                 <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
                                                             onClick={() => {
                                                               let objCp = this.state.newClientFolder;
@@ -3998,7 +4400,7 @@ export default class Main extends React.Component {
                                                     marginTop: 13
                                                   }}>
                                                     <div>
-                                                      <div>Collaborateur</div>
+                                                      <div>Collaborateur/Stagiaire</div>
                                                       <div>
                                                         <MuiSelect
                                                           labelId="demo-simple-select-label"
@@ -4076,11 +4478,12 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-8">
                                                   <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.parEmail || false}
+                                                      checked={this.state.newClientFolder.byEmail}
                                                       onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.parEmail = !this.state.mondat.facturationClient.parEmail;
-                                                        this.setState({ mondat: d });
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.byEmail = e.target.checked
+                                                        this.setState({newClientFolder:obj})
+                                                        //this.handleChange("newClientFolder",e.target.checked)
                                                       }}
                                                   />
                                                 </div>
@@ -4097,11 +4500,11 @@ export default class Main extends React.Component {
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
                                                     style={{ width: '100%' }}
-                                                    value={this.state.mondat.facturationClient.frequence}
+                                                    value={this.state.newClientFolder.frequence}
                                                     onChange={(e) => {
-                                                      let d = this.state.mondat;
-                                                      d.facturationClient.frequence = e.target.value;
-                                                      this.setState({ mondat: d });
+                                                      let obj = this.state.newClientFolder;
+                                                      obj.frequence = e.target.value
+                                                      this.setState({newClientFolder:obj})
                                                     }}
                                                   >
                                                     <MenuItem
@@ -4127,11 +4530,11 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-6">
                                                   <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.EnvoyeParSecretariat || false}
+                                                      checked={this.state.newClientFolder.sentBySecr}
                                                       onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.EnvoyeParSecretariat = !this.state.mondat.facturationClient.EnvoyeParSecretariat;
-                                                        this.setState({ mondat: d });
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.sentBySecr = e.target.checked
+                                                        this.setState({newClientFolder:obj})
                                                       }} />
                                                 </div>
                                               </div>
@@ -4145,11 +4548,11 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-6">
                                                   <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.EnvoyeAvocat || false}
+                                                      checked={this.state.newClientFolder.sentByAvocat}
                                                       onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.EnvoyeAvocat = !this.state.mondat.facturationClient.EnvoyeAvocat;
-                                                        this.setState({ mondat: d });
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.sentByAvocat = e.target.checked
+                                                        this.setState({newClientFolder:obj})
                                                       }} />
                                                 </div>
                                               </div>
@@ -4166,15 +4569,15 @@ export default class Main extends React.Component {
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
                                                     style={{ width: '100%' }}
-                                                    value={this.state.mondat.facturationClient.LangueFacturation}
+                                                    value={this.state.newClientFolder.language}
                                                     onChange={(e) => {
-                                                      let d = this.state.mondat;
-                                                      d.facturationClient.LangueFacturation = e.target.value;
-                                                      this.setState({ mondat: d });
+                                                      let obj = this.state.newClientFolder;
+                                                      obj.language = e.target.value
+                                                      this.setState({newClientFolder:obj})
                                                     }}
                                                   >
                                                     <MenuItem
-                                                      value={'Français'}>Français</MenuItem>
+                                                      value={'Francais'}>Français</MenuItem>
                                                     <MenuItem
                                                       value={'Anglais'}>Anglais</MenuItem>
                                                   </MuiSelect>
@@ -4194,13 +4597,15 @@ export default class Main extends React.Component {
                                             onClick={() => {
                                               let contact = main_functions.getOAContactByEmail2(this.state.contacts,this.state.lead_contact_tmp);
                                               let objCp = this.state.newClientFolder;
-                                              objCp.team.push({
-                                                fname: contact.nom + ' ' + contact.prenom,
-                                                email: this.state.lead_contact_tmp,
-                                                uid: contact.uid,
-                                                tarif: this.state.lead_contact_horaire_tmp,
-                                                type: 'lead'
-                                              });
+                                              if(contact){
+                                                objCp.team.push({
+                                                  fname: contact.nom + ' ' + contact.prenom,
+                                                  email: this.state.lead_contact_tmp,
+                                                  uid: contact.uid,
+                                                  tarif: this.state.lead_contact_horaire_tmp,
+                                                  type: 'lead'
+                                                });
+                                              }
                                               this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
                                             }}
                                             className="btn btn-blue waves-effect mb-2 waves-light m-1">
@@ -4223,24 +4628,16 @@ export default class Main extends React.Component {
                           <div>
                             <div className="row">
                               <div className="col-lg-12">
-
-                                <div className="card-box text-center"
-                                     style={{ marginTop: 1 }}>
-                                  <div style={{ marginTop: 30 }}
-                                       className="text-left">
+                                <h5 className="mt-0 mb-1">TimeSheet / Activités</h5>
+                                <div className="card-box text-center" style={{ marginTop: 1 }}>
+                                  <div style={{ marginTop: 30 }} className="text-left">
                                     <Tabs selectedIndex={this.state.selectedTimeSheetIndex} onSelect={index => {
                                       this.setState({selectedTimeSheetIndex:index})
                                     }}>
                                       <TabList>
                                         <Tab>Time Sheet</Tab>
-                                        <Tab>Activités </Tab> {
-                                        localStorage.getItem('role') === 'admin01' &&
-                                        [
-                                          <Tab key={0}>Recherche Clients </Tab>,
-                                          <Tab key={1}>Imputation team & scheduled time </Tab>,
-                                          <Tab key={2}>New Expenses </Tab>
-                                        ]
-                                      }
+                                        <Tab>Activités </Tab>
+                                        <Tab>Partner </Tab>
                                       </TabList>
                                       <TabPanel>
                                         {
@@ -4356,16 +4753,15 @@ export default class Main extends React.Component {
                                                   className="col-md-4">
                                                   <div>
                                                     <h5>Nom du client</h5>
-                                                    <div
-                                                      style={{ display: 'flex' }}>
+                                                    <div style={{ display: 'flex' }}>
                                                       <SelectSearch
                                                         options={
-                                                          this.state.annuaire_clients_mondat.map(({ Name, ContactFullName, imageUrl }) =>
+                                                          this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
                                                             ({
-                                                              value: Name || ContactFullName,
-                                                              name: Name || ContactFullName,
-                                                              ContactType: Name ? "0":"1",
-                                                              ContactName: Name || ContactFullName,
+                                                              value: ID,
+                                                              name: Nom + ' ' + (Prenom || ''),
+                                                              ContactType: Type,
+                                                              ContactName: Nom + ' ' + (Prenom || ''),
                                                               imageUrl: imageUrl
                                                             }))
                                                         }
@@ -4373,19 +4769,23 @@ export default class Main extends React.Component {
                                                         renderOption={main_functions.renderSearchOption}
                                                         search
                                                         placeholder="Chercher votre client"
-                                                        onChange={e => {
-                                                          //console.log(e)
+                                                        onChange={ (e) => {
+                                                          console.log(e)
                                                           let obj = this.state.TimeSheet;
-                                                          obj.newTime.client = e;
-                                                          let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => (x.Name || x.ContactFullName) === e);
-                                                          console.log(find_annuaire_fact_lead);
-                                                          let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
-                                                          console.log(partner_email);
-                                                          this.setState({
-                                                            partnerFacture: partner_email,
-                                                            selectedClientTimeEntree: e,
-                                                            TimeSheet: obj
-                                                          });
+
+                                                          let findClientTempo = this.state.clients_tempo.find(x => x.ID === e)
+                                                          let findClientFname = this.state.annuaire_clients_mondat.find(x => x.ID === e)
+                                                          console.log(findClientFname)
+                                                          obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                                                          if(findClientTempo){
+                                                            this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
+                                                          }else{
+                                                            obj.newTime.dossier_client =  {
+                                                              facturation: {
+                                                                language:''
+                                                              }}
+                                                            this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: e})
+                                                          }
                                                         }}
                                                       />
                                                       <IconButton
@@ -4394,6 +4794,28 @@ export default class Main extends React.Component {
                                                         <SearchIcon />
                                                       </IconButton>
                                                     </div>
+                                                    <h5 style={{marginTop:10}}>Dossier du client </h5>
+                                                    <MuiSelect
+
+                                                      labelId="demo-simple-select-label"
+                                                      id="demo-simple-select"
+                                                      style={{ width: 217 }}
+                                                      value={this.state.TimeSheet.newTime.dossier_client}
+                                                      onChange={(e) => {
+                                                        console.log(e.target.value)
+                                                        let d = this.state.TimeSheet;
+                                                        d.newTime.dossier_client = e.target.value;
+                                                        this.setState({ TimeSheet: d });
+                                                      }}
+                                                    >
+                                                      {
+                                                        this.state.selectedClientFolders.map((item,key) => (
+                                                          <MenuItem key={key} value={item}>{item.name}</MenuItem>
+                                                        ))
+                                                      }
+
+
+                                                    </MuiSelect>
                                                   </div>
                                                 </div>
                                               </div>
@@ -4413,8 +4835,10 @@ export default class Main extends React.Component {
                                                         this.setState({ TimeSheet: d });
                                                       }}
                                                     >
-                                                      <MenuItem value={'Temps facturé'}>Temps facturé</MenuItem>
-                                                      <MenuItem value={'Paiement avancée'}>Provision</MenuItem>
+                                                      <MenuItem
+                                                        value={'Temps facturé'}>Temps facturé</MenuItem>
+                                                      <MenuItem
+                                                        value={'Paiement avancée'}>Provision</MenuItem>
                                                     </MuiSelect>
                                                   </div>
                                                 </div>
@@ -4445,7 +4869,7 @@ export default class Main extends React.Component {
                                                   className="col-md-4">
                                                   <div>
                                                     <div>
-                                                      <h5>Description</h5>
+                                                      <h5>{new_timeSheet_desc}</h5>
                                                     </div>
                                                     <textarea
                                                       className="form-control "
@@ -4464,7 +4888,7 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-4">
                                                   <div>
-                                                    <h6>Utilisateur {ent_name} </h6>
+                                                    <h6>Utilisateur OA </h6>
                                                   </div>
                                                   <MuiSelect
                                                     labelId="demo-simple-select-label4545"
@@ -4476,11 +4900,11 @@ export default class Main extends React.Component {
                                                       let OA_contacts = this.state.contacts;
                                                       let OA_contact = '';
                                                       OA_contacts.map((contact, key) => {
-                                                        if (contact && contact.Email && contact.Email === e.target.value) {
+                                                        if (contact && contact.email && contact.email === e.target.value) {
                                                           OA_contact = contact;
                                                         }
                                                       });
-                                                      d.newTime.rateFacturation = OA_contact.TauxHoraire || '';
+                                                      d.newTime.rateFacturation = OA_contact.rateFacturation || '';
                                                       this.setState({ TimeSheet: d });
                                                     }}
                                                     value={this.state.TimeSheet.newTime.utilisateurOA}
@@ -4488,12 +4912,12 @@ export default class Main extends React.Component {
                                                     {this.state.contacts.map((contact, key) => (
                                                       <MenuItem
                                                         key={key}
-                                                        value={contact.Email}>
+                                                        value={contact.email}>
                                                         <div style={{display:"flex"}}>
                                                           <Avatar style={{marginLeft:10}}
                                                                   alt=""
                                                                   src={contact.imageUrl} />
-                                                          <div style={{marginTop:10,marginLeft:8}}>{contact.FirstName + ' ' + contact.LastName}</div>
+                                                          <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
                                                         </div>
                                                       </MenuItem>
                                                     ))}
@@ -4542,62 +4966,17 @@ export default class Main extends React.Component {
                                                 <AltButtonGroup>
                                                   <AtlButton
                                                     onClick={() => {
-                                                      let obj = this.state.TimeSheet;
-                                                      let time = obj.newTime.duree;
-                                                      let timeFormated = '';
-                                                      if (time.indexOf(':') > -1) {
-                                                        timeFormated = parseFloat(time.replace(':', '.'));
-                                                      } else if (time.indexOf('.') > -1) {
-                                                        timeFormated = parseFloat(time);
-                                                      } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
-                                                        timeFormated = parseInt(time);
-                                                      } else {
-                                                        this.openSnackbar('error', 'Le format de la durée est invalide !');
-                                                      }
-                                                      if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
-                                                        this.openSnackbar('error', 'Le format de la durée est invalide !');
-                                                      } else {
-                                                        obj.newTime.duree = timeFormated;
-                                                        let lignes_fact = this.state.lignesFactures || [];
-
-                                                        SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
-                                                          obj.newTime.company_id = newCompRes.data.id;
-                                                          obj.newTime.date = moment(this.state.TimeSheet.newTime.data).format('YYYY-MM-DD');
-                                                          obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                                                          obj.user_email = localStorage.getItem('email');
-                                                          obj.template = this.state.lignef_template;
-                                                          lignes_fact.push(obj);
-
-                                                          this.setState({
-                                                            lignesFactures: lignes_fact,
-                                                            TimeSheet: {
-                                                              newTime: {
-                                                                duree: '',
-                                                                client: obj.newTime.client,
-                                                                categoriesActivite: 'Temps facturé',
-                                                                description: '',
-                                                                date: new Date(),
-                                                                utilisateurOA: obj.newTime.utilisateurOA,
-                                                                rateFacturation: obj.newTime.rateFacturation
-                                                              }
-                                                            }
-                                                          });
-                                                          this.updateLignes_facture(lignes_fact);
-                                                          this.openSnackbar('success', 'Enregistrement effectué avec succès');
-                                                        }).catch(err => {
-                                                          console.log(err);
-                                                        });
-                                                      }
+                                                      this.createLignefacture(false)
                                                     }}
                                                     appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' ||
-                                                    this.state.TimeSheet.newTime.rateFacturation === '' || this.state.TimeSheet.newTime.client === ''}
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client.name === ''}
                                                     style={{ margin: 20 }}> Enregistrer </AtlButton>
                                                   <AtlButton
-                                                    appearance=""
-                                                    style={{ margin: 20 }}>Enregistrer et créer une autre</AtlButton>
-                                                  <AtlButton
-                                                    appearance=""
+                                                    onClick={() => {
+                                                      this.createLignefacture(true)
+                                                    }}
+                                                    appearance="primary"
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client.name === ''}
                                                     style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
                                                   <AtlButton
                                                     appearance=""
@@ -4608,28 +4987,31 @@ export default class Main extends React.Component {
                                                           newTime: {
                                                             duree: '',
                                                             client: '',
-                                                            categoriesActivite: '',
+                                                            dossier_client: {
+                                                              facturation: {
+                                                                language:''
+                                                              }},
+                                                            categoriesActivite: 'Temps facturé',
                                                             description: '',
                                                             date: new Date(),
                                                             utilisateurOA: '',
-                                                            rateFacturation: ''
+                                                            rateFacturation: '',
+                                                            selectedClientTimeEntree:''
                                                           }
                                                         }
                                                       });
-                                                    }}>Annuler</AtlButton>
+                                                    }}>Réinitialiser</AtlButton>
                                                 </AltButtonGroup>
                                                 <div>
                                                   <AltButtonGroup
                                                     style={{ marginTop: 10 }}>
                                                     <AtlButton
-                                                      appearance=""
-                                                      //onClick={() => this.setState({ showLignesFactureClient: true })}
+                                                      isSelected
+                                                      appearance="default"
                                                       onClick={() => this.setState({selectedTimeSheetIndex:1})}
                                                     >
                                                       Etablir facture
                                                     </AtlButton>
-                                                    <AtlButton
-                                                      appearance="">Histo.Fact.Clients</AtlButton>
                                                   </AltButtonGroup>
                                                 </div>
                                               </div>
@@ -4715,131 +5097,6 @@ export default class Main extends React.Component {
                                                   </div>
                                                 </div>
                                               </div>
-                                              {
-                                                searchFilterLignesfacture.length > 0 ?
-                                                  <div
-                                                    className="mt-3">
-                                                    <div style={{
-                                                      width: '100%',
-                                                      backgroundColor: '#D2DDFE',
-                                                      padding: 5,
-                                                      display: 'flex'
-                                                    }}>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '15%' }}>
-                                                        <h5>Date</h5>
-                                                      </div>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '60%' }}>
-                                                        <h5>Activités</h5>
-                                                      </div>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '15%' }}>
-                                                        <h5>Heures</h5>
-                                                      </div>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '10%' }}>
-                                                        <h5>Action</h5>
-                                                      </div>
-                                                    </div>
-                                                    {
-                                                      searchFilterLignesfacture.map((lf, key) =>
-                                                        <div
-                                                          key={key}>
-                                                          <div
-                                                            style={{
-                                                              width: '100%',
-                                                              backgroundColor: '#fff',
-                                                              padding: 5,
-                                                              display: 'flex'
-                                                            }}>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '15%' }}>
-                                                              <h5>{moment(lf.newTime.date).format('DD-MM-YYYY')}</h5>
-                                                            </div>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '60%' }}>
-                                                              <h5>{lf.newTime.description}</h5>
-                                                            </div>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '15%' }}>
-                                                              <h5>{lf.newTime.duree}</h5>
-                                                            </div>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '10%' }}>
-                                                              <IconButton
-                                                                onClick={() => {
-                                                                  this.deleteLigneFact(lf);
-                                                                }}>
-                                                                <DeleteOutlineIcon
-                                                                  color="error" />
-                                                              </IconButton>
-                                                            </div>
-                                                          </div>
-                                                          {
-                                                            key < searchFilterLignesfacture.length &&
-                                                            <div
-                                                              style={{
-                                                                backgroundColor: '#f0f0f0',
-                                                                height: 2
-                                                              }} />
-                                                          }
-                                                        </div>
-                                                      )
-                                                    }
-                                                    <div
-                                                      className="mt-3">
-                                                      <h6>Partner validant cette facture</h6>
-                                                      <MuiSelect
-                                                        labelId="demo-mutiple-chip-label14545"
-                                                        id="demo-mutiple-chip34688"
-                                                        style={{ width: 250 }}
-                                                        value={this.state.partnerFacture}
-                                                        onChange={(e) => {
-                                                          console.log(e.target.value);
-                                                          this.setState({ partnerFacture: e.target.value });
-                                                        }}
-                                                        MenuProps={Data.MenuProps}
-                                                      >
-                                                        {this.state.contacts.map((contact, key) => (
-                                                          <MenuItem
-                                                            key={key}
-                                                            value={contact.Email}>
-                                                            <div
-                                                              className="row align-items-center justify-content-center">
-                                                              <Avatar
-                                                                alt=""
-                                                                src={contact.imageUrl} />
-                                                              <div>{contact.FirstName + ' ' + contact.LastName}</div>
-                                                            </div>
-                                                          </MenuItem>
-                                                        ))}
-                                                      </MuiSelect>
-                                                    </div>
-                                                    <div
-                                                      className="mt-4 text-right">
-                                                      <AtlButton
-                                                        appearance="primary"
-                                                        onClick={() => {
-                                                          this.createFacture();
-                                                        }}> ETABLIR FACTURE</AtlButton>
-                                                    </div>
-                                                  </div> :
-
-                                                  <div
-                                                    className="mt-4">
-                                                    <h5
-                                                      style={{ color: '#f50' }}>Aucune ligne facture encore ajoutée pour ce client !</h5>
-                                                  </div>
-                                              }
                                             </div>
                                         }
                                       </TabPanel>
@@ -4848,12 +5105,17 @@ export default class Main extends React.Component {
                                           this.state.lignesFactures.length > 0 &&
                                           <TableTimeSheet
                                             lignesFactures={this.state.lignesFactures}
+                                            lignesFacturesCopy={this.state.lignesFacturesCopy}
                                             setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
                                             OA_contacts={this.state.contacts}
                                             annuaire_clients_mondat={this.state.annuaire_clients_mondat}
-                                            onClickFacture={(facture_date,partner) => {
-                                              this.createFacture_ForSelected(facture_date,partner);
+                                            onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
+                                              this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
+                                                partner,lignes_facture)
                                             }}
+                                            client_folders={this.state.client_folders}
+                                            updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
+                                            openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
                                           />
                                         } {
                                         this.state.lignesFactures.length === 0 &&
@@ -4863,8 +5125,23 @@ export default class Main extends React.Component {
                                         }}>Aucune ligne facture encore ajoutée !</div>
 
                                       }
-                                      </TabPanel> {
-                                      localStorage.getItem('role') === 'admin01' &&
+                                      </TabPanel>
+                                      <TabPanel>
+                                        <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
+                                        <TableFactures factures={this.state.facturesToValidated}
+                                                       validateFacture={(row,key) => {
+                                                         this.createFacture_ForSelected(row.created_at, row.lignes_facture,row.client_folder.id,row,key);
+                                                       }}
+                                                       openFacture={(id) => {
+                                                         this.openPdfModal(id)
+                                                       }}
+                                                       openFactureFolder={(id) => {
+                                                         this.redirectToFolder(id)
+                                                       }}
+                                        />
+                                      </TabPanel>  
+                                      {/*{
+                                      localStorage.getItem('role') === 'admin' &&
                                       [
                                         <TabPanel key={0}>
                                           <h5 style={{
@@ -5020,7 +5297,7 @@ export default class Main extends React.Component {
 
                                         <TabPanel key={2} />
                                       ]
-                                    }
+                                      }*/}
                                     </Tabs>
                                   </div>
                                 </div>
@@ -5221,10 +5498,8 @@ export default class Main extends React.Component {
                       localStorage.getItem('usrtoken')
                     )
                       .then((addfolderRes) => {
-                        if (
-                          addfolderRes.succes === true &&
-                          addfolderRes.status === 200
-                        ) {
+                        if (addfolderRes.succes === true && addfolderRes.status === 200) {
+                          this.openSnackbar("success","Nouveau dossier ajouté avec succès")
                           this.reloadGed();
                           setTimeout(() => {
                             this.setState({
@@ -5233,6 +5508,7 @@ export default class Main extends React.Component {
                             });
                           }, 500);
                         } else {
+                          this.openSnackbar("error",addfolderRes.error)
                           console.log(addfolderRes.error);
                         }
                       })
@@ -5397,7 +5673,7 @@ export default class Main extends React.Component {
                     id="checkboxes-tags-demo"
                     options={data.Acces}
                     disableCloseOnSelect
-                    getOptionLabel={(option) => option}
+                    getOptionLabel={(option) => option.label}
                     renderOption={(option, { selected }) => (
                       <React.Fragment>
                         <MuiCheckbox
@@ -5406,7 +5682,7 @@ export default class Main extends React.Component {
                           style={{ marginRight: 8 }}
                           checked={selected}
                         />
-                        {option}
+                        {option.label}
                       </React.Fragment>
                     )}
                     style={{
@@ -5417,6 +5693,10 @@ export default class Main extends React.Component {
                     renderInput={(params) => (
                       <TextField {...params} variant="outlined" placeholder="" />
                     )}
+                    onChange={(event, values) => {
+                      console.log(values)
+                      this.setState({shareRights:values})
+                    }}
                   />
                 </div>
                 <div className="col-md-12" style={{ marginTop: 20 }}>
@@ -5454,7 +5734,7 @@ export default class Main extends React.Component {
                 <div className="col-md-12" style={{ marginTop: 15 }}>
                   <Chip
                     icon={
-                      this.state.selectedFile === '' ? (
+                      this.state.selectedFile  === '' ? (
                         <FolderIcon />
                       ) : (
                         <PictureAsPdfIcon
@@ -5489,10 +5769,11 @@ export default class Main extends React.Component {
               <MuiButton
                 disabled={
                   (this.state.checkedNotif === true && this.state.msgNotif === '') ||
-                  this.state.emailsDriveShare.length === 0
+                  this.state.emailsDriveShare.length === 0 || this.state.shareRights.length === 0
                 }
                 onClick={() => {
                   this.setState({ loading: true, openShareDocModal: false });
+                  let rights = this.state.shareRights || [];
                   SmartService.share(
                     this.state.selectedFile === ''
                       ? this.state.selectedFolderId
@@ -5500,20 +5781,25 @@ export default class Main extends React.Component {
                     {
                       to: this.state.emailsDriveShare[0].email,
                       access: {
-                        administrate: true,
-                        share: true,
-                        edit: false,
-                        read: true
+                        administrate: rights.find(x => x.value === "administrate") !== undefined ,
+                        share: rights.find(x => x.value === "share") !== undefined,
+                        edit:  rights.find(x => x.value === "edit") !== undefined,
+                        read: rights.find(x => x.value === "read") !== undefined
                       }
                     },
                     localStorage.getItem('token'),
                     localStorage.getItem('usrtoken')
                   )
                     .then((share) => {
+                      console.log(share)
                       if (share.succes === true && share.status === 200) {
                         this.setState({
                           loading: false,
-                          openShareDocModal: false
+                          openShareDocModal: false,
+                          selectedFile:"",
+                          shareRights:[],
+                          emailsDriveShare:[],
+                          checkedNotif:false
                         });
                         this.openSnackbar(
                           'success',
@@ -5619,13 +5905,15 @@ export default class Main extends React.Component {
                       open={Boolean(this.state.anchorElContactsMenu)}
                       onClose={() => this.setState({ anchorElContactsMenu: null })}
                     >
-                      {this.state.contacts.map((contact, key) => (
+                      {this.state.contacts
+                        .filter((x) => x.role === 'avocat')
+                        .map((contact, key) => (
                           <MenuItem
                             key={key}
                             onClick={() => {
                               let emails = this.state.NewRoomEmails;
                               emails.push({
-                                email: contact.Email,
+                                email: contact.email,
                                 valid: true,
                                 key: parseInt(moment().format('DDMMYYYYHHmmss'))
                               });
@@ -5636,10 +5924,10 @@ export default class Main extends React.Component {
                             }}
                           >
                             <ListItemIcon>
-                              <Avatar src={contact.imageUrl || defaultAvatar} />
-                            </ListItemIcon>
+                              <Avatar src={contact.imageUrl} />
+                            </ListItemIcon>{' '}
                             <Typography variant="inherit">
-                              {contact.FirstName + ' ' + contact.LastName}
+                              {contact.prenom + ' ' + contact.nom}
                             </Typography>
                           </MenuItem>
                         ))}
@@ -5762,6 +6050,7 @@ export default class Main extends React.Component {
                           if(acceptedFiles[i].type === "application/pdf"){
                             let formData = new FormData();
                             formData.append('file', acceptedFiles[i]);
+                            console.log(this.state.selectedFolderId)
                             this.state.selectedFolderId !== '' &&
                             formData.append(
                               'folder_id',
@@ -5778,11 +6067,12 @@ export default class Main extends React.Component {
                                 onUploadProgress: (p) => {
                                   this.setState({ progressUpload: (p.loaded / p.total) * 100 });
                                 }
-                              })
+                              }).then( res => {})
                             );
                           }
                         }
                         Promise.all(calls).then( response => {
+                          console.log(response)
                           this.setState({
                             openNewDocModal: false,
                             newFileFromRacine: false,
@@ -5790,6 +6080,7 @@ export default class Main extends React.Component {
                             progressUpload: undefined
                           });
                           this.openSnackbar('success', calls.length === 1 ? calls.length + ' fichier est ajouté avec succès' : calls.length +" fichiers sont ajoutés avec succès");
+
                           this.reloadGed();
                         }).catch(err => {
                           console.log(err);
@@ -5895,29 +6186,18 @@ export default class Main extends React.Component {
             <DialogContent>
               <div className="row mt-3">
                 <div className="col-md-6">
-                  <p style={{ marginBottom: 10 }}>Nom du client</p>
-                  <input
-                    style={{ minWidth: 300, height: 40 }}
-                    type="text"
-                    className="form-control"
-                    id="nomc"
-                    name="nomc"
-                    value={this.state.newClient.ContactFullName}
-                    onChange={this.handleChange('newClient', 'ContactFullName')} />
-                </div>
-                <div className="col-md-6">
-                  <p style={{ marginBottom: 10 }}>Nom de la société</p>
-                  <input
+                  <p style={{ marginBottom: 10 }}>Type</p>
+                  <select
                       style={{ minWidth: 300, height: 40 }}
-                      type="text"
-                      className="form-control"
-                      id="nomc"
-                      name="nomc"
-                      value={this.state.newClient.Name}
-                      onChange={this.handleChange('newClient', 'Name')} />
+                      className="form-control custom-select"
+                      id="nomt"
+                      name="nomt"
+                      value={this.state.newClient.Type}
+                      onChange={this.handleChange('newClient', 'Type')}>
+                    <option value="0">Corporate</option>
+                    <option value="1">Litige</option>
+                  </select>
                 </div>
-              </div>
-              <div className="row mt-3">
                 <div className="col-md-6">
                   <p style={{ marginBottom: 10 }}>Email</p>
                   <input
@@ -5926,59 +6206,61 @@ export default class Main extends React.Component {
                       className="form-control"
                       id="nome"
                       name="nome"
-                      value={this.state.newClient.Email}
-                      onChange={this.handleChange('newClient', 'Email')} />
-                </div>
-                <div className="col-md-6">
-                  <p style={{ marginBottom: 10 }}>Adresse</p>
-                  <input
-                      style={{ minWidth: 300, height: 40 }}
-                      type="Text"
-                      className="form-control"
-                      id="nome"
-                      name="nome"
-                      value={this.state.newClient.Street1}
-                      onChange={this.handleChange('newClient', 'Street1')} />
+                      value={this.state.newClient.email}
+                      onChange={this.handleChange('newClient', 'email')} />
                 </div>
               </div>
               <div className="row mt-3">
                 <div className="col-md-6">
-                  <p style={{ marginBottom: 10 }}>Zip</p>
+                  <p style={{ marginBottom: 10 }}>Nom du client</p>
                   <input
-                      style={{ minWidth: 300, height: 40 }}
-                      type="text"
-                      className="form-control"
-                      id="nomt"
-                      name="nomt"
-                      value={this.state.newClient.Zip}
-                      onChange={this.handleChange('newClient', 'Zip')} />
+                    style={{ minWidth: 300, height: 40 }}
+                    type="text"
+                    className="form-control"
+                    id="nomc"
+                    name="nomc"
+                    value={this.state.newClient.nom}
+                    onChange={this.handleChange('newClient', 'nom')} />
                 </div>
-                <div className="col-md-6">
-                  <p style={{ marginBottom: 10 }}>Ville</p>
-                  <input
-                      style={{ minWidth: 300, height: 40 }}
-                      type="text"
-                      className="form-control"
-                      id="nomt"
-                      name="nomt"
-                      value={this.state.newClient.City}
-                      onChange={this.handleChange('newClient', 'City')} />
-                </div>
+                {
+                  this.state.newClient.Type === "1" &&
+                  <div className="col-md-6">
+                    <p style={{ marginBottom: 10 }}>Prénom du client</p>
+                    <input
+                        style={{ minWidth: 300, height: 40 }}
+                        type="text"
+                        className="form-control"
+                        id="nomc"
+                        name="nomc"
+                        value={this.state.newClient.prenom}
+                        onChange={this.handleChange('newClient', 'prenom')} />
+                  </div>
+                }
               </div>
               <div className="row mt-3">
                 <div className="col-md-6">
                   <p style={{ marginBottom: 10 }}>Téléphone</p>
                   <input
+                    style={{ minWidth: 300, height: 40 }}
+                    type="text"
+                    className="form-control"
+                    id="nomt"
+                    name="nomt"
+                    value={this.state.newClient.phone}
+                    onChange={this.handleChange('newClient', 'phone')} />
+                </div>
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Adresse</p>
+                  <input
                       style={{ minWidth: 300, height: 40 }}
                       type="text"
                       className="form-control"
                       id="nomt"
                       name="nomt"
-                      value={this.state.newClient.Phone}
-                      onChange={this.handleChange('newClient', 'Phone')} />
+                      value={this.state.newClient.adress}
+                      onChange={this.handleChange('newClient', 'adress')} />
                 </div>
               </div>
-
             </DialogContent>
 
             <DialogActions style={{ padding: 20 }}>
@@ -5992,7 +6274,7 @@ export default class Main extends React.Component {
                 Annuler
               </MuiButton>
               <MuiButton
-                disabled={this.state.newClient.Nom === ''}
+                disabled={this.state.newClient.nom === '' || this.state.newClient.email === ''}
                 onClick={() => {
                   this.addNewClient();
                 }}
@@ -6000,7 +6282,7 @@ export default class Main extends React.Component {
                 variant="contained"
                 style={{ textTransform: 'capitalize' }}
               >
-                Créer
+                Ajouter
               </MuiButton>
             </DialogActions>
           </Dialog>

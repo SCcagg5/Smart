@@ -234,6 +234,13 @@ export default class Main extends React.Component {
       newTime: {
         duree: '',
         client: '',
+        dossier_client: {
+          name:'',
+          facturation: {
+            language:''
+          },
+        },
+        langue:'',
         categoriesActivite: 'Temps facturé',
         description: '',
         date: new Date(),
@@ -271,7 +278,15 @@ export default class Main extends React.Component {
     newClientFolder: {
       nom: '',
       type: 'corporate',
-      team: []
+      team: [],
+      contrepartie:'',
+      autrepartie:'',
+      desc:'',
+      byEmail:true,
+      sentBySecr:false,
+      sentByAvocat:false,
+      frequence:'',
+      language:"Francais"
     },
     lead_contact_tmp: '',
     lead_contact_horaire_tmp: '',
@@ -279,7 +294,8 @@ export default class Main extends React.Component {
     clients_tempo: [],
     clients_tempo_copie: [],
 
-    selectedTimeSheetIndex:0
+    selectedTimeSheetIndex:0,
+    selectedClientFolders:[]
   };
 
   componentDidMount() {
@@ -441,7 +457,7 @@ export default class Main extends React.Component {
                   //let clients_tempo = (data.clients_tempo || []).filter(x => x.email === localStorage.getItem('email'));
                   //let clients_tempo_copie = (data.clients_tempo || []);
                   let clients_tempo = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
-                  let clients_tempo_copie = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
+                  let clients_tempo_copie = data[ent_name+"-clients_tempo-"+ged_id] || [];
                   let facturesToValidated = data[ent_name+"-factures_to_Validated-"+ged_id] || []
 
 
@@ -465,6 +481,12 @@ export default class Main extends React.Component {
                         newTime: {
                           duree: '',
                           client: '',
+                          dossier_client: {
+                            facturation: {
+                              language:''
+                            },
+                          },
+                          langue:'',
                           categoriesActivite: 'Temps facturé',
                           description: '',
                           date: new Date(),
@@ -2264,48 +2286,56 @@ export default class Main extends React.Component {
     );
 
     SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
-      const pdf2base64 = require('pdf-to-base64');
-      pdf2base64('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf')
-        .then(
-          (response) => {
-            SmartService.getFile(folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
-              if(resF.succes === true && resF.status === 200){
-                let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+      if(createFactRes.succes === true && createFactRes.status === 200){
 
-                SmartService.addFileFromBas64({b64file:response,folder_id:comptaFolder.id},
-                  localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+        const pdf2base64 = require('pdf-to-base64');
+        pdf2base64('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf')
+          .then(
+            (response) => {
+              SmartService.getFile(folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+                if(resF.succes === true && resF.status === 200){
+                  let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+
+                  SmartService.addFileFromBas64({b64file:response,folder_id:comptaFolder.id},
+                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
                     console.log(ok)
-                  if(ok.succes === true && ok.status === 200){
-                    SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                      ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
-                      if(updateRes.succes === true && updateRes.status === 200){
-                        firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id + "/"+key).update({
-                          statut:"accepted",
-                          file_id:ok.data.file_id
-                        });
-                        this.justReloadGed();
-                        this.setState({loading:false})
-                        this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
-                        window.open('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true', '_blank');
-                      }else{
-                        this.openSnackbar("error",updateRes.error)
-                      }
-                    }).catch(err => {console.log(err)})
+                    if(ok.succes === true && ok.status === 200){
+                      SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                        ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+                        if(updateRes.succes === true && updateRes.status === 200){
+                          firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id + "/"+key).update({
+                            statut:"accepted",
+                            file_id:ok.data.file_id
+                          });
+                          this.justReloadGed();
+                          this.setState({loading:false})
+                          this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+                          window.open('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true', '_blank');
+                        }else{
+                          this.openSnackbar("error",updateRes.error)
+                        }
+                      }).catch(err => {console.log(err)})
 
-                  }else{
-                    this.openSnackbar("error",ok.error)
-                    this.setState({loading:false})
-                  }
-                }).catch(err => console.log(err))
-              }else{
-                this.openSnackbar("error",resF.error)
-                this.setState({loading:false})
-              }
-            }).catch( err => {console.log(err)})
-          }).catch((error) => {
-            this.setState({loading:false})
-            console.log(error);
-          })
+                    }else{
+                      this.openSnackbar("error",ok.error)
+                      this.setState({loading:false})
+                    }
+                  }).catch(err => console.log(err))
+                }else{
+                  this.openSnackbar("error",resF.error)
+                  this.setState({loading:false})
+                }
+              }).catch( err => {console.log(err)})
+            }).catch((error) => {
+          this.setState({loading:false})
+          console.log(error);
+        })
+
+      }else{
+        this.setState({loading:false})
+        this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
+      }
+
     }).catch(err => {
       console.log(err);
     });
@@ -2331,249 +2361,336 @@ export default class Main extends React.Component {
 
   generateClientFolder(ID, team) {
     this.setState({ loading: true });
-    let clients_tmp = this.state.clients_tempo;
-    let clients_tmp_copie = this.state.clients_tempo_copie;
-    let find = clients_tmp.find(x => x.ID === ID);
-    console.log(find)
-    if (find) {
-      SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
-        client_id: find.client_id,
-        type: this.state.newClientFolder.type,
-        name: this.state.newClientFolder.nom,
-        client_folder: find.folder_id,
-        team: team
-      }).then(addFolderClient => {
-        console.log(addFolderClient)
-        SmartService.addFolder({
-          name: 'MÉMOIRE',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'CHARGE DE PIECES',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'CONVOCATIONS',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'ADMIN (Lettre d\'engagement)',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'COMPTABILITE',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'CORRESPONDANCE',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'INTERNE ****',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'NOTES',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'PV RENDEZ-VOUS',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          console.log('OK');
-        }).catch(err => {
-        });
-        SmartService.addFolder({
-          name: 'PROCEDURES',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        SmartService.addFolder({
-          name: 'RECHERCHES JURIDIQUES',
-          folder_id: addFolderClient.data.folder_id
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-        }).catch(err => {
-          console.log(err);
-        });
-        setTimeout(() => {
-          this.setState({
-            loading: false,
-            newClientFolder: { nom: '', type: '', team: [] },
-            lead_contact_tmp: '',
-            lead_contact_horaire_tmp: ''
-          });
-          this.justReloadGed();
-          this.openSnackbar('success', 'Dossier ajouté avec succès');
-        }, 750);
+    let CLIENTS_folder_id = localStorage.getItem("client_folder_id");
+    if(CLIENTS_folder_id && CLIENTS_folder_id !== "" ){
 
-      }).catch(err => {
-        console.log(err);
-      });
-    }
-    else {
-      SmartService.create_client(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
-        param: {
-          name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
-          base64: false, parent_id: false, function: false, phone: false, mobile: false, email: false, website: false, title: false
-        }
-      }).then(createClientRes => {
+      let clients_tmp = this.state.clients_tempo;
+      let clients_tmp_copie = this.state.clients_tempo_copie;
+      let find = clients_tmp.find(x => x.ID === ID);
 
-        SmartService.addFolder({
-          name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
-          folder_id: localStorage.getItem('client_folder_id')
-        }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
-          console.log('OK');
+      if (find) {
 
-          SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
-            client_id: createClientRes.data.id,
-            type: this.state.newClientFolder.type,
-            name: this.state.newClientFolder.nom,
-            client_folder: addParentClientFolderRes.data.id,
-            team: team
-          }).then(addFolderClient => {
-            console.log('OK 1');
+        let findInCopyKey = clients_tmp_copie.findIndex(x => x.ID === find.ID && x.email === localStorage.getItem("email"));
+        let findCopy = find;
 
-            SmartService.addFolder({
-              name: 'MÉMOIRE',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'CHARGE DE PIECES',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'CONVOCATIONS',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'ADMIN (Lettre d\'engagement)',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'COMPTABILITE',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'CORRESPONDANCE',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'INTERNE ****',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'NOTES',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'PV RENDEZ-VOUS',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'PROCEDURES',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'RECHERCHES JURIDIQUES',
-              folder_id: addFolderClient.data.folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-              console.log(err);
-            });
 
-            clients_tmp_copie.push({
-              folder_id: addParentClientFolderRes.data.id, ID: ID,
-              email: localStorage.getItem('email'), client_id: createClientRes.data.id
-            });
-            firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id).set(clients_tmp_copie).then( ok => {
-              setTimeout(() => {
-                this.setState({
-                  loading: false,
-                  newClientFolder: { nom: '', type: 'corporate', team: [] },
-                  lead_contact_tmp: '',
-                  lead_contact_horaire_tmp: ''
-                });
-                this.justReloadGed();
-                this.openSnackbar('success', 'Dossier ajouté avec succès');
-              }, 750);
-            });
+        SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
+          client_id: find.client_id,
+          type: this.state.newClientFolder.type,
+          name: this.state.newClientFolder.nom,
+          client_folder: find.folder_id,
+          team: team
+        }).then(addFolderClient => {
+          console.log(addFolderClient)
+          SmartService.addFolder({
+            name: 'MÉMOIRE',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
           }).catch(err => {
             console.log(err);
           });
+          SmartService.addFolder({
+            name: 'CHARGE DE PIECES',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'CONVOCATIONS',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'ADMIN (Lettre d\'engagement)',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'COMPTABILITE',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'CORRESPONDANCE',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'INTERNE ****',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'NOTES',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'PV RENDEZ-VOUS',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            console.log('OK');
+          }).catch(err => {
+          });
+          SmartService.addFolder({
+            name: 'PROCEDURES',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          SmartService.addFolder({
+            name: 'RECHERCHES JURIDIQUES',
+            folder_id: addFolderClient.data.folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+          }).catch(err => {
+            console.log(err);
+          });
+          (findCopy.folders).push(
+            {
+              folder_id:addFolderClient.data.folder_id,
+              team:team,
+              name:this.state.newClientFolder.nom,
+              contrepartie:this.state.newClientFolder.contrepartie,
+              autrepartie:this.state.newClientFolder.autrepartie,
+              desc:this.state.newClientFolder.desc,
+              created_at:moment().format("YYYY-MM-DD"),
+              facturation:{
+                byEmail:this.state.newClientFolder.byEmail,
+                sentBySecr:this.state.newClientFolder.sentBySecr,
+                sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                language:this.state.newClientFolder.language,
+                frequence:this.state.newClientFolder.frequence
+              }
+            }
+          )
+          firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id+'/'+findInCopyKey).set(findCopy).then( ok => {
+            setTimeout(() => {
+              this.setState({
+                loading: false,
+                newClientFolder: {
+                  nom: '',
+                  type: 'corporate',
+                  team: [],
+                  contrepartie:'',
+                  autrepartie:'',
+                  desc:'',
+                  byEmail:true,
+                  sentBySecr:false,
+                  sentByAvocat:false,
+                  frequence:'',
+                  language:"Francais"
+                },
+                lead_contact_tmp: '',
+                lead_contact_horaire_tmp: ''
+              });
+              this.justReloadGed();
+              this.openSnackbar('success', 'Dossier ajouté avec succès');
+            }, 750);
+          });
+
         }).catch(err => {
           console.log(err);
         });
-      }).catch(err => {
-        console.log(err);
-      });
+      }
+
+      else {
+        SmartService.create_client(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
+          param: {
+            name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+            base64: false, parent_id: false, function: false, phone: false, mobile: false, email: false, website: false, title: false
+          }
+        }).then(createClientRes => {
+
+
+            SmartService.addFolder({
+              name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+              folder_id: CLIENTS_folder_id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
+              console.log('OK');
+
+              SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
+                client_id: createClientRes.data.id,
+                type: this.state.newClientFolder.type,
+                name: this.state.newClientFolder.nom,
+                client_folder: addParentClientFolderRes.data.id,
+                team: team
+              }).then(addFolderClient => {
+
+                console.log('OK 1');
+
+                SmartService.addFolder({
+                  name: 'MÉMOIRE',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'CHARGE DE PIECES',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'CONVOCATIONS',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'ADMIN (Lettre d\'engagement)',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'COMPTABILITE',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'CORRESPONDANCE',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'INTERNE ****',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'NOTES',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'PV RENDEZ-VOUS',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'PROCEDURES',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'RECHERCHES JURIDIQUES',
+                  folder_id: addFolderClient.data.folder_id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+
+                clients_tmp_copie.push({
+                  folder_id: addParentClientFolderRes.data.id,
+                  ID: ID,
+                  email: localStorage.getItem('email'),
+                  client_id: createClientRes.data.id,
+                  folders:[
+                    {
+                      folder_id:addFolderClient.data.folder_id,
+                      team:team,
+                      name:this.state.newClientFolder.nom,
+                      contrepartie:this.state.newClientFolder.contrepartie,
+                      autrepartie:this.state.newClientFolder.autrepartie,
+                      desc:this.state.newClientFolder.desc,
+                      created_at:moment().format("YYYY-MM-DD"),
+                      facturation:{
+                        byEmail:this.state.newClientFolder.byEmail,
+                        sentBySecr:this.state.newClientFolder.sentBySecr,
+                        sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                        language:this.state.newClientFolder.language,
+                        frequence:this.state.newClientFolder.frequence
+                      }
+                    }
+                  ]
+                });
+                firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id).set(clients_tmp_copie).then( ok => {
+                  setTimeout(() => {
+                    this.setState({
+                      loading: false,
+                      newClientFolder: {
+                        nom: '',
+                        type: 'corporate',
+                        team: [],
+                        contrepartie:'',
+                        autrepartie:'',
+                        desc:'',
+                        byEmail:true,
+                        sentBySecr:false,
+                        sentByAvocat:false,
+                        frequence:'',
+                        language:"Francais"
+                      },
+                      lead_contact_tmp: '',
+                      lead_contact_horaire_tmp: ''
+                    });
+                    this.justReloadGed();
+                    this.openSnackbar('success', 'Dossier ajouté avec succès');
+                  }, 750);
+                });
+              }).catch(err => {
+                console.log(err);
+              });
+            }).catch(err => {
+              console.log(err);
+            });
+
+
+
+
+
+
+        }).catch(err => {
+          console.log(err);
+        });
+      }
+
+    }else{
+      this.setState({loading:false})
+      this.openSnackbar("error","Opération annulée, une erreur est survenue ! Dossier CLIENTS inexistant")
     }
+
   }
 
   addNewClient() {
@@ -2661,6 +2778,116 @@ export default class Main extends React.Component {
 
   }
 
+  createLignefacture(duplicate){
+
+    let obj = this.state.TimeSheet;
+    let objCopy = this.state.TimeSheet;
+    let time = obj.newTime.duree;
+    let timeFormated = '';
+    if (time.indexOf(':') > -1) {
+      timeFormated = parseFloat(time.replace(':', '.'));
+    } else if (time.indexOf('.') > -1) {
+      timeFormated = parseFloat(time);
+    } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
+      timeFormated = parseInt(time);
+    } else {
+      this.openSnackbar('error', 'Le format de la durée est invalide !');
+    }
+    if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
+      this.openSnackbar('error', 'Le format de la durée est invalide !');
+    } else {
+
+      if(timeFormated === 0 ){
+        this.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
+      }else{
+
+        obj.newTime.duree = timeFormated;
+        let lignes_fact = this.state.lignesFactures || [];
+
+        SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
+
+          if(newCompRes.succes === true && newCompRes.status === 200){
+
+            obj.newTime.company_id = newCompRes.data.id;
+            obj.newTime.date = moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD');
+            obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            obj.user_email = localStorage.getItem('email');
+            obj.template = this.state.lignef_template;
+            //obj.newTime.client = this.state.selectedClientTimeEntree;
+            lignes_fact.push(obj);
+
+            if(duplicate === false){
+              this.setState({
+                lignesFactures: lignes_fact,
+                selectedClientTimeEntree:'',
+                TimeSheet: {
+                  newTime: {
+                    duree: '',
+                    client: '',
+                    dossier_client:{
+                      facturation:{
+                        language:''
+                      }
+                    },
+                    categoriesActivite: 'Temps facturé',
+                    description: '',
+                    date: new Date(),
+                    utilisateurOA: obj.newTime.utilisateurOA,
+                    rateFacturation: obj.newTime.rateFacturation
+                  }
+                }
+              });
+            }else{
+              this.setState({
+                lignesFactures: lignes_fact,
+                TimeSheet: {
+                  newTime: {
+                    duree: '',
+                    client: objCopy.newTime.client,
+                    dossier_client:objCopy.newTime.dossier_client,
+                    categoriesActivite: objCopy.newTime.categoriesActivite,
+                    description: objCopy.newTime.description,
+                    date: new Date(objCopy.newTime.date),
+                    utilisateurOA: objCopy.newTime.utilisateurOA,
+                    rateFacturation: objCopy.newTime.rateFacturation
+                  }
+                }
+              })
+            }
+            this.updateLignes_facture(lignes_fact);
+            this.openSnackbar('success', 'Enregistrement effectué avec succès');
+          }else{
+            console.log(newCompRes.error)
+            //this.openSnackbar("error",newCompRes.error)
+          }
+
+        }).catch(err => {
+          console.log(err);
+        });
+
+      }
+
+
+
+    }
+
+  }
+
+  updateLigneFacture(id,ligne){
+    let key = this.state.lignesFacturesCopy.findIndex(x => x.uid === id);
+    if(key){
+      firebase.database().ref('/'+ent_name+'-lignes_f-'+ged_id+'/'+key).set(ligne).then( ok => {
+        this.openSnackbar("success","Modification effectuée avec succès")
+      }).catch(err => {
+        console.log(err)
+        this.openSnackbar("error","Une erreur est survenue !")
+      })
+    }else{
+      this.openSnackbar("error","Une erreur est survenue !")
+    }
+
+  }
+
   render() {
 
     const inputSuggProps = {
@@ -2669,6 +2896,10 @@ export default class Main extends React.Component {
       onChange: this.onInputTimeSuggChange
     };
     const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts,localStorage.getItem("email"))
+
+    let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ?
+      "Description (français)" : this.state.TimeSheet.newTime.dossier_client.facturation.language === "Anglais" ?
+        "Description (anglais)" : "Description"
 
     return (
       <div>
@@ -3867,11 +4098,11 @@ export default class Main extends React.Component {
                                   <div style={{ marginTop: 30 }}
                                        className="text-left">
                                     <Tabs> <TabList>
-                                      <Tab>Informations générales</Tab>
-                                      <Tab>Ouverture mandat</Tab>
+                                      <Tab>Informations client</Tab>
+                                      <Tab>Ouverture dossier</Tab>
                                     </TabList>
                                       <TabPanel>
-                                        <h5 style={{ marginTop: 20 }}>Informations générales</h5>
+                                        <h5 style={{ marginTop: 20 }}>Informations Client</h5>
                                         <div className="row" style={{ marginTop: 30 }}>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Nom du client </p>
@@ -3899,7 +4130,23 @@ export default class Main extends React.Component {
                                               label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === true ? 'Actif' : 'Non actif' : 'Non actif'}
                                             />
                                           </div>
+
                                         </div>
+                                        {
+                                          this.state.selectedSociete.Type === "1" &&
+                                          <div className="row" style={{ marginTop: 5 }}>
+                                            <div className="col-md-6">
+                                              <p style={{ marginBottom: 10 }}>Prénom du client </p>
+                                              <input
+                                                type="text"
+                                                className="form-control"
+                                                id="email"
+                                                name="email"
+                                                value={this.state.selectedSociete.Prenom}
+                                                onChange={this.handleChange('selectedSociete', 'Prenom')} />
+                                            </div>
+                                          </div>
+                                        }
                                         <div className="row" style={{ marginTop: 20 }}>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Adresse postale</p>
@@ -4016,8 +4263,8 @@ export default class Main extends React.Component {
                                               <textarea
                                                 style={{color: "#000"}}
                                                 className="form-control"
-                                                value={this.state.selectedSociete.mondat ? this.state.selectedSociete.mondat.description || "" : ""}
-                                                onChange={this.handleObjectChange("selectedSociete", "mondat", "description")}
+                                                value={this.state.newClientFolder.desc}
+                                                onChange={this.handleChange( "newClientFolder", "desc")}
                                                 rows={5}
                                               />
                                             </div>
@@ -4031,8 +4278,8 @@ export default class Main extends React.Component {
                                               className="form-control"
                                               id="email"
                                               name="email"
-                                              value={this.state.selectedSociete.contrepartie}
-                                              onChange={this.handleChange('selectedSociete', 'contrepartie')} />
+                                              value={this.state.newClientFolder.contrepartie}
+                                              onChange={this.handleChange('newClientFolder', 'contrepartie')} />
                                           </div>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Autres parties</p>
@@ -4041,8 +4288,8 @@ export default class Main extends React.Component {
                                               className="form-control"
                                               id="email"
                                               name="email"
-                                              value={this.state.selectedSociete.autrepartie}
-                                              onChange={this.handleChange('selectedSociete', 'autrepartie')} />
+                                              value={this.state.newClientFolder.autrepartie}
+                                              onChange={this.handleChange('newClientFolder', 'autrepartie')} />
                                           </div>
                                         </div>
                                         <hr style={{
@@ -4212,11 +4459,12 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-8">
                                                   <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.parEmail || false}
+                                                      checked={this.state.newClientFolder.byEmail}
                                                       onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.parEmail = !this.state.mondat.facturationClient.parEmail;
-                                                        this.setState({ mondat: d });
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.byEmail = e.target.checked
+                                                        this.setState({newClientFolder:obj})
+                                                        //this.handleChange("newClientFolder",e.target.checked)
                                                       }}
                                                   />
                                                 </div>
@@ -4233,11 +4481,11 @@ export default class Main extends React.Component {
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
                                                     style={{ width: '100%' }}
-                                                    value={this.state.mondat.facturationClient.frequence}
+                                                    value={this.state.newClientFolder.frequence}
                                                     onChange={(e) => {
-                                                      let d = this.state.mondat;
-                                                      d.facturationClient.frequence = e.target.value;
-                                                      this.setState({ mondat: d });
+                                                      let obj = this.state.newClientFolder;
+                                                      obj.frequence = e.target.value
+                                                      this.setState({newClientFolder:obj})
                                                     }}
                                                   >
                                                     <MenuItem
@@ -4263,11 +4511,11 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-6">
                                                   <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.EnvoyeParSecretariat || false}
+                                                      checked={this.state.newClientFolder.sentBySecr}
                                                       onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.EnvoyeParSecretariat = !this.state.mondat.facturationClient.EnvoyeParSecretariat;
-                                                        this.setState({ mondat: d });
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.sentBySecr = e.target.checked
+                                                        this.setState({newClientFolder:obj})
                                                       }} />
                                                 </div>
                                               </div>
@@ -4281,11 +4529,11 @@ export default class Main extends React.Component {
                                                 <div
                                                   className="col-md-6">
                                                   <CB color="primary"
-                                                      checked={this.state.mondat.facturationClient.EnvoyeAvocat || false}
+                                                      checked={this.state.newClientFolder.sentByAvocat}
                                                       onChange={(e) => {
-                                                        let d = this.state.mondat;
-                                                        d.facturationClient.EnvoyeAvocat = !this.state.mondat.facturationClient.EnvoyeAvocat;
-                                                        this.setState({ mondat: d });
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.sentByAvocat = e.target.checked
+                                                        this.setState({newClientFolder:obj})
                                                       }} />
                                                 </div>
                                               </div>
@@ -4302,15 +4550,15 @@ export default class Main extends React.Component {
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
                                                     style={{ width: '100%' }}
-                                                    value={this.state.mondat.facturationClient.LangueFacturation}
+                                                    value={this.state.newClientFolder.language}
                                                     onChange={(e) => {
-                                                      let d = this.state.mondat;
-                                                      d.facturationClient.LangueFacturation = e.target.value;
-                                                      this.setState({ mondat: d });
+                                                      let obj = this.state.newClientFolder;
+                                                      obj.language = e.target.value
+                                                      this.setState({newClientFolder:obj})
                                                     }}
                                                   >
                                                     <MenuItem
-                                                      value={'Français'}>Français</MenuItem>
+                                                      value={'Francais'}>Français</MenuItem>
                                                     <MenuItem
                                                       value={'Anglais'}>Anglais</MenuItem>
                                                   </MuiSelect>
@@ -4330,13 +4578,15 @@ export default class Main extends React.Component {
                                             onClick={() => {
                                               let contact = main_functions.getOAContactByEmail2(this.state.contacts,this.state.lead_contact_tmp);
                                               let objCp = this.state.newClientFolder;
-                                              objCp.team.push({
-                                                fname: contact.nom + ' ' + contact.prenom,
-                                                email: this.state.lead_contact_tmp,
-                                                uid: contact.uid,
-                                                tarif: this.state.lead_contact_horaire_tmp,
-                                                type: 'lead'
-                                              });
+                                              if(contact){
+                                                objCp.team.push({
+                                                  fname: contact.nom + ' ' + contact.prenom,
+                                                  email: this.state.lead_contact_tmp,
+                                                  uid: contact.uid,
+                                                  tarif: this.state.lead_contact_horaire_tmp,
+                                                  type: 'lead'
+                                                });
+                                              }
                                               this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
                                             }}
                                             className="btn btn-blue waves-effect mb-2 waves-light m-1">
@@ -4369,14 +4619,6 @@ export default class Main extends React.Component {
                                         <Tab>Time Sheet</Tab>
                                         <Tab>Activités </Tab>
                                         <Tab>Partner </Tab>
-                                        {/*{
-                                        localStorage.getItem('role') === 'admin' &&
-                                        [
-                                          <Tab key={0}>Recherche Clients </Tab>,
-                                          <Tab key={1}>Imputation team & scheduled time </Tab>,
-                                          <Tab key={2}>New Expenses </Tab>
-                                        ]
-                                        }*/}
                                       </TabList>
                                       <TabPanel>
                                         {
@@ -4492,43 +4734,12 @@ export default class Main extends React.Component {
                                                   className="col-md-4">
                                                   <div>
                                                     <h5>Nom du client</h5>
-                                                    <div
-                                                      style={{ display: 'flex' }}>
-                                                      {/*<Dropdown
-                                                        button
-                                                        className='icon'
-                                                        //selection
-                                                        floating
-                                                        labeled
-                                                        icon='user'
-                                                        options={this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl },key) =>
-                                                          ({
-                                                            key:key,
-                                                            value: Nom + ' ' + (Prenom || ''),
-                                                            text: Nom + ' ' + (Prenom || ''),
-                                                            //image: { avatar: true, src: Type === "0" ? entIcon : userAvatar },
-                                                          }))}
-                                                        search
-                                                        placeholder='Chercher votre client'
-                                                        value={this.state.selectedClientTimeEntree}
-                                                        onChange={(e,{value}) => {
-
-                                                          let obj = this.state.TimeSheet;
-                                                          obj.newTime.client = value;
-                                                          let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => (x.Nom + ' ' + x.Prenom) === value);
-                                                          let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
-                                                          this.setState({
-                                                            partnerFacture: partner_email,
-                                                            selectedClientTimeEntree: value,
-                                                            TimeSheet: obj
-                                                          });
-                                                        }}
-                                                      />*/}
+                                                    <div style={{ display: 'flex' }}>
                                                       <SelectSearch
                                                         options={
-                                                          this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
+                                                          this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
                                                             ({
-                                                              value: Nom + ' ' + (Prenom || ''),
+                                                              value: ID,
                                                               name: Nom + ' ' + (Prenom || ''),
                                                               ContactType: Type,
                                                               ContactName: Nom + ' ' + (Prenom || ''),
@@ -4539,19 +4750,23 @@ export default class Main extends React.Component {
                                                         renderOption={main_functions.renderSearchOption}
                                                         search
                                                         placeholder="Chercher votre client"
-                                                        onChange={ e => {
+                                                        onChange={ (e) => {
                                                           console.log(e)
                                                           let obj = this.state.TimeSheet;
-                                                          obj.newTime.client = e;
-                                                          let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => (x.Nom + ' ' + x.Prenom) === e);
-                                                          console.log(find_annuaire_fact_lead);
-                                                          let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
-                                                          console.log(partner_email);
-                                                          this.setState({
-                                                            partnerFacture: partner_email,
-                                                            selectedClientTimeEntree: e,
-                                                            TimeSheet: obj
-                                                          });
+
+                                                          let findClientTempo = this.state.clients_tempo.find(x => x.ID === e)
+                                                          let findClientFname = this.state.annuaire_clients_mondat.find(x => x.ID === e)
+                                                          console.log(findClientFname)
+                                                          obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                                                          if(findClientTempo){
+                                                            this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
+                                                          }else{
+                                                            obj.newTime.dossier_client =  {
+                                                              facturation: {
+                                                                language:''
+                                                              }}
+                                                            this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: e})
+                                                          }
                                                         }}
                                                       />
                                                       <IconButton
@@ -4560,6 +4775,28 @@ export default class Main extends React.Component {
                                                         <SearchIcon />
                                                       </IconButton>
                                                     </div>
+                                                    <h5 style={{marginTop:10}}>Dossier du client </h5>
+                                                    <MuiSelect
+
+                                                      labelId="demo-simple-select-label"
+                                                      id="demo-simple-select"
+                                                      style={{ width: 217 }}
+                                                      value={this.state.TimeSheet.newTime.dossier_client}
+                                                      onChange={(e) => {
+                                                        console.log(e.target.value)
+                                                        let d = this.state.TimeSheet;
+                                                        d.newTime.dossier_client = e.target.value;
+                                                        this.setState({ TimeSheet: d });
+                                                      }}
+                                                    >
+                                                      {
+                                                        this.state.selectedClientFolders.map((item,key) => (
+                                                          <MenuItem key={key} value={item}>{item.name}</MenuItem>
+                                                        ))
+                                                      }
+
+
+                                                    </MuiSelect>
                                                   </div>
                                                 </div>
                                               </div>
@@ -4613,7 +4850,7 @@ export default class Main extends React.Component {
                                                   className="col-md-4">
                                                   <div>
                                                     <div>
-                                                      <h5>Description</h5>
+                                                      <h5>{new_timeSheet_desc}</h5>
                                                     </div>
                                                     <textarea
                                                       className="form-control "
@@ -4710,67 +4947,17 @@ export default class Main extends React.Component {
                                                 <AltButtonGroup>
                                                   <AtlButton
                                                     onClick={() => {
-                                                      let obj = this.state.TimeSheet;
-                                                      let time = obj.newTime.duree;
-                                                      let timeFormated = '';
-                                                      if (time.indexOf(':') > -1) {
-                                                        timeFormated = parseFloat(time.replace(':', '.'));
-                                                      } else if (time.indexOf('.') > -1) {
-                                                        timeFormated = parseFloat(time);
-                                                      } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
-                                                        timeFormated = parseInt(time);
-                                                      } else {
-                                                        this.openSnackbar('error', 'Le format de la durée est invalide !');
-                                                      }
-                                                      if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
-                                                        this.openSnackbar('error', 'Le format de la durée est invalide !');
-                                                      } else {
-                                                        obj.newTime.duree = timeFormated;
-                                                        let lignes_fact = this.state.lignesFactures || [];
-
-                                                        SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
-
-                                                          obj.newTime.company_id = newCompRes.data.id;
-                                                          obj.newTime.date = moment(this.state.TimeSheet.newTime.data).format('YYYY-MM-DD');
-                                                          obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                                                          obj.user_email = localStorage.getItem('email');
-                                                          obj.template = this.state.lignef_template;
-                                                          obj.newTime.client = this.state.selectedClientTimeEntree;
-                                                          lignes_fact.push(obj);
-
-                                                          this.setState({
-                                                            lignesFactures: lignes_fact,
-                                                            TimeSheet: {
-                                                              newTime: {
-                                                                duree: '',
-                                                                client: this.state.selectedClientTimeEntree,
-                                                                categoriesActivite: 'Temps facturé',
-                                                                description: '',
-                                                                date: new Date(),
-                                                                utilisateurOA: obj.newTime.utilisateurOA,
-                                                                rateFacturation: obj.newTime.rateFacturation
-                                                              }
-                                                            }
-                                                          });
-
-                                                          this.updateLignes_facture(lignes_fact);
-                                                          this.openSnackbar('success', 'Enregistrement effectué avec succès');
-
-
-                                                        }).catch(err => {
-                                                          console.log(err);
-                                                        });
-                                                      }
-
+                                                      this.createLignefacture(false)
                                                     }}
                                                     appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === ''}
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client.name === ''}
                                                     style={{ margin: 20 }}> Enregistrer </AtlButton>
                                                   <AtlButton
-                                                    appearance=""
-                                                    style={{ margin: 20 }}>Enregistrer et créer une autre</AtlButton>
-                                                  <AtlButton
-                                                    appearance=""
+                                                    onClick={() => {
+                                                      this.createLignefacture(true)
+                                                    }}
+                                                    appearance="primary"
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client.name === ''}
                                                     style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
                                                   <AtlButton
                                                     appearance=""
@@ -4781,28 +4968,31 @@ export default class Main extends React.Component {
                                                           newTime: {
                                                             duree: '',
                                                             client: '',
-                                                            categoriesActivite: '',
+                                                            dossier_client: {
+                                                              facturation: {
+                                                                language:''
+                                                              }},
+                                                            categoriesActivite: 'Temps facturé',
                                                             description: '',
                                                             date: new Date(),
                                                             utilisateurOA: '',
-                                                            rateFacturation: ''
+                                                            rateFacturation: '',
+                                                            selectedClientTimeEntree:''
                                                           }
                                                         }
                                                       });
-                                                    }}>Annuler</AtlButton>
+                                                    }}>Réinitialiser</AtlButton>
                                                 </AltButtonGroup>
                                                 <div>
                                                   <AltButtonGroup
                                                     style={{ marginTop: 10 }}>
                                                     <AtlButton
-                                                      appearance=""
-                                                      //onClick={() => this.setState({ showLignesFactureClient: true })}
+                                                      isSelected
+                                                      appearance="default"
                                                       onClick={() => this.setState({selectedTimeSheetIndex:1})}
                                                     >
                                                       Etablir facture
                                                     </AtlButton>
-                                                    <AtlButton
-                                                      appearance="">Histo.Fact.Clients</AtlButton>
                                                   </AltButtonGroup>
                                                 </div>
                                               </div>
@@ -4888,130 +5078,6 @@ export default class Main extends React.Component {
                                                   </div>
                                                 </div>
                                               </div>
-                                              {/*{
-                                                searchFilterLignesfacture.length > 0 ?
-                                                  <div className="mt-3">
-                                                    <div style={{
-                                                      width: '100%',
-                                                      backgroundColor: '#D2DDFE',
-                                                      padding: 5,
-                                                      display: 'flex'
-                                                    }}>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '15%' }}>
-                                                        <h5>Date</h5>
-                                                      </div>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '60%' }}>
-                                                        <h5>Activités</h5>
-                                                      </div>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '15%' }}>
-                                                        <h5>Heures</h5>
-                                                      </div>
-                                                      <div
-                                                        align="center"
-                                                        style={{ width: '10%' }}>
-                                                        <h5>Action</h5>
-                                                      </div>
-                                                    </div>
-                                                    {
-                                                      searchFilterLignesfacture.map((lf, key) =>
-                                                        <div
-                                                          key={key}>
-                                                          <div
-                                                            style={{
-                                                              width: '100%',
-                                                              backgroundColor: '#fff',
-                                                              padding: 5,
-                                                              display: 'flex'
-                                                            }}>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '15%' }}>
-                                                              <h5>{moment(lf.newTime.date).format('DD-MM-YYYY')}</h5>
-                                                            </div>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '60%' }}>
-                                                              <h5>{lf.newTime.description}</h5>
-                                                            </div>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '15%' }}>
-                                                              <h5>{lf.newTime.duree}</h5>
-                                                            </div>
-                                                            <div
-                                                              align="center"
-                                                              style={{ width: '10%' }}>
-                                                              <IconButton
-                                                                onClick={() => {
-                                                                  this.deleteLigneFact(lf);
-                                                                }}>
-                                                                <DeleteOutlineIcon
-                                                                  color="error" />
-                                                              </IconButton>
-                                                            </div>
-                                                          </div>
-                                                          {
-                                                            key < searchFilterLignesfacture.length &&
-                                                            <div
-                                                              style={{
-                                                                backgroundColor: '#f0f0f0',
-                                                                height: 2
-                                                              }} />
-                                                          }
-                                                        </div>
-                                                      )
-                                                    }
-                                                    <div
-                                                      className="mt-3">
-                                                      <h6>Partner validant cette facture</h6>
-                                                      <MuiSelect
-                                                        labelId="demo-mutiple-chip-label14545"
-                                                        id="demo-mutiple-chip34688"
-                                                        style={{ width: 250 }}
-                                                        value={this.state.partnerFacture}
-                                                        onChange={(e) => {
-                                                          console.log(e.target.value);
-                                                          this.setState({ partnerFacture: e.target.value });
-                                                        }}
-                                                        MenuProps={Data.MenuProps}
-                                                      >
-                                                        {this.state.contacts.map((contact, key) => (
-                                                          <MenuItem
-                                                            key={key}
-                                                            value={contact.email}>
-                                                            <div
-                                                              className="row align-items-center justify-content-center">
-                                                              <Avatar
-                                                                alt=""
-                                                                src={contact.imageUrl} />
-                                                              <div>{contact.nom + ' ' + contact.prenom}</div>
-                                                            </div>
-                                                          </MenuItem>
-                                                        ))}
-                                                      </MuiSelect>
-                                                    </div>
-                                                    <div
-                                                      className="mt-4 text-right">
-                                                      <AtlButton
-                                                        appearance="primary"
-                                                        onClick={() => {
-                                                          //this.createFacture();
-                                                        }}> ETABLIR FACTURE</AtlButton>
-                                                    </div>
-                                                  </div> :
-
-                                                  <div
-                                                    className="mt-4">
-                                                    <h5
-                                                      style={{ color: '#f50' }}>Aucune ligne facture encore ajoutée pour ce client !</h5>
-                                                  </div>
-                                              }*/}
                                             </div>
                                         }
                                       </TabPanel>
@@ -5029,6 +5095,8 @@ export default class Main extends React.Component {
                                                 partner,lignes_facture)
                                             }}
                                             client_folders={this.state.client_folders}
+                                            updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
+                                            openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
                                           />
                                         } {
                                         this.state.lignesFactures.length === 0 &&

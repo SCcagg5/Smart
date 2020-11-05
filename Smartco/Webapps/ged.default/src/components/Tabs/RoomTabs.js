@@ -33,6 +33,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import SmartService from "../../provider/SmartService";
 import entIcon from "../../assets/images/entreprise-icon.png";
 import userAvatar from "../../assets/images/users/user4.jpg";
+import SelectSearch from "react-select-search";
 import Select from "react-select";
 
 
@@ -69,11 +70,32 @@ function a11yProps(index) {
     };
 }
 
+function renderSearchOption(props, option, snapshot, className) {
+    const imgStyle = {
+        borderRadius: '50%',
+        verticalAlign: 'middle',
+        marginRight: 10,
+        width: 32, height: 32, objectFit: "cover"
+    };
+
+    return (
+        <button {...props} className={className} type="button">
+            <span>
+                <img alt="" style={imgStyle}
+                     src={option.ContactType === "Person" ? option.imageUrl ? option.imageUrl : userAvatar : entIcon}/>
+                <span style={{fontSize: 13}}>{option.ContactName}</span>
+            </span>
+        </button>
+    );
+}
+
 export default function RoomTabs(props) {
+    let inputDateRef = {}
 
     const [value, setValue] = React.useState(2);
     const [newTaskTitle, setnewTaskTitle] = React.useState("");
     const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl_annuaire, setAnchorEl_annuaire] = useState(null);
     const [selectedAssign, setSelectedAssign] = useState("");
     const [showAddForm, setShowAddForm] = useState(false);
     const [openDateTimePickerModal, setOpenDateTimePickerModal] = useState(false);
@@ -105,9 +127,9 @@ export default function RoomTabs(props) {
     const contactSelectOptions=[];
     contactSelectOptions.push({label:"Aucun",value:""})
     props.annuaire_clients.map((client,key) => {
-        contactSelectOptions.push({value:client.Name || client.ContactFullName,
-            label:<div><img alt="" src={!client.Name ? client.imageUrl ? client.imageUrl : userAvatar : entIcon}
-                            style={{width:30,height:30,objectFit:"cover"}}/>{" "}{client.Name || client.ContactFullName}</div>
+        contactSelectOptions.push({value:client.Nom+" "+(client.Prenom ||""),
+            label:<div><img alt="" src={client.Type === "1" ? client.imageUrl ? client.imageUrl : userAvatar : entIcon}
+                            style={{width:30,height:30,objectFit:"cover"}}/>{" "}{client.Nom+" "+(client.Prenom || "")}</div>
         })
     })
 
@@ -162,23 +184,23 @@ export default function RoomTabs(props) {
             <TabPanel value={value} index={2}>
                 <div style={{backgroundColor:"#f0f0f0",height:2,marginTop:-2}}/>
                 <div style={{marginTop:45}}>
-                    <Grid container spacing={1}>
-                        <Grid item xs={3}>
+                    <Grid container spacing={1} style={{flexWrap:"nowrap"}}>
+                        <Grid item xs={3} style={{minWidth:250}}>
                             <h5 style={{color:"grey"}}>Titre</h5>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid item xs={2} style={{minWidth:200}}>
                             <h5 style={{color:"grey"}}>Date</h5>
                         </Grid>
-                        <Grid item xs={showAddForm === true ? 3 : 2}>
+                        <Grid item xs={showAddForm === true ? 3 : 2} style={{minWidth:250}}>
                             <h5 style={{color:"grey"}}>Client Attribution</h5>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid item xs={2} style={{minWidth:250}}>
                             <h5 style={{color:"grey"}}>Lead</h5>
                         </Grid>
-                        <Grid item xs={showAddForm === true ? 1 : 2}>
+                        <Grid item xs={showAddForm === true ? 1 : 2} style={{minWidth:250}}>
                             <h5 style={{color:"grey"}}>Team</h5>
                         </Grid>
-                        <Grid item xs={1}/>
+                        <Grid item xs={1} style={{minWidth:150}}/>
                     </Grid>
                     <Grid container spacing={1}>
                         <Grid item xs={12}>
@@ -189,18 +211,18 @@ export default function RoomTabs(props) {
                             >
                                 Ajouter une tâche
                             </Button>
-                            <div style={{backgroundColor:"#f0f0f0",height:2,marginTop:10}}/>
+                            <div style={{backgroundColor:"#f0f0f0",height:2,marginTop:10,width:1450}}/>
                             {
                                 showAddForm === true &&
-                                <div style={{width:"100%",backgroundColor:"#f0f0f0"}}>
-                                    <Grid container spacing={1}>
-                                        <Grid item xs={3}>
+                                <div style={{width:1450,backgroundColor:"#f0f0f0"}}>
+                                    <Grid container spacing={1} style={{flexWrap:"nowrap"}} >
+                                        <Grid item xs={3} style={{minWidth:250,maxWidth:250}}>
                                                 <TextField id="msg-notif" label="" variant="filled" value={newTaskTitle}
                                                            onChange={(event)=> setnewTaskTitle(event.target.value)}
                                                            multiline rows={2} style={{width:"95%",marginLeft:3}}
                                                 />
                                         </Grid>
-                                        <Grid item xs={2}>
+                                        <Grid item xs={2} style={{minWidth:200,maxWidth:200}}>
                                             <Chip style={{backgroundColor:"#fff",marginTop:55}} onClick={() => {
                                                 setOpenDateTimePickerModal(true)
                                             }}
@@ -208,7 +230,7 @@ export default function RoomTabs(props) {
                                                   label={selectedDateTime === "" ? "Ajouter Date,heure" : selectedDateTime }
                                             />
                                         </Grid>
-                                        <Grid item xs={3}>
+                                        <Grid item xs={3} style={{minWidth:250,maxWidth:250}}>
                                             <Select
                                                 defaultValue={selectedClient}
                                                 options={contactSelectOptions}
@@ -250,7 +272,7 @@ export default function RoomTabs(props) {
                                                 }}
                                             />
                                         </Grid>
-                                        <Grid item xs={2}>
+                                        <Grid item xs={2} style={{minWidth:250,maxWidth:250}}>
                                             {
                                                 selectedAssign === "" ?
                                                     <Chip style={{backgroundColor:"#fff",marginTop:55,maxWidth:150}}
@@ -260,7 +282,7 @@ export default function RoomTabs(props) {
                                                     /> :
                                                     <Chip style={{backgroundColor:"#fff",marginTop:55,maxWidth:150}}
                                                           avatar={<Avatar src={selectedAssign.imageUrl} />}
-                                                          label={selectedAssign.FirstName +" "+selectedAssign.LastName }
+                                                          label={selectedAssign.prenom+" "+selectedAssign.nom}
                                                           variant="outlined" onClick={(event) => setAnchorEl(event.currentTarget)}
                                                     />
                                             }
@@ -281,14 +303,14 @@ export default function RoomTabs(props) {
                                                             <ListItemIcon>
                                                                 <Avatar src={contact.imageUrl} />
                                                             </ListItemIcon>
-                                                            <Typography variant="inherit">{contact.FirstName+" "+contact.LastName}</Typography>
+                                                            <Typography variant="inherit">{contact.prenom+" "+contact.nom}</Typography>
                                                         </MenuItem>
                                                     )
                                                 }
                                             </Menu>
 
                                         </Grid>
-                                        <Grid item xs={1}>
+                                        <Grid item xs={1} style={{minWidth:150,maxWidth:150}}>
                                             {
                                                 teamEmails.length === 0 && openTeamModal === false ?
                                                     <Chip style={{backgroundColor:"#fff",marginTop:55}}
@@ -312,16 +334,18 @@ export default function RoomTabs(props) {
                                     <div className="row" style={{marginTop:20}}>
                                         <div className="col-md-12" style={{paddingLeft:50,marginBottom:20}}>
                                             <Button
-                                              disabled={newTaskTitle === "" && selectedDateTime === "" }
+                                              disabled={newTaskTitle === "" || selectedDateTime === "" || selectedAssign === "" || teamEmails.length === 0  }
                                               onClick={() => {
                                                 setShowAddForm(false)
+                                                  props.addNewTask(newTaskTitle,selectedClient,selectedAssign,teamEmails,selectedDateTime)
                                                 setSelectedAssign("")
                                                 setnewTaskTitle("")
                                                 setTeamEmails([])
                                                 setSelectedDateTime("")
-                                                props.addNewTask(newTaskTitle,selectedClient,selectedAssign,teamEmails,selectedDateTime)
                                             }} variant="contained" size="small"
-                                                    style={{textTransform:"capitalize",backgroundColor:"#2196f3",color:"#fff",fontWeight:"bold"}}>
+                                                    style={{textTransform:"capitalize",
+                                                        backgroundColor:(newTaskTitle === "" || selectedDateTime === "" || selectedAssign === "" || teamEmails.length === 0) ? "#d3d3d3" : "#2196f3",
+                                                        color:"#fff",fontWeight:"bold"}}>
                                                 Ajouter
                                             </Button>
                                             <Button
@@ -344,8 +368,8 @@ export default function RoomTabs(props) {
 
                         {
                             [].concat(props.room.tasks || []).reverse().map((task,key) =>
-                                <Grid key={key} container spacing={1}>
-                                    <Grid item xs={3} >
+                                <Grid key={key} container spacing={1} style={{flexWrap:"nowrap"}}>
+                                    <Grid item xs={3} style={{minWidth:250}}>
                                         <div  style={{padding:"15px 20px",display:"flex"}}>
                                             <Checkbox
                                                 icon={<RadioButtonUncheckedIcon/>}
@@ -356,7 +380,7 @@ export default function RoomTabs(props) {
                                             <h5 style={{marginTop:13}}>{task.title}</h5>
                                         </div>
                                     </Grid>
-                                    <Grid item xs={2} >
+                                    <Grid item xs={2} style={{minWidth:200}}>
                                         <div style={{padding:"20px 0"}}>
                                             <Chip style={{backgroundColor:"#fff"}} onClick={() => {
 
@@ -367,19 +391,19 @@ export default function RoomTabs(props) {
                                             />
                                         </div>
                                     </Grid>
-                                    <Grid item xs={2} >
+                                    <Grid item xs={2} style={{minWidth:250}}>
                                         <h5 style={{marginTop:25}}>{task.clientAttribution}</h5>
                                     </Grid>
-                                    <Grid item xs={2}>
+                                    <Grid item xs={2} style={{minWidth:250}}>
                                         <div style={{padding:"20px 0"}}>
                                             <Chip style={{backgroundColor:"#fff",maxWidth:150}}
                                                   avatar={<Avatar src={task.assignedTo.imageUrl} />}
-                                                  label={task.assignedTo.FirstName+" "+task.assignedTo.LastName}
+                                                  label={task.assignedTo.prenom+" "+task.assignedTo.nom}
                                                   variant="outlined"
                                             />
                                         </div>
                                     </Grid>
-                                    <Grid item xs={2} >
+                                    <Grid item xs={2} style={{minWidth:250}}>
                                         <AvatarGroup style={{marginTop:20}} max={4} spacing="medium">
                                             {
                                                 (task.team || []).map((item,key) =>
@@ -388,7 +412,7 @@ export default function RoomTabs(props) {
                                             }
                                         </AvatarGroup>
                                     </Grid>
-                                    <Grid item xs={1} >
+                                    <Grid item xs={1} style={{minWidth:150}}>
                                         <IconButton aria-label="Supprimer" title="Supprimer" color="default" style={{marginTop:12}}
                                                     //onClick={() => props.onDeleteTask(props.room.tasks.length - key - 1)}
                                         >
@@ -463,15 +487,15 @@ export default function RoomTabs(props) {
                                     onClose={() => setAnchorElContactsMenu(null)}
                                 >
                                     {
-                                        props.contacts.map((contact, key) =>
+                                        props.contacts.filter(x => x.role === "avocat").map((contact, key) =>
                                             <MenuItem key={key} onClick={() => {
                                                 let emails = teamEmails;
                                                 emails.push({
-                                                    email: contact.Email,
+                                                    email: contact.email,
                                                     valid: true,
                                                     key: parseInt(moment().format("DDMMYYYYHHmmss")),
-                                                    avatar:contact.imageUrl || "",
-                                                    fname:contact.FirstName +" "+contact.LastName
+                                                    avatar:contact.imageUrl,
+                                                    fname:contact.prenom +" "+contact.nom
                                                 })
                                                 setAnchorElContactsMenu(null)
                                                 setTeamEmails(emails)
@@ -480,7 +504,7 @@ export default function RoomTabs(props) {
                                                     <Avatar src={contact.imageUrl}/>
                                                 </ListItemIcon>
                                                 <Typography
-                                                    variant="inherit">{contact.FirstName + " " + contact.LastName}</Typography>
+                                                    variant="inherit">{contact.prenom + " " + contact.nom}</Typography>
                                             </MenuItem>
                                         )
                                     }
