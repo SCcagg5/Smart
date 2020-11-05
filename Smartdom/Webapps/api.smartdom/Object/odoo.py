@@ -3,6 +3,8 @@ import xmlrpc.client
 import uuid
 import time
 import json
+import requests
+import base64
 from datetime import date
 from .ged import folder
 from .sql import sql
@@ -573,6 +575,14 @@ class odoo:
         except Exception as inst:
             return [False, str(inst), 500]
         return [True, {"id": ret}, None]
+
+    def return_bill(id, access_token):
+        url = f"{self.opt['url']}/my/invoices/{id}?access_token={access_token}&report_type=pdf"
+        response = requests.request("GET", url, headers={}, data={})
+        data = response.text
+        if data[:4] != "%PDF":
+            return [False, "Invalid invoice or access_token", 404]
+        return [True, {"pdf": base64.b64encode(data)}, None ]
 
     def list_contact(self, company = False, offset = 0, limit = 10):
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))

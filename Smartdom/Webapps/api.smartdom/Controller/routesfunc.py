@@ -463,6 +463,12 @@ def odoo_add_bill(cn, nextc):
     err = cn.private["odoo"].creatfact(cn.pr["data"])
     return cn.call_next(nextc, err)
 
+def odoo_get_bill(cn, nextc):
+    bill_id = cn.rt["bill"] if "bill" in cn.rt else None
+    access_token = cn.get["access_token"] if "access_token" in cn.get else None
+    err = cn.private["odoo"].return_bill(bill_id, access_token)
+    return cn.call_next(nextc, err)
+
 def odoo_get_data(cn, nextc):
     data_name = cn.rt["get"] if "get" in cn.rt else None
     id = cn.get["id"] if "id" in cn.get else 0
