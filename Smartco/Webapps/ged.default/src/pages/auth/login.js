@@ -9,11 +9,13 @@ import SmartService from "../../provider/SmartService";
 import Alert from '@material-ui/lab/Alert';
 
 const ent_name = process.env.REACT_APP_ENT_NAME;
+const login_btn_color = process.env.REACT_APP_LOGIN_BTN_COLOR;
 const logo = localStorage.getItem("logo")
 
 class login extends Component {
 
     state = {
+
         loading: false,
         error: '',
         email: '',
@@ -24,6 +26,7 @@ class login extends Component {
     };
 
     componentDidMount() {
+
 
     }
 
@@ -125,6 +128,7 @@ class login extends Component {
                             <Col md={8} lg={6} xl={5}>
                                 <Card>
                                     <CardBody className="p-4 position-relative">
+                                        { /* preloader */}
                                         {this.state.loading && <Loader/>}
 
                                         <div align="center" className="mb-2">
@@ -152,7 +156,7 @@ class login extends Component {
                                             </AvGroup>
 
                                             <FormGroup>
-                                                <button className="btn-block btn" style={{backgroundColor:"#F43800",marginTop:65}}>Se connecter</button>
+                                                <button className="btn-block btn" style={{backgroundColor:login_btn_color,marginTop:65}}>Se connecter</button>
                                             </FormGroup>
                                         </AvForm>
                                     </CardBody>

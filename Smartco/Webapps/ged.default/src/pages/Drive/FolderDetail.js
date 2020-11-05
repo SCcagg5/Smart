@@ -5,6 +5,13 @@ import ListDocs from "../../components/List/ListDocs";
 
 export default class FolderDetail extends React.Component{
 
+    constructor(props) {
+        super(props);
+    }
+    state={
+
+    }
+
 
     render() {
         return(
@@ -37,6 +44,8 @@ export default class FolderDetail extends React.Component{
                     onDropFile={(node) => this.props.onDropFile(node)}
                     setDocs={(docs) => this.props.setDocs(docs)}
                     onDeleteFiles={(files) => this.props.onDeleteFiles(files)}
+                    applyRights={this.props.applyRights}
+                    selectedSharedFolder={this.props.selectedSharedFolder}
                 />
             </div>
         )

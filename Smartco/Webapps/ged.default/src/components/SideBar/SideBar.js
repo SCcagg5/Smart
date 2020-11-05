@@ -42,9 +42,7 @@ export default function SideBar(props) {
                     )
                 }
                 <div align="center" className="logoutItem" onClick={()=> {
-                    let logoCp = localStorage.getItem("logo");
                     localStorage.clear();
-                    localStorage.setItem("logo",logoCp)
                     props.history.push("/login")
                 }}>
                     <i className="fe-log-out" style={{fontSize:28,color:"red"}}/>

@@ -3,7 +3,6 @@ const ged_id = process.env.REACT_APP_GED_ID;
 const odoo_id = process.env.REACT_APP_ODOO_ID;
 const password = "password"
 
-
 let SmartService = {
 
     loadHeadersWithoutToken() {
@@ -33,6 +32,7 @@ let SmartService = {
     },
 
     getInfoGed(token,usrtoken){
+        console.log(endpoint + '/ged/'+ged_id)
         return fetch(endpoint + '/ged/'+ged_id, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
@@ -119,6 +119,15 @@ let SmartService = {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:data,
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+    addFileFromBas64(data,token,usrtoken){
+        return fetch(endpoint + '/ged/'+ged_id+'/doc/addb64file', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
         }).then(response => response.json()).catch(error => {
             console.log(error);
         });
@@ -223,6 +232,9 @@ let SmartService = {
         });
     },
 
+
+
+
     getUserInfo(token,usrtoken){
         return fetch(endpoint + '/infos/', {
             method: 'GET',
@@ -240,7 +252,126 @@ let SmartService = {
         }).then(response => response.json()).catch(error => {
             console.log(error);
         });
+    },
+
+    getItems(token){
+        return fetch(endpoint + '/website/quinsac/items', {
+            method: 'GET',
+            headers:this.loadHeaders(token,"")
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    addToCart(data,token){
+        return fetch(endpoint + '/website/quinsac/cart/', {
+            method: 'POST',
+            headers:this.loadHeaders(token,""),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    placeOrder(data,token,usrtoken){
+        return fetch(endpoint + '/order/', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+    getOrders(token,usrtoken){
+        return fetch(endpoint + '/history/', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+    getOrderDetail(data,token,usrtoken){
+        return fetch(endpoint + '/orderdetail/', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+    getAssetInfo(asset,token){
+        return fetch(endpoint + '/asset/'+asset+'/infos', {
+            method: 'GET',
+            headers:this.loadHeaders(token,"")
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+    sendAsset(data,asset,token,usrtoken){
+        return fetch(endpoint + '/asset/'+asset+'/transfert', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    getCards(token,userToken){
+        return fetch(endpoint + '/listcard/', {
+            method: 'GET',
+            headers:this.loadHeaders(token,userToken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    addCard(data,token,usrtoken){
+        return fetch(endpoint + '/addcard/', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    getUserWallets(token,usrtoken){
+        return fetch(endpoint + '/wallets', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+    getWalletEther(adress,token){
+        return fetch(endpoint + '/wallet/'+adress, {
+            method: 'GET',
+            headers:this.loadHeaders(token,"")
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+    /*getWalletBalance(adress,token,usrtoken){
+        return fetch(endpoint + '/wallet/'+adress+'/token/'+contractAdr, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },*/
+
+
+    getContratCession(data){
+        return fetch('http://51.158.97.220:3001/api/generateCesionActionSuisse', {
+            method: 'POST',
+            headers:this.loadHeadersWithoutToken(),
+            body:JSON.stringify(data)
+        }).then(response => response.blob()).catch(error => {
+            console.log(error);
+        });
     }
+
 
 
 };

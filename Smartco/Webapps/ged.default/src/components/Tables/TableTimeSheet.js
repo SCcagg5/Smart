@@ -34,9 +34,7 @@ import moment from "moment";
 import data from '../../data/Data';
 import main_functions from '../../controller/main_functions';
 import ClearOutlinedIcon from '@material-ui/icons/ClearOutlined';
-import defaultAvatar from '../../assets/images/users/default_avatar.jpg';
 
-const ent_name = process.env.REACT_APP_ENT_NAME;
 const getTimeSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
@@ -136,27 +134,34 @@ export default function TableTimeSheet(props) {
     const [toUpdated_template, setToUpdated_template] = React.useState("");
     const [timeSuggestions, setTimeSuggestions] = React.useState([]);
 
-    const [lf_client_search, setLf_client_search] = React.useState("");
+    const [lf_client_search, setLf_client_search] = React.useState(props.annuaire_clients_mondat[0].Nom + ' ' + (props.annuaire_clients_mondat[0].Prenom || '') );
+
     const [lf_sdate_search, setLf_sdate_search] = React.useState(null);
     const [lf_edate_search, setLf_edate_search] = React.useState(null);
     const [partner_facture, setPartner_facture] = React.useState("");
     const [facture_date, setFacture_date] = React.useState(new Date());
+    const [check_all, setCheck_all] = React.useState(false);
+    const [client_folder, setClient_folder] = React.useState("");
+    const [x_update, setX_update] = React.useState(false);
 
 
 
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
-    const searchFilter= props.lignesFactures.filter((lf) => ( (lf.newTime.client).toLowerCase().indexOf(lf_client_search.toLowerCase()) !== -1 &&
+    const searchFilter = props.lignesFactures.filter((lf) => ( (lf.newTime.client.trim() === lf_client_search.trim() ) &&
       ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
-      ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= lf_edate_search.getTime()))  || lf_edate_search === null  )
+      ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  )
     ))
 
-    const selected = searchFilter.filter((lf) => lf.checked === true);
+
+    const selected = searchFilter.filter((lf) => ( lf.checked === true ));
     let total = 0;
+    let nb_heures = 0;
     selected.map((item,key) => {
         let value = parseInt(item.newTime.rateFacturation) * item.newTime.duree;
         total = total + value;
+        nb_heures = nb_heures + item.newTime.duree;
     })
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, searchFilter.length - page * rowsPerPage);
@@ -170,27 +175,28 @@ export default function TableTimeSheet(props) {
         setPage(0);
     };
 
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
     const renderOA_user = (email) => {
         let Oa_user = ""
         props.OA_contacts.map((contact,key) => {
-            if(contact && contact.Email && contact.Email === email){
+            if(contact && contact.email && contact.email === email){
                 Oa_user = contact
             }
         })
         return(
             <div style={{display:"flex"}}>
-                <img alt="" src={Oa_user.imageUrl || defaultAvatar} style={{width:40,height:40,objectFit:"contain"}}/>
-                <div style={{marginTop:12,marginLeft:3}}>{Oa_user.FirstName+" "+Oa_user.LastName}</div>
+                <img alt="" src={Oa_user.imageUrl || ""} style={{width:40,height:40,objectFit:"contain"}}/>
+                <div style={{marginTop:12,marginLeft:3}}>{Oa_user.nom+" "+Oa_user.prenom}</div>
             </div>
         )
     }
-
-
-    let isOneSelected = false;
-    searchFilter.map((item,key) => {
-        if(item.checked && item.checked === true) isOneSelected = true
-    })
-
 
     function renderSearchOption(props, option, snapshot, className) {
         const imgStyle = {
@@ -231,6 +237,13 @@ export default function TableTimeSheet(props) {
         onChange: onInputTimeSuggChange
     };
 
+    let client_folders = props.client_folders || [];
+    let selected_client = client_folders.Content ? client_folders.Content.folders.find(x => x.name === lf_client_search) : undefined
+    let selected_client_folders = selected_client ?  selected_client.Content.folders : [];
+
+    console.log(searchFilter)
+    console.log(selected)
+
     return (
 
         <div>
@@ -266,12 +279,12 @@ export default function TableTimeSheet(props) {
                 <div className="ml-2">
                     <SelectSearch
                       options={
-                          props.annuaire_clients_mondat.map(({ Name, ContactFullName, Type, imageUrl }) =>
+                          props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
                             ({
-                                value: Name || ContactFullName,
-                                name: Name || ContactFullName,
-                                ContactType: Name ? "0" : "1",
-                                ContactName: Name || ContactFullName,
+                                value: Nom + ' ' + (Prenom || ''),
+                                name: Nom + ' ' + (Prenom || ''),
+                                ContactType: Type,
+                                ContactName: Nom + ' ' + (Prenom || ''),
                                 imageUrl: imageUrl
                             }))
                       }
@@ -280,14 +293,18 @@ export default function TableTimeSheet(props) {
                       search
                       placeholder="Par client"
                       onChange={e => {
-                          console.log(e);
                           setLf_client_search(e)
+                          let ch_rows = props.lignesFactures;
+                          ch_rows.map((item,key) => {
+                              item.checked = false
+                          })
+                          props.setLignesFactures(ch_rows)
+                          setCheck_all(false)
                       }}
                     />
                 </div>
                 <div className="ml-3">
                     <IconButton title="Annuler le filtre" onClick={() => {
-                        setLf_client_search("")
                         setLf_sdate_search(null)
                         setLf_edate_search(null)
                     }}>
@@ -295,41 +312,46 @@ export default function TableTimeSheet(props) {
                     </IconButton>
                 </div>
             </div>
-
-            <Table className={classes.table} aria-label="custom pagination table">
+            {
+                selected.length > 0 &&
+                <h5 style={{marginTop:20,color:"blue"}}>
+                    {selected.length === 1 ? "Une ligne facture sélectionnée" : selected.length + " lignes factures sélectionnées"}
+                </h5>
+            }
+            <Table className={classes.table} aria-label="custom pagination table" style={{marginTop:20}}>
                 <TableHead>
                     <TableRow style={{padding:10}}>
                         <TableCell align="left" style={{width:"5%"}}>
-                            {/*<Checkbox checked={check_all}
+                            <Checkbox checked={check_all}
                                       onChange={(event) => {
                                           setCheck_all(event.target.checked)
-                                          let ch_rows = searchFilter;
-                                          ch_rows.map((item,key) => {
-                                              item.checked = ! check_all
+                                          searchFilter.map((item,key) => {
+                                              searchFilter[key].checked = event.target.checked
+                                                //item.checked = event.target.checked
                                           })
-                                          props.setLignesFactures(ch_rows)
-
+                                          //props.setLignesFactures(ch_rows)
                                       }}
-                            />*/}
+                            />
                         </TableCell>
                         <TableCell align="center" style={{width:"5%",fontWeight:600}}>Actions</TableCell>
                         <TableCell align="center" style={{width:"8%",fontWeight:600}}>Date</TableCell>
                         <TableCell align="center" style={{width:"17%",fontWeight:600}}>Nom du dossier</TableCell>
                         <TableCell align="center" style={{width:"25%",fontWeight:600}}>Description</TableCell>
-                        <TableCell  style={{width:"20%",fontWeight:600}}>Utilisateur {ent_name}</TableCell>
+                        <TableCell  style={{width:"20%",fontWeight:600}}>Utilisateur OA</TableCell>
                         <TableCell align="center" style={{width:"10%",fontWeight:600}}>Taux horaire</TableCell>
                         <TableCell align="center" style={{width:"10%",fontWeight:600}}>Durée</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {(rowsPerPage > 0 ? searchFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : searchFilter).reverse().map((row,key) => (
+                    {(rowsPerPage > 0 ? searchFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : searchFilter).map((row,key) => (
                         <TableRow key={key} style={{padding:10}}>
-                            <TableCell align="left"   style={{width:"5%"}}>
+                            <TableCell align="left"   style={{width:"5%",backgroundColor:searchFilter[key].checked && searchFilter[key].checked === true ? "rgba(220, 0, 78, 0.08)" : "transparent"}}>
                                 <div className="media align-items-center">
-                                        <Checkbox  checked={searchFilter[key].checked || false} onChange={(event) => {
-                                            let ch_rows = searchFilter;
-                                            ch_rows[key].checked = event.target.checked
-                                            props.setLignesFactures(ch_rows)
+                                        <Checkbox  checked={searchFilter[key].checked ? searchFilter[key].checked : false} onChange={(event) => {
+                                            setX_update(!x_update)
+                                            searchFilter[key].checked = event.target.checked
+                                            if(searchFilter[key].checked === false) setCheck_all(false)
+                                            //props.setLignesFactures(ch_rows)
 
                                         }}  />
                                 </div>
@@ -353,7 +375,10 @@ export default function TableTimeSheet(props) {
                                 {moment(row.newTime.date).format("DD/MM/YYYY") || ""}
                             </TableCell>
                             <TableCell style={{ width: "17%" }} align="center">
-                                {row.newTime.client || ""}
+                                {
+                                    row.newTime.dossier_client ? (row.newTime.client || "") + " - " + row.newTime.dossier_client.name : (row.newTime.client || "")
+
+                                }
                             </TableCell>
 
                             <TableCell style={{ width: "30%" }} align="center">
@@ -398,7 +423,7 @@ export default function TableTimeSheet(props) {
                 </TableFooter>
             </Table>
             {
-                isOneSelected === true &&
+                selected.length > 0 &&
                   <div>
                       <div>
                           <div className="row mt-1">
@@ -415,18 +440,38 @@ export default function TableTimeSheet(props) {
                                     }}
                                     MenuProps={Data.MenuProps}
                                   >
-                                      {props.OA_contacts.map((contact, key) => (
+                                      {props.OA_contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
                                         <MenuItem
                                           key={key}
-                                          value={contact.Email}>
-                                            <div style={{display:"flex"}}>
-                                                <Avatar style={{marginLeft:10}}
-                                                        alt=""
-                                                        src={contact.imageUrl} />
-                                                <div style={{marginTop:10,marginLeft:8}}>{contact.FirstName + ' ' + contact.LastName}</div>
+                                          value={contact.email}>
+                                            <div
+                                              className="row align-items-center justify-content-center">
+                                                <Avatar
+                                                  alt=""
+                                                  src={contact.imageUrl} />
+                                                <div>{contact.nom + ' ' + contact.prenom}</div>
                                             </div>
                                         </MenuItem>
                                       ))}
+                                  </MuiSelect>
+                              </div>
+                              <div className="col-md-4">
+                                  <h5>Dossier client</h5>
+                                  <MuiSelect
+                                    labelId="demo-simple-select-label68798"
+                                    id="demo-simple-select776879"
+                                    style={{ width: '100%' }}
+                                    value={client_folder}
+                                    onChange={(e) => {
+                                        setClient_folder(e.target.value)
+                                    }}
+                                  >
+                                      {
+                                          selected_client_folders.map((folder,key) => (
+                                            <MenuItem key={key}
+                                              value={folder.id || folder.key}>{folder.name}</MenuItem>
+                                          ))
+                                      }
                                   </MuiSelect>
                               </div>
                               <div className="col-md-4">
@@ -446,15 +491,22 @@ export default function TableTimeSheet(props) {
                           </div>
                       </div>
                       <div className="mt-3" style={{textAlign:"right"}}>
-                          <h5>Total: {total+ " CHF"}</h5>
+                          <span className="badge badge-blue text-white p-2 font-16">Total heures: {nb_heures.toFixed(2) + " h"}</span><br/>
+                          <span className="badge badge-blue text-white p-2 font-16" style={{marginTop:7}}>Total: {total+ " CHF"}</span>
                       </div>
                       <div className="mt-3" style={{textAlign:"right"}}>
                           <AtlButton
                             appearance="primary"
+                            isDisabled={partner_facture === "" || client_folder === ""}
                             onClick={() => {
-                                props.onClickFacture(facture_date,partner_facture)
+                                if(partner_facture === ""){
+                                    alert("Vous devez sélectionner un partner pour la validation")
+                                }else{
+                                    props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD"),partner_facture,selected)
+                                }
+
                             }}>
-                              ETABLIR FACTURE</AtlButton>
+                              Envoyer la facture pour validation</AtlButton>
                       </div>
                   </div>
 
@@ -603,7 +655,7 @@ export default function TableTimeSheet(props) {
                                     <div
                                         className="col-md-4">
                                         <div>
-                                            <h6>Utilisateur Enfin </h6>
+                                            <h6>Utilisateur OA </h6>
                                         </div>
 
                                         <MuiSelect
@@ -692,8 +744,36 @@ export default function TableTimeSheet(props) {
                                     <AtlButton
                                         appearance="primary"
                                         onClick={() => {
+
+                                            let time = lf_toUpdated.newTime.duree;
+                                            let timeFormated = '';
+                                            if(typeof time !== "number"){
+                                                if (time.indexOf(':') > -1) {
+                                                    timeFormated = parseFloat(time.replace(':', '.'));
+                                                } else if (time.indexOf('.') > -1) {
+                                                    timeFormated = parseFloat(time);
+                                                } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
+                                                    timeFormated = parseInt(time);
+                                                } else {
+                                                    props.openSnackbar('error', 'Le format de la durée est invalide !');
+                                                }
+                                                if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
+                                                    props.openSnackbar('error', 'Le format de la durée est invalide !');
+                                                } else {
+                                                    if(timeFormated === 0 ){
+                                                        props.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
+                                                    }else {
+                                                        lf_toUpdated.newTime.duree = timeFormated;
+                                                    }
+                                                }
+                                            }else{
+
+                                            }
+
                                             console.log(lf_toUpdated)
                                             setShowUpdateModal(false)
+                                            props.updateLigneFacture(lf_toUpdated.uid,lf_toUpdated)
+
                                         }}>
                                         Modifier</AtlButton>
                                 </div>

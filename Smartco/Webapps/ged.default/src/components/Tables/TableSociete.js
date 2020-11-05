@@ -22,8 +22,8 @@ import countryList from "../../tools/countryList";
 import Select from 'react-select';
 import FolderIcon from '@material-ui/icons/Folder';
 import Data from "../../data/Data";
+import moment from "moment";
 import main_functions from "../../controller/main_functions";
-
 
 const ent_name = process.env.REACT_APP_ENT_NAME;
 const { Panel } = Collapse;
@@ -34,8 +34,6 @@ const useStyles1 = makeStyles((theme) => ({
         marginLeft: theme.spacing(2.5),
     },
 }));
-
-let fileUpload = {};
 
 function TablePaginationActions(props) {
     const classes = useStyles1();
@@ -88,6 +86,8 @@ function TablePaginationActions(props) {
     );
 }
 
+let fileUpload = {};
+
 TablePaginationActions.propTypes = {
     count: PropTypes.number.isRequired,
     onChangePage: PropTypes.func.isRequired,
@@ -115,8 +115,8 @@ export default function TableSociete(props) {
     const [searchByLead, setSearchByLead] = React.useState("");
     const [selectedSearchLettre, setSelectedSearchLettre] = React.useState("");
 
-    const searchFilter= props.societes.filter((annuaire) => (  (annuaire.Name || annuaire.ContactFullName).toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
-         (annuaire.Name || annuaire.ContactFullName).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
+    const searchFilter= props.societes.filter((annuaire) => (  (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
+         (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
         (annuaire.Type === searchByType || searchByType === "") &&
         ((annuaire.isActif && annuaire.isActif  === searchByState) || searchByState === "") &&
         ((annuaire.secteur && annuaire.secteur === searchBySector)  || searchBySector === "" ) &&
@@ -164,10 +164,10 @@ export default function TableSociete(props) {
                         <i className="mdi mdi-plus-circle mr-1" /> Ajouter
                     </button>
                     <button style={{marginLeft:10}}
-                        onClick={() => {
-                            fileUpload.click();
-                        }}
-                        className="btn btn-success waves-effect waves-light mb-2">
+                            onClick={() => {
+                                fileUpload.click();
+                            }}
+                            className="btn btn-success waves-effect waves-light mb-2">
                         <i className="mdi mdi-import" />Importer(.csv .xlsx)
                     </button>
                     <button style={{marginLeft:10}}
@@ -359,7 +359,6 @@ export default function TableSociete(props) {
                                         </select>
                                     </div>
                                 </div>
-
                                 <div className="row mt-1">
                                     <div className="col-md-6">
                                         <h6>Par pays</h6>
@@ -406,9 +405,9 @@ export default function TableSociete(props) {
                                 <TableHead>
                                     <TableRow style={{padding:10}}>
                                         <TableCell style={{width:"15%",fontWeight:600}}>Type</TableCell>
+                                        <TableCell style={{width:"15%",fontWeight:600}}>Email</TableCell>
                                         <TableCell style={{width:"20%",fontWeight:600}}>Nom</TableCell>
-                                        <TableCell style={{width:"20%",fontWeight:600}}>Email</TableCell>
-                                        <TableCell style={{width:"20%",fontWeight:600}}>Adresse</TableCell>
+                                        <TableCell  style={{width:"20%",fontWeight:600}}>Prénom</TableCell>
                                         <TableCell  style={{width:"15%",fontWeight:600}}>Téléphone</TableCell>
                                         <TableCell  style={{width:"15%",fontWeight:600}}>Action</TableCell>
                                     </TableRow>
@@ -427,23 +426,23 @@ export default function TableSociete(props) {
                                                             height: 30,
                                                             objectFit: "cover"
                                                         }}
-                                                        src={row.imageUrl ? row.imageUrl : row.Name && row.Name !== ""  ? entIcon : userAvatar}
+                                                        src={row.imageUrl ? row.imageUrl : row.Type === "0" ? entIcon : userAvatar}
                                                         alt=""/>
 
-                                                    <div className="ml-1">{row.Name && row.Name !== "" ? "Société" : "Personne physique"}</div>
+                                                    <div className="ml-1">{row.Type === "0" ? "Société" : "Personne physique"}</div>
                                                 </div>
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} >
-                                                {row.Name ? row.Name : row.ContactFullName}
-                                            </TableCell>
-                                            <TableCell style={{ width: "15%" }} >
-                                                {row.Email}
+                                                {row.email || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} >
-                                                {row.Street1 ? row.Street1 + " " + row.Zip + " " + row.City : ""}
+                                                {row.Nom || ""}
+                                            </TableCell>
+                                            <TableCell style={{ width: "20%" }} >
+                                                {row.Prenom || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} >
-                                                {row.Phone || ""}
+                                                {row.phone || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} >
                                                 <IconButton aria-label="Modifier" title="Modifier" color="default" size="small"
@@ -469,7 +468,7 @@ export default function TableSociete(props) {
                                     <TableRow>
                                         <TablePagination
                                             rowsPerPageOptions={[5, 10, 25, { label: 'Tous', value: -1 }]}
-                                            //colSpan={3}
+                                            colSpan={3}
                                             count={searchFilter.length}
                                             rowsPerPage={rowsPerPage}
                                             page={page}

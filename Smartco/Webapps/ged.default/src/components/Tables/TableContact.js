@@ -118,7 +118,7 @@ export default function TableContact(props) {
                 <div className="text-sm-right">
                     {/*<button
                         onClick={() => {
-                            //props.onAddBtnClick()
+                            props.onAddBtnClick()
                         }}
                         className="btn btn-danger waves-effect waves-light mb-2">
                         <i className="mdi mdi-plus-circle mr-1" /> Ajouter
@@ -202,18 +202,18 @@ export default function TableContact(props) {
                                                              fontFamily: "sans-serif",
                                                              fontWeight: 600,
                                                              fontSize: 12
-                                                         }}>{row.FirstName} {row.LastName}
+                                                         }}>{row.nom || ""} {row.prenom || ""}
                                                     </div>
                                                 </div>
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} align="center">
-                                                {row.Email}
+                                                {row.email}
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} align="center">
-                                                {row.Phone}
+                                                {row.phone}
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} align="center">
-                                                { row.TauxHoraire ? row.TauxHoraire + " CHF/h" : "" }
+                                                { row.rateFacturation ? row.rateFacturation + " CHF/h" : "" }
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} align="center">
                                                 <IconButton aria-label="Modifier" title="Modifier" color="default" size="small" onClick={() => props.onEditClick(row,key)}>

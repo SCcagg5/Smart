@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import IconButton from '@material-ui/core/IconButton';
+import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import moment from 'moment';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -7,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import Menu from '@material-ui/core/Menu';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
 import EditIcon from '@material-ui/icons/Edit';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
@@ -32,10 +34,9 @@ export default function ListDocs(props) {
   const [openRenameeModal, setOpenRenameModal] = useState(false);
   const [newFileName, setNewFileName] = useState('');
   const [open, setOpen] = React.useState(false);
+  const [rights, setRights] = React.useState(null );
 
   const selected_docs = props.docs.filter(x => x.selected && x.selected === true);
-
-
 
   return (
     <div
@@ -163,6 +164,9 @@ export default function ListDocs(props) {
                    props.setDocs(update_docs)
                    props.setSelectedFile(item);
                    setDoc(item);
+                   if(props.applyRights === true && item.rights){
+                     setRights(item.rights)
+                   }
                    setNewFileName(item.name);
                    setAnchorEl(event.currentTarget);
             }}
@@ -183,7 +187,7 @@ export default function ListDocs(props) {
               </div>
               <div
                 style={{ width: 215 }}>
-                <h6 style={{ color: 'grey' }}>{item.proprietary || 'Moi'}</h6>
+                <h6 style={{ color: 'grey' }}>{item.proprietary  || 'Moi'}</h6>
               </div>
               <div
                 style={{ width: 200 }}>
@@ -191,7 +195,7 @@ export default function ListDocs(props) {
               </div>
               <div
                 style={{ width: 150 }}>
-                <h6 style={{ color: 'grey' }}>50 Ko</h6>
+                <h6 style={{ color: 'grey' }}>-- Ko</h6>
               </div>
             </div>
         )
@@ -205,7 +209,9 @@ export default function ListDocs(props) {
         <MenuItem key={1} onClick={() => {
           setAnchorEl(null);
           props.showDoc(doc);
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.read === false) : false }
+        >
           <ListItemIcon>
             <VisibilityIcon fontSize="small" />
           </ListItemIcon>
@@ -214,7 +220,9 @@ export default function ListDocs(props) {
         <MenuItem key={2} onClick={() => {
           setAnchorEl(null);
           props.openShareFileModal();
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.share === false) : false }
+        >
           <ListItemIcon>
             <PersonAddIcon fontSize="small" />
           </ListItemIcon>
@@ -223,7 +231,9 @@ export default function ListDocs(props) {
         <MenuItem key={3} onClick={() => {
           setAnchorEl(null);
           props.onSignBtnClick(doc.id);
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.edit === false) : false }
+        >
           <ListItemIcon>
             <GestureIcon fontSize="small" />
           </ListItemIcon>
@@ -232,7 +242,9 @@ export default function ListDocs(props) {
         <MenuItem key={4} onClick={() => {
           setAnchorEl(null);
           setOpenRenameModal(true);
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.edit === false) : false }
+        >
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
@@ -252,7 +264,9 @@ export default function ListDocs(props) {
               console.log(fileRes.error);
             }
           }).catch(err => console.log(err));
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.read === false) : false }
+        >
           <ListItemIcon>
             <GetAppIcon fontSize="small" />
           </ListItemIcon>
@@ -262,6 +276,7 @@ export default function ListDocs(props) {
           setAnchorEl(null);
           setOpen(true);
         }} //disabled={localStorage.getItem("role") !== "admin"}
+                  disabled={props.applyRights === true && rights !== null ? (rights.administrate === false) : false }
         >
           <ListItemIcon>
             <DeleteOutlineIcon fontSize="small" />
