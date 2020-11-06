@@ -150,6 +150,7 @@ export default function ListDocs(props) {
                    }
                  }}
                  onDoubleClick={() => {
+                   console.log(item)
                    props.onDocClick(item);
                  }}
                  onContextMenu={(event) => {
@@ -165,7 +166,12 @@ export default function ListDocs(props) {
                    props.setSelectedFile(item);
                    setDoc(item);
                    if(props.applyRights === true && item.rights){
-                     setRights(item.rights)
+                     if(item.proprietary === localStorage.getItem("email")){
+                       setRights(null)
+                     }else{
+                       setRights(item.rights)
+                     }
+
                    }
                    setNewFileName(item.name);
                    setAnchorEl(event.currentTarget);
@@ -187,7 +193,9 @@ export default function ListDocs(props) {
               </div>
               <div
                 style={{ width: 215 }}>
-                <h6 style={{ color: 'grey' }}>{item.proprietary  || 'Moi'}</h6>
+                <h6 style={{ color: 'grey' }}>{item.proprietary ?
+                  item.proprietary === localStorage.getItem("email") ?
+                    "Moi" : item.proprietary  : 'Moi'}</h6>
               </div>
               <div
                 style={{ width: 200 }}>
