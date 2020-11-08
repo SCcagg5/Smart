@@ -1,41 +1,16 @@
-import requests
 import os
 import uuid
 import time
 import base64
 import re
-from fpdf import FPDF
-from PyPDF2 import PdfFileWriter, PdfFileReader
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-import io
-from reportlab.lib.utils import ImageReader
+import fitz
+import tempfile
 from base64 import b64decode
 from datetime import date
 from .sql import sql
 from .users import user
 from .pdf import pdf
 from .elastic import es, elastic
-
-class PDF(FPDF):
-    def load_resource(self, reason, filename):
-        if reason == "image":
-            if filename.startswith("http://") or filename.startswith("https://"):
-                f = BytesIO(urlopen(filename).read())
-            elif filename.startswith("data"):
-                f = filename.split('base64,')[1]
-                f = base64.b64decode(f)
-                f = io.BytesIO(f)
-            else:
-                f = open(filename, "rb")
-            return f
-        else:
-            self.error("Unknown resource loading reason \"%s\"" % reason)
-
-
-    def sample_pdf(self,img,path):
-        self.image(img,h=70,w=150,x=30,y=100,type="png")
-        pdf.output(path, 'F')
 
 class sign:
     def __init__(self, usr_id = -1, ged_id = -1):
@@ -89,24 +64,16 @@ class sign:
         res = sql.get("SELECT `base64` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id` = %s",
          (id_sign, self.usr_id, self.ged_id))
         signature = b64decode(res[0][0])
-        packet = io.BytesIO()
-        can = canvas.Canvas(packet, pagesize=letter)
-        can.drawImage(ImageReader(io.BytesIO(signature)), x, y, height, width)
-        can.save()
-
-        packet.seek(0)
-        new_pdf = PdfFileReader(packet)
-        inputpdf = open(path, "rb")
-        existing_pdf = PdfFileReader(inputpdf)
-        output = PdfFileWriter()
-        page = existing_pdf.getPage(0)
-        page.mergePage(new_pdf.getPage(0))
-        output.addPage(page)
-        inputpdf.close()
-        outputStream = open(path, "wb")
-        output.write(outputStream)
-        outputStream.close()
-        return [True, {"p":path}, False]
+        file_handle = fitz.open(path)
+        first_page = file_handle[0]
+        first_page.cleanContents()
+        image_rectangle = fitz.Rect(450,20,550,120)
+        with tempfile.NamedTemporaryFile(suffix='.jpeg', delete=True) as tmp:
+            tmp.write(signature)
+            first_page.insertImage(image_rectangle, tmp.name)
+            file_handle.save(path)
+            tmp.close()
+        return [True, {}, False]
 
 
 

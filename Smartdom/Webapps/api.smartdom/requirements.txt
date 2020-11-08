@@ -10,7 +10,5 @@ web3
 eth_account
 pdftotext
 unidecode
-reportlab
-PyPDF2
-fpdf
 pypi_xmlrpc
+PyMuPDF
