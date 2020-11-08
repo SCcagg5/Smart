@@ -569,20 +569,20 @@ class odoo:
             ret = models.execute_kw(self.opt['db'],
                                 self.uid,
                                 self.opt['password'],
-                                'account.move', 'create',
+                                'account.invoice', 'create',
                                 data, {}
                                 )
         except Exception as inst:
             return [False, str(inst), 500]
         return [True, {"id": ret}, None]
 
-    def return_bill(id, access_token):
+    def return_bill(self, id, access_token):
         url = f"{self.opt['url']}/my/invoices/{id}?access_token={access_token}&report_type=pdf"
         response = requests.request("GET", url, headers={}, data={})
-        data = response.text
-        if data[:4] != "%PDF":
+        data = response.content
+        if data[:4] != b'%PDF':
             return [False, "Invalid invoice or access_token", 404]
-        return [True, {"pdf": base64.b64encode(data)}, None ]
+        return [True, {"pdf": base64.encodestring(data).decode("utf-8").replace('\n', '') }, None ]
 
     def list_contact(self, company = False, offset = 0, limit = 10):
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))

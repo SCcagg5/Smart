@@ -200,11 +200,11 @@ class folder:
                         "administrate": self.is_admin(res[0][0])
                         }
                 }
-            files = sql.get("SELECT `id`, `name`, `type`, `date` FROM `ged_file` WHERE inside = %s", \
+            files = sql.get("SELECT ged_file.`id`, ged_file.`name`, ged_file.`type`, ged_file.`date`, user.`email`  FROM `ged_file` INNER JOIN `user` ON `ged_file`.`user_id` = `user`.id  WHERE inside = %s", \
             (folder_id, ))
             for i2 in files:
                 ret["Content"]["files"].append({
-                "id": i2[0], "name": i2[1], "type": i2[2], "date": i2[3],
+                "id": i2[0], "name": i2[1], "type": i2[2], "date": i2[3], "proprietary": i2[4],
                 "rights": {
                         "read": file(self.usr_id).is_reader(i2[0]),
                         "edit": file(self.usr_id).is_editor(i2[0]),
@@ -212,11 +212,11 @@ class folder:
                         "administrate": file(self.usr_id).is_admin(i2[0])
                         }
                 })
-            folders = sql.get("SELECT `id`, `name`, `date` FROM `ged_folder` WHERE inside = %s", \
+            folders = sql.get("SELECT ged_folder.`id`, ged_folder.`name`, ged_folder.`date`, user.`email` FROM `ged_folder` INNER JOIN `user` ON `ged_folder`.`user_id` = `user`.id WHERE inside = %s", \
             (folder_id, ))
             for i2 in folders:
                 ret["Content"]["folders"].append({
-                "id": i2[0], "name": i2[1], "date": i2[2],
+                "id": i2[0], "name": i2[1], "date": i2[2], "proprietary": i2[3],
                 "rights": {
                         "read": self.is_reader(i2[0]),
                         "edit": self.is_editor(i2[0]),
@@ -241,15 +241,18 @@ class folder:
             folders = sql.get("SELECT ged_folder.`id`, `name`, ged_folder.`date`, user.`email`, ged_share_folder.`date` FROM `ged_share_folder` INNER JOIN `ged_folder` ON `ged_share_folder`.`folder_id` = `ged_folder`.`id` INNER JOIN `user` ON `ged_folder`.`user_id` = `user`.id WHERE active IS TRUE AND ged_share_folder.user_id = %s", \
             (self.usr_id, ))
             for i2 in folders:
-                ret["Content"]["folders"].append({
-                "id": i2[0], "name": i2[1], "date": i2[2], "proprietary": i2[3], "sharing_date": i2[4],
-                "rights": {
+                try:
+                    ret["Content"]["folders"].append({
+                        "id": i2[0], "name": i2[1], "date": i2[2], "proprietary": i2[3], "sharing_date": i2[4],
+                        "rights": {
                             "read": self.is_reader(i2[0]),
                             "edit": self.is_editor(i2[0]),
                             "share": self.is_sharer(i2[0]),
                             "administrate": self.is_admin(i2[0])
                           }
-                })
+                    })
+                except:
+                    pass
         return ret
 
     def content(self, folder_id = None, name = None, date = None):
@@ -616,6 +619,7 @@ class ged:
             id_doc = sql.get("SELECT `inside` FROM `ged_file` WHERE id = %s", (id_doc, ))[0][0]
         while id_doc is not None:
             res.append(id_doc)
+            print(id_doc)
             id_doc = sql.get("SELECT `inside` FROM `ged_folder` WHERE id = %s", (id_doc, ))[0][0]
         return res
 

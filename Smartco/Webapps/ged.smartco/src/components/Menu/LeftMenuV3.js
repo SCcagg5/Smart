@@ -169,6 +169,7 @@ export default function LeftMenuV3(props) {
     }
 
     function onSelect(selectedKeys, info) {
+        console.log(info.node)
         props.setSelectedDriveSharedItem([])
         props.setSelectedDriveItem(selectedKeys)
         if (info.node.typeF === "folder") {
@@ -181,6 +182,7 @@ export default function LeftMenuV3(props) {
     }
 
     function onSelect_shared(selectedKeys, info) {
+        console.log(info.node)
         props.setSelectedDriveItem([])
         props.setSelectedDriveSharedItem(selectedKeys)
         if (info.node.typeF === "folder") {
@@ -377,7 +379,7 @@ export default function LeftMenuV3(props) {
                     <MenuItem key={1} onClick={() => {
                         setAnchorElMenu(null);
                         props.openNewFolderModal()
-                    }} disabled={localStorage.getItem("role") !== "admin"}
+                    }} //disabled={localStorage.getItem("role") !== "admin"}
                     >
                         <ListItemIcon>
                             <NewFolderIcon fontSize="small"/>
@@ -396,7 +398,8 @@ export default function LeftMenuV3(props) {
                     <MenuItem key={3} onClick={() => {
                         setAnchorElMenu(null);
                         props.openShareModal()
-                    }} disabled={localStorage.getItem("role") !== "admin"}>
+                    }} //disabled={localStorage.getItem("role") !== "admin"}
+                       >
                         <ListItemIcon>
                             <PersonAddIcon fontSize="small"/>
                         </ListItemIcon>
@@ -406,7 +409,8 @@ export default function LeftMenuV3(props) {
                         setAnchorElMenu(null);
                         setOpenRenameModal(true);
                         setnewFolderName(props.selectedFolder.title)
-                    }} disabled={localStorage.getItem("role") !== "admin"}>
+                    }} //disabled={localStorage.getItem("role") !== "admin"}
+                       >
                         <ListItemIcon>
                             <EditIcon fontSize="small"/>
                         </ListItemIcon>
