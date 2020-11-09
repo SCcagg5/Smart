@@ -39,7 +39,7 @@ pygobject==3.26.1
 PyJWT==1.7.1
 PyMuPDF==1.18.2
 PyMySQL==0.10.1
-pypi-xmlrpc==0.0.0
+pypi-xmlrpc==2020.7.1
 pyrsistent==0.17.3
 pyxdg==0.25
 requests==2.24.0
@@ -56,3 +56,4 @@ varint==1.0.2
 web3==5.13.0
 websockets==8.1
 zipp==3.4.0
+Pillow

@@ -355,13 +355,13 @@ def ged_sign_delete(cn, nextc):
     return cn.call_next(nextc, err)
 
 def ged_sign_sign(cn, nextc):
-    err = check.contain(cn.pr, ["x", "y", "h", "w", "page"])
+    err = check.contain(cn.pr, ["placement"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
     doc_id = cn.rt["doc"] if "doc" in cn.rt else None
     sign_id = cn.rt["sign"] if "sign" in cn.rt else None
-    err = cn.private["sign"].sign_doc(sign_id, doc_id, cn.pr["x"], cn.pr["y"], cn.pr["h"], cn.pr["w"])
+    err = cn.private["sign"].sign_docs(sign_id, doc_id, cn.pr["placement"])
     return cn.call_next(nextc, err)
 
 
