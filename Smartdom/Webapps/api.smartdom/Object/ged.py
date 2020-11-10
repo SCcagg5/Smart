@@ -5,6 +5,8 @@ import base64
 import re
 import fitz
 import tempfile
+from PIL import Image
+from io import BytesIO
 from base64 import b64decode
 from datetime import date
 from .sql import sql
@@ -17,11 +19,17 @@ class sign:
         self.usr_id = str(usr_id)
         self.ged_id = str(ged_id)
 
-    def new(self, base64):
+    def new(self, b64):
         id = str(uuid.uuid4())
         date = str(int(round(time.time() * 1000)))
+        try:
+            img = Image.open(BytesIO(b64decode(b64)))
+        except:
+            return [False, "Base64 should be a valid .png", 400]
+        if img.format != "PNG":
+            return [False, "Base64 should be a valid .png", 400]
         succes = sql.input("INSERT INTO `ged_sign` (`id`,`ged_id`, `user_id`, `base64`, `date`) VALUES (%s, %s, %s, %s, %s)", \
-        (id, self.ged_id, self.usr_id, base64, date))
+        (id, self.ged_id, self.usr_id, b64, date))
         if not succes:
             return [False, "data input error", 500]
         return [True, {"id": id}, None]
@@ -57,21 +65,38 @@ class sign:
             return True
         return False
 
-    def sign_doc(self, id_sign, id_file, x, y, height, width):
+    def sign_docs(self, id_sign, id_file, placement):
+        if not isinstance(placement, list):
+            return [False, "placement should be an array", 400]
+        ret = []
+        for i in placement:
+            process = True
+            for param in ["x", "y", "h", "w", "page"]:
+                if param not in i:
+                    ret.append([False, f"Missing {param} argument", 400])
+                    process = False
+            if process:
+                ret.append(self.sign_doc(id_sign, id_file, i['x'], i['y'], i['h'], i['w'], i['page']))
+        return [True, ret, None]
+
+    def sign_doc(self, id_sign, id_file, x, y, height, width, page):
         path = file().path(id_file , self.usr_id)
         if not self.check_sign(id_sign):
             return [False, "Invalid rights", 403]
         res = sql.get("SELECT `base64` FROM `ged_sign` WHERE `ged_sign`.`id` = %s AND `ged_sign`.`user_id` = %s AND `ged_sign`.`ged_id` = %s",
          (id_sign, self.usr_id, self.ged_id))
         signature = b64decode(res[0][0])
-        file_handle = fitz.open(path)
-        first_page = file_handle[0]
-        first_page.cleanContents()
-        image_rectangle = fitz.Rect(450,20,550,120)
-        with tempfile.NamedTemporaryFile(suffix='.jpeg', delete=True) as tmp:
+        handle = fitz.open(path)
+        try:
+            page = handle[int(page)]
+        except:
+            return [False, "Invalid page number", 400]
+        page.cleanContents()
+        image_rectangle = fitz.Rect(x, y, x + height, y + width)
+        with tempfile.NamedTemporaryFile(suffix='.png', delete=True) as tmp:
             tmp.write(signature)
-            first_page.insertImage(image_rectangle, tmp.name)
-            file_handle.save(path)
+            page.insertImage(image_rectangle, tmp.name)
+            handle.saveIncr()
             tmp.close()
         return [True, {}, False]
 
