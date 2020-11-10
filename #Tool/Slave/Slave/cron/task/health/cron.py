@@ -43,11 +43,8 @@ def main():
              del log['ExitCode']
              log['Status'] = {}
              log['Status']['Status'] = res['Status']
-             log['Status']['Running'] = res['Running']
-             log['Status']['Paused'] = res['Paused']
-             log['Status']['Restarting'] = res['Restarting']
-             log['Status']['Dead'] = res['Dead']
-             log['Status']['Error'] = res['Error']
+             if str(log['Health']['ExitCode']) != str(0):
+                 log['Status']['Error'] = res['Error']
              log['Status']['StartedAt'] = res['StartedAt']
              log['Status']['FinishedAt'] = res['FinishedAt'] if res['FinishedAt'] != "0001-01-01T00:00:00Z" else None
              inputs.append({
