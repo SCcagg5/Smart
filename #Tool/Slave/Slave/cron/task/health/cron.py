@@ -34,7 +34,8 @@ def main():
              id = hashlib.sha256((docker + log['Start']).encode('utf-8')).hexdigest()
              log['Id'] = docker
              type = docker.split('-')
-             log['Type'] = type[0] if len(type) == 3 else None
+             if len(type) == 3:
+                 log['Type'] = type[0]
              log['Time'] =  diff_dates(log['Start'], log['End'])
              log['Health'] = {}
              log['Health']['Output'] = str(log['Output'].split('\n')[:-1])
@@ -46,7 +47,8 @@ def main():
              if str(log['Health']['ExitCode']) != str(0):
                  log['Status']['Error'] = res['Error']
              log['Status']['StartedAt'] = res['StartedAt']
-             log['Status']['FinishedAt'] = res['FinishedAt'] if res['FinishedAt'] != "0001-01-01T00:00:00Z" else None
+             if res['FinishedAt'] != "0001-01-01T00:00:00Z":
+                 log['Status']['FinishedAt'] = res['FinishedAt']
              inputs.append({
                   "_index": index,
                   "_id": id,
