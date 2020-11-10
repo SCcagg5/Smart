@@ -33,7 +33,7 @@ def main():
         for log in logs:
              id = hashlib.sha256((docker + log['Start']).encode('utf-8')).hexdigest()
              log['Id'] = docker
-             type = docker.split('-')[0]
+             type = docker.split('-')
              log['Type'] = type[0] if len(type) == 3 else None
              log['Time'] =  diff_dates(log['Start'], log['End'])
              log['Health'] = {}
