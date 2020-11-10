@@ -22,16 +22,19 @@ def diff_dates(date1, date2):
 def main():
     dockers = ex("docker ps -a | tail -n $(($(docker ps -a | wc -l) - 1)) | rev | cut -d\" \" -f 1 | rev")
     inputs = []
+    index = "service_health_" + date.today().strftime("%Y%m")
+    if es.indices.exists(index=index):
+        es.indices.refresh(index=index)
+    else:
+        es.indices.create(index=index, body=mapping)
     for docker in dockers.split('\n'):
-        index = "service_health_" + date.today().strftime("%Y%m%d") + '_' + docker
-        if es.indices.exists(index=index):
-            es.indices.refresh(index=index)
-        else:
-            es.indices.create(index=index, body=mapping)
         res = json.loads(ex("docker inspect --format='{{json .State}}' " + docker ))
         logs = res['Health']['Log'] if 'Health' in res else []
         for log in logs:
              id = hashlib.sha256((docker + log['Start']).encode('utf-8')).hexdigest()
+             log['Id'] = docker
+             type = docker.split('-')[0]
+             log['Type'] = type[0] if len(type) == 3 else None
              log['Time'] =  diff_dates(log['Start'], log['End'])
              log['Health'] = {}
              log['Health']['Output'] = str(log['Output'].split('\n')[:-1])
@@ -61,6 +64,24 @@ mapping = {
       "properties" : {
         "End" : {
           "type" : "date"
+        },
+        "Id" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
+        },
+        "Type" : {
+          "type" : "text",
+          "fields" : {
+            "keyword" : {
+              "type" : "keyword",
+              "ignore_above" : 256
+            }
+          }
         },
         "Health" : {
           "properties" : {
