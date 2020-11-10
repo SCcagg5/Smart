@@ -38,7 +38,9 @@ def main():
                  log['Type'] = type[0]
              log['Time'] =  diff_dates(log['Start'], log['End'])
              log['Health'] = {}
-             log['Health']['Output'] = str(log['Output'].split('\n')[:-1])
+             output = str(log['Output'].split('\n')[:-1])
+             if output != str([]):
+                 log['Health']['Output'] = output
              log['Health']['ExitCode'] = log['ExitCode']
              del log['Output']
              del log['ExitCode']
@@ -52,7 +54,6 @@ def main():
              inputs.append({
                   "_index": index,
                   "_id": id,
-                  "_score": 1,
                   "_source": log
               })
         helpers.bulk(es, inputs, True)
