@@ -72,10 +72,10 @@ export default function SignTopBar(props) {
                                                 setOpen(false)
                                                 props.onClickSignature(item)
                                             }}>
-                                                <img alt="" src={item.data} style={{width:150,height:60}}/>
+                                                <img alt="" src={"data:image/png;base64," + item.b64} style={{width:140,height:45,objectFit:"contain"}}/>
                                                 <IconButton style={{marginLeft:23}} onClick={(e) => {
                                                     e.stopPropagation()
-                                                    props.onClickDelete()
+                                                    props.onClickDelete(item.id)
                                                 }}>
                                                     <DeleteOutlineIcon fontSize="small" color="secondary"/>
                                                 </IconButton>

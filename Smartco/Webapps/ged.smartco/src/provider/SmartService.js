@@ -242,9 +242,6 @@ let SmartService = {
         });
     },
 
-
-
-
     getUserInfo(token,usrtoken){
         return fetch(endpoint + '/infos/', {
             method: 'GET',
@@ -263,6 +260,71 @@ let SmartService = {
             console.log(error);
         });
     },
+
+    getUserSignatures(token,usrtoken){
+        return fetch(endpoint + '/ged/' + OALegalGedId + '/sign', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    getSignatureById(id,token,usrtoken){
+        return fetch(endpoint + '/ged/' + OALegalGedId + '/sign/'+ id, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    deleteSignatureById(id,token,usrtoken){
+        return fetch(endpoint + '/ged/' + OALegalGedId + '/sign/'+ id, {
+            method: 'DELETE',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    addSignature(data,token,usrtoken){
+        return fetch(endpoint + '/ged/' + OALegalGedId + '/sign', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    signDoc(data, doc_id, sign_id,token,usrtoken){
+        return fetch(endpoint + '/ged/' + OALegalGedId + '/doc/' + doc_id + '/sign/' + sign_id, {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     getItems(token){
         return fetch(endpoint + '/website/quinsac/items', {

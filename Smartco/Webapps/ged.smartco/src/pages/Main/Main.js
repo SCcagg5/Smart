@@ -210,9 +210,10 @@ export default class Main extends React.Component {
     editSocieteForm: false,
 
     openShareDocModal: false,
-    checkedNotif: true,
+    checkedNotif: false,
     msgNotif: '',
     emailsDriveShare: [],
+    shareRights:[],
 
     focusedItem: 'Drive', // => Drive || Rooms || Meet || Contacts
     expandedRoomItems: ['0'],
@@ -1079,8 +1080,9 @@ export default class Main extends React.Component {
   };
 
   deleteFile_Folder = (file) => {
-
+    console.log(file)
     this.setState({ loading: true });
+
     SmartService.deleteFile(file.key || file.id, localStorage.getItem('token'), localStorage.getItem('usrtoken'))
       .then((deleteRes) => {
         if (deleteRes.succes === true && deleteRes.status === 200) {
@@ -1088,9 +1090,19 @@ export default class Main extends React.Component {
             this.reloadGed()
           }
           else {
-              this.setState({ selectedFolderId: '' });
-              this.props.history.push('/home/drive');
-              this.reloadGed();
+            if(file.rights === undefined || file.rights === null){
+              let clients_tempo = this.state.clients_tempo_copie;
+              let client_folder_index = clients_tempo.findIndex(x => x.email === localStorage.getItem("email") && x.folder_id === file.key);
+              if(client_folder_index !== -1){
+                firebase.database().ref(ent_name+"-clients_tempo-"+ged_id+"/"+client_folder_index).update({
+                  folders:[],
+                  folder_id:''
+                });
+              }
+            }
+            this.setState({ selectedFolderId: '' });
+            this.props.history.push('/home/drive');
+            this.reloadGed();
           }
           this.openSnackbar('success', file.typeF === 'file' ? (file.name || file.title) + '.pdf est supprimé avec succès' : (file.name || file.title) + ' est supprimé avec succès');
         } else {
@@ -1429,7 +1441,11 @@ export default class Main extends React.Component {
       } else {
         console.log(fileRes.error);
       }
-    }).catch(err => console.log(err));
+    }).catch(err => {
+      console.log(err)
+      this.setState({ loading: false });
+      this.openSnackbar("error","Une erreur est survenue lors de l'ouverture du fichier ")
+    });
   };
 
   renderLeftMenu = () => {
@@ -2313,138 +2329,281 @@ export default class Main extends React.Component {
         let findInCopyKey = clients_tmp_copie.findIndex(x => x.ID === find.ID && x.email === localStorage.getItem("email"));
         let findCopy = find;
 
+        if(find.folder_id && find.folder_id !== ""){
 
-        SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
-          client_id: find.client_id,
-          type: this.state.newClientFolder.type,
-          name: this.state.newClientFolder.nom,
-          client_folder: find.folder_id,
-          team: team
-        }).then(addFolderClient => {
-          console.log(addFolderClient)
           SmartService.addFolder({
-            name: 'MÉMOIRE',
-            folder_id: addFolderClient.data.folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'CHARGE DE PIECES',
-            folder_id: addFolderClient.data.folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'CONVOCATIONS',
-            folder_id: addFolderClient.data.folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'ADMIN (Lettre d\'engagement)',
-            folder_id: addFolderClient.data.folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'COMPTABILITE',
-            folder_id: addFolderClient.data.folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'CORRESPONDANCE',
-            folder_id: addFolderClient.data.folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'INTERNE ****',
-            folder_id: addFolderClient.data.folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'NOTES',
-            folder_id: addFolderClient.data.folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'PV RENDEZ-VOUS',
-            folder_id: addFolderClient.data.folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-            console.log('OK');
-          }).catch(err => {
-          });
-          SmartService.addFolder({
-            name: 'PROCEDURES',
-            folder_id: addFolderClient.data.folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          }).catch(err => {
-            console.log(err);
-          });
-          SmartService.addFolder({
-            name: 'RECHERCHES JURIDIQUES',
-            folder_id: addFolderClient.data.folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-          }).catch(err => {
-            console.log(err);
-          });
-          (findCopy.folders).push(
-            {
-              folder_id:addFolderClient.data.folder_id,
-              team:team,
-              name:this.state.newClientFolder.nom,
-              contrepartie:this.state.newClientFolder.contrepartie,
-              autrepartie:this.state.newClientFolder.autrepartie,
-              desc:this.state.newClientFolder.desc,
-              created_at:moment().format("YYYY-MM-DD"),
-              facturation:{
-                byEmail:this.state.newClientFolder.byEmail,
-                sentBySecr:this.state.newClientFolder.sentBySecr,
-                sentByAvocat:this.state.newClientFolder.sentByAvocat,
-                language:this.state.newClientFolder.language,
-                frequence:this.state.newClientFolder.frequence
+            name: this.state.newClientFolder.nom,
+            folder_id:find.folder_id
+          },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
+
+            SmartService.addFolder({
+              name: 'MÉMOIRE',
+              folder_id: addFolderClient.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            }).catch(err => {
+              console.log(err);
+            });
+            SmartService.addFolder({
+              name: 'CHARGE DE PIECES',
+              folder_id: addFolderClient.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            }).catch(err => {
+              console.log(err);
+            });
+            SmartService.addFolder({
+              name: 'CONVOCATIONS',
+              folder_id: addFolderClient.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            }).catch(err => {
+              console.log(err);
+            });
+            SmartService.addFolder({
+              name: 'ADMIN (Lettre d\'engagement)',
+              folder_id: addFolderClient.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            }).catch(err => {
+              console.log(err);
+            });
+            SmartService.addFolder({
+              name: 'COMPTABILITE',
+              folder_id: addFolderClient.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            }).catch(err => {
+              console.log(err);
+            });
+            SmartService.addFolder({
+              name: 'CORRESPONDANCE',
+              folder_id: addFolderClient.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            }).catch(err => {
+              console.log(err);
+            });
+            SmartService.addFolder({
+              name: 'INTERNE ****',
+              folder_id: addFolderClient.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            }).catch(err => {
+              console.log(err);
+            });
+            SmartService.addFolder({
+              name: 'NOTES',
+              folder_id: addFolderClient.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            }).catch(err => {
+              console.log(err);
+            });
+            SmartService.addFolder({
+              name: 'PV RENDEZ-VOUS',
+              folder_id: addFolderClient.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+              console.log('OK');
+            }).catch(err => {
+            });
+            SmartService.addFolder({
+              name: 'PROCEDURES',
+              folder_id: addFolderClient.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            }).catch(err => {
+              console.log(err);
+            });
+            SmartService.addFolder({
+              name: 'RECHERCHES JURIDIQUES',
+              folder_id: addFolderClient.data.id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+            }).catch(err => {
+              console.log(err);
+            });
+
+            findCopy.folders.push(
+              {
+                folder_id:addFolderClient.data.id,
+                team:team,
+                name:this.state.newClientFolder.nom,
+                contrepartie:this.state.newClientFolder.contrepartie,
+                autrepartie:this.state.newClientFolder.autrepartie,
+                desc:this.state.newClientFolder.desc,
+                created_at:moment().format("YYYY-MM-DD"),
+                facturation:{
+                  byEmail:this.state.newClientFolder.byEmail,
+                  sentBySecr:this.state.newClientFolder.sentBySecr,
+                  sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                  language:this.state.newClientFolder.language,
+                  frequence:this.state.newClientFolder.frequence
+                }
               }
-            }
-          )
-          firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id+'/'+findInCopyKey).set(findCopy).then( ok => {
-            setTimeout(() => {
-              this.setState({
-                loading: false,
-                newClientFolder: {
-                  nom: '',
-                  type: 'corporate',
-                  team: [],
-                  contrepartie:'',
-                  autrepartie:'',
-                  desc:'',
-                  byEmail:true,
-                  sentBySecr:false,
-                  sentByAvocat:false,
-                  frequence:'',
-                  language:"Francais"
-                },
-                lead_contact_tmp: '',
-                lead_contact_horaire_tmp: ''
-              });
-              this.justReloadGed();
-              this.openSnackbar('success', 'Dossier ajouté avec succès');
-            }, 750);
-          });
+            )
 
-        }).catch(err => {
-          console.log(err);
-        });
+            firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id+'/'+findInCopyKey).set(findCopy).then( ok => {
+              setTimeout(() => {
+                this.setState({
+                  loading: false,
+                  newClientFolder: {
+                    nom: '',
+                    type: 'corporate',
+                    team: [],
+                    contrepartie:'',
+                    autrepartie:'',
+                    desc:'',
+                    byEmail:true,
+                    sentBySecr:false,
+                    sentByAvocat:false,
+                    frequence:'',
+                    language:"Francais"
+                  },
+                  lead_contact_tmp: '',
+                  lead_contact_horaire_tmp: ''
+                });
+                this.justReloadGed();
+                this.openSnackbar('success', 'Dossier ajouté avec succès');
+              }, 750);
+            });
+
+          }).catch(err => {console.log(err)})
+
+        }
+        else{
+
+          SmartService.addFolder({
+            name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+            folder_id: CLIENTS_folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
+
+            SmartService.addFolder({
+              name: this.state.newClientFolder.nom,
+              folder_id:addParentClientFolderRes.data.id
+            },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
+
+              SmartService.addFolder({
+                name: 'MÉMOIRE',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'CHARGE DE PIECES',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'CONVOCATIONS',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'ADMIN (Lettre d\'engagement)',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'COMPTABILITE',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'CORRESPONDANCE',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'INTERNE ****',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'NOTES',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'PV RENDEZ-VOUS',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
+              }).catch(err => {
+              });
+              SmartService.addFolder({
+                name: 'PROCEDURES',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'RECHERCHES JURIDIQUES',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+              }).catch(err => {
+                console.log(err);
+              });
+
+              findCopy.folder_id = addParentClientFolderRes.data.id;
+              findCopy.folders = [
+                {
+                  folder_id:addFolderClient.data.id,
+                  team:team,
+                  name:this.state.newClientFolder.nom,
+                  contrepartie:this.state.newClientFolder.contrepartie,
+                  autrepartie:this.state.newClientFolder.autrepartie,
+                  desc:this.state.newClientFolder.desc,
+                  created_at:moment().format("YYYY-MM-DD"),
+                  facturation:{
+                    byEmail:this.state.newClientFolder.byEmail,
+                    sentBySecr:this.state.newClientFolder.sentBySecr,
+                    sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                    language:this.state.newClientFolder.language,
+                    frequence:this.state.newClientFolder.frequence
+                  }
+                }
+              ];
+
+              firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id+'/'+findInCopyKey).set(findCopy).then( ok => {
+                setTimeout(() => {
+                  this.setState({
+                    loading: false,
+                    newClientFolder: {
+                      nom: '',
+                      type: 'corporate',
+                      team: [],
+                      contrepartie:'',
+                      autrepartie:'',
+                      desc:'',
+                      byEmail:true,
+                      sentBySecr:false,
+                      sentByAvocat:false,
+                      frequence:'',
+                      language:"Francais"
+                    },
+                    lead_contact_tmp: '',
+                    lead_contact_horaire_tmp: ''
+                  });
+                  this.justReloadGed();
+                  this.openSnackbar('success', 'Dossier ajouté avec succès');
+                }, 750);
+              });
+
+
+
+            }).catch(err => console.log(err))
+
+
+          }).catch(err => console.log(err))
+
+        }
       }
 
       else {
@@ -2455,26 +2614,22 @@ export default class Main extends React.Component {
           }
         }).then(createClientRes => {
 
-
             SmartService.addFolder({
               name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
               folder_id: CLIENTS_folder_id
             }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
               console.log('OK');
 
-              SmartService.create_client_folder(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
-                client_id: createClientRes.data.id,
-                type: this.state.newClientFolder.type,
+              SmartService.addFolder({
                 name: this.state.newClientFolder.nom,
-                client_folder: addParentClientFolderRes.data.id,
-                team: team
-              }).then(addFolderClient => {
+                folder_id: addParentClientFolderRes.data.id,
+              },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
 
                 console.log('OK 1');
 
                 SmartService.addFolder({
                   name: 'MÉMOIRE',
-                  folder_id: addFolderClient.data.folder_id
+                  folder_id: addFolderClient.data.id
                 }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
                   console.log('OK');
                 }).catch(err => {
@@ -2482,7 +2637,7 @@ export default class Main extends React.Component {
                 });
                 SmartService.addFolder({
                   name: 'CHARGE DE PIECES',
-                  folder_id: addFolderClient.data.folder_id
+                  folder_id: addFolderClient.data.id
                 }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
                   console.log('OK');
                 }).catch(err => {
@@ -2490,7 +2645,7 @@ export default class Main extends React.Component {
                 });
                 SmartService.addFolder({
                   name: 'CONVOCATIONS',
-                  folder_id: addFolderClient.data.folder_id
+                  folder_id: addFolderClient.data.id
                 }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
                   console.log('OK');
                 }).catch(err => {
@@ -2498,7 +2653,7 @@ export default class Main extends React.Component {
                 });
                 SmartService.addFolder({
                   name: 'ADMIN (Lettre d\'engagement)',
-                  folder_id: addFolderClient.data.folder_id
+                  folder_id: addFolderClient.data.id
                 }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
                   console.log('OK');
                 }).catch(err => {
@@ -2506,7 +2661,7 @@ export default class Main extends React.Component {
                 });
                 SmartService.addFolder({
                   name: 'COMPTABILITE',
-                  folder_id: addFolderClient.data.folder_id
+                  folder_id: addFolderClient.data.id
                 }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
                   console.log('OK');
                 }).catch(err => {
@@ -2514,7 +2669,7 @@ export default class Main extends React.Component {
                 });
                 SmartService.addFolder({
                   name: 'CORRESPONDANCE',
-                  folder_id: addFolderClient.data.folder_id
+                  folder_id: addFolderClient.data.id
                 }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
                   console.log('OK');
                 }).catch(err => {
@@ -2522,7 +2677,7 @@ export default class Main extends React.Component {
                 });
                 SmartService.addFolder({
                   name: 'INTERNE ****',
-                  folder_id: addFolderClient.data.folder_id
+                  folder_id: addFolderClient.data.id
                 }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
                   console.log('OK');
                 }).catch(err => {
@@ -2530,7 +2685,7 @@ export default class Main extends React.Component {
                 });
                 SmartService.addFolder({
                   name: 'NOTES',
-                  folder_id: addFolderClient.data.folder_id
+                  folder_id: addFolderClient.data.id
                 }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
                   console.log('OK');
                 }).catch(err => {
@@ -2538,7 +2693,7 @@ export default class Main extends React.Component {
                 });
                 SmartService.addFolder({
                   name: 'PV RENDEZ-VOUS',
-                  folder_id: addFolderClient.data.folder_id
+                  folder_id: addFolderClient.data.id
                 }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
                   console.log('OK');
                 }).catch(err => {
@@ -2546,7 +2701,7 @@ export default class Main extends React.Component {
                 });
                 SmartService.addFolder({
                   name: 'PROCEDURES',
-                  folder_id: addFolderClient.data.folder_id
+                  folder_id: addFolderClient.data.id
                 }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
                   console.log('OK');
                 }).catch(err => {
@@ -2554,7 +2709,7 @@ export default class Main extends React.Component {
                 });
                 SmartService.addFolder({
                   name: 'RECHERCHES JURIDIQUES',
-                  folder_id: addFolderClient.data.folder_id
+                  folder_id: addFolderClient.data.id
                 }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
                   console.log('OK');
                 }).catch(err => {
@@ -2568,7 +2723,7 @@ export default class Main extends React.Component {
                   client_id: createClientRes.data.id,
                   folders:[
                     {
-                      folder_id:addFolderClient.data.folder_id,
+                      folder_id:addFolderClient.data.id,
                       team:team,
                       name:this.state.newClientFolder.nom,
                       contrepartie:this.state.newClientFolder.contrepartie,
@@ -5418,6 +5573,7 @@ export default class Main extends React.Component {
                       chips={[]}
                       placeholder="Ajouter des personnes"
                       save={(data) => {
+                        console.log(data)
                         this.setState({ emailsDriveShare: data });
                       }}
                       pattern={data.emailPatern}
@@ -5530,9 +5686,7 @@ export default class Main extends React.Component {
                 Annuler
               </MuiButton>
               <MuiButton
-                disabled={
-                  (this.state.checkedNotif === true && this.state.msgNotif === '') ||
-                  this.state.emailsDriveShare.length === 0 || this.state.shareRights.length === 0
+                disabled={this.state.emailsDriveShare.length === 0 || this.state.shareRights.length === 0
                 }
                 onClick={() => {
                   this.setState({ loading: true, openShareDocModal: false });
