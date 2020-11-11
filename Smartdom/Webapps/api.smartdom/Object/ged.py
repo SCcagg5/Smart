@@ -310,7 +310,7 @@ class folder:
             "id": i2[0], "name": i2[1], "type": i2[2], "date": i2[3]
             })
         if folder_id is not None:
-            folders = sql.get("SELECT `id`, `name`, `date` FROM `ged_folder` WHERE inside = %s, \
+            folders = sql.get("SELECT `id`, `name`, `date` FROM `ged_folder` WHERE inside = %s", \
             (folder_id))
         else:
             folders = sql.get("SELECT `id`, `name`, `date` FROM `ged_folder` WHERE inside IS NULL AND user_id = %s", \
@@ -338,8 +338,11 @@ class folder:
 
     def is_proprietary(self, id_folder, user_id = None):
         user_id = self.usr_id if user_id is None else user_id
-        res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND user_id = %s", (id_folder, user_id))
-        return True if len(res) > 0 else False
+        for i in ged.vpath(id_folder):
+            res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND user_id = %s", (i, user_id))
+            if len(res) > 0:
+                return True
+        return False
 
     def is_admin(self, id_folder):
         ret = False
@@ -577,7 +580,13 @@ class file:
     def is_proprietary(self, id_file, user_id = None):
         user_id = self.usr_id if user_id is None else user_id
         res = sql.get("SELECT `id` FROM `ged_file` WHERE id = %s AND user_id = %s", (id_file, user_id))
-        return True if len(res) > 0 else False
+        if len(res) > 0:
+            return True
+        for i in ged.vpath(id_file):
+            res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND user_id = %s", (i, user_id))
+            if len(res) > 0:
+                return True
+        return False
 
     def is_admin(self, id_file):
         ret = False
