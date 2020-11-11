@@ -288,8 +288,8 @@ class folder:
             res["name"] = folder[0][0]
             res["date"] = folder[0][1]
         if folder_id is not None:
-            files = sql.get("SELECT `id`, `name`, `type`, `date` FROM `ged_file` WHERE inside = %s AND user_id = %s", \
-            (folder_id, self.usr_id))
+            files = sql.get("SELECT `id`, `name`, `type`, `date` FROM `ged_file` WHERE inside = %s", \
+            (folder_id))
         else:
             files = sql.get("SELECT `id`, `name`, `type`, `date` FROM `ged_file` WHERE inside IS NULL AND user_id = %s", \
             (self.usr_id,))
@@ -298,8 +298,8 @@ class folder:
             "id": i2[0], "name": i2[1], "type": i2[2], "date": i2[3]
             })
         if folder_id is not None:
-            folders = sql.get("SELECT `id`, `name`, `date` FROM `ged_folder` WHERE inside = %s AND user_id = %s", \
-            (folder_id, self.usr_id))
+            folders = sql.get("SELECT `id`, `name`, `date` FROM `ged_folder` WHERE inside = %s, \
+            (folder_id))
         else:
             folders = sql.get("SELECT `id`, `name`, `date` FROM `ged_folder` WHERE inside IS NULL AND user_id = %s", \
             (self.usr_id, ))

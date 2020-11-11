@@ -93,7 +93,7 @@ services:
        API_DOMAIN: ${DOMAIN}
        API_ID: ${ID}
      healthcheck:
-       test: "curl -Ls -o /dev/null -w \"%{http_code}\n%{url_effective}\n\" http://localhost:$$VIRTUAL_PORT"
+       test: "curl -Ls -o /dev/null -w \"%{http_code}\n%{url_effective}\n\" http://localhost:$$VIRTUAL_PORT && exit 0 || exit 1"
        interval: 30s
        timeout: 1s
        retries: 1
