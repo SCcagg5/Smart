@@ -75,8 +75,17 @@ class sign:
                 if param not in i:
                     ret.append([False, f"Missing {param} argument", 400])
                     process = False
+            if "id_sign" in i:
+                if self.check_sign(i['id_sign']):
+                    tmp_sign = i['id_sign']
+                else:
+                    if process:
+                        ret.append([False, f"Invalid id_sign {i['id_sign']}", 404])
+                    process = False
+            else:
+                tmp_sign = id_sign
             if process:
-                ret.append(self.sign_doc(id_sign, id_file, i['x'], i['y'], i['h'], i['w'], i['page']))
+                ret.append(self.sign_doc(tmp_sign, id_file, i['x'], i['y'], i['h'], i['w'], i['page']))
         return [True, ret, None]
 
     def sign_doc(self, id_sign, id_file, x, y, height, width, page):
@@ -91,14 +100,17 @@ class sign:
             page = handle[int(page)]
         except:
             return [False, "Invalid page number", 400]
-        page.cleanContents()
-        image_rectangle = fitz.Rect(x, y, x + height, y + width)
-        with tempfile.NamedTemporaryFile(suffix='.png', delete=True) as tmp:
-            tmp.write(signature)
-            page.insertImage(image_rectangle, tmp.name)
-            handle.saveIncr()
-            tmp.close()
-        return [True, {}, False]
+        try:
+            page.cleanContents()
+            image_rectangle = fitz.Rect(x, y, x + height, y + width)
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=True) as tmp:
+                tmp.write(signature)
+                page.insertImage(image_rectangle, tmp.name)
+                handle.saveIncr()
+                tmp.close()
+        except:
+            return [False, "Invalid b64", 400]
+        return [True, {}, None]
 
 
 
