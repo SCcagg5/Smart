@@ -103,6 +103,8 @@ services:
      volumes:
        - ../Smartdom/Admin/front:/usr/share/nginx/html:ro
        - ../Smartdom/Admin/conf/admin.conf:/etc/nginx/conf.d/default.conf:ro
+     external_links:
+       - smartdom-web-rethink
      links:
        - smartdom-admin-goaccess
        - smartdom-admin-phpmyadmin
@@ -112,6 +114,7 @@ services:
      networks:
        - proxy
        - adm-net
+       - db-net
      environment:
        VIRTUAL_HOST: admin.${SMARTDOM_DOMAIN}
        VIRTUAL_PORT: 80

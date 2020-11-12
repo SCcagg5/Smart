@@ -16,6 +16,7 @@ Smartco/Admin/services/phpmyadmin/sessions
 
 Smartco/Micro/elasticsearch/data
 Smartco/Micro/sql/data
+
 Smartco/Micro/sqlwp/
 Smartco/Webapps/wp.smartco/
 Smartco/Webapps/doc.smartco/
@@ -32,6 +33,7 @@ Smartdom/Micro/posteio/
 Smartdom/Micro/rocket/
 Smartdom/Micro/odoo/db/
 Smartdom/Micro/sqlwp/
+Smartdom/Micro/rethinkdb*/
 Smartdom/Webapps/wp.smartdom/
 Smartdom/Webapps/doc.smartdom/
 

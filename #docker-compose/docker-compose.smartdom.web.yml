@@ -47,14 +47,15 @@ services:
       - db-net
 
   rethink:
-    image: rethinkdb:2.4.1
+    image: rethinkdb:latest
     container_name: smartdom-web-rethink
     restart: always
     expose:
       - 8080
       - 28015
-    networks:
-      - db-net
+    volumes:
+      - ../Smartdom/Micro/rethinkdb/data:/data
+    command: rethinkdb --bind all -d /data --initial-password test
 
   smartdom_bck-end:
     build: ../Smartdom/Webapps/api.smartdom
