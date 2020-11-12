@@ -32,6 +32,7 @@ numpy==1.13.3
 parsimonious==0.8.1
 pdftotext==2.1.5
 phonenumbers==8.12.12
+Pillow==8.0.1
 protobuf==3.13.0
 pycrypto==2.6.1
 pycryptodome==3.9.9
@@ -56,4 +57,3 @@ varint==1.0.2
 web3==5.13.0
 websockets==8.1
 zipp==3.4.0
-Pillow

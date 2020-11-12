@@ -46,6 +46,16 @@ services:
     networks:
       - db-net
 
+  rethink:
+    image: rethinkdb:2.4.1
+    container_name: smartdom-web-rethink
+    restart: always
+    expose:
+      - 8080
+      - 28015
+    networks:
+      - db-net
+
   smartdom_bck-end:
     build: ../Smartdom/Webapps/api.smartdom
     restart: always

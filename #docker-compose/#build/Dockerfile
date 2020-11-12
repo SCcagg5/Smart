@@ -5,4 +5,4 @@ LABEL maintainermail="eliot.courtel@wanadoo.fr"
 
 WORKDIR /app
 
-ENTRYPOINT yarn install && yarn build
+ENTRYPOINT yarn install && yarn build && ls ./build
