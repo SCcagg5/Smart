@@ -134,7 +134,8 @@ export default function TableTimeSheet(props) {
     const [toUpdated_template, setToUpdated_template] = React.useState("");
     const [timeSuggestions, setTimeSuggestions] = React.useState([]);
 
-    const [lf_client_search, setLf_client_search] = React.useState(props.annuaire_clients_mondat[0].Nom + ' ' + (props.annuaire_clients_mondat[0].Prenom || '') );
+    //const [lf_client_search, setLf_client_search] = React.useState(props.annuaire_clients_mondat[0].Nom + ' ' + (props.annuaire_clients_mondat[0].Prenom || '') );
+    const [lf_client_search, setLf_client_search] = React.useState("");
 
     const [lf_sdate_search, setLf_sdate_search] = React.useState(null);
     const [lf_edate_search, setLf_edate_search] = React.useState(null);
@@ -147,9 +148,9 @@ export default function TableTimeSheet(props) {
 
 
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [rowsPerPage, setRowsPerPage] = React.useState(15);
 
-    const searchFilter = props.lignesFactures.filter((lf) => ( (lf.newTime.client.trim() === lf_client_search.trim() ) &&
+    const searchFilter = props.lignesFactures.filter((lf) => ( ( (lf.newTime.client.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
       ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
       ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  )
     ))
@@ -237,75 +238,92 @@ export default function TableTimeSheet(props) {
         onChange: onInputTimeSuggChange
     };
 
-    let client_folders = props.client_folders || [];
+
+
+    let selected_client_folders = [];
+    selected.map((item,key) => {
+        if(item.newTime.dossier_client && item.newTime.dossier_client.name && item.newTime.dossier_client.name !== "" &&
+          !selected_client_folders.includes(item.newTime.dossier_client.name) ){
+            selected_client_folders.push(item.newTime.dossier_client.name)
+        }
+    })
+
+    /*let client_folders = props.client_folders || [];
     let selected_client = client_folders.Content ? client_folders.Content.folders.find(x => x.name === lf_client_search) : undefined
-    let selected_client_folders = selected_client ?  selected_client.Content.folders : [];
-
-
+    let selected_client_folders = selected_client ?  selected_client.Content.folders : [];*/
 
     return (
 
         <div>
-            <div className="row align-items-center mt-1">
-
-                <div className="ml-2">
-                    <DatePicker
-                        calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
-                        onChange={(e) => {
-                            setLf_sdate_search(e)
-                        }}
-                        value={lf_sdate_search}
-                        dayPlaceholder="dd"
-                        monthPlaceholder="mm"
-                        yearPlaceholder="yyyy"
-                    />
+            <div className="row mt-1" style={{border:"2px solid #f0f0f0",padding:15,paddingLeft:10}}>
+                <div className="col-md-12">
+                    <h5>Rechercher</h5>
                 </div>
-                <div className="ml-1">
-                    <h5>-</h5>
+                <div className="col-md-12">
+                    <div style={{display:"flex"}}>
+                        <h5>De</h5>
+                        <div style={{marginLeft:10,marginRight:10}}>
+                            <DatePicker
+                              calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
+                              onChange={(e) => {
+                                  setLf_sdate_search(e)
+                              }}
+                              value={lf_sdate_search}
+                              dayPlaceholder="dd"
+                              monthPlaceholder="mm"
+                              yearPlaceholder="yyyy"
+                            />
+                        </div>
+                        <h5>à</h5>
+                        <div style={{marginLeft:10,marginRight:10}}>
+                            <DatePicker
+                              calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
+                              onChange={(e) => {
+                                  setLf_edate_search(e)
+                              }}
+                              value={lf_edate_search}
+                              dayPlaceholder="dd"
+                              monthPlaceholder="mm"
+                              yearPlaceholder="yyyy"
+                            />
+                        </div>
+                    </div>
                 </div>
-                <div className="ml-1">
-                    <DatePicker
-                        calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
-                        onChange={(e) => {
-                            setLf_edate_search(e)
-                        }}
-                        value={lf_edate_search}
-                        dayPlaceholder="dd"
-                        monthPlaceholder="mm"
-                        yearPlaceholder="yyyy"
-                    />
+                <div className="col-md-10 mt-2">
+                    <div style={{display:"flex"}}>
+                        <h5 style={{marginRight:10}}>Par client</h5>
+                        <SelectSearch
+                          options={
+                              props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
+                                ({
+                                    value: Nom + ' ' + (Prenom || ''),
+                                    name: Nom + ' ' + (Prenom || ''),
+                                    ContactType: Type,
+                                    ContactName: Nom + ' ' + (Prenom || ''),
+                                    imageUrl: imageUrl
+                                }))
+                          }
+                          value={lf_client_search}
+                          renderOption={main_functions.renderSearchOption}
+                          search
+                          placeholder="Sélectionner.."
+                          onChange={e => {
+                              setLf_client_search(e)
+                              let ch_rows = props.lignesFactures;
+                              ch_rows.map((item,key) => {
+                                  item.checked = false
+                              })
+                              props.setLignesFactures(ch_rows)
+                              setCheck_all(false)
+                          }}
+                        />
+                    </div>
                 </div>
-                <div className="ml-2">
-                    <SelectSearch
-                      options={
-                          props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
-                            ({
-                                value: Nom + ' ' + (Prenom || ''),
-                                name: Nom + ' ' + (Prenom || ''),
-                                ContactType: Type,
-                                ContactName: Nom + ' ' + (Prenom || ''),
-                                imageUrl: imageUrl
-                            }))
-                      }
-                      value={lf_client_search}
-                      renderOption={main_functions.renderSearchOption}
-                      search
-                      placeholder="Par client"
-                      onChange={e => {
-                          setLf_client_search(e)
-                          let ch_rows = props.lignesFactures;
-                          ch_rows.map((item,key) => {
-                              item.checked = false
-                          })
-                          props.setLignesFactures(ch_rows)
-                          setCheck_all(false)
-                      }}
-                    />
-                </div>
-                <div className="ml-3">
+                <div className="col-md-2">
                     <IconButton title="Annuler le filtre" onClick={() => {
                         setLf_sdate_search(null)
                         setLf_edate_search(null)
+                        setLf_client_search("")
                     }}>
                         <ClearOutlinedIcon/>
                     </IconButton>
@@ -371,7 +389,8 @@ export default function TableTimeSheet(props) {
                             </TableCell>
                             <TableCell style={{ width: "17%" }} align="center">
                                 {
-                                    row.newTime.dossier_client ? (row.newTime.client || "") + " - " + row.newTime.dossier_client.name : (row.newTime.client || "")
+                                    row.newTime.dossier_client ? row.newTime.dossier_client.name !== "" ? (row.newTime.client || "") + " - " + row.newTime.dossier_client.name :
+                                      (row.newTime.client || "" ) : (row.newTime.client || "")
                                 }
                             </TableCell>
 
@@ -391,7 +410,7 @@ export default function TableTimeSheet(props) {
                     ))}
 
                     {emptyRows > 0 && (
-                        <TableRow style={{ height: 53 * emptyRows }}>
+                        <TableRow style={{ height: 20 * emptyRows }}>
                             <TableCell colSpan={6} />
                         </TableRow>
                     )}
@@ -399,7 +418,7 @@ export default function TableTimeSheet(props) {
                 <TableFooter>
                     <TableRow>
                         <TablePagination
-                            rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                            rowsPerPageOptions={[5, 10, 15, 20, { label: 'Tous', value: -1 }]}
                             //colSpan={3}
                             count={searchFilter.length}
                             rowsPerPage={rowsPerPage}
@@ -463,7 +482,7 @@ export default function TableTimeSheet(props) {
                                       {
                                           selected_client_folders.map((folder,key) => (
                                             <MenuItem key={key}
-                                              value={folder.id || folder.key}>{folder.name}</MenuItem>
+                                              value={folder}>{folder}</MenuItem>
                                           ))
                                       }
                                   </MuiSelect>
@@ -491,11 +510,12 @@ export default function TableTimeSheet(props) {
                       <div className="mt-3" style={{textAlign:"right"}}>
                           <AtlButton
                             appearance="primary"
-                            isDisabled={partner_facture === "" || client_folder === ""}
+                            isDisabled={partner_facture === ""}
                             onClick={() => {
                                 if(partner_facture === ""){
                                     alert("Vous devez sélectionner un partner pour la validation")
                                 }else{
+                                    setCheck_all(false)
                                     props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD"),partner_facture,selected)
                                 }
 
@@ -690,8 +710,7 @@ export default function TableTimeSheet(props) {
 
 
 
-                                        <div
-                                            className="mt-3">
+                                        <div className="mt-3">
                                             <h6>
                                                 Taux horaire
                                             </h6>
@@ -714,8 +733,7 @@ export default function TableTimeSheet(props) {
                                                 }}/>
                                         </div>
                                     </div>
-                                    <div
-                                        className="col-md-4">
+                                    <div className="col-md-4">
                                         <h6>Choix du template </h6>
                                         <select
                                             className="form-control custom-select"

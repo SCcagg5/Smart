@@ -1103,3 +1103,6 @@ select{
     padding: 6px 2px;
     box-sizing: content-box;
 }
+.select-search__value{
+    z-index: 0;
+}

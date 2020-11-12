@@ -20,6 +20,9 @@ import AtlButton from '@atlaskit/button';
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import FolderIcon from '@material-ui/icons/Folder';
 import SmartService from '../../provider/SmartService';
+import { Select as MuiSelect } from '@material-ui/core';
+import MenuItem from '@material-ui/core/MenuItem';
+import data from "../../data/Data"
 
 const useRowStyles = makeStyles({
   root: {
@@ -29,7 +32,49 @@ const useRowStyles = makeStyles({
   },
 });
 
+export default function CollapsibleTable(props) {
+
+
+
+  return (
+    <TableContainer component={Paper}>
+      {
+        props.factures.filter(x => x.partner === localStorage.getItem("email")).length > 0 ?
+
+          <Table aria-label="collapsible table">
+            <TableHead>
+              <TableRow>
+                <TableCell />
+                <TableCell align="center" style={{fontWeight:"bold"}} >Numéro Facture</TableCell>
+                <TableCell align="center" style={{fontWeight:"bold"}} >Client</TableCell>
+                <TableCell align="center" style={{fontWeight:"bold"}} >Nom du dossier</TableCell>
+                <TableCell align="center" style={{fontWeight:"bold"}} >Date de création</TableCell>
+                <TableCell align="center" style={{fontWeight:"bold"}} >Total(nb heures)</TableCell>
+                <TableCell align="center" style={{fontWeight:"bold"}} >Total (CHF)</TableCell>
+                <TableCell align="center" style={{fontWeight:"bold"}} >Statut</TableCell>
+                <TableCell align="center" style={{fontWeight:"bold"}} >Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {props.factures.filter(x => x.partner === localStorage.getItem("email")).map((row,key) => (
+                <Row key={key} row={row} index={key} validateFacture={props.validateFacture} openFacture={props.openFacture} openFactureFolder={props.openFactureFolder} client_folders={props.client_folders}  />
+              ))}
+            </TableBody>
+          </Table> :
+
+          <h6>Aucune facture trouvée</h6>
+      }
+
+    </TableContainer>
+  );
+}
+
+
 function Row(props) {
+
+  const [template, setTemplate] = React.useState("0");
+  const [client, setClient] = React.useState("");
+
   const { row } = props;
   const [open, setOpen] = React.useState(false);
   const classes = useRowStyles();
@@ -40,6 +85,11 @@ function Row(props) {
     total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
     nb_heures = nb_heures + ligne.newTime.duree;
   });
+
+    let client_folders = props.client_folders || [];
+    let selected_client = client_folders.Content ? client_folders.Content.folders.find(x => x.name === row.client) : undefined
+    let selected_client_folders = selected_client ?  selected_client.Content.folders : [];
+
 
   return (
     <React.Fragment>
@@ -138,14 +188,55 @@ function Row(props) {
             </Box>
             {
               row.statut === "wait" &&
-              <div align="right" style={{marginTop:20}}>
-                <AtlButton onClick={() => {
-                  props.validateFacture(row,props.index)
-                }}
-                           appearance="primary">
-                  Valider la facture
-                </AtlButton>
-              </div>
+                <div>
+                  <div className="row">
+                    <div className="col-md-4">
+                      <h5>Dossier client</h5>
+                      <MuiSelect
+                        labelId="demo-simple-select-label68798"
+                        id="demo-simple-select776879"
+                        style={{ width: '100%' }}
+                        value={client}
+                        onChange={(e) => {
+                          setClient(e.target.value)
+                        }}
+                      >
+                        {
+                          selected_client_folders.map((folder,key) => (
+                            <MenuItem key={key}
+                                      value={folder.id || folder.key}>{folder.name}</MenuItem>
+                          ))
+                        }
+                      </MuiSelect>
+                    </div>
+                    <div className="col-md-4">
+                      <h6>Choix du template </h6>
+                      <select
+                        className="form-control custom-select"
+                        value={template}
+                        onChange={(e) => {
+                          setTemplate(e.target.value)
+                        }}>
+                        {
+                          data.lf_templates.map((item,key) =>
+                            <option key={key} value={item.value}>{item.label}</option>
+                          )
+                        }
+
+                      </select>
+                    </div>
+                  </div>
+                  <div align="right" style={{marginTop:20}}>
+                    <AtlButton onClick={() => {
+                      props.validateFacture(row,props.index,template,client)
+                    }}
+                               isDisabled={client === ""}
+                               appearance="primary">
+                      Valider la facture
+                    </AtlButton>
+                  </div>
+                </div>
+
             }
 
           </Collapse>
@@ -155,36 +246,3 @@ function Row(props) {
   );
 }
 
-export default function CollapsibleTable(props) {
-  return (
-    <TableContainer component={Paper}>
-      {
-        props.factures.filter(x => x.partner === localStorage.getItem("email")).length > 0 ?
-
-          <Table aria-label="collapsible table">
-            <TableHead>
-              <TableRow>
-                <TableCell />
-                <TableCell align="center" style={{fontWeight:"bold"}} >Numéro Facture</TableCell>
-                <TableCell align="center" style={{fontWeight:"bold"}} >Client</TableCell>
-                <TableCell align="center" style={{fontWeight:"bold"}} >Nom du dossier</TableCell>
-                <TableCell align="center" style={{fontWeight:"bold"}} >Date de création</TableCell>
-                <TableCell align="center" style={{fontWeight:"bold"}} >Total(nb heures)</TableCell>
-                <TableCell align="center" style={{fontWeight:"bold"}} >Total (CHF)</TableCell>
-                <TableCell align="center" style={{fontWeight:"bold"}} >Statut</TableCell>
-                <TableCell align="center" style={{fontWeight:"bold"}} >Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {props.factures.filter(x => x.partner === localStorage.getItem("email")).map((row,key) => (
-                <Row key={key} row={row} index={key} validateFacture={props.validateFacture} openFacture={props.openFacture} openFactureFolder={props.openFactureFolder}  />
-              ))}
-            </TableBody>
-          </Table> :
-
-          <h6>Aucune facture trouvée</h6>
-      }
-
-    </TableContainer>
-  );
-}

@@ -486,6 +486,7 @@ export default class Main extends React.Component {
                           duree: '',
                           client: '',
                           dossier_client: {
+                            name:'',
                             facturation: {
                               language:''
                             },
@@ -1798,7 +1799,7 @@ export default class Main extends React.Component {
 
   addFactureToValidated(client,client_folder,date,createdBy,partnerEmail,lignes_facture){
     this.setState({loading:true})
-    SmartService.getFile(client_folder,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( res => {
+
       let lf_to_validated = this.state.facturesToValidatedCopy;
       lf_to_validated.push({
         ID:Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
@@ -1809,8 +1810,8 @@ export default class Main extends React.Component {
         lignes_facture:lignes_facture,
         statut:"wait",
         client_folder:{
-          id:client_folder,
-          name:res.data.name
+          id:"",
+          name:client_folder
         }
       })
 
@@ -1819,10 +1820,7 @@ export default class Main extends React.Component {
         this.openSnackbar("success","La facture est bien envoyé au partner pour validation")
       })
 
-    }).catch( err => {
-      console.log(err)
-      this.setState({loading:false})
-    })
+
 
   }
 
@@ -1831,249 +1829,10 @@ export default class Main extends React.Component {
     this.reloadGed()
   }
 
-  createFacture() {
-    let lignes_factures = this.state.lignesFactures.filter((lf) => lf.newTime.client === this.state.TimeSheet.newTime.client);
-    let odoo_data = [{
-      'access_token': 'eafd285777ggobfvxyvnx',
-      'state': 'draft',
-      'type': 'out_invoice',
-      'invoice_sent': false,
-      'l10n_ch_isr_sent': false,
-      'name': '',
-      'invoice_date': moment(this.state.dateFacture).format('YYYY-MM-DD'),
-      'date': moment(this.state.dateFacture).format('YYYY-MM-DD'),
-      'journal_id': 1,
-      'currency_id': 5,
-      'invoice_user_id': 3,
-      'invoice_incoterm_id': false,
-      'auto_post': false,
-      'to_check': false,
-      'authorized_transaction_ids': [
-        [
-          6,
-          false,
-          []
-        ]
-      ],
-      'tax_lock_date_message': false,
-      'id': false,
-      'invoice_payment_state': 'not_paid',
-      'invoice_filter_type_domain': 'sale',
-      'company_currency_id': 5,
-      'commercial_partner_id': '',
-      'bank_partner_id': 1,
-      'invoice_has_outstanding': false,
-      'l10n_ch_currency_name': 'CHF',
-      'invoice_sequence_number_next_prefix': false,
-      'invoice_sequence_number_next': false,
-      'invoice_has_matching_suspense_amount': false,
-      'has_reconciled_entries': false,
-      'restrict_mode_hash_table': false,
-      'partner_id': lignes_factures[0].newTime.company_id,
-      'ref': 121006,
-      'invoice_vendor_bill_id': false,
-      'invoice_payment_term_id': 1,
-      'invoice_date_due': '2020-09-06',
-      'company_id': 1,
-      'amount_untaxed': 0,
-      'amount_by_group': [],
-      'amount_total': 0,
-      'invoice_payments_widget': 'False',
-      'amount_residual': 0,
-      'invoice_outstanding_credits_debits_widget': false,
-      'narration': false,
-      'invoice_origin': false,
-      'fiscal_position_id': 1,
-      'invoice_cash_rounding_id': false,
-      'invoice_source_email': false,
-      'invoice_payment_ref': false,
-      'invoice_partner_bank_id': false,
-      'reversed_entry_id': false,
-      'message_follower_ids': [],
-      'activity_ids': [],
-      'message_ids': [],
-      'message_attachment_count': 0,
-      'invoice_line_ids': [
-        [
-          0,
-          'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
-          {
-            'sequence': 10,
-            'account_id': 104,
-            'quantity': 0.15,
-            'discount': 10,
-            'partner_id': false,
-            'currency_id': false,
-            'debit': 0,
-            'credit': 60,
-            'display_type': false,
-            'product_id': 1,
-            'name': '/*/*/',
-            'analytic_account_id': false,
-            'analytic_tag_ids': [
-              [
-                6,
-                false,
-                []
-              ]
-            ],
 
-            'price_unit': 400,
-            'tax_ids': [
-              [
-                6, false, []
-              ]
-            ],
-            'amount_currency': 0,
-            'date_maturity': false,
-            'tag_ids': [
-              [
-                6,
-                false,
-                []
-              ]
-            ],
-            'recompute_tax_line': false,
-            'is_rounding_line': false,
-            'exclude_from_invoice_tab': false
-          }
-        ]
-      ],
-      'line_ids': []
-    }];
-    let total = 0;
-
-
-    lignes_factures.map((ligne, key) => {
-      total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
-      let OAContact = main_functions.getOAContactByEmail2(this.state.contacts,ligne.newTime.utilisateurOA);
-      odoo_data[0].line_ids.push(
-        [
-          0,
-          'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
-          {
-            'account_id': 104,
-            'sequence': 10,
-            'name':
-              ligne.template === '0' ? moment(ligne.newTime.date).format('DD/MM/YYYY') :
-                ligne.template === '1' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description :
-                  ligne.template === '2' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
-                    ligne.template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
-                      ligne.template === '4' ? ligne.newTime.description :
-                        ligne.template === '5' ? OAContact.nom + ' ' + OAContact.prenom :
-                          ligne.template === '6' ? ligne.newTime.duree + ' Heures' :
-                            ligne.template === '7' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
-                              ligne.template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree + ' Heures' :
-                                ligne.template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree + ' Heures' : ligne.newTime.description,
-            'quantity': ligne.newTime.duree,
-            'price_unit': parseFloat(ligne.newTime.rateFacturation),
-            'discount': 0,
-            'debit': 0,
-            'credit': ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation),
-            'amount_currency': 0,
-            'date_maturity': false,
-            'currency_id': false,
-            'partner_id': false,
-            'product_uom_id': false,
-            'product_id': 1,
-            'payment_id': false,
-            'tax_ids': [
-              [
-                6,
-                false,
-                []
-              ]
-            ],
-            'tax_base_amount': 0,
-            'tax_exigible': true,
-            'tax_repartition_line_id': false,
-            'tag_ids': [
-              [
-                6,
-                false,
-                []
-              ]
-            ],
-            'analytic_account_id': false,
-            'analytic_tag_ids': [
-              [
-                6,
-                false,
-                []
-              ]
-            ],
-            'recompute_tax_line': false,
-            'display_type': false,
-            'is_rounding_line': false,
-            'exclude_from_invoice_tab': false
-          }
-        ]
-      );
-
-    });
-    //console.log(total)
-    odoo_data[0].line_ids.push(
-      [
-        0,
-        'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
-        {
-          'account_id': 6,
-          'sequence': 10,
-          'name': false,
-          'quantity': 1,
-          'price_unit': -total,
-          'discount': 0,
-          'debit': total,
-          'credit': 0,
-          'amount_currency': 0,
-          'date_maturity': '2020-09-08',
-          'currency_id': false,
-          'partner_id': false,
-          'product_uom_id': false,
-          'product_id': false,
-          'payment_id': false,
-          'tax_ids': [
-            [
-              6,
-              false,
-              []
-            ]
-          ],
-          'tax_base_amount': 0,
-          'tax_exigible': true,
-          'tax_repartition_line_id': false,
-          'tag_ids': [
-            [
-              6,
-              false,
-              []
-            ]
-          ],
-          'analytic_account_id': false,
-          'analytic_tag_ids': [
-            [
-              6,
-              false,
-              []
-            ]
-          ],
-          'recompute_tax_line': false,
-          'display_type': false,
-          'is_rounding_line': false,
-          'exclude_from_invoice_tab': true
-        }
-      ]
-    );
-
-    SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
-      window.open('http://91.121.162.202:10013/my/invoices/' + createFactRes.data.id + '?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true', '_blank');
-    }).catch(err => {
-      console.log(err);
-    });
-  }
-
-  createFacture_ForSelected(facture_date,lignes_f,folder_id,facture) {
+  createFacture_ForSelected(facture_date,lignes_f,folder_id,facture,template,client) {
     let id_facture = this.state.facturesToValidatedCopy.findIndex(x => x.ID === facture.ID)
+
     this.setState({loading:true})
     let lignes_factures = lignes_f;
     let odoo_data = [{
@@ -2156,16 +1915,16 @@ export default class Main extends React.Component {
             'sequence': 10,
             'origin': false,
             'name':
-              ligne.template === '0' ? moment(ligne.newTime.date).format('DD/MM/YYYY') :
-                ligne.template === '1' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description :
-                  ligne.template === '2' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
-                    ligne.template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
-                      ligne.template === '4' ? ligne.newTime.description :
-                        ligne.template === '5' ? OAContact.nom + ' ' + OAContact.prenom :
-                          ligne.template === '6' ? ligne.newTime.duree + ' Heures' :
-                            ligne.template === '7' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
-                              ligne.template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree + ' Heures' :
-                                ligne.template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree + ' Heures' : ligne.newTime.description,
+              template === '0' ? moment(ligne.newTime.date).format('DD/MM/YYYY') :
+                template === '1' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description :
+                  template === '2' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                    template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                      template === '4' ? ligne.newTime.description :
+                        template === '5' ? OAContact.nom + ' ' + OAContact.prenom :
+                          template === '6' ? ligne.newTime.duree + ' Heures' :
+                            template === '7' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                              template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree + ' Heures' :
+                                template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree + ' Heures' : ligne.newTime.description,
             'quantity': ligne.newTime.duree,
             'price_unit': parseFloat(ligne.newTime.rateFacturation),
             'discount': 0,
@@ -2220,7 +1979,7 @@ export default class Main extends React.Component {
 
           if(genFactRes.succes === true && genFactRes.status === 200){
 
-            SmartService.getFile(folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+            SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
               if(resF.succes === true && resF.status === 200){
                 let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
 
@@ -2259,7 +2018,11 @@ export default class Main extends React.Component {
                         console.log("FIREBASE")
                         firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id + "/"+id_facture).update({
                           statut:"accepted",
-                          file_id:ok.data.file_id
+                          file_id:ok.data.file_id,
+                          client_folder:{
+                            id:client,
+                            name:resF.data.name
+                          }
                         }).catch(err => console.log(err))
                         this.justReloadGed();
                         this.setState({loading:false})
@@ -2900,14 +2663,12 @@ export default class Main extends React.Component {
         let lignes_fact = this.state.lignesFactures || [];
 
         SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
-
           if(newCompRes.succes === true && newCompRes.status === 200){
-
             obj.newTime.company_id = newCompRes.data.id;
             obj.newTime.date = moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD');
             obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             obj.user_email = localStorage.getItem('email');
-            obj.template = this.state.lignef_template;
+            //obj.template = this.state.lignef_template;
             //obj.newTime.client = this.state.selectedClientTimeEntree;
             lignes_fact.push(obj);
 
@@ -2920,6 +2681,7 @@ export default class Main extends React.Component {
                     duree: '',
                     client: '',
                     dossier_client:{
+                      name:'',
                       facturation:{
                         language:''
                       }
@@ -2932,7 +2694,8 @@ export default class Main extends React.Component {
                   }
                 }
               });
-            }else{
+            }
+            else{
               this.setState({
                 lignesFactures: lignes_fact,
                 TimeSheet: {
@@ -2953,19 +2716,15 @@ export default class Main extends React.Component {
             this.openSnackbar('success', 'Enregistrement effectué avec succès');
           }else{
             console.log(newCompRes.error)
-            //this.openSnackbar("error",newCompRes.error)
           }
-
         }).catch(err => {
-          console.log(err);
-        });
+          console.log(err)
+        })
+
+
 
       }
-
-
-
     }
-
   }
 
   updateLigneFacture(id,ligne){
@@ -4857,6 +4616,7 @@ export default class Main extends React.Component {
                                                             this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
                                                           }else{
                                                             obj.newTime.dossier_client =  {
+                                                              name:'',
                                                               facturation: {
                                                                 language:''
                                                               }}
@@ -4872,7 +4632,6 @@ export default class Main extends React.Component {
                                                     </div>
                                                     <h5 style={{marginTop:10}}>Dossier du client </h5>
                                                     <MuiSelect
-
                                                       labelId="demo-simple-select-label"
                                                       id="demo-simple-select"
                                                       style={{ width: 217 }}
@@ -5020,8 +4779,7 @@ export default class Main extends React.Component {
                                                       }} />
                                                   </div>
                                                 </div>
-                                                <div
-                                                  className="col-md-4">
+                                                {/*<div className="col-md-4">
                                                   <h6>Choix du template </h6>
                                                   <select
                                                     className="form-control custom-select"
@@ -5036,7 +4794,7 @@ export default class Main extends React.Component {
                                                     }
 
                                                   </select>
-                                                </div>
+                                                </div>*/}
                                               </div>
                                               <div align="center" className=" mt-4">
                                                 <AltButtonGroup>
@@ -5045,14 +4803,14 @@ export default class Main extends React.Component {
                                                       this.createLignefacture(false)
                                                     }}
                                                     appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client.name === ''}
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' }
                                                     style={{ margin: 20 }}> Enregistrer </AtlButton>
                                                   <AtlButton
                                                     onClick={() => {
                                                       this.createLignefacture(true)
                                                     }}
                                                     appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client.name === ''}
+                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' }
                                                     style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
                                                   <AtlButton
                                                     appearance=""
@@ -5064,6 +4822,7 @@ export default class Main extends React.Component {
                                                             duree: '',
                                                             client: '',
                                                             dossier_client: {
+                                                              name:'',
                                                               facturation: {
                                                                 language:''
                                                               }},
@@ -5205,8 +4964,9 @@ export default class Main extends React.Component {
                                       <TabPanel>
                                         <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
                                         <TableFactures factures={this.state.facturesToValidated}
-                                                       validateFacture={(row,key) => {
-                                                         this.createFacture_ForSelected(row.created_at, row.lignes_facture,row.client_folder.id,row);
+                                                       client_folders={this.state.client_folders}
+                                                       validateFacture={(row,key,template,client) => {
+                                                         this.createFacture_ForSelected(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
                                                        }}
                                                        openFacture={(id) => {
                                                          this.openPdfModal(id)

@@ -55,7 +55,13 @@ export default function SignTopBar(props) {
                     >
                         <Paper style={{width:240}}>
                             <ClickAwayListener onClickAway={handleClose}>
-                                <MenuList autoFocusItem={open} id="menu-list-grow" style={{marginTop:5}}>
+                                <MenuList autoFocusItem={open} id="menu-list-grow" style={{marginTop:5,maxHeight:400,overflowY:"auto"}}
+                                          PaperProps={{
+                                              style: {
+                                                  maxHeight: 200
+                                              },
+                                          }}
+                                >
                                     <MenuItem onClick={() => {
                                         setAnchorEl(null)
                                         props.showSignModal()

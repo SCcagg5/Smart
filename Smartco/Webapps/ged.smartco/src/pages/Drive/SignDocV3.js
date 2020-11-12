@@ -19,13 +19,15 @@ import { Rnd } from 'react-rnd';
 import { scroller } from 'react-scroll';
 import domtoimage from 'dom-to-image';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { Checkbox as MuiCheckbox, Typography } from '@material-ui/core';
+import { Checkbox as MuiCheckbox, Typography, Button as MuiButton } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import Alert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
+import SaveIcon from '@material-ui/icons/Save';
+
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -40,6 +42,7 @@ const checkedIcon = <CheckBoxIcon fontSize="small"/>;
 export default class SignDocV3 extends React.Component {
 
     sigCanvas = {}
+    sigParapheCanvas = {}
 
     state = {
         firstLoading: true,
@@ -265,181 +268,95 @@ export default class SignDocV3 extends React.Component {
             else {}
 
         }
+
         else if(this.state.mainTabIndex === 1){
 
             if(this.state.parapheTabIndex === 0){
-                if(this.state.paraphePositions === "tousSauf"){
+                if(this.sigParapheCanvas.isEmpty()){
+                    this.setState({loading:false})
+                    this.openSnackbar("error","Vous devez dessiner votre signature avant de cliquer !")
+                }
+                else{
+                    let iterationCount = this.state.paraphePositions === "tousSauf" ? this.state.numPages - 1 :
+                      this.state.paraphePositions === "tous" ? this.state.numPages : this.state.parapheCustomPages.length
 
-                    let signatures = this.state.signatures;
-                    let savedSignatures = this.state.savedSignatures;
-                    for (let i = 0 ; i < this.state.numPages - 1 ; i++){
-                        signatures.push({
-                            data: this.sigCanvas.getTrimmedCanvas().toDataURL('image/png'),
-                            page: (i +1),
-                            width: 150, height: 70, right: 10, bottom: 10,
-                            x:420,y:770
-                        })
-                    }
-                    savedSignatures.push({
-                        data: this.sigCanvas.getTrimmedCanvas().toDataURL('image/png'),
-                        width: 150, height: 70, right: 250, bottom: 400,
-                        x:250,y:400
-                    })
-                    this.setState({
-                        openSignModal: false,
-                        closeBtn: true,
-                        signatures: signatures,
-                        savedSignatures: savedSignatures,
-                        loading: false
-                    })
+                        let signatures = this.state.signatures;
+                        let b64Sign = this.sigParapheCanvas.getTrimmedCanvas().toDataURL('image/png');
+                        let formated_b64Sign = b64Sign.replace("data:image/png;base64,","");
+
+                        SmartService.addSignature({base64:formated_b64Sign}
+                          ,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
+
+                            if (r.succes === true && r.status === 200) {
+
+                                for (let i = 0 ; i < iterationCount ; i++){
+                                    signatures.push({
+                                        id:r.data.id,
+                                        b64: formated_b64Sign,
+                                        page: (i +1),
+                                        width: 150, height: 70, right: 10, bottom: 10,
+                                        x:420,y:770
+                                    })
+                                }
+
+                                this.setState({
+                                    openSignModal: false,
+                                    closeBtn: true,
+                                    signatures: signatures,
+                                    loading: false
+                                })
+                                this.updateSignatures()
+                            }else{
+                                console.log(r.error)
+                            }
+
+                        }).catch(err => {console.log(err)})
 
                 }
-                else if(this.state.paraphePositions === "tous"){
-                    let signatures = this.state.signatures;
-                    let savedSignatures = this.state.savedSignatures;
-                    for (let i = 0 ; i < this.state.numPages ; i++){
-                        signatures.push({
-                            data: this.sigCanvas.getTrimmedCanvas().toDataURL('image/png'),
-                            page: (i +1),
-                            width: 150, height: 70, right: 10, bottom: 10,
-                            x:420,y:770
-                        })
-                    }
 
-                    savedSignatures.push({
-                        data: this.sigCanvas.getTrimmedCanvas().toDataURL('image/png'),
-                        width: 150, height: 70, right: 250, bottom: 400,
-                        x:250,y:400
-                    })
-                    this.setState({
-                        openSignModal: false,
-                        closeBtn: true,
-                        signatures: signatures,
-                        savedSignatures: savedSignatures,
-                        loading: false
-                    })
-                }
-                else if(this.state.paraphePositions === "custom"){
-                    let signatures = this.state.signatures;
-                    let savedSignatures = this.state.savedSignatures;
-                    for (let i = 0 ; i < this.state.parapheCustomPages.length ; i++){
-                        let item = this.state.parapheCustomPages[i];
-                        signatures.push({
-                            data: this.sigCanvas.getTrimmedCanvas().toDataURL('image/png'),
-                            page: parseInt(item.replace('Page ','')),
-                            width: 150, height: 70, right: 10, bottom: 10,
-                            x:420,y:770
-                        })
-                    }
-                    savedSignatures.push({
-                        data: this.sigCanvas.getTrimmedCanvas().toDataURL('image/png'),
-                        width: 150, height: 70, right: 250, bottom: 400,
-                        x:250,y:400
-                    })
-                    this.setState({
-                        openSignModal: false,
-                        closeBtn: true,
-                        signatures: signatures,
-                        savedSignatures: savedSignatures,
-                        loading: false
-                    })
-
-                }
             }
 
             else if(this.state.parapheTabIndex === 1){
 
-                if(this.state.paraphePositions === "tousSauf"){
+
+                    let iterationCount = this.state.paraphePositions === "tousSauf" ? this.state.numPages - 1 :
+                      this.state.paraphePositions === "tous" ? this.state.numPages : this.state.parapheCustomPages.length
+
                     domtoimage.toPng(document.getElementById(this.state.selectedSignTextId),
                       {bgcolor: "transparent", quality: 1, width: 150, height: 70})
                       .then((dataUrl) => {
                           let signatures = this.state.signatures;
-                          let savedSignatures = this.state.savedSignatures;
-                          for(let i = 0 ; i < this.state.numPages -1 ; i++){
-                              signatures.push({
-                                  data: dataUrl,
-                                  page: (i +1),
-                                  width: 150, height: 70, right: 10, bottom: 10,
-                                  x:420,y:770
-                              })
-                          }
-                          savedSignatures.push({
-                              data: dataUrl,
-                              width: 150, height: 70, right: 250, bottom: 400,
-                              x:250,y:400
-                          })
-                          this.setState({
-                              openSignModal: false,
-                              closeBtn: true,
-                              signatures: signatures,
-                              savedSignatures: savedSignatures,
-                              loading: false
-                          })
-                      }).catch(err => console.log(err))
-                }
-                else if(this.state.paraphePositions === "tous"){
-                    domtoimage.toPng(document.getElementById(this.state.selectedSignTextId),
-                      {bgcolor: "transparent", quality: 1, width: 150, height: 70})
-                      .then((dataUrl) => {
-                          let signatures = this.state.signatures;
-                          let savedSignatures = this.state.savedSignatures;
-                          for (let i = 0 ; i < this.state.numPages ; i++){
-                              signatures.push({
-                                  data: dataUrl,
-                                  page: (i +1),
-                                  width: 150, height: 70, right: 10, bottom: 10,
-                                  x:420,y:770
-                              })
-                          }
-                          savedSignatures.push({
-                              data: dataUrl,
-                              width: 150, height: 70, right: 250, bottom: 400,
-                              x:250,y:400
-                          })
-                          this.setState({
-                              openSignModal: false,
-                              closeBtn: true,
-                              signatures: signatures,
-                              savedSignatures: savedSignatures,
-                              loading: false
-                          })
-                      }).catch(err => console.log(err))
-                }
-                else if(this.state.paraphePositions === "custom"){
-                    domtoimage.toPng(document.getElementById(this.state.selectedSignTextId),
-                      {bgcolor: "transparent", quality: 1, width: 150, height: 70})
-                      .then((dataUrl) => {
-                          let signatures = this.state.signatures;
-                          let savedSignatures = this.state.savedSignatures;
-                          for (let i = 0 ; i < this.state.parapheCustomPages.length ; i++){
-                              let item = this.state.parapheCustomPages[i];
-                              signatures.push({
-                                  data: dataUrl,
-                                  page: parseInt(item.replace('Page ','')),
-                                  width: 150, height: 70, right: 10, bottom: 10,
-                                  x:420,y:770
-                              })
-                          }
-                          savedSignatures.push({
-                              data: dataUrl,
-                              width: 150, height: 70, right: 250, bottom: 400,
-                              x:250,y:400
-                          })
-                          this.setState({
-                              openSignModal: false,
-                              closeBtn: true,
-                              signatures: signatures,
-                              savedSignatures: savedSignatures,
-                              loading: false
-                          })
-                      }).catch(err => console.log(err))
-                }else{}
+                          let formated_b64Sign = dataUrl.replace("data:image/png;base64,","");
 
+                          SmartService.addSignature({base64:formated_b64Sign}
+                            ,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
+                              console.log(r)
+                              if (r.succes === true && r.status === 200) {
+                                  for(let i = 0 ; i < iterationCount ; i++){
+                                      signatures.push({
+                                          id:r.data.id,
+                                          b64: formated_b64Sign,
+                                          page: this.state.paraphePositions === "custom" ? parseInt(this.state.parapheCustomPages[i].replace('Page ','')) : i + 1,
+                                          width: 150, height: 70, right: 10, bottom: 10,
+                                          x:420,y:770
+                                      })
+                                  }
+                                  this.setState({
+                                      openSignModal: false,
+                                      closeBtn: true,
+                                      signatures: signatures,
+                                      loading: false
+                                  })
+                                  this.updateSignatures()
+                              }else{
+                                  console.log(r.error)
+                              }
+                          }).catch(err => {console.log(err)})
 
-            }else{}
+                      })
 
+            }
         }
-        else{}
     }
 
     deleteSignature(id){
@@ -554,19 +471,22 @@ export default class SignDocV3 extends React.Component {
                               </select>
                           </div>
                           <div style={{position: "fixed", bottom: 20, right: 30, zIndex: 1600}}>
-                              <Button onClick={() => {
+                              <MuiButton onClick={() => {
                                   this.saveDoc()
                               }}
-                                      disabled={this.state.signatures.length === 0}
+                                         disabled={this.state.signatures.length === 0}
+                                         size="large"
+                                         startIcon={<SaveIcon />}
                                       style={{
                                           textTransform: "Capitalize",
                                           fontWeight: "bold",
                                           color: "#fff",
                                           backgroundColor: "#00BF4A"
-                                      }} variant="contained"
+                                      }}
+                                         variant="contained"
                               >
                                   Enregistrer
-                              </Button>
+                              </MuiButton>
                           </div>
                       </div>
                 }
@@ -689,7 +609,7 @@ export default class SignDocV3 extends React.Component {
                             }}>
                                 <TabList>
                                     <Tab>Créer une signature</Tab>
-                                    <Tab disabled={true}>Créer un paraphe</Tab>
+                                    <Tab>Créer un paraphe</Tab>
                                 </TabList>
                                 {/*Signature*/}
                                 <TabPanel>
@@ -699,7 +619,7 @@ export default class SignDocV3 extends React.Component {
                                         <TabList className="paraphe_tab_list">
                                             <Tab>Dessiner</Tab>
                                             <Tab>Taper</Tab>
-                                            <Tab>Télécharger une image</Tab>
+                                            <Tab disabled={true}>Télécharger une image</Tab>
                                         </TabList>
 
                                         <TabPanel>
@@ -765,6 +685,7 @@ export default class SignDocV3 extends React.Component {
                                                 </div>
                                             </div>
                                         </TabPanel>
+
                                         <TabPanel>
                                         </TabPanel>
                                     </Tabs>
@@ -778,7 +699,7 @@ export default class SignDocV3 extends React.Component {
                                         <TabList className="paraphe_tab_list">
                                             <Tab>Dessiner</Tab>
                                             <Tab>Taper</Tab>
-                                            <Tab>Télécharger une image</Tab>
+                                            <Tab disabled={true}>Télécharger une image</Tab>
                                         </TabList>
 
                                         <TabPanel>
@@ -792,7 +713,7 @@ export default class SignDocV3 extends React.Component {
                                                 <div style={{marginTop: 15}}>
                                                     <div style={{width: 400, height: 200, border: '1px solid #c0c0c0'}}>
                                                         <SignatureCanvas ref={(ref) => {
-                                                            this.sigCanvas = ref
+                                                            this.sigParapheCanvas = ref
                                                         }} penColor={this.state.penColor} canvasProps={{
                                                             width: 400,
                                                             height: 200,
@@ -800,7 +721,7 @@ export default class SignDocV3 extends React.Component {
                                                         }}/>
                                                         <div style={{position: "absolute", top: 258, right: 95}}>
                                                             <IconButton color="default" onClick={() => {
-                                                                this.sigCanvas.clear()
+                                                                this.sigParapheCanvas.clear()
                                                             }}>
                                                                 <HighlightOffIcon/>
                                                             </IconButton>
