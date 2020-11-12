@@ -155,6 +155,11 @@ export default function TableTimeSheet(props) {
       ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  )
     ))
 
+    searchFilter.sort( (a,b) => {
+        var c = new Date(a.newTime.date);
+        var d = new Date(b.newTime.date);
+        return d-c;
+    });
 
     const selected = searchFilter.filter((lf) => ( lf.checked === true ));
     let total = 0;
@@ -293,6 +298,7 @@ export default function TableTimeSheet(props) {
                     <div style={{display:"flex"}}>
                         <h5 style={{marginRight:10}}>Par client</h5>
                         <SelectSearch
+                          className="select-search"
                           options={
                               props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
                                 ({
@@ -385,7 +391,7 @@ export default function TableTimeSheet(props) {
                                 </IconButton>
                             </TableCell>
                             <TableCell style={{ width: "8%" }} align="center">
-                                {moment(row.newTime.date).format("DD/MM/YYYY") || ""}
+                                {moment(row.newTime.date).format("DD/MM/YYYY HH:mm") || ""}
                             </TableCell>
                             <TableCell style={{ width: "17%" }} align="center">
                                 {

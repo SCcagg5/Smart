@@ -74,6 +74,8 @@
  */
 .select-search__options {
     list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 /**
@@ -90,7 +92,7 @@
     /*display: block;*/
     height: 36px;
     width: 100%;
-    padding: 0 16px;
+    padding: 0 10px;
     background: #fff;
     border: none;
     outline: none;

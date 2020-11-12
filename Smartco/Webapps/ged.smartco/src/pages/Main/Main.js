@@ -477,30 +477,17 @@ export default class Main extends React.Component {
                     facturesToValidatedCopy:facturesToValidatedCopy
                   });
 
-                  let connected_email = localStorage.getItem("email");
-                  let oa_contact = main_functions.getOAContactByEmail2(contacts,connected_email);
-                  if(oa_contact){
-                    this.setState({
-                      TimeSheet: {
-                        newTime: {
-                          duree: '',
-                          client: '',
-                          dossier_client: {
-                            name:'',
-                            facturation: {
-                              language:''
-                            },
-                          },
-                          langue:'',
-                          categoriesActivite: 'Temps facturé',
-                          description: '',
-                          date: new Date(),
-                          utilisateurOA: connected_email,
-                          rateFacturation: oa_contact.rateFacturation || ""
-                        }
-                      },
-                    })
-                  }
+                let connected_email = localStorage.getItem("email");
+                let oa_contact = main_functions.getOAContactByEmail2(contacts,connected_email);
+                if(oa_contact){
+                  let ts = this.state.TimeSheet;
+                  ts.newTime.utilisateurOA = connected_email;
+                  ts.newTime.rateFacturation = oa_contact.rateFacturation || ""
+                  this.setState({
+                    TimeSheet:ts
+                  })
+                }
+
 
                   let sharedFiles = gedRes.data.Shared.Content.files || [];
 
@@ -2659,18 +2646,33 @@ export default class Main extends React.Component {
         this.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
       }else{
 
-        obj.newTime.duree = timeFormated;
+        /*obj.newTime.duree = timeFormated;*/
         let lignes_fact = this.state.lignesFactures || [];
 
         SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
           if(newCompRes.succes === true && newCompRes.status === 200){
-            obj.newTime.company_id = newCompRes.data.id;
+            /*obj.newTime.company_id = newCompRes.data.id;
             obj.newTime.date = moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD');
             obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             obj.user_email = localStorage.getItem('email');
             //obj.template = this.state.lignef_template;
-            //obj.newTime.client = this.state.selectedClientTimeEntree;
-            lignes_fact.push(obj);
+            //obj.newTime.client = this.state.selectedClientTimeEntree;*/
+            lignes_fact.push({
+              newTime: {
+                company_id:newCompRes.data.id,
+                date:moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD'),
+                duree: timeFormated,
+                client: this.state.TimeSheet.newTime.client,
+                dossier_client:this.state.TimeSheet.newTime.dossier_client,
+                categoriesActivite: this.state.TimeSheet.newTime.categoriesActivite,
+                description: this.state.TimeSheet.newTime.description,
+                utilisateurOA: this.state.TimeSheet.newTime.utilisateurOA,
+                rateFacturation: this.state.TimeSheet.newTime.rateFacturation,
+                langue:''
+              },
+              uid:Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+              user_email:localStorage.getItem('email')
+            });
 
             if(duplicate === false){
               this.setState({
@@ -2700,7 +2702,7 @@ export default class Main extends React.Component {
                 lignesFactures: lignes_fact,
                 TimeSheet: {
                   newTime: {
-                    duree: '',
+                    duree: objCopy.newTime.duree,
                     client: objCopy.newTime.client,
                     dossier_client:objCopy.newTime.dossier_client,
                     categoriesActivite: objCopy.newTime.categoriesActivite,
@@ -2754,6 +2756,8 @@ export default class Main extends React.Component {
     let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ?
       "Description (français)" : this.state.TimeSheet.newTime.dossier_client.facturation.language === "Anglais" ?
         "Description (anglais)" : "Description"
+
+
 
     return (
       <div>
@@ -4089,7 +4093,7 @@ export default class Main extends React.Component {
                                               />
                                             </div>
                                           </div>
-                                          <div className="col-md-6">
+                                          {/*<div className="col-md-6">
                                             <div>
                                               Type de dossier
                                             </div>
@@ -4108,7 +4112,7 @@ export default class Main extends React.Component {
                                                 }
                                               </select>
                                             </div>
-                                          </div>
+                                          </div>*/}
                                           <div className="col-md-12" style={{marginTop:20}}>
                                             <div>
                                               Description du mandat
@@ -4479,13 +4483,10 @@ export default class Main extends React.Component {
                                           this.state.showLignesFactureClient === false ?
                                             <div>
                                               <div className="row mt-2">
-                                                <div
-                                                  className="col-md-6">
+                                                <div className="col-md-6">
                                                   <h5>Durée</h5>
-                                                  <div
-                                                    className="row">
-                                                    <div
-                                                      className="col-md-5">
+                                                  <div className="row">
+                                                    <div className="col-md-5">
                                                       <Autosuggest
                                                         suggestions={this.state.timeSuggestions}
                                                         onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
@@ -4497,10 +4498,8 @@ export default class Main extends React.Component {
                                                         inputProps={inputSuggProps}
                                                       />
                                                     </div>
-                                                    <div
-                                                      className="col-md-7">
-                                                      <div
-                                                        style={{ display: 'flex' }}>
+                                                    <div className="col-md-7">
+                                                      <div style={{ display: 'flex' }}>
                                                         <Timer
                                                           initialTime={0}
                                                           startImmediately={false}
@@ -4584,8 +4583,7 @@ export default class Main extends React.Component {
                                                     </div>
                                                   </div>
                                                 </div>
-                                                <div
-                                                  className="col-md-4">
+                                                <div className="col-md-6">
                                                   <div>
                                                     <h5>Nom du client</h5>
                                                     <div style={{ display: 'flex' }}>
@@ -4634,7 +4632,7 @@ export default class Main extends React.Component {
                                                     <MuiSelect
                                                       labelId="demo-simple-select-label"
                                                       id="demo-simple-select"
-                                                      style={{ width: 217 }}
+                                                      style={{ width: 300 }}
                                                       value={this.state.TimeSheet.newTime.dossier_client}
                                                       onChange={(e) => {
                                                         console.log(e.target.value)
@@ -4655,14 +4653,13 @@ export default class Main extends React.Component {
                                                 </div>
                                               </div>
                                               <div className="row mt-3">
-                                                <div
-                                                  className="col-md-4">
+                                                <div className="col-md-6">
                                                   <div>
                                                     <h5>Catégorie d’activités </h5>
                                                     <MuiSelect
                                                       labelId="demo-simple-select-label"
                                                       id="demo-simple-select"
-                                                      style={{ width: '100%' }}
+                                                      style={{ width: 220 }}
                                                       value={this.state.TimeSheet.newTime.categoriesActivite}
                                                       onChange={(e) => {
                                                         let d = this.state.TimeSheet;
@@ -4677,8 +4674,7 @@ export default class Main extends React.Component {
                                                     </MuiSelect>
                                                   </div>
                                                 </div>
-                                                <div
-                                                  className="col-md-4">
+                                                <div className="col-md-6">
                                                   <div
                                                     style={{ width: '100%' }}>
                                                     <h5>Date</h5>
@@ -4700,8 +4696,7 @@ export default class Main extends React.Component {
                                                 </div>
                                               </div>
                                               <div className="row mt-3">
-                                                <div
-                                                  className="col-md-4">
+                                                <div className="col-md-6">
                                                   <div>
                                                     <div>
                                                       <h5>{new_timeSheet_desc}</h5>
@@ -4720,15 +4715,14 @@ export default class Main extends React.Component {
                                                       }} />
                                                   </div>
                                                 </div>
-                                                <div
-                                                  className="col-md-4">
+                                                <div className="col-md-6">
                                                   <div>
                                                     <h6>Utilisateur OA </h6>
                                                   </div>
                                                   <MuiSelect
                                                     labelId="demo-simple-select-label4545"
                                                     id="demo-simple-select4545"
-                                                    style={{width: "80%"}}
+                                                    style={{ width: 250 }}
                                                     onChange={(e) => {
                                                       let d = this.state.TimeSheet;
                                                       d.newTime.utilisateurOA = e.target.value;
@@ -4765,7 +4759,7 @@ export default class Main extends React.Component {
                                                     <Input
                                                       className="form-control "
                                                       id="duree"
-                                                      style={{ width: '100%' }}
+                                                      style={{ width: 250 }}
                                                       name="duree"
                                                       type="text"
                                                       endAdornment={
@@ -4779,22 +4773,6 @@ export default class Main extends React.Component {
                                                       }} />
                                                   </div>
                                                 </div>
-                                                {/*<div className="col-md-4">
-                                                  <h6>Choix du template </h6>
-                                                  <select
-                                                    className="form-control custom-select"
-                                                    value={this.state.lignef_template}
-                                                    onChange={(e) => {
-                                                      this.setState({ lignef_template: e.target.value });
-                                                    }}>
-                                                    {
-                                                      data.lf_templates.map((item,key) =>
-                                                          <option key={key} value={item.value}>{item.label}</option>
-                                                      )
-                                                    }
-
-                                                  </select>
-                                                </div>*/}
                                               </div>
                                               <div align="center" className=" mt-4">
                                                 <AltButtonGroup>
@@ -4965,6 +4943,7 @@ export default class Main extends React.Component {
                                         <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
                                         <TableFactures factures={this.state.facturesToValidated}
                                                        client_folders={this.state.client_folders}
+                                                       annuaire_clients_mondat={this.state.annuaire_clients_mondat}
                                                        validateFacture={(row,key,template,client) => {
                                                          this.createFacture_ForSelected(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
                                                        }}
@@ -5815,22 +5794,21 @@ export default class Main extends React.Component {
                 contacts={this.state.contacts}
                 onSelectBtnClick={(client) => {
                   let obj = this.state.TimeSheet;
-                  obj.newTime.client = client.ContactName;
-                  let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(
-                    (x) => (x.Nom + ' ' + x.Prenom) === client.Nom + ' ' + client.Prenom
-                  );
-                  let partner_email = find_annuaire_fact_lead
-                    ? find_annuaire_fact_lead.facturation
-                      ? find_annuaire_fact_lead.facturation.collaborateur_lead
-                      : ''
-                    : '';
 
-                  this.setState({
-                    openAdvancedSearchModal: false,
-                    partnerFacture: partner_email,
-                    selectedClientTimeEntree: client.Nom + ' ' + client.Prenom,
-                    TimeSheet: obj
-                  });
+                  let findClientTempo = this.state.clients_tempo.find(x => x.ID === client.ID)
+                  let findClientFname = this.state.annuaire_clients_mondat.find(x => x.ID === client.ID)
+                  console.log(findClientFname)
+                  obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                  if(findClientTempo){
+                    this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: client.ID,TimeSheet: obj,openAdvancedSearchModal: false})
+                  }else{
+                    obj.newTime.dossier_client =  {
+                      name:'',
+                      facturation: {
+                        language:''
+                      }}
+                    this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: client.ID,openAdvancedSearchModal: false})
+                  }
                 }}
               />
             </DialogContent>
