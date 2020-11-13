@@ -9,8 +9,24 @@ import Error from "./pages/Error/Error";
 import Main from "./pages/Main/Main";
 import RedirectCp from "./pages/RedirectCp"
 
+/*var ReactRethinkdb = require('react-rethinkdb');
+var r = ReactRethinkdb.r;*/
+
+
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
+
+/*ReactRethinkdb.DefaultSession.connect({
+    host: 'http://smartdom.ch',   // hostname of the websocket server
+    port: 28015,                  // port number of the websocket server
+    path: '/',                     // HTTP path to websocket route test
+    secure: false,                // set true to use secure TLS websockets
+    db: 'test',                  // default database, passed to rethinkdb.connect
+    user:'admin',
+    password:'',
+    autoReconnectDelayMs: 2000,  // when disconnected, millis to wait before reconnect
+})*/
 
 const firebaseConfig = {
     apiKey: "AIzaSyBUD2L-c4IrUhcXieQOfhQaMK8WUJ_FomY",
@@ -29,6 +45,10 @@ export default class App extends Component {
 
     constructor(props) {
         super(props);
+    }
+
+    componentDidMount() {
+
     }
 
     render() {

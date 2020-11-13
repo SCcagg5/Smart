@@ -5129,7 +5129,7 @@ export default class Main extends React.Component {
                 })
               }
             >
-              Nouveau doossier
+              Nouveau dossier
             </ModalHeader>
             <ModalBody>
               <div style={{ marginTop: 35 }}>
