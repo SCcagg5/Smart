@@ -101,6 +101,8 @@ services:
       - 80
      networks:
        - proxy
+     volumes:
+       - ../Smartdom/Webapps/veloone.smartdom/build:/app/build
      environment:
        VIRTUAL_HOST: veloone.${SMARTDOM_DOMAIN}
        VIRTUAL_PORT: 80
@@ -117,6 +119,8 @@ services:
       - 80
      networks:
        - proxy
+    volumes:
+      - ../Smartdom/Webapps/quinsac.smartdom/build:/app/build
      environment:
        VIRTUAL_HOST: quinsac.${SMARTDOM_DOMAIN}
        VIRTUAL_PORT: 80
@@ -133,6 +137,8 @@ services:
       - 80
      networks:
        - proxy
+     volumes:
+       - ../Smartdom/Webapps/assemblee.smartdom/build:/app/build
      environment:
        VIRTUAL_HOST: assemblee.${SMARTDOM_DOMAIN}
        VIRTUAL_PORT: 80
