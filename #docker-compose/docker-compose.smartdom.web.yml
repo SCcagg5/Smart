@@ -119,7 +119,7 @@ services:
       - 80
      networks:
        - proxy
-    volumes:
+     volumes:
       - ../Smartdom/Webapps/quinsac.smartdom/build:/app/build
      environment:
        VIRTUAL_HOST: quinsac.${SMARTDOM_DOMAIN}
