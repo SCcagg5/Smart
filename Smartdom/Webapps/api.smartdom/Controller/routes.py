@@ -1,7 +1,7 @@
 from .routesfunc import *
 
 def setuproute(app, call):
-    @app.route('/test/',                    ['OPTIONS', 'GET'],         lambda x = None: call([])                                                                                         )
+    @app.route('/test/',                    ['OPTIONS', 'GET'],         lambda x = None: call([])                                                                                  )
     @app.route('/login/',    	            ['OPTIONS', 'POST'],        lambda x = None: call([getauth]))
 
 
@@ -15,6 +15,8 @@ def setuproute(app, call):
     @app.route('/slave/auth/user/new',      ['OPTIONS', 'POST'],        lambda x = None: call([mas_chkauth, myauth, signup, signin, gettoken]))
     @app.route('/slave/service/<>/user',    ['OPTIONS', 'GET'],         lambda x = None: call([mas_chkauth, myauth, authuser, service_check, ged_check_user]))
     @app.route('/slave/service/<>/user',    ['OPTIONS', 'POST'],        lambda x = None: call([mas_chkauth, myauth, authuser, service_check, add_user_service]))
+
+    @app.route('/ws/<>',                    ['OPTIONS', 'GET'],         lambda x = None: call([wscall], True)                                                                          )
 
     @app.route('/signup/',    	            ['OPTIONS', 'POST'],        lambda x = None: call([myauth, signup, signin, wallet_create, gettoken])                                          )
     @app.route('/signin/',    	            ['OPTIONS', 'POST'],        lambda x = None: call([myauth, signin, gettoken])                                                                 )

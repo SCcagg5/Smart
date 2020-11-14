@@ -8,8 +8,21 @@ from Object.asset import asset
 from Object.ether import eth_contract
 from Object.ged import folder, file, ged, sign, room
 from Object.contacter import contacter
+from Object.rethinkproxy import rethinkproxy
 from Object.odoo import odoo
 import json
+
+def wscall(cn, nextc):
+    # usrtoken = cn.rt["ws"] if "ws" in cn.rt else None
+    # use = user()
+    # err = use.verify(usrtoken)
+    # if not err[0]:
+    #     cn.ws.receive()
+    #     cn.ws.send(err[1])
+    #     cn.ws.close()
+    rethinkproxy.call(cn.ws)
+    err = [True, {}, None]
+    return cn.call_next(nextc, err)
 
 def getauth(cn, nextc):
     err = check.contain(cn.pr, ["pass"])

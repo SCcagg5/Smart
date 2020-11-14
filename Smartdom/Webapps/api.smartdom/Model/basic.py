@@ -214,6 +214,7 @@ class callnext:
         self.ck = check.cookies_json(req)
         self.hd = check.head_json(req, self.ck)
         self.rt = check.route_json(req)
+        self.ws = req.environ.get('wsgi.websocket')
         self.get = dict(req.query.decode())
         self.private = {}
         self.cookie = {}
@@ -222,7 +223,15 @@ class callnext:
         self.resp = resp
         self.err = err
 
-    def call(self, nextc):
+    def call(self, nextc, ws = False):
+        if ws is not True:
+            if self.ws is not None:
+                self.ws.send("Invalid protocol")
+                self.ws.close()
+                return self.toret.add_error("Invalid protocol", 400)
+        else:
+            if self.ws is None:
+                return self.toret.add_error("Invalid protocol", 400)
         if self.req.method == 'OPTIONS':
             return {}
         if len(nextc) == 0:
