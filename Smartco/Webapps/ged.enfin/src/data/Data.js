@@ -224,6 +224,11 @@ let Data = {
     titres : [
         "","Associés", "Conseil", "collaborateurs", "Avocats-stagiaires", "Personnel Administratif"
     ],
+
+    domaines:[
+        "COMPTABILITÉ","SALAIRES","TVA","IMPOTS","Droit"
+    ],
+
     comptabilite : [
         'Tenue de la comptabilité financiére',
         'Bouclement des comptes',
@@ -253,16 +258,22 @@ let Data = {
     ],
 
     domainesAct : [
-        "Droits des sociétés et contrats commerciaux" , "Droit bancaire et financier", "Négoce de valeurs mobilières" ,
-        "Matières premières et transport maritime" , "Contentieux" ,"Permis de séjour et de travail","Naturalisation suisse",
-        "Droit pénal / Criminalité économique" , "Expatriés et relocalisation" , "Droit immobilier",
+        "Droits des sociétés et contrats commerciaux" ,
+        "Droit bancaire et financier",
+        "Négoce de valeurs mobilières" ,
+        "Matières premières et transport maritime" ,
+        "Contentieux" ,
+        "Permis de séjour et de travail",
+        "Naturalisation suisse",
+        "Droit pénal / Criminalité économique" ,
+        "Expatriés et relocalisation" ,
+        "Droit immobilier",
         "Toutes questions légales en relation avec les expatriés en Suisse",
     ],
     affiliations : [
         "Membre de l’Ordre des Avocats de Genève",
         "Membre de l’Association Genevoise des Droits des Affaires",
         "Membre de l’Association des avocats d’affaires internationaux (AIBL)",
-        "Membre de l’Association Genevoise des Droits des Affaires",
         "Membre de l’Association du Barreau de New York",
         "Membre de l’Association du Barreau Américain (ABA)"
     ],
