@@ -80,6 +80,9 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import main_functions from '../../controller/main_functions';
 import DescriptionIcon from '@material-ui/icons/Description';
 import Facturation from "../Facturation/Facturation"
+import Staricon from '@material-ui/icons/Star';
+import CheckCircle from '@material-ui/icons/CheckCircle';
+import MoodIcon from '@material-ui/icons/Mood';
 
 export default class Main extends React.Component {
 
@@ -277,7 +280,13 @@ export default class Main extends React.Component {
     clients_tempo: [],
     clients_tempo_copie: [],
 
-    selectedTimeSheetIndex:0
+    selectedTimeSheetIndex:0,
+
+    showModalAdd: false,
+    domaine:{
+      domaine:"",
+      specialite:[],
+    }
   };
 
   componentDidMount() {
@@ -922,6 +931,243 @@ export default class Main extends React.Component {
       }, 200);
     }
   }
+
+  openAddModal = (type) => () => {
+    this.setState({
+      add: type,
+      showModalAdd: true
+    });
+  };
+
+  addItem = (type) => event => {
+    if (type === 'domaine') {
+
+      let selectedContact = this.state.selectedContact;
+      var domaines = [];
+      if (selectedContact.domaine === 'null' || selectedContact.domaine === undefined) {
+        domaines.push(this.state.domaine);
+        selectedContact.domaine = domaines;
+        this.setState({
+          selectedContact: selectedContact,
+          domaine: {
+            domaine: '',
+            specialite: []
+          },
+          showModalAdd: false
+        });
+      } else {
+        selectedContact.domaine.push(this.state.domaine);
+        this.setState({
+          selectedContact: selectedContact,
+          domaine: {
+            domaine: '',
+            specialite: []
+          },
+          showModalAdd: false
+        });
+      }
+    }
+
+    if (type === 'formation') {
+      let selectedContact = this.state.selectedContact;
+      if (selectedContact.formations === undefined) {
+        let formations = [];
+        formations.push(this.state.formationTmp);
+        selectedContact.formations = formations;
+        this.setState({
+          selectedContact: selectedContact,
+          formationTmp: '',
+          showModalAdd: false
+        });
+      } else {
+        selectedContact.formations.push(this.state.formationTmp);
+        this.setState({
+          selectedContact: selectedContact,
+          formationTmp: '',
+          showModalAdd: false
+        });
+      }
+    }
+    if (type === 'fonction') {
+      let selectedContact = this.state.selectedContact;
+      if (selectedContact.fonctions === undefined) {
+        let fonctions = [];
+        fonctions.push(this.state.fonctionTmp);
+        selectedContact.fonctions = fonctions;
+        this.setState({
+          selectedContact: selectedContact,
+          fonctionTmp: '',
+          showModalAdd: false
+        });
+      } else {
+        selectedContact.fonctions.push(this.state.fonctionTmp);
+
+        this.setState({
+          selectedContact: selectedContact,
+          fonctionTmp: '',
+          showModalAdd: false
+        });
+      }
+    }
+    if (type === 'affiliation') {
+      let selectedContact = this.state.selectedContact;
+
+      if (selectedContact.affiliations === undefined) {
+        let affiliation = [];
+        affiliation.push(this.state.affiliationTmp);
+        selectedContact.affiliations = affiliation;
+        this.setState({
+          selectedContact: selectedContact,
+          affiliationTmp: '',
+          showModalAdd: false
+        });
+      } else {
+
+        selectedContact.affiliations.push(this.state.affiliationTmp);
+
+        this.setState({
+          selectedContact: selectedContact,
+          affiliationTmp: '',
+          showModalAdd: false
+        });
+      }
+    }
+    if (type === 'parcour') {
+      let selectedContact = this.state.selectedContact;
+
+      if (selectedContact.parcoursP === undefined) {
+        let parcoursP = [];
+        parcoursP.push(this.state.parcourTmp);
+        selectedContact.parcoursP = parcoursP;
+        this.setState({
+          selectedContact: selectedContact,
+          parcourTmp: '',
+          showModalAdd: false
+        });
+      } else {
+
+        selectedContact.parcoursP.push(this.state.parcourTmp);
+        this.setState({
+          selectedContact: selectedContact,
+          parcourTmp: '',
+          showModalAdd: false
+        });
+      }
+    }
+    if (type === 'langue') {
+      let selectedContact = this.state.selectedContact;
+
+      if (selectedContact.langues === undefined) {
+        let langues = [];
+        langues.push(this.state.langueTmp);
+        selectedContact.langues = langues;
+        this.setState({
+          selectedContact: selectedContact,
+          langueTmp: '',
+          showModalAdd: false
+        });
+      } else {
+
+        selectedContact.langues.push(this.state.langueTmp);
+        this.setState({
+          selectedContact: selectedContact,
+          langueTmp: '',
+          showModalAdd: false
+        });
+      }
+    }
+    if (type === 'hobbies') {
+      let selectedContact = this.state.selectedContact;
+
+      if (selectedContact.hobbies === undefined) {
+        let hobbies = [];
+        hobbies.push(this.state.hobbiesTmp);
+        selectedContact.hobbies = hobbies;
+        this.setState({
+          selectedContact: selectedContact,
+          hobbiesTmp: '',
+          showModalAdd: false
+        });
+      } else {
+
+        selectedContact.hobbies.push(this.state.hobbiesTmp);
+        this.setState({
+          selectedContact: selectedContact,
+          hobbiesTmp: '',
+          showModalAdd: false
+        });
+      }
+    }
+  };
+
+  removeItem = (type, index) => event => {
+
+    if (type === 'domaine') {
+      let selectedContact = this.state.selectedContact;
+      selectedContact.domaine.splice(index, 1);
+      this.setState({
+        selectedContact: selectedContact
+      });
+    }
+
+    if (type === 'formation') {
+      let selectedContact = this.state.selectedContact;
+      selectedContact.formations.splice(index, 1);
+      this.setState({
+        selectedContact: selectedContact
+      });
+    }
+    if (type === 'fonction') {
+      let selectedContact = this.state.selectedContact;
+      selectedContact.fonctions.splice(index, 1);
+      this.setState({
+        selectedContact: selectedContact
+      });
+    }
+    if (type === 'affiliation') {
+      let selectedContact = this.state.selectedContact;
+      selectedContact.affiliations.splice(index, 1);
+      this.setState({
+        selectedContact: selectedContact
+      });
+    }
+    if (type === 'parcour') {
+      let selectedContact = this.state.selectedContact;
+      selectedContact.parcoursP.splice(index, 1);
+      this.setState({
+        selectedContact: selectedContact
+      });
+    }
+    if (type === 'langue') {
+      let selectedContact = this.state.selectedContact;
+      selectedContact.langues.splice(index, 1);
+      this.setState({
+        selectedContact: selectedContact
+      });
+    }
+    if (type === 'hobbies') {
+      let selectedContact = this.state.selectedContact;
+      selectedContact.hobbies.splice(index, 1);
+      this.setState({
+        selectedContact: selectedContact
+      });
+    }
+  };
+
+  handleChangeDomaine = (event) => {
+    this.setState({
+      domaine: {
+        domaine: event.target.value,
+        specialite: []
+      }
+    });
+  };
+
+  handleChangeSpecialite = (event) => {
+    let domaine = this.state.domaine;
+    domaine.specialite.push(event.target.value)
+    this.setState({ domaine: domaine });
+  };
 
    updateTreeData(list, key, children, files) {
     return list.map((node) => {
@@ -3491,6 +3737,18 @@ export default class Main extends React.Component {
                                     <Tabs>
                                       <TabList>
                                       <Tab>Informations générales</Tab>
+                                        {
+                                          localStorage.getItem('role') === 'admin' &&
+                                          [
+                                            <Tab key={0}>Famille & Vie privée</Tab>,
+                                            <Tab key={1}>Parcours professionnel</Tab>,
+                                            <Tab key={2}>Formations</Tab>,
+                                            <Tab key={3}>Affiliations</Tab>,
+                                            <Tab key={4}>Domaine d'activités</Tab>,
+                                            <Tab key={5}>Langues</Tab>,
+                                            <Tab key={6}>Domaines d'intérêt, loisirs et sports</Tab>
+                                          ]
+                                        }
                                       </TabList>
                                       <TabPanel>
                                         <h5 style={{ marginTop: 20 }}>Informations générales</h5>
@@ -3622,6 +3880,345 @@ export default class Main extends React.Component {
                                           </div>
                                         </div>
                                       </TabPanel>
+                                      {
+                                        localStorage.getItem('role') === 'admin' &&
+                                        [
+                                          <TabPanel key={0}>
+                                            <h5 style={{ marginTop: 20 }}>Famille & Vie privée</h5>
+                                            <div className="row"
+                                                 style={{ marginTop: 35 }}>
+                                              <div className="col-md-12">
+                                                <p style={{ marginBottom: 10 }}>Décrire en quelques lignes </p>
+                                                <textarea
+                                                    rows={10}
+                                                    className="form-control"
+                                                    id="about"
+                                                    name="about"
+                                                    value={this.state.selectedContact.personalLife}
+                                                    onChange={this.handleChange('selectedContact', 'personalLife')} />
+                                              </div>
+                                            </div>
+                                          </TabPanel>,
+                                          <TabPanel key={1}>
+                                            <h5 style={{ marginTop: 20 }}>Parcours professionnel</h5>
+                                            <div style={{
+                                              display: 'flex',
+                                              flexWrap: 'wrap',
+                                              marginTop: 10
+                                            }}>
+                                              {
+                                                (this.state.selectedContact.parcoursP || []).map((item, key) => (
+                                                    <div key={key}
+                                                         style={{ margin: 3 }}>
+                                                      <Chip
+                                                          icon={
+                                                            <Staricon />}
+                                                          label={item}
+                                                          color="secondary"
+                                                          onDelete={this.removeItem('parcour', key)}
+                                                          style={{
+                                                            fontWeight: 'bold',
+                                                            backgroundColor: 'cornflowerblue'
+                                                          }}
+                                                      />
+                                                    </div>
+                                                ))
+                                              }
+                                            </div>
+                                            <div className="row"
+                                                 style={{ marginTop: 10 }}>
+                                              <div
+                                                  className="col-sm-12">
+                                                <a style={{
+                                                  cursor: 'pointer',
+                                                  fontSize: 'medium',
+                                                  fontWeight: 'bold'
+                                                }}
+                                                   onClick={this.openAddModal('parcour')}>
+                                                                                            <span className="btn__text"
+                                                                                                  id="btn-add-child">
+                                                                                                <i
+                                                                                                    className="fe-plus-square" /> Ajouter un parcour
+                                                                                            </span> </a>
+                                              </div>
+                                            </div>
+                                          </TabPanel>,
+                                          <TabPanel key={2}>
+                                            <h5 style={{ marginTop: 20 }}>Formation</h5>
+                                            <div style={{flexWrap: 'wrap', marginTop: 10
+                                            }}
+                                            >
+                                              {
+                                                (this.state.selectedContact.formations || []).map((item, key) => (
+                                                    <div key={key}
+                                                         style={{
+                                                           margin: 3,
+                                                           marginBottom: 6
+                                                         }}>
+                                                      <Chip
+                                                          icon={
+                                                            <CheckCircle />}
+                                                          label={item}
+                                                          color="primary"
+                                                          onDelete={this.removeItem('formation', key)}
+                                                          style={{
+                                                            fontWeight: 'bold',
+                                                            backgroundColor: 'lightseagreen'
+                                                          }}
+                                                      />
+                                                    </div>
+                                                ))
+                                              }
+                                            </div>
+                                            <div className="row"
+                                                 style={{ marginTop: 10 }}>
+                                              <div
+                                                  className="col-sm-12">
+                                                <a style={{
+                                                  cursor: 'pointer',
+                                                  fontSize: 'medium',
+                                                  fontWeight: 'bold'
+                                                }}
+                                                   onClick={this.openAddModal('formation')}>
+                                                  <span className="btn__text"
+                                                        id="btn-add-child">
+                                                    <i className="fe-plus-square" /> Ajouter une formation
+                                                  </span>
+                                                </a>
+                                              </div>
+                                            </div>
+                                          </TabPanel>,
+                                          <TabPanel key={3}>
+                                            <h5 style={{ marginTop: 20 }}>Affiliations</h5>
+                                            <div style={{ marginTop: 15 }}>
+                                              <Autocomplete
+                                                  value={this.state.selectedContact.affiliations || []}
+                                                  onChange={(event, values) => {
+                                                    let selectedContact = this.state.selectedContact;
+                                                    selectedContact.affiliations = values;
+                                                    this.setState({ selectedContact: selectedContact });
+                                                  }}
+                                                  title={'Affiliations'}
+                                                  multiple
+                                                  id="checkboxes-af-demo"
+                                                  options={data.affiliations}
+                                                  disableCloseOnSelect
+                                                  getOptionLabel={(option) => option}
+                                                  renderOption={(option, { selected }) => (
+                                                      <React.Fragment>
+                                                        <MuiCheckbox
+                                                            icon={main_functions.icon}
+                                                            checkedIcon={main_functions.checkedIcon}
+                                                            style={{ marginRight: 8 }}
+                                                            checked={selected}
+                                                        /> {option}
+                                                      </React.Fragment>
+                                                  )}
+                                                  style={{
+                                                    width: 500,
+                                                    marginLeft: 10,
+                                                    borderColor: '#f0f0f0'
+                                                  }}
+                                                  renderInput={(params) => (
+                                                      <TextField {...params}
+                                                                 variant="outlined"
+                                                                 placeholder="" />
+                                                  )}
+                                              />
+                                            </div>
+                                          </TabPanel>,
+                                          <TabPanel key={4}>
+                                            <h5 style={{ marginTop: 20 }}>Domaine d'activités</h5>
+                                            <div>
+                                              <div style={{flexWrap: 'wrap', marginTop: 10
+                                              }}
+                                              >
+                                                {
+                                                  (this.state.selectedContact.domaines || []).map((item, key) => (
+                                                      <div key={key} style={{margin: 3, marginBottom: 6}}>
+                                                        <Chip
+                                                            icon={
+                                                              <CheckCircle />}
+                                                            label={item}
+                                                            color="primary"
+                                                            onDelete={this.removeItem('domaine', key)}
+                                                            style={{
+                                                              fontWeight: 'bold',
+                                                              backgroundColor: 'lightseagreen'
+                                                            }}
+                                                        />
+                                                      </div>
+                                                  ))
+                                                }
+                                              </div>
+                                              <div className="row"
+                                                   style={{ marginTop: 10 }}>
+                                                <div className="col-sm-12" style={{margin:10}}>
+                                                  <a style={{
+                                                    cursor: 'pointer',
+                                                    fontSize: 'medium',
+                                                    fontWeight: 'bold'
+                                                  }}
+                                                     onClick={this.openAddModal('domaine')}>
+                                                  <span className="btn__text"
+                                                        id="btn-add-child">
+                                                    <i className="fe-plus-square" /> Ajouter un domaine
+                                                  </span>
+                                                  </a>
+                                                </div>
+                                              </div>
+                                              {
+                                                (this.state.selectedContact.domaine || []).map((dom,key) => (
+                                                    <div key={key}>
+                                                      <div className="row mt-1">
+                                                        <div className="col-md-3">
+                                                          <Chip
+                                                              icon={
+                                                                <CheckCircle />}
+                                                              label={dom.domaine}
+                                                              color="primary"
+                                                              onDelete={this.removeItem('domaine', key)}
+                                                              style={{
+                                                                fontWeight: 'bold',
+                                                                backgroundColor: 'lightseagreen'
+                                                              }}
+                                                          />
+                                                        </div>
+                                                        <div className="col-md-9">
+
+                                                          <Autocomplete
+                                                              value={this.state.selectedContact.domaine[key].specialite || []}
+                                                              title={'Spécialités'}
+                                                              multiple
+                                                              id="checkboxes-da-demo"
+                                                              options={this.state.selectedContact.domaine[key].domaine === "COMPTABILITÉ" ? data.comptabilite :
+                                                                  this.state.selectedContact.domaine[key].domaine === "SALAIRES" ? data.salaire :
+                                                                      this.state.selectedContact.domaine[key].domaine === "IMPOTS" ? data.impot :
+                                                                          this.state.selectedContact.domaine[key].domaine === "Droit" ? data.domainesAct : []
+                                                              }
+                                                              disableCloseOnSelect
+
+                                                              getOptionLabel={(option) => option}
+                                                              renderOption={(option, { selected }) => (
+                                                                  <React.Fragment>
+                                                                    <MuiCheckbox
+                                                                        icon={main_functions.icon}
+                                                                        checkedIcon={main_functions.checkedIcon}
+                                                                        style={{ marginRight: 8 }}
+                                                                        checked={selected}
+                                                                    /> {option}
+                                                                  </React.Fragment>
+                                                              )}
+                                                              style={{
+                                                                width: 500,
+                                                                marginLeft: 10,
+                                                                borderColor: '#f0f0f0'
+                                                              }}
+                                                              renderInput={(params) => (
+                                                                  <TextField {...params}
+                                                                             variant="outlined"
+                                                                             placeholder="" />
+                                                              )}
+                                                          />
+
+                                                        </div>
+                                                      </div>
+                                                      <div style={{backgroundColor:"#f0f0f0",height:2,margin:10,marginTop:20}}/>
+                                                    </div>
+
+                                                ))
+                                              }
+
+                                            </div>
+                                          </TabPanel>,
+                                          <TabPanel key={5}>
+                                            <h5 style={{ marginTop: 20 }}>Langues</h5>
+                                            <Autocomplete
+                                                value={this.state.selectedContact.langues || []}
+                                                onChange={(event, values) => {
+                                                  let selectedContact = this.state.selectedContact;
+                                                  selectedContact.langues = values;
+                                                  this.setState({ selectedContact: selectedContact });
+                                                }}
+                                                title={'langues'}
+                                                multiple
+                                                id="checkboxes-l-demo"
+                                                options={data.langues}
+                                                disableCloseOnSelect
+                                                getOptionLabel={(option) => option}
+                                                renderOption={(option, { selected }) => (
+                                                    <React.Fragment>
+                                                      <MuiCheckbox
+                                                          icon={main_functions.icon}
+                                                          checkedIcon={main_functions.checkedIcon}
+                                                          style={{ marginRight: 8 }}
+                                                          checked={selected}
+                                                      /> {option}
+                                                    </React.Fragment>
+                                                )}
+                                                style={{
+                                                  width: 500,
+                                                  marginLeft: 10,
+                                                  borderColor: '#f0f0f0'
+                                                }}
+                                                renderInput={(params) => (
+                                                    <TextField {...params}
+                                                               variant="outlined"
+                                                               placeholder="" />
+                                                )}
+                                            /> </TabPanel>,
+                                          <TabPanel key={6}>
+                                            <h5 style={{ marginTop: 20 }}>Domaines d'intérêt, loisirs et sports</h5>
+                                            <div className="row">
+                                              <div className="col-md-8">
+                                                <div style={{
+                                                  display: 'flex',
+                                                  flexWrap: 'wrap',
+                                                  marginTop: 10
+                                                }}>
+                                                  {
+                                                    (this.state.selectedContact.hobbies || []).map((item, key) => (
+                                                        <div key={key}
+                                                             style={{ margin: 3 }}>
+                                                          <Chip
+                                                              icon={
+                                                                <MoodIcon />}
+                                                              label={item}
+                                                              color="secondary"
+                                                              onDelete={this.removeItem('hobbies', key)}
+                                                              style={{
+                                                                fontWeight: 'bold',
+                                                                backgroundColor: 'lightpink'
+                                                              }}
+                                                          />
+                                                        </div>
+                                                    ))
+                                                  }
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div className="row"
+                                                 style={{ marginTop: 20 }}>
+                                              <div
+                                                  className="col-sm-12">
+                                                <a style={{
+                                                  cursor: 'pointer',
+                                                  fontSize: 'medium',
+                                                  fontWeight: 'bold'
+                                                }}
+                                                   onClick={this.openAddModal('hobbies')}>
+                                                                                            <span className="btn__text"
+                                                                                                  id="btn-add-child">
+                                                                                                <i
+                                                                                                    className="fe-plus-square" /> Ajouter
+                                                                                                un centre d'intérêt,
+                                                                                                loisir ou sport
+                                                                                            </span> </a>
+                                              </div>
+                                            </div>
+                                          </TabPanel>
+                                        ]
+                                      }
                                     </Tabs>
                                   </div>
                                 </div>
@@ -5967,6 +6564,194 @@ export default class Main extends React.Component {
             </DialogActions>
           </Dialog>
 
+
+          <Modal
+              isOpen={this.state.showModalAdd}
+              size={this.state.add === 'domaine'? "lg" : "md"}
+              centered={true}
+              //zIndex={1500}
+              toggle={() => this.setState({ showModalAdd: !this.state.showModalAdd })}
+          >
+            <ModalHeader
+                toggle={() =>
+                    this.setState({
+                      showModalAdd: !this.state.showModalAdd
+                    })
+                }
+            >
+              {this.state.add === 'formation'
+                  ? 'Ajouter une formation'
+                  : this.state.add === 'fonction'
+                      ? 'Ajouter une fonction'
+                      : this.state.add === 'domaine'
+                          ? 'Ajouter un domaine'
+                          : this.state.add === 'affiliation'
+                              ? 'Ajouter une affiliation'
+                              : this.state.add === 'parcour'
+                                  ? 'Ajouter un parcour'
+                                  : this.state.add === 'langue'
+                                      ? 'Ajouter une langue'
+                                      : this.state.add === 'hobbies'
+                                          ? 'Ajouter un centre d\'intérêt, loisir ou sport'
+                                          : null}
+            </ModalHeader>
+            <ModalBody>
+              <h5 style={{ marginBottom: 10 }}>
+                {this.state.add === 'formation'
+                    ? 'Formation'
+                    : this.state.add === 'fonction'
+                        ? 'Fonction'
+                        : this.state.add === 'domaine'
+                            ? 'Domaine'
+                            : this.state.add === 'affiliation'
+                                ? 'Affiliation'
+                                : this.state.add === 'parcour'
+                                    ? 'Parcour'
+                                    : this.state.add === 'langue'
+                                        ? 'Langue'
+                                        : this.state.add === 'hobbies'
+                                            ? 'Centre d\'intérêt'
+                                            : null}
+              </h5>
+              {(this.state.add === 'formation' ||
+                  this.state.add === 'fonction' ||
+                  this.state.add === 'formation' ||
+                  this.state.add === 'affiliation' ||
+                  this.state.add === 'parcour' ||
+                  this.state.add === 'langue' ||
+                  this.state.add === 'hobbies') && (
+                  <textarea
+                      className="form-control"
+                      id="inputText"
+                      name="inputText"
+                      style={{ width: 400 }}
+                      value={
+                        this.state.add === 'formation'
+                            ? this.state.formationTmp
+                            : this.state.add === 'fonction'
+                            ? this.state.fonctionTmp
+                            : this.state.add === 'affiliation'
+                                ? this.state.affiliationTmp
+                                : this.state.add === 'parcour'
+                                    ? this.state.parcourTmp
+                                    : this.state.add === 'langue'
+                                        ? this.state.langueTmp
+                                        : this.state.add === 'hobbies'
+                                            ? this.state.hobbiesTmp
+                                            : null
+                      }
+                      onChange={(event) =>
+                          this.state.add === 'formation'
+                              ? this.setState({ formationTmp: event.target.value })
+                              : this.state.add === 'fonction'
+                              ? this.setState({ fonctionTmp: event.target.value })
+                              : this.state.add === 'affiliation'
+                                  ? this.setState({ affiliationTmp: event.target.value })
+                                  : this.state.add === 'parcour'
+                                      ? this.setState({ parcourTmp: event.target.value })
+                                      : this.state.add === 'langue'
+                                          ? this.setState({ langueTmp: event.target.value })
+                                          : this.state.add === 'hobbies'
+                                              ? this.setState({ hobbiesTmp: event.target.value })
+                                              : null
+                      }
+                  />
+              )}
+              {this.state.add === 'domaine' && (
+                  <div >
+                    <FormControl style={{ width: '100%' }}>
+                      <select className="form-control custom-select" style={{width:300}}
+                              value={this.state.domaine.domaine}
+                              onChange={(e) => {
+                                this.handleChangeDomaine(e);
+                              }}
+                      >
+                        <option value="">Choisissez un domaine</option>
+                        {
+                          data.domaines.map((domaine,key) => (
+                              <option key={key} value={domaine}>{domaine}</option>
+                          ))
+                        }
+                      </select>
+                    </FormControl>
+                    <FormControl style={{ width: '100%' }}>
+                      <h5 style={{marginTop:20}}>Les spécialités recherchées</h5>
+                      <MuiSelect
+                          labelId="demo-mutiple-chip-label"
+                          id="demo-mutiple-chip"
+                          multiple
+                          value={this.state.domaine.specialite}
+                          onChange={(e) => {
+                            this.handleChangeSpecialite(e);
+                          }}
+                          input={<Input id="select-multiple-chip" />}
+                          renderValue={(selected) => (
+                              <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                                {selected.map((value) => (
+                                    <Chip
+                                        style={{ margin: '2%' }}
+                                        key={value}
+                                        label={value}
+                                    />
+                                ))}
+                              </div>
+                          )}
+                      >
+                        {this.state.domaine.domaine === 'COMPTABILITÉ' &&
+                        data.comptabilite.map((name) => (
+                            <MenuItem key={name} value={name}>
+                              {name}
+                            </MenuItem>
+                        ))}
+                        {this.state.domaine.domaine === 'SALAIRES' &&
+                        data.salaire.map((name) => (
+                            <MenuItem key={name} value={name}>
+                              {name}
+                            </MenuItem>
+                        ))}
+                        {this.state.domaine.domaine === 'IMPOTS' &&
+                        data.impot.map((name) => (
+                            <MenuItem key={name} value={name}>
+                              {name}
+                            </MenuItem>
+                        ))}
+                        {this.state.domaine.domaine === 'Droit' &&
+                        data.domainesAct.map((name,key) => (
+                            <MenuItem key={key} value={name}>
+                              {name}
+                            </MenuItem>
+                        ))}
+                      </MuiSelect>
+                    </FormControl>
+                  </div>
+              )}
+              <div className="text-center" style={{ marginTop: 10 }}>
+                <button
+                    type="button"
+                    onClick={
+                      this.state.add === 'formation'
+                          ? this.addItem('formation')
+                          : this.state.add === 'fonction'
+                          ? this.addItem('fonction')
+                          : this.state.add === 'domaine'
+                              ? this.addItem('domaine')
+                              : this.state.add === 'affiliation'
+                                  ? this.addItem('affiliation')
+                                  : this.state.add === 'parcour'
+                                      ? this.addItem('parcour')
+                                      : this.state.add === 'langue'
+                                          ? this.addItem('langue')
+                                          : this.state.add === 'hobbies'
+                                              ? this.addItem('hobbies')
+                                              : null
+                    }
+                    className="btn btn-success btn waves-effect mb-2 waves-light mt-1"
+                >
+                  Valider
+                </button>
+              </div>
+            </ModalBody>
+          </Modal>
 
           <Snackbar
             open={this.state.openAlert}
