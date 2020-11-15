@@ -107,82 +107,124 @@ export default function TableContact(props) {
     };
 
     return (
-        <Table className={classes.table} aria-label="custom pagination table">
-            <TableHead>
-                <TableRow>
-                    <TableCell align="center" style={{width:"25%",fontWeight:600}}>Nom & Prénom</TableCell>
-                     <TableCell align="center" style={{width:"30%",fontWeight:600}}>Email</TableCell>
-                    <TableCell align="center" style={{width:"25%",fontWeight:600}}>Taux horaire</TableCell>
-                    <TableCell align="center" style={{width:"20%",fontWeight:600}}>Action</TableCell>
-                </TableRow>
-            </TableHead>
-                <TableBody>
+      <div>
+        <h4 className="mt-0 mb-1">Contacts de fournisseurs de prestations de services</h4>
+        <div className="mt-2" style={{textAlign:"right"}}>
+          <div className="text-sm-right">
+            <button
+              onClick={() => {
+                props.onAddBtnClick()
+              }}
+              className="btn btn-danger waves-effect waves-light mb-2">
+              <i className="mdi mdi-plus-circle mr-1" /> Ajouter
+            </button>
+          </div>
+        </div>
+        <div className="row mt-3">
+          <div className="col-xl-12">
+            <div className="row">
+              <div className="col">
+                <div className="page-title-box">
+                  <div className="row">
+                    <div className="col-md-2 bg-danger text-center" style={{width: "10%"}}>
+                      <h4 style={{ color: 'white' }}>OA Legal</h4>
+                    </div>
+                    <hr style={{
+                      backgroundColor: "#a6a6a6",
+                      height: "2px",
+                      borderStyle: "solid",
+                      color: "red",
+                      width: "80%"
+                    }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-body">
+                <Table className={classes.table} aria-label="custom pagination table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="center" style={{width:"25%",fontWeight:600}}>Nom & Prénom</TableCell>
+                      <TableCell align="center" style={{width:"30%",fontWeight:600}}>Email</TableCell>
+                      <TableCell align="center" style={{width:"25%",fontWeight:600}}>Taux horaire</TableCell>
+                      <TableCell align="center" style={{width:"20%",fontWeight:600}}>Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
                     {(rowsPerPage > 0 ? props.contacts.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : props.contacts).map((row,key) => (
-                        <TableRow key={key}>
-                            <TableCell component="th" scope="row" style={{width:"25%"}}>
-                                <div
-                                    className="media align-items-center">
-                                    <img className=" rounded-circle text-center"
-                                        style={{
-                                            width: 50,
-                                            height: 50,
-                                            objectFit: "contain"
-                                        }}
-                                        src={row.imageUrl || defaultAvatar}
-                                        alt=""/>
+                      <TableRow key={key}>
+                        <TableCell component="th" scope="row" style={{width:"25%"}}>
+                          <div
+                            className="media align-items-center">
+                            <img className=" rounded-circle text-center"
+                                 style={{
+                                   width: 50,
+                                   height: 50,
+                                   objectFit: "contain"
+                                 }}
+                                 src={row.imageUrl || defaultAvatar}
+                                 alt=""/>
 
-                                    <div className="ml-1"
-                                         style={{
-                                             color: "#000",
-                                             fontFamily: "sans-serif",
-                                             fontWeight: 600,
-                                             fontSize: 12
-                                         }}>{row.nom} {row.prenom}
-                                    </div>
-                                </div>
-                            </TableCell>
-                             <TableCell style={{ width: "30%" }} align="center">
-                                  {row.email}
-                             </TableCell>
-                            <TableCell style={{ width: "25%" }} align="center">
-                                { row.rateFacturation ? row.rateFacturation + " CHF/h" : "" }
-                            </TableCell>
-                            <TableCell style={{ width: "20%" }} align="center">
-                                <IconButton aria-label="Modifier" title="Modifier" color="default" size="small" onClick={() => props.onEditClick(row,key)}>
-                                    <EditIcon fontSize="small"/>
-                                </IconButton>
-                                <IconButton aria-label="Supprimer" title="Supprimer" color="secondary" size="small">
-                                    <DeleteOutlineIcon fontSize="small"/>
-                                </IconButton>
-                            </TableCell>
-                        </TableRow>
+                            <div className="ml-1"
+                                 style={{
+                                   color: "#000",
+                                   fontFamily: "sans-serif",
+                                   fontWeight: 600,
+                                   fontSize: 12
+                                 }}>{row.nom} {row.prenom}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell style={{ width: "30%" }} align="center">
+                          {row.email}
+                        </TableCell>
+                        <TableCell style={{ width: "25%" }} align="center">
+                          { row.rateFacturation ? row.rateFacturation + " CHF/h" : "" }
+                        </TableCell>
+                        <TableCell style={{ width: "20%" }} align="center">
+                          <IconButton aria-label="Modifier" title="Modifier" color="default" size="small" onClick={() => props.onEditClick(row,key)}>
+                            <EditIcon fontSize="small"/>
+                          </IconButton>
+                          <IconButton aria-label="Supprimer" title="Supprimer" color="secondary" size="small">
+                            <DeleteOutlineIcon fontSize="small"/>
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
                     ))}
 
                     {emptyRows > 0 && (
-                        <TableRow style={{ height: 53 * emptyRows }}>
-                            <TableCell colSpan={6} />
-                        </TableRow>
+                      <TableRow style={{ height: 53 * emptyRows }}>
+                        <TableCell colSpan={6} />
+                      </TableRow>
                     )}
-                </TableBody>
-                <TableFooter>
+                  </TableBody>
+                  <TableFooter>
                     <TableRow>
-                        <TablePagination
-                            rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                            colSpan={3}
-                            count={props.contacts.length}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            SelectProps={{
-                                inputProps: { 'aria-label': 'rows per page' },
-                                native: true,
-                            }}
-                            onChangePage={handleChangePage}
-                            onChangeRowsPerPage={handleChangeRowsPerPage}
-                            ActionsComponent={TablePaginationActions}
-                            labelRowsPerPage="Lignes par page"
-                        />
+                      <TablePagination
+                        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                        colSpan={3}
+                        count={props.contacts.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        SelectProps={{
+                          inputProps: { 'aria-label': 'rows per page' },
+                          native: true,
+                        }}
+                        onChangePage={handleChangePage}
+                        onChangeRowsPerPage={handleChangeRowsPerPage}
+                        ActionsComponent={TablePaginationActions}
+                        labelRowsPerPage="Lignes par page"
+                      />
                     </TableRow>
-                </TableFooter>
-            </Table>
+                  </TableFooter>
+                </Table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     );
 }

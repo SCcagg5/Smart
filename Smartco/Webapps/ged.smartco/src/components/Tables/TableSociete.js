@@ -167,10 +167,8 @@ export default function TableSociete(props) {
                     <div className="row">
                         <div className="col">
                             <div className="page-title-box">
-                                <div className="row ">
-                                    <div
-                                        className="col-md-2 bg-danger text-center "
-                                        style={{width: "10%"}}>
+                                <div className="row">
+                                    <div className="col-md-2 bg-danger text-center " style={{width: "10%"}}>
                                         <h4 style={{color: "white"}}>OA Legal</h4>
                                     </div>
                                     <hr style={{

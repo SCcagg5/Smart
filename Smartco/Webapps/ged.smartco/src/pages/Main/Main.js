@@ -276,6 +276,16 @@ export default class Main extends React.Component {
       phone: '',
       isActif: true
     },
+    newContact: {
+      uid: '',
+      nom: '',
+      prenom: '',
+      email: '',
+      phone: '',
+      rateFacturation:'',
+      type: 'associe',
+      created_at: ''
+    },
     newClientFolder: {
       nom: '',
       type: 'corporate',
@@ -298,7 +308,9 @@ export default class Main extends React.Component {
     selectedTimeSheetIndex:0,
     selectedClientFolders:[],
     facturesToValidated:[],
-    facturesToValidatedCopy:[]
+    facturesToValidatedCopy:[],
+
+    openAddContactModal:false
   };
 
   componentDidMount() {
@@ -2562,6 +2574,29 @@ export default class Main extends React.Component {
     });
   }
 
+  addNewContact(){
+    this.setState({ firstLoading: true, loading: true, openAddContactModal: false });
+    let all_contacts = this.state.contacts;
+    let newContact = this.state.newContact;
+    newContact.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    all_contacts.push(newContact);
+
+    firebase.database().ref('/contacts/' + (all_contacts.length - 1)).set(newContact).then( ok => {
+      this.openSnackbar('success', newContact.nom + ' ' + newContact.prenom + ' est ajouté avec succès ');
+      this.props.history.push('/home/contacts/' + newContact.uid);
+      this.setState({
+        firstLoading: false, loading: false,
+        selectedContact: newContact,
+        selectedContactKey: newContact.uid
+      });
+      setTimeout(() => {
+        this.setState({
+          newContact: { uid: '', nom: '',prenom:'',  type: '', created_at: '', email: '', phone: '',rateFacturation:'' }
+        });
+      }, 400);
+    });
+  }
+
   uploadFilesToGed(files){
     let calls = [];
     this.setState({ openUploadToast: true });
@@ -3641,48 +3676,21 @@ export default class Main extends React.Component {
                         {
                           this.state.loading === false && this.state.firstLoading === false &&
                           <div>
-                            <h4 className="mt-0 mb-1">Contacts de fournisseurs de prestations de services</h4>
-                            <div className="row">
-                              <div className="col-xl-12">
-                                <div className="row">
-                                  <div className="col">
-                                    <div className="page-title-box">
-                                      <div className="row mt-3">
-                                        <div className="col-md-2 bg-danger text-center ">
-                                          <h4 style={{ color: 'white' }}>OA Legal</h4>
-                                        </div>
-                                        <hr style={{
-                                          backgroundColor: '#c0c0c0',
-                                          height: '2px',
-                                          borderStyle: 'solid',
-                                          color: 'red',
-                                          width: '80%',
-                                          marginTop: 25,
-                                          marginBottom: 25
-                                        }} />
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="card">
-                                  <div className="card-body">
-                                    {
-                                      this.state.contacts.length > 0 &&
-                                      <TableContact
-                                        contacts={this.state.contacts.filter(x => x.role === 'avocat')}
-                                        onEditClick={(contact, key) => {
-                                          this.setState({
-                                            selectedContact: contact,
-                                            selectedContactKey: contact.uid
-                                          });
-                                          this.props.history.push('/home/contacts/' + contact.uid);
-                                        }
-                                        } />
-                                    }
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                            <TableContact
+                              contacts={this.state.contacts}
+                              onAddBtnClick={() => {
+                                this.setState({
+                                  openAddContactModal:true
+                                })
+                              }}
+                              onEditClick={(contact, key) => {
+                                this.setState({
+                                  selectedContact: contact,
+                                  selectedContactKey: contact.uid
+                                });
+                                this.props.history.push('/home/contacts/' + contact.uid);
+                              }}
+                            />
                           </div>
                         }
 
@@ -3780,14 +3788,7 @@ export default class Main extends React.Component {
                                               id="nom"
                                               name="nom"
                                               value={this.state.selectedContact.nom}
-                                              onChange={this.handleChange('selectedContact', /*let clients_oa = this.state.annuaire_clients_mondat;
-                                                                                                                   clients_oa.map((c,key) => {
-                                                                                                                        c.ID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                                                                                                                        c.created_at = new Date().toDateString();
-                                                                                                                   });
-                                                                                                                   firebase.database().ref("/annuaire_client_mondat").set(clients_oa).then(ok => {
-                                                                                                                        console.log("ok")
-                                                                                                                   })*/'nom')} />
+                                              onChange={this.handleChange('selectedContact','nom')} />
                                           </div>
                                           <div
                                             className="col-md-6">
@@ -3834,15 +3835,12 @@ export default class Main extends React.Component {
                                               id="titre"
                                               name="titre"
                                               placeholder="Titre"
-                                              value={this.state.selectedContact.titre}
-                                              onChange={this.handleChange('selectedContact', 'titre')}
+                                              value={this.state.selectedContact.type}
+                                              onChange={this.handleChange('selectedContact', 'type')}
                                             >
                                               {
                                                 data.titres.map((titre, key) =>
-                                                  <option
-                                                    key={key}
-                                                    value={titre}
-                                                    label={titre} />
+                                                  <option key={key} value={titre.value} label={titre.label} />
                                                 )
                                               }
                                             </select>
@@ -3920,7 +3918,7 @@ export default class Main extends React.Component {
                             <div className="row">
                               <div className="col-lg-12">
                                 <div className="card-box text-center">
-                                  <img onClick={() => this.imageUpload.click()}
+                                  <img onClick={() => {}}
                                        src={this.state.selectedSociete.imageUrl ? this.state.selectedSociete.imageUrl : this.state.selectedSociete.Type === '0' ? entIcon : userAvatar}
                                        className="rounded-circle avatar-lg img-thumbnail"
                                        alt="" style={{ cursor: 'pointer', width: 120, height: 120, objectFit: 'cover' }}
@@ -5931,6 +5929,139 @@ export default class Main extends React.Component {
                 disabled={this.state.newClient.Nom === ''}
                 onClick={() => {
                   this.addNewClient();
+                }}
+                color="primary"
+                variant="contained"
+                style={{ textTransform: 'capitalize' }}
+              >
+                Créer
+              </MuiButton>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog
+            maxWidth="xl"
+            open={this.state.openAddContactModal}
+            onClose={() => {
+              this.setState({ openAddContactModal: !this.state.openAddContactModal });
+            }}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle disableTypography id="form-dialog-title">
+              <Typography variant="h6">Ajouter un nouveau membre</Typography>
+              <IconButton
+                aria-label="close"
+                style={{
+                  position: 'absolute',
+                  right: 5,
+                  top: 5,
+                  color: '#c0c0c0'
+                }}
+                onClick={() => {
+                  this.setState({
+                    openAddContactModal: !this.state.openAddContactModal
+                  });
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent>
+              <div className="row mt-3">
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Nom</p>
+                  <input
+                    style={{ minWidth: 300, height: 40 }}
+                    type="text"
+                    className="form-control"
+                    id="nomc"
+                    name="nomc"
+                    value={this.state.newContact.nom}
+                    onChange={this.handleChange('newContact', 'nom')} />
+
+                </div>
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Prénom</p>
+                  <input
+                    style={{ minWidth: 300, height: 40 }}
+                    type="email"
+                    className="form-control"
+                    id="nome"
+                    name="nome"
+                    value={this.state.newContact.prenom}
+                    onChange={this.handleChange('newContact', 'prenom')} />
+                </div>
+              </div>
+              <div className="row mt-3">
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Email</p>
+                  <input
+                    style={{ minWidth: 300, height: 40 }}
+                    type="email"
+                    className="form-control"
+                    id="nome"
+                    name="nome"
+                    value={this.state.newContact.email}
+                    onChange={this.handleChange('newContact', 'email')} />
+                </div>
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Téléphone</p>
+                  <input
+                    style={{ minWidth: 300, height: 40 }}
+                    type="text"
+                    className="form-control"
+                    id="nomt"
+                    name="nomt"
+                    value={this.state.newContact.phone}
+                    onChange={this.handleChange('newContact', 'phone')} />
+
+                </div>
+              </div>
+              <div className="row mt-3">
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Titre</p>
+                  <select
+                    style={{ minWidth: 300, height: 40 }}
+                    className="form-control custom-select"
+                    id="nomt"
+                    name="nomt"
+                    value={this.state.newContact.type}
+                    onChange={this.handleChange('newContact', 'type')}>
+                    {
+                      data.titres.map((titre, key) =>
+                        <option key={key} value={titre.value} label={titre.label} />
+                      )
+                    }
+                  </select>
+                </div>
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Taux horaire</p>
+                  <input
+                    style={{ minWidth: 300, height: 40 }}
+                    type="text"
+                    className="form-control"
+                    id="nomt"
+                    name="nomt"
+                    value={this.state.newContact.rateFacturation}
+                    onChange={this.handleChange('newContact', 'rateFacturation')} />
+                </div>
+              </div>
+            </DialogContent>
+
+            <DialogActions style={{ padding: 20 }}>
+              <MuiButton
+                onClick={() => {
+                  this.setState({ openAddContactModal: false });
+                }}
+                color="primary"
+                style={{ textTransform: 'capitalize' }}
+              >
+                Annuler
+              </MuiButton>
+              <MuiButton
+                disabled={this.state.newContact.nom.trim() === '' || this.state.newContact.prenom.trim() === '' || this.state.newContact.email === ''}
+                onClick={() => {
+                  this.addNewContact()
                 }}
                 color="primary"
                 variant="contained"

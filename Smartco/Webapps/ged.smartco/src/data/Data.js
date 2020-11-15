@@ -223,7 +223,12 @@ let Data = {
 
 
     titres : [
-        "","Associés", "Conseil", "collaborateurs", "Avocats-stagiaires", "Personnel Administratif"
+        {value:"",label:""},
+        {value:"associe",label:"Associés"},
+        {value:"conseil",label:"Conseil"},
+        {value:"ollaborateur",label:"Collaborateurs"},
+        {value:"avocats-stagiaire",label:"Avocats-stagiaires"},
+        {value:"personnel-administratif",label:"Personnel Administratif"}
     ],
     comptabilite : [
         'Tenue de la comptabilité financiére',

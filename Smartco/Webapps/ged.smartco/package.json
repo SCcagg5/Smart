@@ -73,6 +73,8 @@
     "react-tabs": "^3.1.1",
     "react-window-size": "^1.2.2",
     "reactstrap": "^8.0.0",
+    "rethinkdb": "^2.4.2",
+    "rethinkdb-websocket-client": "^0.6.0",
     "styled-components": "^4.4.1",
     "styletron-engine-atomic": "^1.4.6",
     "styletron-react": "^5.2.7",
