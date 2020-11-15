@@ -269,6 +269,7 @@ export default class Main extends React.Component {
     newClient: {
       ID: '',
       Nom: '',
+      Prenom:'',
       Type: '0',
       created_at: '',
       country: '',
@@ -2568,7 +2569,7 @@ export default class Main extends React.Component {
       });
       setTimeout(() => {
         this.setState({
-          newClient: { ID: '', Nom: '', Type: '0', created_at: '', country: '', email: '', phone: '', isActif: true }
+          newClient: { ID: '', Nom: '', Prenom:'', Type: '0', created_at: '', country: '', email: '', phone: '', isActif: true }
         });
       }, 400);
     });
@@ -5842,20 +5843,19 @@ export default class Main extends React.Component {
             <DialogContent>
               <div className="row mt-3">
                 <div className="col-md-6">
-
-                  <p style={{ marginBottom: 10 }}>Nom du client</p>
-                  <input
+                  <p style={{ marginBottom: 10 }}>Type</p>
+                  <select
                     style={{ minWidth: 300, height: 40 }}
-                    type="text"
-                    className="form-control"
-                    id="nomc"
-                    name="nomc"
-                    value={this.state.newClient.Nom}
-                    onChange={this.handleChange('newClient', 'Nom')} />
-
+                    className="form-control custom-select"
+                    id="nomt"
+                    name="nomt"
+                    value={this.state.newClient.Type}
+                    onChange={this.handleChange('newClient', 'Type')}>
+                    <option value="0">Une société</option>
+                    <option value="1">Personne physique</option>
+                  </select>
                 </div>
                 <div className="col-md-6">
-
                   <p style={{ marginBottom: 10 }}>Email</p>
                   <input
                     style={{ minWidth: 300, height: 40 }}
@@ -5870,19 +5870,33 @@ export default class Main extends React.Component {
               </div>
               <div className="row mt-3">
                 <div className="col-md-6">
-                  <p style={{ marginBottom: 10 }}>Type</p>
-                  <select
+                  <p style={{ marginBottom: 10 }}>Nom du client</p>
+                  <input
                     style={{ minWidth: 300, height: 40 }}
-                    className="form-control custom-select"
-                    id="nomt"
-                    name="nomt"
-                    value={this.state.newClient.Type}
-                    onChange={this.handleChange('newClient', 'Type')}>
-                    <option value="0">Corporate</option>
-                    <option value="1">Litige</option>
-                  </select>
+                    type="text"
+                    className="form-control"
+                    id="nomc"
+                    name="nomc"
+                    value={this.state.newClient.Nom}
+                    onChange={this.handleChange('newClient', 'Nom')} />
                 </div>
-                <div className="col-md-6">
+                {
+                  this.state.newClient.Type === "1" &&
+                  <div className="col-md-6">
+                    <p style={{ marginBottom: 10 }}>Prénom du client</p>
+                    <input
+                      style={{ minWidth: 300, height: 40 }}
+                      type="text"
+                      className="form-control"
+                      id="nomc"
+                      name="nomc"
+                      value={this.state.newClient.Prenom}
+                      onChange={this.handleChange('newClient', 'Prenom')} />
+                  </div>
+                }
+              </div>
+              <div className="row mt-3">
+                  <div className="col-md-6">
                   <p style={{ marginBottom: 10 }}>Téléphone</p>
                   <input
                     style={{ minWidth: 300, height: 40 }}
@@ -5894,8 +5908,6 @@ export default class Main extends React.Component {
                     onChange={this.handleChange('newClient', 'phone')} />
 
                 </div>
-              </div>
-              <div className="row mt-3">
                 <div className="col-md-6">
                   <p style={{ marginBottom: 10 }}>Pays</p>
                   <select
@@ -5926,7 +5938,7 @@ export default class Main extends React.Component {
                 Annuler
               </MuiButton>
               <MuiButton
-                disabled={this.state.newClient.Nom === ''}
+                disabled={this.state.newClient.Nom === '' || this.state.newClient.email === ''}
                 onClick={() => {
                   this.addNewClient();
                 }}
