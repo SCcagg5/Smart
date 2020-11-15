@@ -424,11 +424,11 @@ export default function TableSociete(props) {
                                                             onClick={() => props.onEditClick(row,key)}>
                                                     <EditIcon fontSize="small" style={{color:"#1a73e8"}}/>
                                                 </IconButton>
-                                                <IconButton aria-label="folder" title="folder" color="default" size="small" onClick={() => {
+                                                {/*<IconButton aria-label="folder" title="folder" color="default" size="small" onClick={() => {
                                                     //props.onFolderClick(row.folder_id)
                                                 }}>
                                                     <FolderIcon fontSize="small" />
-                                                </IconButton>
+                                                </IconButton>*/}
                                             </TableCell>
                                         </TableRow>
                                     ))}
