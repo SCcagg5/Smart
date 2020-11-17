@@ -1,0 +1,16 @@
+.Highlight {
+    background-color: #c0c0c0;
+    padding: 0.3em;
+}
+
+.Active {
+    background-color: #c0c0c0;
+    color:#000;
+    font-size:14px;
+    font-family: "Halvetica", sans-serif
+}
+.Not_active{
+    color:#000000;
+    font-size: 14px;
+    font-family: "Halvetica", sans-serif;
+}
