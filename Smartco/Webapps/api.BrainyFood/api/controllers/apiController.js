@@ -7,25 +7,29 @@ var fs = require('fs');
 var nodemailer = require('nodemailer')
 var path = require('path');
 var moment = require('moment');
-var  firebase = require("firebase-admin")
+const fetch =require('node-fetch')
+global.Headers = fetch.Headers;
+
 const Employee = require('../models/recette.model');
 const Questions = require('../models/questions.model');
+const Patient = require('../models/patient.model');
+
 const Miniceur = require('../models/miniceur.model');
 const Sport = require('../models/sport.model');
 const BienEtre = require('../models/bienetre.model');
 const bodyCheck= require('../models/bodycheck.model')
 const htmlDocx = require ('html-docx-js')
+const {writeFile} = require('fs');
+const pdf2base64 = require('pdf-to-base64');
+const decode = require('base64-arraybuffer')
+const endpoint = "https://api.smartdom.ch"
 
-
+const {promisify} = require('util');
+const writeFilePromise = promisify(writeFile);
 
 const ing = require('../models/ingredient.model');
 
 
-var serviceAccount = require("./firebase/beautysane-61cf2-firebase-adminsdk-omyqd-9ee561645c.json");
-firebase.initializeApp({
-    credential: firebase.credential.cert(serviceAccount),
-    databaseURL: "https://beautysane-61cf2.firebaseio.com",
-});
 
 exports.sendNLMailWithUrl2 = function (req, res) {
     let transporter = nodemailer.createTransport({
@@ -79,8 +83,6 @@ exports.sendNLMailWithUrl2 = function (req, res) {
 
 
     };
-
-
 
 
 exports.sendNLMailWithUrl = function (req, res) {
@@ -727,6 +729,80 @@ const new_questions = new Questions(req.body)
 
 
 }
+exports.createPatient = function (req,res){
+
+
+
+
+    const new_questions = new Patient(req.body)
+
+    if(req.body.constructor === Object && Object.keys(req.body).length === 0){
+        res.status(400).send({ error:true, message: 'Please provide all required field' });
+    }else{
+        Patient.create(new_questions, function(err, employee) {
+            if (err)
+                res.send(err);
+            res.json({error:false,message:"Patient added successfully!",data:employee});
+        });
+    }
+
+
+
+}
+exports.getPatientByEmail=function(req,res){
+    Patient.findByEmail(req.params.id, function(err, employee) {
+        if (err)
+            res.send(err);
+        res.json(employee);
+    });
+
+}
+exports.getPatientById=function(req,res){
+    Patient.findById(req.params.id, function(err, employee) {
+        if (err)
+            res.send(err);
+        res.json(employee);
+    });
+
+}
+
+
+exports.getPatients=function(req,res){
+    Patient.findAll( function(err, employee) {
+        if (err)
+            res.send(err);
+        res.json(employee);
+    });
+
+}
+exports.deletePatient=function(req,res){
+    Patient.delete( req.params.id,function(err, employee) {
+        if (err)
+            res.send(err);
+        res.json(employee);
+    });
+
+}
+exports.updatePatient=function(req,res){
+    let email = req.body.email
+    let patient = req.body
+    console.log(patient)
+
+    if(req.body.constructor === Object && Object.keys(req.body).length === 0){
+        res.status(400).send({ error:true, message: 'Please provide all required field' });
+    }else {
+
+        Patient.update(email, req.body, function (err, employee) {
+            if (err)
+                res.send(err);
+            res.json(employee);
+        });
+    }
+
+
+
+}
+
 
 exports.getQuestionByEmail=function(req,res){
     Questions.findByEmail(req.params.id, function(err, employee) {
@@ -805,69 +881,13 @@ exports.createBienEtre = function (req,res){
 
 }
 
-exports.getRecettes = async function (req,res) {
-   getrecettes(req,res)
-
-}
-
-async function getrecettes(req,res) {
-    let ret = { "status":500,"error":null,"data":null,"length":0}
-
-    var db = firebase.database().ref('/recettes');
-    var snapshot = await db.once('value');
-    var data = snapshot.val();
-    var arrayData= Object.values(data)
-    let dataF=[]
-
-    arrayData.map((item,key)=>{
-        dataF.push(
-            {
-                id:key,
-                nom:item.nomRecette,
-                ingredient:item.Ingredients,
-
-            }
-        )
-
-    });
-    ret.status =200;
-    ret.length = data.length;
-    ret.data = dataF ;
-    res.json(ret);
 
 
 
 
-}
-
-exports.getRecettebyId = async function (req,res) {
-    getrecettebyId(req,res)
-
-}
-
-async function getrecettebyId(req,res) {
-    let ret = { "status":500,"error":null,"data":null,"length":0}
-    let id =req.params.id
-
-    var db = firebase.database().ref('/recettes');
-    var snapshot = await db.once('value');
-    var data = snapshot.val();
-    var arrayData= Object.values(data)
-    let dataF={
-        id:id,
-        nom:arrayData[id].nomRecette,
-        ingredient:arrayData[id].Ingredients,
-    }
-
-
-    ret.status =200;
-    ret.data = dataF ;
-    res.json(ret);
 
 
 
-
-}
 
 exports.findAll = async function(req, res) {
     console.log("work")
@@ -1183,3 +1203,311 @@ exports.wordtohtml=function wordtohtml(req,res){
 
 
 }
+
+function downloadFile(url, outputPath) {
+    pdf2base64(url)
+        .then(
+             (response) =>
+                decode.decode(response.toString())
+
+
+        ).then((tt)=>{
+            console.log(tt)
+      writeFilePromise(outputPath, Buffer.from(tt))
+    })
+        .catch(
+            (error) => {
+                console.log(error); //Exepection error....
+            }
+        )
+}
+exports.sendNLMailDevi =  function (req, res) {
+    let transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+            user: "smartco.majordhome2019@gmail.com",
+            pass: "Majordhome2019"
+        }
+    });
+    let body = req.body
+
+
+    let nom = body.nom
+
+    let email = body.email
+
+    console.log(body.file)
+    let time = new Date().getTime()
+    let pathh = __dirname + "/"+time.toString()+".pdf"
+
+    if (fs.existsSync(pathh)) {
+        //file exists
+        fs.unlink(pathh, (err) => {
+            if (err) throw err;
+            console.log('path/file.txt was deleted');
+        });
+    }
+
+
+
+    pdf2base64(body.file)
+        .then(
+            (response) =>
+                decode.decode(response.toString())
+
+
+        ).then((tt)=>{
+        console.log(tt)
+        writeFilePromise(pathh, Buffer.from(tt))
+    }).then(()=>{
+        ejs.renderFile(path.join(__dirname, '../html/beefree-c8tdc5qu9b.ejs'), {
+            lien: body.file2
+
+
+        }, function (err, data) {
+            if (err) {
+                console.log(err);
+            } else {
+                var mainOptions = {
+                    from: '"BrainyFood  " <noreply@smartco.fr>',
+                    to: email,
+                    subject: 'Devi BrainyFood',
+                    html: data,
+                    attachments: [{
+                        filename: 'file.pdf',
+                        path: pathh,
+                        contentType: 'application/pdf'
+                    }],
+
+
+                };
+                //console.log("html data ======================>", mainOptions.html);
+
+                transporter.sendMail(mainOptions, function (err, info) {
+                    if (err) {
+                        res.json({
+                            msg: 'fail'
+                        })
+                    } else {
+                        res.json({
+                            msg: 'success'
+                        })
+                    }
+                });
+            }
+        });
+
+    })
+
+
+
+
+
+
+};
+
+function loadHeaders(token,usrtoken) {
+    var headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append("Accept", 'application/json');
+    headers.append("token", token);
+    headers.append("usrtoken", usrtoken);
+    return headers;
+}
+
+
+exports.createAcompteDevi = function (req,res) {
+    let id = req.params.id
+    let pourcentage = req.params.acompte
+
+getToken().then((data)=>{
+    var datas ={
+        email: "test@test.fr",
+        password1: "test"
+    }
+    let token = data.data.token
+    login(datas,token).then(async (dd) => {
+        var userToken = dd.data.usrtoken
+
+        console.log(pourcentage)
+
+        let dataBill = await getBill(token,userToken,id)
+        var total=dataBill.data[0].amount_total
+        console.log(pourcentage+" "+total )
+        var acompte = (total*parseFloat(pourcentage))/100
+        console.log(acompte.toFixed(2))
+
+        let odoo_data = [
+            {
+            "access_token":"eafd285777ggobfvxyvnx",
+            "state": "draft",
+            "type": "out_invoice",
+            "invoice_sent": false,
+            "l10n_ch_isr_sent": false,
+            "name":dataBill.data[0].name,
+            "invoice_date": dataBill.data[0].invoice_date,
+            "date":dataBill.data[0].date,
+            "journal_id": 1,
+            "currency_id": 5,
+            "invoice_user_id": 3,
+            "invoice_incoterm_id": false,
+            "auto_post": false,
+            "to_check": false,
+            "authorized_transaction_ids": [
+                [
+                    6,
+                    false,
+                    []
+                ]
+            ],
+            "tax_lock_date_message": false,
+            "id": false,
+            "invoice_payment_state": "not_paid",
+            "invoice_filter_type_domain": "sale",
+            "company_currency_id": 5,
+            "commercial_partner_id": "",
+            "bank_partner_id": 1,
+            "invoice_has_outstanding": false,
+            "l10n_ch_currency_name": "EURO",
+            "invoice_sequence_number_next_prefix": false,
+            "invoice_sequence_number_next": false,
+            "invoice_has_matching_suspense_amount": false,
+            "has_reconciled_entries": false,
+            "restrict_mode_hash_table": false,
+            "partner_id": 84,
+            "ref": 121006,
+            "invoice_vendor_bill_id": false,
+            "invoice_payment_term_id": 1,
+            "invoice_date_due": "2020-09-06",
+            "company_id": 1,
+            "amount_untaxed": 0,
+            "amount_by_group": [],
+            "amount_total": 0,
+            "invoice_payments_widget": "False",
+            "amount_residual": 0,
+            "invoice_outstanding_credits_debits_widget": false,
+            "narration": false,
+            "invoice_origin": false,
+            "fiscal_position_id": 1,
+            "invoice_cash_rounding_id": false,
+            "invoice_source_email": false,
+            "invoice_payment_ref": false,
+            "invoice_partner_bank_id": false,
+            "reversed_entry_id": false,
+            "message_follower_ids": [],
+            "activity_ids": [],
+            "message_ids": [],
+            "message_attachment_count": 0,
+            "invoice_line_ids": [
+                [
+                    0,
+                    "virtual_"+(Math.floor(100 + Math.random() * 900)).toString(),
+                    {
+                        "sequence": 10,
+                        "account_id": 104,
+                        "quantity":1 ,
+                        "discount": 0,
+                        "partner_id": false,
+                        "currency_id": false,
+                        "debit": 0,
+                        "credit": 0,
+                        "display_type": false,
+                        "product_id": 1,
+                        "name": "Acompte",
+                        "analytic_account_id": false,
+                        "analytic_tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+
+                        "price_unit": acompte.toFixed(2),
+                        "tax_ids": [
+                            [
+                                6,false,[]
+                            ]
+                        ],
+                        "amount_currency": 0,
+                        "date_maturity": false,
+                        "tag_ids": [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                        "recompute_tax_line": false,
+                        "is_rounding_line": false,
+                        "exclude_from_invoice_tab": false
+                    },
+
+                ],
+
+
+            ],
+            "line_ids": [
+
+            ]
+        }]
+        create_facture_odoo(token,userToken,{data:odoo_data}).then((createdFacture)=>{
+            console.log(createdFacture.data)
+
+            let file ="http://91.121.162.202:10013/my/invoices/"+createdFacture.data.id+"?access_token=eafd285777ggobfvxyvnx&report_type=pdf&download=true"
+
+
+            res.redirect(file)
+        })
+    })
+
+})
+}
+
+function create_facture_odoo(token,usrtoken,data){
+
+
+    return fetch(endpoint + '/odoo/test/bill', {
+        method: 'POST',
+        headers:loadHeaders(token,usrtoken),
+        body:JSON.stringify(data),
+    }).then(response => response.json()).catch(error => {
+        console.log(error);
+    });
+}
+
+function getToken() {
+    return fetch(endpoint + '/login/', {
+        method: 'POST',
+        headers:loadHeaders("",""),
+
+        body:JSON.stringify({pass:"password"})
+    }).then(response => response.json()).catch(error => {
+        console.log(error);
+    });
+
+}
+function  login(data,token){
+    return fetch(endpoint + '/signin/', {
+        method: 'POST',
+        headers:loadHeaders(token,""),
+        body:JSON.stringify(data)
+    }).then(response => response.json()).catch(error => {
+        console.log(error);
+    });
+}
+
+
+async function getBill(token,usrtoken,id) {
+
+    return fetch(endpoint + '/odoo/test/get/bill?id='+id, {
+        method: 'GET',
+        headers:loadHeaders(token,usrtoken)
+    }).then(response => response.json()).catch(error => {
+        console.log(error);
+    });
+
+}
+
