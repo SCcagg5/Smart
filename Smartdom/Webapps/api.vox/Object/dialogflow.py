@@ -1,6 +1,6 @@
 import json
 from dialogflow_fulfillment import WebhookClient
 
-class dialogflow:
+class fulfillement:
     def call(data):
         return [True, data, None]
