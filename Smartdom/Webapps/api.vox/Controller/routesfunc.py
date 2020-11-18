@@ -8,7 +8,7 @@ from Object.dialogflow import fulfillement
 import json
 
 def dialogflow(cn, nextc):
-    err = dialogflow.call(cn.pr)
+    err = fulfillement.call(cn.pr)
     return cn.call_next(nextc, err)
 
 def getauth(cn, nextc):
