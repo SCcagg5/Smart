@@ -13,11 +13,16 @@ class fulfillement:
         handler = {
             "welcome": fulfillement.welcome
         }
-        agent = WebhookClient(data)
         try:
+            agent = WebhookClient(data)
             if agent.intent not in handler:
-                raise
+                agent.handle_request(fulfillement.error)
             agent.handle_request(handler[str(agent.intent)])
         except:
-            agent.handle_request(fulfillement.error)
+            agent = {
+                "response": {
+                    "fulfillmentText": "Désolé, une grosse erreur s'est produite",
+                    "source": 'webhook'
+                    }
+                }
         return [True, agent.response, None]
