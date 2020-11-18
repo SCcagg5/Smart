@@ -18,7 +18,7 @@ adm_pass =  str(os.getenv('API_ADM', None))
 db_user =   str(os.getenv('DB_USER', 'password'))
 db_pass =   str(os.getenv('DB_PASS', 'password'))
 
-call = lambda x = [] , y = False, z = False : callnext(request, response).call(x, y, z)
+call = lambda x = [] , ws = False, raw = False : callnext(request, response).call(x, ws, raw)
 
 BaseRequest.MEMFILE_MAX = 1024 * 1024 * 256
 
