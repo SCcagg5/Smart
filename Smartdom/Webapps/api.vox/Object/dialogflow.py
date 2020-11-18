@@ -8,7 +8,8 @@ class fulfillement:
 
     def command(agent):
         prod = agent.parameters["product"]
-        agent.add("Vous avez commandé " + ", ".join(prod[:-1]) + ("" if len(prod) == 1 else " et "+ prod[len(prod) - 1]) + ". C'est correct ?")
+        talk_prod = (prod[0] if len(prod) == 1 else ", ".join(prod[:-1]) + " et "+ prod[len(prod) - 1])
+        agent.add("Vous avez commandé " + talk_prod + ". C'est correct ?")
 
     def error(agent):
         agent.add("Désolé, une erreur s'est produite")
