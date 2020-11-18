@@ -26,9 +26,5 @@ def setuproute(app, call):
 
     @app.route('/dialogflow/',              ['OPTIONS', 'POST'],        lambda x = None: call([dialogflow], raw=True))
     @app.route('/ws/',                      ['OPTIONS', 'POST'],        lambda x = None: call([wscall], ws=True))
-
-    @app.route('/admin/login/',             ['OPTIONS', 'POST'],        lambda x = None: call([admtoken])                                                                                 )
-    @app.route('/admin/allusers/',          ['OPTIONS', 'GET'],         lambda x = None: call([authadmin, all_users])                                                                     )
-    @app.route('/admin/spoof/',             ['OPTIONS', 'POST'],        lambda x = None: call([authadmin, gettokenadm])                                                                   )
     def base():
         return
