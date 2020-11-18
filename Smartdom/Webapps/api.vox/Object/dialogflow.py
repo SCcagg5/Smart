@@ -18,11 +18,10 @@ class fulfillement:
             if agent.intent not in handler:
                 agent.handle_request(fulfillement.error)
             agent.handle_request(handler[str(agent.intent)])
+            resp =  agent.response
         except:
-            agent = {
-                "response": {
+            resp =  {
                     "fulfillmentText": "Désolé, une grosse erreur s'est produite",
                     "source": 'webhook'
                     }
-                }
-        return [True, agent['response'], None]
+        return [True, resp, None]
