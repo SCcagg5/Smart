@@ -9,7 +9,6 @@ class fulfillement:
     def command(agent):
         agent.add('Bonjour, je suis Sacha l\'assistante virtuelle de commande, comment puis-je vous aider ?')
         agent.add(QuickReplies(quick_replies=['Commander', 'Menu']))
-        return
 
     def error(agent):
         agent.add("Désolé, une erreur s'est produite")
