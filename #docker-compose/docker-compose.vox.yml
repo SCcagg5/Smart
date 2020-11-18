@@ -13,7 +13,7 @@ networks:
 
 services:
   map_bck-end-vox:
-    build: ../Smartco/Webapps/api.vox
+    build: ../Smartdom/Webapps/api.vox
     expose:
       - 8080
     tty: true
@@ -22,7 +22,7 @@ services:
       - db-net
       - proxy
     volumes:
-      - ../Smartco/Webapps/api.vox:/home/api/
+      - ../Smartdom/Webapps/api.vox:/home/api/
     environment:
       VIRTUAL_HOST: api.vox.smartdom.ch
       VIRTUAL_PORT: 8080
