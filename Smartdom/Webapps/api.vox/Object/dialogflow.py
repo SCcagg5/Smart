@@ -31,7 +31,7 @@ class fulfillement:
             "welcome": fulfillement.welcome,
             "Je voudrais commander": fulfillement.command
         }
-        if True:
+        if data:
             agent = WebhookClient(data)
             print(agent.intent)
             if agent.intent not in handler:
