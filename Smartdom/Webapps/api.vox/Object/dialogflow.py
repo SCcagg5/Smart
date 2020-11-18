@@ -13,6 +13,7 @@ class fulfillement:
         handler = {
             "welcome": fulfillement.welcome
         }
+        print(data)
         if True:
             agent = WebhookClient(data)
             print(agent.intent)
