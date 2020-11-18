@@ -21,7 +21,7 @@ class fulfillement:
         dprod = [("" if i == 1 else str(i) + " ") + prod[i].split('|')[0 if i == 1 else 1] for i in range(0, len(prod))]
         talk_prod = (dprod[0] if len(dprod) == 1 else ", ".join(dprod[:-1]) + " et "+ dprod[len(dprod) - 1])
         agent.add("Vous avez commandé " + talk_prod + ". C'est correct ?")
-        
+
 
     def error(agent):
         agent.add("Désolé, une erreur s'est produite")
@@ -31,14 +31,14 @@ class fulfillement:
             "welcome": fulfillement.welcome,
             "Je voudrais commander": fulfillement.command
         }
-        try:
+        if True:
             agent = WebhookClient(data)
             print(agent.intent)
             if agent.intent not in handler:
                 agent.handle_request(fulfillement.error)
             agent.handle_request(handler[str(agent.intent)])
             resp =  agent.response
-        except:
+        else:
             resp =  {
                     "fulfillmentText": "Désolé, une grosse erreur s'est produite",
                     "source": 'webhook'
