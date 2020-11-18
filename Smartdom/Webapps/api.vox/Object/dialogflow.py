@@ -11,9 +11,15 @@ class fulfillement:
             agend.add("Que voulez vous commander ?")
             return
         prod = agent.parameters["product"]
+        if len(prod) == 0:
+            agend.add("Que voulez vous commander ?")
+            return
         if "number" not in agent.parameters:
             nb = [1 for _ in prod]
+        elif len(agent.parameters["number"]) == 0:
+            nb = [1 for _ in prod]
         else:
+            nb = [1 for _ in prod]:
             nb = agent.parameters["number"]
             if len(nb) != len(prod):
                 agent.add("Pouvez-vous répeter en précisant la quantité pour chaque plat ?")
