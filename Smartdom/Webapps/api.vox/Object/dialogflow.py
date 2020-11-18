@@ -19,7 +19,6 @@ class fulfillement:
         elif len(agent.parameters["number"]) == 0:
             nb = [1 for _ in prod]
         else:
-            nb = [1 for _ in prod]:
             nb = agent.parameters["number"]
             if len(nb) != len(prod):
                 agent.add("Pouvez-vous répeter en précisant la quantité pour chaque plat ?")
