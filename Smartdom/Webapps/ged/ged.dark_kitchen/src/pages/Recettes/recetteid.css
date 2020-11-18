@@ -1,0 +1,16 @@
+.navRecette {
+
+    list-style-type: none;
+
+}
+.ReactStars{
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+.navRecette li {
+
+    display: inline-block;
+
+}

@@ -167,10 +167,8 @@ export default function TableSociete(props) {
                     <div className="row">
                         <div className="col">
                             <div className="page-title-box">
-                                <div className="row ">
-                                    <div
-                                        className="col-md-2 bg-danger text-center "
-                                        style={{width: "10%"}}>
+                                <div className="row">
+                                    <div className="col-md-2 bg-danger text-center " style={{width: "10%"}}>
                                         <h4 style={{color: "white"}}>OA Legal</h4>
                                     </div>
                                     <hr style={{
@@ -426,11 +424,11 @@ export default function TableSociete(props) {
                                                             onClick={() => props.onEditClick(row,key)}>
                                                     <EditIcon fontSize="small" style={{color:"#1a73e8"}}/>
                                                 </IconButton>
-                                                <IconButton aria-label="folder" title="folder" color="default" size="small" onClick={() => {
+                                                {/*<IconButton aria-label="folder" title="folder" color="default" size="small" onClick={() => {
                                                     //props.onFolderClick(row.folder_id)
                                                 }}>
                                                     <FolderIcon fontSize="small" />
-                                                </IconButton>
+                                                </IconButton>*/}
                                             </TableCell>
                                         </TableRow>
                                     ))}

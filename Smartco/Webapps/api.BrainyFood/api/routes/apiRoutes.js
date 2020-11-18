@@ -15,14 +15,33 @@ module.exports = function (app) {
     app.route('/api/sendNlmMailWithUrl2')
         .post(api.sendNLMailWithUrl2)
 
-    app.route('/api/recettes')
-        .post(api.getRecettes)
+
+    app.route('/api/MailDevi')
+        .post(api.sendNLMailDevi)
+
 
     app.route('/api/recettesall')
         .get(api.findAll)
 
     app.route('/api/recetteCreate')
         .post(api.createRecette)
+    app.route('/api/PatientCreate')
+        .post(api.createPatient)
+
+    app.route('/api/PatientByEmail/:id')
+        .get(api.getPatientByEmail)
+
+    app.route('/api/PatientById/:id')
+        .get(api.getPatientById)
+
+    app.route('/api/deletePatient/:id')
+        .get(api.deletePatient)
+    app.route('/api/PatientUpdate')
+        .post(api.updatePatient)
+
+    app.route('/api/Patients')
+        .get(api.getPatients)
+
 
     app.route('/api/recetteByID/:id')
         .get(api.findById)
@@ -66,6 +85,8 @@ module.exports = function (app) {
     app.route('/api/getWord')
         .post(api.wordQuill)
 
+    app.route('/api/acompteDevi/:id/:acompte')
+        .get(api.createAcompteDevi)
 
 
 };

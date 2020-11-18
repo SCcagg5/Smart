@@ -1,7 +1,7 @@
 const endpoint = "https://api.smartdom.ch"
 const password = "password"
 const OALegalGedId = "896ca0ed-8b4a-41fd-aeff-8de26ee1bcf9"
-const odooId = "smrte44df07ee9ac4c8eacc7a877052be67a";
+const odooId = "test";
 const contractAdr = "0x9520c239bae78a4a672a70370d85051fcd8dd6c9"
 
 let SmartService = {

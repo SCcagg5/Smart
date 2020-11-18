@@ -1106,3 +1106,7 @@ select{
 .select-search__value{
     z-index: 0;
 }
+
+.MuiSelect-selectMenu {
+    white-space: normal;
+}

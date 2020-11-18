@@ -46,6 +46,21 @@ services:
     networks:
       - db-net
 
+  rethink:
+    image: rethinkdb:latest
+    container_name: smartdom-web-rethink
+    restart: always
+    expose:
+      - 8080
+    ports:
+      - 28015:28015
+    volumes:
+      - ../Smartdom/Micro/rethinkdb/data:/data
+    command: rethinkdb --bind all -d /data
+    networks:
+      - db-net
+      - proxy
+
   smartdom_bck-end:
     build: ../Smartdom/Webapps/api.smartdom
     restart: always
@@ -86,6 +101,8 @@ services:
       - 80
      networks:
        - proxy
+     volumes:
+       - ../Smartdom/Webapps/veloone.smartdom/build:/app/build
      environment:
        VIRTUAL_HOST: veloone.${SMARTDOM_DOMAIN}
        VIRTUAL_PORT: 80
@@ -102,6 +119,8 @@ services:
       - 80
      networks:
        - proxy
+     volumes:
+      - ../Smartdom/Webapps/quinsac.smartdom/build:/app/build
      environment:
        VIRTUAL_HOST: quinsac.${SMARTDOM_DOMAIN}
        VIRTUAL_PORT: 80
@@ -118,6 +137,8 @@ services:
       - 80
      networks:
        - proxy
+     volumes:
+       - ../Smartdom/Webapps/assemblee.smartdom/build:/app/build
      environment:
        VIRTUAL_HOST: assemblee.${SMARTDOM_DOMAIN}
        VIRTUAL_PORT: 80

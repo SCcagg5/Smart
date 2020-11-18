@@ -19,8 +19,8 @@ services:
     volumes:
       - ../../Smartco/Webapps/ged.brainyfood:/app/
 
-  build-ged-brainy:
+  build-ged-enfin:
     build: .
-    container_name: build-ged-brainy
+    container_name: build-ged-enfin
     volumes:
       - ../../Smartco/Webapps/ged.enfin:/app/

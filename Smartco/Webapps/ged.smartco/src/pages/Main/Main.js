@@ -269,12 +269,23 @@ export default class Main extends React.Component {
     newClient: {
       ID: '',
       Nom: '',
+      Prenom:'',
       Type: '0',
       created_at: '',
       country: '',
       email: '',
       phone: '',
       isActif: true
+    },
+    newContact: {
+      uid: '',
+      nom: '',
+      prenom: '',
+      email: '',
+      phone: '',
+      rateFacturation:'',
+      type: 'associe',
+      created_at: ''
     },
     newClientFolder: {
       nom: '',
@@ -298,7 +309,9 @@ export default class Main extends React.Component {
     selectedTimeSheetIndex:0,
     selectedClientFolders:[],
     facturesToValidated:[],
-    facturesToValidatedCopy:[]
+    facturesToValidatedCopy:[],
+
+    openAddContactModal:false
   };
 
   componentDidMount() {
@@ -477,30 +490,17 @@ export default class Main extends React.Component {
                     facturesToValidatedCopy:facturesToValidatedCopy
                   });
 
-                  let connected_email = localStorage.getItem("email");
-                  let oa_contact = main_functions.getOAContactByEmail2(contacts,connected_email);
-                  if(oa_contact){
-                    this.setState({
-                      TimeSheet: {
-                        newTime: {
-                          duree: '',
-                          client: '',
-                          dossier_client: {
-                            name:'',
-                            facturation: {
-                              language:''
-                            },
-                          },
-                          langue:'',
-                          categoriesActivite: 'Temps facturé',
-                          description: '',
-                          date: new Date(),
-                          utilisateurOA: connected_email,
-                          rateFacturation: oa_contact.rateFacturation || ""
-                        }
-                      },
-                    })
-                  }
+                let connected_email = localStorage.getItem("email");
+                let oa_contact = main_functions.getOAContactByEmail2(contacts,connected_email);
+                if(oa_contact){
+                  let ts = this.state.TimeSheet;
+                  ts.newTime.utilisateurOA = connected_email;
+                  ts.newTime.rateFacturation = oa_contact.rateFacturation || ""
+                  this.setState({
+                    TimeSheet:ts
+                  })
+                }
+
 
                   let sharedFiles = gedRes.data.Shared.Content.files || [];
 
@@ -2569,7 +2569,30 @@ export default class Main extends React.Component {
       });
       setTimeout(() => {
         this.setState({
-          newClient: { ID: '', Nom: '', Type: '0', created_at: '', country: '', email: '', phone: '', isActif: true }
+          newClient: { ID: '', Nom: '', Prenom:'', Type: '0', created_at: '', country: '', email: '', phone: '', isActif: true }
+        });
+      }, 400);
+    });
+  }
+
+  addNewContact(){
+    this.setState({ firstLoading: true, loading: true, openAddContactModal: false });
+    let all_contacts = this.state.contacts;
+    let newContact = this.state.newContact;
+    newContact.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    all_contacts.push(newContact);
+
+    firebase.database().ref('/contacts/' + (all_contacts.length - 1)).set(newContact).then( ok => {
+      this.openSnackbar('success', newContact.nom + ' ' + newContact.prenom + ' est ajouté avec succès ');
+      this.props.history.push('/home/contacts/' + newContact.uid);
+      this.setState({
+        firstLoading: false, loading: false,
+        selectedContact: newContact,
+        selectedContactKey: newContact.uid
+      });
+      setTimeout(() => {
+        this.setState({
+          newContact: { uid: '', nom: '',prenom:'',  type: '', created_at: '', email: '', phone: '',rateFacturation:'' }
         });
       }, 400);
     });
@@ -2659,18 +2682,33 @@ export default class Main extends React.Component {
         this.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
       }else{
 
-        obj.newTime.duree = timeFormated;
+        /*obj.newTime.duree = timeFormated;*/
         let lignes_fact = this.state.lignesFactures || [];
 
         SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
           if(newCompRes.succes === true && newCompRes.status === 200){
-            obj.newTime.company_id = newCompRes.data.id;
+            /*obj.newTime.company_id = newCompRes.data.id;
             obj.newTime.date = moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD');
             obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             obj.user_email = localStorage.getItem('email');
             //obj.template = this.state.lignef_template;
-            //obj.newTime.client = this.state.selectedClientTimeEntree;
-            lignes_fact.push(obj);
+            //obj.newTime.client = this.state.selectedClientTimeEntree;*/
+            lignes_fact.push({
+              newTime: {
+                company_id:newCompRes.data.id,
+                date:moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD'),
+                duree: timeFormated,
+                client: this.state.TimeSheet.newTime.client,
+                dossier_client:this.state.TimeSheet.newTime.dossier_client,
+                categoriesActivite: this.state.TimeSheet.newTime.categoriesActivite,
+                description: this.state.TimeSheet.newTime.description,
+                utilisateurOA: this.state.TimeSheet.newTime.utilisateurOA,
+                rateFacturation: this.state.TimeSheet.newTime.rateFacturation,
+                langue:''
+              },
+              uid:Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+              user_email:localStorage.getItem('email')
+            });
 
             if(duplicate === false){
               this.setState({
@@ -2700,7 +2738,7 @@ export default class Main extends React.Component {
                 lignesFactures: lignes_fact,
                 TimeSheet: {
                   newTime: {
-                    duree: '',
+                    duree: objCopy.newTime.duree,
                     client: objCopy.newTime.client,
                     dossier_client:objCopy.newTime.dossier_client,
                     categoriesActivite: objCopy.newTime.categoriesActivite,
@@ -2754,6 +2792,8 @@ export default class Main extends React.Component {
     let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ?
       "Description (français)" : this.state.TimeSheet.newTime.dossier_client.facturation.language === "Anglais" ?
         "Description (anglais)" : "Description"
+
+
 
     return (
       <div>
@@ -3637,48 +3677,21 @@ export default class Main extends React.Component {
                         {
                           this.state.loading === false && this.state.firstLoading === false &&
                           <div>
-                            <h4 className="mt-0 mb-1">Contacts de fournisseurs de prestations de services</h4>
-                            <div className="row">
-                              <div className="col-xl-12">
-                                <div className="row">
-                                  <div className="col">
-                                    <div className="page-title-box">
-                                      <div className="row mt-3">
-                                        <div className="col-md-2 bg-danger text-center ">
-                                          <h4 style={{ color: 'white' }}>OA Legal</h4>
-                                        </div>
-                                        <hr style={{
-                                          backgroundColor: '#c0c0c0',
-                                          height: '2px',
-                                          borderStyle: 'solid',
-                                          color: 'red',
-                                          width: '80%',
-                                          marginTop: 25,
-                                          marginBottom: 25
-                                        }} />
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="card">
-                                  <div className="card-body">
-                                    {
-                                      this.state.contacts.length > 0 &&
-                                      <TableContact
-                                        contacts={this.state.contacts.filter(x => x.role === 'avocat')}
-                                        onEditClick={(contact, key) => {
-                                          this.setState({
-                                            selectedContact: contact,
-                                            selectedContactKey: contact.uid
-                                          });
-                                          this.props.history.push('/home/contacts/' + contact.uid);
-                                        }
-                                        } />
-                                    }
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                            <TableContact
+                              contacts={this.state.contacts}
+                              onAddBtnClick={() => {
+                                this.setState({
+                                  openAddContactModal:true
+                                })
+                              }}
+                              onEditClick={(contact, key) => {
+                                this.setState({
+                                  selectedContact: contact,
+                                  selectedContactKey: contact.uid
+                                });
+                                this.props.history.push('/home/contacts/' + contact.uid);
+                              }}
+                            />
                           </div>
                         }
 
@@ -3776,14 +3789,7 @@ export default class Main extends React.Component {
                                               id="nom"
                                               name="nom"
                                               value={this.state.selectedContact.nom}
-                                              onChange={this.handleChange('selectedContact', /*let clients_oa = this.state.annuaire_clients_mondat;
-                                                                                                                   clients_oa.map((c,key) => {
-                                                                                                                        c.ID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                                                                                                                        c.created_at = new Date().toDateString();
-                                                                                                                   });
-                                                                                                                   firebase.database().ref("/annuaire_client_mondat").set(clients_oa).then(ok => {
-                                                                                                                        console.log("ok")
-                                                                                                                   })*/'nom')} />
+                                              onChange={this.handleChange('selectedContact','nom')} />
                                           </div>
                                           <div
                                             className="col-md-6">
@@ -3830,15 +3836,12 @@ export default class Main extends React.Component {
                                               id="titre"
                                               name="titre"
                                               placeholder="Titre"
-                                              value={this.state.selectedContact.titre}
-                                              onChange={this.handleChange('selectedContact', 'titre')}
+                                              value={this.state.selectedContact.type}
+                                              onChange={this.handleChange('selectedContact', 'type')}
                                             >
                                               {
                                                 data.titres.map((titre, key) =>
-                                                  <option
-                                                    key={key}
-                                                    value={titre}
-                                                    label={titre} />
+                                                  <option key={key} value={titre.value} label={titre.label} />
                                                 )
                                               }
                                             </select>
@@ -3916,7 +3919,7 @@ export default class Main extends React.Component {
                             <div className="row">
                               <div className="col-lg-12">
                                 <div className="card-box text-center">
-                                  <img onClick={() => this.imageUpload.click()}
+                                  <img onClick={() => {}}
                                        src={this.state.selectedSociete.imageUrl ? this.state.selectedSociete.imageUrl : this.state.selectedSociete.Type === '0' ? entIcon : userAvatar}
                                        className="rounded-circle avatar-lg img-thumbnail"
                                        alt="" style={{ cursor: 'pointer', width: 120, height: 120, objectFit: 'cover' }}
@@ -4089,7 +4092,7 @@ export default class Main extends React.Component {
                                               />
                                             </div>
                                           </div>
-                                          <div className="col-md-6">
+                                          {/*<div className="col-md-6">
                                             <div>
                                               Type de dossier
                                             </div>
@@ -4108,7 +4111,7 @@ export default class Main extends React.Component {
                                                 }
                                               </select>
                                             </div>
-                                          </div>
+                                          </div>*/}
                                           <div className="col-md-12" style={{marginTop:20}}>
                                             <div>
                                               Description du mandat
@@ -4479,13 +4482,10 @@ export default class Main extends React.Component {
                                           this.state.showLignesFactureClient === false ?
                                             <div>
                                               <div className="row mt-2">
-                                                <div
-                                                  className="col-md-6">
+                                                <div className="col-md-6">
                                                   <h5>Durée</h5>
-                                                  <div
-                                                    className="row">
-                                                    <div
-                                                      className="col-md-5">
+                                                  <div className="row">
+                                                    <div className="col-md-5">
                                                       <Autosuggest
                                                         suggestions={this.state.timeSuggestions}
                                                         onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
@@ -4497,10 +4497,8 @@ export default class Main extends React.Component {
                                                         inputProps={inputSuggProps}
                                                       />
                                                     </div>
-                                                    <div
-                                                      className="col-md-7">
-                                                      <div
-                                                        style={{ display: 'flex' }}>
+                                                    <div className="col-md-7">
+                                                      <div style={{ display: 'flex' }}>
                                                         <Timer
                                                           initialTime={0}
                                                           startImmediately={false}
@@ -4584,8 +4582,7 @@ export default class Main extends React.Component {
                                                     </div>
                                                   </div>
                                                 </div>
-                                                <div
-                                                  className="col-md-4">
+                                                <div className="col-md-6">
                                                   <div>
                                                     <h5>Nom du client</h5>
                                                     <div style={{ display: 'flex' }}>
@@ -4634,7 +4631,7 @@ export default class Main extends React.Component {
                                                     <MuiSelect
                                                       labelId="demo-simple-select-label"
                                                       id="demo-simple-select"
-                                                      style={{ width: 217 }}
+                                                      style={{ width: 300 }}
                                                       value={this.state.TimeSheet.newTime.dossier_client}
                                                       onChange={(e) => {
                                                         console.log(e.target.value)
@@ -4655,14 +4652,13 @@ export default class Main extends React.Component {
                                                 </div>
                                               </div>
                                               <div className="row mt-3">
-                                                <div
-                                                  className="col-md-4">
+                                                <div className="col-md-6">
                                                   <div>
                                                     <h5>Catégorie d’activités </h5>
                                                     <MuiSelect
                                                       labelId="demo-simple-select-label"
                                                       id="demo-simple-select"
-                                                      style={{ width: '100%' }}
+                                                      style={{ width: 220 }}
                                                       value={this.state.TimeSheet.newTime.categoriesActivite}
                                                       onChange={(e) => {
                                                         let d = this.state.TimeSheet;
@@ -4677,8 +4673,7 @@ export default class Main extends React.Component {
                                                     </MuiSelect>
                                                   </div>
                                                 </div>
-                                                <div
-                                                  className="col-md-4">
+                                                <div className="col-md-6">
                                                   <div
                                                     style={{ width: '100%' }}>
                                                     <h5>Date</h5>
@@ -4700,8 +4695,7 @@ export default class Main extends React.Component {
                                                 </div>
                                               </div>
                                               <div className="row mt-3">
-                                                <div
-                                                  className="col-md-4">
+                                                <div className="col-md-6">
                                                   <div>
                                                     <div>
                                                       <h5>{new_timeSheet_desc}</h5>
@@ -4720,15 +4714,14 @@ export default class Main extends React.Component {
                                                       }} />
                                                   </div>
                                                 </div>
-                                                <div
-                                                  className="col-md-4">
+                                                <div className="col-md-6">
                                                   <div>
                                                     <h6>Utilisateur OA </h6>
                                                   </div>
                                                   <MuiSelect
                                                     labelId="demo-simple-select-label4545"
                                                     id="demo-simple-select4545"
-                                                    style={{width: "80%"}}
+                                                    style={{ width: 250 }}
                                                     onChange={(e) => {
                                                       let d = this.state.TimeSheet;
                                                       d.newTime.utilisateurOA = e.target.value;
@@ -4765,7 +4758,7 @@ export default class Main extends React.Component {
                                                     <Input
                                                       className="form-control "
                                                       id="duree"
-                                                      style={{ width: '100%' }}
+                                                      style={{ width: 250 }}
                                                       name="duree"
                                                       type="text"
                                                       endAdornment={
@@ -4779,22 +4772,6 @@ export default class Main extends React.Component {
                                                       }} />
                                                   </div>
                                                 </div>
-                                                {/*<div className="col-md-4">
-                                                  <h6>Choix du template </h6>
-                                                  <select
-                                                    className="form-control custom-select"
-                                                    value={this.state.lignef_template}
-                                                    onChange={(e) => {
-                                                      this.setState({ lignef_template: e.target.value });
-                                                    }}>
-                                                    {
-                                                      data.lf_templates.map((item,key) =>
-                                                          <option key={key} value={item.value}>{item.label}</option>
-                                                      )
-                                                    }
-
-                                                  </select>
-                                                </div>*/}
                                               </div>
                                               <div align="center" className=" mt-4">
                                                 <AltButtonGroup>
@@ -4965,6 +4942,7 @@ export default class Main extends React.Component {
                                         <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
                                         <TableFactures factures={this.state.facturesToValidated}
                                                        client_folders={this.state.client_folders}
+                                                       annuaire_clients_mondat={this.state.annuaire_clients_mondat}
                                                        validateFacture={(row,key,template,client) => {
                                                          this.createFacture_ForSelected(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
                                                        }}
@@ -5150,7 +5128,7 @@ export default class Main extends React.Component {
                 })
               }
             >
-              Nouveau doossier
+              Nouveau dossier
             </ModalHeader>
             <ModalBody>
               <div style={{ marginTop: 35 }}>
@@ -5815,22 +5793,21 @@ export default class Main extends React.Component {
                 contacts={this.state.contacts}
                 onSelectBtnClick={(client) => {
                   let obj = this.state.TimeSheet;
-                  obj.newTime.client = client.ContactName;
-                  let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(
-                    (x) => (x.Nom + ' ' + x.Prenom) === client.Nom + ' ' + client.Prenom
-                  );
-                  let partner_email = find_annuaire_fact_lead
-                    ? find_annuaire_fact_lead.facturation
-                      ? find_annuaire_fact_lead.facturation.collaborateur_lead
-                      : ''
-                    : '';
 
-                  this.setState({
-                    openAdvancedSearchModal: false,
-                    partnerFacture: partner_email,
-                    selectedClientTimeEntree: client.Nom + ' ' + client.Prenom,
-                    TimeSheet: obj
-                  });
+                  let findClientTempo = this.state.clients_tempo.find(x => x.ID === client.ID)
+                  let findClientFname = this.state.annuaire_clients_mondat.find(x => x.ID === client.ID)
+                  console.log(findClientFname)
+                  obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                  if(findClientTempo){
+                    this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: client.ID,TimeSheet: obj,openAdvancedSearchModal: false})
+                  }else{
+                    obj.newTime.dossier_client =  {
+                      name:'',
+                      facturation: {
+                        language:''
+                      }}
+                    this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: client.ID,openAdvancedSearchModal: false})
+                  }
                 }}
               />
             </DialogContent>
@@ -5866,20 +5843,19 @@ export default class Main extends React.Component {
             <DialogContent>
               <div className="row mt-3">
                 <div className="col-md-6">
-
-                  <p style={{ marginBottom: 10 }}>Nom du client</p>
-                  <input
+                  <p style={{ marginBottom: 10 }}>Type</p>
+                  <select
                     style={{ minWidth: 300, height: 40 }}
-                    type="text"
-                    className="form-control"
-                    id="nomc"
-                    name="nomc"
-                    value={this.state.newClient.Nom}
-                    onChange={this.handleChange('newClient', 'Nom')} />
-
+                    className="form-control custom-select"
+                    id="nomt"
+                    name="nomt"
+                    value={this.state.newClient.Type}
+                    onChange={this.handleChange('newClient', 'Type')}>
+                    <option value="0">Une société</option>
+                    <option value="1">Personne physique</option>
+                  </select>
                 </div>
                 <div className="col-md-6">
-
                   <p style={{ marginBottom: 10 }}>Email</p>
                   <input
                     style={{ minWidth: 300, height: 40 }}
@@ -5894,19 +5870,33 @@ export default class Main extends React.Component {
               </div>
               <div className="row mt-3">
                 <div className="col-md-6">
-                  <p style={{ marginBottom: 10 }}>Type</p>
-                  <select
+                  <p style={{ marginBottom: 10 }}>Nom du client</p>
+                  <input
                     style={{ minWidth: 300, height: 40 }}
-                    className="form-control custom-select"
-                    id="nomt"
-                    name="nomt"
-                    value={this.state.newClient.Type}
-                    onChange={this.handleChange('newClient', 'Type')}>
-                    <option value="0">Corporate</option>
-                    <option value="1">Litige</option>
-                  </select>
+                    type="text"
+                    className="form-control"
+                    id="nomc"
+                    name="nomc"
+                    value={this.state.newClient.Nom}
+                    onChange={this.handleChange('newClient', 'Nom')} />
                 </div>
-                <div className="col-md-6">
+                {
+                  this.state.newClient.Type === "1" &&
+                  <div className="col-md-6">
+                    <p style={{ marginBottom: 10 }}>Prénom du client</p>
+                    <input
+                      style={{ minWidth: 300, height: 40 }}
+                      type="text"
+                      className="form-control"
+                      id="nomc"
+                      name="nomc"
+                      value={this.state.newClient.Prenom}
+                      onChange={this.handleChange('newClient', 'Prenom')} />
+                  </div>
+                }
+              </div>
+              <div className="row mt-3">
+                  <div className="col-md-6">
                   <p style={{ marginBottom: 10 }}>Téléphone</p>
                   <input
                     style={{ minWidth: 300, height: 40 }}
@@ -5918,8 +5908,6 @@ export default class Main extends React.Component {
                     onChange={this.handleChange('newClient', 'phone')} />
 
                 </div>
-              </div>
-              <div className="row mt-3">
                 <div className="col-md-6">
                   <p style={{ marginBottom: 10 }}>Pays</p>
                   <select
@@ -5950,9 +5938,142 @@ export default class Main extends React.Component {
                 Annuler
               </MuiButton>
               <MuiButton
-                disabled={this.state.newClient.Nom === ''}
+                disabled={this.state.newClient.Nom === '' || this.state.newClient.email === ''}
                 onClick={() => {
                   this.addNewClient();
+                }}
+                color="primary"
+                variant="contained"
+                style={{ textTransform: 'capitalize' }}
+              >
+                Créer
+              </MuiButton>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog
+            maxWidth="xl"
+            open={this.state.openAddContactModal}
+            onClose={() => {
+              this.setState({ openAddContactModal: !this.state.openAddContactModal });
+            }}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle disableTypography id="form-dialog-title">
+              <Typography variant="h6">Ajouter un nouveau membre</Typography>
+              <IconButton
+                aria-label="close"
+                style={{
+                  position: 'absolute',
+                  right: 5,
+                  top: 5,
+                  color: '#c0c0c0'
+                }}
+                onClick={() => {
+                  this.setState({
+                    openAddContactModal: !this.state.openAddContactModal
+                  });
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent>
+              <div className="row mt-3">
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Nom</p>
+                  <input
+                    style={{ minWidth: 300, height: 40 }}
+                    type="text"
+                    className="form-control"
+                    id="nomc"
+                    name="nomc"
+                    value={this.state.newContact.nom}
+                    onChange={this.handleChange('newContact', 'nom')} />
+
+                </div>
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Prénom</p>
+                  <input
+                    style={{ minWidth: 300, height: 40 }}
+                    type="email"
+                    className="form-control"
+                    id="nome"
+                    name="nome"
+                    value={this.state.newContact.prenom}
+                    onChange={this.handleChange('newContact', 'prenom')} />
+                </div>
+              </div>
+              <div className="row mt-3">
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Email</p>
+                  <input
+                    style={{ minWidth: 300, height: 40 }}
+                    type="email"
+                    className="form-control"
+                    id="nome"
+                    name="nome"
+                    value={this.state.newContact.email}
+                    onChange={this.handleChange('newContact', 'email')} />
+                </div>
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Téléphone</p>
+                  <input
+                    style={{ minWidth: 300, height: 40 }}
+                    type="text"
+                    className="form-control"
+                    id="nomt"
+                    name="nomt"
+                    value={this.state.newContact.phone}
+                    onChange={this.handleChange('newContact', 'phone')} />
+
+                </div>
+              </div>
+              <div className="row mt-3">
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Titre</p>
+                  <select
+                    style={{ minWidth: 300, height: 40 }}
+                    className="form-control custom-select"
+                    id="nomt"
+                    name="nomt"
+                    value={this.state.newContact.type}
+                    onChange={this.handleChange('newContact', 'type')}>
+                    {
+                      data.titres.map((titre, key) =>
+                        <option key={key} value={titre.value} label={titre.label} />
+                      )
+                    }
+                  </select>
+                </div>
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Taux horaire</p>
+                  <input
+                    style={{ minWidth: 300, height: 40 }}
+                    type="text"
+                    className="form-control"
+                    id="nomt"
+                    name="nomt"
+                    value={this.state.newContact.rateFacturation}
+                    onChange={this.handleChange('newContact', 'rateFacturation')} />
+                </div>
+              </div>
+            </DialogContent>
+
+            <DialogActions style={{ padding: 20 }}>
+              <MuiButton
+                onClick={() => {
+                  this.setState({ openAddContactModal: false });
+                }}
+                color="primary"
+                style={{ textTransform: 'capitalize' }}
+              >
+                Annuler
+              </MuiButton>
+              <MuiButton
+                disabled={this.state.newContact.nom.trim() === '' || this.state.newContact.prenom.trim() === '' || this.state.newContact.email === ''}
+                onClick={() => {
+                  this.addNewContact()
                 }}
                 color="primary"
                 variant="contained"

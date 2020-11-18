@@ -1,8 +1,11 @@
+from gevent import monkey;  monkey.patch_all()
 from bottle import Bottle, run, route, response, request, hook, error, BaseRequest
 from Model.basic import ret, check, callnext
 from Controller.routes import *
 import json as JSON
 import os
+from gevent.pywsgi import WSGIServer
+from geventwebsocket.handler import WebSocketHandler
 
 app = Bottle()
 host =      str(os.getenv('API_HOST', '0.0.0.0'))
@@ -15,7 +18,7 @@ adm_pass =  str(os.getenv('API_ADM', None))
 db_user =   str(os.getenv('DB_USER', 'password'))
 db_pass =   str(os.getenv('DB_PASS', 'password'))
 
-call = lambda x : callnext(request, response).call(x)
+call = lambda x = [] , y = False  : callnext(request, response).call(x, y)
 
 BaseRequest.MEMFILE_MAX = 1024 * 1024 * 256
 
@@ -37,4 +40,6 @@ def error(error):
 
 if __name__ == '__main__':
     setuproute(app, call)
-    run(app, host=host, port=port, debug=True )
+    server = WSGIServer((host, port), app, handler_class=WebSocketHandler)
+    print(f"access @ http://{host}:{port}/websocket.html")
+    server.serve_forever()

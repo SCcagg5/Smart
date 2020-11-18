@@ -27,7 +27,7 @@ function renderSearchOption(props, option, snapshot, className) {
     borderRadius: '50%',
     verticalAlign: 'middle',
     marginRight: 10,
-    width: 32, height: 32, objectFit: 'cover'
+    width: 32, height: 32, objectFit: 'contain'
   };
 
   return (
