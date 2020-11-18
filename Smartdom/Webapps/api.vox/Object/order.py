@@ -2,7 +2,6 @@ import json
 import time
 from .sql import sql
 from .tpe import tpe
-from .ether import eth_contract
 import jwt
 
 class order:
