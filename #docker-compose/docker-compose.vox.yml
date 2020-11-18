@@ -12,7 +12,7 @@ networks:
       name: docker-compose_smartco-db-net
 
 services:
-  map_bck-end:
+  map_bck-end-vox:
     build: ../Smartco/Webapps/api.vox
     expose:
       - 8080
