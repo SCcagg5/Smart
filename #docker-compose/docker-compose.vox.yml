@@ -1,0 +1,30 @@
+version: '3'
+
+networks:
+  proxy:
+    external:
+      name: docker-compose_proxy
+  web-net:
+    external:
+      name: docker-compose_smartco-web-net
+  db-net:
+    external:
+      name: docker-compose_smartco-db-net
+
+services:
+  map_bck-end:
+    build: ../Smartco/Webapps/api.vox
+    expose:
+      - 8080
+    tty: true
+    stdin_open: true
+    networks:
+      - db-net
+      - proxy
+    volumes:
+      - ../Smartco/Webapps/api.vox:/home/api/
+    environment:
+      VIRTUAL_HOST: api.vox.smartdom.ch
+      VIRTUAL_PORT: 8080
+      LETSENCRYPT_HOST: api.vox.smartdom.ch.
+      LETSENCRYPT_EMAIL: eliot.courtel@
