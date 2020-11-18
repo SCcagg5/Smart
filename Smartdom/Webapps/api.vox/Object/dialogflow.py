@@ -25,4 +25,4 @@ class fulfillement:
                     "source": 'webhook'
                     }
                 }
-        return [True, agent.response, None]
+        return [True, agent['response'], None]
