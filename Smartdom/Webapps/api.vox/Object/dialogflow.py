@@ -8,11 +8,11 @@ class fulfillement:
 
     def command(agent):
         if "product" not in agent.parameters:
-            agend.add("Que voulez vous commander ?")
+            agent.add("Que voulez vous commander ?")
             return
         prod = agent.parameters["product"]
         if len(prod) == 0:
-            agend.add("Que voulez vous commander ?")
+            agent.add("Que voulez vous commander ?")
             return
         if "number" not in agent.parameters:
             nb = [1 for _ in prod]
