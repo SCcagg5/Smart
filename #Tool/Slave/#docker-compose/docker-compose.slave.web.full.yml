@@ -69,8 +69,8 @@ services:
      stdin_open: true
      depends_on:
        - datab
-     ports:
-       - 8080:8080
+     expose:
+       - 8080
      networks:
        - proxy
        - db-net
