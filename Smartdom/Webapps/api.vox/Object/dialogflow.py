@@ -29,17 +29,25 @@ class fulfillement:
         talk_prod = (dprod[0] if len(dprod) == 1 else ", ".join(dprod[:-1]) + " et "+ dprod[len(dprod) - 1])
         agent.add("Vous avez commandé " + talk_prod + ", c'est bien cela ?")
 
+    def complete(agent):
+        if agent.session in SESSION:
+            phone = SESSION[agent.session]
+            phone = "0" + phone[1:2] + " " + phone[3:5] + " " + phone[5:7] + " "+ phone[7:9] + " " + phone[9:11]
+            print(phone)
+            agent.add("Parfait votre commande sera prete dans 20 minutes, vous pourrez vous identifier avec votre numéro de téléphone: " + phone)
+        else:
+            agent.add("nop")
+
 
     def error(agent):
         agent.add("Désolé, une erreur s'est produite")
 
     def call(data):
         handler = {
-            "welcome": fulfillement.welcome,
-            "Je voudrais commander": fulfillement.command
+            "welcome": fulfillement.complete,
+            "Je voudrais commander": fulfillement.command,
+            "payer": complete
         }
-
-
         if data:
             if 'queryResult' in data:
                 if 'outputContexts' in data['queryResult']:
@@ -48,7 +56,6 @@ class fulfillement:
                             if 'phone' in i['parameters']:
                                 p= i['parameters']['phone']
                                 SESSION[data['session']] = p
-            print(SESSION)
             agent = WebhookClient(data)
             if agent.intent not in handler:
                 agent.handle_request(fulfillement.error)
