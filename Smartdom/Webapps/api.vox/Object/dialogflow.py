@@ -1,6 +1,8 @@
 import json
 from dialogflow_fulfillment import WebhookClient, QuickReplies
 
+SESSION = {}
+
 class fulfillement:
     def welcome(agent):
          agent.add('Bonjour, je suis Sacha l\'assistante virtuelle de commande, comment puis-je vous aider ?')
@@ -36,9 +38,17 @@ class fulfillement:
             "welcome": fulfillement.welcome,
             "Je voudrais commander": fulfillement.command
         }
+
+
         if data:
+            if 'outputContexts' in data:
+                if len(data['outputContexts']) > 0:
+                    for i in data['outputContexts']:
+                        if 'phone' in i['parameters']:
+                            p= i['parameters']['phone']
+                            SESSION[data['session']] = p
+            print(SESSION)
             agent = WebhookClient(data)
-            print(data)
             if agent.intent not in handler:
                 agent.handle_request(fulfillement.error)
             agent.handle_request(handler[str(agent.intent)])
