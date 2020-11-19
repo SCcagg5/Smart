@@ -42,9 +42,9 @@ class fulfillement:
 
     def call(data):
         handler = {
-            "welcome": fulfillement.complete,
+            "welcome": fulfillement.welcome,
             "Je voudrais commander": fulfillement.command,
-            "payer": fulfillement.complete
+            "confirmer commande": fulfillement.complete
         }
         if data:
             if 'queryResult' in data:
