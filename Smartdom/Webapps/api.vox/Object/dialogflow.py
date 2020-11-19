@@ -41,12 +41,13 @@ class fulfillement:
 
 
         if data:
-            if 'outputContexts' in data:
-                if len(data['outputContexts']) > 0:
-                    for i in data['outputContexts']:
-                        if 'phone' in i['parameters']:
-                            p= i['parameters']['phone']
-                            SESSION[data['session']] = p
+            if 'queryResult' in data:
+                if 'outputContexts' in data['queryResult']:
+                    if len(data['queryResult']['outputContexts']) > 0:
+                        for i in data['queryResult']['outputContexts']:
+                            if 'phone' in i['parameters']:
+                                p= i['parameters']['phone']
+                                SESSION[data['session']] = p
             print(SESSION)
             agent = WebhookClient(data)
             if agent.intent not in handler:
