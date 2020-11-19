@@ -46,7 +46,7 @@ class fulfillement:
         handler = {
             "welcome": fulfillement.complete,
             "Je voudrais commander": fulfillement.command,
-            "payer": complete
+            "payer": fulfillement.complete
         }
         if data:
             if 'queryResult' in data:
