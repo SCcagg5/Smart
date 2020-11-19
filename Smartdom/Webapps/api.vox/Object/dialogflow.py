@@ -23,7 +23,7 @@ class fulfillement:
             if len(nb) != len(prod):
                 agent.add("Pouvez-vous répeter en précisant la quantité pour chaque plat ?")
                 return
-        dprod = [("" if nb[i] == 1 else str(nb[i]) + " ") + prod[i].split('|')[0 if nb[i] == 1 else 1] for i in range(0, len(prod))]
+        dprod = [("" if nb[i] == 1 else str(int(nb[i])) + " ") + prod[i].split('|')[0 if nb[i] == 1 else 1] for i in range(0, len(prod))]
         talk_prod = (dprod[0] if len(dprod) == 1 else ", ".join(dprod[:-1]) + " et "+ dprod[len(dprod) - 1])
         agent.add("Vous avez commandé " + talk_prod + ", c'est correct ?")
 
