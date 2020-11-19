@@ -13,9 +13,9 @@ networks:
 
 
 services:
-    brainysql:
+    dark-sql:
     image: mysql:5.7
-    container_name: brainy-web-sql
+    container_name: dark-web-sql
     restart: always
     volumes:
       - ../sql/data:/var/lib/mysql
@@ -27,9 +27,9 @@ services:
       MYSQL_DATABASE: brainyfood
       MYSQL_PASSWORD: testtest
 
-    smartco-ged:
+    dark-ged:
        build: ../Smartdom/Webapps/ged/ged.dark_kitchen
-       container_name: smartco-ged-nginx
+       container_name: dark-ged-nginx
        restart: always
        tty: true
        stdin_open: true
@@ -55,9 +55,9 @@ services:
          REACT_APP_MEET_URL: https://meet.smartdom.ch/darkkitchen
          REACT_APP_LOGIN_BTN_COLOR: "#2CAB66"
 
-   majorsante-api:
+    dark-api:
        build: ../Smartco/Webapps/api.BrainyFood
-       container_name: majorsante-api
+       container_name: dark-api
        restart: always
        tty: true
        stdin_open: true
