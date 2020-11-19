@@ -27,6 +27,7 @@
     "mgr-pdf-viewer-react": "^1.0.3",
     "moment": "^2.24.0",
     "node-sass": "^4.11.0",
+    "pdf-lib": "^1.11.1",
     "pdf-to-base64": "^1.0.3",
     "pdf-viewer-reactjs": "^1.0.5",
     "prop-types": "^15.7.2",
@@ -75,14 +76,14 @@
     "react-tabs": "^3.1.1",
     "react-window-size": "^1.2.2",
     "reactstrap": "^8.0.0",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^2.0.0",
     "styled-components": "^4.4.1",
     "styletron-engine-atomic": "^1.4.6",
     "styletron-react": "^5.2.7",
     "timeago.js": "^4.0.0-beta.2",
-    "xlsx-parse-json": "^3.1.0",
-    "pdf-lib": "^1.11.1",
-    "semantic-ui-react": "^2.0.0",
-    "video-react": "^0.14.1"
+    "video-react": "^0.14.1",
+    "xlsx-parse-json": "^3.1.0"
   },
   "scripts": {
     "start": "GENERATE_SOURCEMAP=false react-scripts start",

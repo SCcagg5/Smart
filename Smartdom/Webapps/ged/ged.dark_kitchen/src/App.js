@@ -9,7 +9,7 @@ import Error from "./pages/Error/Error";
 import Main from "./pages/Main/Main";
 import RedirectCp from "./pages/RedirectCp"
 import signup from "./pages/auth/signup";
-import NewRecette from "./pages/Recettes/NewRecette";
+import NewRecette from "./pages/Marketplace/Recettes/NewRecette";
 import Questions from "./pages/questions/questions";
 
 import logo from "./assets/logos/dark-kitchen_logo.jpeg"

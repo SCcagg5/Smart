@@ -5,18 +5,18 @@ import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 import Button from '@material-ui/core/Button';
 import "video-react/dist/video-react.css"; // import css
-import MySnackbarContentWrapper from "../../tools/customSnackBar";
+import MySnackbarContentWrapper from "../../../tools/customSnackBar";
 import firebase from "firebase";
-import  Loader from "../../components/Loader"
+import  Loader from "../../../components/Loader"
 import { withStyles } from '@material-ui/core/styles';
 import ListSubheader from '@material-ui/core/ListSubheader';
-import  recetteService from "../../provider/RecetteService"
+import  recetteService from "../../../provider/RecetteService"
 import CircularProgress from '@material-ui/core/CircularProgress';
-import plus from "../../assets/images/icons/plus.svg"
+import plus from "../../../assets/images/icons/plus.svg"
 import Snackbar from "@material-ui/core/Snackbar"
 import { Player } from 'video-react';
 import { Dropdown } from 'semantic-ui-react'
-import NewRecTopBar from "../../components/TopBar/newRecTopBar";
+import NewRecTopBar from "../../../components/TopBar/newRecTopBar";
 
 const useStyles = withStyles((theme) => ({
     formControl: {
@@ -871,8 +871,8 @@ export default class NewRecette extends Component {
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
                                                 >
-                                                    {this.state.foodlist.legumes.filter(name => (name.text.startsWith('R')||name.text.startsWith('S')||name.text.startsWith('T'))).map(filteredName => (
-                                                        <MenuItem value={filteredName.value}  data-my-value={filteredName.text}  >{filteredName.text} </MenuItem>
+                                                    {this.state.foodlist.legumes.filter(name => (name.text.startsWith('R')||name.text.startsWith('S')||name.text.startsWith('T'))).map((filteredName,key) => (
+                                                        <MenuItem key={key} value={filteredName.value}  data-my-value={filteredName.text}  >{filteredName.text} </MenuItem>
                                                     ))}
 
                                                 </Select>
@@ -950,7 +950,7 @@ export default class NewRecette extends Component {
                             <h5 style={{color:"blue"}}> Produits cerealiers </h5>
 
                             {this.state.Ingredients.cerealiers.map((item,key)=>(
-                                <div className="row mb-5 ">
+                                <div key={key} className="row mb-5 ">
                                     <div className="col-md-10 ">
                                         <div className="row align-items-center justify-content-start">
 
@@ -987,8 +987,8 @@ export default class NewRecette extends Component {
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
                                                 >
-                                                    {this.state.foodlist.cerealiers.filter(name => (name.text.startsWith('A')||name.text.startsWith('B'))).map(filteredName => (
-                                                        <MenuItem value={filteredName.value}  data-my-value={filteredName.text}  >{filteredName.text} </MenuItem>
+                                                    {this.state.foodlist.cerealiers.filter(name => (name.text.startsWith('A')||name.text.startsWith('B'))).map((filteredName,key) => (
+                                                        <MenuItem key={key} value={filteredName.value}  data-my-value={filteredName.text}  >{filteredName.text} </MenuItem>
                                                     ))}
 
                                                 </Select>
@@ -1012,8 +1012,8 @@ export default class NewRecette extends Component {
                                                     {this.state.foodlist.cerealiers.filter(name => (name.text.startsWith('C')
                                                         ||name.text.startsWith('D')||name.text.startsWith('E')||name.text.startsWith('F')||name.text.startsWith('G')
                                                         ||name.text.startsWith('H')||name.text.startsWith('I')||name.text.startsWith('J')||name.text.startsWith('K')
-                                                        ||name.text.startsWith('l')||name.text.startsWith('M'))).map(filteredName => (
-                                                        <MenuItem value={filteredName.value}  data-my-value={filteredName.text}  >{filteredName.text} </MenuItem>
+                                                        ||name.text.startsWith('l')||name.text.startsWith('M'))).map((filteredName,key) => (
+                                                        <MenuItem key={key} value={filteredName.value}  data-my-value={filteredName.text}  >{filteredName.text} </MenuItem>
                                                     ))}
 
                                                 </Select>
@@ -1135,7 +1135,7 @@ export default class NewRecette extends Component {
                             <h5 style={{color:"blue"}}> Produits Laitiers </h5>
 
                             {this.state.Ingredients.laitiers.map((item,key)=>(
-                                <div className="row mb-5 ">
+                                <div key={key} className="row mb-5 ">
                                     <div className="col-md-10 ">
                                         <div className="row align-items-center justify-content-start">
 
@@ -1384,7 +1384,7 @@ export default class NewRecette extends Component {
                             <h5 style={{color:"blue"}}> Viande</h5>
 
                             {this.state.Ingredients.viandes.map((item,key)=>(
-                                <div className="row mb-5 ">
+                                <div key={key} className="row mb-5 ">
                                     <div className="col-md-10 ">
                                         <div className="row align-items-center justify-content-start">
 
@@ -1651,7 +1651,7 @@ export default class NewRecette extends Component {
 
                         <div className="mt-2">
                             {this.state.preparation.map((item,key)=>(
-                                <div className="row ml-3 align-items-center mt-2">
+                                <div key={key} className="row ml-3 align-items-center mt-2">
                                     <div className="col-md-1">
                                         <h5> {"Etape "+ (key+1)}</h5>
                                     </div>
@@ -1758,7 +1758,6 @@ export default class NewRecette extends Component {
 
                         <div className="row justify-content-center mt-5">
                             <Button
-                                loading={true}
                                 style={{background:"#4ca832",color:"white",width:"40%"}}
                                 onClick={()=>{this.saveData()}}
 

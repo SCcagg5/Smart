@@ -255,7 +255,7 @@ export default function RoomTabs(props) {
                                                             email: item.email,
                                                             valid: true,
                                                             key: parseInt(moment().format("DDMMYYYYHHmmss")),
-                                                            avatar:item.imageUrl,
+                                                            avatar:item.imageUrl || "",
                                                             fname:item.prenom +" "+item.nom
                                                         })
                                                     })
@@ -486,14 +486,14 @@ export default function RoomTabs(props) {
                                     onClose={() => setAnchorElContactsMenu(null)}
                                 >
                                     {
-                                        props.contacts.filter(x => x.role === "avocat").map((contact, key) =>
+                                        props.contacts.map((contact, key) =>
                                             <MenuItem key={key} onClick={() => {
                                                 let emails = teamEmails;
                                                 emails.push({
                                                     email: contact.email,
                                                     valid: true,
                                                     key: parseInt(moment().format("DDMMYYYYHHmmss")),
-                                                    avatar:contact.imageUrl,
+                                                    avatar:contact.imageUrl || "",
                                                     fname:contact.prenom +" "+contact.nom
                                                 })
                                                 setAnchorElContactsMenu(null)

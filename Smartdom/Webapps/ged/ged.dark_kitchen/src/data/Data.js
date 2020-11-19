@@ -3,6 +3,7 @@ import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
 import HomeWorkIcon from '@material-ui/icons/HomeWork';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import FastfoodIcon from '@material-ui/icons/Fastfood';
+import FolderIcon from '@material-ui/icons/Folder';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -38,16 +39,6 @@ let Data = {
             title:"Client (Mandat)",
             icon:HomeWorkIcon
         }
-        /*{
-            nodeId:"prospAc",
-            title:"Prospect à contacter",
-            icon:HomeWorkIcon
-        },
-        {
-            nodeId:"prospEc",
-            title:"Prospect en cours",
-            icon:HomeWorkIcon
-        }*/
     ],
 
     ContactsMenuItem : [
@@ -56,19 +47,49 @@ let Data = {
             title:"Détails",
             icon:PeopleAltIcon
         }
-        /*{
-            nodeId:"ae",
-            title:"Annuaire Ecosystème",
-            icon:PeopleAltIcon
-        }*/
     ],
 
     marketplaceMenuItem : [
         {
             nodeId:"recettes",
-            title:"Recettes",
+            title:"Editeur de recettes",
             icon:FastfoodIcon
+        },
+        {
+            nodeId:"RH_CUISINE",
+            title:"RH Cuisine",
+            icon:FolderIcon
         }
+        ,
+        {
+            nodeId:"RH_Support_markt",
+            title:"RH Support markt",
+            icon:FolderIcon
+        }
+        ,
+        {
+            nodeId:"RH_Distribution",
+            title:"RH Distribution",
+            icon:FolderIcon
+        }
+        ,
+        {
+            nodeId:"RH_Support_ponctuel",
+            title:"RH Support Ponctuel",
+            icon:FolderIcon
+        }
+        ,
+        {
+            nodeId:"RH_DK",
+            title:"Ressources Dark Kitchen(Locaux)",
+            icon:FolderIcon
+        },
+        {
+            nodeId:"RH_HW_Livr",
+            title:"HW Livraison(scooter)",
+            icon:FolderIcon
+        }
+
         /*{
             nodeId:"ae",
             title:"Annuaire Ecosystème",
@@ -234,6 +255,14 @@ let Data = {
         ]
     },
 
+    fonctions:[
+        {value:"avocat",label:"Avocat"},
+        {value:"notaire",label:"Notaire"},
+        {value:"expert_comptable",label:"Expert comptable"},
+        {value:"audit",label:"Audit"},
+        {value:"CFO",label:"CFO(financier)"},
+    ],
+
 
     titres : [
         {value:"",label:""},
@@ -285,16 +314,22 @@ let Data = {
     ],
 
     domainesAct : [
-        "Droits des sociétés et contrats commerciaux" , "Droit bancaire et financier", "Négoce de valeurs mobilières" ,
-        "Matières premières et transport maritime" , "Contentieux" ,"Permis de séjour et de travail","Naturalisation suisse",
-        "Droit pénal / Criminalité économique" , "Expatriés et relocalisation" , "Droit immobilier",
+        "Droits des sociétés et contrats commerciaux" ,
+        "Droit bancaire et financier",
+        "Négoce de valeurs mobilières" ,
+        "Matières premières et transport maritime" ,
+        "Contentieux" ,
+        "Permis de séjour et de travail",
+        "Naturalisation suisse",
+        "Droit pénal / Criminalité économique" ,
+        "Expatriés et relocalisation" ,
+        "Droit immobilier",
         "Toutes questions légales en relation avec les expatriés en Suisse",
     ],
     affiliations : [
         "Membre de l’Ordre des Avocats de Genève",
         "Membre de l’Association Genevoise des Droits des Affaires",
         "Membre de l’Association des avocats d’affaires internationaux (AIBL)",
-        "Membre de l’Association Genevoise des Droits des Affaires",
         "Membre de l’Association du Barreau de New York",
         "Membre de l’Association du Barreau Américain (ABA)"
     ],

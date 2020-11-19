@@ -1,15 +1,15 @@
 import React from "react";
-import A from "../../assets/images/nutriscore/A.png"
-import B from "../../assets/images/nutriscore/B.png"
-import C from "../../assets/images/nutriscore/C.png"
-import D from "../../assets/images/nutriscore/D.png"
-import E from "../../assets/images/nutriscore/E.png"
-import  pdf from '../../assets/doc/PadthaiNL.pdf'
+import A from "../../../assets/images/nutriscore/A.png"
+import B from "../../../assets/images/nutriscore/B.png"
+import C from "../../../assets/images/nutriscore/C.png"
+import D from "../../../assets/images/nutriscore/D.png"
+import E from "../../../assets/images/nutriscore/E.png"
+import  pdf from '../../../assets/doc/PadthaiNL.pdf'
 import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import "./recetteid.css"
 import Button from '@material-ui/core/Button';
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
-import SmartService from "../../provider/SmartService";
+import SmartService from "../../../provider/SmartService";
 import download from 'downloadjs'
 
 export default function recetteDetail(props){

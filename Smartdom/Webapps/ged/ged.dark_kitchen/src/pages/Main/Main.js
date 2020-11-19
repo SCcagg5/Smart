@@ -60,23 +60,15 @@ import entIcon from '../../assets/images/entreprise-icon.png';
 import userAvatar from '../../assets/images/users/user4.jpg';
 import Data from '../../data/Data';
 import CB from '@material-ui/core/Checkbox';
-import Autosuggest from 'react-autosuggest';
 import '../../assets/css/inputSuggestion.css';
 import '../../assets/css/react-select-search.css';
-import Timer from 'react-compound-timer';
-import SelectSearch from 'react-select-search';
-import SearchIcon from '@material-ui/icons/Search';
 import DatePicker from 'react-date-picker';
 import calendar from '../../assets/icons/calendar_icon.jpg';
-import AtlButton, { ButtonGroup as AltButtonGroup } from '@atlaskit/button';
 import TableTimeSheet from '../../components/Tables/TableTimeSheet';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
 import main_functions from '../../controller/main_functions';
 import DescriptionIcon from '@material-ui/icons/Description';
-import TableFactures from '../../components/Tables/TableFactures';
 import xlsxParser from 'xlsx-parse-json';
 import Slide from "@material-ui/core/Slide";
-import Facturation from "../Facturation/Facturation"
 import TablePatientsBrainy from "../../components/Tables/TablePatientsBrainy";
 import QuestionService from "../../provider/webserviceQuestions";
 import PatientService from "../../provider/patientservice";
@@ -106,8 +98,9 @@ import defaultAvatar from '../../assets/images/users/default_avatar.jpg';
 import Staricon from '@material-ui/icons/Star';
 import CheckCircle from '@material-ui/icons/CheckCircle';
 import MoodIcon from '@material-ui/icons/Mood';
-import RecetteDetail from "../Recettes/RecetteDetail";
+import RecetteDetail from "../Marketplace/Recettes/RecetteDetail";
 import ClampLines from 'react-clamp-lines';
+import Table_prestataire_service from "../../components/Tables/Table_prestataire_service";
 
 const url=process.env.REACT_APP_JAWHER_API_ENDPOINT
 const question1food1me=process.env.REACT_APP_question1food1me
@@ -116,7 +109,6 @@ const ged_id = process.env.REACT_APP_GED_ID;
 //const ent_name = process.env.REACT_APP_ENT_NAME;
 const firebase_ent_begin_name = process.env.REACT_APP_ENT_FIREBASE_BEGIN_NAME;
 const meet_url = process.env.REACT_APP_MEET_URL;
-const ent_type = "food"
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -248,6 +240,8 @@ export default class Main extends React.Component {
     },
     contacts: [],
     societes: [],
+    prestataires:[],
+    prestatairesCp:[],
     annuaire_clients_mondat: [],
     rooms: [],
     selectedContact: '',
@@ -340,6 +334,17 @@ export default class Main extends React.Component {
       type: 'associe',
       created_at: ''
     },
+    newPrestataire: {
+      uid: '',
+      nom: '',
+      prenom: '',
+      email: '',
+      adress:'',
+      phone: '',
+      type1: 'avocat',
+      type2:'',
+      created_at: ''
+    },
     newClientFolder: {
       nom: '',
       type: 'corporate',
@@ -378,7 +383,8 @@ export default class Main extends React.Component {
     selectedRecette:"",
     selectedRecetteIngredients:[],
 
-    openAddContactModal:false
+    openAddContactModal:false,
+    openAddPrestataireModal:false
   };
 
   componentDidMount() {
@@ -493,13 +499,19 @@ export default class Main extends React.Component {
           expandedDriveItems: []
         });
       } else if(this.props.location.pathname === '/home/marketplace/recettes'){
-
         this.setState({
           showContainerSection: 'marketplace',
           focusedItem: 'marketplace',
           selectedMarketplaceMenuItem: ['recettes'],
           openMarketplaceMenuItem: true
         })
+      }else if (this.props.location.pathname.indexOf('/home/marketplace/RH_Support_ponctuel') > -1) {
+        this.setState({
+          showContainerSection: 'marketplace',
+          focusedItem: 'marketplace',
+          selectedMarketplaceMenuItem: ['RH_Support_ponctuel'],
+          openMarketplaceMenuItem: true
+        });
       }
 
     };
@@ -549,6 +561,9 @@ export default class Main extends React.Component {
               firebase.database().ref('/').on('value', (snapshot) => {
                   const data = snapshot.val() || [];
                   let contacts = data[firebase_ent_begin_name+"-contacts-"+ged_id] || [];
+                  let prestataires = data[firebase_ent_begin_name+"-prestataires-"+ged_id] || [];
+                  let prestatairesCp = data[firebase_ent_begin_name+"-prestataires-"+ged_id] || [];
+
                   let rooms = data[firebase_ent_begin_name+"-rooms-"+ged_id] || [];
 
                   let societes = data.societes || [];
@@ -565,6 +580,8 @@ export default class Main extends React.Component {
 
                   this.setState({
                     contacts: contacts,
+                    prestataires:prestataires,
+                    prestatairesCp:prestatairesCp,
                     societes: societes,
                     annuaire_clients_mondat: annuaire_clients_mondat,
                     rooms: rooms,
@@ -1013,6 +1030,62 @@ export default class Main extends React.Component {
                       firstLoading: false,
                       loading: false
                     });
+                  } else if (this.props.location.pathname.indexOf('/home/marketplace/RH_Support_ponctuel') > -1) {
+                    if (this.props.location.pathname.indexOf('/home/marketplace/RH_Support_ponctuel/') > -1) {
+                      let contact_id = this.props.location.pathname.replace('/home/marketplace/RH_Support_ponctuel/', '');
+                      let contact = main_functions.getOAContactByUid(prestatairesCp,contact_id);
+                      if (contact) {
+                        this.setState({
+                          selectedContact: contact,
+                          selectedContactKey: contact_id,
+                          showContainerSection: 'marketplace',
+                          focusedItem: 'marketplace',
+                          selectedMarketplaceMenuItem: ['RH_Support_ponctuel'],
+                          openMarketplaceMenuItem: true,
+                          rootFiles: gedRes.data.Proprietary.Content.files || [],
+                          rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                          reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                          sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                          sharedFolders: sharedFolders,
+                          sharedRootFiles: sharedFiles,
+                          meeturl: meeturl,
+                          contacts: contacts,
+                          societes: societes,
+                          annuaire_clients_mondat: annuaire_clients_mondat,
+                          rooms: rooms,
+                          selectedRoom: rooms.length > 0 ? rooms[0] : '',
+                          firstLoading: false,
+                          loading: false
+                        });
+                      } else {
+                        this.props.history.push('/');
+                      }
+
+                    } else {
+                      this.setState({
+                        showContainerSection: 'marketplace',
+                        focusedItem: 'marketplace',
+                        selectedMarketplaceMenuItem: ['RH_Support_ponctuel'],
+                        openMarketplaceMenuItem: true,
+                        rootFiles: gedRes.data.Proprietary.Content.files || [],
+                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                        folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                        sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                        sharedFolders: sharedFolders,
+                        sharedRootFiles: sharedFiles,
+                        meeturl: meeturl,
+                        contacts: contacts,
+                        societes: societes,
+                        annuaire_clients_mondat: annuaire_clients_mondat,
+                        rooms: rooms,
+                        selectedRoom: rooms.length > 0 ? rooms[0] : '',
+                        firstLoading: false,
+                        loading: false
+                      });
+                    }
+
                   } else if (this.props.location.pathname === '/home/search') {
                     if (this.props.match.params.section_id) {
                       let textToSearch = this.props.match.params.section_id;
@@ -1670,6 +1743,19 @@ export default class Main extends React.Component {
     });
   };
 
+  savePrestataireChanges = () => {
+    this.setState({ loading: true });
+    let key = main_functions.findContactByUid(this.state.selectedContact.uid, this.state.prestatairesCp);
+    firebase.database().ref('/'+firebase_ent_begin_name+'-prestataires-'+ged_id+'/' + key).set(
+        this.state.selectedContact
+    ).then(res => {
+      this.setState({ loading: false });
+      this.openSnackbar('success', 'Modification effectuée avec succès');
+    }).catch(err => {
+      console.log(err);
+    });
+  }
+
   saveSocietyChanges = () => {
     this.setState({ loading: true });
     let key = main_functions.findClientMondatById(this.state.selectedSociete.ID, this.state.annuaire_clients_mondat);
@@ -1719,6 +1805,29 @@ export default class Main extends React.Component {
         selectedContact.imageUrl = reader.result;
         let key = main_functions.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
         firebase.database().ref('/'+firebase_ent_begin_name+'-contacts-'+ged_id+'/' + key).set(
+            this.state.selectedContact
+        ).then(res => {
+          this.setState({ loading: false });
+          this.openSnackbar('success', 'Modification effectuée avec succès');
+        });
+      };
+      reader.readAsDataURL(imgToUpload);
+    }else{
+      this.openSnackbar("error","Type de fichier erroné ! ")
+    }
+  };
+
+  uploadImage_Prestataire = (image) => {
+    this.setState({ loading: true });
+    let imgToUpload = image.target.files[0];
+
+    if(imgToUpload.type === "image/png" || imgToUpload.type === "image/jpeg" || imgToUpload.type === "image/jpg"){
+      var reader = new FileReader();
+      reader.onloadend = () => {
+        let selectedContact = this.state.selectedContact;
+        selectedContact.imageUrl = reader.result;
+        let key = main_functions.findContactByUid(this.state.selectedContact.uid, this.state.prestatairesCp);
+        firebase.database().ref('/'+firebase_ent_begin_name+'-prestataires-'+ged_id+'/' + key).set(
             this.state.selectedContact
         ).then(res => {
           this.setState({ loading: false });
@@ -2214,6 +2323,48 @@ export default class Main extends React.Component {
                 selectedMarketplaceMenuItem: ['recettes']
               });
               this.props.history.push('/home/marketplace/recettes');
+            }else if(nodeId === "RH_Support_ponctuel"){
+              this.setState({
+                focusedItem: 'marketplace',
+                showContainerSection: 'marketplace',
+                selectedMarketplaceMenuItem: ['RH_Support_ponctuel']
+              });
+              this.props.history.push('/home/marketplace/RH_Support_ponctuel');
+            }else if(nodeId === "RH_Distribution"){
+              this.setState({
+                focusedItem: 'marketplace',
+                showContainerSection: 'marketplace',
+                selectedMarketplaceMenuItem: ['RH_Distribution']
+              });
+              this.props.history.push('/home/marketplace/RH_Distribution');
+            }else if(nodeId === "RH_CUISINE"){
+              this.setState({
+                focusedItem: 'marketplace',
+                showContainerSection: 'marketplace',
+                selectedMarketplaceMenuItem: ['RH_CUISINE']
+              });
+              this.props.history.push('/home/marketplace/RH_CUISINE');
+            }else if(nodeId === "RH_Support_markt"){
+              this.setState({
+                focusedItem: 'marketplace',
+                showContainerSection: 'marketplace',
+                selectedMarketplaceMenuItem: ['RH_Support_markt']
+              });
+              this.props.history.push('/home/marketplace/RH_Support_markt');
+            }else if(nodeId === "RH_HW_Livr"){
+              this.setState({
+                focusedItem: 'marketplace',
+                showContainerSection: 'marketplace',
+                selectedMarketplaceMenuItem: ['RH_HW_Livr']
+              });
+              this.props.history.push('/home/marketplace/RH_HW_Livr');
+            }else if(nodeId === "RH_DK"){
+              this.setState({
+                focusedItem: 'marketplace',
+                showContainerSection: 'marketplace',
+                selectedMarketplaceMenuItem: ['RH_DK']
+              });
+              this.props.history.push('/home/marketplace/RH_DK');
             }
           }}
 
@@ -3309,7 +3460,7 @@ export default class Main extends React.Component {
     tasks.push({
       title: title,
       assignedTo: assignedTo,
-      team: team,
+      team: team || [],
       dateTime: selectedDateTime,
       clientAttribution: selectedClient
     });
@@ -3490,6 +3641,30 @@ export default class Main extends React.Component {
       setTimeout(() => {
         this.setState({
           newContact: { uid: '', nom: '',prenom:'',  type: '', created_at: '', email: '', phone: '',rateFacturation:'' }
+        });
+      }, 400);
+    });
+  }
+
+  addNewPrestataire(){
+    this.setState({ firstLoading: true, loading: true, openAddPrestataireModal: false });
+    let all_prestataires = this.state.prestatairesCp;
+    let newPrestataire = this.state.newPrestataire;
+    newPrestataire.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    newPrestataire.created_at = moment().format("YYYY-MM-DD")
+    all_prestataires.push(newPrestataire);
+
+    firebase.database().ref('/' + firebase_ent_begin_name + '-prestataires-' + ged_id + '/' + (all_prestataires.length - 1)).set(newPrestataire).then( ok => {
+      this.openSnackbar('success', newPrestataire.nom + ' ' + newPrestataire.prenom + ' est ajouté avec succès ');
+      this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + newPrestataire.uid);
+      this.setState({
+        firstLoading: false, loading: false,
+        selectedContact: newPrestataire,
+        selectedContactKey: newPrestataire.uid
+      });
+      setTimeout(() => {
+        this.setState({
+          newPrestataire: { uid: '', nom: '',prenom:'',  type1: '',  type2: '', created_at: '', email: '', phone: '' }
         });
       }, 400);
     });
@@ -4199,7 +4374,7 @@ export default class Main extends React.Component {
                           <Rooms
                             rooms={this.state.rooms}
                             selectedRoom={this.state.selectedRoom}
-                            contacts={this.state.contacts}
+                            contacts={this.state.prestatairesCp}
                             annuaire_clients={this.state.annuaire_clients_mondat}
                             addNewtask={(title, selectedClient, assignedTo, team, selectedDateTime) => {
                               this.addNewroomTask(title, selectedClient, assignedTo, team, selectedDateTime)
@@ -6884,7 +7059,7 @@ export default class Main extends React.Component {
                                           {
                                             this.state.contacts.length > 0 &&
                                             <TableTimeSheetDashboard
-                                                contacts={this.state.contacts}
+                                                contacts={this.state.prestatairesCp}
                                                 onEditClick={(contact, key) => {
                                                   this.setState({
                                                         selectedSociete: contact,
@@ -6975,7 +7150,7 @@ export default class Main extends React.Component {
                                         {
                                           this.state.contacts.length > 0 &&
                                           <TableTimeSheet
-                                              contacts={this.state.contacts}
+                                              contacts={this.state.prestatairesCp}
                                               onEditClick={(contact, key) => {
                                                 this.setState({
                                                       selectedSociete: contact,
@@ -7038,7 +7213,7 @@ export default class Main extends React.Component {
                                                   }}
                                                   MenuProps={Data.MenuProps}
                                               >
-                                                {this.state.contacts.map((name, key) => (
+                                                {this.state.prestatairesCp.map((name, key) => (
                                                     <MenuItem
                                                         key={key}
                                                         value={name}>
@@ -8302,7 +8477,606 @@ export default class Main extends React.Component {
                         />
                       </Route>
 
+                      <Route exact path="/home/marketplace/RH_Support_ponctuel" >
+                        {
+                          this.state.loading === false && this.state.firstLoading === false &&
+                          <div>
+                            <h4 className="mt-0 mb-1">Contacts de fournisseurs de prestations de services</h4>
+                            <div className="mt-2" style={{textAlign: "right"}}>
+                              <div className="text-sm-right">
+                                <button
+                                    onClick={() => {
+                                      this.setState({openAddPrestataireModal: true})
+                                    }}
+                                    className="btn btn-danger waves-effect waves-light mb-2">
+                                  <i className="mdi mdi-plus-circle mr-1"/> Ajouter
+                                </button>
+                              </div>
+                            </div>
+                            <div>
+                              <Table_prestataire_service
+                                  service="Avocats" bgcolor="#FF4F4E"
+                                  contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "avocat")}
+                                  onEditClick={(contact, key) => {
+                                    this.setState({
+                                      selectedContact: contact,
+                                      selectedContactKey: contact.uid
+                                    });
+                                    this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.uid);
+                                  }}
+                              />
+                              <Table_prestataire_service
+                                  service="Notaires" bgcolor="#FF7F7D"
+                                  contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "notaire")}
+                                  onEditClick={(contact, key) => {
+                                    this.setState({
+                                      selectedContact: contact,
+                                      selectedContactKey: contact.uid
+                                    });
+                                    this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.uid);
+                                  }}
+                              />
+                              <Table_prestataire_service
+                                  service="Experts compatable" bgcolor="#F92BA5"
+                                  contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "expert_comptable")}
+                                  onEditClick={(contact, key) => {
+                                    this.setState({
+                                      selectedContact: contact,
+                                      selectedContactKey: contact.uid
+                                    });
+                                    this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.uid);
+                                  }}
+                              />
+                              <Table_prestataire_service
+                                  service="Audit" bgcolor="#83c5be"
+                                  contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "audit")}
+                                  onEditClick={(contact, key) => {
+                                    this.setState({
+                                      selectedContact: contact,
+                                      selectedContactKey: contact.uid
+                                    });
+                                    this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.uid);
+                                  }}
+                              />
+                              <Table_prestataire_service
+                                  service="CFO(financiers)" bgcolor="#0077b6"
+                                  contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "CFO")}
+                                  onEditClick={(contact, key) => {
+                                    this.setState({
+                                      selectedContact: contact,
+                                      selectedContactKey: contact.uid
+                                    });
+                                    this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.uid);
+                                  }}
+                              />
+                            </div>
 
+                          </div>
+                        }
+                      </Route>
+
+                      <Route exact path="/home/marketplace/RH_Support_ponctuel/:prestataire_id">
+                        {
+                          this.state.loading === false && this.state.firstLoading === false &&
+                          <div>
+                            <div className="row">
+                              <div className="col-lg-12">
+                                <div className="card-box text-center"
+                                     style={{ marginTop: 1 }}>
+                                  <img onClick={() => this.imageUpload.click()}
+                                       src={this.state.selectedContact.imageUrl || defaultAvatar}
+                                       className="rounded-circle avatar-lg img-thumbnail"
+                                       alt="" style={{
+                                    cursor: 'pointer',
+                                    width: 120,
+                                    height: 120,
+                                    objectFit: 'contain'
+                                  }} /> <input style={{
+                                  visibility: 'hidden',
+                                  width: 0,
+                                  height: 0
+                                }}
+                                               type='file' accept='.png,.jpeg,.jpg'
+                                               onChange={(files) => this.uploadImage_Prestataire(files)}
+                                               ref={(ref) => this.imageUpload = ref}
+                                />
+                                  <h4 className="mb-0">{this.state.selectedContact.prenom + ' ' + this.state.selectedContact.nom}</h4>
+                                  <p className="text-muted">{this.state.selectedContact.specialite} </p>
+                                  <div style={{ display: 'contents' }}>
+                                    <button type="button"
+                                            onClick={this.savePrestataireChanges}
+                                            className="btn btn-success btn-xs waves-effect mb-2 waves-light m-1">
+                                      <i className="fe-edit" />&nbsp;&nbsp;Enregistrer
+                                    </button>
+                                    <button type="button"
+                                            onClick={() => {}}
+                                            className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
+                                      <i className="fe-printer" />&nbsp;&nbsp;Aperçu
+                                    </button>
+                                    <button type="button"
+                                            onClick={() => {}}
+                                            className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
+                                      <i className="fe-printer" />&nbsp;&nbsp;Book
+                                    </button>
+                                  </div>
+                                  <div style={{ marginTop: 30 }}
+                                       className="text-left">
+                                    <Tabs>
+                                      <TabList>
+                                        <Tab>Informations générales</Tab>
+                                        {
+                                          localStorage.getItem('role') === 'admin' &&
+                                          [
+                                            <Tab key={0}>Famille & Vie privée</Tab>,
+                                            <Tab key={1}>Parcours professionnel</Tab>,
+                                            <Tab key={2}>Formations</Tab>,
+                                            <Tab key={3}>Affiliations</Tab>,
+                                            <Tab key={4}>Domaine d'activités</Tab>,
+                                            <Tab key={5}>Langues</Tab>,
+                                            <Tab key={6}>Domaines d'intérêt, loisirs et sports</Tab>
+                                          ]
+                                        }
+                                      </TabList>
+                                      <TabPanel>
+                                        <h5 style={{ marginTop: 20 }}>Informations générales</h5>
+                                        <div className="row"
+                                             style={{ marginTop: 35 }}>
+                                          <div className="col-md-8">
+                                            <p style={{ marginBottom: 10 }}>À propos</p>
+                                            <textarea
+                                                rows={7}
+                                                className="form-control"
+                                                id="about"
+                                                name="about"
+                                                value={this.state.selectedContact.about}
+                                                onChange={this.handleChange('selectedContact', 'about')} />
+                                          </div>
+                                          <div className="col-md-4">
+                                            <h6>
+                                              Taux horaire
+                                            </h6>
+                                            <Input
+                                                className="form-control "
+                                                id="duree354"
+                                                style={{ width: '100%' }}
+                                                name="duree6878"
+                                                type="text"
+                                                endAdornment={
+                                                  <InputAdornment
+                                                      position="end">CHF/h</InputAdornment>}
+                                                value={this.state.selectedContact.rateFacturation}
+                                                onChange={this.handleChange('selectedContact', 'rateFacturation')}
+                                            />
+                                          </div>
+                                        </div>
+                                        <div className="row"
+                                             style={{ marginTop: 35 }}>
+                                          <div className="col-md-6">
+                                            <p style={{ marginBottom: 10 }}>Nom</p>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                id="nom"
+                                                name="nom"
+                                                value={this.state.selectedContact.nom}
+                                                onChange={this.handleChange('selectedContact','nom')} />
+                                          </div>
+                                          <div
+                                              className="col-md-6">
+                                            <p style={{ marginBottom: 10 }}>Prénom</p>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                id="prenom"
+                                                name="prenom"
+                                                value={this.state.selectedContact.prenom}
+                                                onChange={this.handleChange('selectedContact', 'prenom')} />
+                                          </div>
+                                        </div>
+                                        <div className="row"
+                                             style={{ marginTop: 20 }}>
+                                          <div className="col-md-6">
+                                            <p style={{ marginBottom: 10 }}>Email</p>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                id="email"
+                                                name="email"//readOnly={true}
+                                                value={this.state.selectedContact.email}
+                                                onChange={this.handleChange('selectedContact', 'email')} />
+                                          </div>
+                                          <div
+                                              className="col-md-6">
+                                            <p style={{ marginBottom: 10 }}>Téléphone</p>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                id="phone"
+                                                name="phone"
+                                                value={this.state.selectedContact.phone}
+                                                onChange={this.handleChange('selectedContact', 'phone')} />
+                                          </div>
+                                        </div>
+                                        <div className="row"
+                                             style={{ marginTop: 20 }}>
+                                          <div className="col-sm-6">
+                                            <p style={{ marginBottom: 10 }}>Fonction</p>
+                                            <select
+                                                className="form-control custom-select"
+                                                id="titre"
+                                                name="titre"
+                                                placeholder="Titre"
+                                                value={this.state.selectedContact.type1}
+                                                onChange={this.handleChange('selectedContact', 'type1')}
+                                            >
+                                              {
+                                                data.fonctions.map((titre, key) =>
+                                                    <option
+                                                        key={key}
+                                                        value={titre.value}
+                                                        label={titre.label} />
+                                                )
+                                              }
+                                            </select>
+                                          </div>
+                                          <div className="col-sm-6">
+                                            <p style={{ marginBottom: 10 }}>Adresse</p>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                id="phone"
+                                                name="phone"
+                                                value={this.state.selectedContact.adress}
+                                                onChange={this.handleChange('selectedContact', 'adress')} />
+                                          </div>
+                                        </div>
+                                      </TabPanel>
+                                      {
+                                        localStorage.getItem('role') === 'admin' &&
+                                        [
+                                          <TabPanel key={0}>
+                                            <h5 style={{ marginTop: 20 }}>Famille & Vie privée</h5>
+                                            <div className="row"
+                                                 style={{ marginTop: 35 }}>
+                                              <div className="col-md-12">
+                                                <p style={{ marginBottom: 10 }}>Décrire en quelques lignes </p>
+                                                <textarea
+                                                    rows={10}
+                                                    className="form-control"
+                                                    id="about"
+                                                    name="about"
+                                                    value={this.state.selectedContact.personalLife}
+                                                    onChange={this.handleChange('selectedContact', 'personalLife')} />
+                                              </div>
+                                            </div>
+                                          </TabPanel>,
+                                          <TabPanel key={1}>
+                                            <h5 style={{ marginTop: 20 }}>Parcours professionnel</h5>
+                                            <div style={{
+                                              display: 'flex',
+                                              flexWrap: 'wrap',
+                                              marginTop: 10
+                                            }}>
+                                              {
+                                                (this.state.selectedContact.parcoursP || []).map((item, key) => (
+                                                    <div key={key}
+                                                         style={{ margin: 3 }}>
+                                                      <Chip
+                                                          icon={
+                                                            <Staricon />}
+                                                          label={item}
+                                                          color="secondary"
+                                                          onDelete={this.removeItem('parcour', key)}
+                                                          style={{
+                                                            fontWeight: 'bold',
+                                                            backgroundColor: 'cornflowerblue'
+                                                          }}
+                                                      />
+                                                    </div>
+                                                ))
+                                              }
+                                            </div>
+                                            <div className="row"
+                                                 style={{ marginTop: 10 }}>
+                                              <div
+                                                  className="col-sm-12">
+                                                <a style={{
+                                                  cursor: 'pointer',
+                                                  fontSize: 'medium',
+                                                  fontWeight: 'bold'
+                                                }}
+                                                   onClick={this.openAddModal('parcour')}>
+                                                  <span className="btn__text" id="btn-add-child">
+                                                    <i className="fe-plus-square" /> Ajouter un parcour
+                                                  </span>
+                                                </a>
+                                              </div>
+                                            </div>
+                                          </TabPanel>,
+                                          <TabPanel key={2}>
+                                            <h5 style={{ marginTop: 20 }}>Formation</h5>
+                                            <div style={{flexWrap: 'wrap', marginTop: 10
+                                            }}
+                                            >
+                                              {
+                                                (this.state.selectedContact.formations || []).map((item, key) => (
+                                                    <div key={key}
+                                                         style={{
+                                                           margin: 3,
+                                                           marginBottom: 6
+                                                         }}>
+                                                      <Chip
+                                                          icon={
+                                                            <CheckCircle />}
+                                                          label={item}
+                                                          color="primary"
+                                                          onDelete={this.removeItem('formation', key)}
+                                                          style={{
+                                                            fontWeight: 'bold',
+                                                            backgroundColor: 'lightseagreen'
+                                                          }}
+                                                      />
+                                                    </div>
+                                                ))
+                                              }
+                                            </div>
+                                            <div className="row"
+                                                 style={{ marginTop: 10 }}>
+                                              <div
+                                                  className="col-sm-12">
+                                                <a style={{
+                                                  cursor: 'pointer',
+                                                  fontSize: 'medium',
+                                                  fontWeight: 'bold'
+                                                }}
+                                                   onClick={this.openAddModal('formation')}>
+                                                  <span className="btn__text"
+                                                        id="btn-add-child">
+                                                    <i className="fe-plus-square" /> Ajouter une formation
+                                                  </span>
+                                                </a>
+                                              </div>
+                                            </div>
+                                          </TabPanel>,
+                                          <TabPanel key={3}>
+                                            <h5 style={{ marginTop: 20 }}>Affiliations</h5>
+                                            <div style={{ marginTop: 15 }}>
+                                              <Autocomplete
+                                                  value={this.state.selectedContact.affiliations || []}
+                                                  onChange={(event, values) => {
+                                                    let selectedContact = this.state.selectedContact;
+                                                    selectedContact.affiliations = values;
+                                                    this.setState({ selectedContact: selectedContact });
+                                                  }}
+                                                  title={'Affiliations'}
+                                                  multiple
+                                                  id="checkboxes-af-demo"
+                                                  options={data.affiliations}
+                                                  disableCloseOnSelect
+                                                  getOptionLabel={(option) => option}
+                                                  renderOption={(option, { selected }) => (
+                                                      <React.Fragment>
+                                                        <MuiCheckbox
+                                                            icon={main_functions.icon}
+                                                            checkedIcon={main_functions.checkedIcon}
+                                                            style={{ marginRight: 8 }}
+                                                            checked={selected}
+                                                        /> {option}
+                                                      </React.Fragment>
+                                                  )}
+                                                  style={{
+                                                    width: 500,
+                                                    marginLeft: 10,
+                                                    borderColor: '#f0f0f0'
+                                                  }}
+                                                  renderInput={(params) => (
+                                                      <TextField {...params}
+                                                                 variant="outlined"
+                                                                 placeholder="" />
+                                                  )}
+                                              />
+                                            </div>
+                                          </TabPanel>,
+                                          <TabPanel key={4}>
+                                            <h5 style={{ marginTop: 20 }}>Domaine d'activités</h5>
+                                            <div>
+                                              <div style={{flexWrap: 'wrap', marginTop: 10
+                                              }}
+                                              >
+                                                {
+                                                  (this.state.selectedContact.domaines || []).map((item, key) => (
+                                                      <div key={key} style={{margin: 3, marginBottom: 6}}>
+                                                        <Chip
+                                                            icon={
+                                                              <CheckCircle />}
+                                                            label={item}
+                                                            color="primary"
+                                                            onDelete={this.removeItem('domaine', key)}
+                                                            style={{
+                                                              fontWeight: 'bold',
+                                                              backgroundColor: 'lightseagreen'
+                                                            }}
+                                                        />
+                                                      </div>
+                                                  ))
+                                                }
+                                              </div>
+                                              <div className="row"
+                                                   style={{ marginTop: 10 }}>
+                                                <div className="col-sm-12" style={{margin:10}}>
+                                                  <a style={{
+                                                    cursor: 'pointer',
+                                                    fontSize: 'medium',
+                                                    fontWeight: 'bold'
+                                                  }}
+                                                     onClick={this.openAddModal('domaine')}>
+                                                  <span className="btn__text"
+                                                        id="btn-add-child">
+                                                    <i className="fe-plus-square" /> Ajouter un domaine
+                                                  </span>
+                                                  </a>
+                                                </div>
+                                              </div>
+                                              {
+                                                (this.state.selectedContact.domaine || []).map((dom,key) => (
+                                                    <div key={key}>
+                                                      <div className="row mt-1">
+                                                        <div className="col-md-3">
+                                                          <Chip
+                                                              icon={
+                                                                <CheckCircle />}
+                                                              label={dom.domaine}
+                                                              color="primary"
+                                                              onDelete={this.removeItem('domaine', key)}
+                                                              style={{
+                                                                fontWeight: 'bold',
+                                                                backgroundColor: 'lightseagreen'
+                                                              }}
+                                                          />
+                                                        </div>
+                                                        <div className="col-md-9">
+
+                                                          <Autocomplete
+                                                              value={this.state.selectedContact.domaine[key].specialite || []}
+                                                              title={'Spécialités'}
+                                                              multiple
+                                                              id="checkboxes-da-demo"
+                                                              options={this.state.selectedContact.domaine[key].domaine === "COMPTABILITÉ" ? data.comptabilite :
+                                                                  this.state.selectedContact.domaine[key].domaine === "SALAIRES" ? data.salaire :
+                                                                      this.state.selectedContact.domaine[key].domaine === "IMPOTS" ? data.impot :
+                                                                          this.state.selectedContact.domaine[key].domaine === "Droit" ? data.domainesAct : []
+                                                              }
+                                                              disableCloseOnSelect
+
+                                                              getOptionLabel={(option) => option}
+                                                              renderOption={(option, { selected }) => (
+                                                                  <React.Fragment>
+                                                                    <MuiCheckbox
+                                                                        icon={main_functions.icon}
+                                                                        checkedIcon={main_functions.checkedIcon}
+                                                                        style={{ marginRight: 8 }}
+                                                                        checked={selected}
+                                                                    /> {option}
+                                                                  </React.Fragment>
+                                                              )}
+                                                              style={{
+                                                                width: 500,
+                                                                marginLeft: 10,
+                                                                borderColor: '#f0f0f0'
+                                                              }}
+                                                              renderInput={(params) => (
+                                                                  <TextField {...params}
+                                                                             variant="outlined"
+                                                                             placeholder="" />
+                                                              )}
+                                                          />
+
+                                                        </div>
+                                                      </div>
+                                                      <div style={{backgroundColor:"#f0f0f0",height:2,margin:10,marginTop:20}}/>
+                                                    </div>
+
+                                                ))
+                                              }
+
+                                            </div>
+                                          </TabPanel>,
+                                          <TabPanel key={5}>
+                                            <h5 style={{ marginTop: 20 }}>Langues</h5>
+                                            <Autocomplete
+                                                value={this.state.selectedContact.langues || []}
+                                                onChange={(event, values) => {
+                                                  let selectedContact = this.state.selectedContact;
+                                                  selectedContact.langues = values;
+                                                  this.setState({ selectedContact: selectedContact });
+                                                }}
+                                                title={'langues'}
+                                                multiple
+                                                id="checkboxes-l-demo"
+                                                options={data.langues}
+                                                disableCloseOnSelect
+                                                getOptionLabel={(option) => option}
+                                                renderOption={(option, { selected }) => (
+                                                    <React.Fragment>
+                                                      <MuiCheckbox
+                                                          icon={main_functions.icon}
+                                                          checkedIcon={main_functions.checkedIcon}
+                                                          style={{ marginRight: 8 }}
+                                                          checked={selected}
+                                                      /> {option}
+                                                    </React.Fragment>
+                                                )}
+                                                style={{
+                                                  width: 500,
+                                                  marginLeft: 10,
+                                                  borderColor: '#f0f0f0'
+                                                }}
+                                                renderInput={(params) => (
+                                                    <TextField {...params}
+                                                               variant="outlined"
+                                                               placeholder="" />
+                                                )}
+                                            /> </TabPanel>,
+                                          <TabPanel key={6}>
+                                            <h5 style={{ marginTop: 20 }}>Domaines d'intérêt, loisirs et sports</h5>
+                                            <div className="row">
+                                              <div className="col-md-8">
+                                                <div style={{
+                                                  display: 'flex',
+                                                  flexWrap: 'wrap',
+                                                  marginTop: 10
+                                                }}>
+                                                  {
+                                                    (this.state.selectedContact.hobbies || []).map((item, key) => (
+                                                        <div key={key}
+                                                             style={{ margin: 3 }}>
+                                                          <Chip
+                                                              icon={
+                                                                <MoodIcon />}
+                                                              label={item}
+                                                              color="secondary"
+                                                              onDelete={this.removeItem('hobbies', key)}
+                                                              style={{
+                                                                fontWeight: 'bold',
+                                                                backgroundColor: 'lightpink'
+                                                              }}
+                                                          />
+                                                        </div>
+                                                    ))
+                                                  }
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div className="row"
+                                                 style={{ marginTop: 20 }}>
+                                              <div
+                                                  className="col-sm-12">
+                                                <a style={{
+                                                  cursor: 'pointer',
+                                                  fontSize: 'medium',
+                                                  fontWeight: 'bold'
+                                                }}
+                                                   onClick={this.openAddModal('hobbies')}>
+                                                                                            <span className="btn__text"
+                                                                                                  id="btn-add-child">
+                                                                                                <i
+                                                                                                    className="fe-plus-square" /> Ajouter
+                                                                                                un centre d'intérêt,
+                                                                                                loisir ou sport
+                                                                                            </span> </a>
+                                              </div>
+                                            </div>
+                                          </TabPanel>
+                                        ]
+                                      }
+                                    </Tabs>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      </Route>
 
                     </Switch>
 
@@ -8902,9 +9676,7 @@ export default class Main extends React.Component {
                       open={Boolean(this.state.anchorElContactsMenu)}
                       onClose={() => this.setState({ anchorElContactsMenu: null })}
                     >
-                      {this.state.contacts
-                        .filter((x) => x.role === 'avocat')
-                        .map((contact, key) => (
+                      {this.state.prestatairesCp.map((contact, key) => (
                           <MenuItem
                             key={key}
                             onClick={() => {
@@ -9595,6 +10367,139 @@ export default class Main extends React.Component {
                   disabled={this.state.newContact.nom.trim() === '' || this.state.newContact.prenom.trim() === '' || this.state.newContact.email === ''}
                   onClick={() => {
                     this.addNewContact()
+                  }}
+                  color="primary"
+                  variant="contained"
+                  style={{ textTransform: 'capitalize' }}
+              >
+                Créer
+              </MuiButton>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog
+              maxWidth="xl"
+              open={this.state.openAddPrestataireModal}
+              onClose={() => {
+                this.setState({ openAddPrestataireModal: !this.state.openAddPrestataireModal });
+              }}
+              aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle disableTypography id="form-dialog-title">
+              <Typography variant="h6">Ajouter un nouveau membre</Typography>
+              <IconButton
+                  aria-label="close"
+                  style={{
+                    position: 'absolute',
+                    right: 5,
+                    top: 5,
+                    color: '#c0c0c0'
+                  }}
+                  onClick={() => {
+                    this.setState({
+                      openAddPrestataireModal: !this.state.openAddPrestataireModal
+                    });
+                  }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent>
+              <div className="row mt-3">
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Nom</p>
+                  <input
+                      style={{ minWidth: 300, height: 40 }}
+                      type="text"
+                      className="form-control"
+                      id="nomc"
+                      name="nomc"
+                      value={this.state.newPrestataire.nom}
+                      onChange={this.handleChange('newPrestataire', 'nom')} />
+
+                </div>
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Prénom</p>
+                  <input
+                      style={{ minWidth: 300, height: 40 }}
+                      type="email"
+                      className="form-control"
+                      id="nome"
+                      name="nome"
+                      value={this.state.newPrestataire.prenom}
+                      onChange={this.handleChange('newPrestataire', 'prenom')} />
+                </div>
+              </div>
+              <div className="row mt-3">
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Email</p>
+                  <input
+                      style={{ minWidth: 300, height: 40 }}
+                      type="email"
+                      className="form-control"
+                      id="nome"
+                      name="nome"
+                      value={this.state.newPrestataire.email}
+                      onChange={this.handleChange('newPrestataire', 'email')} />
+                </div>
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Téléphone</p>
+                  <input
+                      style={{ minWidth: 300, height: 40 }}
+                      type="text"
+                      className="form-control"
+                      id="nomt"
+                      name="nomt"
+                      value={this.state.newPrestataire.phone}
+                      onChange={this.handleChange('newPrestataire', 'phone')} />
+
+                </div>
+              </div>
+              <div className="row mt-3">
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Adresse</p>
+                  <input
+                      style={{ minWidth: 300, height: 40 }}
+                      type="text"
+                      className="form-control"
+                      id="nomt"
+                      name="nomt"
+                      value={this.state.newPrestataire.adress}
+                      onChange={this.handleChange('newPrestataire', 'adress')} />
+                </div>
+                <div className="col-md-6">
+                  <p style={{ marginBottom: 10 }}>Fonction</p>
+                  <select
+                      style={{ minWidth: 300, height: 40 }}
+                      className="form-control custom-select"
+                      id="nomt"
+                      name="nomt"
+                      value={this.state.newPrestataire.type1}
+                      onChange={this.handleChange('newPrestataire', 'type1')}>
+                    {
+                      data.fonctions.map((titre, key) =>
+                          <option key={key} value={titre.value} label={titre.label} />
+                      )
+                    }
+                  </select>
+                </div>
+              </div>
+            </DialogContent>
+
+            <DialogActions style={{ padding: 20 }}>
+              <MuiButton
+                  onClick={() => {
+                    this.setState({ openAddPrestataireModal: false });
+                  }}
+                  color="primary"
+                  style={{ textTransform: 'capitalize' }}
+              >
+                Annuler
+              </MuiButton>
+              <MuiButton
+                  disabled={this.state.newPrestataire.nom.trim() === '' || this.state.newPrestataire.prenom.trim() === '' || this.state.newPrestataire.email === ''}
+                  onClick={() => {
+                    this.addNewPrestataire()
                   }}
                   color="primary"
                   variant="contained"
