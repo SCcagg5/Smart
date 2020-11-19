@@ -32,12 +32,10 @@ class fulfillement:
     def complete(agent):
         if agent.session in SESSION:
             phone = SESSION[agent.session]
-            phone = "0" + phone[1:2] + " " + phone[3:5] + " " + phone[5:7] + " "+ phone[7:9] + " " + phone[9:11]
-            print(phone)
-            agent.add("Parfait votre commande sera prete dans 20 minutes, vous pourrez vous identifier avec votre numéro de téléphone: " + phone)
+            phone = "0" + phone[2:3] + " " + phone[3:5] + " " + phone[5:7] + " "+ phone[7:9] + " " + phone[9:11]
+            agent.add("Parfait votre commande sera prête dans 20 minutes, vous pourrez vous identifier avec votre numéro de téléphone: " + phone)
         else:
-            agent.add("nop")
-
+            agent.add("Nous n'avons pas pu vous identifier, veuiller appeller depuis un telephone mobile")
 
     def error(agent):
         agent.add("Désolé, une erreur s'est produite")
