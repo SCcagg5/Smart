@@ -38,7 +38,7 @@ class fulfillement:
         }
         if data:
             agent = WebhookClient(data)
-            print(agent.intent)
+            print(data)
             if agent.intent not in handler:
                 agent.handle_request(fulfillement.error)
             agent.handle_request(handler[str(agent.intent)])
