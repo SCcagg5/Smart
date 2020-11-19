@@ -3,7 +3,7 @@ const mysql = require('mysql');
 //local mysql db connection
 const dbConn = mysql.createConnection({
     host     : process.env.host,
-    user     : 'root',
+    user     : 'user',
     password : process.env.password,
     database : 'brainyfood'
 });

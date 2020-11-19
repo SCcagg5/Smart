@@ -24,3 +24,9 @@ services:
     container_name: build-veloone
     volumes:
       - ../../Smartdom/Webapps/veloone.smartdom:/app/
+      
+  build-veloone:
+    build: .
+    container_name: build-veloone
+    volumes:
+      - ../../Smartdom/Webapps/ged/ged.dark_kitchen/app/

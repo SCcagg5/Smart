@@ -1,0 +1,77 @@
+version: '3'
+
+networks:
+  proxy:
+    external:
+      name: docker-compose_proxy
+  web-net:
+    external:
+      name: docker-compose_smartco-web-net
+  db-net:
+    external:
+      name: docker-compose_smartco-db-net
+
+
+services:
+    brainysql:
+    image: mysql:5.7
+    container_name: brainy-web-sql
+    restart: always
+    volumes:
+      - ../sql/data:/var/lib/mysql
+    networks:
+       - db-net
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+      MYSQL_USER: user
+      MYSQL_DATABASE: brainyfood
+      MYSQL_PASSWORD: testtest
+
+    smartco-ged:
+       build: ../Smartdom/Webapps/ged/ged.dark_kitchen
+       container_name: smartco-ged-nginx
+       restart: always
+       tty: true
+       stdin_open: true
+       ports:
+        - 80
+       volumes:
+         - ../Smartdom/Webapps/ged/ged.dark_kitchen/build/:/app
+       networks:
+         - proxy
+       environment:
+         VIRTUAL_HOST: cloudkitchen.smartdom.ch
+         VIRTUAL_PORT: 80
+         LETSENCRYPT_HOST: cloudkitchen.smartdom.ch
+         LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
+         REACT_APP_JAWHER_API_ENDPOINT: https://api.dashboard.smartco.link/api/
+         REACT_APP_question1food1me: https://test2.mouseion.online/questions
+         REACT_APP_bodycheckQuestion: https://cloudkitchen.smartdom.ch/bodycheck
+         REACT_APP_ENDPOINT: https://api.smartdom.ch
+         REACT_APP_GED_ID: 894ca0ed-8b4e-42fd-aeff-8de26ee1bcf9
+         REACT_APP_ODOO_ID: test
+         REACT_APP_ENT_NAME: Dark Kitchen Maker
+         REACT_APP_ENT_FIREBASE_BEGIN_NAME: DarkKitchen
+         REACT_APP_MEET_URL: https://meet.smartdom.ch/darkkitchen
+         REACT_APP_LOGIN_BTN_COLOR: "#2CAB66"
+
+   majorsante-api:
+       build: ../Smartco/Webapps/api.BrainyFood
+       container_name: majorsante-api
+       restart: always
+       tty: true
+       stdin_open: true
+       ports:
+         - 3001:3001
+       networks:
+         - proxy
+         - db-net
+       volumes:
+         - ../Smartco/Webapps/api.BrainyFood:/api
+       environment:
+         HOST: brainy-web-sql
+         PASSWORD: testtest
+         VIRTUAL_HOST: api.dashboard.smartco.link
+         VIRTUAL_PORT: 3001
+         LETSENCRYPT_HOST: api.dashboard.smartco.link
+         LETSENCRYPT_EMAIL: ${SMARTCO_EMAIL}
