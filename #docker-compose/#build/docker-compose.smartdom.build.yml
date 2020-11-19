@@ -29,4 +29,4 @@ services:
     build: .
     container_name: build-dark
     volumes:
-      - ../../Smartdom/Webapps/ged/ged.dark_kitchen/app/
+      - ../../Smartdom/Webapps/ged/ged.dark_kitchen:/app/
