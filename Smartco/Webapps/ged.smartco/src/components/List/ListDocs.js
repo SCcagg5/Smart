@@ -332,12 +332,12 @@ export default function ListDocs(props) {
         <ModalHeader toggle={() => {
           setOpenRenameModal(false);
         }}>
-          Rennomer
+          Renommer
         </ModalHeader>
         <ModalBody>
 
           <div style={{ marginTop: 20 }}>
-            <input className="form-control" placeholder="Rennomer" value={newFileName}
+            <input className="form-control" placeholder="Renommer" value={newFileName}
                    onChange={event => setNewFileName(event.target.value)} style={{ height: 40 }}
                    type="text"
             />

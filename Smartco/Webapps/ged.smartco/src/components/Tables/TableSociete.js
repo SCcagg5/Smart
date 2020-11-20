@@ -150,7 +150,7 @@ export default function TableSociete(props) {
 
     return (
         <div>
-            <h4 className="mt-0 mb-1">Clients (Mondat)</h4>
+            <h4 className="mt-0 mb-1">Clients (Mandat)</h4>
             <div className="mt-2" style={{textAlign:"right"}}>
                 <div className="text-sm-right">
                     <button

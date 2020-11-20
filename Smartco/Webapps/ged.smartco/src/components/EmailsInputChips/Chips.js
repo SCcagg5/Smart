@@ -45,6 +45,10 @@ class Chips extends Component {
             if (save) {
                 this.props.save(validChips);
             }
+        }else{
+            const validChips = this.getValidChips(chips);
+            this.setState({chips})
+            this.props.save(validChips);
         }
     }
 
@@ -77,6 +81,7 @@ class Chips extends Component {
     }
 
     deleteChip(removedChip) {
+
         if (!removedChip) {
             return;
         }
@@ -132,12 +137,16 @@ class Chips extends Component {
             <div>
                 <div className="chips" onClick={() => this.focusInput()}>
                     <ChipsList chips={this.state.chips} onChipClick={(event, chip) => {event.stopPropagation(); this.deleteChip(chip)}} />
-                    { !this.state.disableInput && <input
+                    { !this.state.disableInput &&
+                    <input
                         type="text"
                         className="chips-input"
                         onFocus={() => this.clearRequiredValidation()}
                         placeholder={placeholder}
                         onKeyDown={e => this.onKeyDown(e)}
+                        onBlur={(e) => {
+                            this.updateChips(e)
+                        }}
                         ref={this.inputRef}
                         onClick={(event) => this.props.onInputClick && this.props.onInputClick(event)}
                     />}
