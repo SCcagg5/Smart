@@ -4047,7 +4047,7 @@ export default class Main extends React.Component {
                                               onChange={this.handleChange('selectedSociete', 'remarque')} />
                                           </div>
                                         </div>
-                                        <div className="row" style={{ marginTop: 20 }}>
+                                        {/*<div className="row" style={{ marginTop: 20 }}>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Type de dossier</p>
                                             <select
@@ -4075,7 +4075,7 @@ export default class Main extends React.Component {
                                               value={this.state.selectedSociete.date_ouvert_dossier}
                                               onChange={this.handleChange('selectedSociete', 'date_ouvert_dossier')}> </Input>
                                           </div>
-                                        </div>
+                                        </div>*/}
 
 
                                       </TabPanel>
