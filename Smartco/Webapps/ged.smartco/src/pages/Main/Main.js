@@ -5752,7 +5752,6 @@ export default class Main extends React.Component {
                           }
                         }
                         Promise.all(calls).then( response => {
-                          console.log(response)
                           this.setState({
                             openNewDocModal: false,
                             newFileFromRacine: false,
