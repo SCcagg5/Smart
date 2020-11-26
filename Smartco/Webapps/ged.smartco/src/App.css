@@ -1110,3 +1110,7 @@ select{
 .MuiSelect-selectMenu {
     white-space: normal;
 }
+
+.mandat_collapse_header{
+    color:#000!important;
+}

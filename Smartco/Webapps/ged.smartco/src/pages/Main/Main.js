@@ -78,6 +78,8 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import main_functions from '../../controller/main_functions';
 import DescriptionIcon from '@material-ui/icons/Description';
 import TableFactures from '../../components/Tables/TableFactures';
+import Mandats from './Mandats';
+
 
 const ged_id = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9";
 const ent_name = "OaLegal";
@@ -3957,6 +3959,7 @@ export default class Main extends React.Component {
                                     <Tabs> <TabList>
                                       <Tab>Informations client</Tab>
                                       <Tab>Ouverture dossier</Tab>
+                                      <Tab>Dossiers ouverts</Tab>
                                     </TabList>
                                       <TabPanel>
                                         <h5 style={{ marginTop: 20 }}>Informations Client</h5>
@@ -4044,7 +4047,7 @@ export default class Main extends React.Component {
                                               onChange={this.handleChange('selectedSociete', 'remarque')} />
                                           </div>
                                         </div>
-                                        <div className="row" style={{ marginTop: 20 }}>
+                                        {/*<div className="row" style={{ marginTop: 20 }}>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Type de dossier</p>
                                             <select
@@ -4072,7 +4075,7 @@ export default class Main extends React.Component {
                                               value={this.state.selectedSociete.date_ouvert_dossier}
                                               onChange={this.handleChange('selectedSociete', 'date_ouvert_dossier')}> </Input>
                                           </div>
-                                        </div>
+                                        </div>*/}
 
 
                                       </TabPanel>
@@ -4450,6 +4453,26 @@ export default class Main extends React.Component {
                                             <i className="fe-folder-plus" />&nbsp;&nbsp;Créer Dossier Client
                                           </button>
                                         </div>
+                                      </TabPanel>
+                                      <TabPanel>
+                                        <h5 style={{ marginTop: 20 }}>Dossiers ouverts</h5>
+                                        <Mandats selectedClient={this.state.selectedSociete} clients_tempo={this.state.clients_tempo}
+                                                 contacts={this.state.contacts}
+                                                 onFolderClick={(folder_id,parentClientFolder) => {
+                                                   this.setState({
+                                                     showContainerSection: 'Drive',
+                                                     focusedItem: 'Drive',
+                                                     selectedDriveItem: [folder_id],
+                                                     expandedDriveItems: [folder_id, parentClientFolder, localStorage.getItem('client_folder_id')],
+                                                     selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
+                                                     breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
+                                                     selectedFolderId: folder_id,
+                                                     selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
+                                                     selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
+                                                   });
+                                                   this.props.history.push("/home/drive/" + folder_id )
+                                                 }}
+                                        />
                                       </TabPanel>
                                     </Tabs>
                                   </div>
@@ -5315,10 +5338,9 @@ export default class Main extends React.Component {
                         this.setState({ emailsDriveShare: data });
                       }}
                       pattern={data.emailPatern}
-                      requiredMessage={'Email incorrect'}
-                      required={true}
                       limit={20}
                       limitMessage="Vous avez atteint le nombre maximal d'e-mails"
+
                     />
                   </div>
                 </div>
@@ -5730,7 +5752,6 @@ export default class Main extends React.Component {
                           }
                         }
                         Promise.all(calls).then( response => {
-                          console.log(response)
                           this.setState({
                             openNewDocModal: false,
                             newFileFromRacine: false,

@@ -27,6 +27,8 @@ import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import Alert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 import SaveIcon from '@material-ui/icons/Save';
+import AtlButton from '@atlaskit/button';
+import GestureIcon from '@material-ui/icons/Gesture';
 
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -43,6 +45,7 @@ export default class SignDocV3 extends React.Component {
 
     sigCanvas = {}
     sigParapheCanvas = {}
+    signatureUpload = {}
 
     state = {
         firstLoading: true,
@@ -79,7 +82,10 @@ export default class SignDocV3 extends React.Component {
         width: 150,
         height: 70,
         x: 295,
-        y: 425
+        y: 425,
+
+
+        uploadedSignature:""
     }
 
 
@@ -236,6 +242,7 @@ export default class SignDocV3 extends React.Component {
                 domtoimage.toPng(document.getElementById(this.state.selectedSignTextId),
                   {bgcolor: "transparent", quality: 1, width: 150, height: 70})
                   .then((dataUrl) => {
+
                       let signatures = this.state.signatures;
                       let formated_b64Sign = dataUrl.replace("data:image/png;base64,","");
 
@@ -265,7 +272,43 @@ export default class SignDocV3 extends React.Component {
 
                   })
             }
-            else {}
+            else if(this.state.signatureTabIndex === 2) {
+                if(this.state.uploadedSignature === ""){
+                    this.setState({loading:false})
+                    this.openSnackbar("error","Vous devez ajouter une signature !")
+                }else{
+                    let signUpload = this.state.uploadedSignature;
+                    let signatures = this.state.signatures;
+                    let formated_b64Sign = signUpload.startsWith("data:image/png") ?  signUpload.replace("data:image/png;base64,","") :
+                      signUpload.startsWith("data:image/jpeg") ? signUpload.replace("data:image/jpeg;base64,","") :
+                        signUpload.startsWith("data:image/jpg") ? signUpload.replace("data:image/jpg;base64,","") : signUpload
+
+                    SmartService.addSignature({base64:formated_b64Sign}
+                      ,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
+                        console.log(r)
+                        if (r.succes === true && r.status === 200) {
+                            signatures.push({
+                                id:r.data.id,
+                                b64: formated_b64Sign,
+                                page: parseInt(this.state.selectedPage),
+                                width: 150, height: 70, right: 250, bottom: 400,
+                                x:250,y:400
+                            })
+                            this.setState({
+                                openSignModal: false,
+                                closeBtn: true,
+                                signatures: signatures,
+                                loading: false
+                            })
+                            this.updateSignatures()
+                        }else{
+                            console.log(r.error)
+                        }
+
+                    }).catch(err => {console.log(err)})
+                }
+
+            }
 
         }
 
@@ -356,6 +399,52 @@ export default class SignDocV3 extends React.Component {
                       })
 
             }
+
+            else if(this.state.parapheTabIndex === 2){
+
+                if(this.state.uploadedSignature === ""){
+                    this.setState({loading:false})
+                    this.openSnackbar("error","Vous devez ajouter une signature !")
+                }else{
+
+                    let iterationCount = this.state.paraphePositions === "tousSauf" ? this.state.numPages - 1 :
+                      this.state.paraphePositions === "tous" ? this.state.numPages : this.state.parapheCustomPages.length
+
+
+                    let signatures = this.state.signatures;
+                    let signUpload = this.state.uploadedSignature;
+
+                    let formated_b64Sign = signUpload.startsWith("data:image/png") ?  signUpload.replace("data:image/png;base64,","") :
+                      signUpload.startsWith("data:image/jpeg") ? signUpload.replace("data:image/jpeg;base64,","") :
+                        signUpload.startsWith("data:image/jpg") ? signUpload.replace("data:image/jpg;base64,","") : signUpload
+
+                    SmartService.addSignature({base64:formated_b64Sign}
+                      ,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
+                        console.log(r)
+                        if (r.succes === true && r.status === 200) {
+                            for(let i = 0 ; i < iterationCount ; i++){
+                                signatures.push({
+                                    id:r.data.id,
+                                    b64: formated_b64Sign,
+                                    page: this.state.paraphePositions === "custom" ? parseInt(this.state.parapheCustomPages[i].replace('Page ','')) : i + 1,
+                                    width: 150, height: 70, right: 10, bottom: 10,
+                                    x:420,y:770
+                                })
+                            }
+                            this.setState({
+                                openSignModal: false,
+                                closeBtn: true,
+                                signatures: signatures,
+                                loading: false
+                            })
+                            this.updateSignatures()
+                        }else{
+                            console.log(r.error)
+                        }
+                    }).catch(err => {console.log(err)})
+
+                }
+            }
         }
     }
 
@@ -401,11 +490,27 @@ export default class SignDocV3 extends React.Component {
         SmartService.signDoc({placement:signToAdd},this.props.match.params.doc_id,signToAdd[0].id_sign,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( saveRes => {
             console.log(saveRes)
             if (saveRes.succes === true && saveRes.status === 200) {
-                this.setState({loading:false})
-                this.openSnackbar("success","Enregistrement effectué avec succès")
-                setTimeout(() => {
-                    this.props.history.goBack()
-                },1000);
+
+                let resultArray = saveRes.data || [];
+                let isOk = true;
+                let error ;
+                resultArray.map((r,key) => {
+                    if(r[0] === false || r[2] === 400){
+                        isOk = false;
+                        error = r;
+                    }
+                })
+                if(isOk === true){
+                    this.setState({loading:false})
+                    this.openSnackbar("success","Enregistrement effectué avec succès")
+                    setTimeout(() => {
+                        this.props.history.goBack()
+                    },1000);
+                }else{
+                    console.log(error)
+                    this.setState({loading:false})
+                    this.openSnackbar("error","Une erreur est survenue lors de l'enregistrement de l'un des signatures dans le document ! Merci de vérifier votre document")
+                }
 
             }else{
                 console.log(saveRes.error)
@@ -418,6 +523,23 @@ export default class SignDocV3 extends React.Component {
             this.setState({loading:false})
             this.openSnackbar("error","Une erreur est survenue lors de la sauvgarde de document, Réessayez une autre fois")
         } )
+    }
+
+    uploadSignature = (event) => {
+        let file = event.target.files[0];
+        if(file.type === "image/png" || file.type === "image/jpeg" || file.type === "image/jpg" ){
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                this.setState({uploadedSignature:reader.result})
+            }
+            reader.onerror = error => {
+                console.log(error)
+            }
+
+        }else{
+            this.openSnackbar("error","Le format de la signature est invalide ! ")
+        }
     }
 
     render() {
@@ -619,7 +741,7 @@ export default class SignDocV3 extends React.Component {
                                         <TabList className="paraphe_tab_list">
                                             <Tab>Dessiner</Tab>
                                             <Tab>Taper</Tab>
-                                            <Tab disabled={true}>Télécharger une image</Tab>
+                                            <Tab>Télécharger une image</Tab>
                                         </TabList>
 
                                         <TabPanel>
@@ -687,6 +809,24 @@ export default class SignDocV3 extends React.Component {
                                         </TabPanel>
 
                                         <TabPanel>
+                                            <div align="center" style={{marginTop: 30}}>
+                                                <AtlButton appearance="default" iconBefore={<GestureIcon/>} onClick={() => this.signatureUpload.click()} >
+                                                    Choisissez votre signature
+                                                </AtlButton>
+                                                <input
+                                                  accept={["image/png","image/jpeg","image/jpg"]}
+                                                  style={{ visibility: 'hidden', width: 0, height: 0 }}
+                                                  onChange={(event) => this.uploadSignature(event)}
+                                                  type="file"
+                                                  ref={(ref) => (this.signatureUpload = ref)}
+                                                />
+                                                {
+                                                    this.state.uploadedSignature !== "" &&
+                                                    <div style={{marginTop:35}}>
+                                                        <img alt="" src={this.state.uploadedSignature} style={{width:150,height:70,objectFit:"contain"}}/>
+                                                    </div>
+                                                }
+                                            </div>
                                         </TabPanel>
                                     </Tabs>
                                 </TabPanel>
@@ -699,7 +839,7 @@ export default class SignDocV3 extends React.Component {
                                         <TabList className="paraphe_tab_list">
                                             <Tab>Dessiner</Tab>
                                             <Tab>Taper</Tab>
-                                            <Tab disabled={true}>Télécharger une image</Tab>
+                                            <Tab>Télécharger une image</Tab>
                                         </TabList>
 
                                         <TabPanel>
@@ -764,7 +904,26 @@ export default class SignDocV3 extends React.Component {
                                                 </div>
                                             </div>
                                         </TabPanel>
+
                                         <TabPanel>
+                                            <div align="center" style={{marginTop: 30}}>
+                                                <AtlButton appearance="default" iconBefore={<GestureIcon/>} onClick={() => this.signatureUpload.click()} >
+                                                    Choisissez votre signature
+                                                </AtlButton>
+                                                <input
+                                                  accept={["image/png","image/jpeg","image/jpg"]}
+                                                  style={{ visibility: 'hidden', width: 0, height: 0 }}
+                                                  onChange={(event) => this.uploadSignature(event)}
+                                                  type="file"
+                                                  ref={(ref) => (this.signatureUpload = ref)}
+                                                />
+                                                {
+                                                    this.state.uploadedSignature !== "" &&
+                                                    <div style={{marginTop:35}}>
+                                                        <img alt="" src={this.state.uploadedSignature} style={{width:150,height:70,objectFit:"contain"}}/>
+                                                    </div>
+                                                }
+                                            </div>
                                         </TabPanel>
                                     </Tabs>
                                     <div style={{marginTop: 20,marginLeft:20}}>

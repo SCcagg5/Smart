@@ -414,7 +414,7 @@ export default function LeftMenuV3(props) {
                         <ListItemIcon>
                             <EditIcon fontSize="small"/>
                         </ListItemIcon>
-                        <Typography variant="inherit">Rennomer</Typography>
+                        <Typography variant="inherit">Renommer</Typography>
                     </MenuItem>
                     <MenuItem key={6} onClick={() => {
 
@@ -483,7 +483,7 @@ export default function LeftMenuV3(props) {
                         <ListItemIcon>
                             <EditIcon fontSize="small"/>
                         </ListItemIcon>
-                        <Typography variant="inherit">Rennomer</Typography>
+                        <Typography variant="inherit">Renommer</Typography>
                     </MenuItem>
                     <MenuItem key={6} onClick={() => {
 
@@ -549,12 +549,12 @@ export default function LeftMenuV3(props) {
                     <ModalHeader toggle={() => {
                         setOpenRenameModal(false)
                     }}>
-                        Rennomer
+                        Renommer
                     </ModalHeader>
                     <ModalBody>
 
                         <div style={{marginTop: 20}}>
-                            <input className="form-control" placeholder="Rennomer" value={newFolderName}
+                            <input className="form-control" placeholder="Renommer" value={newFolderName}
                                    onChange={event => setnewFolderName(event.target.value)} style={{height: 40}}
                                    type="text"
                             />

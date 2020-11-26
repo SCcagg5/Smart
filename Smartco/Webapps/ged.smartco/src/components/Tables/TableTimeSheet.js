@@ -391,7 +391,7 @@ export default function TableTimeSheet(props) {
                                 </IconButton>
                             </TableCell>
                             <TableCell style={{ width: "8%" }} align="center">
-                                {moment(row.newTime.date).format("DD/MM/YYYY HH:mm") || ""}
+                                {moment(row.newTime.date).format("DD/MM/YYYY") || ""}
                             </TableCell>
                             <TableCell style={{ width: "17%" }} align="center">
                                 {
