@@ -10,40 +10,35 @@ networks:
   db-net:
     external:
       name: docker-compose_smartco-db-net
+  builder:
 
 
 services:
     dark-sql:
-    image: mysql:5.7
-    container_name: dark-web-sql
-    restart: always
-    volumes:
-      - ../sql/data:/var/lib/mysql
-    networks:
-       - db-net
-    environment:
-      MYSQL_RANDOM_ROOT_PASSWORD: 1
-      MYSQL_USER: user
-      MYSQL_DATABASE: brainyfood
-      MYSQL_PASSWORD: testtest
+      image: mysql:5.7
+      container_name: dark-web-sql
+      restart: always
+      volumes:
+        - ../Smartdom/micro/sql-dark/data:/var/lib/mysql
+      networks:
+         - db-net
+      environment:
+        MYSQL_RANDOM_ROOT_PASSWORD: 1
+        MYSQL_USER: user
+        MYSQL_DATABASE: brainyfood
+        MYSQL_PASSWORD: testtest
 
-    dark-ged:
-       build: ../Smartdom/Webapps/ged/ged.dark_kitchen
-       container_name: dark-ged-nginx
-       restart: always
-       tty: true
-       stdin_open: true
-       ports:
-        - 80
+    dark-ged-build:
+       build:
+         context: ../Smartdom/Webapps/ged/ged.dark_kitchen
+         dockerfile: Dockerfile
+         target: builder
+       container_name: dark-ged-build
        volumes:
-         - ../Smartdom/Webapps/ged/ged.dark_kitchen/build/:/app
+         - ../Smartdom/Webapps/ged/ged.dark_kitchen/:/app
        networks:
-         - proxy
+         - builder
        environment:
-         VIRTUAL_HOST: cloudkitchen.smartdom.ch
-         VIRTUAL_PORT: 80
-         LETSENCRYPT_HOST: cloudkitchen.smartdom.ch
-         LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
          REACT_APP_JAWHER_API_ENDPOINT: https://api.dashboard.smartco.link/api/
          REACT_APP_question1food1me: https://test2.mouseion.online/questions
          REACT_APP_bodycheckQuestion: https://cloudkitchen.smartdom.ch/bodycheck
@@ -54,6 +49,27 @@ services:
          REACT_APP_ENT_FIREBASE_BEGIN_NAME: DarkKitchen
          REACT_APP_MEET_URL: https://meet.smartdom.ch/darkkitchen
          REACT_APP_LOGIN_BTN_COLOR: "#2CAB66"
+
+    dark-ged:
+       build:
+         context: ../Smartdom/Webapps/ged/ged.dark_kitchen
+         dockerfile: Dockerfile
+         target: prod
+       container_name: dark-ged-nginx
+       restart: always
+       tty: true
+       stdin_open: true
+       ports:
+        - 80:80
+       volumes:
+         - ../Smartdom/Webapps/ged/ged.dark_kitchen/prod/:/app
+       networks:
+         - proxy
+       environment:
+         VIRTUAL_HOST: cloudkitchen.smartdom.ch
+         VIRTUAL_PORT: 80
+         LETSENCRYPT_HOST: cloudkitchen.smartdom.ch
+         LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
 
     dark-api:
        build: ../Smartco/Webapps/api.BrainyFood
