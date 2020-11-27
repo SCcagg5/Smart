@@ -217,8 +217,8 @@ class folder:
         return [True, {}, None]
 
     def exist(folder_id):
-        res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND ged_id = %s", \
-        (folder_id, self.ged_id))
+        res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s", \
+        (folder_id))
         return True if len(res) > 0 else False
 
     def sharedcontent(self, folder_id = None, name = None, date = None):
@@ -509,8 +509,8 @@ class file:
         return file_path
 
     def exist(file_id):
-        res = sql.get("SELECT `id` FROM `ged_file` WHERE id = %s AND ged_id = %s", \
-        (file_id, self.ged_id))
+        res = sql.get("SELECT `id` FROM `ged_file` WHERE id = %s", \
+        (file_id))
         return True if len(res) > 0 else False
 
     def content(self, file_id, over = False):
