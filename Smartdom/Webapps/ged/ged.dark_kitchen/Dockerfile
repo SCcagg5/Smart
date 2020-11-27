@@ -6,7 +6,7 @@ WORKDIR /app
 
 ENTRYPOINT rm -rf .env && env > .env && \
            yarn install && yarn build && \
-           rm .env && mv ./build ./prod 
+           rm .env && mv ./build/* ./prod 
 
 
 FROM mhart/alpine-node as prod

@@ -389,6 +389,18 @@ class folder:
         return ret
 
 class file:
+    def convert(file, type = None):
+        if type is None:
+            return [True, {"file": file}, None]
+        allowed = ["png"]
+        if type not in allowed:
+            return [False, f"Invalid convertion from file {type}", 400]
+        if type == "png":
+            image1 = Image.open(BytesIO(file))
+            file = image1.convert('RGB')
+        return return [True, {"file": file}, None]
+
+
     def __init__(self, usr_id = -1, ged_id = -1):
         self.usr_id = str(usr_id)
         self.ged_id = str(ged_id)
