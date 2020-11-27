@@ -41,7 +41,7 @@ export default class Mandats extends React.Component{
   render() {
     let s_client = this.props.selectedClient;
     let clients_tempo_copie = this.props.clients_tempo_copie;
-    let client_mandat_key = clients_tempo_copie.findIndex(x => x.ID === s_client.ID && x.email === localStorage.getItem("email"));
+    let client_mandat_key = clients_tempo_copie.findIndex(x => x.ID === s_client.ID );
     console.log(client_mandat_key)
 
     return(
@@ -50,6 +50,11 @@ export default class Mandats extends React.Component{
           {
             this.state.client_mandat && this.state.client_mandat.folders && (this.state.client_mandat.folders || []).map((doss,key) =>
               <Panel header={doss.name}  key={key} headerClass="mandat_collapse_header">
+                <div className="row">
+                  <div className="col-md-12">
+                    <h5>Crée par: {localStorage.getItem("email") === doss.created_by ? "Vous" : doss.created_by }</h5>
+                  </div>
+                </div>
                 <div className="row">
                   <div className="col-md-12">
                     <div align="right">
@@ -198,7 +203,7 @@ export default class Mandats extends React.Component{
                         </IconButton>
                       </div>
                       {
-                        doss.team.map((item, i) =>
+                        (doss.team || []).map((item, i) =>
                           item.type === "lead" &&
                           <div key={i}  className="mb-1" style={{
                             display: 'flex',
@@ -296,7 +301,7 @@ export default class Mandats extends React.Component{
                         </IconButton>
                       </div>
                       {
-                        doss.team.map((item, j) =>
+                        (doss.team || []).map((item, j) =>
                           item.type === "team" &&
                           <div key={j}  className="mb-1" style={{
                             display: 'flex',

@@ -136,6 +136,7 @@ export default function TableTimeSheet(props) {
 
     //const [lf_client_search, setLf_client_search] = React.useState(props.annuaire_clients_mondat[0].Nom + ' ' + (props.annuaire_clients_mondat[0].Prenom || '') );
     const [lf_client_search, setLf_client_search] = React.useState("");
+    const [lf_client_search_ID, setLf_client_search_ID] = React.useState("");
     const [lf_dossier_search, setLf_dossier_search] = React.useState("");
     const [lf_oaUser_search, setLf_oaUser_search] = React.useState("");
     const [lf_sdate_search, setLf_sdate_search] = React.useState(null);
@@ -152,8 +153,10 @@ export default function TableTimeSheet(props) {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(15);
 
+
+
     const searchFilter = props.lignesFactures.filter((lf) => ( ( (lf.newTime.client.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
-      ( lf.newTime.dossier_client && (lf.newTime.dossier_client.name.toLowerCase().indexOf(lf_dossier_search.toLowerCase()) > -1 ) || lf_dossier_search === "") &&
+      ( lf.newTime.dossier_client && (lf.newTime.dossier_client.name === lf_dossier_search ) || lf_dossier_search === "") &&
       ( lf.newTime && lf.newTime.utilisateurOA && (lf.newTime.utilisateurOA === lf_oaUser_search ) || lf_oaUser_search === "") &&
       ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
       ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  )
@@ -257,6 +260,34 @@ export default function TableTimeSheet(props) {
         }
     })
 
+
+    let clientsTempo = props.clientsTempo || [];
+    let all_opened_mandats = [];
+    all_opened_mandats.push({value:"",label:""})
+    if(lf_client_search === ""){
+        clientsTempo.map((tmp,key) => {
+            (tmp.folders || []).map((f,i) => {
+                all_opened_mandats.push({
+                    value:f.name,
+                    label:f.name
+                })
+            })
+        })
+    }else{
+        clientsTempo.map((tmp,key) => {
+            (tmp.folders || []).map((f,i) => {
+                if(tmp.ID === lf_client_search_ID){
+                    all_opened_mandats.push({
+                        value:f.name,
+                        label:f.name
+                    })
+                }
+            })
+        })
+    }
+    console.log(all_opened_mandats)
+
+
     /*let client_folders = props.client_folders || [];
     let selected_client = client_folders.Content ? client_folders.Content.folders.find(x => x.name === lf_client_search) : undefined
     let selected_client_folders = selected_client ?  selected_client.Content.folders : [];*/
@@ -265,6 +296,20 @@ export default function TableTimeSheet(props) {
 
         <div>
             <div className="row mt-1" style={{border:"2px solid #f0f0f0",padding:15,paddingLeft:10}}>
+                <div className="col-md-12">
+                    <div align="right">
+                        <AtlButton
+                          onClick={() => {
+                              setLf_sdate_search(null)
+                              setLf_edate_search(null)
+                              setLf_client_search("")
+                              setLf_oaUser_search("")
+                              setLf_dossier_search("")
+                              setLf_client_search_ID("")
+                          }}
+                        >Initialiser</AtlButton>
+                    </div>
+                </div>
                 <div className="col-md-12">
                     <h5>Rechercher</h5>
                 </div>
@@ -304,7 +349,7 @@ export default function TableTimeSheet(props) {
                         <SelectSearch
                           className="select-search"
                           options={
-                              props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
+                              props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
                                 ({
                                     value: Nom + ' ' + (Prenom || ''),
                                     name: Nom + ' ' + (Prenom || ''),
@@ -319,6 +364,7 @@ export default function TableTimeSheet(props) {
                           placeholder="Sélectionner.."
                           onChange={e => {
                               setLf_client_search(e)
+                              setLf_client_search_ID(main_functions.getClientID_ByName(e,props.annuaire_clients_mondat))
                               let ch_rows = props.lignesFactures;
                               ch_rows.map((item,key) => {
                                   item.checked = false
@@ -332,24 +378,21 @@ export default function TableTimeSheet(props) {
                 <div className="col-md-5 mt-2">
                     <div style={{display:"flex"}}>
                         <h5>Par dossier</h5>
-                        <input className="form-control"
-                          placeholder="Nom du dossier"
-                          onChange={(event) =>
-                            setLf_dossier_search(event.target.value)
-                          }
-                        />
+                        <select className="form-control custom-select" style={{width:230,marginLeft:10}}
+                                onChange={(event) =>
+                                  setLf_dossier_search(event.target.value)
+                                }
+                                value={lf_dossier_search}
+                        >
+                            {
+                                all_opened_mandats.map((item,key) =>
+                                  <option key={key} value={item.value}>{item.label}</option>
+                                )
+                            }
+
+
+                        </select>
                     </div>
-                </div>
-                <div className="col-md-2">
-                    <IconButton title="Annuler le filtre" onClick={() => {
-                        setLf_sdate_search(null)
-                        setLf_edate_search(null)
-                        setLf_client_search("")
-                        setLf_oaUser_search("")
-                        setLf_dossier_search("")
-                    }}>
-                        <ClearOutlinedIcon/>
-                    </IconButton>
                 </div>
                 <div className="col-md-12 mt-1">
                     <div style={{display:"flex"}}>

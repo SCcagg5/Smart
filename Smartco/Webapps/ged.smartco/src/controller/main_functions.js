@@ -194,6 +194,15 @@ const findClientMondatById = (id, clients) => {
   return index;
 };
 
+const getClientID_ByName = (name, clients) => {
+  let id;
+  clients.map((client, key) => {
+    let fname = client.Nom + ' ' + (client.Prenom || '')
+    if (fname === name) id = client.ID;
+  });
+  return id;
+};
+
 const getOAContactByEmail2 = (contacts, email) => {
   let OAcontact = '';
   contacts.map((contact, key) => {
@@ -624,5 +633,5 @@ const generateGed = () => {
 
 
  export default {renderSearchOption,getTimeSuggestions,icon,getLabel,checkedIcon,getPath,generateGed,buildIndex,
-   changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,
+   changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,getClientID_ByName,
    getBreadcumpsPath,getFolderNameById,getFolderTypeById,findClientMondatById,findContactByEmail,findContactByUid,getOAContactByEmail2,getOAContactByUid};

@@ -63,6 +63,17 @@ export default function CollapsibleTable(props) {
       <div>
         <div className="row mt-1" style={{border:"2px solid #f0f0f0",padding:15,paddingLeft:10}}>
           <div className="col-md-12">
+            <div align="right">
+              <AtlButton
+                onClick={() => {
+                  setSdate_search(null)
+                  setEdate_search(null)
+                  setClient_search("")
+                }}
+              >Initialiser</AtlButton>
+            </div>
+          </div>
+          <div className="col-md-12">
             <h5>Rechercher</h5>
           </div>
           <div className="col-md-12">
@@ -120,15 +131,7 @@ export default function CollapsibleTable(props) {
               />
             </div>
           </div>
-          <div className="col-md-2">
-            <IconButton title="Annuler le filtre" onClick={() => {
-              setSdate_search(null)
-              setEdate_search(null)
-              setClient_search("")
-            }}>
-              <ClearOutlinedIcon/>
-            </IconButton>
-          </div>
+
           <div className="col-md-12 mt-2">
             <div style={{display:"flex"}}>
               <h5>Par statut</h5>

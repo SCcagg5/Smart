@@ -184,11 +184,11 @@ export default function TableContact(props) {
                         </TableCell>
                         <TableCell style={{ width: "20%" }} align="center">
                           <IconButton aria-label="Modifier" title="Modifier" color="default" size="small" onClick={() => props.onEditClick(row,key)}>
-                            <EditIcon fontSize="small"/>
+                            <EditIcon fontSize="small" style={{color:"blue"}}/>
                           </IconButton>
-                          <IconButton aria-label="Supprimer" title="Supprimer" color="secondary" size="small">
+                          {/*<IconButton aria-label="Supprimer" title="Supprimer" color="secondary" size="small">
                             <DeleteOutlineIcon fontSize="small"/>
-                          </IconButton>
+                          </IconButton>*/}
                         </TableCell>
                       </TableRow>
                     ))}

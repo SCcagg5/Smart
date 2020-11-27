@@ -462,13 +462,14 @@ export default class Main extends React.Component {
               if (client_folder) {
                 localStorage.setItem('client_folder_id', client_folder.id);
                 this.setState({client_folders:client_folder})
-              }else{
+              }
+              /*else{
                 let client_shared_folder = gedRes.data.Shared.Content.folders.find((x) => x.name === 'CLIENTS');
                 if(client_shared_folder){
                   localStorage.setItem('client_folder_id', client_shared_folder.id);
                   this.setState({client_folders:client_shared_folder})
                 }
-              }
+              }*/
               let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
 
               firebase.database().ref('/').on('value', (snapshot) => {
@@ -479,7 +480,8 @@ export default class Main extends React.Component {
                   let annuaire_clients_mondat = data.annuaire_client_mondat || [];
                   let lignes_f = data[ent_name+"-lignes_f-"+ged_id] || [];
 
-                  let clients_tempo = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
+                  //let clients_tempo = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
+                  let clients_tempo = data[ent_name+"-clients_tempo-"+ged_id] || [];
                   let clients_tempo_copie = data[ent_name+"-clients_tempo-"+ged_id] || [];
                   let facturesToValidated = data[ent_name+"-factures_to_Validated-"+ged_id] || []
                   let facturesToValidatedCopy = data[ent_name+"-factures_to_Validated-"+ged_id] || []
@@ -2088,8 +2090,13 @@ export default class Main extends React.Component {
 
   generateClientFolder(ID, team) {
     this.setState({ loading: true });
-    let CLIENTS_folder_id = localStorage.getItem("client_folder_id");
-    if(CLIENTS_folder_id && CLIENTS_folder_id !== "" ){
+    let CLIENTS_folder_id = "4376a4bb-d5ec-441f-8868-f9ce96077420"  //c79fcab6-9fec-4714-9572-7e36eb6761b3 => Krana   //4376a4bb-d5ec-441f-8868-f9ce96077420 => Fabien
+
+   /* if(localStorage.getItem("client_folder_id") && localStorage.getItem("client_folder_id") !== "" ){
+      CLIENTS_folder_id = localStorage.getItem("client_folder_id")
+    }else{
+      CLIENTS_folder_id = "4376a4bb-d5ec-441f-8868-f9ce96077420"
+    }*/
 
       let clients_tmp = this.state.clients_tempo;
       let clients_tmp_copie = this.state.clients_tempo_copie;
@@ -2097,8 +2104,14 @@ export default class Main extends React.Component {
 
       if (find) {
 
-        let findInCopyKey = clients_tmp_copie.findIndex(x => x.ID === find.ID && x.email === localStorage.getItem("email"));
+        let findInCopyKey = clients_tmp_copie.findIndex(x => x.ID === find.ID);
         let findCopy = find;
+
+        /* if(localStorage.getItem("client_folder_id") && localStorage.getItem("client_folder_id") !== "" ){
+               CLIENTS_folder_id = localStorage.getItem("client_folder_id")
+            }else{
+               CLIENTS_folder_id = "4376a4bb-d5ec-441f-8868-f9ce96077420"
+        }*/
 
         if(find.folder_id && find.folder_id !== ""){
 
@@ -2185,8 +2198,28 @@ export default class Main extends React.Component {
               console.log(err);
             });
 
-            findCopy.folders.push(
-              {
+            if(findCopy.folders && findCopy.folders.length > 0  ){
+              findCopy.folders.push(
+                {
+                  folder_id:addFolderClient.data.id,
+                  team:team,
+                  name:this.state.newClientFolder.nom,
+                  contrepartie:this.state.newClientFolder.contrepartie,
+                  autrepartie:this.state.newClientFolder.autrepartie,
+                  desc:this.state.newClientFolder.desc,
+                  created_at:moment().format("YYYY-MM-DD"),
+                  created_by:localStorage.getItem("email"),
+                  facturation:{
+                    byEmail:this.state.newClientFolder.byEmail,
+                    sentBySecr:this.state.newClientFolder.sentBySecr,
+                    sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                    language:this.state.newClientFolder.language,
+                    frequence:this.state.newClientFolder.frequence
+                  }
+                }
+              )
+            }else{
+              findCopy.folders = [{
                 folder_id:addFolderClient.data.id,
                 team:team,
                 name:this.state.newClientFolder.nom,
@@ -2194,6 +2227,7 @@ export default class Main extends React.Component {
                 autrepartie:this.state.newClientFolder.autrepartie,
                 desc:this.state.newClientFolder.desc,
                 created_at:moment().format("YYYY-MM-DD"),
+                created_by:localStorage.getItem("email"),
                 facturation:{
                   byEmail:this.state.newClientFolder.byEmail,
                   sentBySecr:this.state.newClientFolder.sentBySecr,
@@ -2201,8 +2235,10 @@ export default class Main extends React.Component {
                   language:this.state.newClientFolder.language,
                   frequence:this.state.newClientFolder.frequence
                 }
-              }
-            )
+              }]
+            }
+
+
 
             firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id+'/'+findInCopyKey).set(findCopy).then( ok => {
               setTimeout(() => {
@@ -2333,6 +2369,7 @@ export default class Main extends React.Component {
                   autrepartie:this.state.newClientFolder.autrepartie,
                   desc:this.state.newClientFolder.desc,
                   created_at:moment().format("YYYY-MM-DD"),
+                  created_by:localStorage.getItem("email"),
                   facturation:{
                     byEmail:this.state.newClientFolder.byEmail,
                     sentBySecr:this.state.newClientFolder.sentBySecr,
@@ -2502,6 +2539,7 @@ export default class Main extends React.Component {
                       autrepartie:this.state.newClientFolder.autrepartie,
                       desc:this.state.newClientFolder.desc,
                       created_at:moment().format("YYYY-MM-DD"),
+                      created_by:localStorage.getItem("email"),
                       facturation:{
                         byEmail:this.state.newClientFolder.byEmail,
                         sentBySecr:this.state.newClientFolder.sentBySecr,
@@ -2552,11 +2590,6 @@ export default class Main extends React.Component {
           console.log(err);
         });
       }
-
-    }else{
-      this.setState({loading:false})
-      this.openSnackbar("error","Opération annulée, une erreur est survenue ! Dossier CLIENTS inexistant")
-    }
 
   }
 
@@ -4275,58 +4308,6 @@ export default class Main extends React.Component {
                                                   </div>
                                                 )
                                               }
-                                              {/*<div>Associé</div>
-                                              <div>
-                                                <MuiSelect
-                                                  labelId="demo-simple-select-label"
-                                                  id="demo-simple-select"
-                                                  style={{ width: '80%' }}
-                                                  onChange={(e) => {
-                                                    let contact_email = e.target.value;
-                                                    let contact = main_functions.getOAContactByEmail2(this.state.contacts,contact_email);
-                                                    if (contact) {
-                                                      this.setState({ lead_contact_horaire_tmp: contact.rateFacturation });
-                                                    }
-                                                    this.setState({ lead_contact_tmp: e.target.value });
-                                                  }}
-                                                  value={this.state.lead_contact_tmp}
-                                                >
-                                                  {this.state.contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
-                                                    <MenuItem
-                                                      key={key}
-                                                      value={contact.email}>
-                                                      <div style={{display:"flex"}}>
-                                                        <Avatar style={{marginLeft:10}}
-                                                          alt=""
-                                                          src={contact.imageUrl} />
-                                                        <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                      </div>
-                                                    </MenuItem>
-                                                  ))}
-                                                </MuiSelect>
-                                              </div>
-                                              {
-                                                this.state.lead_contact_tmp !== '' &&
-                                                <div className="mt-2">
-                                                  <div>
-                                                    Taux horaire
-                                                  </div>
-                                                  <Input
-                                                    className="form-control "
-                                                    id="duree35411"
-                                                    style={{ width: '80%' }}
-                                                    name="duree687811"
-                                                    type="text"
-                                                    endAdornment={
-                                                      <InputAdornment
-                                                        position="end">CHF/h</InputAdornment>}
-                                                    value={this.state.lead_contact_horaire_tmp}
-                                                    onChange={(e) => {
-                                                      this.setState({ lead_contact_horaire_tmp: e.target.value });
-                                                    }}
-                                                  />
-                                                </div>
-                                              }*/}
                                             </div>
                                             <div className="col-md-6" style={{minWidth:500}}>
                                               <div style={{ display: 'flex' }}>
@@ -4583,18 +4564,34 @@ export default class Main extends React.Component {
                                         <Mandats selectedClient={this.state.selectedSociete} clients_tempo={this.state.clients_tempo} clients_tempo_copie={this.state.clients_tempo_copie}
                                                  contacts={this.state.contacts}
                                                  onFolderClick={(folder_id,parentClientFolder) => {
-                                                   this.setState({
-                                                     showContainerSection: 'Drive',
-                                                     focusedItem: 'Drive',
-                                                     selectedDriveItem: [folder_id],
-                                                     expandedDriveItems: [folder_id, parentClientFolder, localStorage.getItem('client_folder_id')],
-                                                     selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
-                                                     breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
-                                                     selectedFolderId: folder_id,
-                                                     selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
-                                                     selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
-                                                   });
-                                                   this.props.history.push("/home/drive/" + folder_id )
+                                                   let ged = this.state.reelFolders;
+                                                   let CLIENT_folder = ged.find(x => x.id ===  "4376a4bb-d5ec-441f-8868-f9ce96077420")
+                                                   if(CLIENT_folder){
+                                                     this.setState({
+                                                       showContainerSection: 'Drive',
+                                                       focusedItem: 'Drive',
+                                                       selectedDriveItem: [folder_id],
+                                                       expandedDriveItems: [folder_id, parentClientFolder, localStorage.getItem('client_folder_id')],
+                                                       selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
+                                                       breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
+                                                       selectedFolderId: folder_id,
+                                                       selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
+                                                       selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
+                                                     });
+                                                     this.props.history.push("/home/drive/" + folder_id )
+                                                   }else{
+
+                                                     this.setState({
+                                                       showContainerSection: 'Drive',
+                                                       focusedItem: 'Drive',
+                                                       selectedDriveItem: [],
+                                                       expandedDriveItems: [],
+                                                       selectedDriveSharedItem:['4376a4bb-d5ec-441f-8868-f9ce96077420'],
+                                                       expandedDriveSharedItems:['parent','CLIENTS'],
+                                                       breadcrumbs: 'Mon drive / Partagés avec moi',
+                                                     });
+                                                     this.props.history.push("/home/shared/" + "4376a4bb-d5ec-441f-8868-f9ce96077420" )
+                                                   }
                                                  }}
                                                  update_client_tempo={(key,data) => {
                                                    this.update_client_tempo(key,data)
@@ -5079,6 +5076,7 @@ export default class Main extends React.Component {
                                             client_folders={this.state.client_folders}
                                             updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
                                             openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                            clientsTempo={this.state.clients_tempo}
                                           />
                                         } {
                                         this.state.lignesFactures.length === 0 &&
