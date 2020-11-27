@@ -27,4 +27,4 @@ services:
       VIRTUAL_HOST: api.vox.smartdom.ch
       VIRTUAL_PORT: 8080
       LETSENCRYPT_HOST: api.vox.smartdom.ch
-      LETSENCRYPT_EMAIL: eliot.courtel@
+      LETSENCRYPT_EMAIL: eliot.courtel@wanadoo.fr

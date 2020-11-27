@@ -5,6 +5,7 @@ import base64
 import re
 import fitz
 import tempfile
+import io
 from PIL import Image
 from io import BytesIO
 from base64 import b64decode
@@ -218,7 +219,7 @@ class folder:
 
     def exist(folder_id):
         res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s", \
-        (folder_id))
+        (folder_id,))
         return True if len(res) > 0 else False
 
     def sharedcontent(self, folder_id = None, name = None, date = None):
@@ -390,15 +391,25 @@ class folder:
 
 class file:
     def convert(file, type = None):
+        print(file.file)
         if type is None:
             return [True, {"file": file}, None]
-        allowed = ["png"]
+        allowed = ["jpg"]
         if type not in allowed:
             return [False, f"Invalid convertion from file {type}", 400]
-        if type == "png":
-            image1 = Image.open(BytesIO(file))
-            file = image1.convert('RGB')
-        return return [True, {"file": file}, None]
+        if type == "jpg":
+            image1 = Image.open(BytesIO(file.file.read()))
+            imdata = image1.convert('RGB')
+            tmp = BytesIO()
+            filename = file.filename.split('.')
+            if len(filename) > 1:
+                filename = filename[:-1]
+            file.filename = '.'.join(filename) + '.pdf'
+            imdata.save(tmp, "PDF")
+            file.file = io.BufferedRandom(tmp)
+            file.file.name=12
+            print(file.file)
+        return [True, {"file": file}, None]
 
 
     def __init__(self, usr_id = -1, ged_id = -1):
@@ -410,11 +421,12 @@ class file:
         file_id = str(uuid.uuid4())
         timestamp = str(int(round(time.time() * 1000)))
         name, ext = os.path.splitext(file.filename)
+        print(folder_id, "bite")
         if ext not in ('.pdf', ):
             return [False, "File extension not allowed.", 401]
         if folder_id is not None and not folder.exist(folder_id):
             return [False, "folder_id does not exist", 400]
-        if not folder(self.usr_id).is_proprietary(folder_id) and not folder(self.usr_id).is_editor(folder_id) and folder_id is not None:
+        if folder_id is not None and not folder(self.usr_id).is_proprietary(folder_id) and not folder(self.usr_id).is_editor(folder_id):
             return [False, "Invalid rights", 403]
         path = self.path(file_id)
         file.save(path)

@@ -2,9 +2,9 @@
 const mysql = require('mysql');
 //local mysql db connection
 const dbConn = mysql.createConnection({
-    host     : process.env.host,
+    host     : 'dark-sql',
     user     : 'user',
-    password : process.env.password,
+    password : 'testtest',
     database : 'brainyfood'
 });
 dbConn.connect(function(err) {
