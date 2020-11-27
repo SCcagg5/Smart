@@ -136,9 +136,11 @@ export default function TableTimeSheet(props) {
 
     //const [lf_client_search, setLf_client_search] = React.useState(props.annuaire_clients_mondat[0].Nom + ' ' + (props.annuaire_clients_mondat[0].Prenom || '') );
     const [lf_client_search, setLf_client_search] = React.useState("");
-
+    const [lf_dossier_search, setLf_dossier_search] = React.useState("");
+    const [lf_oaUser_search, setLf_oaUser_search] = React.useState("");
     const [lf_sdate_search, setLf_sdate_search] = React.useState(null);
     const [lf_edate_search, setLf_edate_search] = React.useState(null);
+
     const [partner_facture, setPartner_facture] = React.useState("");
     const [facture_date, setFacture_date] = React.useState(new Date());
     const [check_all, setCheck_all] = React.useState(false);
@@ -151,6 +153,8 @@ export default function TableTimeSheet(props) {
     const [rowsPerPage, setRowsPerPage] = React.useState(15);
 
     const searchFilter = props.lignesFactures.filter((lf) => ( ( (lf.newTime.client.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
+      ( lf.newTime.dossier_client && (lf.newTime.dossier_client.name.toLowerCase().indexOf(lf_dossier_search.toLowerCase()) > -1 ) || lf_dossier_search === "") &&
+      ( lf.newTime && lf.newTime.utilisateurOA && (lf.newTime.utilisateurOA === lf_oaUser_search ) || lf_oaUser_search === "") &&
       ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
       ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  )
     ))
@@ -294,7 +298,7 @@ export default function TableTimeSheet(props) {
                         </div>
                     </div>
                 </div>
-                <div className="col-md-10 mt-2">
+                <div className="col-md-5 mt-2">
                     <div style={{display:"flex"}}>
                         <h5 style={{marginRight:10}}>Par client</h5>
                         <SelectSearch
@@ -325,14 +329,57 @@ export default function TableTimeSheet(props) {
                         />
                     </div>
                 </div>
+                <div className="col-md-5 mt-2">
+                    <div style={{display:"flex"}}>
+                        <h5>Par dossier</h5>
+                        <input className="form-control"
+                          placeholder="Nom du dossier"
+                          onChange={(event) =>
+                            setLf_dossier_search(event.target.value)
+                          }
+                        />
+                    </div>
+                </div>
                 <div className="col-md-2">
                     <IconButton title="Annuler le filtre" onClick={() => {
                         setLf_sdate_search(null)
                         setLf_edate_search(null)
                         setLf_client_search("")
+                        setLf_oaUser_search("")
+                        setLf_dossier_search("")
                     }}>
                         <ClearOutlinedIcon/>
                     </IconButton>
+                </div>
+                <div className="col-md-12 mt-1">
+                    <div style={{display:"flex"}}>
+                        <h5 >Par utilisateur OA</h5>
+                        <MuiSelect
+                          labelId="demo-mutiple-chip-label14545"
+                          id="demo-mutiple-chip34688"
+                          style={{ width: 250,marginLeft:10,marginRight:10 }}
+                          value={lf_oaUser_search}
+                          onChange={(e) => {
+                              console.log(e.target.value);
+                              setLf_oaUser_search(e.target.value)
+                          }}
+                          MenuProps={Data.MenuProps}
+                        >
+                            {props.OA_contacts.map((contact, key) => (
+                              <MenuItem
+                                key={key}
+                                value={contact.email}>
+                                  <div
+                                    className="row align-items-center justify-content-center">
+                                      <Avatar
+                                        alt=""
+                                        src={contact.imageUrl} />
+                                      <div>{contact.nom + ' ' + contact.prenom}</div>
+                                  </div>
+                              </MenuItem>
+                            ))}
+                        </MuiSelect>
+                    </div>
                 </div>
             </div>
             {

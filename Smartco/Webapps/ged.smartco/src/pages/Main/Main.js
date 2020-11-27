@@ -462,6 +462,12 @@ export default class Main extends React.Component {
               if (client_folder) {
                 localStorage.setItem('client_folder_id', client_folder.id);
                 this.setState({client_folders:client_folder})
+              }else{
+                let client_shared_folder = gedRes.data.Shared.Content.folders.find((x) => x.name === 'CLIENTS');
+                if(client_shared_folder){
+                  localStorage.setItem('client_folder_id', client_shared_folder.id);
+                  this.setState({client_folders:client_shared_folder})
+                }
               }
               let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
 
@@ -2226,6 +2232,7 @@ export default class Main extends React.Component {
           }).catch(err => {console.log(err)})
 
         }
+
         else{
 
           SmartService.addFolder({
@@ -2781,6 +2788,16 @@ export default class Main extends React.Component {
     }
 
   }
+
+  update_client_tempo(key,data){
+    firebase.database().ref("/" + ent_name + "-clients_tempo-" + ged_id + '/' + key).set(data).then( ok => {
+      this.openSnackbar("success","Modification effectuée avec succès")
+    }).catch(err => {
+      console.log(err)
+      this.openSnackbar("error","Une erreur est survenue !")
+    })
+  }
+
 
   render() {
 
@@ -4095,7 +4112,7 @@ export default class Main extends React.Component {
                                               />
                                             </div>
                                           </div>
-                                          {/*<div className="col-md-6">
+                                          <div className="col-md-6">
                                             <div>
                                               Type de dossier
                                             </div>
@@ -4114,7 +4131,7 @@ export default class Main extends React.Component {
                                                 }
                                               </select>
                                             </div>
-                                          </div>*/}
+                                          </div>
                                           <div className="col-md-12" style={{marginTop:20}}>
                                             <div>
                                               Description du mandat
@@ -4159,10 +4176,106 @@ export default class Main extends React.Component {
                                           marginTop: 35,
                                           marginBottom: 30
                                         }} />
-                                        <div><h4>Facturation</h4>
+                                        <div>
+                                          <h4>Facturation</h4>
                                           <div className="row mt-2">
-                                            <div className="col-md-5">
-                                              <div>Associé</div>
+                                            <div className="col-md-6" style={{minWidth:500}}>
+                                              <div style={{ display: 'flex' }}>
+                                                <div className="mt-2">Associés</div>
+                                                <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
+                                                            onClick={() => {
+                                                              let objCp = this.state.newClientFolder;
+                                                              objCp.team.push({
+                                                                fname: '',
+                                                                email: '',
+                                                                uid: '',
+                                                                tarif: '',
+                                                                type: 'lead'
+                                                              });
+                                                              this.setState({ newClientFolder: objCp });
+                                                            }}>
+                                                  <AddCircleIcon color="primary" />
+                                                </IconButton>
+                                              </div>
+                                              {
+                                                this.state.newClientFolder.team.map((item, key) =>
+                                                  item.type === "lead" &&
+                                                  <div style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'flex-start',
+                                                    marginTop: 15
+                                                  }}>
+                                                    <div>
+                                                      <div>
+                                                        <MuiSelect
+                                                          labelId="demo-simple-select-labOuverture dossierel"
+                                                          id="demo-simple-select"
+                                                          style={{ width: 230,marginTop:20 }}
+                                                          onChange={(e) => {
+                                                            let contact_email = e.target.value;
+                                                            let contact = main_functions.getOAContactByEmail2(this.state.contacts,contact_email);
+                                                            if (contact) {
+                                                              let objCp = this.state.newClientFolder;
+                                                              objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
+                                                              objCp.team[key].email = contact_email;
+                                                              objCp.team[key].uid = contact.uid;
+                                                              objCp.team[key].tarif = contact.rateFacturation || '';
+                                                              this.setState({ newClientFolder: objCp });
+                                                            }
+                                                          }}
+                                                          value={this.state.newClientFolder.team[key].email}
+                                                        >
+                                                          {this.state.contacts.filter(x => x.type === "associe" ).map((contact, key) => (
+                                                            <MenuItem
+                                                              key={key}
+                                                              value={contact.email}>
+                                                              <div style={{display:"flex"}}>
+                                                                <Avatar style={{marginLeft:10}}
+                                                                        alt=""
+                                                                        src={contact.imageUrl} />
+                                                                <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                              </div>
+                                                            </MenuItem>
+                                                          ))}
+                                                        </MuiSelect>
+                                                      </div>
+                                                    </div>
+                                                    <div style={{ marginTop: this.state.newClientFolder.team[key].uid !== '' ? 12 : -7 }}>
+                                                      <div style={{marginLeft:10}}>
+                                                        Taux horaire
+                                                      </div>
+                                                      <Input
+                                                        style={{ width: 210,marginLeft:10 }}
+                                                        className="form-control "
+                                                        id="duree35411"
+                                                        name="duree687811"
+                                                        type="text"
+                                                        endAdornment={
+                                                          <InputAdornment
+                                                            position="end">CHF/h</InputAdornment>}
+                                                        value={this.state.newClientFolder.team[key].tarif}
+                                                        onChange={(e) => {
+                                                          let objCp = this.state.newClientFolder;
+                                                          objCp.team[key].tarif = e.target.value;
+                                                          this.setState({ newClientFolder: objCp });
+                                                        }}
+                                                      />
+                                                    </div>
+                                                    <div>
+                                                      <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].uid !== '' ? 28 : 8}}
+                                                                  onClick={() => {
+                                                                    let objCp = this.state.newClientFolder;
+                                                                    objCp.team.splice(key,1)
+                                                                    this.setState({ newClientFolder: objCp });
+                                                                  }}
+                                                      >
+                                                        <DeleteOutlineIcon color="error"/>
+                                                      </IconButton>
+                                                    </div>
+                                                  </div>
+                                                )
+                                              }
+                                              {/*<div>Associé</div>
                                               <div>
                                                 <MuiSelect
                                                   labelId="demo-simple-select-label"
@@ -4213,11 +4326,11 @@ export default class Main extends React.Component {
                                                     }}
                                                   />
                                                 </div>
-                                              }
+                                              }*/}
                                             </div>
-                                            <div className="col-md-7">
+                                            <div className="col-md-6" style={{minWidth:500}}>
                                               <div style={{ display: 'flex' }}>
-                                                <div>Collaborateur/Stagiaire</div>
+                                                <div className="mt-2">Collaborateur/Stagiaire</div>
                                                 <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
                                                             onClick={() => {
                                                               let objCp = this.state.newClientFolder;
@@ -4235,18 +4348,18 @@ export default class Main extends React.Component {
                                               </div>
                                               {
                                                 this.state.newClientFolder.team.map((item, key) =>
+                                                  item.type === "team" &&
                                                   <div style={{
                                                     display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    marginTop: 13
+                                                    justifyContent: 'flex-start',
+                                                    marginTop: 15
                                                   }}>
                                                     <div>
-                                                      <div>Collaborateur/Stagiaire</div>
                                                       <div>
                                                         <MuiSelect
                                                           labelId="demo-simple-select-label"
                                                           id="demo-simple-select"
-                                                          style={{ width: 250 }}
+                                                          style={{ width: 230 ,marginTop:20}}
                                                           onChange={(e) => {
                                                             let contact_email = e.target.value;
                                                             let contact = main_functions.getOAContactByEmail2(this.state.contacts,contact_email);
@@ -4269,22 +4382,21 @@ export default class Main extends React.Component {
                                                                 <Avatar style={{marginLeft:10}}
                                                                         alt=""
                                                                         src={contact.imageUrl} />
-                                                                <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                                <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
                                                               </div>
                                                             </MenuItem>
                                                           ))}
                                                         </MuiSelect>
                                                       </div>
                                                     </div>
-                                                    <div
-                                                      style={{ marginTop: this.state.newClientFolder.team[key].uid !== '' ? 12 : -7 }}>
-                                                      <div>
+                                                    <div style={{ marginTop: this.state.newClientFolder.team[key].uid !== '' ? 12 : -7 }}>
+                                                      <div style={{marginLeft:10}}>
                                                         Taux horaire
                                                       </div>
                                                       <Input
                                                         className="form-control "
                                                         id="duree35411"
-                                                        style={{ width: 250 }}
+                                                        style={{ width: 210,marginLeft:10 }}
                                                         name="duree687811"
                                                         type="text"
                                                         endAdornment={
@@ -4298,13 +4410,24 @@ export default class Main extends React.Component {
                                                         }}
                                                       />
                                                     </div>
+                                                    <div>
+                                                      <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].uid !== '' ? 28 : 8}}
+                                                                  onClick={() => {
+                                                                    let objCp = this.state.newClientFolder;
+                                                                    objCp.team.splice(key,1)
+                                                                    this.setState({ newClientFolder: objCp });
+                                                                  }}
+                                                      >
+                                                        <DeleteOutlineIcon color="error"/>
+                                                      </IconButton>
+                                                    </div>
                                                   </div>
                                                 )
                                               }
                                             </div>
-
                                           </div>
                                         </div>
+
                                         <div className="mt-4">
                                           <h5>FACTURATION-CLIENT</h5>
                                           <div
@@ -4428,6 +4551,7 @@ export default class Main extends React.Component {
                                           </div>
 
                                         </div>
+
                                         <div style={{
                                           margintop: 10,
                                           textAlign: 'right'
@@ -4456,7 +4580,7 @@ export default class Main extends React.Component {
                                       </TabPanel>
                                       <TabPanel>
                                         <h5 style={{ marginTop: 20 }}>Dossiers ouverts</h5>
-                                        <Mandats selectedClient={this.state.selectedSociete} clients_tempo={this.state.clients_tempo}
+                                        <Mandats selectedClient={this.state.selectedSociete} clients_tempo={this.state.clients_tempo} clients_tempo_copie={this.state.clients_tempo_copie}
                                                  contacts={this.state.contacts}
                                                  onFolderClick={(folder_id,parentClientFolder) => {
                                                    this.setState({
@@ -4472,6 +4596,10 @@ export default class Main extends React.Component {
                                                    });
                                                    this.props.history.push("/home/drive/" + folder_id )
                                                  }}
+                                                 update_client_tempo={(key,data) => {
+                                                   this.update_client_tempo(key,data)
+                                                 }}
+                                                 reloadGed={() => this.justReloadGed()}
                                         />
                                       </TabPanel>
                                     </Tabs>

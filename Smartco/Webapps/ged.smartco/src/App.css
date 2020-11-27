@@ -1114,3 +1114,11 @@ select{
 .mandat_collapse_header{
     color:#000!important;
 }
+
+.text-ellipsis-230{
+    text-overflow: ellipsis;
+    width: 230px;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+}
