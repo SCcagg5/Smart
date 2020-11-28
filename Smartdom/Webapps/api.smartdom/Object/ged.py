@@ -180,7 +180,7 @@ class folder:
     def new(self, name, folder_id):
         id = str(uuid.uuid4())
         date = str(int(round(time.time() * 1000)))
-        if folder_id is not None and not folder.exist(folder_id):
+        if folder_id is not None and not self.exist(folder_id):
             return [False, "folder_id does not exist", 400]
         if not self.is_proprietary(folder_id) and not self.is_editor(folder_id) and folder_id is not None:
             return [False, "Invalid rights", 403]
@@ -339,7 +339,8 @@ class folder:
 
     def is_proprietary(self, id_folder, user_id = None):
         user_id = self.usr_id if user_id is None else user_id
-        for i in ged.vpath(id_folder):
+        doc = ged(self.usr_id, self.ged_id)
+        for i in doc.vpath(id_folder):
             res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND user_id = %s", (i, user_id))
             if len(res) > 0:
                 return True
@@ -347,7 +348,7 @@ class folder:
 
     def is_admin(self, id_folder):
         ret = False
-        for i in ged.vpath(id_folder):
+        for i in doc.vpath(id_folder):
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_administrate IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -358,7 +359,8 @@ class folder:
 
     def is_sharer(self, id_folder):
         ret = False
-        for i in ged.vpath(id_folder):
+        doc = ged(self.usr_id, self.ged_id)
+        for i in doc.vpath(id_folder):
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_share IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -369,7 +371,8 @@ class folder:
 
     def is_editor(self, id_folder):
         ret = False
-        for i in ged.vpath(id_folder):
+        doc = ged(self.usr_id, self.ged_id)
+        for i in doc.vpath(id_folder):
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_edit IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -380,7 +383,8 @@ class folder:
 
     def is_reader(self, id_folder):
         ret = False
-        for i in ged.vpath(id_folder):
+        doc = ged(self.usr_id, self.ged_id)
+        for i in doc.vpath(id_folder):
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_read IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -391,7 +395,6 @@ class folder:
 
 class file:
     def convert(file, type = None):
-        print(file.file)
         if type is None:
             return [True, {"file": file}, None]
         allowed = ["jpg"]
@@ -408,7 +411,6 @@ class file:
             imdata.save(tmp, "PDF")
             file.file = io.BufferedRandom(tmp)
             file.file.name=12
-            print(file.file)
         return [True, {"file": file}, None]
 
 
@@ -421,12 +423,13 @@ class file:
         file_id = str(uuid.uuid4())
         timestamp = str(int(round(time.time() * 1000)))
         name, ext = os.path.splitext(file.filename)
-        print(folder_id, "bite")
+        fol = folder(self.usr_id, self.ged_id)
+        doc = ged(self.usr_id, self.ged_id)
         if ext not in ('.pdf', ):
             return [False, "File extension not allowed.", 401]
-        if folder_id is not None and not folder.exist(folder_id):
+        if folder_id is not None and not fol.exist(folder_id):
             return [False, "folder_id does not exist", 400]
-        if folder_id is not None and not folder(self.usr_id).is_proprietary(folder_id) and not folder(self.usr_id).is_editor(folder_id):
+        if folder_id is not None and not fol.is_proprietary(folder_id) and not fol.is_editor(folder_id):
             return [False, "Invalid rights", 403]
         path = self.path(file_id)
         file.save(path)
@@ -435,7 +438,7 @@ class file:
         (file_id, self.ged_id, self.usr_id, name, ext, folder_id, timestamp))
         if not succes:
             return [False, "data input error", 500]
-        input = {"name": name, "vpath": "/" + "/".join(ged.vpath(file_id)[::-1]), "ext": ext, "date": timestamp, "file_id": file_id}
+        input = {"name": name, "vpath": "/" + "/".join(doc.vpath(file_id)[::-1]), "ext": ext, "date": timestamp, "file_id": file_id}
         if ext == 'pdf':
             res = pdf.get_text(path)
             if res[0]:
@@ -454,11 +457,13 @@ class file:
         file_id = str(uuid.uuid4())
         timestamp = str(int(round(time.time() * 1000)))
         bytes = b64decode(b64, validate=True)
+        fol = folder(self.usr_id, self.ged_id)
+        doc = ged(self.usr_id, self.ged_id)
         if bytes[0:4] != b'%PDF':
             return [False, "File extension not allowed.", 401]
-        if folder_id is not None and not folder.exist(folder_id):
+        if folder_id is not None and not fol.exist(folder_id):
             return [False, "folder_id does not exist", 400]
-        if not folder(self.usr_id).is_proprietary(folder_id) and not folder(self.usr_id).is_editor(folder_id) and folder_id is not None:
+        if not fol.is_proprietary(folder_id) and not fol.is_editor(folder_id) and folder_id is not None:
             return [False, "Invalid rights", 403]
         path = self.path(file_id)
         f = open(path, 'wb')
@@ -469,7 +474,7 @@ class file:
         (file_id, self.ged_id, self.usr_id, name, ext, folder_id, timestamp))
         if not succes:
             return [False, "data input error", 500]
-        input = {"name": name, "vpath": "/" + "/".join(ged.vpath(file_id)[::-1]), "ext": ext, "date": timestamp, "file_id": file_id}
+        input = {"name": name, "vpath": "/" + "/".join(doc.vpath(file_id)[::-1]), "ext": ext, "date": timestamp, "file_id": file_id}
         if ext == 'pdf':
             res = pdf.get_text(path)
             if res[0]:
@@ -603,10 +608,11 @@ class file:
 
     def is_proprietary(self, id_file, user_id = None):
         user_id = self.usr_id if user_id is None else user_id
+        doc = ged(self.usr_id, self.ged_id)
         res = sql.get("SELECT `id` FROM `ged_file` WHERE id = %s AND user_id = %s", (id_file, user_id))
         if len(res) > 0:
             return True
-        for i in ged.vpath(id_file):
+        for i in doc.vpath(id_file):
             res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND user_id = %s", (i, user_id))
             if len(res) > 0:
                 return True
@@ -614,7 +620,8 @@ class file:
 
     def is_admin(self, id_file):
         ret = False
-        for i in ged.vpath(id_file):
+        doc = ged(self.usr_id, self.ged_id)
+        for i in doc.vpath(id_file):
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_administrate IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -631,7 +638,8 @@ class file:
 
     def is_sharer(self, id_file):
         ret = False
-        for i in ged.vpath(id_file):
+        doc = ged(self.usr_id, self.ged_id)
+        for i in doc.vpath(id_file):
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_share IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -648,7 +656,8 @@ class file:
 
     def is_editor(self, id_file):
         ret = False
-        for i in ged.vpath(id_file):
+        doc = ged(self.usr_id, self.ged_id)
+        for i in doc.vpath(id_file):
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_edit IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -665,7 +674,8 @@ class file:
 
     def is_reader(self, id_file):
         ret = False
-        for i in ged.vpath(id_file):
+        doc = ged(self.usr_id, self.ged_id)
+        for i in doc.vpath(id_file):
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_read IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -683,23 +693,23 @@ class file:
 
 class ged:
 
-    def vpath(id_doc):
-        res = []
-        if not folder.exist(id_doc) and id_doc is not None:
-            id_doc = sql.get("SELECT `inside` FROM `ged_file` WHERE id = %s", (id_doc, ))[0][0]
-        while id_doc is not None:
-            res.append(id_doc)
-            print(id_doc)
-            id_doc = sql.get("SELECT `inside` FROM `ged_folder` WHERE id = %s", (id_doc, ))[0][0]
-        return res
 
-    def is_inside(id_doc, id_folder):
-        path = ged.vpath(id_doc)[:-1]
-        return id_folder in path
+
+
 
     def __init__(self, usr_id = -1, ged_id = -1):
         self.usr_id = str(usr_id)
         self.ged_id = str(ged_id)
+
+    def vpath(self, id_doc): ###
+        res = []
+        fol = folder(self.usr_id, self.ged_id)
+        if not fol.exist(id_doc) and id_doc is not None:
+            id_doc = sql.get("SELECT `inside` FROM `ged_file` WHERE id = %s", (id_doc, ))[0][0]
+        while id_doc is not None:
+            res.append(id_doc)
+            id_doc = sql.get("SELECT `inside` FROM `ged_folder` WHERE id = %s", (id_doc, ))[0][0]
+        return res
 
     def create(self, name):
         id = str(uuid.uuid4())
@@ -768,7 +778,7 @@ class ged:
         fil = file(self.usr_id, self.ged_id)
         if doc_id is None:
             return [True, {"Proprietary": fol.content(doc_id), "Shared": fol.sharedcontent(doc_id)}, None]
-        elif folder.exist(doc_id):
+        elif fol.exist(doc_id):
             if fol.is_proprietary(doc_id):
                 return [True, fol.content(doc_id), None]
             else:
@@ -778,8 +788,8 @@ class ged:
         return [False, "document doesn't exist", 404]
 
     def share(self, doc_id, email, access):
-        if folder.exist(doc_id):
-            fol = folder(self.usr_id, self.ged_id)
+        fol = folder(self.usr_id, self.ged_id)
+        if fol.exist(doc_id):
             ret = fol.share(email, doc_id, access)
         elif file.exist(doc_id):
             fil = file(self.usr_id, self.ged_id)
@@ -789,8 +799,8 @@ class ged:
         return ret
 
     def update(self, doc_id, name, content):
-        if folder.exist(doc_id):
-            fol = folder(self.usr_id, self.ged_id)
+        fol = folder(self.usr_id, self.ged_id)
+        if fol.exist(doc_id):
             ret = fol.update(doc_id, name)
         elif file.exist(doc_id):
             fil = file(self.usr_id, self.ged_id)
@@ -800,7 +810,8 @@ class ged:
         return ret
 
     def delete(self, doc_id):
-        if folder.exist(doc_id):
+        fol = folder(self.usr_id, self.ged_id)
+        if fol.exist(doc_id):
             fol = folder(self.usr_id, self.ged_id)
             ret = fol.delete(doc_id)
         elif file.exist(doc_id):
