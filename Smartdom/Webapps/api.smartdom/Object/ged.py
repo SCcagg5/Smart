@@ -296,8 +296,8 @@ class folder:
     def content(self, folder_id = None, name = None, date = None):
         res = {"id": folder_id, "name": name, "date": date, "Content": {"files": [], "folders": []}}
         if folder_id is not None and name is None:
-            folder = sql.get("SELECT `name`, `date` FROM `ged_folder` WHERE id = %s AND user_id = %s", \
-            (folder_id, self.usr_id))
+            folder = sql.get("SELECT `name`, `date` FROM `ged_folder` WHERE id = %s AND ged_id = %s", \
+            (folder_id, self.ged_id))
             res["name"] = folder[0][0]
             res["date"] = folder[0][1]
         if folder_id is not None:
