@@ -217,9 +217,9 @@ class folder:
             return [False, "data input error", 500]
         return [True, {}, None]
 
-    def exist(folder_id):
-        res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s", \
-        (folder_id,))
+    def exist(self, folder_id):
+        res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s and ged_id = %s", \
+        (folder_id, self.ged_id))
         return True if len(res) > 0 else False
 
     def sharedcontent(self, folder_id = None, name = None, date = None):
