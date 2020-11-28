@@ -37,6 +37,18 @@ services:
         networks:
             - proxy
 
+    works:
+        image: scratch
+        container_name: net_works
+        restart: always
+        networks:
+            - smartco-db-net
+            - smartco-web-net
+            - smartco-adm-net
+            - smartdom-db-net
+            - smartdom-web-net
+            - smartdom-adm-net
+
     letsencrypt:
         image: jrcs/letsencrypt-nginx-proxy-companion
         container_name: letsencrypt
@@ -50,9 +62,3 @@ services:
             - nginx
         networks:
             - proxy
-            - smartco-db-net
-            - smartco-web-net
-            - smartco-adm-net
-            - smartdom-db-net
-            - smartdom-web-net
-            - smartdom-adm-net

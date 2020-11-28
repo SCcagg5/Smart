@@ -1,4 +1,5 @@
 version: "3"
+
 networks:
     proxy:
       external:
@@ -20,30 +21,6 @@ services:
           - ../Smartdom/Micro/odoo/db:/var/lib/postgresql/data
         networks:
           - db-net
-
-    odoo13:
-        image: odoo:13
-        depends_on:
-          - db
-        expose:
-          - 8069
-        tty: true
-        command: -- --dev=reload
-        volumes:
-          - ../Smartdom/Micro/odoo/web/data:/var/lib/odoo
-          - ../Smartdom/Micro/odoo/web/config:/etc/odoo
-          - ../Smartdom/Micro/odoo/web/addons:/mnt/extra-addons
-        networks:
-          - proxy
-          - db-net
-        restart: always
-        environment:
-            TZ: Europe/Prague
-            HTTPS: 'OFF'
-            VIRTUAL_HOST: odoo.${SMARTDOM_DOMAIN}
-            VIRTUAL_PORT: 8069
-            LETSENCRYPT_HOST: odoo.${SMARTDOM_DOMAIN}
-            LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
 
     web:
         image: jitsi/web
@@ -203,73 +180,3 @@ services:
             - prosody
         networks:
             meet.jitsi:
-
-    posteio:
-        image: analogic/poste.io
-        restart: always
-        ports:
-            - 0.0.0.0:25:25
-            - 110:110
-            - 143:143
-            - 465:465
-            - 587:587
-            - 993:993
-            - 995:995
-            - 4190:4190
-        expose:
-            - 80
-        volumes:
-            - ../Smartdom/Micro/posteio:/data
-        hostname: mail
-        domainname: smartdom.ch
-        environment:
-            TZ: Europe/Prague
-            HTTPS: 'OFF'
-            VIRTUAL_HOST: mail.${SMARTDOM_DOMAIN}
-            VIRTUAL_PORT: 80
-            LETSENCRYPT_HOST: mail.${SMARTDOM_DOMAIN}
-            LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
-        networks:
-            - proxy
-
-    rocketchat:
-        image: rocket.chat:latest
-        command: bash -c 'for i in `seq 1 30`; do node main.js && s=$$? && break || s=$$?; echo "Tried $$i times. Waiting 5 secs..."; sleep 5; done; (exit $$s)'
-        rrestart: always
-        volumes:
-            - ../Smartdom/Micro/rocket/uploads:/app/uploads
-        networks:
-            - db-net
-            - proxy
-        environment:
-            VIRTUAL_HOST: rocket.${SMARTDOM_DOMAIN}
-            VIRTUAL_PORT: 3000
-            LETSENCRYPT_HOST: rocket.${SMARTDOM_DOMAIN}
-            LETSENCRYPT_EMAIL: ${SMARTDOM_EMAIL}
-            PORT: 3000
-            ROOT_URL: http://chat.inumio.com
-            MONGO_URL: mongodb://mongo:27017/rocketchat
-            MONGO_OPLOG_URL: mongodb://mongo:27017/local
-            Accounts_UseDNSDomainCheck: 'False'
-        depends_on:
-            - mongo
-        ports:
-            - 3000:3000
-
-    mongo:
-        image: mongo:4.0
-        restart: always
-        networks:
-            - db-net
-        volumes:
-            - ../Smartdom/Micro/rocket/data/db:/data/db
-            - ../Smartdom/Micro/rocket/data/dump:/dump
-        command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
-
-    mongo-init-replica:
-        image: mongo
-        command: 'bash -c "for i in `seq 1 30`; do mongo mongo/rocketchat --eval \"rs.initiate({ _id: ''rs0'', members: [ { _id: 0, host: ''localhost:27017'' } ]})\" && s=$$? && break || s=$$?; echo \"Tried $$i times. Waiting 5 secs...\"; sleep 5; done; (exit $$s)"'
-        networks:
-            - db-net
-        depends_on:
-            - mongo

@@ -2,6 +2,7 @@
 __pycache__
 
 \#Tool/Slave/Slave/db/sql/data
+\#test
 
 Proxy/conf/default.conf
 Proxy/data
