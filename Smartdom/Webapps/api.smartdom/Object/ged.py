@@ -546,7 +546,7 @@ class file:
 
     def content(self, file_id, over = False):
         ret = {}
-        print(self.vpath(file_id)[1])
+        print(ged(self.usr_id, self.ged_id).vpath(file_id)[1])
         if over or self.is_proprietary(file_id):
             res = sql.get("SELECT `id`, `name`, `date`, `type`, `inside`, `user_id` FROM `ged_file` WHERE id = %s",
             (file_id,))
