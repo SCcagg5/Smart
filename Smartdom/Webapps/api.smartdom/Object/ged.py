@@ -311,11 +311,11 @@ class folder:
             res["name"] = folder[0][0]
             res["date"] = folder[0][1]
         if folder_id is not None:
-            files = sql.get("SELECT `id`, `name`, `type`, `date` FROM `ged_file` WHERE inside = %s", \
-            (folder_id))
+            files = sql.get("SELECT `id`, `name`, `type`, `date` FROM `ged_file` WHERE inside = %s AND ged_id = %s", \
+            (folder_id, self.ged_id))
         else:
-            files = sql.get("SELECT `id`, `name`, `type`, `date` FROM `ged_file` WHERE inside IS NULL AND user_id = %s AND ged_id = %s", \
-            (self.usr_id, self.ged_id))
+            files = sql.get("SELECT `id`, `name`, `type`, `date` FROM `ged_file` WHERE inside IS NULL AND ged_id = %s", \
+            (self.ged_id, ))
         for i2 in files:
             res["Content"]["files"].append({
             "id": i2[0], "name": i2[1], "type": i2[2], "date": i2[3]
@@ -324,8 +324,8 @@ class folder:
             folders = sql.get("SELECT `id`, `name`, `date` FROM `ged_folder` WHERE inside = %s", \
             (folder_id))
         else:
-            folders = sql.get("SELECT `id`, `name`, `date` FROM `ged_folder` WHERE inside IS NULL AND user_id = %s AND ged_id = %s", \
-            (self.usr_id, self.ged_id))
+            folders = sql.get("SELECT `id`, `name`, `date` FROM `ged_folder` WHERE inside IS NULL AND ged_id = %s", \
+            (self.ged_id, ))
         for i2 in folders:
             res["Content"]["folders"].append(self.content(i2[0], i2[1], i2[2]))
         return res
