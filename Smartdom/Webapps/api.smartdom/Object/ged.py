@@ -248,14 +248,15 @@ class folder:
                 }
             files = sql.get("SELECT ged_file.`id`, ged_file.`name`, ged_file.`type`, ged_file.`date`, user.`email`  FROM `ged_file` INNER JOIN `user` ON `ged_file`.`user_id` = `user`.id  WHERE inside = %s", \
             (folder_id, ))
+            fil = file(self.usr_id, self.ged_id)
             for i2 in files:
                 ret["Content"]["files"].append({
                 "id": i2[0], "name": i2[1], "type": i2[2], "date": i2[3], "proprietary": i2[4],
                 "rights": {
-                        "read": file(self.usr_id).is_reader(i2[0]),
-                        "edit": file(self.usr_id).is_editor(i2[0]),
-                        "share": file(self.usr_id).is_sharer(i2[0]),
-                        "administrate": file(self.usr_id).is_admin(i2[0])
+                        "read": fil.is_reader(i2[0]),
+                        "edit": fil.is_editor(i2[0]),
+                        "share": fil.is_sharer(i2[0]),
+                        "administrate": fil.is_admin(i2[0])
                         }
                 })
             folders = sql.get("SELECT ged_folder.`id`, ged_folder.`name`, ged_folder.`date`, user.`email` FROM `ged_folder` INNER JOIN `user` ON `ged_folder`.`user_id` = `user`.id WHERE inside = %s", \
@@ -274,14 +275,15 @@ class folder:
         else:
             files = sql.get("SELECT ged_file.`id`, `name`, ged_file.type, ged_file.`date`, user.`email`, ged_share_file.`date` FROM `ged_share_file` INNER JOIN `ged_file` ON `ged_share_file`.`file_id` = `ged_file`.`id` INNER JOIN `user` ON `ged_file`.`user_id` = `user`.id WHERE active IS TRUE AND ged_share_file.user_id = %s", \
             (self.usr_id, ))
+            fil = file(self.usr_id, self.ged_id)
             for i2 in files:
                 ret["Content"]["files"].append({
                 "id": i2[0], "name": i2[1], "type": i2[2], "date": i2[3], "proprietary": i2[4], "sharing_date": i2[5],
                 "rights": {
-                        "read": file(self.usr_id).is_reader(i2[0]),
-                        "edit": file(self.usr_id).is_editor(i2[0]),
-                        "share": file(self.usr_id).is_sharer(i2[0]),
-                        "administrate": file(self.usr_id).is_admin(i2[0])
+                        "read": fil.is_reader(i2[0]),
+                        "edit": fil.is_editor(i2[0]),
+                        "share": fil.is_sharer(i2[0]),
+                        "administrate": fil.is_admin(i2[0])
                         }
                 })
             folders = sql.get("SELECT ged_folder.`id`, `name`, ged_folder.`date`, user.`email`, ged_share_folder.`date` FROM `ged_share_folder` INNER JOIN `ged_folder` ON `ged_share_folder`.`folder_id` = `ged_folder`.`id` INNER JOIN `user` ON `ged_folder`.`user_id` = `user`.id WHERE active IS TRUE AND ged_share_folder.user_id = %s", \
@@ -566,14 +568,15 @@ class file:
                 with open(self.path(file_id, res[0][6]), 'rb') as f:
                     data = f.read()
                 data =  base64.encodestring(data).decode("utf-8")
+                fil = file(self.usr_id, self.ged_id)
                 ret = {
                 "id": res[0][0], "name": res[0][1], "type": res[0][2], "date": res[0][3], "proprietary": res[0][4], "sharing_date": res[0][5],
                 "Content": {"Encode": "base64", "Data": data},
                 "rights": {
-                        "read": file(self.usr_id).is_reader(res[0][0]),
-                        "edit": file(self.usr_id).is_editor(res[0][0]),
-                        "share": file(self.usr_id).is_sharer(res[0][0]),
-                        "administrate": file(self.usr_id).is_admin(res[0][0])
+                        "read": fil.is_reader(res[0][0]),
+                        "edit": fil.is_editor(res[0][0]),
+                        "share": fil.is_sharer(res[0][0]),
+                        "administrate": fil.is_admin(res[0][0])
                         }
                 }
             else:
@@ -587,10 +590,10 @@ class file:
                     "id": res[0][0], "name": res[0][1], "type": res[0][2], "date": res[0][3], "proprietary": res[0][4], "sharing_date": None,
                     "Content": {"Encode": "base64", "Data": data},
                     "rights": {
-                            "read": file(self.usr_id).is_reader(res[0][0]),
-                            "edit": file(self.usr_id).is_editor(res[0][0]),
-                            "share": file(self.usr_id).is_sharer(res[0][0]),
-                            "administrate": file(self.usr_id).is_admin(res[0][0])
+                            "read": fil.is_reader(res[0][0]),
+                            "edit": fil.is_editor(res[0][0]),
+                            "share": fil.is_sharer(res[0][0]),
+                            "administrate": fil.is_admin(res[0][0])
                             }
                     }
                 else:
@@ -822,7 +825,6 @@ class ged:
     def delete(self, doc_id):
         fol = folder(self.usr_id, self.ged_id)
         if fol.exist(doc_id):
-            fol = folder(self.usr_id, self.ged_id)
             ret = fol.delete(doc_id)
         elif file.exist(doc_id):
             fil = file(self.usr_id, self.ged_id)
