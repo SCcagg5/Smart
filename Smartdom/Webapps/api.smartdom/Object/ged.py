@@ -396,6 +396,9 @@ class folder:
         ret = False
         doc = ged(self.usr_id, self.ged_id)
         for i in doc.vpath(id_folder)[1]:
+            res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND user_id = %s", (i, self.usr_id))
+            if len(res):
+                return True
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_read IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -688,6 +691,9 @@ class file:
         ret = False
         doc = ged(self.usr_id, self.ged_id)
         for i in doc.vpath(id_file)[1]:
+            res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND user_id = %s", (i, self.usr_id))
+            if len(res):
+                return True
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_read IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
