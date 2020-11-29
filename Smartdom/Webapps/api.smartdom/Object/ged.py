@@ -224,7 +224,7 @@ class folder:
             return False
         folder_id = res[0][0]
         while folder_id is not None:
-            doc = sql.get("SELECT `inside` FROM `ged_folder` WHERE id = %s and ged_id=%s", (id_doc, self.ged_id))
+            doc = sql.get("SELECT `inside` FROM `ged_folder` WHERE id = %s and ged_id=%s", (folder_id, self.ged_id))
             if len(doc) == 0:
                 return False
             folder_id = doc[0][0]
