@@ -712,7 +712,7 @@ class ged:
         res = []
         fol = folder(self.usr_id, self.ged_id)
         if not fol.exist(id_doc) and id_doc is not None:
-            doc = sql.get("SELECT `inside` FROM `ged_file` WHERE id = %s and ged_id=%s", (id_doc, ))[0][0]
+            doc = sql.get("SELECT `inside` FROM `ged_file` WHERE id = %s and ged_id=%s", (id_doc, self.ged_id))[0][0]
             if len(doc) == 0:
                 return [False, "Folder containing this asset has been deleted", 404]
             id_doc = doc[0][0]
