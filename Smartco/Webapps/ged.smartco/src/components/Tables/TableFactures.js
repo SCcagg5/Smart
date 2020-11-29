@@ -58,99 +58,103 @@ export default function CollapsibleTable(props) {
     return d-c;
   });
 
-  return (
-    <TableContainer component={Paper}>
-      <div>
-        <div className="row mt-1" style={{border:"2px solid #f0f0f0",padding:15,paddingLeft:10}}>
-          <div className="col-md-12">
-            <div align="right">
-              <AtlButton
-                onClick={() => {
-                  setSdate_search(null)
-                  setEdate_search(null)
-                  setClient_search("")
-                }}
-              >Initialiser</AtlButton>
-            </div>
-          </div>
-          <div className="col-md-12">
-            <h5>Rechercher</h5>
-          </div>
-          <div className="col-md-12">
-            <div style={{display:"flex"}}>
-              <h5>De</h5>
-              <div style={{marginLeft:10,marginRight:10}}>
-                <DatePicker
-                  calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
-                  onChange={(e) => {
-                    setSdate_search(e)
-                  }}
-                  value={sdate_search}
-                  dayPlaceholder="dd"
-                  monthPlaceholder="mm"
-                  yearPlaceholder="yyyy"
-                />
-              </div>
-              <h5>à</h5>
-              <div style={{marginLeft:10,marginRight:10}}>
-                <DatePicker
-                  calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
-                  onChange={(e) => {
-                    setEdate_search(e)
-                  }}
-                  value={edate_search}
-                  dayPlaceholder="dd"
-                  monthPlaceholder="mm"
-                  yearPlaceholder="yyyy"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="col-md-10 mt-2">
-            <div style={{display:"flex"}}>
-              <h5 style={{marginRight:10}}>Par client</h5>
-              <SelectSearch
-                className="select-search"
-                options={
-                  props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
-                    ({
-                      value: Nom + ' ' + (Prenom || ''),
-                      name: Nom + ' ' + (Prenom || ''),
-                      ContactType: Type,
-                      ContactName: Nom + ' ' + (Prenom || ''),
-                      imageUrl: imageUrl
-                    }))
-                }
-                value={client_search}
-                renderOption={main_functions.renderSearchOption}
-                search
-                placeholder="Sélectionner.."
-                onChange={e => {
-                  setClient_search(e)
-                }}
-              />
-            </div>
-          </div>
 
-          <div className="col-md-12 mt-2">
-            <div style={{display:"flex"}}>
-              <h5>Par statut</h5>
-              <select
-                style={{width:250,marginLeft:10}}
-                className="form-control custom-select"
-                id="titre"
-                name="titre"
-                placeholder="Titre"
-                value={statut_search}
-                onChange={(e) => {setStatut_search(e.target.value)}}
-              >
-                <option  value={"tous"} label={"Tous"} />
-                <option  value={"wait"} label={"En attente"} />
-                <option  value={"accepted"} label={"Validée"} />
-              </select>
+
+
+  return (
+    <TableContainer component={Paper} style={{minHeight:650,padding:30}}>
+      <div>
+
+        <div className="row mt-1" style={{border:"2px solid #f0f0f0",padding:15,paddingLeft:10}}>
+            <div className="col-md-12">
+              <div align="right">
+                <AtlButton
+                  onClick={() => {
+                    setSdate_search(null)
+                    setEdate_search(null)
+                    setClient_search("")
+                  }}
+                >Initialiser</AtlButton>
+              </div>
+            </div>
+            <div className="col-md-12">
+              <h5>Rechercher</h5>
+            </div>
+            <div className="col-md-12">
+              <div style={{display:"flex"}}>
+                <h5>De</h5>
+                <div style={{marginLeft:10,marginRight:10}}>
+                  <DatePicker
+                    calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
+                    onChange={(e) => {
+                      setSdate_search(e)
+                    }}
+                    value={sdate_search}
+                    dayPlaceholder="dd"
+                    monthPlaceholder="mm"
+                    yearPlaceholder="yyyy"
+                  />
+                </div>
+                <h5>à</h5>
+                <div style={{marginLeft:10,marginRight:10}}>
+                  <DatePicker
+                    calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
+                    onChange={(e) => {
+                      setEdate_search(e)
+                    }}
+                    value={edate_search}
+                    dayPlaceholder="dd"
+                    monthPlaceholder="mm"
+                    yearPlaceholder="yyyy"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="col-md-10 mt-2">
+              <div style={{display:"flex"}}>
+                <h5 style={{marginRight:10}}>Par client</h5>
+                <SelectSearch
+                  className="select-search"
+                  options={
+                    props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
+                      ({
+                        value: Nom + ' ' + (Prenom || ''),
+                        name: Nom + ' ' + (Prenom || ''),
+                        ContactType: Type,
+                        ContactName: Nom + ' ' + (Prenom || ''),
+                        imageUrl: imageUrl
+                      }))
+                  }
+                  value={client_search}
+                  renderOption={main_functions.renderSearchOption}
+                  search
+                  placeholder="Sélectionner.."
+                  onChange={e => {
+                    setClient_search(e)
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="col-md-12 mt-2">
+              <div style={{display:"flex"}}>
+                <h5>Par statut</h5>
+                <select
+                  style={{width:250,marginLeft:10}}
+                  className="form-control custom-select"
+                  id="titre"
+                  name="titre"
+                  placeholder="Titre"
+                  value={statut_search}
+                  onChange={(e) => {setStatut_search(e.target.value)}}
+                >
+                  <option  value={"tous"} label={"Tous"} />
+                  <option  value={"wait"} label={"En attente"} />
+                  <option  value={"accepted"} label={"Validée"} />
+                </select>
+              </div>
             </div>
           </div>
-        </div>
 
         {
           searchFilter.length > 0 ?
@@ -171,13 +175,17 @@ export default function CollapsibleTable(props) {
               <TableBody>
                 {
                   searchFilter.map((row,key) => (
-                    <Row key={key} row={row} index={key} validateFacture={props.validateFacture} openFacture={props.openFacture} openFactureFolder={props.openFactureFolder} client_folders={props.client_folders}  />
+                    <Row key={key} row={row} index={key} validateFacture={props.validateFacture} openFacture={props.openFacture}
+                         openFactureFolder={props.openFactureFolder} client_folders={props.client_folders} clients_tempo={props.clients_tempo}
+                         annuaire_clients_mondat={props.annuaire_clients_mondat}
+                         sharedFolders={props.sharedFolders}
+                    />
                   ))
                 }
               </TableBody>
             </Table> :
 
-            <h6>Aucune facture trouvée</h6>
+            <h6 style={{margin:20}}>Aucune facture trouvée</h6>
         }
       </div>
 
@@ -203,9 +211,18 @@ function Row(props) {
     nb_heures = nb_heures + ligne.newTime.duree;
   });
 
-    let client_folders = props.client_folders || [];
-    let selected_client = client_folders.Content ? client_folders.Content.folders.find(x => x.name === row.client) : undefined
-    let selected_client_folders = selected_client ?  selected_client.Content.folders : [];
+
+    let selected_client_folders = []
+    let clients_tempo = props.clients_tempo || [];
+    let client_mandats = clients_tempo.find(x => x.ID_client === row.client_id)
+    selected_client_folders = client_mandats ?  client_mandats.folders || [] : [];
+
+
+
+  let sharedFolders = props.sharedFolders;
+  let verif_access = false;
+  if(localStorage.getItem("client_folder_id") || localStorage.getItem("client_shared_folder_id")   )
+    verif_access = true;
 
 
   return (
@@ -329,7 +346,7 @@ function Row(props) {
                         {
                           selected_client_folders.map((folder,key) => (
                             <MenuItem key={key}
-                                      value={folder.id || folder.key}>{folder.name}</MenuItem>
+                                      value={folder.folder_id}>{folder.name}</MenuItem>
                           ))
                         }
                       </MuiSelect>
@@ -353,7 +370,12 @@ function Row(props) {
                   </div>
                   <div align="right" style={{marginTop:20}}>
                     <AtlButton onClick={() => {
-                      props.validateFacture(row,props.index,template,client)
+                      if(verif_access === true){
+                        props.validateFacture(row,props.index,template,client)
+                      }else{
+                        alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
+                      }
+
                     }}
                                isDisabled={client === ""}
                                appearance="primary">

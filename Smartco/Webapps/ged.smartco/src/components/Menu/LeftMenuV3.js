@@ -169,7 +169,7 @@ export default function LeftMenuV3(props) {
     }
 
     function onSelect(selectedKeys, info) {
-        console.log(info.node)
+        //console.log(info.node)
         props.setSelectedDriveSharedItem([])
         props.setSelectedDriveItem(selectedKeys)
         if (info.node.typeF === "folder") {

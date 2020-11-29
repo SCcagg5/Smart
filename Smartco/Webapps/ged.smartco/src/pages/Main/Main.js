@@ -79,7 +79,8 @@ import main_functions from '../../controller/main_functions';
 import DescriptionIcon from '@material-ui/icons/Description';
 import TableFactures from '../../components/Tables/TableFactures';
 import Mandats from './Mandats';
-
+import GetAppIcon from '@material-ui/icons/GetApp';
+import Badge from '@atlaskit/badge';
 
 const ged_id = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9";
 const ent_name = "OaLegal";
@@ -237,6 +238,7 @@ export default class Main extends React.Component {
       newTime: {
         duree: '',
         client: '',
+        client_id:'',
         dossier_client: {
           name:'',
           facturation: {
@@ -458,18 +460,16 @@ export default class Main extends React.Component {
               parentSharedFolder[0].Content.folders = gedRes.data.Shared.Content.folders || []
               sharedFolders = main_functions.changeStructure(parentSharedFolder)
 
-              let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'CLIENTS');
+              let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.id === '4376a4bb-d5ec-441f-8868-f9ce96077420');
+              let client_shared_folder = gedRes.data.Shared.Content.folders.find((x) => x.id === '4376a4bb-d5ec-441f-8868-f9ce96077420');
               if (client_folder) {
-                localStorage.setItem('client_folder_id', client_folder.id);
+                localStorage.setItem('client_folder_id', "4376a4bb-d5ec-441f-8868-f9ce96077420");
                 this.setState({client_folders:client_folder})
               }
-              /*else{
-                let client_shared_folder = gedRes.data.Shared.Content.folders.find((x) => x.name === 'CLIENTS');
-                if(client_shared_folder){
-                  localStorage.setItem('client_folder_id', client_shared_folder.id);
-                  this.setState({client_folders:client_shared_folder})
-                }
-              }*/
+              if (client_shared_folder) {
+                localStorage.setItem('client_shared_folder_id', "4376a4bb-d5ec-441f-8868-f9ce96077420");
+              }
+
               let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
 
               firebase.database().ref('/').on('value', (snapshot) => {
@@ -1092,6 +1092,7 @@ export default class Main extends React.Component {
 
   deleteFile_Folder = (file) => {
     console.log(file)
+
     this.setState({ loading: true });
 
     SmartService.deleteFile(file.key || file.id, localStorage.getItem('token'), localStorage.getItem('usrtoken'))
@@ -1101,14 +1102,25 @@ export default class Main extends React.Component {
             this.reloadGed()
           }
           else {
-            if(file.rights === undefined || file.rights === null){
-              let clients_tempo = this.state.clients_tempo_copie;
-              let client_folder_index = clients_tempo.findIndex(x => x.email === localStorage.getItem("email") && x.folder_id === file.key);
-              if(client_folder_index !== -1){
-                firebase.database().ref(ent_name+"-clients_tempo-"+ged_id+"/"+client_folder_index).update({
-                  folders:[],
-                  folder_id:''
-                });
+
+            let clients_tempo = this.state.clients_tempo;
+            let findRacine_index = clients_tempo.findIndex(x => x.folder_id === file.key);
+            if(findRacine_index > -1){
+              let new_clients_tempo = clients_tempo.filter(x => x.folder_id !== file.key);
+              firebase.database().ref("/" + ent_name + "-clients_tempo-" + ged_id + '/').set(new_clients_tempo).then( ok => {}).catch(err => console.log(err))
+            }else{
+              let find_sub_index = -1;
+              let newFolders ;
+              clients_tempo.map((cl,key) => {
+                let folders = cl.folders || [];
+                if(folders.findIndex(x => x.folder_id === file.key) > -1){
+                  findRacine_index = key;
+                  find_sub_index = folders.findIndex(x => x.folder_id === file.key);
+                  newFolders = folders.filter(x => x.folder_id !== file.key);
+                }
+              })
+              if(find_sub_index > -1){
+                firebase.database().ref("/" + ent_name + "-clients_tempo-" + ged_id + '/' + findRacine_index + '/folders').set(newFolders).then(ok => {}).catch(err => console.log(err))
               }
             }
             this.setState({ selectedFolderId: '' });
@@ -1117,6 +1129,7 @@ export default class Main extends React.Component {
           }
           this.openSnackbar('success', file.typeF === 'file' ? (file.name || file.title) + '.pdf est supprimé avec succès' : (file.name || file.title) + ' est supprimé avec succès');
         } else {
+          this.setState({ loading: false });
           this.openSnackbar('error', deleteRes.error);
         }
       })
@@ -1211,11 +1224,12 @@ export default class Main extends React.Component {
     });
   };
 
-  showDocInPdfModal = (url) => {
+  showDocInPdfModal = (url,name,type) => {
     this.setState({
       openRightMenu: false,
       showPDFModal: true,
-      pdfURL: url
+      pdfURL: url,
+      pdfName:name + '.' + type
     });
   };
 
@@ -1318,7 +1332,7 @@ export default class Main extends React.Component {
       SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(gedRes => {
         if (gedRes.succes === true && gedRes.status === 200) {
 
-          let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'CLIENTS');
+          let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.id === '4376a4bb-d5ec-441f-8868-f9ce96077420');
           if (client_folder) {
             localStorage.setItem('client_folder_id', client_folder.id);
             this.setState({client_folders:client_folder})
@@ -1448,7 +1462,7 @@ export default class Main extends React.Component {
     SmartService.getFile(doc_id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(fileRes => {
       if (fileRes.succes === true && fileRes.status === 200) {
         this.setState({ loading: false });
-        this.showDocInPdfModal(fileRes.data.Content.Data);
+        this.showDocInPdfModal(fileRes.data.Content.Data,fileRes.data.name,fileRes.data.type);
       } else {
         console.log(fileRes.error);
       }
@@ -1815,7 +1829,8 @@ export default class Main extends React.Component {
         ID:Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
         created_at:date,
         created_by:createdBy,
-        client:client,
+        client:lignes_facture[0].newTime.client,
+        client_id:lignes_facture[0].newTime.client_id,
         partner:partnerEmail,
         lignes_facture:lignes_facture,
         statut:"wait",
@@ -2089,29 +2104,27 @@ export default class Main extends React.Component {
   }
 
   generateClientFolder(ID, team) {
-    this.setState({ loading: true });
-    let CLIENTS_folder_id = "4376a4bb-d5ec-441f-8868-f9ce96077420"  //c79fcab6-9fec-4714-9572-7e36eb6761b3 => Krana   //4376a4bb-d5ec-441f-8868-f9ce96077420 => Fabien
 
-   /* if(localStorage.getItem("client_folder_id") && localStorage.getItem("client_folder_id") !== "" ){
-      CLIENTS_folder_id = localStorage.getItem("client_folder_id")
-    }else{
-      CLIENTS_folder_id = "4376a4bb-d5ec-441f-8868-f9ce96077420"
-    }*/
+    this.setState({ loading: true });
+
+    let verif_access = false;
+
+    if(localStorage.getItem("client_folder_id") || localStorage.getItem("client_shared_folder_id")  )
+      verif_access = true;
+
+    if(verif_access === true){
+
+      let CLIENTS_folder_id = "4376a4bb-d5ec-441f-8868-f9ce96077420"  //c79fcab6-9fec-4714-9572-7e36eb6761b3 => Krana   //4376a4bb-d5ec-441f-8868-f9ce96077420 => Fabien
 
       let clients_tmp = this.state.clients_tempo;
       let clients_tmp_copie = this.state.clients_tempo_copie;
-      let find = clients_tmp.find(x => x.ID === ID);
+      let find = clients_tmp.find(x => x.ID_client === ID);
 
       if (find) {
 
-        let findInCopyKey = clients_tmp_copie.findIndex(x => x.ID === find.ID);
+        let findInCopyKey = clients_tmp_copie.findIndex(x => x.ID_client === find.ID_client);
         let findCopy = find;
 
-        /* if(localStorage.getItem("client_folder_id") && localStorage.getItem("client_folder_id") !== "" ){
-               CLIENTS_folder_id = localStorage.getItem("client_folder_id")
-            }else{
-               CLIENTS_folder_id = "4376a4bb-d5ec-441f-8868-f9ce96077420"
-        }*/
 
         if(find.folder_id && find.folder_id !== ""){
 
@@ -2207,7 +2220,7 @@ export default class Main extends React.Component {
                   contrepartie:this.state.newClientFolder.contrepartie,
                   autrepartie:this.state.newClientFolder.autrepartie,
                   desc:this.state.newClientFolder.desc,
-                  created_at:moment().format("YYYY-MM-DD"),
+                  created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
                   created_by:localStorage.getItem("email"),
                   facturation:{
                     byEmail:this.state.newClientFolder.byEmail,
@@ -2226,7 +2239,7 @@ export default class Main extends React.Component {
                 contrepartie:this.state.newClientFolder.contrepartie,
                 autrepartie:this.state.newClientFolder.autrepartie,
                 desc:this.state.newClientFolder.desc,
-                created_at:moment().format("YYYY-MM-DD"),
+                created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
                 created_by:localStorage.getItem("email"),
                 facturation:{
                   byEmail:this.state.newClientFolder.byEmail,
@@ -2368,7 +2381,7 @@ export default class Main extends React.Component {
                   contrepartie:this.state.newClientFolder.contrepartie,
                   autrepartie:this.state.newClientFolder.autrepartie,
                   desc:this.state.newClientFolder.desc,
-                  created_at:moment().format("YYYY-MM-DD"),
+                  created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
                   created_by:localStorage.getItem("email"),
                   facturation:{
                     byEmail:this.state.newClientFolder.byEmail,
@@ -2423,163 +2436,162 @@ export default class Main extends React.Component {
           }
         }).then(createClientRes => {
 
+          SmartService.addFolder({
+            name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+            folder_id: CLIENTS_folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
+            console.log('OK');
+
             SmartService.addFolder({
-              name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
-              folder_id: CLIENTS_folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
-              console.log('OK');
+              name: this.state.newClientFolder.nom,
+              folder_id: addParentClientFolderRes.data.id,
+            },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
+
+              console.log('OK 1');
 
               SmartService.addFolder({
-                name: this.state.newClientFolder.nom,
-                folder_id: addParentClientFolderRes.data.id,
-              },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
-
-                console.log('OK 1');
-
-                SmartService.addFolder({
-                  name: 'MÉMOIRE',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'CHARGE DE PIECES',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'CONVOCATIONS',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'ADMIN (Lettre d\'engagement)',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'COMPTABILITE',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'CORRESPONDANCE',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'INTERNE ****',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'NOTES',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'PV RENDEZ-VOUS',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'PROCEDURES',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'RECHERCHES JURIDIQUES',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-
-                clients_tmp_copie.push({
-                  folder_id: addParentClientFolderRes.data.id,
-                  ID: ID,
-                  email: localStorage.getItem('email'),
-                  client_id: createClientRes.data.id,
-                  folders:[
-                    {
-                      folder_id:addFolderClient.data.id,
-                      team:team,
-                      name:this.state.newClientFolder.nom,
-                      contrepartie:this.state.newClientFolder.contrepartie,
-                      autrepartie:this.state.newClientFolder.autrepartie,
-                      desc:this.state.newClientFolder.desc,
-                      created_at:moment().format("YYYY-MM-DD"),
-                      created_by:localStorage.getItem("email"),
-                      facturation:{
-                        byEmail:this.state.newClientFolder.byEmail,
-                        sentBySecr:this.state.newClientFolder.sentBySecr,
-                        sentByAvocat:this.state.newClientFolder.sentByAvocat,
-                        language:this.state.newClientFolder.language,
-                        frequence:this.state.newClientFolder.frequence
-                      }
-                    }
-                  ]
-                });
-                firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id).set(clients_tmp_copie).then( ok => {
-                  setTimeout(() => {
-                    this.setState({
-                      loading: false,
-                      newClientFolder: {
-                        nom: '',
-                        type: 'corporate',
-                        team: [],
-                        contrepartie:'',
-                        autrepartie:'',
-                        desc:'',
-                        byEmail:true,
-                        sentBySecr:false,
-                        sentByAvocat:false,
-                        frequence:'',
-                        language:"Francais"
-                      },
-                      lead_contact_tmp: '',
-                      lead_contact_horaire_tmp: ''
-                    });
-                    this.justReloadGed();
-                    this.openSnackbar('success', 'Dossier ajouté avec succès');
-                  }, 750);
-                });
+                name: 'MÉMOIRE',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
               }).catch(err => {
                 console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'CHARGE DE PIECES',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'CONVOCATIONS',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'ADMIN (Lettre d\'engagement)',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'COMPTABILITE',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'CORRESPONDANCE',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'INTERNE ****',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'NOTES',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'PV RENDEZ-VOUS',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'PROCEDURES',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
+              }).catch(err => {
+                console.log(err);
+              });
+              SmartService.addFolder({
+                name: 'RECHERCHES JURIDIQUES',
+                folder_id: addFolderClient.data.id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                console.log('OK');
+              }).catch(err => {
+                console.log(err);
+              });
+
+              clients_tmp_copie.push({
+                folder_id: addParentClientFolderRes.data.id,
+                ID_client: ID,
+                odoo_client_id: createClientRes.data.id,
+                folders:[
+                  {
+                    folder_id:addFolderClient.data.id,
+                    team:team,
+                    name:this.state.newClientFolder.nom,
+                    contrepartie:this.state.newClientFolder.contrepartie,
+                    autrepartie:this.state.newClientFolder.autrepartie,
+                    desc:this.state.newClientFolder.desc,
+                    created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                    created_by:localStorage.getItem("email"),
+                    facturation:{
+                      byEmail:this.state.newClientFolder.byEmail,
+                      sentBySecr:this.state.newClientFolder.sentBySecr,
+                      sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                      language:this.state.newClientFolder.language,
+                      frequence:this.state.newClientFolder.frequence
+                    }
+                  }
+                ]
+              });
+              firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id).set(clients_tmp_copie).then( ok => {
+                setTimeout(() => {
+                  this.setState({
+                    loading: false,
+                    newClientFolder: {
+                      nom: '',
+                      type: 'corporate',
+                      team: [],
+                      contrepartie:'',
+                      autrepartie:'',
+                      desc:'',
+                      byEmail:true,
+                      sentBySecr:false,
+                      sentByAvocat:false,
+                      frequence:'',
+                      language:"Francais"
+                    },
+                    lead_contact_tmp: '',
+                    lead_contact_horaire_tmp: ''
+                  });
+                  this.justReloadGed();
+                  this.openSnackbar('success', 'Dossier ajouté avec succès');
+                }, 750);
               });
             }).catch(err => {
               console.log(err);
             });
+          }).catch(err => {
+            console.log(err);
+          });
 
 
 
@@ -2590,6 +2602,14 @@ export default class Main extends React.Component {
           console.log(err);
         });
       }
+
+    }else{
+      this.setState({ loading: false });
+      alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
+    }
+
+
+
 
   }
 
@@ -2729,18 +2749,14 @@ export default class Main extends React.Component {
 
         SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
           if(newCompRes.succes === true && newCompRes.status === 200){
-            /*obj.newTime.company_id = newCompRes.data.id;
-            obj.newTime.date = moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD');
-            obj.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            obj.user_email = localStorage.getItem('email');
-            //obj.template = this.state.lignef_template;
-            //obj.newTime.client = this.state.selectedClientTimeEntree;*/
+
             lignes_fact.push({
               newTime: {
                 company_id:newCompRes.data.id,
-                date:moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD'),
+                date:moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD HH:mm:ss'),
                 duree: timeFormated,
                 client: this.state.TimeSheet.newTime.client,
+                client_id:this.state.selectedClientTimeEntree,
                 dossier_client:this.state.TimeSheet.newTime.dossier_client,
                 categoriesActivite: this.state.TimeSheet.newTime.categoriesActivite,
                 description: this.state.TimeSheet.newTime.description,
@@ -2749,7 +2765,8 @@ export default class Main extends React.Component {
                 langue:''
               },
               uid:Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
-              user_email:localStorage.getItem('email')
+              user_email:localStorage.getItem('email'),
+              created_at:moment().format('YYYY-MM-DD HH:mm:ss')
             });
 
             if(duplicate === false){
@@ -2760,6 +2777,7 @@ export default class Main extends React.Component {
                   newTime: {
                     duree: '',
                     client: '',
+                    client_id:'',
                     dossier_client:{
                       name:'',
                       facturation:{
@@ -2782,6 +2800,7 @@ export default class Main extends React.Component {
                   newTime: {
                     duree: objCopy.newTime.duree,
                     client: objCopy.newTime.client,
+                    client_id:objCopy.newTime.client_id,
                     dossier_client:objCopy.newTime.dossier_client,
                     categoriesActivite: objCopy.newTime.categoriesActivite,
                     description: objCopy.newTime.description,
@@ -2808,8 +2827,10 @@ export default class Main extends React.Component {
   }
 
   updateLigneFacture(id,ligne){
-    let key = this.state.lignesFacturesCopy.findIndex(x => x.uid === id);
-    if(key){
+    let lf_copy = this.state.lignesFacturesCopy;
+    let key = lf_copy.findIndex(x => x.uid === id);
+    console.log(key)
+    if(key > -1){
       firebase.database().ref('/'+ent_name+'-lignes_f-'+ged_id+'/'+key).set(ligne).then( ok => {
         this.openSnackbar("success","Modification effectuée avec succès")
       }).catch(err => {
@@ -3491,7 +3512,7 @@ export default class Main extends React.Component {
                                 SmartService.getFile(item.file_id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(fileRes => {
                                   if (fileRes.succes === true && fileRes.status === 200) {
                                     this.setState({ loading: false });
-                                    this.showDocInPdfModal(fileRes.data.Content.Data);
+                                    this.showDocInPdfModal(fileRes.data.Content.Data,fileRes.data.name,fileRes.data.type);
                                   } else {
                                     console.log(fileRes.error);
                                   }
@@ -4097,36 +4118,6 @@ export default class Main extends React.Component {
                                               onChange={this.handleChange('selectedSociete', 'remarque')} />
                                           </div>
                                         </div>
-                                        {/*<div className="row" style={{ marginTop: 20 }}>
-                                          <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Type de dossier</p>
-                                            <select
-                                              className="form-control custom-select"
-                                              value={this.state.selectedSociete.Type}
-                                              onChange={this.handleChange('selectedSociete', 'Type')}
-                                            >
-                                              {
-                                                Data.contactTypes.map((type, key) =>
-                                                  <option
-                                                    key={key}
-                                                    value={type.value}>{type.label}</option>
-                                                )
-                                              }
-                                            </select>
-                                          </div>
-                                          <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Dossier ouvert le </p>
-                                            <Input
-                                              type="date"
-                                              className="form-control"
-                                              id="date_ouvert_dossier"
-                                              name="date_ouvert_dossier"
-                                              placeholder=""
-                                              value={this.state.selectedSociete.date_ouvert_dossier}
-                                              onChange={this.handleChange('selectedSociete', 'date_ouvert_dossier')}> </Input>
-                                          </div>
-                                        </div>*/}
-
 
                                       </TabPanel>
                                       <TabPanel>
@@ -4597,6 +4588,7 @@ export default class Main extends React.Component {
                                                    this.update_client_tempo(key,data)
                                                  }}
                                                  reloadGed={() => this.justReloadGed()}
+                                                 openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
                                         />
                                       </TabPanel>
                                     </Tabs>
@@ -4623,12 +4615,18 @@ export default class Main extends React.Component {
                                       <TabList>
                                         <Tab>Time Sheet</Tab>
                                         <Tab>Activités </Tab>
-                                        <Tab>Partner </Tab>
+                                        <Tab>
+                                          Partner
+                                          {
+                                            this.state.facturesToValidated.filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length > 0 &&
+                                            <Badge max={100}>{this.state.facturesToValidated.filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length}</Badge>
+                                          }
+                                        </Tab>
                                       </TabList>
                                       <TabPanel>
                                         {
                                           this.state.showLignesFactureClient === false ?
-                                            <div>
+                                            <div style={{marginTop:25,padding:10,paddingBottom:50,paddingLeft:20,border:"2px solid #f0f0f0"}}>
                                               <div className="row mt-2">
                                                 <div className="col-md-6">
                                                   <h5>Durée</h5>
@@ -4750,13 +4748,14 @@ export default class Main extends React.Component {
                                                         search
                                                         placeholder="Chercher votre client"
                                                         onChange={ (e) => {
-                                                          console.log(e)
+
                                                           let obj = this.state.TimeSheet;
 
-                                                          let findClientTempo = this.state.clients_tempo.find(x => x.ID === e)
+                                                          let findClientTempo = this.state.clients_tempo.find(x => x.ID_client === e)
                                                           let findClientFname = this.state.annuaire_clients_mondat.find(x => x.ID === e)
                                                           console.log(findClientFname)
                                                           obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                                                          obj.newTime.client_id = e;
                                                           if(findClientTempo){
                                                             this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
                                                           }else{
@@ -4793,8 +4792,6 @@ export default class Main extends React.Component {
                                                           <MenuItem key={key} value={item}>{item.name}</MenuItem>
                                                         ))
                                                       }
-
-
                                                     </MuiSelect>
                                                   </div>
                                                 </div>
@@ -5091,7 +5088,9 @@ export default class Main extends React.Component {
                                         <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
                                         <TableFactures factures={this.state.facturesToValidated}
                                                        client_folders={this.state.client_folders}
+                                                       clients_tempo={this.state.clients_tempo}
                                                        annuaire_clients_mondat={this.state.annuaire_clients_mondat}
+                                                       sharedFolders={this.state.sharedReelFolders || []}
                                                        validateFacture={(row,key,template,client) => {
                                                          this.createFacture_ForSelected(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
                                                        }}
@@ -5158,7 +5157,7 @@ export default class Main extends React.Component {
                         .then((fileRes) => {
                           if (fileRes.succes === true && fileRes.status === 200) {
                             this.setState({ loadDocSpinner: false });
-                            this.showDocInPdfModal(fileRes.data.Content.Data);
+                            this.showDocInPdfModal(fileRes.data.Content.Data,fileRes.data.name,fileRes.data.type);
                           } else {
                             console.log(fileRes.error);
                           }
@@ -5231,12 +5230,32 @@ export default class Main extends React.Component {
             isOpen={this.state.showPDFModal}
             size="lg"
             zIndex={1500}
-            toggle={() => this.setState({ showPDFModal: !this.state.showPDFModal })}
+            toggle={() => this.setState({ showPDFModal: false })}
+
           >
-            <ModalHeader
-              toggle={() => this.setState({ showPDFModal: !this.state.showPDFModal })}
-            >
-              Document
+
+            <ModalHeader style={{display:"block",paddingLeft:"0.9rem",paddingRight:"0.9rem",paddingBottom:"0.3rem"}}>
+              <div style={{display:"flex",justifyContent:"space-between"}}>
+                <h5>
+                  {this.state.pdfName || "Document"}
+                </h5>
+                <div style={{marginTop:-5}}>
+                  <IconButton onClick={() => {
+
+                    let a = document.createElement('a');
+                    a.href = 'data:application/pdf;base64,' + this.state.pdfURL;
+                    a.download = this.state.pdfName;
+                    a.click();
+                  }} >
+                    <GetAppIcon/>
+                  </IconButton>
+                  <IconButton onClick={() => {this.setState({ showPDFModal: false })}} >
+                    <CloseIcon/>
+                  </IconButton>
+                </div>
+
+              </div>
+
             </ModalHeader>
             <ModalBody>
               <PDFViewer
