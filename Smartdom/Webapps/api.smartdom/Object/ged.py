@@ -218,9 +218,17 @@ class folder:
         return [True, {}, None]
 
     def exist(self, folder_id):
-        res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s and ged_id = %s", \
+        res = sql.get("SELECT `inside` FROM `ged_folder` WHERE id = %s and ged_id = %s", \
         (folder_id, self.ged_id))
-        return True if len(res) > 0 else False
+        if len(res) == 0:
+            return False
+        folder_id = res[0][0]
+        while folder_id is not None:
+            doc = sql.get("SELECT `inside` FROM `ged_folder` WHERE id = %s and ged_id=%s", (id_doc, self.ged_id))
+            if len(doc) == 0:
+                return False
+            folder_id = doc[0][0]
+        return True
 
     def sharedcontent(self, folder_id = None, name = None, date = None):
         ret = {"id": folder_id, "name": name, "date": date, "Content": {"files": [], "folders": []}}
@@ -340,7 +348,7 @@ class folder:
     def is_proprietary(self, id_folder, user_id = None):
         user_id = self.usr_id if user_id is None else user_id
         doc = ged(self.usr_id, self.ged_id)
-        for i in doc.vpath(id_folder):
+        for i in doc.vpath(id_folder)[1]:
             res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND user_id = %s", (i, user_id))
             if len(res) > 0:
                 return True
@@ -348,7 +356,8 @@ class folder:
 
     def is_admin(self, id_folder):
         ret = False
-        for i in doc.vpath(id_folder):
+        doc = ged(self.usr_id, self.ged_id)
+        for i in doc.vpath(id_folder)[1]:
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_administrate IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -360,7 +369,7 @@ class folder:
     def is_sharer(self, id_folder):
         ret = False
         doc = ged(self.usr_id, self.ged_id)
-        for i in doc.vpath(id_folder):
+        for i in doc.vpath(id_folder)[1]:
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_share IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -372,7 +381,7 @@ class folder:
     def is_editor(self, id_folder):
         ret = False
         doc = ged(self.usr_id, self.ged_id)
-        for i in doc.vpath(id_folder):
+        for i in doc.vpath(id_folder)[1]:
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_edit IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -384,7 +393,7 @@ class folder:
     def is_reader(self, id_folder):
         ret = False
         doc = ged(self.usr_id, self.ged_id)
-        for i in doc.vpath(id_folder):
+        for i in doc.vpath(id_folder)[1]:
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_read IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -438,7 +447,7 @@ class file:
         (file_id, self.ged_id, self.usr_id, name, ext, folder_id, timestamp))
         if not succes:
             return [False, "data input error", 500]
-        input = {"name": name, "vpath": "/" + "/".join(doc.vpath(file_id)[::-1]), "ext": ext, "date": timestamp, "file_id": file_id}
+        input = {"name": name, "vpath": "/" + "/".join(doc.vpath(file_id)[1][::-1]), "ext": ext, "date": timestamp, "file_id": file_id}
         if ext == 'pdf':
             res = pdf.get_text(path)
             if res[0]:
@@ -474,7 +483,7 @@ class file:
         (file_id, self.ged_id, self.usr_id, name, ext, folder_id, timestamp))
         if not succes:
             return [False, "data input error", 500]
-        input = {"name": name, "vpath": "/" + "/".join(doc.vpath(file_id)[::-1]), "ext": ext, "date": timestamp, "file_id": file_id}
+        input = {"name": name, "vpath": "/" + "/".join(doc.vpath(file_id)[1][::-1]), "ext": ext, "date": timestamp, "file_id": file_id}
         if ext == 'pdf':
             res = pdf.get_text(path)
             if res[0]:
@@ -612,7 +621,7 @@ class file:
         res = sql.get("SELECT `id` FROM `ged_file` WHERE id = %s AND user_id = %s", (id_file, user_id))
         if len(res) > 0:
             return True
-        for i in doc.vpath(id_file):
+        for i in doc.vpath(id_file)[1]:
             res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND user_id = %s", (i, user_id))
             if len(res) > 0:
                 return True
@@ -621,7 +630,7 @@ class file:
     def is_admin(self, id_file):
         ret = False
         doc = ged(self.usr_id, self.ged_id)
-        for i in doc.vpath(id_file):
+        for i in doc.vpath(id_file)[1]:
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_administrate IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -639,7 +648,7 @@ class file:
     def is_sharer(self, id_file):
         ret = False
         doc = ged(self.usr_id, self.ged_id)
-        for i in doc.vpath(id_file):
+        for i in doc.vpath(id_file)[1]:
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_share IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -657,7 +666,7 @@ class file:
     def is_editor(self, id_file):
         ret = False
         doc = ged(self.usr_id, self.ged_id)
-        for i in doc.vpath(id_file):
+        for i in doc.vpath(id_file)[1]:
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_edit IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -675,7 +684,7 @@ class file:
     def is_reader(self, id_file):
         ret = False
         doc = ged(self.usr_id, self.ged_id)
-        for i in doc.vpath(id_file):
+        for i in doc.vpath(id_file)[1]:
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_read IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -692,24 +701,25 @@ class file:
 
 
 class ged:
-
-
-
-
-
     def __init__(self, usr_id = -1, ged_id = -1):
         self.usr_id = str(usr_id)
         self.ged_id = str(ged_id)
 
-    def vpath(self, id_doc): ###
+    def vpath(self, id_doc):
         res = []
         fol = folder(self.usr_id, self.ged_id)
         if not fol.exist(id_doc) and id_doc is not None:
-            id_doc = sql.get("SELECT `inside` FROM `ged_file` WHERE id = %s", (id_doc, ))[0][0]
+            doc = sql.get("SELECT `inside` FROM `ged_file` WHERE id = %s and ged_id=%s", (id_doc, ))[0][0]
+            if len(doc) == 0:
+                return [False, "Folder containing this asset has been deleted", 404]
+            id_doc = doc[0][0]
         while id_doc is not None:
             res.append(id_doc)
-            id_doc = sql.get("SELECT `inside` FROM `ged_folder` WHERE id = %s", (id_doc, ))[0][0]
-        return res
+            doc = sql.get("SELECT `inside` FROM `ged_folder` WHERE id = %s and ged_id=%s", (id_doc, self.ged_id))
+            if len(doc) == 0:
+                return [False, "Folder containing this asset has been deleted", 404]
+            id_doc = doc[0][0]
+        return [True, res, None]
 
     def create(self, name):
         id = str(uuid.uuid4())
