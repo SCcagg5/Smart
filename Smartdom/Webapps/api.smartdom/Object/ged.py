@@ -396,9 +396,6 @@ class folder:
         ret = False
         doc = ged(self.usr_id, self.ged_id)
         for i in doc.vpath(id_folder)[1]:
-            res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND user_id = %s", (i, self.usr_id))
-            if len(res):
-                return True
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_read IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -692,9 +689,6 @@ class file:
         ret = False
         doc = ged(self.usr_id, self.ged_id)
         for i in doc.vpath(id_file)[1]:
-            res = sql.get("SELECT `id` FROM `ged_folder` WHERE id = %s AND user_id = %s", (i, self.usr_id))
-            if len(res):
-                return True
             res = sql.get("SELECT `id` FROM `ged_share_folder` WHERE folder_id = %s AND user_id = %s AND can_read IS TRUE AND active IS TRUE", (i, self.usr_id))
             if len(res):
                 ret = True
@@ -719,7 +713,7 @@ class ged:
         res = []
         fol = folder(self.usr_id, self.ged_id)
         if not fol.exist(id_doc) and id_doc is not None:
-            doc = sql.get("SELECT `inside` FROM `ged_file` WHERE id = %s and ged_id=%s", (id_doc, self.ged_id))[0][0]
+            doc = sql.get("SELECT `inside` FROM `ged_file` WHERE id = %s and ged_id=%s", (id_doc, self.ged_id))
             if len(doc) == 0:
                 return [False, "Folder containing this asset has been deleted", 404]
             id_doc = doc[0][0]
