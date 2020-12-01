@@ -196,6 +196,7 @@ export default class SignDocV3 extends React.Component {
     }
 
     addUserSignature(){
+
         this.setState({loading: true, openSignModal: false})
         if(this.state.mainTabIndex === 0){
 
@@ -336,7 +337,7 @@ export default class SignDocV3 extends React.Component {
                                     signatures.push({
                                         id:r.data.id,
                                         b64: formated_b64Sign,
-                                        page: (i +1),
+                                        page: this.state.paraphePositions === "custom" ? parseInt(this.state.parapheCustomPages[i].replace('Page ','')) : i + 1,
                                         width: 150, height: 70, right: 10, bottom: 10,
                                         x:420,y:770
                                     })

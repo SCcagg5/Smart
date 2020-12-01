@@ -121,8 +121,8 @@ export default function ListDocs(props) {
                                       className="cf_itemDoc_preview_details_title">
                                         {item.name + '.pdf'}
                                     </div>
-                                    <span
-                                      className="badge bg-soft-warning text-warning font-weight-bolder p-1">En attente</span>
+                                    <span style={{marginTop:6}}
+                                      className="badge bg-soft-blue text-blue font-weight-bolder p-1">{moment(parseInt(item.date)).format('DD-MM-YYYY hh:mm')}</span>
                                 </div>
 
                             </span>

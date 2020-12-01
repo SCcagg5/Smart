@@ -141,6 +141,7 @@ export default function TableTimeSheet(props) {
     const [lf_oaUser_search, setLf_oaUser_search] = React.useState("");
     const [lf_sdate_search, setLf_sdate_search] = React.useState(null);
     const [lf_edate_search, setLf_edate_search] = React.useState(null);
+    const [selectedClientFolders, setSelectedClientFolders] = React.useState([]);
 
     const [partner_facture, setPartner_facture] = React.useState("");
     const [facture_date, setFacture_date] = React.useState(new Date());
@@ -155,7 +156,7 @@ export default function TableTimeSheet(props) {
 
 
 
-    const searchFilter = props.lignesFactures.filter((lf) => ( ( (lf.newTime.client.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
+    const searchFilter = props.lignesFactures.filter((lf) => ( ( (lf.newTime.client_id.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
       ( lf.newTime.dossier_client && (lf.newTime.dossier_client.name === lf_dossier_search ) || lf_dossier_search === "") &&
       ( lf.newTime && lf.newTime.utilisateurOA && (lf.newTime.utilisateurOA === lf_oaUser_search ) || lf_oaUser_search === "") &&
       ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
@@ -163,8 +164,8 @@ export default function TableTimeSheet(props) {
     ))
 
     searchFilter.sort( (a,b) => {
-        var c = new Date(a.newTime.date);
-        var d = new Date(b.newTime.date);
+        var c = new Date(a.created_at);
+        var d = new Date(b.created_at);
         return d-c;
     });
 
@@ -276,7 +277,7 @@ export default function TableTimeSheet(props) {
     }else{
         clientsTempo.map((tmp,key) => {
             (tmp.folders || []).map((f,i) => {
-                if(tmp.ID === lf_client_search_ID){
+                if(tmp.ID_client === lf_client_search_ID){
                     all_opened_mandats.push({
                         value:f.name,
                         label:f.name
@@ -295,7 +296,7 @@ export default function TableTimeSheet(props) {
     return (
 
         <div>
-            <div className="row mt-1" style={{border:"2px solid #f0f0f0",padding:15,paddingLeft:10}}>
+            <div className="row" style={{border:"2px solid #f0f0f0",padding:15,paddingLeft:10,marginTop:20,paddingBottom:20}}>
                 <div className="col-md-12">
                     <div align="right">
                         <AtlButton
@@ -310,10 +311,10 @@ export default function TableTimeSheet(props) {
                         >Initialiser</AtlButton>
                     </div>
                 </div>
-                <div className="col-md-12">
+                <div className="col-md-12" style={{marginTop:-15}}>
                     <h5>Rechercher</h5>
                 </div>
-                <div className="col-md-12">
+                <div className="col-md-12 mt-2">
                     <div style={{display:"flex"}}>
                         <h5>De</h5>
                         <div style={{marginLeft:10,marginRight:10}}>
@@ -351,7 +352,7 @@ export default function TableTimeSheet(props) {
                           options={
                               props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
                                 ({
-                                    value: Nom + ' ' + (Prenom || ''),
+                                    value: ID,
                                     name: Nom + ' ' + (Prenom || ''),
                                     ContactType: Type,
                                     ContactName: Nom + ' ' + (Prenom || ''),
@@ -364,7 +365,7 @@ export default function TableTimeSheet(props) {
                           placeholder="Sélectionner.."
                           onChange={e => {
                               setLf_client_search(e)
-                              setLf_client_search_ID(main_functions.getClientID_ByName(e,props.annuaire_clients_mondat))
+                              setLf_client_search_ID(e)
                               let ch_rows = props.lignesFactures;
                               ch_rows.map((item,key) => {
                                   item.checked = false
@@ -394,7 +395,7 @@ export default function TableTimeSheet(props) {
                         </select>
                     </div>
                 </div>
-                <div className="col-md-12 mt-1">
+                <div className="col-md-12 mt-2">
                     <div style={{display:"flex"}}>
                         <h5 >Par utilisateur OA</h5>
                         <MuiSelect
@@ -474,6 +475,10 @@ export default function TableTimeSheet(props) {
                                     setToUpdated_desc(row.newTime.description)
                                     setToUpdated_template(row.template)
                                     setToUpdated_categ(row.newTime.categoriesActivite)
+                                    let findClientTempo = props.clientsTempo.find(x => x.ID_client === row.newTime.client_id);
+                                    if(findClientTempo){
+                                        setSelectedClientFolders(findClientTempo.folders || [])
+                                    }
                                     setLf_toUpdated(row)
                                     setShowUpdateModal(true)
                                 }}>
@@ -609,10 +614,10 @@ export default function TableTimeSheet(props) {
                             isDisabled={partner_facture === ""}
                             onClick={() => {
                                 if(partner_facture === ""){
-                                    alert("Vous devez sélectionner un partner pour la validation")
+                                    alert("Vous devez sélectionner un partner pour la validation !")
                                 }else{
                                     setCheck_all(false)
-                                    props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD"),partner_facture,selected)
+                                    props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD HH:mm:ss"),partner_facture,selected)
                                 }
 
                             }}>
@@ -624,7 +629,7 @@ export default function TableTimeSheet(props) {
 
 
 
-            <Dialog open={showUpdateModal} maxWidth="xl" onClose={() => {
+            <Dialog open={showUpdateModal} maxWidth="xl"   onClose={() => {
                 setShowUpdateModal(!showUpdateModal)
             }}
                     aria-labelledby="form-dialog-title"
@@ -663,33 +668,66 @@ export default function TableTimeSheet(props) {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="col-md-4">
+                                    <div className="col-md-6">
                                         <div>
                                             <h5>Nom du client</h5>
                                             <div
                                                 style={{display: "flex"}}>
                                                 <SelectSearch
                                                     options={
-                                                        props.annuaire_clients_mondat.map(({Nom, Prenom, Type, imageUrl}) =>
+                                                        props.annuaire_clients_mondat.map(({Nom, Prenom, Type, imageUrl, ID}) =>
                                                             ({
-                                                                value: Nom + " " + (Prenom || ""),
+                                                                value: ID,
                                                                 name: Nom + " " + (Prenom || ""),
                                                                 ContactType: Type,
                                                                 ContactName: Nom + " " + (Prenom || ""),
                                                                 imageUrl: imageUrl
                                                             }))
                                                     }
-                                                    value={lf_toUpdated.newTime.client}
+                                                    value={lf_toUpdated.newTime.client_id}
                                                     renderOption={renderSearchOption}
                                                     search
                                                     placeholder="Chercher votre client"
                                                     onChange={e => {
                                                         let obj = lf_toUpdated;
-                                                        obj.newTime.client = e;
+                                                        obj.newTime.client_id = e;
+                                                        let findClientFname = props.annuaire_clients_mondat.find(x => x.ID === e)
+                                                        obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                                                        let findClientTempo = props.clientsTempo.find(x => x.ID_client === e);
+                                                        if(findClientTempo){
+                                                            setSelectedClientFolders(findClientTempo.folders || [])
+                                                        }else{
+                                                            obj.newTime.dossier_client =  {
+                                                                name:'',
+                                                                facturation: {
+                                                                    language:''
+                                                                }}
+                                                            setSelectedClientFolders([])
+                                                        }
                                                         setLf_toUpdated(obj)
                                                     }}
                                                 />
                                             </div>
+                                            <h5 style={{marginTop:10}}>Dossier du client </h5>
+                                            <MuiSelect
+                                              labelId="demo-simple-select-label"
+                                              id="demo-simple-select"
+                                              style={{ width: 300 }}
+                                              value={lf_toUpdated.newTime.dossier_client}
+                                              onChange={(e) => {
+                                                  console.log(e.target.value)
+                                                  let obj = lf_toUpdated;
+                                                  obj.newTime.dossier_client = e.target.value;
+                                                  setLf_toUpdated(obj)
+                                                  setX_update(!x_update)
+                                              }}
+                                            >
+                                                {
+                                                    selectedClientFolders.map((item,key) => (
+                                                      <MenuItem key={key} value={item}>{item.name}</MenuItem>
+                                                    ))
+                                                }
+                                            </MuiSelect>
 
                                         </div>
 
@@ -697,14 +735,13 @@ export default function TableTimeSheet(props) {
 
                                 </div>
                                 <div className="row mt-3">
-                                    <div
-                                        className="col-md-4">
+                                    <div className="col-md-6">
                                         <div>
                                             <h5>Catégorie d’activités </h5>
                                             <MuiSelect
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
-                                                style={{width: "100%"}}
+                                                style={{width: "250px"}}
                                                 value={toUpdated_categ}
                                                 onChange={(e) => {
                                                     setToUpdated_categ(e.target.value)
@@ -719,8 +756,7 @@ export default function TableTimeSheet(props) {
                                         </div>
 
                                     </div>
-                                    <div
-                                        className="col-md-4">
+                                    <div className="col-md-6">
                                         <div style={{width: "100%"}}>
                                             <h5>Date</h5>
                                             <DatePicker
@@ -730,7 +766,7 @@ export default function TableTimeSheet(props) {
                                                     console.log(e)
                                                     setToUpdated_date(e)
                                                     let d = lf_toUpdated
-                                                    d.newTime.date = moment(e).format("YYYY-MM-DD")
+                                                    d.newTime.date = moment(e).format("YYYY-MM-DD HH:mm:ss")
                                                     setLf_toUpdated(d)
                                                 }}
                                                 value={toUpdated_date}
@@ -742,8 +778,7 @@ export default function TableTimeSheet(props) {
 
                                 </div>
                                 <div className="row mt-3" style={{marginBottom:80}}>
-                                    <div
-                                        className="col-md-4">
+                                    <div className="col-md-6">
                                         <div>
                                             <div>
                                                 <h5>Description</h5>
@@ -763,8 +798,7 @@ export default function TableTimeSheet(props) {
                                                 }}/>
                                         </div>
                                     </div>
-                                    <div
-                                        className="col-md-4">
+                                    <div className="col-md-6">
                                         <div>
                                             <h6>Utilisateur OA </h6>
                                         </div>
@@ -813,7 +847,7 @@ export default function TableTimeSheet(props) {
                                             <Input
                                                 className="form-control "
                                                 id="duree68797"
-                                                style={{width: "100%"}}
+                                                style={{width: "250px"}}
                                                 name="duree68797"
                                                 type="text"
                                                 endAdornment={
@@ -829,25 +863,6 @@ export default function TableTimeSheet(props) {
                                                 }}/>
                                         </div>
                                     </div>
-                                    <div className="col-md-4">
-                                        <h6>Choix du template </h6>
-                                        <select
-                                            className="form-control custom-select"
-                                            value={toUpdated_template}
-                                            onChange={(e) => {
-                                                setToUpdated_template(e.target.value)
-                                                let d = lf_toUpdated
-                                                d.template = e.target.value
-                                                setLf_toUpdated(d)
-                                            }}>
-                                            {
-                                                data.lf_templates.map((item,key) =>
-                                                  <option key={key} value={item.value}>{item.label}</option>
-                                                )
-                                            }
-                                        </select>
-                                    </div>
-
                                 </div>
                                 <div style={{marginTop:20,textAlign:"right"}}>
                                     <AtlButton

@@ -33,7 +33,7 @@ export default class Mandats extends React.Component{
 
   componentDidMount() {
     let s_client = this.props.selectedClient;
-    let client_mandat = this.props.clients_tempo.find(x => x.ID === s_client.ID);
+    let client_mandat = this.props.clients_tempo.find(x => x.ID_client === s_client.ID);
     this.setState({client_mandat:client_mandat})
   }
 
@@ -41,7 +41,7 @@ export default class Mandats extends React.Component{
   render() {
     let s_client = this.props.selectedClient;
     let clients_tempo_copie = this.props.clients_tempo_copie;
-    let client_mandat_key = clients_tempo_copie.findIndex(x => x.ID === s_client.ID );
+    let client_mandat_key = clients_tempo_copie.findIndex(x => x.ID_client === s_client.ID );
     console.log(client_mandat_key)
 
     return(
@@ -60,7 +60,12 @@ export default class Mandats extends React.Component{
                     <div align="right">
                       <AtlButton
                         onClick={() => {
-                          this.setState({toRemoveFolderKey:key,toRemoveFolder_id:doss.folder_id, openDeleteModal:true})
+
+                          if(localStorage.getItem("client_folder_id") || localStorage.getItem("client_shared_folder_id")  ){
+                            this.setState({toRemoveFolderKey:key,toRemoveFolder_id:doss.folder_id, openDeleteModal:true})
+                          }else{
+                            alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
+                          }
                         }}
                         appearance="danger"
                       > Supprimer ce dossier </AtlButton>
@@ -73,7 +78,11 @@ export default class Mandats extends React.Component{
                     <h5 style={{textDecoration:"underline",textTransform:"uppercase",
                       cursor:"pointer",color:"cornflowerblue",marginTop:5,marginLeft:8}}
                         onClick={() => {
-                          this.props.onFolderClick(doss.folder_id,this.state.client_mandat.folder_id)
+                          if(localStorage.getItem("client_folder_id") || localStorage.getItem("client_shared_folder_id")  ){
+                            this.props.onFolderClick(doss.folder_id,this.state.client_mandat.folder_id)
+                          }else{
+                            alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
+                          }
                         }}
                     >
                       Voir le contenu du dossier
@@ -537,7 +546,15 @@ export default class Mandats extends React.Component{
                   if(this.state.delete_folder_ged === true){
                     SmartService.deleteFile(this.state.toRemoveFolder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
                       console.log(ok)
-                      this.props.reloadGed()
+                      if (ok.succes === true && ok.status === 200) {
+                        this.props.reloadGed()
+                      }else{
+                        if(ok.error === "Invalid rights"){
+                          this.props.openSnackbar("error","Vous n'avez pas le droit de supprimer le dossier du client dans la ged !")
+                        }else{
+                          this.props.openSnackbar("error",ok.error)
+                        }
+                      }
                     }).catch(err => console.log(err))
                   }
                     let obj = this.state.client_mandat;
