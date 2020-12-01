@@ -259,6 +259,7 @@ class folder:
                         "administrate": fil.is_admin(i2[0])
                         }
                 })
+
             folders = sql.get("SELECT ged_folder.`id`, ged_folder.`name`, ged_folder.`date`, user.`email` FROM `ged_folder` INNER JOIN `user` ON `ged_folder`.`user_id` = `user`.id WHERE inside = %s", \
             (folder_id, ))
             for i2 in folders:
@@ -271,6 +272,8 @@ class folder:
                         "administrate": self.is_admin(i2[0])
                         }
                 })
+            ret["Content"]["files"] = sorted(ret["Content"]["files"], key=lambda x: x['name'].lower())
+            ret["Content"]["folders"] = sorted(ret["Content"]["folders"], key=lambda x: x['name'].lower())
             return ret
         else:
             files = sql.get("SELECT ged_file.`id`, `name`, ged_file.type, ged_file.`date`, user.`email`, ged_share_file.`date` FROM `ged_share_file` INNER JOIN `ged_file` ON `ged_share_file`.`file_id` = `ged_file`.`id` INNER JOIN `user` ON `ged_file`.`user_id` = `user`.id WHERE active IS TRUE AND ged_share_file.user_id = %s", \
@@ -301,6 +304,8 @@ class folder:
                     })
                 except:
                     pass
+            ret["Content"]["files"] = sorted(ret["Content"]["files"], key=lambda x: x['name'].lower())
+            ret["Content"]["folders"] = sorted(ret["Content"]["folders"], key=lambda x: x['name'].lower())
         return ret
 
     def content(self, folder_id = None, name = None, date = None):
@@ -328,6 +333,8 @@ class folder:
             (self.usr_id, self.ged_id, ))
         for i2 in folders:
             res["Content"]["folders"].append(self.content(i2[0], i2[1], i2[2]))
+        res["Content"]["files"] = sorted(res["Content"]["files"], key=lambda x: x['name'].lower())
+        res["Content"]["folders"] = sorted(res["Content"]["folders"], key=lambda x: x['name'].lower())
         return res
 
     def update(self, id_folder, name):
