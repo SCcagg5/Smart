@@ -122,6 +122,14 @@ export default function TableSociete(props) {
 
     ))
 
+    /*searchFilter.sort( (a,b) => {
+        let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
+        let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
+        if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
+        if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
+        return 0;
+    });*/
+
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, searchFilter - page * rowsPerPage);
 

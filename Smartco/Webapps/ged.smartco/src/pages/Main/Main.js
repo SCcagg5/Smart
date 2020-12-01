@@ -477,7 +477,13 @@ export default class Main extends React.Component {
                   let contacts = data.contacts || [];
                   let rooms = (data.rooms || []).filter(x => x.ged_id === ged_id);
                   let societes = data.societes || [];
-                  let annuaire_clients_mondat = data.annuaire_client_mondat || [];
+                  let annuaire_clients_mondat = data.annuaire_client_mondat.sort( (a,b) => {
+                    let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
+                    let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
+                    if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
+                    if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
+                    return 0;
+                  }) || [] ;
                   let lignes_f = data[ent_name+"-lignes_f-"+ged_id] || [];
 
                   //let clients_tempo = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
@@ -2436,169 +2442,174 @@ export default class Main extends React.Component {
           }
         }).then(createClientRes => {
 
-          SmartService.addFolder({
-            name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
-            folder_id: CLIENTS_folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
-            console.log('OK');
+          console.log(createClientRes)
+          if (createClientRes.succes === true && createClientRes.status === 200) {
 
             SmartService.addFolder({
-              name: this.state.newClientFolder.nom,
-              folder_id: addParentClientFolderRes.data.id,
-            },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
+              name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+              folder_id: CLIENTS_folder_id
+            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
+              console.log('OK');
 
-              console.log('OK 1');
-
               SmartService.addFolder({
-                name: 'MÉMOIRE',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'CHARGE DE PIECES',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'CONVOCATIONS',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'ADMIN (Lettre d\'engagement)',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'COMPTABILITE',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'CORRESPONDANCE',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'INTERNE ****',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'NOTES',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'PV RENDEZ-VOUS',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'PROCEDURES',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'RECHERCHES JURIDIQUES',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-                console.log(err);
-              });
-
-              clients_tmp_copie.push({
+                name: this.state.newClientFolder.nom,
                 folder_id: addParentClientFolderRes.data.id,
-                ID_client: ID,
-                odoo_client_id: createClientRes.data.id,
-                folders:[
-                  {
-                    folder_id:addFolderClient.data.id,
-                    team:team,
-                    name:this.state.newClientFolder.nom,
-                    contrepartie:this.state.newClientFolder.contrepartie,
-                    autrepartie:this.state.newClientFolder.autrepartie,
-                    desc:this.state.newClientFolder.desc,
-                    created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
-                    created_by:localStorage.getItem("email"),
-                    facturation:{
-                      byEmail:this.state.newClientFolder.byEmail,
-                      sentBySecr:this.state.newClientFolder.sentBySecr,
-                      sentByAvocat:this.state.newClientFolder.sentByAvocat,
-                      language:this.state.newClientFolder.language,
-                      frequence:this.state.newClientFolder.frequence
+              },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
+
+                console.log('OK 1');
+
+                SmartService.addFolder({
+                  name: 'MÉMOIRE',
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'CHARGE DE PIECES',
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'CONVOCATIONS',
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'ADMIN (Lettre d\'engagement)',
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'COMPTABILITE',
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'CORRESPONDANCE',
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'INTERNE ****',
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'NOTES',
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'PV RENDEZ-VOUS',
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'PROCEDURES',
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+                SmartService.addFolder({
+                  name: 'RECHERCHES JURIDIQUES',
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log('OK');
+                }).catch(err => {
+                  console.log(err);
+                });
+
+                clients_tmp_copie.push({
+                  folder_id: addParentClientFolderRes.data.id,
+                  ID_client: ID,
+                  odoo_client_id: createClientRes.data.id,
+                  folders:[
+                    {
+                      folder_id:addFolderClient.data.id,
+                      team:team,
+                      name:this.state.newClientFolder.nom,
+                      contrepartie:this.state.newClientFolder.contrepartie,
+                      autrepartie:this.state.newClientFolder.autrepartie,
+                      desc:this.state.newClientFolder.desc,
+                      created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                      created_by:localStorage.getItem("email"),
+                      facturation:{
+                        byEmail:this.state.newClientFolder.byEmail,
+                        sentBySecr:this.state.newClientFolder.sentBySecr,
+                        sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                        language:this.state.newClientFolder.language,
+                        frequence:this.state.newClientFolder.frequence
+                      }
                     }
-                  }
-                ]
-              });
-              firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id).set(clients_tmp_copie).then( ok => {
-                setTimeout(() => {
-                  this.setState({
-                    loading: false,
-                    newClientFolder: {
-                      nom: '',
-                      type: 'corporate',
-                      team: [],
-                      contrepartie:'',
-                      autrepartie:'',
-                      desc:'',
-                      byEmail:true,
-                      sentBySecr:false,
-                      sentByAvocat:false,
-                      frequence:'',
-                      language:"Francais"
-                    },
-                    lead_contact_tmp: '',
-                    lead_contact_horaire_tmp: ''
-                  });
-                  this.justReloadGed();
-                  this.openSnackbar('success', 'Dossier ajouté avec succès');
-                }, 750);
+                  ]
+                });
+                firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id).set(clients_tmp_copie).then( ok => {
+                  setTimeout(() => {
+                    this.setState({
+                      loading: false,
+                      newClientFolder: {
+                        nom: '',
+                        type: 'corporate',
+                        team: [],
+                        contrepartie:'',
+                        autrepartie:'',
+                        desc:'',
+                        byEmail:true,
+                        sentBySecr:false,
+                        sentByAvocat:false,
+                        frequence:'',
+                        language:"Francais"
+                      },
+                      lead_contact_tmp: '',
+                      lead_contact_horaire_tmp: ''
+                    });
+                    this.justReloadGed();
+                    this.openSnackbar('success', 'Dossier ajouté avec succès');
+                  }, 750);
+                });
+              }).catch(err => {
+                console.log(err);
               });
             }).catch(err => {
               console.log(err);
             });
-          }).catch(err => {
-            console.log(err);
-          });
 
-
-
-
-
+          }else{
+            this.setState({ loading: false });
+            console.log(createClientRes.error)
+            this.openSnackbar("error",createClientRes.error)
+          }
 
         }).catch(err => {
+          this.setState({ loading: false });
           console.log(err);
         });
       }
