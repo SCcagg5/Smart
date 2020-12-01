@@ -593,6 +593,7 @@ class file:
                     with open(self.path(file_id, res[0][5]), 'rb') as f:
                         data = f.read()
                     data =  base64.encodestring(data).decode("utf-8")
+                    fil = file(self.usr_id, self.ged_id)
                     ret = {
                     "id": res[0][0], "name": res[0][1], "type": res[0][2], "date": res[0][3], "proprietary": res[0][4], "sharing_date": None,
                     "Content": {"Encode": "base64", "Data": data},
