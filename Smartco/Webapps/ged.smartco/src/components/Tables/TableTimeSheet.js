@@ -13,27 +13,29 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import TableHead from '@material-ui/core/TableHead';
-import {Avatar, Checkbox, Input, Select as MuiSelect} from "@material-ui/core";
-import MenuItem from "@material-ui/core/MenuItem";
+import { Avatar, Checkbox, Input, Select as MuiSelect } from '@material-ui/core';
+import MenuItem from '@material-ui/core/MenuItem';
 import EditIcon from '@material-ui/icons/Edit';
-import DatePicker from "react-date-picker";
-import calendar from "../../assets/icons/calendar_icon.jpg";
-import AtlButton from "@atlaskit/button";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import Typography from "@material-ui/core/Typography";
-import CloseIcon from "@material-ui/icons/Close";
-import DialogContent from "@material-ui/core/DialogContent";
-import Dialog from "@material-ui/core/Dialog";
-import Autosuggest from "react-autosuggest";
-import SelectSearch from "react-select-search";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Data from "../../data/Data";
-import userAvatar from "../../assets/images/users/user4.jpg";
-import entIcon from "../../assets/images/entreprise-icon.png";
-import moment from "moment";
-import data from '../../data/Data';
+import DatePicker from 'react-date-picker';
+import calendar from '../../assets/icons/calendar_icon.jpg';
+import AtlButton from '@atlaskit/button';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Typography from '@material-ui/core/Typography';
+import CloseIcon from '@material-ui/icons/Close';
+import DialogContent from '@material-ui/core/DialogContent';
+import Dialog from '@material-ui/core/Dialog';
+import Autosuggest from 'react-autosuggest';
+import SelectSearch from 'react-select-search';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import Data from '../../data/Data';
+import userAvatar from '../../assets/images/users/user4.jpg';
+import entIcon from '../../assets/images/entreprise-icon.png';
+import moment from 'moment';
 import main_functions from '../../controller/main_functions';
-import ClearOutlinedIcon from '@material-ui/icons/ClearOutlined';
+import { DeleteOutline } from '@material-ui/icons';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
+import SmartService from '../../provider/SmartService';
 
 const getTimeSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
@@ -120,7 +122,6 @@ const useStyles2 = makeStyles({
 
 export default function TableTimeSheet(props) {
 
-    let lf_copy = "";
 
     const classes = useStyles2();
     const [showUpdateModal, setShowUpdateModal] = React.useState(false);
@@ -130,6 +131,7 @@ export default function TableTimeSheet(props) {
     const [toUpdated_rate, setToUpdated_rate] = React.useState("");
     const [toUpdated_OAUser, setToUpdated_OAUser] = React.useState("");
     const [toUpdated_categ, setToUpdated_categ] = React.useState("");
+    const [toUpdated_dossier_client, setToUpdated_dossier_client] = React.useState("");
     const [toUpdated_desc, setToUpdated_desc] = React.useState("");
     const [toUpdated_template, setToUpdated_template] = React.useState("");
     const [timeSuggestions, setTimeSuggestions] = React.useState([]);
@@ -138,15 +140,22 @@ export default function TableTimeSheet(props) {
     const [lf_client_search, setLf_client_search] = React.useState("");
     const [lf_client_search_ID, setLf_client_search_ID] = React.useState("");
     const [lf_dossier_search, setLf_dossier_search] = React.useState("");
-    const [lf_oaUser_search, setLf_oaUser_search] = React.useState("");
+    const [lf_oaUser_search, setLf_oaUser_search] = React.useState(
+      main_functions.getOAContactByEmail2(props.OA_contacts,localStorage.getItem("email")) !== '' ? localStorage.getItem("email") : ""
+    );
     const [lf_sdate_search, setLf_sdate_search] = React.useState(null);
     const [lf_edate_search, setLf_edate_search] = React.useState(null);
+
+    const [client_folder, setClient_folder] = React.useState("");
     const [selectedClientFolders, setSelectedClientFolders] = React.useState([]);
 
     const [partner_facture, setPartner_facture] = React.useState("");
     const [facture_date, setFacture_date] = React.useState(new Date());
     const [check_all, setCheck_all] = React.useState(false);
-    const [client_folder, setClient_folder] = React.useState("");
+
+    const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
+    const [lf_TooDeleted, setLf_TooDeleted] = React.useState("");
+
     const [x_update, setX_update] = React.useState(false);
 
 
@@ -286,12 +295,6 @@ export default function TableTimeSheet(props) {
             })
         })
     }
-    console.log(all_opened_mandats)
-
-
-    /*let client_folders = props.client_folders || [];
-    let selected_client = client_folders.Content ? client_folders.Content.folders.find(x => x.name === lf_client_search) : undefined
-    let selected_client_folders = selected_client ?  selected_client.Content.folders : [];*/
 
     return (
 
@@ -445,7 +448,7 @@ export default function TableTimeSheet(props) {
                                       }}
                             />
                         </TableCell>
-                        <TableCell align="center" style={{width:"5%",fontWeight:600}}>Actions</TableCell>
+                        <TableCell align="center" style={{width:"10%",fontWeight:600}}>Actions</TableCell>
                         <TableCell align="center" style={{width:"8%",fontWeight:600}}>Date</TableCell>
                         <TableCell align="center" style={{width:"17%",fontWeight:600}}>Nom du dossier</TableCell>
                         <TableCell align="center" style={{width:"25%",fontWeight:600}}>Description</TableCell>
@@ -466,23 +469,49 @@ export default function TableTimeSheet(props) {
                                         }}  />
                                 </div>
                             </TableCell>
-                            <TableCell style={{ width: "5%" }} align="center">
+                            <TableCell style={{ width: "10%"}} align="center">
                                 <IconButton size="small" color="default" onClick={() => {
-                                    lf_copy = row;
-                                    setToUpdated_date(new Date(row.newTime.date))
-                                    setToUpdated_rate(row.newTime.rateFacturation)
-                                    setToUpdated_OAUser(row.newTime.utilisateurOA)
-                                    setToUpdated_desc(row.newTime.description)
-                                    setToUpdated_template(row.template)
-                                    setToUpdated_categ(row.newTime.categoriesActivite)
-                                    let findClientTempo = props.clientsTempo.find(x => x.ID_client === row.newTime.client_id);
-                                    if(findClientTempo){
-                                        setSelectedClientFolders(findClientTempo.folders || [])
+                                    if(row.user_email === localStorage.getItem("email") || localStorage.getItem("email") === "fgillioz@oalegal.ch"){
+
+                                        const row_copy = row;
+                                        setToUpdated_date(new Date(row_copy.newTime.date))
+                                        setToUpdated_rate(row_copy.newTime.rateFacturation)
+                                        setToUpdated_OAUser(row_copy.newTime.utilisateurOA)
+                                        setToUpdated_desc(row_copy.newTime.description)
+                                        setToUpdated_template(row_copy.template)
+                                        setToUpdated_categ(row_copy.newTime.categoriesActivite)
+                                        let findClientTempo = props.clientsTempo.find(x => x.ID_client === row_copy.newTime.client_id);
+                                        if(findClientTempo){
+                                            console.log(findClientTempo.folders || [])
+                                            setSelectedClientFolders(findClientTempo.folders || [])
+                                            setTimeout(() => {
+                                                console.log(row.newTime.dossier_client.folder_id)
+                                                setToUpdated_dossier_client(row_copy.newTime.dossier_client.folder_id && row_copy.newTime.dossier_client.folder_id !== "" ? row_copy.newTime.dossier_client.folder_id : "" );
+                                            },200)
+                                        }
+                                        setLf_toUpdated(row_copy)
+                                        setShowUpdateModal(true)
+                                        setX_update(!x_update)
+
+                                    }else{
+                                        alert("Vous n'êtes pas le proprietaire de ce timeSheet !")
                                     }
-                                    setLf_toUpdated(row)
-                                    setShowUpdateModal(true)
+
+
                                 }}>
-                                    <EditIcon/>
+                                    <EditIcon fontSize="small"/>
+                                </IconButton>
+                                <IconButton size="small"
+                                            onClick={() => {
+                                                if(row.user_email === localStorage.getItem("email")){
+                                                    setLf_TooDeleted(row.uid)
+                                                    setOpenDeleteModal(true)
+                                                }else{
+                                                    alert("Vous n'êtes pas le proprietaire de ce timeSheet !")
+                                                }
+                                            }}
+                                >
+                                    <DeleteOutlineIcon color="error" fontSize="small"/>
                                 </IconButton>
                             </TableCell>
                             <TableCell style={{ width: "8%" }} align="center">
@@ -630,7 +659,7 @@ export default function TableTimeSheet(props) {
 
 
             <Dialog open={showUpdateModal} maxWidth="xl"   onClose={() => {
-                setShowUpdateModal(!showUpdateModal)
+                setShowUpdateModal(false)
             }}
                     aria-labelledby="form-dialog-title"
             >
@@ -639,7 +668,8 @@ export default function TableTimeSheet(props) {
                     <IconButton aria-label="close"
                                 style={{position: 'absolute', right: 5, top: 5, color: "#c0c0c0"}}
                                 onClick={() => {
-                                    setShowUpdateModal(!showUpdateModal)
+
+                                    setShowUpdateModal(false)
                                 }}>
                         <CloseIcon/>
                     </IconButton>
@@ -696,6 +726,8 @@ export default function TableTimeSheet(props) {
                                                         let findClientTempo = props.clientsTempo.find(x => x.ID_client === e);
                                                         if(findClientTempo){
                                                             setSelectedClientFolders(findClientTempo.folders || [])
+                                                            setToUpdated_dossier_client("")
+                                                            obj.newTime.dossier_client = {facturation:{language:""},name:""}
                                                         }else{
                                                             obj.newTime.dossier_client =  {
                                                                 name:'',
@@ -703,6 +735,7 @@ export default function TableTimeSheet(props) {
                                                                     language:''
                                                                 }}
                                                             setSelectedClientFolders([])
+                                                            setToUpdated_dossier_client("")
                                                         }
                                                         setLf_toUpdated(obj)
                                                     }}
@@ -713,18 +746,19 @@ export default function TableTimeSheet(props) {
                                               labelId="demo-simple-select-label"
                                               id="demo-simple-select"
                                               style={{ width: 300 }}
-                                              value={lf_toUpdated.newTime.dossier_client}
+                                              value={toUpdated_dossier_client}
                                               onChange={(e) => {
-                                                  console.log(e.target.value)
+                                                  setToUpdated_dossier_client(e.target.value)
                                                   let obj = lf_toUpdated;
-                                                  obj.newTime.dossier_client = e.target.value;
+
+                                                  obj.newTime.dossier_client = selectedClientFolders.find(x => x.folder_id === e.target.value) || {facturation:{language:""},name:""}
                                                   setLf_toUpdated(obj)
                                                   setX_update(!x_update)
                                               }}
                                             >
                                                 {
                                                     selectedClientFolders.map((item,key) => (
-                                                      <MenuItem key={key} value={item}>{item.name}</MenuItem>
+                                                      <MenuItem key={key} value={item.folder_id}>{item.name}</MenuItem>
                                                     ))
                                                 }
                                             </MuiSelect>
@@ -866,6 +900,7 @@ export default function TableTimeSheet(props) {
                                 </div>
                                 <div style={{marginTop:20,textAlign:"right"}}>
                                     <AtlButton
+                                      isDisabled={lf_toUpdated.newTime.duree.toString().trim() === "" || lf_toUpdated.newTime.duree === "0" || lf_toUpdated.newTime.client_id === "" }
                                         appearance="primary"
                                         onClick={() => {
 
@@ -881,6 +916,7 @@ export default function TableTimeSheet(props) {
                                                 } else {
                                                     props.openSnackbar('error', 'Le format de la durée est invalide !');
                                                 }
+
                                                 if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
                                                     props.openSnackbar('error', 'Le format de la durée est invalide !');
                                                 } else {
@@ -888,16 +924,16 @@ export default function TableTimeSheet(props) {
                                                         props.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
                                                     }else {
                                                         lf_toUpdated.newTime.duree = timeFormated;
+                                                        console.log(lf_toUpdated)
+                                                        setShowUpdateModal(false)
+                                                        props.updateLigneFacture(lf_toUpdated.uid,lf_toUpdated)
                                                     }
                                                 }
                                             }else{
-
+                                                console.log(lf_toUpdated)
+                                                setShowUpdateModal(false)
+                                                props.updateLigneFacture(lf_toUpdated.uid,lf_toUpdated)
                                             }
-
-                                            console.log(lf_toUpdated)
-                                            setShowUpdateModal(false)
-                                            props.updateLigneFacture(lf_toUpdated.uid,lf_toUpdated)
-
                                         }}>
                                         Modifier</AtlButton>
                                 </div>
@@ -908,6 +944,43 @@ export default function TableTimeSheet(props) {
 
                 </DialogContent>
             </Dialog>
+
+
+            <ModalTransition>
+                {openDeleteModal === true && (
+                  <Modal
+                    actions={[
+                        { text: 'Supprimer', onClick: () => {
+                            let find_index = props.lignesFacturesCopy.findIndex(x => x.uid === lf_TooDeleted)
+                                console.log(find_index)
+                                if(find_index > -1){
+                                    let newLignesFactures = props.lignesFacturesCopy.filter(x => x.uid !== lf_TooDeleted);
+                                    props.updateAllLigneFacture(newLignesFactures);
+                                    props.openSnackbar("success","Ligne supprimée avec succès")
+                                    setLf_TooDeleted("")
+                                    setOpenDeleteModal(false)
+                                }else{
+                                    props.openSnackbar("error","Une erreur est survenue !")
+                                    setLf_TooDeleted("")
+                                    setOpenDeleteModal(false)
+                                }
+                            } },
+                        { text: 'Annuler', onClick: () => {
+                                setLf_TooDeleted("")
+                                setOpenDeleteModal(false)
+                            }},
+                    ]}
+                    onClose={() => {
+                        setLf_TooDeleted("")
+                        setOpenDeleteModal(false)
+                    }}
+                    heading="Vous êtes sur le point de supprimer cette ligne !"
+                    appearance="danger"
+                  >
+
+                  </Modal>
+                )}
+            </ModalTransition>
 
         </div>
 

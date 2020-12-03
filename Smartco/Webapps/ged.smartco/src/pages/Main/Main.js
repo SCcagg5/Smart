@@ -320,6 +320,8 @@ export default class Main extends React.Component {
 
   componentDidMount() {
 
+    console.log("COMPONENT DID MOUNT")
+
     window.onpopstate = () => {
 
 
@@ -471,8 +473,21 @@ export default class Main extends React.Component {
               }
 
               let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
+              let sharedFiles = gedRes.data.Shared.Content.files || [];
+
+              this.setState({
+                folders:main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                reelFolders: gedRes.data.Proprietary.Content.folders || [],
+                sharedReelFolders: gedRes.data.Shared.Content.folders || [],
+                rootFiles: gedRes.data.Proprietary.Content.files || [],
+                rootFolders: gedRes.data.Proprietary.Content.folders || [],
+                sharedRootFiles: sharedFiles,
+                sharedFolders: sharedFolders,
+              })
 
               firebase.database().ref('/').on('value', (snapshot) => {
+
+                  console.log("FIRST ENTER FIREBASE")
                   const data = snapshot.val() || [];
                   let contacts = data.contacts || [];
                   let rooms = (data.rooms || []).filter(x => x.ged_id === ged_id);
@@ -506,6 +521,7 @@ export default class Main extends React.Component {
                     facturesToValidatedCopy:facturesToValidatedCopy
                   });
 
+                //new TimeSheet => séléction par défaut pour Utilisateur OA + horaire
                 let connected_email = localStorage.getItem("email");
                 let oa_contact = main_functions.getOAContactByEmail2(contacts,connected_email);
                 if(oa_contact){
@@ -516,23 +532,13 @@ export default class Main extends React.Component {
                     TimeSheet:ts
                   })
                 }
-
-
-                  let sharedFiles = gedRes.data.Shared.Content.files || [];
-
+                //end
                   if (this.props.location.pathname.indexOf('/home/drive/') > -1) {
                     let folders = gedRes.data.Proprietary.Content.folders || [];
                     let folder_id = this.props.location.pathname.replace('/home/drive/', '');
                     let folder_name = main_functions.getFolderNameById(folder_id, folders);
                     if (folder_name !== undefined && folder_name !== null) {
                       this.setState({
-                        folders:main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                        sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                        rootFiles: gedRes.data.Proprietary.Content.files || [],
-                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                        sharedRootFiles: sharedFiles,
-                        sharedFolders: sharedFolders,
                         selectedDriveItem: [folder_id],
                         expandedDriveItems: [folder_id],
                         selectedFoldername: folder_name,
@@ -553,15 +559,8 @@ export default class Main extends React.Component {
                   }
                   else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
                     this.setState({
-                      rootFiles: gedRes.data.Proprietary.Content.files || [],
-                      rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                      reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
                       selectedDriveItem: [],
                       expandedDriveItems: [],
-                      sharedFolders: sharedFolders,
-                      sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
                       societes: societes,
@@ -574,17 +573,10 @@ export default class Main extends React.Component {
                   }
                   else if (this.props.location.pathname === '/home/shared/parent') {
                     this.setState({
-                      rootFiles: gedRes.data.Proprietary.Content.files || [],
-                      rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                      reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
                       selectedDriveItem: [],
                       expandedDriveItems: [],
                       selectedDriveSharedItem:['parent'],
                       expandedDriveSharedItems:['parent'],
-                      sharedFolders: sharedFolders,
-                      sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
                       societes: societes,
@@ -605,13 +597,6 @@ export default class Main extends React.Component {
                         selectedRoomItems: [room_id],
                         expandedRoomItems: [room_id],
                         openRoomMenuItem: true,
-                        rootFiles: gedRes.data.Proprietary.Content.files || [],
-                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                        folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                        sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                        sharedFolders: sharedFolders,
-                        sharedRootFiles: sharedFiles,
                         meeturl: meeturl,
                         rooms: rooms,
                         selectedRoom: rooms[room_id],
@@ -626,13 +611,6 @@ export default class Main extends React.Component {
                         selectedRoomItems: [],
                         expandedRoomItems: [],
                         openRoomMenuItem: true,
-                        rootFiles: gedRes.data.Proprietary.Content.files || [],
-                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                        folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                        sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                        sharedFolders: sharedFolders,
-                        sharedRootFiles: sharedFiles,
                         meeturl: meeturl,
                         rooms: rooms,
                         selectedRoom: '',
@@ -646,13 +624,6 @@ export default class Main extends React.Component {
                       focusedItem: 'Meet',
                       selectedMeetMenuItem: ['new'],
                       openMeetMenuItem: true,
-                      rootFiles: gedRes.data.Proprietary.Content.files || [],
-                      rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                      reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                      sharedFolders: sharedFolders,
-                      sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
                       societes: societes,
@@ -668,13 +639,6 @@ export default class Main extends React.Component {
                       focusedItem: 'Meet',
                       selectedMeetMenuItem: ['rejoin'],
                       openMeetMenuItem: true,
-                      rootFiles: gedRes.data.Proprietary.Content.files || [],
-                      rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                      reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                      sharedFolders: sharedFolders,
-                      sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
                       societes: societes,
@@ -695,13 +659,6 @@ export default class Main extends React.Component {
                           showContainerSection: 'Contacts',
                           focusedItem: 'Contacts',
                           openContactsMenu: true,
-                          rootFiles: gedRes.data.Proprietary.Content.files || [],
-                          rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                          reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                          sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                          sharedFolders: sharedFolders,
-                          sharedRootFiles: sharedFiles,
                           meeturl: meeturl,
                           contacts: contacts,
                           societes: societes,
@@ -720,13 +677,6 @@ export default class Main extends React.Component {
                         showContainerSection: 'Contacts',
                         focusedItem: 'Contacts',
                         openContactsMenu: true,
-                        rootFiles: gedRes.data.Proprietary.Content.files || [],
-                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                        folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                        sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                        sharedFolders: sharedFolders,
-                        sharedRootFiles: sharedFiles,
                         meeturl: meeturl,
                         contacts: contacts,
                         societes: societes,
@@ -750,13 +700,6 @@ export default class Main extends React.Component {
                           focusedItem: 'Societe',
                           selectedSocietyMenuItem: ['clients_mondat'],
                           openSocietyMenuItem: true,
-                          rootFiles: gedRes.data.Proprietary.Content.files || [],
-                          rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                          reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                          sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                          sharedFolders: sharedFolders,
-                          sharedRootFiles: sharedFiles,
                           meeturl: meeturl,
                           contacts: contacts,
                           societes: societes,
@@ -776,13 +719,6 @@ export default class Main extends React.Component {
                         focusedItem: 'Societe',
                         selectedSocietyMenuItem: ['clients_mondat'],
                         openSocietyMenuItem: true,
-                        rootFiles: gedRes.data.Proprietary.Content.files || [],
-                        rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                        folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                        reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                        sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                        sharedFolders: sharedFolders,
-                        sharedRootFiles: sharedFiles,
                         meeturl: meeturl,
                         contacts: contacts,
                         societes: societes,
@@ -800,13 +736,6 @@ export default class Main extends React.Component {
                       focusedItem: 'TimeSheet',
                       selectedTimeSheetMenuItem: ['activities'],
                       openTimeSheetsMenu: true,
-                      rootFiles: gedRes.data.Proprietary.Content.files || [],
-                      rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                      reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                      sharedFolders: sharedFolders,
-                      sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
                       societes: societes,
@@ -822,13 +751,6 @@ export default class Main extends React.Component {
                       focusedItem: 'TimeSheet',
                       selectedTimeSheetMenuItem: ['dashboard'],
                       openTimeSheetsMenu: true,
-                      rootFiles: gedRes.data.Proprietary.Content.files || [],
-                      rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                      reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                      sharedFolders: sharedFolders,
-                      sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
                       societes: societes,
@@ -844,13 +766,6 @@ export default class Main extends React.Component {
                       focusedItem: 'TimeSheet',
                       selectedTimeSheetMenuItem: ['dashboardPerson'],
                       openTimeSheetsMenu: true,
-                      rootFiles: gedRes.data.Proprietary.Content.files || [],
-                      rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                      reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                      sharedFolders: sharedFolders,
-                      sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
                       societes: societes,
@@ -866,13 +781,6 @@ export default class Main extends React.Component {
                       focusedItem: 'TimeSheet',
                       selectedTimeSheetMenuItem: ['dashboardProject'],
                       openTimeSheetsMenu: true,
-                      rootFiles: gedRes.data.Proprietary.Content.files || [],
-                      rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                      folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                      reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                      sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                      sharedFolders: sharedFolders,
-                      sharedRootFiles: sharedFiles,
                       meeturl: meeturl,
                       contacts: contacts,
                       societes: societes,
@@ -898,14 +806,6 @@ export default class Main extends React.Component {
                             this.setState({
                               searchResult: searchRes.data,
                               textSearch: textToSearch,
-                              rootFiles: gedRes.data.Proprietary.Content.files || [],
-                              rootFolders:
-                                gedRes.data.Proprietary.Content.folders || [],
-                              folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                              reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                              sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                              sharedFolders: sharedFolders,
-                              sharedRootFiles: sharedFiles,
                               meeturl: meeturl,
                               contacts: contacts,
                               societes: societes,
@@ -931,13 +831,6 @@ export default class Main extends React.Component {
                         this.setState({
                           searchResult: searchRes.data,
                           textSearch: textToSearch,
-                          rootFiles: gedRes.data.Proprietary.Content.files || [],
-                          rootFolders: gedRes.data.Proprietary.Content.folders || [],
-                          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-                          reelFolders: gedRes.data.Proprietary.Content.folders || [],
-                          sharedReelFolders: gedRes.data.Shared.Content.folders || [],
-                          sharedFolders: sharedFolders,
-                          sharedRootFiles: sharedFiles,
                           meeturl: meeturl,
                           contacts: contacts,
                           societes: societes,
@@ -973,7 +866,7 @@ export default class Main extends React.Component {
     }
   }
 
-   updateTreeData(list, key, children, files) {
+  updateTreeData(list, key, children, files) {
     return list.map((node) => {
       if (node.key === key) {
         node.files = files;
@@ -988,11 +881,13 @@ export default class Main extends React.Component {
   onLoadSharedData = ({ key, children }) => {
 
     return new Promise((resolve) => {
+      console.log(key)
       if (children) {
         resolve();
         return;
       }
       let origin = this.state.sharedFolders;
+      this.setState({loading:true})
       SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
           let sub_folders = Res.data.Content.folders || [];
           let sub_files = Res.data.Content.files || [];
@@ -1020,8 +915,9 @@ export default class Main extends React.Component {
             childrens.push(treeNode)
           }
           this.setState({
+            loading:false,
             selectedSharedFolderFolders:Res.data.Content.folders,
-            selectedSharedFolderFiles:Res.data.Content.files
+            selectedSharedFolderFiles:sub_files
           })
           let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
           this.setState({sharedFolders:update})
@@ -1069,7 +965,6 @@ export default class Main extends React.Component {
     }).catch(err => {
       console.log(err)})
   }
-
 
   openSnackbar = (type, msg) => {
     this.setState({
@@ -1309,29 +1204,6 @@ export default class Main extends React.Component {
 
   };
 
-  justReloadGed = () => {
-    SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(gedRes => {
-      if (gedRes.succes === true && gedRes.status === 200) {
-        let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'CLIENTS');
-        if (client_folder) {
-          localStorage.setItem('client_folder_id', client_folder.id);
-          this.setState({client_folders:client_folder})
-        }
-        this.setState({
-          rootFiles: gedRes.data.Proprietary.Content.files || [],
-          rootFolders: gedRes.data.Proprietary.Content.folders || [],
-          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
-          reelFolders: gedRes.data.Proprietary.Content.folders || []
-        });
-      } else {
-        localStorage.clear();
-        this.props.history.push('/login');
-      }
-    }).catch(err => {
-      console.log(err);
-    });
-  };
-
   reloadGed = () => {
     this.setState({ loading: true });
     setTimeout(() => {
@@ -1427,6 +1299,29 @@ export default class Main extends React.Component {
         this.setState({ loading: false });
       });
     }, 200);
+  };
+
+  justReloadGed = () => {
+    SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(gedRes => {
+      if (gedRes.succes === true && gedRes.status === 200) {
+        let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.name === 'CLIENTS');
+        if (client_folder) {
+          localStorage.setItem('client_folder_id', client_folder.id);
+          this.setState({client_folders:client_folder})
+        }
+        this.setState({
+          rootFiles: gedRes.data.Proprietary.Content.files || [],
+          rootFolders: gedRes.data.Proprietary.Content.folders || [],
+          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+          reelFolders: gedRes.data.Proprietary.Content.folders || []
+        });
+      } else {
+        localStorage.clear();
+        this.props.history.push('/login');
+      }
+    }).catch(err => {
+      console.log(err);
+    });
   };
 
   addNewRoom = (room) => {
@@ -2139,83 +2034,32 @@ export default class Main extends React.Component {
             folder_id:find.folder_id
           },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
 
-            SmartService.addFolder({
-              name: 'MÉMOIRE',
-              folder_id: addFolderClient.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'CHARGE DE PIECES',
-              folder_id: addFolderClient.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'CONVOCATIONS',
-              folder_id: addFolderClient.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'ADMIN (Lettre d\'engagement)',
-              folder_id: addFolderClient.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'COMPTABILITE',
-              folder_id: addFolderClient.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'CORRESPONDANCE',
-              folder_id: addFolderClient.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'INTERNE ****',
-              folder_id: addFolderClient.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'NOTES',
-              folder_id: addFolderClient.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'PV RENDEZ-VOUS',
-              folder_id: addFolderClient.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              console.log('OK');
-            }).catch(err => {
-            });
-            SmartService.addFolder({
-              name: 'PROCEDURES',
-              folder_id: addFolderClient.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-            }).catch(err => {
-              console.log(err);
-            });
-            SmartService.addFolder({
-              name: 'RECHERCHES JURIDIQUES',
-              folder_id: addFolderClient.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-            }).catch(err => {
-              console.log(err);
-            });
+            if(this.state.newClientFolder.type ===  "litige"){
+
+              data.oa_litige_folders.map((item,key) => {
+                SmartService.addFolder({
+                  name: item,
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log("OK"+key)
+                }).catch(err => {
+                  console.log(err);
+                });
+              })
+
+            }
+            if(this.state.newClientFolder.type === "corporate"){
+              data.oa_corporate_folders.map((item,key) => {
+                SmartService.addFolder({
+                  name: item,
+                  folder_id: addFolderClient.data.id
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                  console.log("OK"+key)
+                }).catch(err => {
+                  console.log(err);
+                });
+              })
+            }
 
             if(findCopy.folders && findCopy.folders.length > 0  ){
               findCopy.folders.push(
@@ -2223,6 +2067,7 @@ export default class Main extends React.Component {
                   folder_id:addFolderClient.data.id,
                   team:team,
                   name:this.state.newClientFolder.nom,
+                  type:this.state.newClientFolder.type,
                   contrepartie:this.state.newClientFolder.contrepartie,
                   autrepartie:this.state.newClientFolder.autrepartie,
                   desc:this.state.newClientFolder.desc,
@@ -2237,11 +2082,13 @@ export default class Main extends React.Component {
                   }
                 }
               )
-            }else{
+            }
+            else{
               findCopy.folders = [{
                 folder_id:addFolderClient.data.id,
                 team:team,
                 name:this.state.newClientFolder.nom,
+                type:this.state.newClientFolder.type,
                 contrepartie:this.state.newClientFolder.contrepartie,
                 autrepartie:this.state.newClientFolder.autrepartie,
                 desc:this.state.newClientFolder.desc,
@@ -2256,8 +2103,6 @@ export default class Main extends React.Component {
                 }
               }]
             }
-
-
 
             firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id+'/'+findInCopyKey).set(findCopy).then( ok => {
               setTimeout(() => {
@@ -2300,83 +2145,32 @@ export default class Main extends React.Component {
               folder_id:addParentClientFolderRes.data.id
             },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
 
-              SmartService.addFolder({
-                name: 'MÉMOIRE',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'CHARGE DE PIECES',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'CONVOCATIONS',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'ADMIN (Lettre d\'engagement)',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'COMPTABILITE',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'CORRESPONDANCE',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'INTERNE ****',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'NOTES',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'PV RENDEZ-VOUS',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                console.log('OK');
-              }).catch(err => {
-              });
-              SmartService.addFolder({
-                name: 'PROCEDURES',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              }).catch(err => {
-                console.log(err);
-              });
-              SmartService.addFolder({
-                name: 'RECHERCHES JURIDIQUES',
-                folder_id: addFolderClient.data.id
-              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-              }).catch(err => {
-                console.log(err);
-              });
+              if(this.state.newClientFolder.type ===  "litige"){
+
+                data.oa_litige_folders.map((item,key) => {
+                  SmartService.addFolder({
+                    name: item,
+                    folder_id: addFolderClient.data.id
+                  }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                    console.log("OK"+key)
+                  }).catch(err => {
+                    console.log(err);
+                  });
+                })
+
+              }
+              if(this.state.newClientFolder.type === "corporate"){
+                data.oa_corporate_folders.map((item,key) => {
+                  SmartService.addFolder({
+                    name: item,
+                    folder_id: addFolderClient.data.id
+                  }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                    console.log("OK"+key)
+                  }).catch(err => {
+                    console.log(err);
+                  });
+                })
+              }
 
               findCopy.folder_id = addParentClientFolderRes.data.id;
               findCopy.folders = [
@@ -2384,6 +2178,7 @@ export default class Main extends React.Component {
                   folder_id:addFolderClient.data.id,
                   team:team,
                   name:this.state.newClientFolder.nom,
+                  type:this.state.newClientFolder.type,
                   contrepartie:this.state.newClientFolder.contrepartie,
                   autrepartie:this.state.newClientFolder.autrepartie,
                   desc:this.state.newClientFolder.desc,
@@ -2456,96 +2251,33 @@ export default class Main extends React.Component {
                 folder_id: addParentClientFolderRes.data.id,
               },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
 
-                console.log('OK 1');
 
-                SmartService.addFolder({
-                  name: 'MÉMOIRE',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'CHARGE DE PIECES',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'CONVOCATIONS',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'ADMIN (Lettre d\'engagement)',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'COMPTABILITE',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'CORRESPONDANCE',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'INTERNE ****',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'NOTES',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'PV RENDEZ-VOUS',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'PROCEDURES',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
-                SmartService.addFolder({
-                  name: 'RECHERCHES JURIDIQUES',
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log('OK');
-                }).catch(err => {
-                  console.log(err);
-                });
+                if(this.state.newClientFolder.type ===  "litige"){
+
+                  data.oa_litige_folders.map((item,key) => {
+                    SmartService.addFolder({
+                      name: item,
+                      folder_id: addFolderClient.data.id
+                    }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                      console.log("OK"+key)
+                    }).catch(err => {
+                      console.log(err);
+                    });
+                  })
+
+                }
+                if(this.state.newClientFolder.type === "corporate"){
+                  data.oa_corporate_folders.map((item,key) => {
+                    SmartService.addFolder({
+                      name: item,
+                      folder_id: addFolderClient.data.id
+                    }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                      console.log("OK"+key)
+                    }).catch(err => {
+                      console.log(err);
+                    });
+                  })
+                }
 
                 clients_tmp_copie.push({
                   folder_id: addParentClientFolderRes.data.id,
@@ -2556,6 +2288,7 @@ export default class Main extends React.Component {
                       folder_id:addFolderClient.data.id,
                       team:team,
                       name:this.state.newClientFolder.nom,
+                      type:this.state.newClientFolder.type,
                       contrepartie:this.state.newClientFolder.contrepartie,
                       autrepartie:this.state.newClientFolder.autrepartie,
                       desc:this.state.newClientFolder.desc,
@@ -2733,7 +2466,7 @@ export default class Main extends React.Component {
   }
 
   createLignefacture(duplicate){
-
+    this.setState({loading:true})
     let obj = this.state.TimeSheet;
     let objCopy = this.state.TimeSheet;
     let time = obj.newTime.duree;
@@ -2745,13 +2478,15 @@ export default class Main extends React.Component {
     } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
       timeFormated = parseInt(time);
     } else {
+      this.setState({loading:false})
       this.openSnackbar('error', 'Le format de la durée est invalide !');
     }
     if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
+      this.setState({loading:false})
       this.openSnackbar('error', 'Le format de la durée est invalide !');
     } else {
-
       if(timeFormated === 0 ){
+        this.setState({loading:false})
         this.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
       }else{
 
@@ -2761,6 +2496,7 @@ export default class Main extends React.Component {
         SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
           if(newCompRes.succes === true && newCompRes.status === 200){
 
+            this.setState({loading:false})
             lignes_fact.push({
               newTime: {
                 company_id:newCompRes.data.id,
@@ -2825,14 +2561,14 @@ export default class Main extends React.Component {
             this.updateLignes_facture(lignes_fact);
             this.openSnackbar('success', 'Enregistrement effectué avec succès');
           }else{
+            this.setState({loading:false})
+            this.openSnackbar("error",newCompRes.error);
             console.log(newCompRes.error)
           }
         }).catch(err => {
+          this.setState({loading:false})
           console.log(err)
         })
-
-
-
       }
     }
   }
@@ -2854,6 +2590,11 @@ export default class Main extends React.Component {
 
   }
 
+  updateAllLigneFacture(data) {
+    firebase.database().ref('/' + ent_name + '-lignes_f-' + ged_id).set(data).catch(err => console.log(err));
+  }
+
+
   update_client_tempo(key,data){
     firebase.database().ref("/" + ent_name + "-clients_tempo-" + ged_id + '/' + key).set(data).then( ok => {
       this.openSnackbar("success","Modification effectuée avec succès")
@@ -2863,6 +2604,13 @@ export default class Main extends React.Component {
     })
   }
 
+  update_client_tempo_all(data){
+    firebase.database().ref("/" + ent_name + "-clients_tempo-" + ged_id).set(data).catch(err => console.log(err))
+  }
+
+  update_clients(data){
+    firebase.database().ref("/annuaire_client_mondat").set(data).catch(err => console.log(err))
+  }
 
   render() {
 
@@ -3966,6 +3714,7 @@ export default class Main extends React.Component {
                           <TableSociete
                             contacts={this.state.contacts || []}
                             societes={this.state.annuaire_clients_mondat || []}
+                            clients_tempo={this.state.clients_tempo}
                             onEditClick={(societe, key) => {
                               this.setState({
                                 selectedSociete: societe,
@@ -3991,6 +3740,10 @@ export default class Main extends React.Component {
                             onAddBtnClick={() => {
                               this.setState({ openNewClientModal: true });
                             }}
+                            openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                            reloadGed={() => this.justReloadGed()}
+                            update_client_tempo_all={(data) => this.update_client_tempo_all(data)}
+                            update_clients={(data) => this.update_clients(data)}
                           />
                         }
 
@@ -4793,9 +4546,20 @@ export default class Main extends React.Component {
                                                       value={this.state.TimeSheet.newTime.dossier_client}
                                                       onChange={(e) => {
                                                         console.log(e.target.value)
-                                                        let d = this.state.TimeSheet;
-                                                        d.newTime.dossier_client = e.target.value;
-                                                        this.setState({ TimeSheet: d });
+                                                        let ts = this.state.TimeSheet;
+                                                        let data = e.target.value;
+                                                        let team = data.team || [];
+                                                        let find = team.find(x => x.email === this.state.TimeSheet.newTime.utilisateurOA);
+                                                        if(find){
+                                                          ts.newTime.rateFacturation = find.tarif || '';
+                                                          this.setState({ TimeSheet: ts });
+                                                        }else{
+                                                          let OA_contacts = this.state.contacts;
+                                                          let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,this.state.TimeSheet.newTime.utilisateurOA);
+                                                          ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
+                                                        }
+                                                        ts.newTime.dossier_client = e.target.value;
+                                                        this.setState({ TimeSheet: ts });
                                                       }}
                                                     >
                                                       {
@@ -4879,17 +4643,21 @@ export default class Main extends React.Component {
                                                     id="demo-simple-select4545"
                                                     style={{ width: 250 }}
                                                     onChange={(e) => {
-                                                      let d = this.state.TimeSheet;
-                                                      d.newTime.utilisateurOA = e.target.value;
-                                                      let OA_contacts = this.state.contacts;
-                                                      let OA_contact = '';
-                                                      OA_contacts.map((contact, key) => {
-                                                        if (contact && contact.email && contact.email === e.target.value) {
-                                                          OA_contact = contact;
+                                                      let ts = this.state.TimeSheet;
+                                                      let dossier = this.state.TimeSheet.newTime.dossier_client;
+                                                      if(dossier && dossier.team && dossier.team.length > 0){
+                                                        let team = dossier.team;
+                                                        let find = team.find(x => x.email === e.target.value);
+                                                        if(find){
+                                                          ts.newTime.rateFacturation = find.tarif || "";
                                                         }
-                                                      });
-                                                      d.newTime.rateFacturation = OA_contact.rateFacturation || '';
-                                                      this.setState({ TimeSheet: d });
+                                                      }else{
+                                                        let OA_contacts = this.state.contacts;
+                                                        let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,e.target.value);
+                                                        ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
+                                                      }
+                                                      ts.newTime.utilisateurOA = e.target.value;
+                                                      this.setState({ TimeSheet: ts });
                                                     }}
                                                     value={this.state.TimeSheet.newTime.utilisateurOA}
                                                   >
@@ -5085,6 +4853,7 @@ export default class Main extends React.Component {
                                             updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
                                             openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
                                             clientsTempo={this.state.clients_tempo}
+                                            updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
                                           />
                                         } {
                                         this.state.lignesFactures.length === 0 &&
@@ -5971,7 +5740,7 @@ export default class Main extends React.Component {
                 onSelectBtnClick={(client) => {
                   let obj = this.state.TimeSheet;
 
-                  let findClientTempo = this.state.clients_tempo.find(x => x.ID === client.ID)
+                  let findClientTempo = this.state.clients_tempo.find(x => x.ID_client === client.ID)
                   let findClientFname = this.state.annuaire_clients_mondat.find(x => x.ID === client.ID)
                   console.log(findClientFname)
                   obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');

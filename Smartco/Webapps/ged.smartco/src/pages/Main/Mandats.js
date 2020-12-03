@@ -199,13 +199,23 @@ export default class Mandats extends React.Component{
                         <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
                                     onClick={() => {
                                       let objCp = this.state.client_mandat;
-                                      objCp.folders[key].team.push({
-                                        fname: '',
-                                        email: '',
-                                        uid: '',
-                                        tarif: '',
-                                        type: 'lead'
-                                      });
+                                      if(objCp.folders[key].team && objCp.folders[key].team.length > 0){
+                                        objCp.folders[key].team.push({
+                                          fname: '',
+                                          email: '',
+                                          uid: '',
+                                          tarif: '',
+                                          type: 'lead'
+                                        });
+                                      }else{
+                                        objCp.folders[key].team = [{
+                                          fname: '',
+                                          email: '',
+                                          uid: '',
+                                          tarif: '',
+                                          type: 'lead'
+                                        }]
+                                      }
                                       this.setState({ client_mandat: objCp });
                                     }}>
                           <AddCircleIcon color="primary" />
@@ -297,13 +307,25 @@ export default class Mandats extends React.Component{
                         <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
                                     onClick={() => {
                                       let objCp = this.state.client_mandat;
-                                      objCp.folders[key].team.push({
-                                        fname: '',
-                                        email: '',
-                                        uid: '',
-                                        tarif: '',
-                                        type: 'team'
-                                      });
+                                      if(objCp.folders[key].team && objCp.folders[key].team.length > 0){
+                                        objCp.folders[key].team.push({
+                                          fname: '',
+                                          email: '',
+                                          uid: '',
+                                          tarif: '',
+                                          type: 'team'
+                                        });
+                                      }else{
+                                        objCp.folders[key].team = [
+                                          {
+                                            fname: '',
+                                            email: '',
+                                            uid: '',
+                                            tarif: '',
+                                            type: 'team'
+                                          }
+                                        ]
+                                      }
                                       this.setState({ client_mandat: objCp });
                                     }}>
                           <AddCircleIcon color="primary" />
