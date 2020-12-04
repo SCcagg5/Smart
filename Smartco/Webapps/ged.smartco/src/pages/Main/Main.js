@@ -1728,7 +1728,8 @@ export default class Main extends React.Component {
       let lf_to_validated = this.state.facturesToValidatedCopy;
       lf_to_validated.push({
         ID:Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
-        created_at:date,
+        date_facture:date,
+        created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
         created_by:createdBy,
         client:lignes_facture[0].newTime.client,
         client_id:lignes_facture[0].newTime.client_id,
@@ -1745,8 +1746,6 @@ export default class Main extends React.Component {
         this.setState({partnerFacture:"",loading:false})
         this.openSnackbar("success","La facture est bien envoyé au partner pour validation")
       })
-
-
 
   }
 
@@ -2592,6 +2591,9 @@ export default class Main extends React.Component {
 
   updateAllLigneFacture(data) {
     firebase.database().ref('/' + ent_name + '-lignes_f-' + ged_id).set(data).catch(err => console.log(err));
+  }
+  updateAllFactures(data) {
+    firebase.database().ref('/' + ent_name + '-factures_to_Validated-' + ged_id).set(data).catch(err => console.log(err));
   }
 
 
@@ -4867,6 +4869,7 @@ export default class Main extends React.Component {
                                       <TabPanel>
                                         <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
                                         <TableFactures factures={this.state.facturesToValidated}
+                                                       facturesCp={this.state.facturesToValidatedCopy}
                                                        client_folders={this.state.client_folders}
                                                        clients_tempo={this.state.clients_tempo}
                                                        annuaire_clients_mondat={this.state.annuaire_clients_mondat}
@@ -4880,6 +4883,10 @@ export default class Main extends React.Component {
                                                        openFactureFolder={(id) => {
                                                          this.redirectToFolder(id)
                                                        }}
+                                                       updateAllFactures={(data) => {
+                                                         this.updateAllFactures(data)
+                                                       }}
+                                                       openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
                                         />
                                       </TabPanel>
                                     </Tabs>
