@@ -431,7 +431,7 @@ class file:
             return [False, "Invalid rights", 403]
         path = self.path(file_id)
         if ext in ('.jpg', '.jpeg'):
-            image = Image.open(file)
+            image = Image.open(file.file)
             imdata = image.convert('RGB')
             imdata.save(path, "PDF")
         else:
