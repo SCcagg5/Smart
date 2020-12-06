@@ -412,26 +412,6 @@ class folder:
         return ret
 
 class file:
-    def convert(file, type = None):
-        if type is None:
-            return [True, {"file": file}, None]
-        allowed = ["jpg"]
-        if type not in allowed:
-            return [False, f"Invalid convertion from file {type}", 400]
-        if type == "jpg":
-            image1 = Image.open(BytesIO(file.file.read()))
-            imdata = image1.convert('RGB')
-            tmp = BytesIO()
-            filename = file.filename.split('.')
-            if len(filename) > 1:
-                filename = filename[:-1]
-            file.filename = '.'.join(filename) + '.pdf'
-            imdata.save(tmp, "PDF")
-            file.file = io.BufferedRandom(tmp)
-            file.file.name=12
-        return [True, {"file": file}, None]
-
-
     def __init__(self, usr_id = -1, ged_id = -1):
         self.usr_id = str(usr_id)
         self.ged_id = str(ged_id)
@@ -443,14 +423,19 @@ class file:
         name, ext = os.path.splitext(file.filename)
         fol = folder(self.usr_id, self.ged_id)
         doc = ged(self.usr_id, self.ged_id)
-        if ext not in ('.pdf', ):
+        if ext not in ('.pdf', '.jpg'):
             return [False, "File extension not allowed.", 401]
         if folder_id is not None and not fol.exist(folder_id):
             return [False, "folder_id does not exist", 400]
         if folder_id is not None and not fol.is_proprietary(folder_id) and not fol.is_editor(folder_id):
             return [False, "Invalid rights", 403]
         path = self.path(file_id)
-        file.save(path)
+        if ext in ('.jpg', ):
+            image = Image.open(file)
+            imdata = image.convert('RGB')
+            imdata.save(path, "PDF")
+        else:
+            file.save(path)
         ext = ext[1:]
         succes = sql.input("INSERT INTO `ged_file` (`id`, `ged_id`, `user_id`, `name`, `type`, `inside`, `date`) VALUES (%s, %s, %s, %s, %s, %s, %s)", \
         (file_id, self.ged_id, self.usr_id, name, ext, folder_id, timestamp))

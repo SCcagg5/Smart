@@ -308,11 +308,6 @@ def ged_add_file(cn, nextc):
     err = check.contain(cn.req.files, ["file"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
-    cn.get = check.setnoneopt(cn.get, ["convert_from"])
-    err = file.convert(cn.req.files["file"],  cn.get["convert_from"])
-    if not err[0]:
-        return cn.toret.add_error(err[1], err[2])
-    cn.req.files["file"] = err[1]["file"]
     cn.req.forms = check.setnoneopt(cn.req.forms, ["folder_id"])
     err = file(usr_id=cn.private["user"].id,  ged_id=cn.private["ged"].ged_id).new(cn.req.files["file"], cn.req.forms["folder_id"])
     return cn.call_next(nextc, err)
