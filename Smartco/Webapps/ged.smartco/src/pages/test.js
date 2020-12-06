@@ -1,91 +1,48 @@
 import React from 'react';
 import AtlButton, { ButtonGroup as AltButtonGroup } from '@atlaskit/button';
+import { Table } from 'reactstrap';
+import rethink from "../controller/rethink"
+import { IconButton } from '@material-ui/core';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 
-function call(usr_token, cmd, db = "test", read_change=false){
-  let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
-  socket.onopen = function(e) {
-    console.log("[open] Connection established");
-    let payload;
-    payload = {"cmd": cmd, "db": db, "read_change": read_change}
-    socket.send(JSON.stringify(payload));
-  };
-  let data=[];
-  socket.onmessage = function(event) {
-    console.log(event.data)
-    let recieve = JSON.parse(event.data);
-    console.log(recieve)
-    if(recieve.id){
-      data.push(recieve);
-    }
-    //update
-    if(recieve.new_val && recieve.old_val){
-      let index_to_updated = data.findIndex(x => x.id === recieve.old_val.id)
-      data[index_to_updated] = recieve.new_val;
-    }
-    //insert
-    else if(recieve.new_val){
-      data.push(recieve.new_val)
-    }
-    //remove
-    else if(recieve.old_val){
-      data.splice(data.findIndex(x => x.id === recieve.old_val.id),1);
-    }
-    //console.log(data)
-  };
-  socket.error = function(event) {
-    console.log(`[error]`);
-  };
-  socket.onclose = function(event) {
-    console.log(`[close]`);
-  };
-}
 
 export default class test extends React.Component{
 
 
+
   state={
-
+    main:false,
+    users:[]
   }
 
-  //call('test', 'table("authors")', "test", true) // controle changes
-  //call('test', "table_create('users33')", "test", true)  // create table
-
-  getAll(){
-
-
+  componentDidMount() {
+    rethink.initializeApp('test', 'table("users")', "oalegal", true).then( data => {
+      console.log("BABBA")
+      setTimeout(() => {
+        this.setState({ users: data })
+      },250);
+    })
   }
+
 
   insert(){
     let jsoon = [
       {
-        name:"facture 2023",
-        created_at:new Date(),
-        total :2023,
-        lignes_factures:[
-          {
-            title:"lf-1",
-            prix:1200,
-          },
-          {
-            title:"lf-2",
-            prix:560,
-          }
-        ]
+        fname:"Babba",
+        lname:"Amine",
+        username :"Babba1313",
       }
     ]
     let formatedJsson = JSON.stringify(jsoon)
-    call('test', 'table("factures").insert('+ formatedJsson + ')', "test", false)  //
+    rethink.insert('test', 'table("users").insert('+ formatedJsson + ')', "oalegal", false)
+    this.componentDidMount()
   }
 
-  update(){
-
+  delete(id){
+    console.log(id)
+    rethink.remove('test', 'table(users).get('+id+').delete()', 'oalegal', false)
+    this.componentDidMount()
   }
-
-  delete(){
-
-  }
-
-
 
   render() {
     return(
@@ -94,8 +51,45 @@ export default class test extends React.Component{
           <AtlButton onClick={() => this.getAll()}>list</AtlButton>
           <AtlButton onClick={() => this.insert()}>insert</AtlButton>
           <AtlButton onClick={() => this.update()}>upddate</AtlButton>
-          <AtlButton onClick={() => this.delete()}>delete</AtlButton>
+          <AtlButton onClick={() => {this.setState({main:!this.state.main})}}>delete</AtlButton>
         </AltButtonGroup>
+
+        <div className="ml-3 mr-3 mt-3">
+            <Table striped bordered hover>
+              <thead>
+              <tr>
+                <th>#</th>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Username</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+              {
+                this.state.users.map((user,key) =>
+                  <tr key={key}>
+                    <th>{key+1}</th>
+                    <th>{user.id}</th>
+                    <td>{user.fname}</td>
+                    <td>{user.lname}</td>
+                    <td>{user.username}</td>
+                    <td>
+                      <IconButton
+                        onClick={() => {
+                          this.delete(user.id)
+                        }}
+                      >
+                        <DeleteOutlineIcon color="error"/>
+                      </IconButton>
+                    </td>
+                  </tr>
+                )
+              }
+              </tbody>
+            </Table>
+          </div>
 
       </div>
     )

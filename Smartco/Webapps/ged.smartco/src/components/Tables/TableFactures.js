@@ -28,6 +28,7 @@ import calendar from '../../assets/icons/calendar_icon.jpg';
 import SelectSearch from 'react-select-search';
 import main_functions from '../../controller/main_functions';
 import ClearOutlinedIcon from '@material-ui/icons/ClearOutlined';
+import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
 
 const useRowStyles = makeStyles({
   root: {
@@ -43,6 +44,9 @@ export default function CollapsibleTable(props) {
   const [sdate_search, setSdate_search] = React.useState(null);
   const [edate_search, setEdate_search] = React.useState(null);
   const [statut_search, setStatut_search] = React.useState("tous");
+  const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
+  const [f_TooDeleted, setF_TooDeleted] = React.useState("");
+
 
   let factures = props.factures.filter(x => x.partner === localStorage.getItem("email"));
 
@@ -57,8 +61,6 @@ export default function CollapsibleTable(props) {
     var d = new Date(b.created_at);
     return d-c;
   });
-
-
 
 
   return (
@@ -164,6 +166,7 @@ export default function CollapsibleTable(props) {
                   <TableCell />
                   <TableCell align="center" style={{fontWeight:"bold"}} >Numéro Facture</TableCell>
                   <TableCell align="center" style={{fontWeight:"bold"}} >Date de création</TableCell>
+                  <TableCell align="center" style={{fontWeight:"bold"}} >Date Facture</TableCell>
                   <TableCell align="center" style={{fontWeight:"bold"}} >Client</TableCell>
                   <TableCell align="center" style={{fontWeight:"bold"}} >Nom du dossier</TableCell>
                   <TableCell align="center" style={{fontWeight:"bold"}} >Total(nb heures)</TableCell>
@@ -179,6 +182,15 @@ export default function CollapsibleTable(props) {
                          openFactureFolder={props.openFactureFolder} client_folders={props.client_folders} clients_tempo={props.clients_tempo}
                          annuaire_clients_mondat={props.annuaire_clients_mondat}
                          sharedFolders={props.sharedFolders}
+                         showDeleteModal={(ID) => {
+                           if(row.partner === localStorage.getItem("email")){
+                             console.log(ID)
+                             setF_TooDeleted(ID)
+                             setOpenDeleteModal(true)
+                           }else{
+                             alert("Vous n'avez pas le droit d'effectuer cette opération !");
+                           }
+                         }}
                     />
                   ))
                 }
@@ -187,6 +199,43 @@ export default function CollapsibleTable(props) {
 
             <h6 style={{margin:20}}>Aucune facture trouvée</h6>
         }
+
+
+        <ModalTransition>
+          {openDeleteModal === true && (
+            <Modal
+              actions={[
+                { text: 'Supprimer', onClick: () => {
+                    let find_index = props.facturesCp.findIndex(x => x.ID === f_TooDeleted)
+                    console.log(find_index)
+                    if(find_index > -1){
+                      let newFactures = props.facturesCp.filter(x => x.ID !== f_TooDeleted);
+                      props.updateAllFactures(newFactures);
+                      props.openSnackbar("success","Facture supprimée avec succès")
+                      setF_TooDeleted("")
+                      setOpenDeleteModal(false)
+                    }else{
+                      props.openSnackbar("error","Une erreur est survenue !")
+                      setF_TooDeleted("")
+                      setOpenDeleteModal(false)
+                    }
+                  } },
+                { text: 'Annuler', onClick: () => {
+                    setF_TooDeleted("")
+                    setOpenDeleteModal(false)
+                  }},
+              ]}
+              onClose={() => {
+                setF_TooDeleted("")
+                setOpenDeleteModal(false)
+              }}
+              heading="Vous êtes sur le point de supprimer cette facture !"
+              appearance="danger"
+            >
+            </Modal>
+          )}
+        </ModalTransition>
+
       </div>
 
 
@@ -202,6 +251,8 @@ function Row(props) {
 
   const { row } = props;
   const [open, setOpen] = React.useState(false);
+
+
   const classes = useRowStyles();
 
   let total = 0;
@@ -237,6 +288,7 @@ function Row(props) {
           {"facture n°" + (props.index+1).toString()}
         </TableCell>
         <TableCell align="center">{moment(row.created_at).format("DD-MM-YYYY")}</TableCell>
+        <TableCell align="center">{moment(row.date_facture).format("DD-MM-YYYY")}</TableCell>
         <TableCell align="center">{row.client}</TableCell>
         <TableCell align="center">{row.client_folder.name}</TableCell>
         <TableCell align="center">{nb_heures.toFixed(2) + " h"}</TableCell>
@@ -269,8 +321,13 @@ function Row(props) {
               ]
 
           }
-          <IconButton aria-label="folder" title="Supprimer" color="default" size="small" onClick={() => {
-          }}>
+          <IconButton aria-label="folder" title="Supprimer" color="default" size="small"
+                      onClick={() => {
+                        if(row.statut === "wait"){
+                          props.showDeleteModal(row.ID)
+                        }
+                      }}
+          >
             <DeleteOutlineIcon fontSize="small" style={{color:"red"}} />
           </IconButton>
         </TableCell>
@@ -290,10 +347,11 @@ function Row(props) {
                     <TableCell align="center" style={{fontWeight:"bold"}} >Utilisateur OA</TableCell>
                     <TableCell align="center" style={{fontWeight:"bold"}} >Taux horaire</TableCell>
                     <TableCell align="center" style={{fontWeight:"bold"}} >Durée</TableCell>
-                    {
+                    {/*{
                       row.statut === "wait" &&
                       <TableCell align="center" style={{fontWeight:"bold"}} >Actions</TableCell>
-                    }
+                    }*/}
+                    <TableCell align="center" style={{fontWeight:"bold"}} >Total</TableCell>
 
                   </TableRow>
                 </TableHead>
@@ -309,7 +367,10 @@ function Row(props) {
                       <TableCell align="center">
                         {lf.newTime.duree + " h"}
                       </TableCell>
-                      {
+                      <TableCell align="center">
+                        {(lf.newTime.duree * parseInt(lf.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF
+                      </TableCell>
+                      {/*{
                         row.statut === "wait" &&
                         <TableCell align="center">
                           <IconButton aria-label="Modifier" title="Modifier" color="default" size="small"
@@ -321,7 +382,7 @@ function Row(props) {
                             <DeleteOutlineIcon fontSize="small" style={{color:"red"}} />
                           </IconButton>
                         </TableCell>
-                      }
+                      }*/}
 
                     </TableRow>
                   ))}

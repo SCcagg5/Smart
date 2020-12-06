@@ -23,6 +23,11 @@ import Select from 'react-select';
 import FolderIcon from '@material-ui/icons/Folder';
 import Data from "../../data/Data";
 import moment from "moment";
+import { DeleteOutline } from '@material-ui/icons';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
+import SmartService from '../../provider/SmartService';
+import { Checkbox } from '@atlaskit/checkbox';
 
 
 const { Panel } = Collapse;
@@ -111,6 +116,9 @@ export default function TableSociete(props) {
     const [searchByPays, setSearchByPays] = React.useState("");  
     const [searchByLead, setSearchByLead] = React.useState("");
     const [selectedSearchLettre, setSelectedSearchLettre] = React.useState("");
+    const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
+    const [toRemoveClient_id, setToRemoveClient_id] = React.useState("");
+    const [delete_folder_ged, setDelete_folder_ged] = React.useState(false);
 
     const searchFilter= props.societes.filter((annuaire) => (  (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
          (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
@@ -121,7 +129,6 @@ export default function TableSociete(props) {
         ((annuaire.facturation && annuaire.facturation.collaborateur_lead === searchByLead)  || searchByLead === "" )
 
     ))
-
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, searchFilter - page * rowsPerPage);
 
@@ -424,11 +431,16 @@ export default function TableSociete(props) {
                                                             onClick={() => props.onEditClick(row,key)}>
                                                     <EditIcon fontSize="small" style={{color:"#1a73e8"}}/>
                                                 </IconButton>
-                                                {/*<IconButton aria-label="folder" title="folder" color="default" size="small" onClick={() => {
-                                                    //props.onFolderClick(row.folder_id)
+                                                <IconButton aria-label="delete" title="Supprimer" color="default" size="small" onClick={() => {
+                                                    if(localStorage.getItem("client_folder_id") || localStorage.getItem("client_shared_folder_id")  ){
+                                                        setOpenDeleteModal(true)
+                                                        setToRemoveClient_id(row.ID)
+                                                    }else{
+                                                        alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
+                                                    }
                                                 }}>
-                                                    <FolderIcon fontSize="small" />
-                                                </IconButton>*/}
+                                                    <DeleteOutlineIcon color="error"/>
+                                                </IconButton>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -463,6 +475,74 @@ export default function TableSociete(props) {
                     </div>
                 </div>
             </div>
+
+
+
+            <ModalTransition>
+                {openDeleteModal === true && (
+                  <Modal
+                    actions={[
+                        { text: 'Supprimer', onClick: () => {
+                            let clients_mandats = props.clients_tempo || [];
+                            let find = clients_mandats.find(x => x.ID_client === toRemoveClient_id);
+                            if(find){
+
+                                let new_clients_mandat = clients_mandats.filter(x => x.ID_client !== toRemoveClient_id);
+                                props.update_client_tempo_all(new_clients_mandat);
+                                let new_clients = props.societes.filter(x => x.ID !== toRemoveClient_id);
+                                props.update_clients(new_clients)
+                                props.openSnackbar("success","Client supprimé avec succès")
+                                setOpenDeleteModal(false)
+
+                                if(find.folder_id && find.folder_id !== "" && delete_folder_ged === true){
+                                    SmartService.deleteFile(find.folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+                                        console.log(ok)
+                                        if (ok.succes === true && ok.status === 200) {
+                                            props.reloadGed()
+                                        }else{
+                                            if(ok.error === "Invalid rights"){
+                                                props.openSnackbar("error","Vous n'avez pas le droit de supprimer le dossier du client dans la ged !")
+                                            }else{
+                                                props.openSnackbar("error",ok.error)
+                                            }
+                                        }
+                                    }).catch(err => console.log(err))
+                                }
+                            }else{
+                                let new_clients = props.societes.filter(x => x.ID !== toRemoveClient_id);
+                                props.update_clients(new_clients)
+                                props.openSnackbar("success","Client supprimé avec succès")
+                                setOpenDeleteModal(false)
+                            }
+                            } },
+                        { text: 'Annuler', onClick: () => {
+                            setOpenDeleteModal(false)
+                                setToRemoveClient_id("")
+                                setDelete_folder_ged(false)
+                            }},
+                    ]}
+                    onClose={() => {
+                        setOpenDeleteModal(false)
+                        setToRemoveClient_id("")
+                        setDelete_folder_ged(false)
+                    }}
+                    heading="Vous êtes sur le point de supprimer ce client"
+                    appearance="danger"
+                  >
+
+                      <Checkbox
+                        isChecked={delete_folder_ged}
+                        label="Voulez-vous supprimer les dossiers de ce client dans la ged aussi ?"
+                        onChange={() => {
+                            setDelete_folder_ged(!delete_folder_ged)
+                        }}
+                        name="checkbox-default-1"
+                        value="checkbox-default-1"
+                      />
+
+                  </Modal>
+                )}
+            </ModalTransition>
 
         </div>
 

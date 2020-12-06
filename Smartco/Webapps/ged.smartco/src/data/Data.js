@@ -406,6 +406,9 @@ let Data = {
         {value:"7",label:"Description + Nom avocat"},
         {value:"8",label:"Description + Nombre d'heures"},
         {value:"9",label:"Description + Nom avocat + Nombre d'heures"},
-    ]
+    ],
+
+    oa_litige_folders:["ADMIN (Lettre d'engagement)","MÉMOIRE","CHARGE DE PIECES","CONVOCATIONS","COMPTABILITE","CORRESPONDANCE","INTERNE ****","NOTES","PV RENDEZ-VOUS","PROCEDURES","RECHERCHES JURIDIQUES"],
+    oa_corporate_folders:["ADMIN (Lettre d'engagement)","ASSEMBLEE GENERALE EXTRAORDINAIRE","ASSEMBLEE GENERALE ORDINAIRE","DECISION DU CONSEIL D'ADMINISTRATION","CONVENTIONS D'ACTIONNAIRES","COMPTABILITE","CONTRATS","CORRESPONDANCE","INTERNE ****","CREATION DE SOCIETE","PV RENDEZ-VOUS","DOCUMENTS","NOTES","RECHERCHES JURIDIQUES"]
 }
 export default Data;
