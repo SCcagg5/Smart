@@ -423,14 +423,14 @@ class file:
         name, ext = os.path.splitext(file.filename)
         fol = folder(self.usr_id, self.ged_id)
         doc = ged(self.usr_id, self.ged_id)
-        if ext not in ('.pdf', '.jpg', '.jpeg'):
+        if ext not in ('.pdf', '.jpg', '.jpeg', '.png'):
             return [False, "File extension not allowed.", 401]
         if folder_id is not None and not fol.exist(folder_id):
             return [False, "folder_id does not exist", 400]
         if folder_id is not None and not fol.is_proprietary(folder_id) and not fol.is_editor(folder_id):
             return [False, "Invalid rights", 403]
         path = self.path(file_id)
-        if ext in ('.jpg', '.jpeg'):
+        if ext in ('.jpg', '.jpeg', '.png'):
             image = Image.open(file.file)
             imdata = image.convert('RGB')
             imdata.save(path, "PDF")
