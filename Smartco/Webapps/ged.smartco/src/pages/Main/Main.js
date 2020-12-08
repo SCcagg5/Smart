@@ -516,6 +516,14 @@ export default class Main extends React.Component {
 
                   //test
                   //console.log(clients_tempo.find(x => x.folder_id === "037eadc2-1bee-47a8-92d3-f79af375df24"))
+                /*let list = [];
+                  clients_tempo.map((item,key) => {
+                    let find = annuaire_clients_mondat.find(x => x.ID === item.ID_client);
+                    if(!find){
+                      list.push(item)
+                    }
+                  })
+                console.log(list)*/
 
 
                   this.setState({
@@ -3747,6 +3755,7 @@ export default class Main extends React.Component {
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Nom du client </p>
                                             <input
+                                              readOnly={true}
                                                 type="text"
                                                 className="form-control"
                                                 id="email"
@@ -3778,6 +3787,7 @@ export default class Main extends React.Component {
                                             <div className="col-md-6">
                                               <p style={{ marginBottom: 10 }}>Prénom du client </p>
                                               <input
+                                                readOnly={true}
                                                 type="text"
                                                 className="form-control"
                                                 id="email"
