@@ -98,6 +98,30 @@ function remove(usr_token, cmd, db = "oalegal", read_change=false){
 
 }
 
+function update(usr_token, cmd, db = "oalegal", read_change=false){
+
+  let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
+
+  socket.onopen = function(e) {
+    console.log("Connection for update established");
+    let payload;
+    payload = {"cmd": cmd, "db": db, "read_change": read_change}
+    socket.send(JSON.stringify(payload));
+  };
+  let data=[];
+  socket.onmessage = function(event) {
+    //console.log("ON MESSAGE INSERT")
+    console.log(event);
+  }
+  socket.error = function(event) {
+    console.log("ERROR UPDATE RETHINK");
+  };
+  socket.onclose = function(event) {
+    console.log("CLOSED");
+  };
+
+}
 
 
-export default {initializeApp,insert,remove};
+
+export default {initializeApp,insert,remove,update};

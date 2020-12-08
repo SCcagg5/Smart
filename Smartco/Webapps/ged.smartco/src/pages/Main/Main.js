@@ -485,6 +485,12 @@ export default class Main extends React.Component {
                 sharedFolders: sharedFolders,
               })
 
+              firebase.database().ref('/annuaire_client_mondat').on('value', (snapshot) => {
+                const data = snapshot.val() || [];
+                const annuaire_clients_mondatCp = data || [];
+                this.setState({annuaire_clients_mondatCp:annuaire_clients_mondatCp})
+              })
+
               firebase.database().ref('/').on('value', (snapshot) => {
 
                   console.log("FIRST ENTER FIREBASE")
@@ -508,6 +514,10 @@ export default class Main extends React.Component {
                   let facturesToValidatedCopy = data[ent_name+"-factures_to_Validated-"+ged_id] || []
 
 
+                  //test
+                  //console.log(clients_tempo.find(x => x.folder_id === "037eadc2-1bee-47a8-92d3-f79af375df24"))
+
+
                   this.setState({
                     contacts: contacts,
                     societes: societes,
@@ -518,7 +528,8 @@ export default class Main extends React.Component {
                     clients_tempo: clients_tempo,
                     clients_tempo_copie: clients_tempo_copie,
                     facturesToValidated:facturesToValidated,
-                    facturesToValidatedCopy:facturesToValidatedCopy
+                    facturesToValidatedCopy:facturesToValidatedCopy,
+                    meeturl: meeturl,
                   });
 
                 //new TimeSheet => séléction par défaut pour Utilisateur OA + horaire
@@ -544,7 +555,6 @@ export default class Main extends React.Component {
                         selectedFoldername: folder_name,
                         breadcrumbs: main_functions.getBreadcumpsPath(folder_id, folders),
                         selectedFolderId: folder_id,
-                        meeturl: meeturl,
                         selectedRoom: rooms.length > 0 ? rooms[0] : '',
                         selectedFolderFiles: main_functions.getFolderFilesById(folder_id, folders),
                         selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, folders),
@@ -561,11 +571,6 @@ export default class Main extends React.Component {
                     this.setState({
                       selectedDriveItem: [],
                       expandedDriveItems: [],
-                      meeturl: meeturl,
-                      contacts: contacts,
-                      societes: societes,
-                      annuaire_clients_mondat: annuaire_clients_mondat,
-                      rooms: rooms,
                       selectedRoom: rooms.length > 0 ? rooms[0] : '',
                       firstLoading: false,
                       loading: false
@@ -577,11 +582,6 @@ export default class Main extends React.Component {
                       expandedDriveItems: [],
                       selectedDriveSharedItem:['parent'],
                       expandedDriveSharedItems:['parent'],
-                      meeturl: meeturl,
-                      contacts: contacts,
-                      societes: societes,
-                      annuaire_clients_mondat: annuaire_clients_mondat,
-                      rooms: rooms,
                       selectedRoom: rooms.length > 0 ? rooms[0] : '',
                       breadcrumbs: 'Mon drive / Partagés avec moi',
                       firstLoading: false,
@@ -597,8 +597,6 @@ export default class Main extends React.Component {
                         selectedRoomItems: [room_id],
                         expandedRoomItems: [room_id],
                         openRoomMenuItem: true,
-                        meeturl: meeturl,
-                        rooms: rooms,
                         selectedRoom: rooms[room_id],
                         firstLoading: false,
                         loading: false
@@ -611,8 +609,6 @@ export default class Main extends React.Component {
                         selectedRoomItems: [],
                         expandedRoomItems: [],
                         openRoomMenuItem: true,
-                        meeturl: meeturl,
-                        rooms: rooms,
                         selectedRoom: '',
                         firstLoading: false,
                         loading: false
@@ -624,11 +620,6 @@ export default class Main extends React.Component {
                       focusedItem: 'Meet',
                       selectedMeetMenuItem: ['new'],
                       openMeetMenuItem: true,
-                      meeturl: meeturl,
-                      contacts: contacts,
-                      societes: societes,
-                      annuaire_clients_mondat: annuaire_clients_mondat,
-                      rooms: rooms,
                       selectedRoom: rooms.length > 0 ? rooms[0] : '',
                       firstLoading: false,
                       loading: false
@@ -639,11 +630,6 @@ export default class Main extends React.Component {
                       focusedItem: 'Meet',
                       selectedMeetMenuItem: ['rejoin'],
                       openMeetMenuItem: true,
-                      meeturl: meeturl,
-                      contacts: contacts,
-                      societes: societes,
-                      annuaire_clients_mondat: annuaire_clients_mondat,
-                      rooms: rooms,
                       selectedRoom: rooms.length > 0 ? rooms[0] : '',
                       firstLoading: false,
                       loading: false
@@ -659,11 +645,6 @@ export default class Main extends React.Component {
                           showContainerSection: 'Contacts',
                           focusedItem: 'Contacts',
                           openContactsMenu: true,
-                          meeturl: meeturl,
-                          contacts: contacts,
-                          societes: societes,
-                          annuaire_clients_mondat: annuaire_clients_mondat,
-                          rooms: rooms,
                           selectedRoom: rooms.length > 0 ? rooms[0] : '',
                           firstLoading: false,
                           loading: false
@@ -677,11 +658,6 @@ export default class Main extends React.Component {
                         showContainerSection: 'Contacts',
                         focusedItem: 'Contacts',
                         openContactsMenu: true,
-                        meeturl: meeturl,
-                        contacts: contacts,
-                        societes: societes,
-                        annuaire_clients_mondat: annuaire_clients_mondat,
-                        rooms: rooms,
                         selectedRoom: rooms.length > 0 ? rooms[0] : '',
                         firstLoading: false,
                         loading: false
@@ -700,17 +676,12 @@ export default class Main extends React.Component {
                           focusedItem: 'Societe',
                           selectedSocietyMenuItem: ['clients_mondat'],
                           openSocietyMenuItem: true,
-                          meeturl: meeturl,
-                          contacts: contacts,
-                          societes: societes,
-                          annuaire_clients_mondat: annuaire_clients_mondat,
-                          rooms: rooms,
                           selectedRoom: rooms.length > 0 ? rooms[0] : '',
                           firstLoading: false,
                           loading: false
                         });
                       } else {
-
+                        console.log("CLIENT NOT FOUNDED")
                       }
 
                     } else {
@@ -719,11 +690,6 @@ export default class Main extends React.Component {
                         focusedItem: 'Societe',
                         selectedSocietyMenuItem: ['clients_mondat'],
                         openSocietyMenuItem: true,
-                        meeturl: meeturl,
-                        contacts: contacts,
-                        societes: societes,
-                        annuaire_clients_mondat: annuaire_clients_mondat,
-                        rooms: rooms,
                         selectedRoom: rooms.length > 0 ? rooms[0] : '',
                         firstLoading: false,
                         loading: false
@@ -736,11 +702,6 @@ export default class Main extends React.Component {
                       focusedItem: 'TimeSheet',
                       selectedTimeSheetMenuItem: ['activities'],
                       openTimeSheetsMenu: true,
-                      meeturl: meeturl,
-                      contacts: contacts,
-                      societes: societes,
-                      annuaire_clients_mondat: annuaire_clients_mondat,
-                      rooms: rooms,
                       selectedRoom: rooms.length > 0 ? rooms[0] : '',
                       firstLoading: false,
                       loading: false
@@ -751,11 +712,6 @@ export default class Main extends React.Component {
                       focusedItem: 'TimeSheet',
                       selectedTimeSheetMenuItem: ['dashboard'],
                       openTimeSheetsMenu: true,
-                      meeturl: meeturl,
-                      contacts: contacts,
-                      societes: societes,
-                      annuaire_clients_mondat: annuaire_clients_mondat,
-                      rooms: rooms,
                       selectedRoom: rooms.length > 0 ? rooms[0] : '',
                       firstLoading: false,
                       loading: false
@@ -766,11 +722,6 @@ export default class Main extends React.Component {
                       focusedItem: 'TimeSheet',
                       selectedTimeSheetMenuItem: ['dashboardPerson'],
                       openTimeSheetsMenu: true,
-                      meeturl: meeturl,
-                      contacts: contacts,
-                      societes: societes,
-                      annuaire_clients_mondat: annuaire_clients_mondat,
-                      rooms: rooms,
                       selectedRoom: rooms.length > 0 ? rooms[0] : '',
                       firstLoading: false,
                       loading: false
@@ -781,11 +732,6 @@ export default class Main extends React.Component {
                       focusedItem: 'TimeSheet',
                       selectedTimeSheetMenuItem: ['dashboardProject'],
                       openTimeSheetsMenu: true,
-                      meeturl: meeturl,
-                      contacts: contacts,
-                      societes: societes,
-                      annuaire_clients_mondat: annuaire_clients_mondat,
-                      rooms: rooms,
                       selectedRoom: rooms.length > 0 ? rooms[0] : '',
                       firstLoading: false,
                       loading: false
@@ -806,11 +752,6 @@ export default class Main extends React.Component {
                             this.setState({
                               searchResult: searchRes.data,
                               textSearch: textToSearch,
-                              meeturl: meeturl,
-                              contacts: contacts,
-                              societes: societes,
-                              annuaire_clients_mondat: annuaire_clients_mondat,
-                              rooms: rooms,
                               selectedRoom: rooms.length > 0 ? rooms[0] : '',
                               firstLoading: false,
                               loading: false
@@ -831,11 +772,6 @@ export default class Main extends React.Component {
                         this.setState({
                           searchResult: searchRes.data,
                           textSearch: textToSearch,
-                          meeturl: meeturl,
-                          contacts: contacts,
-                          societes: societes,
-                          annuaire_clients_mondat: annuaire_clients_mondat,
-                          rooms: rooms,
                           selectedRoom: rooms.length > 0 ? rooms[0] : '',
                           firstLoading: false,
                           loading: false
@@ -1097,13 +1033,20 @@ export default class Main extends React.Component {
 
   saveSocietyChanges = () => {
     this.setState({ loading: true });
-    let key = main_functions.findClientMondatById(this.state.selectedSociete.ID, this.state.annuaire_clients_mondat);
-    firebase.database().ref('annuaire_client_mondat/' + key).set(
-      this.state.selectedSociete
-    ).then(res => {
-      this.setState({ loading: false });
-      this.openSnackbar('success', 'Modification effectuée avec succès');
-    });
+    console.log(this.state.selectedSociete.ID)
+    let key = (this.state.annuaire_clients_mondatCp || []).findIndex(x => x.ID === this.state.selectedSociete.ID);
+    console.log(key)
+    if(key > -1){
+      firebase.database().ref('annuaire_client_mondat/' + key).set(
+        this.state.selectedSociete
+      ).then(res => {
+        this.setState({ loading: false });
+        this.openSnackbar('success', 'Modification effectuée avec succès');
+      });
+    }else{
+      this.openSnackbar('error', 'Une erreur est survenue !');
+    }
+
   };
 
   onInputTimeSuggChange = (event, { newValue }) => {
@@ -2592,10 +2535,10 @@ export default class Main extends React.Component {
   updateAllLigneFacture(data) {
     firebase.database().ref('/' + ent_name + '-lignes_f-' + ged_id).set(data).catch(err => console.log(err));
   }
+
   updateAllFactures(data) {
     firebase.database().ref('/' + ent_name + '-factures_to_Validated-' + ged_id).set(data).catch(err => console.log(err));
   }
-
 
   update_client_tempo(key,data){
     firebase.database().ref("/" + ent_name + "-clients_tempo-" + ged_id + '/' + key).set(data).then( ok => {
