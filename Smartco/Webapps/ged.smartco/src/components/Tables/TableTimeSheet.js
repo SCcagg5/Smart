@@ -476,6 +476,13 @@ export default function TableTimeSheet(props) {
                           }}
                           MenuProps={Data.MenuProps}
                         >
+                          <MenuItem
+                            key={-1}
+                            value={""}>
+                            <div className="row align-items-center justify-content-center">
+                              <div style={{marginLeft:10}}>{"Aucun"}</div>
+                            </div>
+                          </MenuItem>
                             {props.OA_contacts.map((contact, key) => (
                               <MenuItem
                                 key={key}
