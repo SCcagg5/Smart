@@ -515,7 +515,7 @@ export default class Main extends React.Component {
 
 
                   //test
-                  //console.log(clients_tempo.find(x => x.folder_id === "037eadc2-1bee-47a8-92d3-f79af375df24"))
+                  //console.log(lignes_f.filter(x => x.newTime.client_id === "firx8912cmvx2gi0ojwc"))
                 /*let list = [];
                   clients_tempo.map((item,key) => {
                     let find = annuaire_clients_mondat.find(x => x.ID === item.ID_client);

@@ -318,6 +318,8 @@ export default function TableTimeSheet(props) {
                     <AtlButton  isSelected={selectedDate !== "" && moment(moment().format("YYYY-MM-DD")).isSame(selectedDate.format("YYYY-MM-DD"))}
                                onClick={() => {
                                    setPage(0);
+                                   setLf_sdate_search(null)
+                                   setLf_edate_search(null)
                                    setSelectedDate(moment())
                                }}
                     >
@@ -338,7 +340,7 @@ export default function TableTimeSheet(props) {
                                    setSelectedDate("")
                                }}
                     >
-                        Tous
+                      Personnalisé
                     </AtlButton>
                 </AltButtonGroup>
             </div>
@@ -370,38 +372,42 @@ export default function TableTimeSheet(props) {
                 <div className="col-md-12" style={{marginTop:-15}}>
                     <h5>Rechercher</h5>
                 </div>
+              {
+                selectedDate === "" &&
                 <div className="col-md-12 mt-2">
-                    <div style={{display:"flex"}}>
-                        <h5>De</h5>
-                        <div style={{marginLeft:10,marginRight:10}}>
-                            <DatePicker
-                              calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
-                              onChange={(e) => {
-                                  setPage(0);
-                                  setLf_sdate_search(e)
-                              }}
-                              value={lf_sdate_search}
-                              dayPlaceholder="dd"
-                              monthPlaceholder="mm"
-                              yearPlaceholder="yyyy"
-                            />
-                        </div>
-                        <h5>à</h5>
-                        <div style={{marginLeft:10,marginRight:10}}>
-                            <DatePicker
-                              calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
-                              onChange={(e) => {
-                                  setPage(0);
-                                  setLf_edate_search(e)
-                              }}
-                              value={lf_edate_search}
-                              dayPlaceholder="dd"
-                              monthPlaceholder="mm"
-                              yearPlaceholder="yyyy"
-                            />
-                        </div>
+                  <div style={{display:"flex"}}>
+                    <h5>De</h5>
+                    <div style={{marginLeft:10,marginRight:10}}>
+                      <DatePicker
+                        calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
+                        onChange={(e) => {
+                          setPage(0);
+                          setLf_sdate_search(e)
+                        }}
+                        value={lf_sdate_search}
+                        dayPlaceholder="dd"
+                        monthPlaceholder="mm"
+                        yearPlaceholder="yyyy"
+                      />
                     </div>
+                    <h5>à</h5>
+                    <div style={{marginLeft:10,marginRight:10}}>
+                      <DatePicker
+                        calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
+                        onChange={(e) => {
+                          setPage(0);
+                          setLf_edate_search(e)
+                        }}
+                        value={lf_edate_search}
+                        dayPlaceholder="dd"
+                        monthPlaceholder="mm"
+                        yearPlaceholder="yyyy"
+                      />
+                    </div>
+                  </div>
                 </div>
+              }
+
                 <div className="col-md-5 mt-2">
                     <div style={{display:"flex"}}>
                         <h5 style={{marginRight:10}}>Par client</h5>
