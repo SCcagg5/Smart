@@ -49,14 +49,15 @@ class odoo:
         return [True, ret, None]
 
     def connection(self):
-        res = sql.get("SELECT `url`, `db`, `user`, `password` FROM odoo WHERE id = %s", (self.odoo_id))
+        res = sql.get("SELECT `url`, `db`, `user`, `password`, `lang` FROM odoo WHERE id = %s", (self.odoo_id))
         if len(res) < 1:
             return [False, "Invalid odoo id", 400]
         self.opt = {
 	        "url": res[0][0],
             "username" : res[0][2],
             "db": res[0][1],
-            "password": res[0][3]
+            "password": res[0][3],
+            "lang": resp[0][4]
         }
         try:
             common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(self.opt['url']))
@@ -627,7 +628,7 @@ class odoo:
                                     "is_company":False,
                                     "active":True,
                                     "type":"contact",
-                                    "lang":"fr_CH",
+                                    "lang":self.opt['lang'],
                                     "category_id":[[6,False,[]]],
                                     "partner_gid":0,
                                     "additional_info":False,
@@ -671,7 +672,7 @@ class odoo:
                                     "is_company":True,
                                     "active":True,
                                     "type":"contact",
-                                    "lang":"fr_CH",
+                                    "lang": self.opt['lang'],
                                     "category_id":[[6,False,[]]],
                                     "partner_gid":0,
                                     "additional_info":False,
