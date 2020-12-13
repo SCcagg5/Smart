@@ -32,6 +32,13 @@ let utilFunctions = {
         }
         treeNode.push(newNode);
         this.buildTree(parts.splice(1, parts.length), newNode.children, name,type,file);
+    },
+
+    getUID(){
+        return Math.random().toString(36).substring(2, 15) + '-' +
+            Math.random().toString(36).substring(2, 15) + '-' +
+            Math.random().toString(36).substring(2, 15) + '-' +
+            Math.random().toString(36).substring(2, 15);
     }
 
 

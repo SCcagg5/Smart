@@ -254,7 +254,7 @@ export default function RoomTabs(props) {
                                                     team_emails.map((item,key) => {
                                                         team_emails_formated.push({
                                                             email: item.email,
-                                                            valid: true,
+                                                            valid: "true",
                                                             key: parseInt(moment().format("DDMMYYYYHHmmss")),
                                                             avatar:item.imageUrl,
                                                             fname:item.prenom +" "+item.nom
