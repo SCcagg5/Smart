@@ -870,7 +870,7 @@ export default class Main extends React.Component {
   }
 
   onLoadSharedData = ({ key, children }) => {
-
+    console.log(key)
     return new Promise((resolve) => {
       console.log(key)
       if (children) {
@@ -920,6 +920,9 @@ export default class Main extends React.Component {
           this.setState({ loading: false });
           localStorage.clear();
           this.props.history.push('/login');
+        }else{
+          this.setState({loading:false})
+          resolve();
         }
         }).catch(err => {
         this.setState({loading:false})
