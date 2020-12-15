@@ -1,5 +1,7 @@
 import React from 'react';
-import SmartService from '../../provider/SmartService';
+//import SmartService from '../../provider/SmartService';
+import SmartService from '../../provider/masterNodeService';
+
 import moment from 'moment';
 import FolderIcon from '@material-ui/icons/Folder';
 import TopBar from '../../components/TopBar/TopBar';
@@ -117,7 +119,8 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import Mandats from './Mandats';
 import utilFunctions from "../../tools/functions";
 
-const endpoint = process.env.REACT_APP_ENDPOINT
+//const endpoint = process.env.REACT_APP_ENDPOINT
+const endpoint = "http://localhost:8080"
 
 const url=process.env.REACT_APP_JAWHER_API_ENDPOINT
 const question1food1me=process.env.REACT_APP_question1food1me
@@ -542,7 +545,7 @@ export default class Main extends React.Component {
 
     };
 
-    if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
+    if (localStorage.getItem('token') === undefined || localStorage.getItem('token') === null) {
       this.props.history.push('/login');
     } else {
       let sharedFolders = [];
@@ -1762,7 +1765,7 @@ export default class Main extends React.Component {
           formData.append('file', files[i]);
           formData.append('folder_id', addFolderRes.data.id);
           calls.push(axios.request({
-              method: 'POST', url: endpoint + '/ged/'+ged_id+'/doc/addfile',
+              method: 'POST', url: endpoint + '/ged/doc/addfile',
               data: formData,
               headers: {
                 'Content-Type': 'multipart/form-data',
@@ -3212,7 +3215,7 @@ export default class Main extends React.Component {
           this.state.selectedFolderId
         );
         calls.push(axios.request({
-            method: 'POST', url: endpoint + '/ged/'+ged_id+'/doc/addfile',
+            method: 'POST', url: endpoint + '/ged/doc/addfile',
             data: formData,
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -3697,8 +3700,10 @@ export default class Main extends React.Component {
               onClickMenuIcon={() => this.setState({ openSideMenu: true })}
               onLogoutClick={() => {
                 let logoCp = this.state.logo;
+                let emailCp = localStorage.getItem("email")
                 localStorage.clear();
                 localStorage.setItem("logo",logoCp)
+                localStorage.setItem("email",emailCp)
                 setTimeout(() => {
                   window.location.reload()
                 },250)
@@ -9218,7 +9223,7 @@ export default class Main extends React.Component {
                               this.state.selectedFolderId
                             );
                             calls.push(axios.request({
-                                method: 'POST', url: endpoint + '/ged/'+ged_id+'/doc/addfile',
+                                method: 'POST', url: endpoint + '/ged/doc/addfile',
                                 data: formData,
                                 headers: {
                                   'Content-Type': 'multipart/form-data',
@@ -9228,7 +9233,7 @@ export default class Main extends React.Component {
                                 onUploadProgress: (p) => {
                                   this.setState({ progressUpload: (p.loaded / p.total) * 100 });
                                 }
-                              }).then( res => {})
+                              }).then( res => {console.log(res)}).catch(err => {console.log(err)})
                             );
                           }
                         }

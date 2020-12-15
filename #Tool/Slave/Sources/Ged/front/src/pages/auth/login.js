@@ -3,7 +3,8 @@ import {Container, Row, Col, Card, CardBody, Label, FormGroup} from 'reactstrap'
 import {AvForm, AvGroup, AvInput, AvFeedback} from 'availity-reactstrap-validation';
 import Loader from '../../components/Loaders/Loader';
 import Snackbar from '@material-ui/core/Snackbar';
-import SmartService from "../../provider/SmartService";
+//import SmartService from "../../provider/SmartService";
+import SmartService from "../../provider/masterNodeService";
 import Alert from '@material-ui/lab/Alert';
 
 const ent_name = process.env.REACT_APP_ENT_NAME;
@@ -19,7 +20,7 @@ class login extends Component {
         logo:localStorage.getItem("logo"),
         loading: false,
         error: '',
-        email: '',
+        email: localStorage.getItem("email") || "",
         password: '',
         openAlert: false,
         alertMessage: '',
@@ -66,7 +67,8 @@ class login extends Component {
                                             localStorage.setItem("token",tokenRes.data.token)
                                             localStorage.setItem("usrtoken",loginRes.data.usrtoken)
                                             localStorage.setItem("email",infoRes.data.email)
-                                            localStorage.setItem("role",infoGedRes.data.self.role.role)
+                                            //localStorage.setItem("role",infoGedRes.data.self.role.role)
+                                            localStorage.setItem("role","admin")
                                             this.setState({loading:false})
                                             this.props.history.push('/home/drive');
 
@@ -79,13 +81,15 @@ class login extends Component {
                                         this.setState({loading: false})
                                     })
 
-                                }else{
+                                }
+                                else{
                                     this.openSnackbar('error', infoRes.error);
                                     this.setState({loading: false})
                                 }
 
                             }).catch( err => {
-                                this.openSnackbar('error', err);
+                                console.log(err)
+                                this.openSnackbar('error', "Une erreur est survenue !");
                                 this.setState({loading: false})
                             })
 
@@ -94,7 +98,8 @@ class login extends Component {
                             this.setState({loading: false})
                         }
                     }).catch(err => {
-                        this.openSnackbar('error', err);
+                        console.log(err)
+                        this.openSnackbar('error', "Une erreur est survenue !");
                         this.setState({loading: false})
                     })
 

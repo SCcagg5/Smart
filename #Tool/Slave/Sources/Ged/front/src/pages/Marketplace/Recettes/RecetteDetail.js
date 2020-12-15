@@ -9,7 +9,8 @@ import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import "./recetteid.css"
 import Button from '@material-ui/core/Button';
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
-import SmartService from "../../../provider/SmartService";
+//import SmartService from "../../../provider/SmartService";
+import SmartService from "../../../provider/masterNodeService";
 import download from 'downloadjs'
 
 export default function recetteDetail(props){

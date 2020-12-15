@@ -16,7 +16,8 @@ import AtlButton from '@atlaskit/button';
 import CB from '@material-ui/core/Checkbox';
 import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
 import { Checkbox } from '@atlaskit/checkbox';
-import SmartService from '../../provider/SmartService';
+//import SmartService from '../../provider/SmartService';
+import SmartService from '../../provider/masterNodeService';
 
 
 export default class Mandats extends React.Component{

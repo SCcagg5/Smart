@@ -32,10 +32,8 @@ import userAvatar from '../../assets/images/users/user4.jpg';
 import entIcon from '../../assets/images/entreprise-icon.png';
 import moment from 'moment';
 import main_functions from '../../controller/main_functions';
-import { DeleteOutline } from '@material-ui/icons';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
-import SmartService from '../../provider/SmartService';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 

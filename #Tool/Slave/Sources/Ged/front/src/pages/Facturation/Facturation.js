@@ -12,7 +12,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import {Button} from "@material-ui/core";
 import {Modal} from "react-bootstrap";
-import SmartService from "../../provider/SmartService"
+//import SmartService from "../../provider/SmartService"
+import SmartService from "../../provider/masterNodeService"
 import moment from "moment"
 import InputAdornment from '@material-ui/core/InputAdornment';
 

@@ -1,6 +1,5 @@
-const endpoint = process.env.REACT_APP_ENDPOINT
-const ged_id = process.env.REACT_APP_GED_ID;
-const odoo_id = process.env.REACT_APP_ODOO_ID;
+const endpoint = "http://localhost:8080"
+
 const password = "password"
 
 let SmartService = {
@@ -18,23 +17,11 @@ let SmartService = {
         headers.append("Accept", 'application/json');
         headers.append("token", token);
         headers.append("usrtoken", usrtoken);
-        headers.append("Access-Control-Allow-Origin", "*")
         return headers;
     },
 
-
-    getLogo(){
-        return fetch(endpoint + '/', {
-            method: 'GET',
-            headers:this.loadHeadersWithoutToken()
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-
     getInfoGed(token,usrtoken){
-        console.log(endpoint + '/ged/'+ged_id)
-        return fetch(endpoint + '/ged/'+ged_id, {
+        return fetch(endpoint + '/ged', {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -43,7 +30,7 @@ let SmartService = {
     },
 
     getToken(){
-        return fetch(endpoint + '/login/', {
+        return fetch(endpoint + '/login', {
             method: 'POST',
             headers:this.loadHeaders("",""),
             body:JSON.stringify({pass:password})
@@ -53,7 +40,7 @@ let SmartService = {
     },
 
     register(data,token){
-        return fetch(endpoint + '/signup/', {
+        return fetch(endpoint + '/signup', {
             method: 'POST',
             headers:this.loadHeaders(token,""),
             body:JSON.stringify(data)
@@ -63,7 +50,7 @@ let SmartService = {
     },
 
     login(data,token){
-        return fetch(endpoint + '/signin/', {
+        return fetch(endpoint + '/signin', {
             method: 'POST',
             headers:this.loadHeaders(token,""),
             body:JSON.stringify(data)
@@ -71,8 +58,28 @@ let SmartService = {
             console.log(error);
         });
     },
+
+    getUserInfo(token,usrtoken){
+        return fetch(endpoint + '/infos', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    updateUserInfo(data,token,usrtoken){
+        return fetch(endpoint + '/updateinfos', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     getGed(token,usrtoken){
-        return fetch(endpoint + '/ged/'+ged_id+'/doc', {
+        return fetch(endpoint + '/ged/doc', {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -80,7 +87,7 @@ let SmartService = {
         });
     },
     getFile(fileId,token,usrtoken){
-        return fetch(endpoint + '/ged/'+ged_id+'/doc/'+ fileId, {
+        return fetch(endpoint + '/ged/doc/'+ fileId, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -88,7 +95,7 @@ let SmartService = {
         });
     },
     deleteFile(fileId,token,usrtoken){
-        return fetch(endpoint + '/ged/'+ged_id+'/doc/'+ fileId, {
+        return fetch(endpoint + '/ged/doc/'+ fileId, {
             method: 'DELETE',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -98,7 +105,7 @@ let SmartService = {
     updateFileName(data,fileId,token,usrtoken){
         console.log(data)
         console.log(fileId)
-        return fetch(endpoint + '/ged/'+ged_id+'/doc/'+ fileId, {
+        return fetch(endpoint + '/ged/doc/'+ fileId, {
             method: 'PUT',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data)
@@ -107,7 +114,7 @@ let SmartService = {
         });
     },
     addFolder(data,token,usrtoken){
-        return fetch(endpoint + '/ged/'+ged_id+'/doc/addfolder', {
+        return fetch(endpoint + '/ged/doc/addfolder', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data)
@@ -116,7 +123,7 @@ let SmartService = {
         });
     },
     addFile(data,token,usrtoken){
-        return fetch(endpoint + '/ged/'+ged_id+'/doc/addfile', {
+        return fetch(endpoint + '/ged/doc/addfile', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:data,
@@ -125,7 +132,7 @@ let SmartService = {
         });
     },
     addFileFromBas64(data,token,usrtoken){
-        return fetch(endpoint + '/ged/'+ged_id+'/doc/addb64file', {
+        return fetch(endpoint + '/ged/doc/addb64file', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
@@ -134,7 +141,7 @@ let SmartService = {
         });
     },
     share(id,data,token,usrtoken){
-        return fetch(endpoint + '/ged/'+ged_id+'/doc/'+id+'/share', {
+        return fetch(endpoint + '/ged/doc/'+id+'/share', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
@@ -144,7 +151,7 @@ let SmartService = {
     },
 
     search(text,token,usrtoken){
-        return fetch(endpoint + '/ged/'+ged_id+'/doc/search?search='+ text, {
+        return fetch(endpoint + '/ged/doc/search?search='+ text, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -155,7 +162,7 @@ let SmartService = {
     /*Rooms*/
 
     addRoom(data,token,usrtoken){
-        return fetch(endpoint + '/ged/'+ged_id+'/room', {
+        return fetch(endpoint + '/ged/room', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
@@ -165,7 +172,7 @@ let SmartService = {
     },
 
     getAllRooms(token,usrtoken){
-        return fetch(endpoint + '/ged/'+ged_id+'/rooms', {
+        return fetch(endpoint + '/ged/rooms', {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -174,7 +181,7 @@ let SmartService = {
     },
 
     addFileInRoom(data,roomId,token,usrtoken){
-        return fetch(endpoint + '/ged/'+ged_id+'/rooms/'+roomId+'/file', {
+        return fetch(endpoint + '/ged/rooms/'+roomId+'/file', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
@@ -184,7 +191,7 @@ let SmartService = {
     },
 
     getRoomFiles(token,usrtoken,rommId){
-        return fetch(endpoint + '/ged/'+ged_id+'/rooms/'+rommId+'/files', {
+        return fetch(endpoint + '/ged/rooms/'+rommId+'/files', {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -194,7 +201,7 @@ let SmartService = {
 
 
     create_company(token,usrtoken,data){
-        return fetch(endpoint + '/odoo/'+odoo_id+'/company', {
+        return fetch(endpoint + '/odoo/company', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
@@ -204,7 +211,7 @@ let SmartService = {
     },
 
     create_client(token,usrtoken,data){
-        return fetch(endpoint + '/odoo/'+odoo_id+'/user', {
+        return fetch(endpoint + '/odoo/user', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
@@ -214,7 +221,7 @@ let SmartService = {
     },
 
     create_client_folder(token,usrtoken,data){
-        return fetch(endpoint + '/ged/'+ged_id+'/odoo/'+odoo_id+'/case', {
+        return fetch(endpoint + '/ged/odoo/case', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
@@ -224,7 +231,7 @@ let SmartService = {
     },
 
     create_facture_odoo(token,usrtoken,data){
-        return fetch(endpoint + '/odoo/'+odoo_id+'/bill', {
+        return fetch(endpoint + '/odoo/bill', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),
@@ -234,7 +241,7 @@ let SmartService = {
     },
 
     generate_facture_odoo(token,usrtoken,id,accestoken){
-        return fetch(endpoint + '/odoo/'+odoo_id+'/bill/'+id+'?access_token='+accestoken, {
+        return fetch(endpoint + '/odoo/bill/'+id+'?access_token='+accestoken, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -242,24 +249,7 @@ let SmartService = {
         });
     },
 
-    getUserInfo(token,usrtoken){
-        return fetch(endpoint + '/infos/', {
-            method: 'GET',
-            headers:this.loadHeaders(token,usrtoken)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
 
-    updateUserInfo(data,token,usrtoken){
-        return fetch(endpoint + '/updateinfos/', {
-            method: 'POST',
-            headers:this.loadHeaders(token,usrtoken),
-            body:JSON.stringify(data)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
 
     getActioByMail(mail){
 
@@ -270,8 +260,6 @@ let SmartService = {
             console.log(error);
         });
     },
-
-
 
 };
 

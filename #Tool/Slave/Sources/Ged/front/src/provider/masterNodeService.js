@@ -1,10 +1,8 @@
-//const endpoint = process.env.REACT_APP_ENDPOINT
 const endpoint = "http://localhost:8080"
-const ged_id = process.env.REACT_APP_GED_ID;
-const odoo_id = process.env.REACT_APP_ODOO_ID;
+//const endpoint = process.env.REACT_APP_ENDPOINT
 const password = "password"
 
-let SmartService = {
+let masterNodeService = {
 
     loadHeadersWithoutToken() {
         let headers = new Headers();
@@ -22,11 +20,10 @@ let SmartService = {
         return headers;
     },
 
-    getActioByMail(mail){
-
-        return fetch('http://51.158.97.220:3001/api/getActioByEmail/'+mail, {
+    getLogo(){
+        return fetch(endpoint + '/', {
             method: 'GET',
-            headers:this.loadHeaders(),
+            headers:this.loadHeadersWithoutToken()
         }).then(response => response.json()).catch(error => {
             console.log(error);
         });
@@ -42,7 +39,7 @@ let SmartService = {
     },
 
     getToken(){
-        return fetch(endpoint + '/login/', {
+        return fetch(endpoint + '/login', {
             method: 'POST',
             headers:this.loadHeaders("",""),
             body:JSON.stringify({pass:password})
@@ -52,7 +49,7 @@ let SmartService = {
     },
 
     register(data,token){
-        return fetch(endpoint + '/signup/', {
+        return fetch(endpoint + '/signup', {
             method: 'POST',
             headers:this.loadHeaders(token,""),
             body:JSON.stringify(data)
@@ -62,7 +59,7 @@ let SmartService = {
     },
 
     login(data,token){
-        return fetch(endpoint + '/signin/', {
+        return fetch(endpoint + '/signin', {
             method: 'POST',
             headers:this.loadHeaders(token,""),
             body:JSON.stringify(data)
@@ -70,6 +67,26 @@ let SmartService = {
             console.log(error);
         });
     },
+
+    getUserInfo(token,usrtoken){
+        return fetch("https://api.smartdom.ch" + '/infos/', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    updateUserInfo(data,token,usrtoken){
+        return fetch(endpoint + '/updateinfos', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     getGed(token,usrtoken){
         return fetch(endpoint + '/ged/doc', {
             method: 'GET',
@@ -243,146 +260,16 @@ let SmartService = {
 
 
 
+    getActioByMail(mail){
 
-    getUserInfo(token,usrtoken){
-        return fetch(endpoint + '/infos/', {
+        return fetch('http://51.158.97.220:3001/api/getActioByEmail/'+mail, {
             method: 'GET',
-            headers:this.loadHeaders(token,usrtoken)
+            headers:this.loadHeaders(),
         }).then(response => response.json()).catch(error => {
             console.log(error);
         });
     },
-
-    updateUserInfo(data,token,usrtoken){
-        return fetch(endpoint + '/updateinfos/', {
-            method: 'POST',
-            headers:this.loadHeaders(token,usrtoken),
-            body:JSON.stringify(data)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-
-    getItems(token){
-        return fetch(endpoint + '/website/quinsac/items', {
-            method: 'GET',
-            headers:this.loadHeaders(token,"")
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-
-    addToCart(data,token){
-        return fetch(endpoint + '/website/quinsac/cart/', {
-            method: 'POST',
-            headers:this.loadHeaders(token,""),
-            body:JSON.stringify(data)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-
-    placeOrder(data,token,usrtoken){
-        return fetch(endpoint + '/order/', {
-            method: 'POST',
-            headers:this.loadHeaders(token,usrtoken),
-            body:JSON.stringify(data)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-    getOrders(token,usrtoken){
-        return fetch(endpoint + '/history/', {
-            method: 'GET',
-            headers:this.loadHeaders(token,usrtoken)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-    getOrderDetail(data,token,usrtoken){
-        return fetch(endpoint + '/orderdetail/', {
-            method: 'POST',
-            headers:this.loadHeaders(token,usrtoken),
-            body:JSON.stringify(data)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-    getAssetInfo(asset,token){
-        return fetch(endpoint + '/asset/'+asset+'/infos', {
-            method: 'GET',
-            headers:this.loadHeaders(token,"")
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-    sendAsset(data,asset,token,usrtoken){
-        return fetch(endpoint + '/asset/'+asset+'/transfert', {
-            method: 'POST',
-            headers:this.loadHeaders(token,usrtoken),
-            body:JSON.stringify(data)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-
-    getCards(token,userToken){
-        return fetch(endpoint + '/listcard/', {
-            method: 'GET',
-            headers:this.loadHeaders(token,userToken)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-
-    addCard(data,token,usrtoken){
-        return fetch(endpoint + '/addcard/', {
-            method: 'POST',
-            headers:this.loadHeaders(token,usrtoken),
-            body:JSON.stringify(data)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-
-    getUserWallets(token,usrtoken){
-        return fetch(endpoint + '/wallets', {
-            method: 'GET',
-            headers:this.loadHeaders(token,usrtoken)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-    getWalletEther(adress,token){
-        return fetch(endpoint + '/wallet/'+adress, {
-            method: 'GET',
-            headers:this.loadHeaders(token,"")
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-    /*getWalletBalance(adress,token,usrtoken){
-        return fetch(endpoint + '/wallet/'+adress+'/token/'+contractAdr, {
-            method: 'GET',
-            headers:this.loadHeaders(token,usrtoken)
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },*/
-
-
-    getContratCession(data){
-        return fetch('http://51.158.97.220:3001/api/generateCesionActionSuisse', {
-            method: 'POST',
-            headers:this.loadHeadersWithoutToken(),
-            body:JSON.stringify(data)
-        }).then(response => response.blob()).catch(error => {
-            console.log(error);
-        });
-    }
-
-
 
 };
 
-export default SmartService;
+export default masterNodeService;

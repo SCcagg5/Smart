@@ -26,7 +26,8 @@ import moment from "moment";
 import { DeleteOutline } from '@material-ui/icons';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
-import SmartService from '../../provider/SmartService';
+//import SmartService from '../../provider/SmartService';
+import SmartService from '../../provider/masterNodeService';
 import { Checkbox } from '@atlaskit/checkbox';
 
 

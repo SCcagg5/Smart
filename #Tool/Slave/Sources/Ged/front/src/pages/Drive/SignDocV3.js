@@ -1,5 +1,6 @@
 import React from "react";
-import SmartService from "../../provider/SmartService";
+//import SmartService from "../../provider/SmartService";
+import SmartService from "../../provider/masterNodeService";
 import {Document, Page} from "react-pdf";
 import MuiBackdrop from "../../components/Loading/MuiBackdrop";
 import SignTopBar from "../../components/TopBar/SignTopBar";

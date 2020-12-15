@@ -3,6 +3,7 @@ import React from "react";
 import "./style.css"
 
 const logo = localStorage.getItem("logo")
+const email = localStorage.getItem("email")
 
 export default function SideMenu(props) {
 
@@ -30,8 +31,10 @@ export default function SideMenu(props) {
                 <hr style={{border:"1px solid #f0f0f0"}}/>
                 <div className="menu-item" onClick={()=> {
                     let logoCp = logo
+                    let emailCp = email
                     localStorage.clear();
                     localStorage.setItem("logo",logoCp)
+                    localStorage.setItem("email",emailCp)
                     setTimeout(() => {
                         window.location.reload()
                     },250)

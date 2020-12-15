@@ -19,7 +19,8 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import AtlButton from '@atlaskit/button';
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import FolderIcon from '@material-ui/icons/Folder';
-import SmartService from '../../provider/SmartService';
+//import SmartService from '../../provider/SmartService';
+import SmartService from '../../provider/masterNodeService';
 import { Select as MuiSelect } from '@material-ui/core';
 import MenuItem from '@material-ui/core/MenuItem';
 import data from "../../data/Data"

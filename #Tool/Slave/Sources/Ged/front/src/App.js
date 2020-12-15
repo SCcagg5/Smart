@@ -12,10 +12,12 @@ import signup from "./pages/auth/signup";
 import NewRecette from "./pages/Marketplace/Recettes/NewRecette";
 import Questions from "./pages/questions/questions";
 import TestPage from "./pages/test"
-import logo from "./assets/logos/dark-kitchen_logo.jpeg"
-import SmartService from "./provider/SmartService";
+//import SmartService from "./provider/SmartService";
+import SmartService from "./provider/masterNodeService";
 import d_logo from "../src/assets/logos/default.png"
 import MuiBackdrop from "./components/Loading/MuiBackdrop";
+import CreateENT from "./pages/CreateENT/CreateENT";
+import logo from "./assets/logos/dark-kitchen_logo.jpeg"
 
 
 
@@ -50,7 +52,8 @@ export default class App extends Component {
 
         SmartService.getLogo().then( res => {
             if (res && res.succes === true && res.status === 200 && res.data.logo && res.data.logo !== "") {
-                localStorage.setItem("logo",res.data.logo)
+                localStorage.setItem("logo",res.data.image === null ? d_logo : res.data.image)
+                localStorage.setItem("ent_name",res.data.name)
                 this.setState({loading:false})
             }else{
                 localStorage.setItem("logo",d_logo)
@@ -75,6 +78,7 @@ export default class App extends Component {
                     <Switch>
                         <Route exact path="/" component={RedirectCp}/>
                         <Route exact path="/test" component={TestPage}/>
+                        {/*<Route exact path="/createENT" component={CreateENT}/>*/}
                         <Route  path="/home" component={Main}/>
                         <Route exact path="/signDoc/doc/:doc_id" component={SignDocV3}/>
                         <Route exact path="/newRecette" component={NewRecette}/>
