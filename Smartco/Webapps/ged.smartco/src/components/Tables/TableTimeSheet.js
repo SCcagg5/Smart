@@ -1049,6 +1049,7 @@ export default function TableTimeSheet(props) {
                             { text: 'Supprimer', onClick: () => {
                                     props.deleteLigneFacture(lf_TooDeleted)
                                     setLf_TooDeleted("")
+                                    setOpenDeleteModal(false)
                                 } },
                             { text: 'Annuler', onClick: () => {
                                     setLf_TooDeleted("")

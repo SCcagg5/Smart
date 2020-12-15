@@ -21,7 +21,7 @@ class login extends Component {
 
         loading: false,
         error: '',
-        email: '',
+        email: localStorage.getItem("email") || "",
         password: '',
         openAlert: false,
         alertMessage: '',
