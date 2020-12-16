@@ -39,6 +39,24 @@ let utilFunctions = {
             Math.random().toString(36).substring(2, 15) + '-' +
             Math.random().toString(36).substring(2, 15) + '-' +
             Math.random().toString(36).substring(2, 15);
+    },
+
+    formatDuration(duration){
+        let hour = duration.split(".")[0];
+        let formatedHour = parseInt(hour) < 10 ? "0"+hour+"h" : hour+"h"
+        let minutePercent = duration.split(".")[1] || "0";
+        let nbMinutes = parseFloat("0." + minutePercent) * 60;
+        //console.log(formatedHour.concat(parseInt(nbMinutes) < 10 ? "0" : "").concat(nbMinutes.toString()))
+
+        return formatedHour.concat(parseInt(nbMinutes) < 10 ? "0" : "").concat(parseInt(nbMinutes.toString()));
+    },
+
+    durationToNumber(duration){
+        let hourValue = duration.split("h")[0]
+        let minuteValue = duration.split("h")[1]
+        let hourFormated = parseInt(hourValue) || 0
+        let minuteFormated = parseInt(minuteValue) || 0
+        return hourFormated + (minuteFormated / 60)
     }
 
 

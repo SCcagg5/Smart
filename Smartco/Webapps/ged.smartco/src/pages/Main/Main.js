@@ -81,6 +81,7 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import Badge from '@atlaskit/badge';
 import utilFunctions from "../../tools/functions";
 import rethink from "../../controller/rethink";
+import test from "../test";
 
 const ged_id = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9";
 const ent_name = "OaLegal";
@@ -569,6 +570,29 @@ export default class Main extends React.Component {
                   })
                 })
               }else if(item === "contacts"){
+                let connected_email = localStorage.getItem("email");
+                let oa_contact = main_functions.getOAContactByEmail2(rr,connected_email);
+                if(oa_contact){
+                  this.setState({
+                    TimeSheet: {
+                      newTime: {
+                        duree: '',
+                        client: '',
+                        dossier_client: {
+                          facturation: {
+                            language:''
+                          },
+                        },
+                        langue:'',
+                        categoriesActivite: 'Temps facturé',
+                        description: '',
+                        date: new Date(),
+                        utilisateurOA: connected_email,
+                        rateFacturation: oa_contact.rateFacturation || ""
+                      }
+                    },
+                  })
+                }
                 this.setState({[item]:rr.sort( (a,b) => {
                     var c = a.sort || -1
                     var d = b.sort || -1
@@ -584,29 +608,7 @@ export default class Main extends React.Component {
 
           });
 
-            let connected_email = localStorage.getItem("email");
-            let oa_contact = main_functions.getOAContactByEmail2(this.state.contacts,connected_email);
-            if(oa_contact){
-              this.setState({
-                TimeSheet: {
-                  newTime: {
-                    duree: '',
-                    client: '',
-                    dossier_client: {
-                      facturation: {
-                        language:''
-                      },
-                    },
-                    langue:'',
-                    categoriesActivite: 'Temps facturé',
-                    description: '',
-                    date: new Date(),
-                    utilisateurOA: connected_email,
-                    rateFacturation: oa_contact.rateFacturation || ""
-                  }
-                },
-              })
-            }
+
 
             if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
               if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
@@ -1162,7 +1164,6 @@ export default class Main extends React.Component {
   };
 
   onInputTimeSuggChange = (event, { newValue }) => {
-    console.log(newValue);
     let d = this.state.TimeSheet;
     d.newTime.duree = newValue;
     this.setState({ TimeSheet: d });
@@ -1480,6 +1481,7 @@ export default class Main extends React.Component {
   };
 
   renderLeftMenu = () => {
+
     return (
       <div>
         <LeftMenuV3
@@ -1819,6 +1821,580 @@ export default class Main extends React.Component {
       </div>
     );
   };
+
+
+  renderTimeSheet = () => {
+
+    const inputSuggProps = {
+      placeholder: 'Format: --h--',
+      value: this.state.TimeSheet.newTime.duree,
+      onChange: this.onInputTimeSuggChange
+    };
+    let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ?
+        "Description (français)" : this.state.TimeSheet.newTime.dossier_client.facturation.language === "Anglais" ?
+            "Description (anglais)" : "Description"
+
+    let DurationFormatError = "";
+    let time = this.state.TimeSheet.newTime.duree;
+    let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+    if(regexFormat.test(time) === false){
+      DurationFormatError = "Format durée invalide ! Veuillez utiliser le format --h-- "
+    }else{
+      let duree = utilFunctions.durationToNumber(time);
+      if(duree === 0){
+        DurationFormatError = "Durée inférieur à zéro !"
+      }
+    }
+
+    return(
+          this.state.time_sheets.length === 0 ?
+              <div align="center" style={{marginTop:200}}>
+                <CircularProgress color="primary" />
+                <h6>Chargement...</h6>
+              </div> :
+              <div>
+                <div className="row">
+                  <div className="col-lg-12">
+                    <h5 className="mt-0 mb-1">TimeSheet / Activités</h5>
+                    <div className="card-box text-center" style={{ marginTop: 1 }}>
+                      <div style={{ marginTop: 30 }} className="text-left">
+                        <Tabs selectedIndex={this.state.selectedTimeSheetIndex} onSelect={index => {
+                          this.setState({selectedTimeSheetIndex:index})
+                        }}>
+                          <TabList>
+                            <Tab>Time Sheet</Tab>
+                            <Tab>Activités </Tab>
+                            <Tab>
+                              Partner
+                              {
+                                (this.state.factures || []).filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length > 0 &&
+                                <Badge max={100}>{(this.state.factures || []).filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length}</Badge>
+                              }
+                            </Tab>
+                          </TabList>
+
+                          <TabPanel>
+                            {
+                              this.state.showLignesFactureClient === false ?
+                                  <div style={{marginTop:25,padding:10,paddingBottom:50,paddingLeft:20,border:"2px solid #f0f0f0"}}>
+                                    <div className="row mt-2">
+                                      <div className="col-md-6">
+                                        <h5>Durée</h5>
+                                        <div className="row">
+                                          <div className="col-md-5">
+                                            <Autosuggest
+                                                suggestions={this.state.timeSuggestions}
+                                                onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
+                                                onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
+                                                onSuggestionSelected={(event, { suggestion }) => {/*console.log(suggestion)*/}}
+                                                getSuggestionValue={suggestion => suggestion}
+                                                renderSuggestion={suggestion => (
+                                                    <div>{suggestion}</div>)}
+                                                inputProps={inputSuggProps}
+                                            />
+                                          </div>
+                                          <div className="col-md-7">
+                                            <div style={{ display: 'flex' }}>
+                                              <Timer
+                                                  initialTime={0}
+                                                  startImmediately={false}
+                                              >
+                                                {({ start, resume, pause, stop, reset, getTimerState, getTime }) => (
+                                                    <React.Fragment>
+                                                      <div
+                                                          align="center"
+                                                          style={{
+                                                            backgroundColor: '#c0c0c0',
+                                                            padding: 8,
+                                                            color: '#000',
+                                                            height: 36,
+                                                            fontWeight: 700,
+                                                            fontSize: 16,
+                                                            letterSpacing: '0.1rem'
+                                                          }}>
+                                                        <Timer.Hours
+                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`} />
+                                                        <Timer.Minutes
+                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`} />
+                                                        <Timer.Seconds
+                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`} />
+                                                      </div>
+                                                      <div
+                                                          style={{ marginLeft: 10 }}>
+                                                        <div
+                                                            align="center"
+                                                            style={{
+                                                              backgroundColor: (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'green' : 'red',
+                                                              padding: 5,
+                                                              borderRadius: 10,
+                                                              width: 50,
+                                                              color: '#fff',
+                                                              fontWeight: 700,
+                                                              cursor: 'pointer'
+                                                            }}
+                                                            onClick={() => {
+                                                              if (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') {
+                                                                start();
+                                                              } else {
+                                                                let timeEtablished = getTime();
+                                                                console.log(timeEtablished);
+                                                                let timeH = ((timeEtablished / 1000) / 60) / 60;
+                                                                console.log(timeH);
+                                                                let obj = this.state.TimeSheet;
+                                                                obj.newTime.duree = timeH.toFixed(3).replace('.', ':');
+                                                                this.setState({ TimeSheet: obj });
+                                                                stop();
+                                                              }
+                                                            }}
+                                                        >
+                                                          {(getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'Start' : 'Stop'}
+                                                        </div>
+                                                        <div
+                                                            align="center"
+                                                            style={{
+                                                              backgroundColor: '#c0c0c0',
+                                                              padding: 5,
+                                                              borderRadius: 10,
+                                                              width: 50,
+                                                              color: '#fff',
+                                                              fontWeight: 700,
+                                                              cursor: 'pointer',
+                                                              marginTop: 3
+                                                            }}
+                                                            onClick={() => {
+                                                              let obj = this.state.TimeSheet;
+                                                              obj.newTime.duree = '';
+                                                              this.setState({ TimeSheet: obj });
+                                                              reset();
+                                                            }}
+                                                        >
+                                                          Reset
+                                                        </div>
+                                                      </div>
+                                                    </React.Fragment>
+                                                )}
+                                              </Timer>
+                                            </div>
+                                          </div>
+                                          <div className="col-md-12">
+                                            {
+                                              this.state.TimeSheet.newTime.duree !== "" && DurationFormatError !== "" ?
+                                              <h6 style={{color:"red"}}>{DurationFormatError}</h6> :
+                                                  this.state.TimeSheet.newTime.rateFacturation !== "" &&
+                                                  <span style={{color:"#000",fontWeight:"bold"}}>Total:&nbsp;&nbsp;
+                                                    <span>{(parseFloat(this.state.TimeSheet.newTime.rateFacturation) * utilFunctions.durationToNumber(this.state.TimeSheet.newTime.duree)).toFixed(2) + " CHF"}</span>
+                                                  </span>
+                                            }
+                                          </div>
+
+                                        </div>
+                                      </div>
+                                      <div className="col-md-6">
+                                        <div>
+                                          <h5>Nom du client</h5>
+                                          <div style={{ display: 'flex' }}>
+                                            <SelectSearch
+                                                options={
+                                                  this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
+                                                      ({
+                                                        value: ID,
+                                                        name: Nom + ' ' + (Prenom || ''),
+                                                        ContactType: Type,
+                                                        ContactName: Nom + ' ' + (Prenom || ''),
+                                                        imageUrl: imageUrl
+                                                      }))
+                                                }
+                                                value={this.state.selectedClientTimeEntree}
+                                                renderOption={main_functions.renderSearchOption}
+                                                search
+                                                placeholder="Chercher votre client"
+                                                onChange={ (e) => {
+                                                  let obj = this.state.TimeSheet;
+                                                  let findClientTempo = this.state.clients_cases.find(x => x.ID_client === e)
+                                                  let findClientFname = this.state.annuaire_clients_mandat.find(x => x.ID === e)
+                                                  obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                                                  obj.newTime.client_id = e;
+                                                  if(findClientTempo){
+                                                    this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
+                                                  }else{
+                                                    obj.newTime.dossier_client =  {
+                                                      name:'',
+                                                      facturation: {
+                                                        language:''
+                                                      }}
+                                                    this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: e})
+                                                  }
+                                                  setTimeout(() => {
+                                                    console.log(this.state.selectedClientFolders)
+                                                  },400)
+                                                }}
+                                            />
+                                            <IconButton
+                                                style={{ marginTop: -5 }}
+                                                onClick={() => this.setState({ openAdvancedSearchModal: true })}>
+                                              <SearchIcon />
+                                            </IconButton>
+                                          </div>
+                                          <h5 style={{marginTop:10}}>Dossier du client </h5>
+                                          <MuiSelect
+                                              labelId="demo-simple-select-label"
+                                              id="demo-simple-select"
+                                              style={{ width: 300 }}
+                                              value={this.state.TimeSheet.newTime.dossier_client}
+                                              onChange={(e) => {
+                                                let ts = this.state.TimeSheet;
+                                                let data = e.target.value;
+                                                let team = data.team || [];
+                                                let find = team.find(x => x.email === this.state.TimeSheet.newTime.utilisateurOA);
+                                                if(find){
+                                                  ts.newTime.rateFacturation = find.tarif || '';
+                                                  this.setState({ TimeSheet: ts });
+                                                }else{
+                                                  let OA_contacts = this.state.contacts;
+                                                  let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,this.state.TimeSheet.newTime.utilisateurOA);
+                                                  ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
+                                                }
+                                                ts.newTime.dossier_client = e.target.value;
+                                                this.setState({ TimeSheet: ts });
+                                              }}
+                                          >
+                                            {
+                                              this.state.selectedClientFolders.map((item,key) => (
+                                                  <MenuItem key={key} value={item}>{item.name}</MenuItem>
+                                              ))
+                                            }
+                                          </MuiSelect>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="row mt-3">
+                                      <div className="col-md-6">
+                                        <div>
+                                          <h5>Catégorie d’activités </h5>
+                                          <MuiSelect
+                                              labelId="demo-simple-select-label"
+                                              id="demo-simple-select"
+                                              style={{ width: 220 }}
+                                              value={this.state.TimeSheet.newTime.categoriesActivite}
+                                              onChange={(e) => {
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.categoriesActivite = e.target.value;
+                                                this.setState({ TimeSheet: d });
+                                              }}
+                                          >
+                                            <MenuItem
+                                                value={'Temps facturé'}>Temps facturé</MenuItem>
+                                            <MenuItem
+                                                value={'Paiement avancée'}>Provision</MenuItem>
+                                          </MuiSelect>
+                                        </div>
+                                      </div>
+                                      <div className="col-md-6">
+                                        <div
+                                            style={{ width: '100%' }}>
+                                          <h5>Date</h5>
+                                          <DatePicker
+                                              calendarIcon={
+                                                <img
+                                                    alt=""
+                                                    src={calendar}
+                                                    style={{ width: 20 }} />}
+                                              onChange={(e) => {
+                                                console.log(e);
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.date = e;
+                                                this.setState({ TimeSheet: d });
+                                              }}
+                                              value={this.state.TimeSheet.newTime.date}
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="row mt-3">
+                                      <div className="col-md-6">
+                                        <div>
+                                          <div>
+                                            <h5>{new_timeSheet_desc}</h5>
+                                          </div>
+                                          <textarea
+                                              className="form-control "
+                                              id="duree"
+                                              style={{ width: '100%' }}
+                                              name="duree"
+                                              rows={5}
+                                              value={this.state.TimeSheet.newTime.description}
+                                              onChange={(e) => {
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.description = e.target.value;
+                                                this.setState({ TimeSheet: d });
+                                              }} />
+                                        </div>
+                                      </div>
+                                      <div className="col-md-6">
+                                        <div>
+                                          <h6>Utilisateur </h6>
+                                        </div>
+                                        <MuiSelect
+                                            labelId="demo-simple-select-label4545"
+                                            id="demo-simple-select4545"
+                                            style={{ width: 250 }}
+                                            onChange={(e) => {
+                                              let ts = this.state.TimeSheet;
+                                              let dossier = this.state.TimeSheet.newTime.dossier_client;
+                                              if(dossier && dossier.team && dossier.team.length > 0){
+                                                let team = dossier.team;
+                                                let find = team.find(x => x.email === e.target.value);
+                                                if(find){
+                                                  ts.newTime.rateFacturation = find.tarif || "";
+                                                }
+                                              }else{
+                                                let OA_contacts = this.state.contacts;
+                                                let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,e.target.value);
+                                                ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
+                                              }
+                                              ts.newTime.utilisateurOA = e.target.value;
+                                              this.setState({ TimeSheet: ts });
+                                            }}
+                                            value={this.state.TimeSheet.newTime.utilisateurOA}
+                                        >
+                                          {this.state.contacts.map((contact, key) => (
+                                              <MenuItem
+                                                  key={key}
+                                                  value={contact.email}>
+                                                <div style={{display:"flex"}}>
+                                                  <Avatar style={{marginLeft:10}}
+                                                          alt=""
+                                                          src={contact.imageUrl} />
+                                                  <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                </div>
+                                              </MenuItem>
+                                          ))}
+                                        </MuiSelect>
+                                        <div
+                                            className="mt-3">
+                                          <h6>
+                                            Taux horaire
+                                          </h6>
+                                          <Input
+                                              className="form-control "
+                                              id="duree"
+                                              style={{ width: 250 }}
+                                              name="duree"
+                                              type="text"
+                                              endAdornment={
+                                                <InputAdornment
+                                                    position="end">CHF:Hr</InputAdornment>}
+                                              value={this.state.TimeSheet.newTime.rateFacturation + ''}
+                                              onChange={(e) => {
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.rateFacturation = e.target.value;
+                                                this.setState({ TimeSheet: d });
+                                              }} />
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div align="center" className=" mt-4">
+                                      <AltButtonGroup>
+                                        <AtlButton
+                                            onClick={() => {
+                                              this.createLignefacture(false)
+                                            }}
+                                            appearance="primary"
+                                            isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' ||
+                                            this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
+                                            style={{ margin: 20 }}> Enregistrer </AtlButton>
+                                        <AtlButton
+                                            onClick={() => {
+                                              this.createLignefacture(true)
+                                            }}
+                                            appearance="primary"
+                                            isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' ||
+                                            this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
+                                            style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
+                                        <AtlButton
+                                            appearance=""
+                                            style={{ margin: 20 }}
+                                            onClick={() => {
+                                              this.setState({
+                                                TimeSheet: {
+                                                  newTime: {
+                                                    duree: '',
+                                                    client: '',
+                                                    dossier_client: {
+                                                      name:'',
+                                                      facturation: {
+                                                        language:''
+                                                      }},
+                                                    categoriesActivite: 'Temps facturé',
+                                                    description: '',
+                                                    date: new Date(),
+                                                    utilisateurOA: '',
+                                                    rateFacturation: '',
+                                                    selectedClientTimeEntree:''
+                                                  }
+                                                }
+                                              });
+                                            }}>Réinitialiser</AtlButton>
+                                      </AltButtonGroup>
+                                      <div>
+                                        <AltButtonGroup
+                                            style={{ marginTop: 10 }}>
+                                          <AtlButton
+                                              isSelected
+                                              appearance="default"
+                                              onClick={() => this.setState({selectedTimeSheetIndex:1})}
+                                          >
+                                            Etablir facture
+                                          </AtlButton>
+                                        </AltButtonGroup>
+                                      </div>
+                                    </div>
+                                  </div> :
+
+                                  <div>
+                                    <div className="mt-1">
+                                      <div>
+                                        <div style={{
+                                          textAlign: 'right',
+                                          marginTop: 15
+                                        }}>
+                                          <button
+                                              onClick={() => this.setState({
+                                                showLignesFactureClient: false
+                                              })}
+                                              className="btn btn-sm btn-outline-info">Retour
+                                          </button>
+                                        </div>
+
+                                        <div className="row mt-3">
+                                          <div
+                                              className="col-md-6">
+                                            <h5>Nom du client</h5>
+                                            <div
+                                                style={{ display: 'flex' }}>
+                                              <SelectSearch
+                                                  options={
+                                                    this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl }) =>
+                                                        ({
+                                                          value: Nom + ' ' + (Prenom || ''),
+                                                          name: Nom + ' ' + (Prenom || ''),
+                                                          ContactType: Type,
+                                                          ContactName: Nom + ' ' + (Prenom || ''),
+                                                          imageUrl: imageUrl
+                                                        }))
+                                                  }
+                                                  value={this.state.selectedClientTimeEntree}
+                                                  renderOption={main_functions.renderSearchOption}
+                                                  search
+                                                  placeholder="Chercher votre client"
+                                                  onChange={e => {
+                                                    console.log(e);
+                                                    let obj = this.state.TimeSheet;
+                                                    obj.newTime.client = e;
+
+                                                    let find_annuaire_fact_lead = this.state.annuaire_clients_mandat.find(x => (x.Nom + ' ' + x.Prenom) === e);
+                                                    console.log(find_annuaire_fact_lead);
+                                                    let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
+                                                    console.log(partner_email);
+                                                    this.setState({
+                                                      partnerFacture: partner_email,
+                                                      selectedClientTimeEntree: e,
+                                                      TimeSheet: obj
+                                                    });
+                                                  }}
+                                              />
+                                              <IconButton
+                                                  style={{ marginTop: -5 }}
+                                                  onClick={() => this.setState({ openAdvancedSearchModal: true })}>
+                                                <SearchIcon />
+                                              </IconButton>
+                                            </div>
+                                          </div>
+                                          <div
+                                              className="col-md-4">
+                                            <div
+                                                style={{ width: '100%' }}>
+                                              <h5>Date de la facture</h5>
+                                              <DatePicker
+                                                  calendarIcon={
+                                                    <img
+                                                        alt=""
+                                                        src={calendar}
+                                                        style={{ width: 20 }} />}
+                                                  onChange={(e) => {
+                                                    this.setState({ dateFacture: e });
+                                                  }}
+                                                  value={this.state.dateFacture}
+                                              />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                            }
+                          </TabPanel>
+                          <TabPanel>
+                            {
+                              this.state.time_sheets.length > 0 &&
+                              <TableTimeSheet
+                                  lignesFactures={this.state.time_sheets || []}
+                                  lignesFacturesCopy={this.state.time_sheets || []}
+                                  deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
+                                  setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
+                                  OA_contacts={this.state.contacts}
+                                  annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                  onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
+                                    this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
+                                        partner,lignes_facture)
+                                  }}
+                                  client_folders={this.state.client_folders}
+                                  updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
+                                  openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                  clientsTempo={this.state.clients_cases}
+                                  updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
+                              />
+                            } {
+                            this.state.time_sheets.length === 0 &&
+                            <div style={{
+                              marginTop: 30,
+                              marginLeft: 10
+                            }}>Aucune ligne facture encore ajoutée !</div>
+
+                          }
+                          </TabPanel>
+                          <TabPanel>
+                            <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
+                            <TableFactures factures={this.state.factures}
+                                           facturesCp={this.state.factures}
+                                           client_folders={this.state.client_folders}
+                                           clients_tempo={this.state.clients_cases}
+                                           annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                           sharedFolders={this.state.sharedReelFolders || []}
+                                           validateFacture={(row,key,template,client) => {
+                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
+                                           }}
+                                           openFacture={(id) => {
+                                             this.openPdfModal(id)
+                                           }}
+                                           openFactureFolder={(id) => {
+                                             this.redirectToFolder(id)
+                                           }}
+                                           delete_facture={(id) => {
+                                             this.delete_facture(id)
+                                           }}
+                                           openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                            />
+                          </TabPanel>
+                        </Tabs>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+    )
+
+  }
 
 
   addFactureToValidated(client,client_folder,date,createdBy,partnerEmail,lignes_facture){
@@ -2696,39 +3272,23 @@ export default class Main extends React.Component {
   }
 
   createLignefacture(duplicate){
-    this.setState({loading:true})
+    let objCopy = this.state.TimeSheet;
+    let time = this.state.TimeSheet.newTime.duree;
+    let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+    if(regexFormat.test(time) === true){
 
-    this.verifIsTableExist("time_sheets").then( v => {
+      let duree = utilFunctions.durationToNumber(time);
 
-      let obj = this.state.TimeSheet;
-      let objCopy = this.state.TimeSheet;
-      let time = obj.newTime.duree;
-      let timeFormated = '';
-      if (time.indexOf(':') > -1) {
-        timeFormated = parseFloat(time.replace(':', '.'));
-      } else if (time.indexOf('.') > -1) {
-        timeFormated = parseFloat(time);
-      } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
-        timeFormated = parseInt(time);
-      } else {
-        this.setState({loading:false})
-        this.openSnackbar('error', 'Le format de la durée est invalide !');
-      }
-      if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
-        this.setState({loading:false})
-        this.openSnackbar('error', 'Le format de la durée est invalide !');
-      } else {
-        if(timeFormated === 0 ){
-          this.setState({loading:false})
-          this.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
-        }
-        else{
-
+      if(duree === 0){
+        this.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
+      }else{
+        this.setState({loading:true})
+        this.verifIsTableExist("time_sheets").then( v => {
 
           let newItem = {
             newTime: {
               date:moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD HH:mm:ss'),
-              duree: timeFormated,
+              duree: duree,
               client: this.state.TimeSheet.newTime.client,
               client_id:this.state.selectedClientTimeEntree,
               dossier_client:this.state.TimeSheet.newTime.dossier_client,
@@ -2759,8 +3319,8 @@ export default class Main extends React.Component {
                   categoriesActivite: 'Temps facturé',
                   description: '',
                   date: new Date(),
-                  utilisateurOA: obj.newTime.utilisateurOA,
-                  rateFacturation: obj.newTime.rateFacturation
+                  utilisateurOA: objCopy.newTime.utilisateurOA,
+                  rateFacturation: objCopy.newTime.rateFacturation
                 }
               }
             });
@@ -2796,10 +3356,14 @@ export default class Main extends React.Component {
             console.log(err)
           })
 
-        }
-      }
 
-    }).catch(err => {console.log(err)})
+
+        }).catch(err => {console.log(err)})
+      }
+    }else{
+      this.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
+    }
+
   }
 
   updateLigneFacture(id,ligne){
@@ -2978,18 +3542,7 @@ export default class Main extends React.Component {
 
   render() {
 
-    const inputSuggProps = {
-      placeholder: '0:1, 0:15, 0:30...',
-      value: this.state.TimeSheet.newTime.duree,
-      onChange: this.onInputTimeSuggChange
-    };
     const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts,localStorage.getItem("email"))
-
-    let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ?
-      "Description (français)" : this.state.TimeSheet.newTime.dossier_client.facturation.language === "Anglais" ?
-        "Description (anglais)" : "Description"
-
-
 
     return (
       <div>
@@ -4670,541 +5223,7 @@ export default class Main extends React.Component {
                       </Route>
 
                       <Route exact path="/home/timeSheet/activities">
-                        {
-                          this.state.time_sheets.length === 0 ?
-                              <div align="center" style={{marginTop:200}}>
-                                <CircularProgress color="primary" />
-                                <h6>Chargement...</h6>
-                              </div> :
-                              <div>
-                                <div className="row">
-                                  <div className="col-lg-12">
-                                    <h5 className="mt-0 mb-1">TimeSheet / Activités</h5>
-                                    <div className="card-box text-center" style={{ marginTop: 1 }}>
-                                      <div style={{ marginTop: 30 }} className="text-left">
-                                        <Tabs selectedIndex={this.state.selectedTimeSheetIndex} onSelect={index => {
-                                          this.setState({selectedTimeSheetIndex:index})
-                                        }}>
-                                          <TabList>
-                                            <Tab>Time Sheet</Tab>
-                                            <Tab>Activités </Tab>
-                                            <Tab>
-                                              Partner
-                                              {
-                                                (this.state.factures || []).filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length > 0 &&
-                                                <Badge max={100}>{(this.state.factures || []).filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length}</Badge>
-                                              }
-                                            </Tab>
-                                          </TabList>
-
-                                          <TabPanel>
-                                            {
-                                              this.state.showLignesFactureClient === false ?
-                                                  <div style={{marginTop:25,padding:10,paddingBottom:50,paddingLeft:20,border:"2px solid #f0f0f0"}}>
-                                                    <div className="row mt-2">
-                                                      <div className="col-md-6">
-                                                        <h5>Durée</h5>
-                                                        <div className="row">
-                                                          <div className="col-md-5">
-                                                            <Autosuggest
-                                                                suggestions={this.state.timeSuggestions}
-                                                                onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
-                                                                onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
-                                                                onSuggestionSelected={(event, { suggestion }) => console.log(suggestion)}
-                                                                getSuggestionValue={suggestion => suggestion}
-                                                                renderSuggestion={suggestion => (
-                                                                    <div>{suggestion}</div>)}
-                                                                inputProps={inputSuggProps}
-                                                            />
-                                                          </div>
-                                                          <div className="col-md-7">
-                                                            <div style={{ display: 'flex' }}>
-                                                              <Timer
-                                                                  initialTime={0}
-                                                                  startImmediately={false}
-                                                              >
-                                                                {({ start, resume, pause, stop, reset, getTimerState, getTime }) => (
-                                                                    <React.Fragment>
-                                                                      <div
-                                                                          align="center"
-                                                                          style={{
-                                                                            backgroundColor: '#c0c0c0',
-                                                                            padding: 8,
-                                                                            color: '#000',
-                                                                            height: 36,
-                                                                            fontWeight: 700,
-                                                                            fontSize: 16,
-                                                                            letterSpacing: '0.1rem'
-                                                                          }}>
-                                                                        <Timer.Hours
-                                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`} />
-                                                                        <Timer.Minutes
-                                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`} />
-                                                                        <Timer.Seconds
-                                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`} />
-                                                                      </div>
-                                                                      <div
-                                                                          style={{ marginLeft: 10 }}>
-                                                                        <div
-                                                                            align="center"
-                                                                            style={{
-                                                                              backgroundColor: (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'green' : 'red',
-                                                                              padding: 5,
-                                                                              borderRadius: 10,
-                                                                              width: 50,
-                                                                              color: '#fff',
-                                                                              fontWeight: 700,
-                                                                              cursor: 'pointer'
-                                                                            }}
-                                                                            onClick={() => {
-                                                                              if (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') {
-                                                                                start();
-                                                                              } else {
-                                                                                let timeEtablished = getTime();
-                                                                                console.log(timeEtablished);
-                                                                                let timeH = ((timeEtablished / 1000) / 60) / 60;
-                                                                                console.log(timeH);
-                                                                                let obj = this.state.TimeSheet;
-                                                                                obj.newTime.duree = timeH.toFixed(3).replace('.', ':');
-                                                                                this.setState({ TimeSheet: obj });
-                                                                                stop();
-                                                                              }
-                                                                            }}
-                                                                        >
-                                                                          {(getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'Start' : 'Stop'}
-                                                                        </div>
-                                                                        <div
-                                                                            align="center"
-                                                                            style={{
-                                                                              backgroundColor: '#c0c0c0',
-                                                                              padding: 5,
-                                                                              borderRadius: 10,
-                                                                              width: 50,
-                                                                              color: '#fff',
-                                                                              fontWeight: 700,
-                                                                              cursor: 'pointer',
-                                                                              marginTop: 3
-                                                                            }}
-                                                                            onClick={() => {
-                                                                              let obj = this.state.TimeSheet;
-                                                                              obj.newTime.duree = '';
-                                                                              this.setState({ TimeSheet: obj });
-                                                                              reset();
-                                                                            }}
-                                                                        >
-                                                                          Reset
-                                                                        </div>
-                                                                      </div>
-                                                                    </React.Fragment>
-                                                                )}
-                                                              </Timer>
-                                                            </div>
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                      <div className="col-md-6">
-                                                        <div>
-                                                          <h5>Nom du client</h5>
-                                                          <div style={{ display: 'flex' }}>
-                                                            <SelectSearch
-                                                                options={
-                                                                  this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
-                                                                      ({
-                                                                        value: ID,
-                                                                        name: Nom + ' ' + (Prenom || ''),
-                                                                        ContactType: Type,
-                                                                        ContactName: Nom + ' ' + (Prenom || ''),
-                                                                        imageUrl: imageUrl
-                                                                      }))
-                                                                }
-                                                                value={this.state.selectedClientTimeEntree}
-                                                                renderOption={main_functions.renderSearchOption}
-                                                                search
-                                                                placeholder="Chercher votre client"
-                                                                onChange={ (e) => {
-                                                                  let obj = this.state.TimeSheet;
-                                                                  let findClientTempo = this.state.clients_cases.find(x => x.ID_client === e)
-                                                                  let findClientFname = this.state.annuaire_clients_mandat.find(x => x.ID === e)
-                                                                  obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
-                                                                  obj.newTime.client_id = e;
-                                                                  if(findClientTempo){
-                                                                    this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
-                                                                  }else{
-                                                                    obj.newTime.dossier_client =  {
-                                                                      name:'',
-                                                                      facturation: {
-                                                                        language:''
-                                                                      }}
-                                                                    this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: e})
-                                                                  }
-                                                                  setTimeout(() => {
-                                                                    console.log(this.state.selectedClientFolders)
-                                                                  },400)
-                                                                }}
-                                                            />
-                                                            <IconButton
-                                                                style={{ marginTop: -5 }}
-                                                                onClick={() => this.setState({ openAdvancedSearchModal: true })}>
-                                                              <SearchIcon />
-                                                            </IconButton>
-                                                          </div>
-                                                          <h5 style={{marginTop:10}}>Dossier du client </h5>
-                                                          <MuiSelect
-                                                              labelId="demo-simple-select-label"
-                                                              id="demo-simple-select"
-                                                              style={{ width: 300 }}
-                                                              value={this.state.TimeSheet.newTime.dossier_client}
-                                                              onChange={(e) => {
-                                                                let ts = this.state.TimeSheet;
-                                                                let data = e.target.value;
-                                                                let team = data.team || [];
-                                                                let find = team.find(x => x.email === this.state.TimeSheet.newTime.utilisateurOA);
-                                                                if(find){
-                                                                  ts.newTime.rateFacturation = find.tarif || '';
-                                                                  this.setState({ TimeSheet: ts });
-                                                                }else{
-                                                                  let OA_contacts = this.state.contacts;
-                                                                  let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,this.state.TimeSheet.newTime.utilisateurOA);
-                                                                  ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
-                                                                }
-                                                                ts.newTime.dossier_client = e.target.value;
-                                                                this.setState({ TimeSheet: ts });
-                                                              }}
-                                                          >
-                                                            {
-                                                              this.state.selectedClientFolders.map((item,key) => (
-                                                                  <MenuItem key={key} value={item}>{item.name}</MenuItem>
-                                                              ))
-                                                            }
-                                                          </MuiSelect>
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                    <div className="row mt-3">
-                                                      <div className="col-md-6">
-                                                        <div>
-                                                          <h5>Catégorie d’activités </h5>
-                                                          <MuiSelect
-                                                              labelId="demo-simple-select-label"
-                                                              id="demo-simple-select"
-                                                              style={{ width: 220 }}
-                                                              value={this.state.TimeSheet.newTime.categoriesActivite}
-                                                              onChange={(e) => {
-                                                                let d = this.state.TimeSheet;
-                                                                d.newTime.categoriesActivite = e.target.value;
-                                                                this.setState({ TimeSheet: d });
-                                                              }}
-                                                          >
-                                                            <MenuItem
-                                                                value={'Temps facturé'}>Temps facturé</MenuItem>
-                                                            <MenuItem
-                                                                value={'Paiement avancée'}>Provision</MenuItem>
-                                                          </MuiSelect>
-                                                        </div>
-                                                      </div>
-                                                      <div className="col-md-6">
-                                                        <div
-                                                            style={{ width: '100%' }}>
-                                                          <h5>Date</h5>
-                                                          <DatePicker
-                                                              calendarIcon={
-                                                                <img
-                                                                    alt=""
-                                                                    src={calendar}
-                                                                    style={{ width: 20 }} />}
-                                                              onChange={(e) => {
-                                                                console.log(e);
-                                                                let d = this.state.TimeSheet;
-                                                                d.newTime.date = e;
-                                                                this.setState({ TimeSheet: d });
-                                                              }}
-                                                              value={this.state.TimeSheet.newTime.date}
-                                                          />
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                    <div className="row mt-3">
-                                                      <div className="col-md-6">
-                                                        <div>
-                                                          <div>
-                                                            <h5>{new_timeSheet_desc}</h5>
-                                                          </div>
-                                                          <textarea
-                                                              className="form-control "
-                                                              id="duree"
-                                                              style={{ width: '100%' }}
-                                                              name="duree"
-                                                              rows={5}
-                                                              value={this.state.TimeSheet.newTime.description}
-                                                              onChange={(e) => {
-                                                                let d = this.state.TimeSheet;
-                                                                d.newTime.description = e.target.value;
-                                                                this.setState({ TimeSheet: d });
-                                                              }} />
-                                                        </div>
-                                                      </div>
-                                                      <div className="col-md-6">
-                                                        <div>
-                                                          <h6>Utilisateur </h6>
-                                                        </div>
-                                                        <MuiSelect
-                                                            labelId="demo-simple-select-label4545"
-                                                            id="demo-simple-select4545"
-                                                            style={{ width: 250 }}
-                                                            onChange={(e) => {
-                                                              let ts = this.state.TimeSheet;
-                                                              let dossier = this.state.TimeSheet.newTime.dossier_client;
-                                                              if(dossier && dossier.team && dossier.team.length > 0){
-                                                                let team = dossier.team;
-                                                                let find = team.find(x => x.email === e.target.value);
-                                                                if(find){
-                                                                  ts.newTime.rateFacturation = find.tarif || "";
-                                                                }
-                                                              }else{
-                                                                let OA_contacts = this.state.contacts;
-                                                                let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,e.target.value);
-                                                                ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
-                                                              }
-                                                              ts.newTime.utilisateurOA = e.target.value;
-                                                              this.setState({ TimeSheet: ts });
-                                                            }}
-                                                            value={this.state.TimeSheet.newTime.utilisateurOA}
-                                                        >
-                                                          {this.state.contacts.map((contact, key) => (
-                                                              <MenuItem
-                                                                  key={key}
-                                                                  value={contact.email}>
-                                                                <div style={{display:"flex"}}>
-                                                                  <Avatar style={{marginLeft:10}}
-                                                                          alt=""
-                                                                          src={contact.imageUrl} />
-                                                                  <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                                </div>
-                                                              </MenuItem>
-                                                          ))}
-                                                        </MuiSelect>
-                                                        <div
-                                                            className="mt-3">
-                                                          <h6>
-                                                            Taux horaire
-                                                          </h6>
-                                                          <Input
-                                                              className="form-control "
-                                                              id="duree"
-                                                              style={{ width: 250 }}
-                                                              name="duree"
-                                                              type="text"
-                                                              endAdornment={
-                                                                <InputAdornment
-                                                                    position="end">CHF:Hr</InputAdornment>}
-                                                              value={this.state.TimeSheet.newTime.rateFacturation + ''}
-                                                              onChange={(e) => {
-                                                                let d = this.state.TimeSheet;
-                                                                d.newTime.rateFacturation = e.target.value;
-                                                                this.setState({ TimeSheet: d });
-                                                              }} />
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                    <div align="center" className=" mt-4">
-                                                      <AltButtonGroup>
-                                                        <AtlButton
-                                                            onClick={() => {
-                                                              this.createLignefacture(false)
-                                                            }}
-                                                            appearance="primary"
-                                                            isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' }
-                                                            style={{ margin: 20 }}> Enregistrer </AtlButton>
-                                                        <AtlButton
-                                                            onClick={() => {
-                                                              this.createLignefacture(true)
-                                                            }}
-                                                            appearance="primary"
-                                                            isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' }
-                                                            style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
-                                                        <AtlButton
-                                                            appearance=""
-                                                            style={{ margin: 20 }}
-                                                            onClick={() => {
-                                                              this.setState({
-                                                                TimeSheet: {
-                                                                  newTime: {
-                                                                    duree: '',
-                                                                    client: '',
-                                                                    dossier_client: {
-                                                                      name:'',
-                                                                      facturation: {
-                                                                        language:''
-                                                                      }},
-                                                                    categoriesActivite: 'Temps facturé',
-                                                                    description: '',
-                                                                    date: new Date(),
-                                                                    utilisateurOA: '',
-                                                                    rateFacturation: '',
-                                                                    selectedClientTimeEntree:''
-                                                                  }
-                                                                }
-                                                              });
-                                                            }}>Réinitialiser</AtlButton>
-                                                      </AltButtonGroup>
-                                                      <div>
-                                                        <AltButtonGroup
-                                                            style={{ marginTop: 10 }}>
-                                                          <AtlButton
-                                                              isSelected
-                                                              appearance="default"
-                                                              onClick={() => this.setState({selectedTimeSheetIndex:1})}
-                                                          >
-                                                            Etablir facture
-                                                          </AtlButton>
-                                                        </AltButtonGroup>
-                                                      </div>
-                                                    </div>
-                                                  </div> :
-
-                                                  <div>
-                                                    <div className="mt-1">
-                                                      <div>
-                                                        <div style={{
-                                                          textAlign: 'right',
-                                                          marginTop: 15
-                                                        }}>
-                                                          <button
-                                                              onClick={() => this.setState({
-                                                                showLignesFactureClient: false
-                                                              })}
-                                                              className="btn btn-sm btn-outline-info">Retour
-                                                          </button>
-                                                        </div>
-
-                                                        <div className="row mt-3">
-                                                          <div
-                                                              className="col-md-6">
-                                                            <h5>Nom du client</h5>
-                                                            <div
-                                                                style={{ display: 'flex' }}>
-                                                              <SelectSearch
-                                                                  options={
-                                                                    this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl }) =>
-                                                                        ({
-                                                                          value: Nom + ' ' + (Prenom || ''),
-                                                                          name: Nom + ' ' + (Prenom || ''),
-                                                                          ContactType: Type,
-                                                                          ContactName: Nom + ' ' + (Prenom || ''),
-                                                                          imageUrl: imageUrl
-                                                                        }))
-                                                                  }
-                                                                  value={this.state.selectedClientTimeEntree}
-                                                                  renderOption={main_functions.renderSearchOption}
-                                                                  search
-                                                                  placeholder="Chercher votre client"
-                                                                  onChange={e => {
-                                                                    console.log(e);
-                                                                    let obj = this.state.TimeSheet;
-                                                                    obj.newTime.client = e;
-
-                                                                    let find_annuaire_fact_lead = this.state.annuaire_clients_mandat.find(x => (x.Nom + ' ' + x.Prenom) === e);
-                                                                    console.log(find_annuaire_fact_lead);
-                                                                    let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
-                                                                    console.log(partner_email);
-                                                                    this.setState({
-                                                                      partnerFacture: partner_email,
-                                                                      selectedClientTimeEntree: e,
-                                                                      TimeSheet: obj
-                                                                    });
-                                                                  }}
-                                                              />
-                                                              <IconButton
-                                                                  style={{ marginTop: -5 }}
-                                                                  onClick={() => this.setState({ openAdvancedSearchModal: true })}>
-                                                                <SearchIcon />
-                                                              </IconButton>
-                                                            </div>
-                                                          </div>
-                                                          <div
-                                                              className="col-md-4">
-                                                            <div
-                                                                style={{ width: '100%' }}>
-                                                              <h5>Date de la facture</h5>
-                                                              <DatePicker
-                                                                  calendarIcon={
-                                                                    <img
-                                                                        alt=""
-                                                                        src={calendar}
-                                                                        style={{ width: 20 }} />}
-                                                                  onChange={(e) => {
-                                                                    this.setState({ dateFacture: e });
-                                                                  }}
-                                                                  value={this.state.dateFacture}
-                                                              />
-                                                            </div>
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                            }
-                                          </TabPanel>
-                                          <TabPanel>
-                                            {
-                                              this.state.time_sheets.length > 0 &&
-                                              <TableTimeSheet
-                                                  lignesFactures={this.state.time_sheets || []}
-                                                  lignesFacturesCopy={this.state.time_sheets || []}
-                                                  deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
-                                                  setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
-                                                  OA_contacts={this.state.contacts}
-                                                  annuaire_clients_mandat={this.state.annuaire_clients_mandat}
-                                                  onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
-                                                    this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
-                                                        partner,lignes_facture)
-                                                  }}
-                                                  client_folders={this.state.client_folders}
-                                                  updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
-                                                  openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                                                  clientsTempo={this.state.clients_cases}
-                                                  updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
-                                              />
-                                            } {
-                                            this.state.time_sheets.length === 0 &&
-                                            <div style={{
-                                              marginTop: 30,
-                                              marginLeft: 10
-                                            }}>Aucune ligne facture encore ajoutée !</div>
-
-                                          }
-                                          </TabPanel>
-                                          <TabPanel>
-                                            <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
-                                            <TableFactures factures={this.state.factures}
-                                                           facturesCp={this.state.factures}
-                                                           client_folders={this.state.client_folders}
-                                                           clients_tempo={this.state.clients_cases}
-                                                           annuaire_clients_mandat={this.state.annuaire_clients_mandat}
-                                                           sharedFolders={this.state.sharedReelFolders || []}
-                                                           validateFacture={(row,key,template,client) => {
-                                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
-                                                           }}
-                                                           openFacture={(id) => {
-                                                             this.openPdfModal(id)
-                                                           }}
-                                                           openFactureFolder={(id) => {
-                                                             this.redirectToFolder(id)
-                                                           }}
-                                                           delete_facture={(id) => {
-                                                             this.delete_facture(id)
-                                                           }}
-                                                           openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                                            />
-                                          </TabPanel>
-                                        </Tabs>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                        }
-
+                        {this.renderTimeSheet()}
                       </Route>
 
                     </Switch>

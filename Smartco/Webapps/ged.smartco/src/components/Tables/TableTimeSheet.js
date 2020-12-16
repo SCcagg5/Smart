@@ -38,6 +38,7 @@ import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
 import SmartService from '../../provider/SmartService';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import utilFunctions from "../../tools/functions";
 
 const getTimeSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
@@ -137,6 +138,7 @@ export default function TableTimeSheet(props) {
     const [toUpdated_desc, setToUpdated_desc] = React.useState("");
     const [toUpdated_template, setToUpdated_template] = React.useState("");
     const [timeSuggestions, setTimeSuggestions] = React.useState([]);
+    const [duration, setDuration] = React.useState("");
 
     //const [lf_client_search, setLf_client_search] = React.useState(props.annuaire_clients_mondat[0].Nom + ' ' + (props.annuaire_clients_mondat[0].Prenom || '') );
     const [lf_client_search, setLf_client_search] = React.useState("");
@@ -246,9 +248,10 @@ export default function TableTimeSheet(props) {
     }
 
     function onInputTimeSuggChange(event, {newValue})  {
-        let d = lf_toUpdated
+        setDuration(newValue)
+        /*let d = lf_toUpdated
         d.newTime.duree = newValue
-        setLf_toUpdated(d)
+        setLf_toUpdated(d)*/
     }
 
     function onTimeSuggestionsFetchRequested({value}){
@@ -260,8 +263,8 @@ export default function TableTimeSheet(props) {
     }
 
     const inputSuggProps = {
-        placeholder: '0:1, 0:15, 0:30...',
-        value: lf_toUpdated !== "" && lf_toUpdated.newTime.duree.toString().replace(".",":") ,
+        placeholder: 'Format: --h--',
+        value: duration,
         onChange: onInputTimeSuggChange
     };
 
@@ -544,8 +547,9 @@ export default function TableTimeSheet(props) {
                             </TableCell>
                             <TableCell style={{ width: "10%"}} align="center">
                                 <IconButton size="small" color="default" onClick={() => {
-                                    if(row.user_email === localStorage.getItem("email") || localStorage.getItem("email") === "fgillioz@oalegal.ch"){
+                                    if(row.user_email === localStorage.getItem("email")){
                                         const row_copy = row;
+                                        setDuration(utilFunctions.formatDuration(row_copy.newTime.duree.toString()))
                                         setToUpdated_date(new Date(row_copy.newTime.date))
                                         setToUpdated_rate(row_copy.newTime.rateFacturation)
                                         setToUpdated_OAUser(row_copy.newTime.utilisateurOA)
@@ -607,7 +611,7 @@ export default function TableTimeSheet(props) {
                                 {row.newTime.rateFacturation +" CHF/h"}
                             </TableCell>
                             <TableCell style={{ width: "10%" }} align="center">
-                                <div>{row.newTime.duree+"h"}</div>
+                                <div>{utilFunctions.formatDuration(row.newTime.duree.toString())}</div>
                             </TableCell>
                             <TableCell style={{ width: "10%" }} align="center">
                                 <div>{(row.newTime.duree * parseInt(row.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF</div>
@@ -752,9 +756,7 @@ export default function TableTimeSheet(props) {
 
             }
 
-
-
-            <Dialog open={showUpdateModal} maxWidth="xl"   onClose={() => {
+            <Dialog open={showUpdateModal} maxWidth="xl" fullWidth={true}    onClose={() => {
                 setShowUpdateModal(false)
             }}
                     aria-labelledby="form-dialog-title"
@@ -996,39 +998,26 @@ export default function TableTimeSheet(props) {
                             </div>
                             <div style={{marginTop:20,textAlign:"right"}}>
                                 <AtlButton
-                                    isDisabled={lf_toUpdated.newTime.duree.toString().trim() === "" || lf_toUpdated.newTime.duree === "0" || lf_toUpdated.newTime.client_id === "" }
+                                    isDisabled={lf_toUpdated.newTime.client_id === "" || lf_toUpdated.newTime.rateFacturation === "" || lf_toUpdated.newTime.utilisateurOA === ''  }
                                     appearance="primary"
                                     onClick={() => {
-
+                                        lf_toUpdated.newTime.duree = duration;
                                         let time = lf_toUpdated.newTime.duree;
-                                        let timeFormated = '';
-                                        if(typeof time !== "number"){
-                                            if (time.indexOf(':') > -1) {
-                                                timeFormated = parseFloat(time.replace(':', '.'));
-                                            } else if (time.indexOf('.') > -1) {
-                                                timeFormated = parseFloat(time);
-                                            } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
-                                                timeFormated = parseInt(time);
-                                            } else {
-                                                props.openSnackbar('error', 'Le format de la durée est invalide !');
-                                            }
+                                        let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+                                        if(regexFormat.test(time) === true){
 
-                                            if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
-                                                props.openSnackbar('error', 'Le format de la durée est invalide !');
-                                            } else {
-                                                if(timeFormated === 0 ){
-                                                    props.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
-                                                }else {
-                                                    lf_toUpdated.newTime.duree = timeFormated;
-                                                    console.log(lf_toUpdated)
-                                                    setShowUpdateModal(false)
-                                                    props.updateLigneFacture(lf_toUpdated.id,lf_toUpdated)
-                                                }
+                                            let duree = utilFunctions.durationToNumber(time);
+
+                                            if(duree === 0){
+                                                props.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
+                                            }else{
+                                                lf_toUpdated.newTime.duree = utilFunctions.durationToNumber(lf_toUpdated.newTime.duree)
+                                                console.log(lf_toUpdated)
+                                                props.updateLigneFacture(lf_toUpdated.id,lf_toUpdated)
+                                                setShowUpdateModal(false)
                                             }
                                         }else{
-                                            console.log(lf_toUpdated)
-                                            setShowUpdateModal(false)
-                                            props.updateLigneFacture(lf_toUpdated.id,lf_toUpdated)
+                                            props.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
                                         }
                                     }}>
                                     Modifier</AtlButton>
