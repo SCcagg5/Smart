@@ -6,7 +6,8 @@ import entIcon from '../assets/images/entreprise-icon.png';
 import Data from '../data/Data';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
-import SmartService from '../provider/SmartService';
+//import SmartService from '../provider/SmartService';
+import SmartService from '../provider/masterNodeService';
 import PeopleOutlineOutlinedIcon from '@material-ui/icons/PeopleOutlineOutlined';
 
 

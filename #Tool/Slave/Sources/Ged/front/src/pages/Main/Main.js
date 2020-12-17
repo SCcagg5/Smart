@@ -1430,8 +1430,6 @@ export default class Main extends React.Component {
   }
 
   onLoadSharedData = ({ key, children }) => {
-    console.log(key)
-    console.log(children)
     return new Promise((resolve) => {
       if (children) {
         resolve();
