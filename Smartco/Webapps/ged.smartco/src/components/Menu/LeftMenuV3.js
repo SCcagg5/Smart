@@ -30,6 +30,9 @@ import ContactsMenuItems from "./ContactsMenuItems";
 import '../../assets/css/antDesign.css';
 import {Input, Tree} from 'antd';
 import TimeSheetMenuItems from "./TimeSheetMenuItems";
+import CircularProgress from '@material-ui/core/CircularProgress';
+
+
 
 const {DirectoryTree} = Tree;
 const {Search} = Input;
@@ -237,354 +240,118 @@ export default function LeftMenuV3(props) {
     return (
 
         <div style={{marginTop: 20, paddingRight: 10}}>
+
             <div align="center">
-
-                <MuiButton
-                    variant="contained"
-                    color="default"
-                    startIcon={<AddIcon style={{color: "#A00015", fontSize: 28}}/>}
-                    size="large"
-                    style={{textTransform: "none", borderRadius: 20, backgroundColor: "#fff", color: "#000"}}
-                    onClick={(event) => setAnchorEl(event.currentTarget)}
-                >
-                    Nouveau
-                </MuiButton>
-
-                <Menu
-                    id="right-menu"
-                    anchorEl={anchorEl}
-                    keepMounted
-                    open={Boolean(anchorEl)}
-                    onClose={() => setAnchorEl(null)}
-                >
-                    <MenuItem key={1} onClick={() => {
-                        setAnchorEl(null);
-                        props.openNewFolderModalFromRacine()
-                    }}>
-                        <ListItemIcon>
-                            <NewFolderIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Nouveau dossier</Typography>
-                    </MenuItem>
-                    <MenuItem key={2} onClick={() => {
-                        setAnchorEl(null);
-                        props.onClickNewFileFromRacine()
-                    }}>
-                        <ListItemIcon>
-                            <NewFileIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Importer un fichier</Typography>
-                    </MenuItem>
-                    <MenuItem key={3} onClick={() => {
-                        setAnchorEl(null);
-                        //props.onClickImportFolder()
-                    }}>
-                        <ListItemIcon>
-                            <CloudUploadIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Importer un dossier</Typography>
-                    </MenuItem>
-                </Menu>
-
-            </div>
+                        <MuiButton
+                            variant="contained"
+                            color="default"
+                            startIcon={<AddIcon style={{color: "#A00015", fontSize: 28}}/>}
+                            size="large"
+                            style={{textTransform: "none", borderRadius: 20, backgroundColor: "#fff", color: "#000"}}
+                            onClick={(event) => {
+                                props.loadingGed === false && setAnchorEl(event.currentTarget)
+                            }}
+                        >
+                            Nouveau
+                        </MuiButton>
+                    </div>
 
             <div style={{marginTop: 25, marginLeft: 5}}>
 
-                <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Drive" ? "aliceblue" : ""}}
-                     /*onDoubleClick={() => {
-                         props.setShowDriveMenuItems()
-                     }} */
-                     onClick={() => {
-                         props.setSelectedDriveItem([])
-                         props.setExpandedDriveItems([])
-                         props.setSelectedDriveSharedItem([])
-                         props.setExpandedDriveSharedItems([])
-                    props.setShowDriveMenuItems()
-                    props.setFocusedItem("Drive")
-                }}
-                >
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                    <div style={{display: "flex"}}>
-                        {
-                            props.showDriveMenuItems === true ?
-                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
-                        }
-                        <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Mon Drive</Typography>
-                    </div>
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                </div>
-                {
-                    props.showDriveMenuItems === true &&
                     <div>
-                        <Search style={{marginBottom: 8}} placeholder="Chercher" onChange={onChange}/>
-                        <DirectoryTree
-                            draggable
-                            showIcon={true}
-                            onExpand={onExpand}
-                            onSelect={onSelect}
-                            onDragEnter={onDragEnter}
-                            onDrop={onDrop}
-                            treeData={loop(props.driveFolders)}
-                            expandAction="click"
-                            onRightClick={info => {
-                                if (info.node.typeF === "folder") {
-                                        setAnchorElMenu(info.event.currentTarget)
-                                        props.setSelectedFolder(info.node)
-                                        props.setFolderName(info.node.title)
-                                        props.setFolderId(info.node.key)
+                        <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Drive" ? "aliceblue" : ""}}
+                             onClick={() => {
+                                 props.setSelectedDriveItem([])
+                                 props.setExpandedDriveItems([])
+                                 props.setSelectedDriveSharedItem([])
+                                 props.setExpandedDriveSharedItems([])
+                                 props.setShowDriveMenuItems()
+                                 props.setFocusedItem("Drive")
+                             }}
+                        >
+                            <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                            <div style={{display: "flex"}}>
+                                {
+                                    props.showDriveMenuItems === true ?
+                                        <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                                 }
-                            }}
-                            expandedKeys={props.expandedDriveItems}
-                            selectedKeys={props.selectedDriveItem}
-                            onDragStart={e => {
-                                let node = {key:e.node.key,typeF:e.node.typeF}
-                                e.event.dataTransfer.setData("node", JSON.stringify(node))
-                            }}
-                            autoExpandParent={props.autoExpandParent}
-                        />
-                        <DirectoryTree
-                          loadData={props.onLoadSharedData}
-                          draggable
-                          showIcon={true}
-                          onExpand={onExpand_shared}
-                          onSelect={onSelect_shared}
-                          treeData={props.sharedFolders}
-                          expandAction="click"
-                          onRightClick={info => {
+                                <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Mon Drive</Typography>
+                            </div>
+                            <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                        </div>
+                        {
+                            props.showDriveMenuItems === true &&
+                            <div>
+                                {
+                                    props.loadingGed === true ?
+                                        <div align="center" className="mt-1">
+                                            <h6>Chargement...</h6>
+                                        </div> :
 
-                              if (info.node.typeF === "folder" && info.node.key !== "parent") {
-                                  let rights = info.node.rights || [];
-                                  setRights(rights);
-                                  setShareAnchorElMenu(info.event.currentTarget)
-                                  props.setSelectedFolder(info.node)
-                                  props.setFolderName(info.node.title)
-                                  props.setSharedFolderId(info.node.key)
+                                        <div>
+                                            <Search style={{marginBottom: 8}} placeholder="Chercher" onChange={onChange}/>
+                                            <DirectoryTree
+                                                draggable
+                                                showIcon={true}
+                                                onExpand={onExpand}
+                                                onSelect={onSelect}
+                                                onDragEnter={onDragEnter}
+                                                onDrop={onDrop}
+                                                treeData={loop(props.driveFolders)}
+                                                expandAction="click"
+                                                onRightClick={info => {
+                                                    if (info.node.typeF === "folder") {
+                                                        setAnchorElMenu(info.event.currentTarget)
+                                                        props.setSelectedFolder(info.node)
+                                                        props.setFolderName(info.node.title)
+                                                        props.setFolderId(info.node.key)
+                                                    }
+                                                }}
+                                                expandedKeys={props.expandedDriveItems}
+                                                selectedKeys={props.selectedDriveItem}
+                                                onDragStart={e => {
+                                                    let node = {key:e.node.key,typeF:e.node.typeF}
+                                                    e.event.dataTransfer.setData("node", JSON.stringify(node))
+                                                }}
+                                                autoExpandParent={props.autoExpandParent}
+                                            />
+                                            <DirectoryTree
+                                                loadData={props.onLoadSharedData}
+                                                draggable
+                                                showIcon={true}
+                                                onExpand={onExpand_shared}
+                                                onSelect={onSelect_shared}
+                                                treeData={props.sharedFolders}
+                                                expandAction="click"
+                                                onRightClick={info => {
 
-                              }
-                          }}
-                          expandedKeys={props.expandedDriveSharedItems}
-                          selectedKeys={props.selectedDriveSharedItem}
-                          autoExpandParent={props.autoExpandSharedParent}
-                        />
+                                                    if (info.node.typeF === "folder" && info.node.key !== "parent") {
+                                                        let rights = info.node.rights || [];
+                                                        setRights(rights);
+                                                        setShareAnchorElMenu(info.event.currentTarget)
+                                                        props.setSelectedFolder(info.node)
+                                                        props.setFolderName(info.node.title)
+                                                        props.setSharedFolderId(info.node.key)
+
+                                                    }
+                                                }}
+                                                expandedKeys={props.expandedDriveSharedItems}
+                                                selectedKeys={props.selectedDriveSharedItem}
+                                                autoExpandParent={props.autoExpandSharedParent}
+                                            />
+                                        </div>
+                                }
+
+
+
+                            </div>
+                        }
                     </div>
 
-                }
-                <Menu
-                    id="tree-menu-click"
-                    anchorEl={anchorElMenu}
-                    keepMounted
-                    open={Boolean(anchorElMenu)}
-                    onClose={() => setAnchorElMenu(null)}
-                >
-                    <MenuItem key={1} onClick={() => {
-                        setAnchorElMenu(null);
-                        props.openNewFolderModal()
-                    }} //disabled={localStorage.getItem("role") !== "admin"}
-                    >
-                        <ListItemIcon>
-                            <NewFolderIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Nouveau dossier</Typography>
-                    </MenuItem>
-                    <MenuItem key={2} onClick={() => {
-                        setAnchorElMenu(null);
-                        props.showNewFileScreen()
-                    }}>
-                        <ListItemIcon>
-                            <NewFileIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Nouveau fichier</Typography>
-                    </MenuItem>
-                    <MenuItem key={3} onClick={() => {
-                        setAnchorElMenu(null);
-                        props.openShareModal()
-                    }} //disabled={localStorage.getItem("role") !== "admin"}
-                       >
-                        <ListItemIcon>
-                            <PersonAddIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Partager</Typography>
-                    </MenuItem>
-                    <MenuItem key={5} onClick={() => {
-                        setAnchorElMenu(null);
-                        setOpenRenameModal(true);
-                        setnewFolderName(props.selectedFolder.title)
-                    }} //disabled={localStorage.getItem("role") !== "admin"}
-                       >
-                        <ListItemIcon>
-                            <EditIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Renommer</Typography>
-                    </MenuItem>
-                    <MenuItem key={6} onClick={() => {
 
-                    }}>
-                        <ListItemIcon>
-                            <GetAppIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Télécharger</Typography>
-                    </MenuItem>
-                    <MenuItem  key={7} onClick={() => {
-                        setAnchorElMenu(null);
-                        setOpenDeleteModal(true)
-                    }} //disabled={localStorage.getItem("role") !== "admin"}
-                    >
-                        <ListItemIcon>
-                            <DeleteOutlineIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Supprimer</Typography>
-                    </MenuItem>
-                </Menu>
 
-                <Menu
-                  id="tree-menu-click111"
-                  anchorEl={anchorShareElMenu}
-                  keepMounted
-                  open={Boolean(anchorShareElMenu)}
-                  onClose={() => setShareAnchorElMenu(null)}
-                >
-                    <MenuItem key={1} onClick={() => {
-                        setShareAnchorElMenu(null);
-                        props.openNewFolderModal()
-                    }} disabled={rights.edit === false}
-                    >
-                        <ListItemIcon>
-                            <NewFolderIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Nouveau dossier</Typography>
-                    </MenuItem>
-                    <MenuItem key={2} onClick={() => {
-                        setShareAnchorElMenu(null);
-                        props.showNewFileScreen()
-                    }}
-                              disabled={rights.edit === false}
-                    >
-                        <ListItemIcon>
-                            <NewFileIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Nouveau fichier</Typography>
-                    </MenuItem>
-                    <MenuItem key={3} onClick={() => {
-                        setShareAnchorElMenu(null);
-                        props.openShareModal()
-                    }} disabled={rights.share === false}
-                    >
-                        <ListItemIcon>
-                            <PersonAddIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Partager</Typography>
-                    </MenuItem>
-                    <MenuItem key={5} onClick={() => {
-                        setShareAnchorElMenu(null);
-                        setOpenRenameModal(true);
-                        setnewFolderName(props.selectedFolder.title)
-                    }} disabled={rights.edit === false}
-                    >
-                        <ListItemIcon>
-                            <EditIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Renommer</Typography>
-                    </MenuItem>
-                    <MenuItem key={6} onClick={() => {
 
-                    }}
-                              disabled={rights.read === false}
-                    >
-                        <ListItemIcon>
-                            <GetAppIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Télécharger</Typography>
-                    </MenuItem>
-                    <MenuItem  key={7} onClick={() => {
-                        setShareAnchorElMenu(null);
-                        setOpenDeleteModal(true)
-                    }} disabled={rights.administrate === false}
-                    >
-                        <ListItemIcon>
-                            <DeleteOutlineIcon fontSize="small"/>
-                        </ListItemIcon>
-                        <Typography variant="inherit">Supprimer</Typography>
-                    </MenuItem>
-                </Menu>
-
-                <Dialog
-                    open={openDeleteModal}
-                    TransitionComponent={Transition}
-                    keepMounted
-                    onClose={() => setOpenDeleteModal(false)}
-                    aria-labelledby="alert-dialog-slide-title"
-                    aria-describedby="alert-dialog-slide-description"
-                >
-                    <DialogTitle id="alert-dialog-slide-title"
-                                 style={{width: "90%"}}>{"Voulez-vous vraiment supprimer ce dossier ?"}</DialogTitle>
-                    <DialogContent>
-                        <div align="center" style={{marginTop: 5, marginBottom: 5}}>
-                            <div className="avatar-lg rounded-circle bg-soft-danger border-danger">
-                                <i className="mdi mdi-close-circle-outline avatar-title text-danger"
-                                   style={{fontSize: 42}}/>
-                            </div>
-                        </div>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => setOpenDeleteModal(false)} color="default"
-                                style={{textTransform: "Capitalize", fontWeight: "bold"}}>
-                            Annuler
-                        </Button>
-                        <Button onClick={() => {
-                            setOpenDeleteModal(false)
-                            props.onDeleteFolder()
-                        }}
-                                color="secondary" style={{textTransform: "Capitalize", fontWeight: "bold"}}
-                                variant="contained">
-                            Confirmer
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-
-                <Modal isOpen={openRenameeModal} size="md" centered={true} zIndex={1500}
-                       toggle={() => {
-                           setOpenRenameModal(false)
-                       }}
-                >
-                    <ModalHeader toggle={() => {
-                        setOpenRenameModal(false)
-                    }}>
-                        Renommer
-                    </ModalHeader>
-                    <ModalBody>
-
-                        <div style={{marginTop: 20}}>
-                            <input className="form-control" placeholder="Renommer" value={newFolderName}
-                                   onChange={event => setnewFolderName(event.target.value)} style={{height: 40}}
-                                   type="text"
-                            />
-                        </div>
-                        <div style={{marginTop: 15, textAlign: "right"}}>
-                            <button className="btn btn-light  font-weight-normal m-1"
-                                    style={{fontFamily: "sans-serif"}}
-                                    onClick={() => {
-                                        setOpenRenameModal(false)
-                                    }}
-                            >
-                                Annuler
-                            </button>
-                            <button className="btn btn-success  font-weight-normal m-1"
-                                    style={{fontFamily: "sans-serif"}}
-                                    onClick={() => {
-                                        setOpenRenameModal(false)
-                                        props.onRenameFolder(newFolderName)
-                                    }}
-                            >
-                                OK
-                            </button>
-                        </div>
-
-                    </ModalBody>
-                </Modal>
-
-                {
-                    (localStorage.getItem("role") === "admin" || localStorage.getItem("role") === "user") &&
-                        <div>
+                <div>
                             <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Rooms" ? "aliceblue" : ""}}
                                  /*onDoubleClick={() => {
                                      props.setShowRoomsMenuItems()
@@ -734,7 +501,256 @@ export default function LeftMenuV3(props) {
                             }
 
                         </div>
-                }
+
+
+                <Menu
+                    id="right-menu"
+                    anchorEl={anchorEl}
+                    keepMounted
+                    open={Boolean(anchorEl)}
+                    onClose={() => setAnchorEl(null)}
+                >
+                    <MenuItem key={1} onClick={() => {
+                        setAnchorEl(null);
+                        props.openNewFolderModalFromRacine()
+                    }}>
+                        <ListItemIcon>
+                            <NewFolderIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Nouveau dossier</Typography>
+                    </MenuItem>
+                    <MenuItem key={2} onClick={() => {
+                        setAnchorEl(null);
+                        props.onClickNewFileFromRacine()
+                    }}>
+                        <ListItemIcon>
+                            <NewFileIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Importer un fichier</Typography>
+                    </MenuItem>
+                    <MenuItem key={3} onClick={() => {
+                        setAnchorEl(null);
+                        //props.onClickImportFolder()
+                    }}>
+                        <ListItemIcon>
+                            <CloudUploadIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Importer un dossier</Typography>
+                    </MenuItem>
+                </Menu>
+
+                <Menu
+                    id="tree-menu-click"
+                    anchorEl={anchorElMenu}
+                    keepMounted
+                    open={Boolean(anchorElMenu)}
+                    onClose={() => setAnchorElMenu(null)}
+                >
+                    <MenuItem key={1} onClick={() => {
+                        setAnchorElMenu(null);
+                        props.openNewFolderModal()
+                    }} //disabled={localStorage.getItem("role") !== "admin"}
+                    >
+                        <ListItemIcon>
+                            <NewFolderIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Nouveau dossier</Typography>
+                    </MenuItem>
+                    <MenuItem key={2} onClick={() => {
+                        setAnchorElMenu(null);
+                        props.showNewFileScreen()
+                    }}>
+                        <ListItemIcon>
+                            <NewFileIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Nouveau fichier</Typography>
+                    </MenuItem>
+                    <MenuItem key={3} onClick={() => {
+                        setAnchorElMenu(null);
+                        props.openShareModal()
+                    }} //disabled={localStorage.getItem("role") !== "admin"}
+                    >
+                        <ListItemIcon>
+                            <PersonAddIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Partager</Typography>
+                    </MenuItem>
+                    <MenuItem key={5} onClick={() => {
+                        setAnchorElMenu(null);
+                        setOpenRenameModal(true);
+                        setnewFolderName(props.selectedFolder.title)
+                    }} //disabled={localStorage.getItem("role") !== "admin"}
+                    >
+                        <ListItemIcon>
+                            <EditIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Renommer</Typography>
+                    </MenuItem>
+                    <MenuItem key={6} onClick={() => {
+
+                    }}>
+                        <ListItemIcon>
+                            <GetAppIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Télécharger</Typography>
+                    </MenuItem>
+                    <MenuItem  key={7} onClick={() => {
+                        setAnchorElMenu(null);
+                        setOpenDeleteModal(true)
+                    }} //disabled={localStorage.getItem("role") !== "admin"}
+                    >
+                        <ListItemIcon>
+                            <DeleteOutlineIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Supprimer</Typography>
+                    </MenuItem>
+                </Menu>
+
+                <Menu
+                    id="tree-menu-click111"
+                    anchorEl={anchorShareElMenu}
+                    keepMounted
+                    open={Boolean(anchorShareElMenu)}
+                    onClose={() => setShareAnchorElMenu(null)}
+                >
+                    <MenuItem key={1} onClick={() => {
+                        setShareAnchorElMenu(null);
+                        props.openNewFolderModal()
+                    }} disabled={rights.edit === false}
+                    >
+                        <ListItemIcon>
+                            <NewFolderIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Nouveau dossier</Typography>
+                    </MenuItem>
+                    <MenuItem key={2} onClick={() => {
+                        setShareAnchorElMenu(null);
+                        props.showNewFileScreen()
+                    }}
+                              disabled={rights.edit === false}
+                    >
+                        <ListItemIcon>
+                            <NewFileIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Nouveau fichier</Typography>
+                    </MenuItem>
+                    <MenuItem key={3} onClick={() => {
+                        setShareAnchorElMenu(null);
+                        props.openShareModal()
+                    }} disabled={rights.share === false}
+                    >
+                        <ListItemIcon>
+                            <PersonAddIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Partager</Typography>
+                    </MenuItem>
+                    <MenuItem key={5} onClick={() => {
+                        setShareAnchorElMenu(null);
+                        setOpenRenameModal(true);
+                        setnewFolderName(props.selectedFolder.title)
+                    }} disabled={rights.edit === false}
+                    >
+                        <ListItemIcon>
+                            <EditIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Renommer</Typography>
+                    </MenuItem>
+                    <MenuItem key={6} onClick={() => {
+
+                    }}
+                              disabled={rights.read === false}
+                    >
+                        <ListItemIcon>
+                            <GetAppIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Télécharger</Typography>
+                    </MenuItem>
+                    <MenuItem  key={7} onClick={() => {
+                        setShareAnchorElMenu(null);
+                        setOpenDeleteModal(true)
+                    }} disabled={rights.administrate === false}
+                    >
+                        <ListItemIcon>
+                            <DeleteOutlineIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <Typography variant="inherit">Supprimer</Typography>
+                    </MenuItem>
+                </Menu>
+
+                <Dialog
+                    open={openDeleteModal}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={() => setOpenDeleteModal(false)}
+                    aria-labelledby="alert-dialog-slide-title"
+                    aria-describedby="alert-dialog-slide-description"
+                >
+                    <DialogTitle id="alert-dialog-slide-title"
+                                 style={{width: "90%"}}>{"Voulez-vous vraiment supprimer ce dossier ?"}</DialogTitle>
+                    <DialogContent>
+                        <div align="center" style={{marginTop: 5, marginBottom: 5}}>
+                            <div className="avatar-lg rounded-circle bg-soft-danger border-danger">
+                                <i className="mdi mdi-close-circle-outline avatar-title text-danger"
+                                   style={{fontSize: 42}}/>
+                            </div>
+                        </div>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setOpenDeleteModal(false)} color="default"
+                                style={{textTransform: "Capitalize", fontWeight: "bold"}}>
+                            Annuler
+                        </Button>
+                        <Button onClick={() => {
+                            setOpenDeleteModal(false)
+                            props.onDeleteFolder()
+                        }}
+                                color="secondary" style={{textTransform: "Capitalize", fontWeight: "bold"}}
+                                variant="contained">
+                            Confirmer
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Modal isOpen={openRenameeModal} size="md" centered={true} zIndex={1500}
+                       toggle={() => {
+                           setOpenRenameModal(false)
+                       }}
+                >
+                    <ModalHeader toggle={() => {
+                        setOpenRenameModal(false)
+                    }}>
+                        Renommer
+                    </ModalHeader>
+                    <ModalBody>
+
+                        <div style={{marginTop: 20}}>
+                            <input className="form-control" placeholder="Renommer" value={newFolderName}
+                                   onChange={event => setnewFolderName(event.target.value)} style={{height: 40}}
+                                   type="text"
+                            />
+                        </div>
+                        <div style={{marginTop: 15, textAlign: "right"}}>
+                            <button className="btn btn-light  font-weight-normal m-1"
+                                    style={{fontFamily: "sans-serif"}}
+                                    onClick={() => {
+                                        setOpenRenameModal(false)
+                                    }}
+                            >
+                                Annuler
+                            </button>
+                            <button className="btn btn-success  font-weight-normal m-1"
+                                    style={{fontFamily: "sans-serif"}}
+                                    onClick={() => {
+                                        setOpenRenameModal(false)
+                                        props.onRenameFolder(newFolderName)
+                                    }}
+                            >
+                                OK
+                            </button>
+                        </div>
+
+                    </ModalBody>
+                </Modal>
 
 
 

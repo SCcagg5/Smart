@@ -37,7 +37,9 @@ export default function SideMenu(props) {
                 </div>
                 <hr style={{border:"1px solid #f0f0f0"}}/>
                 <div className="menu-item" onClick={()=> {
+                    let emailCp = localStorage.getItem("email")
                     localStorage.clear();
+                    localStorage.setItem("email",emailCp)
                     props.history.push("/login")
                 }}>
                     <i className="fe-log-out" style={{fontSize:24,color:"red",marginLeft:20}}/>

@@ -48,12 +48,12 @@ export default function CollapsibleTable(props) {
   const [f_TooDeleted, setF_TooDeleted] = React.useState("");
 
 
-  let factures = props.factures.filter(x => x.partner === localStorage.getItem("email"));
+  let factures = (props.factures || []).filter(x => x.partner === localStorage.getItem("email"));
 
   const searchFilter = factures.filter((lf) => ( ( (lf.client.trim() === client_search.trim() ) || client_search === "") &&
-    ( (sdate_search !== null && ( new Date(lf.created_at).getTime() >= sdate_search.getTime())) || sdate_search === null  ) &&
-    ( (edate_search !== null && (new Date(lf.created_at).getTime() <= (moment(edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || edate_search === null  ) &&
-    ( (statut_search === lf.statut) || statut_search === "tous" )
+      ( (sdate_search !== null && ( new Date(lf.created_at).getTime() >= sdate_search.getTime())) || sdate_search === null  ) &&
+      ( (edate_search !== null && (new Date(lf.created_at).getTime() <= (moment(edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || edate_search === null  ) &&
+      ( (statut_search === lf.statut) || statut_search === "tous" )
   ))
 
   searchFilter.sort( (a,b) => {
@@ -64,18 +64,18 @@ export default function CollapsibleTable(props) {
 
 
   return (
-    <TableContainer component={Paper} style={{minHeight:650,padding:30}}>
-      <div>
+      <TableContainer component={Paper} style={{minHeight:650,padding:30}}>
+        <div>
 
-        <div className="row mt-1" style={{border:"2px solid #f0f0f0",padding:15,paddingLeft:10}}>
+          <div className="row mt-1" style={{border:"2px solid #f0f0f0",padding:15,paddingLeft:10}}>
             <div className="col-md-12">
               <div align="right">
                 <AtlButton
-                  onClick={() => {
-                    setSdate_search(null)
-                    setEdate_search(null)
-                    setClient_search("")
-                  }}
+                    onClick={() => {
+                      setSdate_search(null)
+                      setEdate_search(null)
+                      setClient_search("")
+                    }}
                 >Initialiser</AtlButton>
               </div>
             </div>
@@ -87,27 +87,27 @@ export default function CollapsibleTable(props) {
                 <h5>De</h5>
                 <div style={{marginLeft:10,marginRight:10}}>
                   <DatePicker
-                    calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
-                    onChange={(e) => {
-                      setSdate_search(e)
-                    }}
-                    value={sdate_search}
-                    dayPlaceholder="dd"
-                    monthPlaceholder="mm"
-                    yearPlaceholder="yyyy"
+                      calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
+                      onChange={(e) => {
+                        setSdate_search(e)
+                      }}
+                      value={sdate_search}
+                      dayPlaceholder="dd"
+                      monthPlaceholder="mm"
+                      yearPlaceholder="yyyy"
                   />
                 </div>
                 <h5>à</h5>
                 <div style={{marginLeft:10,marginRight:10}}>
                   <DatePicker
-                    calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
-                    onChange={(e) => {
-                      setEdate_search(e)
-                    }}
-                    value={edate_search}
-                    dayPlaceholder="dd"
-                    monthPlaceholder="mm"
-                    yearPlaceholder="yyyy"
+                      calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
+                      onChange={(e) => {
+                        setEdate_search(e)
+                      }}
+                      value={edate_search}
+                      dayPlaceholder="dd"
+                      monthPlaceholder="mm"
+                      yearPlaceholder="yyyy"
                   />
                 </div>
               </div>
@@ -116,24 +116,24 @@ export default function CollapsibleTable(props) {
               <div style={{display:"flex"}}>
                 <h5 style={{marginRight:10}}>Par client</h5>
                 <SelectSearch
-                  className="select-search"
-                  options={
-                    props.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
-                      ({
-                        value: Nom + ' ' + (Prenom || ''),
-                        name: Nom + ' ' + (Prenom || ''),
-                        ContactType: Type,
-                        ContactName: Nom + ' ' + (Prenom || ''),
-                        imageUrl: imageUrl
-                      }))
-                  }
-                  value={client_search}
-                  renderOption={main_functions.renderSearchOption}
-                  search
-                  placeholder="Sélectionner.."
-                  onChange={e => {
-                    setClient_search(e)
-                  }}
+                    className="select-search"
+                    options={
+                      props.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl }) =>
+                          ({
+                            value: Nom + ' ' + (Prenom || ''),
+                            name: Nom + ' ' + (Prenom || ''),
+                            ContactType: Type,
+                            ContactName: Nom + ' ' + (Prenom || ''),
+                            imageUrl: imageUrl
+                          }))
+                    }
+                    value={client_search}
+                    renderOption={main_functions.renderSearchOption}
+                    search
+                    placeholder="Sélectionner.."
+                    onChange={e => {
+                      setClient_search(e)
+                    }}
                 />
               </div>
             </div>
@@ -142,13 +142,13 @@ export default function CollapsibleTable(props) {
               <div style={{display:"flex"}}>
                 <h5>Par statut</h5>
                 <select
-                  style={{width:250,marginLeft:10}}
-                  className="form-control custom-select"
-                  id="titre"
-                  name="titre"
-                  placeholder="Titre"
-                  value={statut_search}
-                  onChange={(e) => {setStatut_search(e.target.value)}}
+                    style={{width:250,marginLeft:10}}
+                    className="form-control custom-select"
+                    id="titre"
+                    name="titre"
+                    placeholder="Titre"
+                    value={statut_search}
+                    onChange={(e) => {setStatut_search(e.target.value)}}
                 >
                   <option  value={"tous"} label={"Tous"} />
                   <option  value={"wait"} label={"En attente"} />
@@ -158,88 +158,80 @@ export default function CollapsibleTable(props) {
             </div>
           </div>
 
-        {
-          searchFilter.length > 0 ?
-            <Table aria-label="collapsible table" style={{marginTop:20}}>
-              <TableHead>
-                <TableRow>
-                  <TableCell />
-                  <TableCell align="center" style={{fontWeight:"bold"}} >Numéro Facture</TableCell>
-                  <TableCell align="center" style={{fontWeight:"bold"}} >Date de création</TableCell>
-                  <TableCell align="center" style={{fontWeight:"bold"}} >Date Facture</TableCell>
-                  <TableCell align="center" style={{fontWeight:"bold"}} >Client</TableCell>
-                  <TableCell align="center" style={{fontWeight:"bold"}} >Nom du dossier</TableCell>
-                  <TableCell align="center" style={{fontWeight:"bold"}} >Total(nb heures)</TableCell>
-                  <TableCell align="center" style={{fontWeight:"bold"}} >Total (CHF)</TableCell>
-                  <TableCell align="center" style={{fontWeight:"bold"}} >Statut</TableCell>
-                  <TableCell align="center" style={{fontWeight:"bold"}} >Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {
-                  searchFilter.map((row,key) => (
-                    <Row key={key} row={row} index={key} validateFacture={props.validateFacture} openFacture={props.openFacture}
-                         openFactureFolder={props.openFactureFolder} client_folders={props.client_folders} clients_tempo={props.clients_tempo}
-                         annuaire_clients_mondat={props.annuaire_clients_mondat}
-                         sharedFolders={props.sharedFolders}
-                         showDeleteModal={(ID) => {
-                           if(row.partner === localStorage.getItem("email")){
-                             console.log(ID)
-                             setF_TooDeleted(ID)
-                             setOpenDeleteModal(true)
-                           }else{
-                             alert("Vous n'avez pas le droit d'effectuer cette opération !");
-                           }
-                         }}
-                    />
-                  ))
-                }
-              </TableBody>
-            </Table> :
-
-            <h6 style={{margin:20}}>Aucune facture trouvée</h6>
-        }
-
-
-        <ModalTransition>
-          {openDeleteModal === true && (
-            <Modal
-              actions={[
-                { text: 'Supprimer', onClick: () => {
-                    let find_index = props.facturesCp.findIndex(x => x.ID === f_TooDeleted)
-                    console.log(find_index)
-                    if(find_index > -1){
-                      let newFactures = props.facturesCp.filter(x => x.ID !== f_TooDeleted);
-                      props.updateAllFactures(newFactures);
-                      props.openSnackbar("success","Facture supprimée avec succès")
-                      setF_TooDeleted("")
-                      setOpenDeleteModal(false)
-                    }else{
-                      props.openSnackbar("error","Une erreur est survenue !")
-                      setF_TooDeleted("")
-                      setOpenDeleteModal(false)
+          {
+            searchFilter.length > 0 ?
+                <Table aria-label="collapsible table" style={{marginTop:20}}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell />
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Numéro Facture</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Date de création</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Date Facture</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Client</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Nom du dossier</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Total(nb heures)</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Total (CHF)</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Statut</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {
+                      searchFilter.map((row,key) => (
+                          <Row key={key} row={row} index={key} validateFacture={props.validateFacture} openFacture={props.openFacture}
+                               openFactureFolder={props.openFactureFolder} client_folders={props.client_folders} clients_tempo={props.clients_tempo}
+                               annuaire_clients_mandat={props.annuaire_clients_mandat}
+                               sharedFolders={props.sharedFolders}
+                               showDeleteModal={(id) => {
+                                 if(row.partner === localStorage.getItem("email")){
+                                   console.log(id)
+                                   setF_TooDeleted(id)
+                                   setOpenDeleteModal(true)
+                                 }else{
+                                   alert("Vous n'avez pas le droit d'effectuer cette opération !");
+                                 }
+                               }}
+                          />
+                      ))
                     }
-                  } },
-                { text: 'Annuler', onClick: () => {
-                    setF_TooDeleted("")
-                    setOpenDeleteModal(false)
-                  }},
-              ]}
-              onClose={() => {
-                setF_TooDeleted("")
-                setOpenDeleteModal(false)
-              }}
-              heading="Vous êtes sur le point de supprimer cette facture !"
-              appearance="danger"
-            >
-            </Modal>
-          )}
-        </ModalTransition>
+                  </TableBody>
+                </Table> :
 
-      </div>
+                <h6 style={{margin:20}}>Aucune facture trouvée</h6>
+          }
 
 
-    </TableContainer>
+          <ModalTransition>
+            {openDeleteModal === true && (
+                <Modal
+                    actions={[
+                      { text: 'Supprimer', onClick: () => {
+
+                          props.delete_facture(f_TooDeleted);
+                          setF_TooDeleted("")
+                          setOpenDeleteModal(false)
+
+                        } },
+                      { text: 'Annuler', onClick: () => {
+                          setF_TooDeleted("")
+                          setOpenDeleteModal(false)
+                        }},
+                    ]}
+                    onClose={() => {
+                      setF_TooDeleted("")
+                      setOpenDeleteModal(false)
+                    }}
+                    heading="Vous êtes sur le point de supprimer cette facture !"
+                    appearance="danger"
+                >
+                </Modal>
+            )}
+          </ModalTransition>
+
+        </div>
+
+
+      </TableContainer>
   );
 }
 
@@ -263,10 +255,10 @@ function Row(props) {
   });
 
 
-    let selected_client_folders = []
-    let clients_tempo = props.clients_tempo || [];
-    let client_mandats = clients_tempo.find(x => x.ID_client === row.client_id)
-    selected_client_folders = client_mandats ?  client_mandats.folders || [] : [];
+  let selected_client_folders = []
+  let clients_tempo = props.clients_tempo || [];
+  let client_mandats = clients_tempo.find(x => x.ID_client === row.client_id)
+  selected_client_folders = client_mandats ?  client_mandats.folders || [] : [];
 
 
 
@@ -277,29 +269,29 @@ function Row(props) {
 
 
   return (
-    <React.Fragment>
-      <TableRow className={classes.root}>
-        <TableCell>
-          <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </TableCell>
-        <TableCell component="th" scope="row" align="center">
-          {"facture n°" + (props.index+1).toString()}
-        </TableCell>
-        <TableCell align="center">{moment(row.created_at).format("DD-MM-YYYY")}</TableCell>
-        <TableCell align="center">{moment(row.date_facture).format("DD-MM-YYYY")}</TableCell>
-        <TableCell align="center">{row.client}</TableCell>
-        <TableCell align="center">{row.client_folder.name}</TableCell>
-        <TableCell align="center">{nb_heures.toFixed(2) + " h"}</TableCell>
-        <TableCell align="center">{total + " CHF"}</TableCell>
-        <TableCell align="center">
+      <React.Fragment>
+        <TableRow className={classes.root}>
+          <TableCell>
+            <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </TableCell>
+          <TableCell component="th" scope="row" align="center">
+            {"facture n°" + (props.index+1).toString()}
+          </TableCell>
+          <TableCell align="center">{moment(row.created_at).format("DD-MM-YYYY")}</TableCell>
+          <TableCell align="center">{moment(row.date_facture).format("DD-MM-YYYY")}</TableCell>
+          <TableCell align="center">{row.client}</TableCell>
+          <TableCell align="center">{row.client_folder.name}</TableCell>
+          <TableCell align="center">{nb_heures.toFixed(2) + " h"}</TableCell>
+          <TableCell align="center">{total + " CHF"}</TableCell>
+          <TableCell align="center">
           <span className={row.statut === "wait" ? "badge badge-warning text-white p-1" : "badge badge-success text-white p-1"}>
             {row.statut === "wait" ? "En attente" : "Validée"}</span>
-        </TableCell>
-        <TableCell align="center" style={{minWidth:120}}>
-          {
-            row.statut === "accepted" &&
+          </TableCell>
+          <TableCell align="center" style={{minWidth:120}}>
+            {
+              row.statut === "accepted" &&
               [
                 <IconButton key={0} aria-label="folder" title="Afficher la facture" color="default" size="small" onClick={() => {
                   props.openFacture(row.file_id)
@@ -320,57 +312,61 @@ function Row(props) {
                 </IconButton>
               ]
 
-          }
-          <IconButton aria-label="folder" title="Supprimer" color="default" size="small"
-                      onClick={() => {
-                        if(row.statut === "wait"){
-                          props.showDeleteModal(row.ID)
-                        }
-                      }}
-          >
-            <DeleteOutlineIcon fontSize="small" style={{color:"red"}} />
-          </IconButton>
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box margin={1}>
-              <Typography variant="h6" gutterBottom component="div">
-                Lignes factures
-              </Typography>
-              <Table size="small" aria-label="purchases">
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="center" style={{fontWeight:"bold"}} >Date</TableCell>
-                    <TableCell align="center" style={{fontWeight:"bold"}} >Description</TableCell>
-                    <TableCell align="center" style={{fontWeight:"bold"}} >Utilisateur OA</TableCell>
-                    <TableCell align="center" style={{fontWeight:"bold"}} >Taux horaire</TableCell>
-                    <TableCell align="center" style={{fontWeight:"bold"}} >Durée</TableCell>
-                    {/*{
+            }
+            {
+              row.statut === "wait" &&
+              <IconButton aria-label="folder" title="Supprimer" color="default" size="small"
+                          onClick={() => {
+                            if(row.statut === "wait"){
+                              props.showDeleteModal(row.id)
+                            }
+                          }}
+              >
+                <DeleteOutlineIcon fontSize="small" style={{color:"red"}} />
+              </IconButton>
+            }
+
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <Box margin={1}>
+                <Typography variant="h6" gutterBottom component="div">
+                  Lignes factures
+                </Typography>
+                <Table size="small" aria-label="purchases">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Date</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Description</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Utilisateur OA</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Taux horaire</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Durée</TableCell>
+                      {/*{
                       row.statut === "wait" &&
                       <TableCell align="center" style={{fontWeight:"bold"}} >Actions</TableCell>
                     }*/}
-                    <TableCell align="center" style={{fontWeight:"bold"}} >Total</TableCell>
+                      <TableCell align="center" style={{fontWeight:"bold"}} >Total</TableCell>
 
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {(row.lignes_facture || []).map((lf,key) => (
-                    <TableRow key={key}>
-                      <TableCell component="th" scope="row" align="center" >
-                        {moment(lf.newTime.date).format("DD-MM-YYYY")}
-                      </TableCell>
-                      <TableCell align="center">{lf.newTime.description}</TableCell>
-                      <TableCell align="center">{lf.newTime.utilisateurOA}</TableCell>
-                      <TableCell align="center">{lf.newTime.rateFacturation + " CHF"}</TableCell>
-                      <TableCell align="center">
-                        {lf.newTime.duree + " h"}
-                      </TableCell>
-                      <TableCell align="center">
-                        {(lf.newTime.duree * parseInt(lf.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF
-                      </TableCell>
-                      {/*{
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {(row.lignes_facture || []).map((lf,key) => (
+                        <TableRow key={key}>
+                          <TableCell component="th" scope="row" align="center" >
+                            {moment(lf.newTime.date).format("DD-MM-YYYY")}
+                          </TableCell>
+                          <TableCell align="center">{lf.newTime.description}</TableCell>
+                          <TableCell align="center">{lf.newTime.utilisateurOA}</TableCell>
+                          <TableCell align="center">{lf.newTime.rateFacturation + " CHF"}</TableCell>
+                          <TableCell align="center">
+                            {lf.newTime.duree + " h"}
+                          </TableCell>
+                          <TableCell align="center">
+                            {(lf.newTime.duree * parseInt(lf.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF
+                          </TableCell>
+                          {/*{
                         row.statut === "wait" &&
                         <TableCell align="center">
                           <IconButton aria-label="Modifier" title="Modifier" color="default" size="small"
@@ -384,30 +380,30 @@ function Row(props) {
                         </TableCell>
                       }*/}
 
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-            {
-              row.statut === "wait" &&
+                        </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Box>
+              {
+                row.statut === "wait" &&
                 <div>
                   <div className="row">
                     <div className="col-md-4">
                       <h5>Dossier client</h5>
                       <MuiSelect
-                        labelId="demo-simple-select-label68798"
-                        id="demo-simple-select776879"
-                        style={{ width: '100%' }}
-                        value={client}
-                        onChange={(e) => {
-                          setClient(e.target.value)
-                        }}
+                          labelId="demo-simple-select-label68798"
+                          id="demo-simple-select776879"
+                          style={{ width: '100%' }}
+                          value={client}
+                          onChange={(e) => {
+                            setClient(e.target.value)
+                          }}
                       >
                         {
                           selected_client_folders.map((folder,key) => (
-                            <MenuItem key={key}
-                                      value={folder.folder_id}>{folder.name}</MenuItem>
+                              <MenuItem key={key}
+                                        value={folder.folder_id}>{folder.name}</MenuItem>
                           ))
                         }
                       </MuiSelect>
@@ -415,14 +411,14 @@ function Row(props) {
                     <div className="col-md-4">
                       <h6>Choix du template </h6>
                       <select
-                        className="form-control custom-select"
-                        value={template}
-                        onChange={(e) => {
-                          setTemplate(e.target.value)
-                        }}>
+                          className="form-control custom-select"
+                          value={template}
+                          onChange={(e) => {
+                            setTemplate(e.target.value)
+                          }}>
                         {
                           data.lf_templates.map((item,key) =>
-                            <option key={key} value={item.value}>{item.label}</option>
+                              <option key={key} value={item.value}>{item.label}</option>
                           )
                         }
 
@@ -445,12 +441,11 @@ function Row(props) {
                   </div>
                 </div>
 
-            }
+              }
 
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </React.Fragment>
+            </Collapse>
+          </TableCell>
+        </TableRow>
+      </React.Fragment>
   );
 }
-

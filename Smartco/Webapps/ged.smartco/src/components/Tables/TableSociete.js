@@ -113,15 +113,15 @@ export default function TableSociete(props) {
     const [searchByState, setSearchByState] = React.useState("");
     const [searchByType, setSearchByType] = React.useState("");
     const [searchBySector, setSearchBySector] = React.useState("");
-    const [searchByPays, setSearchByPays] = React.useState("");  
+    const [searchByPays, setSearchByPays] = React.useState("");
     const [searchByLead, setSearchByLead] = React.useState("");
     const [selectedSearchLettre, setSelectedSearchLettre] = React.useState("");
     const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
-    const [toRemoveClient_id, setToRemoveClient_id] = React.useState("");
+    const [toRemoveClient, setToRemoveClient] = React.useState("");
     const [delete_folder_ged, setDelete_folder_ged] = React.useState(false);
 
     const searchFilter= props.societes.filter((annuaire) => (  (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
-         (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
+        (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
         (annuaire.Type === searchByType || searchByType === "") &&
         ((annuaire.isActif && annuaire.isActif  === searchByState) || searchByState === "") &&
         ((annuaire.secteur && annuaire.secteur === searchBySector)  || searchBySector === "" ) &&
@@ -146,10 +146,10 @@ export default function TableSociete(props) {
     props.contacts.map((contact,key) => {
         contactSelectOptions.push({value:contact.email,
             label:
-              <div>
-                <img alt="" src={contact.imageUrl || null} style={{width:30,height:30,objectFit:"contain"}}/>
-                {"  "}{contact.nom+" "+contact.prenom}
-              </div>
+                <div>
+                    <img alt="" src={contact.imageUrl || null} style={{width:30,height:30,objectFit:"contain"}}/>
+                    {"  "}{contact.nom+" "+contact.prenom}
+                </div>
         })
     })
 
@@ -161,10 +161,10 @@ export default function TableSociete(props) {
             <div className="mt-2" style={{textAlign:"right"}}>
                 <div className="text-sm-right">
                     <button
-                         onClick={() => {
-                             props.onAddBtnClick()
-                         }}
-                         className="btn btn-danger waves-effect waves-light mb-2">
+                        onClick={() => {
+                            props.onAddBtnClick()
+                        }}
+                        className="btn btn-danger waves-effect waves-light mb-2">
                         <i className="mdi mdi-plus-circle mr-1" /> Ajouter
                     </button>
                 </div>
@@ -296,13 +296,13 @@ export default function TableSociete(props) {
                                         <h6>Par statut</h6>
                                         <select className="form-control custom-select" style={{width:350}}
                                                 value={searchByState} onChange={(e) => {
-                                                    if(e.target.value === "true"){
-                                                        setSearchByState(true)
-                                                    }else if(e.target.value === "false"){
-                                                        setSearchByState(false)
-                                                    }else{
-                                                        setSearchByState("")
-                                                    }
+                                            if(e.target.value === "true"){
+                                                setSearchByState(true)
+                                            }else if(e.target.value === "false"){
+                                                setSearchByState(false)
+                                            }else{
+                                                setSearchByState("")
+                                            }
                                         } }
                                         >
                                             <option value={""}/>
@@ -316,8 +316,8 @@ export default function TableSociete(props) {
                                         <h6>Par type</h6>
                                         <select className="form-control custom-select" style={{width:350}}
                                                 value={searchByType} onChange={(e) => {
-                                                 setSearchByType(e.target.value)
-                                                 console.log(e.target.value)
+                                            setSearchByType(e.target.value)
+                                            console.log(e.target.value)
                                         }}
                                         >
                                             {
@@ -358,22 +358,22 @@ export default function TableSociete(props) {
                                         <h6>Par collaborateur lead sur le dossier</h6>
                                         <Select
                                             defaultValue={searchByLead}
-                                                options={contactSelectOptions}
-                                                closeMenuOnSelect={true}
-                                                isMulti={false}
-                                                hideSelectedOptions={true}
-                                                styles={{
-                                                    container: (provided, state) => ({
-                                                        ...provided,
-                                                        width:350
-                                                    }),
-                                                    menuPortal: styles => ({ ...styles, zIndex: 9999 })
-                                                }}
-                                                menuPortalTarget={document.body}
-                                                onChange={(e) => {
-                                                    console.log(e.value)
-                                                    setSearchByLead(e.value)
-                                                }}
+                                            options={contactSelectOptions}
+                                            closeMenuOnSelect={true}
+                                            isMulti={false}
+                                            hideSelectedOptions={true}
+                                            styles={{
+                                                container: (provided, state) => ({
+                                                    ...provided,
+                                                    width:350
+                                                }),
+                                                menuPortal: styles => ({ ...styles, zIndex: 9999 })
+                                            }}
+                                            menuPortalTarget={document.body}
+                                            onChange={(e) => {
+                                                console.log(e.value)
+                                                setSearchByLead(e.value)
+                                            }}
                                         />
 
                                     </div>
@@ -434,7 +434,7 @@ export default function TableSociete(props) {
                                                 <IconButton aria-label="delete" title="Supprimer" color="default" size="small" onClick={() => {
                                                     if(localStorage.getItem("client_folder_id") || localStorage.getItem("client_shared_folder_id")  ){
                                                         setOpenDeleteModal(true)
-                                                        setToRemoveClient_id(row.ID)
+                                                        setToRemoveClient(row)
                                                     }else{
                                                         alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
                                                     }
@@ -446,7 +446,7 @@ export default function TableSociete(props) {
                                     ))}
 
                                     {emptyRows > 0 && (
-                                        <TableRow  style={{ height: 40,textAlign:"center"}}>
+                                        <TableRow  style={{ height: 53 * emptyRows,textAlign:"center"}}>
                                             <th style={{marginTop:15}}>Aucun résultat trouvé !</th>
                                         </TableRow>
                                     )}
@@ -480,67 +480,61 @@ export default function TableSociete(props) {
 
             <ModalTransition>
                 {openDeleteModal === true && (
-                  <Modal
-                    actions={[
-                        { text: 'Supprimer', onClick: () => {
-                            let clients_mandats = props.clients_tempo || [];
-                            let find = clients_mandats.find(x => x.ID_client === toRemoveClient_id);
-                            if(find){
+                    <Modal
+                        actions={[
+                            { text: 'Supprimer', onClick: () => {
+                                    let clients_mandats = props.clients_tempo || [];
+                                    let find = clients_mandats.find(x => x.ID_client === toRemoveClient.ID);
+                                    if(find){
+                                        props.delete_client_case(find.id)
+                                        props.delete_annuaire_client_mandat(toRemoveClient.id)
+                                        setOpenDeleteModal(false)
 
-                                let new_clients_mandat = clients_mandats.filter(x => x.ID_client !== toRemoveClient_id);
-                                props.update_client_tempo_all(new_clients_mandat);
-                                let new_clients = props.societes.filter(x => x.ID !== toRemoveClient_id);
-                                props.update_clients(new_clients)
-                                props.openSnackbar("success","Client supprimé avec succès")
-                                setOpenDeleteModal(false)
-
-                                if(find.folder_id && find.folder_id !== "" && delete_folder_ged === true){
-                                    SmartService.deleteFile(find.folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
-                                        console.log(ok)
-                                        if (ok.succes === true && ok.status === 200) {
-                                            props.reloadGed()
-                                        }else{
-                                            if(ok.error === "Invalid rights"){
-                                                props.openSnackbar("error","Vous n'avez pas le droit de supprimer le dossier du client dans la ged !")
-                                            }else{
-                                                props.openSnackbar("error",ok.error)
-                                            }
+                                        if(find.folder_id && find.folder_id !== "" && delete_folder_ged === true){
+                                            SmartService.deleteFile(find.folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+                                                console.log(ok)
+                                                if (ok.succes === true && ok.status === 200) {
+                                                    props.reloadGed()
+                                                }else{
+                                                    if(ok.error === "Invalid rights"){
+                                                        props.openSnackbar("error","Vous n'avez pas le droit de supprimer le dossier du client dans la ged !")
+                                                    }else{
+                                                        props.openSnackbar("error",ok.error)
+                                                    }
+                                                }
+                                            }).catch(err => console.log(err))
                                         }
-                                    }).catch(err => console.log(err))
-                                }
-                            }else{
-                                let new_clients = props.societes.filter(x => x.ID !== toRemoveClient_id);
-                                props.update_clients(new_clients)
-                                props.openSnackbar("success","Client supprimé avec succès")
-                                setOpenDeleteModal(false)
-                            }
-                            } },
-                        { text: 'Annuler', onClick: () => {
+                                    }else{
+                                        props.delete_annuaire_client_mandat(toRemoveClient.id)
+                                        setOpenDeleteModal(false)
+                                    }
+                                } },
+                            { text: 'Annuler', onClick: () => {
+                                    setOpenDeleteModal(false)
+                                    setToRemoveClient("")
+                                    setDelete_folder_ged(false)
+                                }},
+                        ]}
+                        onClose={() => {
                             setOpenDeleteModal(false)
-                                setToRemoveClient_id("")
-                                setDelete_folder_ged(false)
-                            }},
-                    ]}
-                    onClose={() => {
-                        setOpenDeleteModal(false)
-                        setToRemoveClient_id("")
-                        setDelete_folder_ged(false)
-                    }}
-                    heading="Vous êtes sur le point de supprimer ce client"
-                    appearance="danger"
-                  >
-
-                      <Checkbox
-                        isChecked={delete_folder_ged}
-                        label="Voulez-vous supprimer les dossiers de ce client dans la ged aussi ?"
-                        onChange={() => {
-                            setDelete_folder_ged(!delete_folder_ged)
+                            setToRemoveClient("")
+                            setDelete_folder_ged(false)
                         }}
-                        name="checkbox-default-1"
-                        value="checkbox-default-1"
-                      />
+                        heading="Vous êtes sur le point de supprimer ce client"
+                        appearance="danger"
+                    >
 
-                  </Modal>
+                        <Checkbox
+                            isChecked={delete_folder_ged}
+                            label="Voulez-vous supprimer les dossiers de ce client dans la ged aussi ?"
+                            onChange={() => {
+                                setDelete_folder_ged(!delete_folder_ged)
+                            }}
+                            name="checkbox-default-1"
+                            value="checkbox-default-1"
+                        />
+
+                    </Modal>
                 )}
             </ModalTransition>
 

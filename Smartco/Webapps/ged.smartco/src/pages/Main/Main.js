@@ -1,6 +1,4 @@
 import React from 'react';
-import firebase from 'firebase';
-import 'firebase/database';
 import SmartService from '../../provider/SmartService';
 import moment from 'moment';
 import FolderIcon from '@material-ui/icons/Folder';
@@ -81,9 +79,14 @@ import TableFactures from '../../components/Tables/TableFactures';
 import Mandats from './Mandats';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import Badge from '@atlaskit/badge';
+import utilFunctions from "../../tools/functions";
+import rethink from "../../controller/rethink";
+import test from "../test";
 
 const ged_id = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9";
 const ent_name = "OaLegal";
+const db_name = "OA_LEGAL";
+const ENV_CLIENTS_FOLDER_ID = "4376a4bb-d5ec-441f-8868-f9ce96077420"
 
 export default class Main extends React.Component {
 
@@ -91,8 +94,9 @@ export default class Main extends React.Component {
   folderupload = {};
 
   state = {
-    loading: true,
-    firstLoading: true,
+    loading: false,
+    firstLoading: false,
+    loadingGed:true,
 
     openAlert: false,
     alertMessage: '',
@@ -205,7 +209,9 @@ export default class Main extends React.Component {
     },
     contacts: [],
     societes: [],
-    annuaire_clients_mondat: [],
+    clients_cases:[],
+    annuaire_clients_mandat: [],
+    time_sheets:[],
     rooms: [],
     selectedContact: '',
     selectedContactKey: '',
@@ -279,7 +285,7 @@ export default class Main extends React.Component {
       country: '',
       email: '',
       phone: '',
-      isActif: true
+      isActif: "true"
     },
     newContact: {
       uid: '',
@@ -311,6 +317,8 @@ export default class Main extends React.Component {
     clients_tempo_copie: [],
 
     selectedTimeSheetIndex:0,
+    selectedClientTabIndex:0,
+    selectedContactTabIndex:0,
     selectedClientFolders:[],
     facturesToValidated:[],
     facturesToValidatedCopy:[],
@@ -438,15 +446,12 @@ export default class Main extends React.Component {
     if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
       this.props.history.push('/login');
     } else {
+
       let sharedFolders = [];
+      let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
+      this.setState({meeturl: meeturl})
 
-      this.setState({ firstLoading: true });
-
-      setTimeout(() => {
-        SmartService.getGed(
-          localStorage.getItem('token'),
-          localStorage.getItem('usrtoken')
-        )
+        SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken'))
           .then((gedRes) => {
             if (gedRes.succes === true && gedRes.status === 200) {
 
@@ -472,7 +477,6 @@ export default class Main extends React.Component {
                 localStorage.setItem('client_shared_folder_id', "4376a4bb-d5ec-441f-8868-f9ce96077420");
               }
 
-              let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
               let sharedFiles = gedRes.data.Shared.Content.files || [];
 
               this.setState({
@@ -483,319 +487,55 @@ export default class Main extends React.Component {
                 rootFolders: gedRes.data.Proprietary.Content.folders || [],
                 sharedRootFiles: sharedFiles,
                 sharedFolders: sharedFolders,
+                loadingGed:false
               })
 
-              firebase.database().ref('/annuaire_client_mondat').on('value', (snapshot) => {
-                const data = snapshot.val() || [];
-                const annuaire_clients_mondatCp = data || [];
-                this.setState({annuaire_clients_mondatCp:annuaire_clients_mondatCp})
-              })
-
-              firebase.database().ref('/').on('value', (snapshot) => {
-
-                  console.log("FIRST ENTER FIREBASE")
-                  const data = snapshot.val() || [];
-                  let contacts = data.contacts || [];
-                  let rooms = (data.rooms || []).filter(x => x.ged_id === ged_id);
-                  let societes = data.societes || [];
-                  let annuaire_clients_mondat = data.annuaire_client_mondat.sort( (a,b) => {
-                    let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
-                    let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
-                    if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
-                    if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
-                    return 0;
-                  }) || [] ;
-                  let lignes_f = data[ent_name+"-lignes_f-"+ged_id] || [];
-
-                  //let clients_tempo = (data[ent_name+"-clients_tempo-"+ged_id] || []).filter(x => x.email === localStorage.getItem("email"));
-                  let clients_tempo = data[ent_name+"-clients_tempo-"+ged_id] || [];
-                  let clients_tempo_copie = data[ent_name+"-clients_tempo-"+ged_id] || [];
-                  let facturesToValidated = data[ent_name+"-factures_to_Validated-"+ged_id] || []
-                  let facturesToValidatedCopy = data[ent_name+"-factures_to_Validated-"+ged_id] || []
-
-
-                  //test
-                  //console.log(lignes_f.filter(x => x.newTime.client_id === "firx8912cmvx2gi0ojwc"))
-                /*let list = [];
-                  clients_tempo.map((item,key) => {
-                    let find = annuaire_clients_mondat.find(x => x.ID === item.ID_client);
-                    if(!find){
-                      list.push(item)
-                    }
-                  })
-                console.log(list)*/
-
-
+              if (this.props.location.pathname.indexOf('/home/drive/') > -1) {
+                let folders = gedRes.data.Proprietary.Content.folders || [];
+                let folder_id = this.props.location.pathname.replace('/home/drive/', '');
+                let folder_name = main_functions.getFolderNameById(folder_id, folders);
+                if (folder_name !== undefined && folder_name !== null) {
                   this.setState({
-                    contacts: contacts,
-                    societes: societes,
-                    annuaire_clients_mondat: annuaire_clients_mondat,
-                    rooms: rooms,
-                    lignesFactures: lignes_f,
-                    lignesFacturesCopy: lignes_f,
-                    clients_tempo: clients_tempo,
-                    clients_tempo_copie: clients_tempo_copie,
-                    facturesToValidated:facturesToValidated,
-                    facturesToValidatedCopy:facturesToValidatedCopy,
-                    meeturl: meeturl,
+                    selectedDriveItem: [folder_id],
+                    expandedDriveItems: [folder_id],
+                    selectedFoldername: folder_name,
+                    breadcrumbs: main_functions.getBreadcumpsPath(folder_id, folders),
+                    selectedFolderId: folder_id,
+                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                    selectedFolderFiles: main_functions.getFolderFilesById(folder_id, folders),
+                    selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, folders),
+                    firstLoading: false,
+                    loading: false
                   });
-
-                //new TimeSheet => séléction par défaut pour Utilisateur OA + horaire
-                let connected_email = localStorage.getItem("email");
-                let oa_contact = main_functions.getOAContactByEmail2(contacts,connected_email);
-                if(oa_contact){
-                  let ts = this.state.TimeSheet;
-                  ts.newTime.utilisateurOA = connected_email;
-                  ts.newTime.rateFacturation = oa_contact.rateFacturation || ""
-                  this.setState({
-                    TimeSheet:ts
-                  })
+                } else {
+                  console.log('ERROR FOLDER ID');
+                  this.props.history.push("/home/drive")
+                  this.componentDidMount();
                 }
-                //end
-                  if (this.props.location.pathname.indexOf('/home/drive/') > -1) {
-                    let folders = gedRes.data.Proprietary.Content.folders || [];
-                    let folder_id = this.props.location.pathname.replace('/home/drive/', '');
-                    let folder_name = main_functions.getFolderNameById(folder_id, folders);
-                    if (folder_name !== undefined && folder_name !== null) {
-                      this.setState({
-                        selectedDriveItem: [folder_id],
-                        expandedDriveItems: [folder_id],
-                        selectedFoldername: folder_name,
-                        breadcrumbs: main_functions.getBreadcumpsPath(folder_id, folders),
-                        selectedFolderId: folder_id,
-                        selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                        selectedFolderFiles: main_functions.getFolderFilesById(folder_id, folders),
-                        selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, folders),
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else {
-                      console.log('ERROR FOLDER ID');
-                      this.props.history.push("/home/drive")
-                      this.componentDidMount();
-                    }
-                  }
-                  else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
-                    this.setState({
-                      selectedDriveItem: [],
-                      expandedDriveItems: [],
-                      selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                      firstLoading: false,
-                      loading: false
-                    });
-                  }
-                  else if (this.props.location.pathname === '/home/shared/parent') {
-                    this.setState({
-                      selectedDriveItem: [],
-                      expandedDriveItems: [],
-                      selectedDriveSharedItem:['parent'],
-                      expandedDriveSharedItems:['parent'],
-                      selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                      breadcrumbs: 'Mon drive / Partagés avec moi',
-                      firstLoading: false,
-                      loading: false
-                    });
-                  }
-                  else if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
-                    if (rooms.length > 0) {
-                      let room_id = this.props.location.pathname.replace('/home/rooms/', '');
-                      this.setState({
-                        showContainerSection: 'Rooms',
-                        focusedItem: 'Rooms',
-                        selectedRoomItems: [room_id],
-                        expandedRoomItems: [room_id],
-                        openRoomMenuItem: true,
-                        selectedRoom: rooms[room_id],
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else {
-                      this.props.history.push('/home/rooms');
-                      this.setState({
-                        showContainerSection: 'Rooms',
-                        focusedItem: 'Rooms',
-                        selectedRoomItems: [],
-                        expandedRoomItems: [],
-                        openRoomMenuItem: true,
-                        selectedRoom: '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    }
-                  } else if (this.props.location.pathname === '/home/meet/new') {
-                    this.setState({
-                      showContainerSection: 'Meet',
-                      focusedItem: 'Meet',
-                      selectedMeetMenuItem: ['new'],
-                      openMeetMenuItem: true,
-                      selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                      firstLoading: false,
-                      loading: false
-                    });
-                  } else if (this.props.location.pathname === '/home/meet/rejoin') {
-                    this.setState({
-                      showContainerSection: 'Meet',
-                      focusedItem: 'Meet',
-                      selectedMeetMenuItem: ['rejoin'],
-                      openMeetMenuItem: true,
-                      selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                      firstLoading: false,
-                      loading: false
-                    });
-                  } else if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
-                    if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
-                      let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
-                      let contact = main_functions.getOAContactByUid(contacts,contact_id);
-                      if (contact) {
-                        this.setState({
-                          selectedContact: contact,
-                          selectedContactKey: contact_id,
-                          showContainerSection: 'Contacts',
-                          focusedItem: 'Contacts',
-                          openContactsMenu: true,
-                          selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                          firstLoading: false,
-                          loading: false
-                        });
-                      } else {
-                        this.props.history.push('/');
-                      }
-
-                    } else {
-                      this.setState({
-                        showContainerSection: 'Contacts',
-                        focusedItem: 'Contacts',
-                        openContactsMenu: true,
-                        selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    }
-
-                  } else if (this.props.location.pathname.indexOf('/home/clients') > -1) {
-                    if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
-                      let client_id = this.props.location.pathname.replace('/home/clients/', '');
-                      let client = annuaire_clients_mondat.find(x => x.ID === client_id);
-                      if (client) {
-                        this.setState({
-                          selectedSociete: client,
-                          selectedSocieteKey: client_id,
-                          showContainerSection: 'Societe',
-                          focusedItem: 'Societe',
-                          selectedSocietyMenuItem: ['clients_mondat'],
-                          openSocietyMenuItem: true,
-                          selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                          firstLoading: false,
-                          loading: false
-                        });
-                      } else {
-                        console.log("CLIENT NOT FOUNDED")
-                      }
-
-                    } else {
-                      this.setState({
-                        showContainerSection: 'Societe',
-                        focusedItem: 'Societe',
-                        selectedSocietyMenuItem: ['clients_mondat'],
-                        openSocietyMenuItem: true,
-                        selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    }
-
-                  } else if (this.props.location.pathname === '/home/timeSheet/activities') {
-                    this.setState({
-                      showContainerSection: 'TimeSheet',
-                      focusedItem: 'TimeSheet',
-                      selectedTimeSheetMenuItem: ['activities'],
-                      openTimeSheetsMenu: true,
-                      selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                      firstLoading: false,
-                      loading: false
-                    });
-                  } else if (this.props.location.pathname === '/home/timeSheet/dashboard') {
-                    this.setState({
-                      showContainerSection: 'TimeSheet',
-                      focusedItem: 'TimeSheet',
-                      selectedTimeSheetMenuItem: ['dashboard'],
-                      openTimeSheetsMenu: true,
-                      selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                      firstLoading: false,
-                      loading: false
-                    });
-                  } else if (this.props.location.pathname === '/home/timeSheet/dashboardPerson') {
-                    this.setState({
-                      showContainerSection: 'TimeSheet',
-                      focusedItem: 'TimeSheet',
-                      selectedTimeSheetMenuItem: ['dashboardPerson'],
-                      openTimeSheetsMenu: true,
-                      selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                      firstLoading: false,
-                      loading: false
-                    });
-                  } else if (this.props.location.pathname === '/home/timeSheet/dashboardProject') {
-                    this.setState({
-                      showContainerSection: 'TimeSheet',
-                      focusedItem: 'TimeSheet',
-                      selectedTimeSheetMenuItem: ['dashboardProject'],
-                      openTimeSheetsMenu: true,
-                      selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                      firstLoading: false,
-                      loading: false
-                    });
-                  } else if (this.props.location.pathname === '/home/search') {
-                    if (this.props.match.params.section_id) {
-                      let textToSearch = this.props.match.params.section_id;
-                      SmartService.search(
-                        textToSearch,
-                        localStorage.getItem('token'),
-                        localStorage.getItem('usrtoken')
-                      )
-                        .then((searchRes) => {
-                          if (
-                            searchRes.succes === true &&
-                            searchRes.status === 200
-                          ) {
-                            this.setState({
-                              searchResult: searchRes.data,
-                              textSearch: textToSearch,
-                              selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                              firstLoading: false,
-                              loading: false
-                            });
-                          } else {
-                            console.log(searchRes.error);
-                          }
-                        })
-                        .catch((err) => {
-                          console.log(err);
-                        });
-                    }
-                  } else if (this.props.location.pathname.indexOf('/home/search/') > -1) {
-                    let textToSearch = this.props.location.pathname.replace('/home/search/', '');
-                    SmartService.search(textToSearch, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(searchRes => {
-
-                      if (searchRes.succes === true && searchRes.status === 200) {
-                        this.setState({
-                          searchResult: searchRes.data,
-                          textSearch: textToSearch,
-                          selectedRoom: rooms.length > 0 ? rooms[0] : '',
-                          firstLoading: false,
-                          loading: false
-                        });
-                      } else {
-                        console.log(searchRes.error);
-                      }
-                    }).catch(err => {
-                      console.log(err);
-                    });
-                  } else {
-                    console.log('URL ERROR');
-                    this.props.history.push('/home/drive');
-                    this.componentDidMount();
-                  }
+              }
+              else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
+                this.setState({
+                  selectedDriveItem: [],
+                  expandedDriveItems: [],
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  firstLoading: false,
+                  loading: false
                 });
+              }
+              else if (this.props.location.pathname === '/home/shared/parent') {
+                this.setState({
+                  selectedDriveItem: [],
+                  expandedDriveItems: [],
+                  selectedDriveSharedItem:['parent'],
+                  expandedDriveSharedItems:['parent'],
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  breadcrumbs: 'Mon drive / Partagés avec moi',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+
+
             } else {
               this.setState({ loading: false });
               localStorage.clear();
@@ -806,8 +546,320 @@ export default class Main extends React.Component {
             this.props.history.push('/error');
             console.log(err);
           });
-      }, 200);
+
+
+      //RethinkDB
+      rethink.createDB(db_name,"test").then( r1 => {
+        if (r1 === true) console.log("NEW DB CREATED");
+        if (r1 === false) console.log("DB ALREADY EXIST");
+
+        rethink.tableList(db_name,"test").then(tablesRes => {
+          this.setState({tableList:tablesRes || []})
+
+          tablesRes.map((item,key) => {
+
+            rethink.getTableData(db_name,"test",item).then( rr => {
+
+              if(item === "annuaire_clients_mandat"){
+                this.setState({[item]:rr.sort( (a,b) => {
+                    let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
+                    let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
+                    if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
+                    if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
+                    return 0;
+                  })
+                })
+              }else if(item === "contacts"){
+                let connected_email = localStorage.getItem("email");
+                let oa_contact = main_functions.getOAContactByEmail2(rr,connected_email);
+                if(oa_contact){
+                  this.setState({
+                    TimeSheet: {
+                      newTime: {
+                        duree: '',
+                        client: '',
+                        dossier_client: {
+                          facturation: {
+                            language:''
+                          },
+                        },
+                        langue:'',
+                        categoriesActivite: 'Temps facturé',
+                        description: '',
+                        date: new Date(),
+                        utilisateurOA: connected_email,
+                        rateFacturation: oa_contact.rateFacturation || ""
+                      }
+                    },
+                  })
+                }
+                this.setState({[item]:rr.sort( (a,b) => {
+                    var c = a.sort || -1
+                    var d = b.sort || -1
+                    return c-d;
+                  })})
+              }
+              else{
+                this.setState({[item]:rr})
+              }
+            });
+
+            this.getTableChanges('test',db_name,'table("'+item+'")',item);
+
+          });
+
+
+
+            if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
+              if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
+                if (this.state.rooms.length > 0) {
+                  let room_id = this.props.location.pathname.replace('/home/rooms/', '');
+                  this.setState({
+                    showContainerSection: 'Rooms',
+                    focusedItem: 'Rooms',
+                    selectedRoomItems: [room_id],
+                    expandedRoomItems: [room_id],
+                    openRoomMenuItem: true,
+                    selectedRoom: this.state.rooms[room_id],
+                    firstLoading: false,
+                    loading: false
+                  });
+                } else {
+                  this.props.history.push('/home/rooms');
+                  this.setState({
+                    showContainerSection: 'Rooms',
+                    focusedItem: 'Rooms',
+                    selectedRoomItems: [],
+                    expandedRoomItems: [],
+                    openRoomMenuItem: true,
+                    selectedRoom: '',
+                    firstLoading: false,
+                    loading: false
+                  });
+                }
+              }else{
+                this.setState({
+                  showContainerSection: 'Rooms',
+                  focusedItem: 'Rooms',
+                  selectedRoomItems: [],
+                  expandedRoomItems: [],
+                  openRoomMenuItem: true,
+                  selectedRoom: '',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+            }
+            else if (this.props.location.pathname === '/home/meet/new') {
+              this.setState({
+                showContainerSection: 'Meet',
+                focusedItem: 'Meet',
+                selectedMeetMenuItem: ['new'],
+                openMeetMenuItem: true,
+                selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                firstLoading: false,
+                loading: false
+              });
+            }
+            else if (this.props.location.pathname === '/home/meet/rejoin') {
+              this.setState({
+                showContainerSection: 'Meet',
+                focusedItem: 'Meet',
+                selectedMeetMenuItem: ['rejoin'],
+                openMeetMenuItem: true,
+                selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                firstLoading: false,
+                loading: false
+              });
+            }
+            else if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
+              if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
+                let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
+                let contact = this.state.contacts.find(x => x.id === contact_id)
+                if (contact) {
+                  this.setState({
+                    selectedContact: contact,
+                    selectedContactKey: contact_id,
+                    showContainerSection: 'Contacts',
+                    focusedItem: 'Contacts',
+                    openContactsMenu: true,
+                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                    firstLoading: false,
+                    loading: false
+                  });
+                } else {
+                  this.props.history.push('/');
+                }
+
+              } else {
+                this.setState({
+                  showContainerSection: 'Contacts',
+                  focusedItem: 'Contacts',
+                  openContactsMenu: true,
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+
+            }
+            else if (this.props.location.pathname.indexOf('/home/clients') > -1) {
+              if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
+                let client_id = this.props.location.pathname.replace('/home/clients/', '');
+                let client = this.state.annuaire_clients_mandat.find(x => x.id === client_id);
+                if (client) {
+                  this.setState({
+                    selectedSociete: client,
+                    selectedSocieteKey: client_id,
+                    showContainerSection: 'Societe',
+                    focusedItem: 'Societe',
+                    selectedSocietyMenuItem: ['clients_mondat'],
+                    openSocietyMenuItem: true,
+                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                    firstLoading: false,
+                    loading: false
+                  });
+                } else {
+
+                }
+
+              } else {
+                this.setState({
+                  showContainerSection: 'Societe',
+                  focusedItem: 'Societe',
+                  selectedSocietyMenuItem: ['clients_mondat'],
+                  openSocietyMenuItem: true,
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+
+            }
+            else if (this.props.location.pathname === '/home/timeSheet/activities') {
+              this.setState({
+                showContainerSection: 'TimeSheet',
+                focusedItem: 'TimeSheet',
+                selectedTimeSheetMenuItem: ['activities'],
+                openTimeSheetsMenu: true,
+                selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                firstLoading: false,
+                loading: false
+              });
+            }
+            else if (this.props.location.pathname === '/home/search') {
+              if (this.props.match.params.section_id) {
+                let textToSearch = this.props.match.params.section_id;
+                SmartService.search(
+                    textToSearch,
+                    localStorage.getItem('token'),
+                    localStorage.getItem('usrtoken')
+                )
+                    .then((searchRes) => {
+                      if (
+                          searchRes.succes === true &&
+                          searchRes.status === 200
+                      ) {
+                        this.setState({
+                          searchResult: searchRes.data,
+                          textSearch: textToSearch,
+                          selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                          firstLoading: false,
+                          loading: false
+                        });
+                      } else {
+                        console.log(searchRes.error);
+                      }
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+              }
+            }
+            else if (this.props.location.pathname.indexOf('/home/search/') > -1) {
+              let textToSearch = this.props.location.pathname.replace('/home/search/', '');
+              SmartService.search(textToSearch, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(searchRes => {
+
+                if (searchRes.succes === true && searchRes.status === 200) {
+                  this.setState({
+                    searchResult: searchRes.data,
+                    textSearch: textToSearch,
+                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                    firstLoading: false,
+                    loading: false
+                  });
+                } else {
+                  console.log(searchRes.error);
+                }
+              }).catch(err => {
+                console.log(err);
+              });
+            }
+            else {
+              if(this.props.location.pathname.indexOf('/home/drive/') === -1 && this.props.location.pathname.indexOf('/home/drive') === -1 && this.props.location.pathname !== '/home/shared/parent' ){
+                console.log('URL ERROR');
+                this.props.history.push('/home/drive');
+                this.componentDidMount();
+              }
+            }
+
+        }).catch(err => {console.log(err)})
+
+      }).catch(err => {console.log(err)})
+
     }
+  }
+
+  getTableChanges(ust_token,db,table,table_name){
+
+    let socket = new WebSocket("wss://api.smartdom.ch/ws/" + ust_token);
+
+    socket.onopen = (e) => {
+      console.log("Connection established");
+      let payload;
+      payload = {"cmd": table, "db": db, "read_change": true}
+      socket.send(JSON.stringify(payload));
+    };
+
+
+    socket.onmessage = (event) => {
+
+      let data = this.state[table_name] || [];
+      let recieve = JSON.parse(event.data);
+      //update
+      if(recieve.new_val && recieve.old_val){
+        let index_to_updated = data.findIndex(x => x.id === recieve.old_val.id)
+        data[index_to_updated] = recieve.new_val;
+        this.setState({[table_name]:data})
+      }
+      //insert
+      else if(recieve.new_val){
+        data.push(recieve.new_val)
+        if(table_name === "annuaire_clients_mandat"){
+          this.setState({[table_name]:data.sort( (a,b) => {
+              let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
+              let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
+              if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
+              if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
+              return 0;
+            })})
+        }else{
+          this.setState({[table_name]:data})
+        }
+      }
+      //remove
+      else if(recieve.old_val){
+        data.splice(data.findIndex(x => x.id === recieve.old_val.id),1);
+        this.setState({[table_name]:data})
+      }
+    }
+    socket.error = function(event) {
+      console.log("ERROR INITIALISIATION TABLE");
+    };
+    socket.onclose = ( event => {
+      this.props.history.push('/login');
+      console.log("CLOSED READ CHANGES");
+    })
   }
 
   updateTreeData(list, key, children, files) {
@@ -823,7 +875,7 @@ export default class Main extends React.Component {
   }
 
   onLoadSharedData = ({ key, children }) => {
-
+    console.log(key)
     return new Promise((resolve) => {
       console.log(key)
       if (children) {
@@ -831,8 +883,10 @@ export default class Main extends React.Component {
         return;
       }
       let origin = this.state.sharedFolders;
-      this.setState({loading:true})
+      //this.setState({loading:true})
       SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+        if(Res.succes === true && Res.status === 200){
+
           let sub_folders = Res.data.Content.folders || [];
           let sub_files = Res.data.Content.files || [];
           let childrens = [];
@@ -841,14 +895,14 @@ export default class Main extends React.Component {
               title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
               key:sub_folders[i].id,
               icon: sub_folders[i].type ? (
-                <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+                  <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
               ) : (
-                ({ selected }) =>
-                  selected ? (
-                    <FolderIcon style={{ color: '#1a73e8' }} />
-                  ) : (
-                    <FolderIcon style={{ color: 'grey' }} />
-                  )
+                  ({ selected }) =>
+                      selected ? (
+                          <FolderIcon style={{ color: '#1a73e8' }} />
+                      ) : (
+                          <FolderIcon style={{ color: 'grey' }} />
+                      )
               ),
               files: [] ,
               folders: [] ,
@@ -865,8 +919,18 @@ export default class Main extends React.Component {
           })
           let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
           this.setState({sharedFolders:update})
-        resolve();
+          resolve();
+
+        }else if(Res.succes === false && Res.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }else{
+          this.setState({loading:false})
+          resolve();
+        }
         }).catch(err => {
+        this.setState({loading:false})
           resolve();
           console.log(err)})
 
@@ -875,37 +939,47 @@ export default class Main extends React.Component {
 
   updateShared = (key, origin) => {
     SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
-      let sub_folders = Res.data.Content.folders || [];
-      let sub_files = Res.data.Content.files || [];
-      let childrens = [];
-      for(let i =0 ; i < sub_folders.length ; i++){
-        let treeNode = {
-          title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
-          key:sub_folders[i].id,
-          icon: sub_folders[i].type ? (
-            <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
-          ) : (
-            ({ selected }) =>
-              selected ? (
-                <FolderIcon style={{ color: '#1a73e8' }} />
-              ) : (
-                <FolderIcon style={{ color: 'grey' }} />
-              )
-          ),
-          files: [] ,
-          folders: [] ,
-          typeF: sub_folders[i].type ? 'file' : 'folder',
-          rights:sub_folders[i].rights,
-          proprietary:sub_folders[i].proprietary || undefined
-        };
-        childrens.push(treeNode)
+      if(Res.succes === true && Res.status === 200){
+        let sub_folders = Res.data.Content.folders || [];
+        let sub_files = Res.data.Content.files || [];
+        let childrens = [];
+        for(let i =0 ; i < sub_folders.length ; i++){
+          let treeNode = {
+            title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
+            key:sub_folders[i].id,
+            icon: sub_folders[i].type ? (
+                <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+            ) : (
+                ({ selected }) =>
+                    selected ? (
+                        <FolderIcon style={{ color: '#1a73e8' }} />
+                    ) : (
+                        <FolderIcon style={{ color: 'grey' }} />
+                    )
+            ),
+            files: [] ,
+            folders: [] ,
+            typeF: sub_folders[i].type ? 'file' : 'folder',
+            rights:sub_folders[i].rights,
+            proprietary:sub_folders[i].proprietary || undefined
+          };
+          childrens.push(treeNode)
+        }
+        this.setState({
+          selectedSharedFolderFolders:Res.data.Content.folders,
+          selectedSharedFolderFiles:Res.data.Content.files
+        })
+        let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
+        this.setState({sharedFolders:update,loading:false})
+      }else if(Res.succes === false && Res.status === 400){
+        this.setState({ loading: false });
+        localStorage.clear();
+        this.props.history.push('/login');
+      }else{
+        this.setState({ loading: false });
+        console.log(Res.error)
       }
-      this.setState({
-        selectedSharedFolderFolders:Res.data.Content.folders,
-        selectedSharedFolderFiles:Res.data.Content.files
-      })
-      let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
-      this.setState({sharedFolders:update,loading:false})
+
     }).catch(err => {
       console.log(err)})
   }
@@ -948,24 +1022,38 @@ export default class Main extends React.Component {
           }
           else {
 
-            let clients_tempo = this.state.clients_tempo;
-            let findRacine_index = clients_tempo.findIndex(x => x.folder_id === file.key);
-            if(findRacine_index > -1){
-              let new_clients_tempo = clients_tempo.filter(x => x.folder_id !== file.key);
-              firebase.database().ref("/" + ent_name + "-clients_tempo-" + ged_id + '/').set(new_clients_tempo).then( ok => {}).catch(err => console.log(err))
+            let clients_tempo = this.state.clients_cases;
+            let findRacine = clients_tempo.find(x => x.folder_id === file.key);
+            if(findRacine){
+
+              rethink.remove("test",'table("clients_cases").get('+JSON.stringify(findRacine.id)+').delete()',db_name,false).then(delRes => {
+                if (delRes && delRes === true) {
+
+                } else {
+                  console.log("error remove clients_cases item")
+                }
+              }).catch(err => {console.log(err)})
             }else{
               let find_sub_index = -1;
+              let itemToUpdated;
               let newFolders ;
               clients_tempo.map((cl,key) => {
                 let folders = cl.folders || [];
                 if(folders.findIndex(x => x.folder_id === file.key) > -1){
-                  findRacine_index = key;
+                  itemToUpdated = cl;
                   find_sub_index = folders.findIndex(x => x.folder_id === file.key);
                   newFolders = folders.filter(x => x.folder_id !== file.key);
+                  itemToUpdated.folders = newFolders;
                 }
               })
               if(find_sub_index > -1){
-                firebase.database().ref("/" + ent_name + "-clients_tempo-" + ged_id + '/' + findRacine_index + '/folders').set(newFolders).then(ok => {}).catch(err => console.log(err))
+                rethink.update("test",'table("clients_cases").get('+JSON.stringify(itemToUpdated.id)+').update('+ JSON.stringify(itemToUpdated) + ')',db_name,false).then( updateRes => {
+                  if (updateRes && updateRes === true) {
+
+                  }else{
+                    console.log("error update clients_cases item")
+                  }
+                }).catch(err => {console.log(err)})
               }
             }
             this.setState({ selectedFolderId: '' });
@@ -973,7 +1061,13 @@ export default class Main extends React.Component {
             this.reloadGed();
           }
           this.openSnackbar('success', file.typeF === 'file' ? (file.name || file.title) + '.pdf est supprimé avec succès' : (file.name || file.title) + ' est supprimé avec succès');
-        } else {
+        }
+        else if(deleteRes.succes === false && deleteRes.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else {
           this.setState({ loading: false });
           this.openSnackbar('error', deleteRes.error);
         }
@@ -996,9 +1090,14 @@ export default class Main extends React.Component {
         if (updateNameRes.succes === true && updateNameRes.status === 200) {
           this.reloadGed();
           this.openSnackbar('success', file.type ? file.name + '.pdf a bien été renommé. Nouveau nom: ' + newName + '.pdf' : file.name + ' a bien été renommé. Nouveau nom: ' + newName);
-        } else {
+        }
+        else if(updateNameRes.succes === false && updateNameRes.status === 400){
           this.setState({ loading: false });
-
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else {
+          this.setState({ loading: false });
           this.openSnackbar('error', updateNameRes.error);
         }
       })
@@ -1028,37 +1127,43 @@ export default class Main extends React.Component {
 
   saveContactChanges = () => {
     this.setState({ loading: true });
-    let key = main_functions.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
-    firebase.database().ref('contacts/' + key).set(
-      this.state.selectedContact
-    ).then(res => {
-      this.setState({ loading: false });
-      this.openSnackbar('success', 'Modification effectuée avec succès');
+    let id = this.state.selectedContact.id || (this.state.contacts.find(x => x.uid === this.state.selectedContact.uid)).id;
+    console.log(id)
+    rethink.update("test",'table("contacts").get('+JSON.stringify(id)+').update('+ JSON.stringify(this.state.selectedContact) + ')',db_name,false).then( updateRes => {
+      if(updateRes && updateRes === true){
+        this.setState({ loading: false });
+        this.openSnackbar('success', 'Modification effectuée avec succès');
+      }else{
+        this.setState({ loading: false });
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
     }).catch(err => {
-      console.log(err);
-    });
+      this.setState({ loading: false });
+      console.log(err)
+      this.openSnackbar("error","Une erreur est survenue !")
+    })
   };
 
   saveSocietyChanges = () => {
     this.setState({ loading: true });
-    console.log(this.state.selectedSociete.ID)
-    let key = (this.state.annuaire_clients_mondatCp || []).findIndex(x => x.ID === this.state.selectedSociete.ID);
-    console.log(key)
-    if(key > -1){
-      firebase.database().ref('annuaire_client_mondat/' + key).set(
-        this.state.selectedSociete
-      ).then(res => {
+    let id = this.state.selectedSociete.id || (this.state.annuaire_clients_mandat.find(x => x.ID === this.state.selectedSociete.ID)).id;
+    console.log(id)
+    rethink.update("test",'table("annuaire_clients_mandat").get('+JSON.stringify(id)+').update('+ JSON.stringify(this.state.selectedSociete) + ')',db_name,false).then( updateRes => {
+      if (updateRes && updateRes === true) {
         this.setState({ loading: false });
         this.openSnackbar('success', 'Modification effectuée avec succès');
-      });
-    }else{
+      } else {
+        this.setState({ loading: true });
+        this.openSnackbar('error', 'Une erreur est survenue !');
+      }
+    }).catch(err => {
+      this.setState({ loading: true });
       this.openSnackbar('error', 'Une erreur est survenue !');
-    }
-
+      console.log(err)
+    })
   };
 
   onInputTimeSuggChange = (event, { newValue }) => {
-    console.log(newValue);
     let d = this.state.TimeSheet;
     d.newTime.duree = newValue;
     this.setState({ TimeSheet: d });
@@ -1088,20 +1193,32 @@ export default class Main extends React.Component {
   uploadImage = (image) => {
     this.setState({ loading: true });
     let imgToUpload = image.target.files[0];
-    var reader = new FileReader();
-    reader.onloadend = () => {
-      let selectedContact = this.state.selectedContact;
-      selectedContact.imageUrl = reader.result;
-      let key = main_functions.findContactByUid(this.state.selectedContact.uid, this.state.contacts);
-      firebase.database().ref('contacts/' + key).set(
-        this.state.selectedContact
-      ).then(res => {
-        this.setState({ loading: false });
-        this.openSnackbar('success', 'Modification effectuée avec succès');
-      });
-    };
-    reader.readAsDataURL(imgToUpload);
 
+    if(imgToUpload.type === "image/png" || imgToUpload.type === "image/jpeg" || imgToUpload.type === "image/jpg"){
+      var reader = new FileReader();
+      reader.onloadend = () => {
+        let selectedContact = this.state.selectedContact;
+        selectedContact.imageUrl = reader.result;
+
+        rethink.update("test",'table("contacts").get('+JSON.stringify(selectedContact.id)+').update('+ JSON.stringify(selectedContact) + ')',db_name,false).then( updateRes => {
+          if(updateRes && updateRes === true){
+            this.setState({ loading: false });
+            this.openSnackbar('success', 'Modification effectuée avec succès');
+          }else{
+            this.setState({ loading: false });
+            this.openSnackbar("error","Une erreur est survenue !")
+          }
+        }).catch(err => {
+          this.setState({ loading: false });
+          console.log(err)
+          this.openSnackbar("error","Une erreur est survenue !")
+        })
+
+      };
+      reader.readAsDataURL(imgToUpload);
+    }else{
+      this.openSnackbar("error","Type de fichier erroné ! ")
+    }
   };
 
   uploadFolder = (event) => {
@@ -1142,7 +1259,13 @@ export default class Main extends React.Component {
           console.log(err);
         });
 
-      } else {
+      }
+      else if(addFolderRes.succes === false && addFolderRes.status === 400){
+        this.setState({ loading: false });
+        localStorage.clear();
+        this.props.history.push('/login');
+      }
+      else {
         this.setState({ loading: false });
         this.openSnackbar('error', addFolderRes.error);
       }
@@ -1277,36 +1400,62 @@ export default class Main extends React.Component {
 
   addNewRoom = (room) => {
     this.setState({ loading: true, openNewRoomModal: false });
-    SmartService.addRoom({ name: room.title, start: moment().add('hour', 1).unix() * 1000, duration: 30 },
-      localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addRoomRes => {
-      if (addRoomRes.status === 200 && addRoomRes.succes === true) {
-        room.id = addRoomRes.data.id;
-        let rooms = this.state.rooms;
-        rooms.push(room);
-        firebase.database().ref('/rooms').set(
-          rooms
-        ).then(res => {
-          this.setState({
-            loading: false,
-            newRoomTitle: '',
-            NewRoomEmails: [],
-            selectedRoom: room,
-            selectedRoomKey: (rooms.length - 1),
-            selectedRoomItems: [(rooms.length - 1).toString()]
-          });
-          this.props.history.push('/home/rooms/' + (rooms.length - 1));
-          this.openSnackbar('success', 'Room ajouté avec succès');
-        });
 
-      } else {
+    this.verifIsTableExist("rooms").then( v => {
+
+      SmartService.addRoom({ name: room.title, start: moment().add('hour', 1).unix() * 1000, duration: 30 },
+          localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addRoomRes => {
+        if (addRoomRes.status === 200 && addRoomRes.succes === true) {
+          let members = [];
+          //console.log(room.members)
+          (room.members || []).map((m,key) => {
+            members.push({email:m.email})
+          })
+          let newRoom={
+            uid : addRoomRes.data.id,
+            title:room.title,
+            created_by:room.created_by,
+            created_at:room.created_at,
+            members:members
+          }
+          rethink.insert("test",'table("rooms").insert('+ JSON.stringify(newRoom) + ')',db_name,false).then( resAdd => {
+            if (resAdd && resAdd === true) {
+              setTimeout(() => {
+                this.setState({
+                  loading: false,
+                  newRoomTitle: '',
+                  NewRoomEmails: [],
+                  selectedRoom: room,
+                  selectedRoomKey: (this.state.rooms.length - 1),
+                  selectedRoomItems: [(this.state.rooms.length - 1).toString()]
+                });
+                this.props.history.push('/home/rooms/' + (this.state.rooms.length - 1));
+                this.openSnackbar('success', 'Room ajouté avec succès');
+              },1000);
+            } else {
+              this.setState({ loading: false });
+              this.openSnackbar('error', "Une erreur est survenue");
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+
+        }
+        else if(addRoomRes.succes === false && addRoomRes.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else {
+          this.setState({ loading: false });
+          this.openSnackbar('error', addRoomRes.error);
+        }
+      }).catch(err => {
         this.setState({ loading: false });
-        this.openSnackbar('error', addRoomRes.error);
-      }
-    }).catch(err => {
-      this.setState({ loading: false });
-      this.openSnackbar('error', err);
-    });
+        this.openSnackbar('error', err);
+      });
 
+    }).catch(err => {console.log(err)})
   };
 
   openPdfModal = (doc_id) => {
@@ -1315,7 +1464,13 @@ export default class Main extends React.Component {
       if (fileRes.succes === true && fileRes.status === 200) {
         this.setState({ loading: false });
         this.showDocInPdfModal(fileRes.data.Content.Data,fileRes.data.name,fileRes.data.type);
-      } else {
+      }
+      else if(fileRes.succes === false && fileRes.status === 400){
+        this.setState({ loading: false });
+        localStorage.clear();
+        this.props.history.push('/login');
+      }
+      else {
         console.log(fileRes.error);
       }
     }).catch(err => {
@@ -1326,9 +1481,11 @@ export default class Main extends React.Component {
   };
 
   renderLeftMenu = () => {
+
     return (
       <div>
         <LeftMenuV3
+            loadingGed={this.state.loadingGed}
           openNewFolderModalFromRacine={() =>
             this.setState({
               newFolderModal: true,
@@ -1358,7 +1515,6 @@ export default class Main extends React.Component {
             });
           }}
           showDriveMenuItems={this.state.openDriveMenuItem}
-
           setShowDriveMenuItems={() => {
             this.setState({
               selectedFolderId: '',
@@ -1366,11 +1522,21 @@ export default class Main extends React.Component {
             });
           }}
           showRoomsMenuItems={this.state.openRoomMenuItem}
-          setShowRoomsMenuItems={() =>
-            this.setState({
-              openRoomMenuItem: !this.state.openRoomMenuItem
-            })
-          }
+          setShowRoomsMenuItems={() => {
+            if(this.state.rooms.length > 0 ){
+              this.setState({
+                selectedRoom: this.state.rooms[0],
+                selectedRoomKey: 0,
+                showContainerSection: 'Rooms',
+                focusedItem: 'Rooms',
+                openRoomMenuItem: !this.state.openRoomMenuItem
+              });
+            }else{
+              this.setState({
+                openRoomMenuItem: !this.state.openRoomMenuItem
+              })
+            }
+          }}
           showMeetMenuItems={this.state.openMeetMenuItem}
           setShowMeetMenuItems={() =>
             this.setState({
@@ -1555,15 +1721,6 @@ export default class Main extends React.Component {
           setSharedFolderName={(name) =>
             this.setState({ selectedSharedFoldername: name })
           }
-          /*setSharedFolderId={(id) => {
-            this.props.history.push('/home/shared/' + id);
-            this.setState({
-              focusedItem: 'Drive',
-              breadcrumbs: 'Mon drive / Partagés avec moi',
-              selectedSharedFolderId: id,
-              showContainerSection: 'Drive'
-            });
-          }}*/
           setSelectedSharedFolderFiles={(files) =>
             this.setState({ selectedSharedFolderFiles: files })
           }
@@ -1607,7 +1764,6 @@ export default class Main extends React.Component {
             } else {
             }
           }}
-
 
           onClickNewFileFromRacine={() => {
             this.setState({
@@ -1666,19 +1822,588 @@ export default class Main extends React.Component {
     );
   };
 
-  saveTimeSheet() {
-    let email = localStorage.getItem('email');
-    let timeSheet = this.state.TimeSheet;
-    this.state.TimeSheetData.push(timeSheet);
-    firebase.database().ref('/TimeSheet').set(this.state.TimeSheetData);
+
+  renderTimeSheet = () => {
+
+    const inputSuggProps = {
+      placeholder: 'Format: --h--',
+      value: this.state.TimeSheet.newTime.duree,
+      onChange: this.onInputTimeSuggChange
+    };
+    let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ?
+        "Description (français)" : this.state.TimeSheet.newTime.dossier_client.facturation.language === "Anglais" ?
+            "Description (anglais)" : "Description"
+
+    let DurationFormatError = "";
+    let time = this.state.TimeSheet.newTime.duree;
+    let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+    if(regexFormat.test(time) === false){
+      DurationFormatError = "Format durée invalide ! Veuillez utiliser le format --h-- "
+    }else{
+      let duree = utilFunctions.durationToNumber(time);
+      if(duree === 0){
+        DurationFormatError = "Durée inférieur à zéro !"
+      }
+    }
+
+    return(
+          this.state.time_sheets.length === 0 ?
+              <div align="center" style={{marginTop:200}}>
+                <CircularProgress color="primary" />
+                <h6>Chargement...</h6>
+              </div> :
+              <div>
+                <div className="row">
+                  <div className="col-lg-12">
+                    <h5 className="mt-0 mb-1">TimeSheet / Activités</h5>
+                    <div className="card-box text-center" style={{ marginTop: 1 }}>
+                      <div style={{ marginTop: 30 }} className="text-left">
+                        <Tabs selectedIndex={this.state.selectedTimeSheetIndex} onSelect={index => {
+                          this.setState({selectedTimeSheetIndex:index})
+                        }}>
+                          <TabList>
+                            <Tab>Time Sheet</Tab>
+                            <Tab>Activités </Tab>
+                            <Tab>
+                              Partner
+                              {
+                                (this.state.factures || []).filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length > 0 &&
+                                <Badge max={100}>{(this.state.factures || []).filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length}</Badge>
+                              }
+                            </Tab>
+                          </TabList>
+
+                          <TabPanel>
+                            {
+                              this.state.showLignesFactureClient === false ?
+                                  <div style={{marginTop:25,padding:10,paddingBottom:50,paddingLeft:20,border:"2px solid #f0f0f0"}}>
+                                    <div className="row mt-2">
+                                      <div className="col-md-6">
+                                        <h5>Durée</h5>
+                                        <div className="row">
+                                          <div className="col-md-5">
+                                            <Autosuggest
+                                                suggestions={this.state.timeSuggestions}
+                                                onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
+                                                onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
+                                                onSuggestionSelected={(event, { suggestion }) => {/*console.log(suggestion)*/}}
+                                                getSuggestionValue={suggestion => suggestion}
+                                                renderSuggestion={suggestion => (
+                                                    <div>{suggestion}</div>)}
+                                                inputProps={inputSuggProps}
+                                            />
+                                          </div>
+                                          <div className="col-md-7">
+                                            <div style={{ display: 'flex' }}>
+                                              <Timer
+                                                  initialTime={0}
+                                                  startImmediately={false}
+                                              >
+                                                {({ start, resume, pause, stop, reset, getTimerState, getTime }) => (
+                                                    <React.Fragment>
+                                                      <div
+                                                          align="center"
+                                                          style={{
+                                                            backgroundColor: '#c0c0c0',
+                                                            padding: 8,
+                                                            color: '#000',
+                                                            height: 36,
+                                                            fontWeight: 700,
+                                                            fontSize: 16,
+                                                            letterSpacing: '0.1rem'
+                                                          }}>
+                                                        <Timer.Hours
+                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`} />
+                                                        <Timer.Minutes
+                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`} />
+                                                        <Timer.Seconds
+                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`} />
+                                                      </div>
+                                                      <div
+                                                          style={{ marginLeft: 10 }}>
+                                                        <div
+                                                            align="center"
+                                                            style={{
+                                                              backgroundColor: (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'green' : 'red',
+                                                              padding: 5,
+                                                              borderRadius: 10,
+                                                              width: 50,
+                                                              color: '#fff',
+                                                              fontWeight: 700,
+                                                              cursor: 'pointer'
+                                                            }}
+                                                            onClick={() => {
+                                                              if (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') {
+                                                                start();
+                                                              } else {
+                                                                let timeEtablished = getTime();
+                                                                console.log(timeEtablished);
+                                                                let timeH = ((timeEtablished / 1000) / 60) / 60;
+                                                                console.log(timeH);
+                                                                let obj = this.state.TimeSheet;
+                                                                obj.newTime.duree = timeH.toFixed(3).replace('.', ':');
+                                                                this.setState({ TimeSheet: obj });
+                                                                stop();
+                                                              }
+                                                            }}
+                                                        >
+                                                          {(getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'Start' : 'Stop'}
+                                                        </div>
+                                                        <div
+                                                            align="center"
+                                                            style={{
+                                                              backgroundColor: '#c0c0c0',
+                                                              padding: 5,
+                                                              borderRadius: 10,
+                                                              width: 50,
+                                                              color: '#fff',
+                                                              fontWeight: 700,
+                                                              cursor: 'pointer',
+                                                              marginTop: 3
+                                                            }}
+                                                            onClick={() => {
+                                                              let obj = this.state.TimeSheet;
+                                                              obj.newTime.duree = '';
+                                                              this.setState({ TimeSheet: obj });
+                                                              reset();
+                                                            }}
+                                                        >
+                                                          Reset
+                                                        </div>
+                                                      </div>
+                                                    </React.Fragment>
+                                                )}
+                                              </Timer>
+                                            </div>
+                                          </div>
+                                          <div className="col-md-12">
+                                            {
+                                              this.state.TimeSheet.newTime.duree !== "" && DurationFormatError !== "" ?
+                                              <h6 style={{color:"red"}}>{DurationFormatError}</h6> :
+                                                  this.state.TimeSheet.newTime.rateFacturation !== "" &&
+                                                  <span style={{color:"#000",fontWeight:"bold"}}>Total:&nbsp;&nbsp;
+                                                    <span>{(parseFloat(this.state.TimeSheet.newTime.rateFacturation) * utilFunctions.durationToNumber(this.state.TimeSheet.newTime.duree)).toFixed(2) + " CHF"}</span>
+                                                  </span>
+                                            }
+                                          </div>
+
+                                        </div>
+                                      </div>
+                                      <div className="col-md-6">
+                                        <div>
+                                          <h5>Nom du client</h5>
+                                          <div style={{ display: 'flex' }}>
+                                            <SelectSearch
+                                                options={
+                                                  this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
+                                                      ({
+                                                        value: ID,
+                                                        name: Nom + ' ' + (Prenom || ''),
+                                                        ContactType: Type,
+                                                        ContactName: Nom + ' ' + (Prenom || ''),
+                                                        imageUrl: imageUrl
+                                                      }))
+                                                }
+                                                value={this.state.selectedClientTimeEntree}
+                                                renderOption={main_functions.renderSearchOption}
+                                                search
+                                                placeholder="Chercher votre client"
+                                                onChange={ (e) => {
+                                                  let obj = this.state.TimeSheet;
+                                                  let findClientTempo = this.state.clients_cases.find(x => x.ID_client === e)
+                                                  let findClientFname = this.state.annuaire_clients_mandat.find(x => x.ID === e)
+                                                  obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                                                  obj.newTime.client_id = e;
+                                                  if(findClientTempo){
+                                                    this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
+                                                  }else{
+                                                    obj.newTime.dossier_client =  {
+                                                      name:'',
+                                                      facturation: {
+                                                        language:''
+                                                      }}
+                                                    this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: e})
+                                                  }
+                                                  setTimeout(() => {
+                                                    console.log(this.state.selectedClientFolders)
+                                                  },400)
+                                                }}
+                                            />
+                                            <IconButton
+                                                style={{ marginTop: -5 }}
+                                                onClick={() => this.setState({ openAdvancedSearchModal: true })}>
+                                              <SearchIcon />
+                                            </IconButton>
+                                          </div>
+                                          <h5 style={{marginTop:10}}>Dossier du client </h5>
+                                          <MuiSelect
+                                              labelId="demo-simple-select-label"
+                                              id="demo-simple-select"
+                                              style={{ width: 300 }}
+                                              value={this.state.TimeSheet.newTime.dossier_client}
+                                              onChange={(e) => {
+                                                let ts = this.state.TimeSheet;
+                                                let data = e.target.value;
+                                                let team = data.team || [];
+                                                let find = team.find(x => x.email === this.state.TimeSheet.newTime.utilisateurOA);
+                                                if(find){
+                                                  ts.newTime.rateFacturation = find.tarif || '';
+                                                  this.setState({ TimeSheet: ts });
+                                                }else{
+                                                  let OA_contacts = this.state.contacts;
+                                                  let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,this.state.TimeSheet.newTime.utilisateurOA);
+                                                  ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
+                                                }
+                                                ts.newTime.dossier_client = e.target.value;
+                                                this.setState({ TimeSheet: ts });
+                                              }}
+                                          >
+                                            {
+                                              this.state.selectedClientFolders.map((item,key) => (
+                                                  <MenuItem key={key} value={item}>{item.name}</MenuItem>
+                                              ))
+                                            }
+                                          </MuiSelect>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="row mt-3">
+                                      <div className="col-md-6">
+                                        <div>
+                                          <h5>Catégorie d’activités </h5>
+                                          <MuiSelect
+                                              labelId="demo-simple-select-label"
+                                              id="demo-simple-select"
+                                              style={{ width: 220 }}
+                                              value={this.state.TimeSheet.newTime.categoriesActivite}
+                                              onChange={(e) => {
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.categoriesActivite = e.target.value;
+                                                this.setState({ TimeSheet: d });
+                                              }}
+                                          >
+                                            <MenuItem
+                                                value={'Temps facturé'}>Temps facturé</MenuItem>
+                                            <MenuItem
+                                                value={'Paiement avancée'}>Provision</MenuItem>
+                                          </MuiSelect>
+                                        </div>
+                                      </div>
+                                      <div className="col-md-6">
+                                        <div
+                                            style={{ width: '100%' }}>
+                                          <h5>Date</h5>
+                                          <DatePicker
+                                              calendarIcon={
+                                                <img
+                                                    alt=""
+                                                    src={calendar}
+                                                    style={{ width: 20 }} />}
+                                              onChange={(e) => {
+                                                console.log(e);
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.date = e;
+                                                this.setState({ TimeSheet: d });
+                                              }}
+                                              value={this.state.TimeSheet.newTime.date}
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="row mt-3">
+                                      <div className="col-md-6">
+                                        <div>
+                                          <div>
+                                            <h5>{new_timeSheet_desc}</h5>
+                                          </div>
+                                          <textarea
+                                              className="form-control "
+                                              id="duree"
+                                              style={{ width: '100%' }}
+                                              name="duree"
+                                              rows={5}
+                                              value={this.state.TimeSheet.newTime.description}
+                                              onChange={(e) => {
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.description = e.target.value;
+                                                this.setState({ TimeSheet: d });
+                                              }} />
+                                        </div>
+                                      </div>
+                                      <div className="col-md-6">
+                                        <div>
+                                          <h6>Utilisateur </h6>
+                                        </div>
+                                        <MuiSelect
+                                            labelId="demo-simple-select-label4545"
+                                            id="demo-simple-select4545"
+                                            style={{ width: 250 }}
+                                            onChange={(e) => {
+                                              let ts = this.state.TimeSheet;
+                                              let dossier = this.state.TimeSheet.newTime.dossier_client;
+                                              if(dossier && dossier.team && dossier.team.length > 0){
+                                                let team = dossier.team;
+                                                let find = team.find(x => x.email === e.target.value);
+                                                if(find){
+                                                  ts.newTime.rateFacturation = find.tarif || "";
+                                                }
+                                              }else{
+                                                let OA_contacts = this.state.contacts;
+                                                let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,e.target.value);
+                                                ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
+                                              }
+                                              ts.newTime.utilisateurOA = e.target.value;
+                                              this.setState({ TimeSheet: ts });
+                                            }}
+                                            value={this.state.TimeSheet.newTime.utilisateurOA}
+                                        >
+                                          {this.state.contacts.map((contact, key) => (
+                                              <MenuItem
+                                                  key={key}
+                                                  value={contact.email}>
+                                                <div style={{display:"flex"}}>
+                                                  <Avatar style={{marginLeft:10}}
+                                                          alt=""
+                                                          src={contact.imageUrl} />
+                                                  <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                </div>
+                                              </MenuItem>
+                                          ))}
+                                        </MuiSelect>
+                                        <div
+                                            className="mt-3">
+                                          <h6>
+                                            Taux horaire
+                                          </h6>
+                                          <Input
+                                              className="form-control "
+                                              id="duree"
+                                              style={{ width: 250 }}
+                                              name="duree"
+                                              type="text"
+                                              endAdornment={
+                                                <InputAdornment
+                                                    position="end">CHF:Hr</InputAdornment>}
+                                              value={this.state.TimeSheet.newTime.rateFacturation + ''}
+                                              onChange={(e) => {
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.rateFacturation = e.target.value;
+                                                this.setState({ TimeSheet: d });
+                                              }} />
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div align="center" className=" mt-4">
+                                      <AltButtonGroup>
+                                        <AtlButton
+                                            onClick={() => {
+                                              this.createLignefacture(false)
+                                            }}
+                                            appearance="primary"
+                                            isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' ||
+                                            this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
+                                            style={{ margin: 20 }}> Enregistrer </AtlButton>
+                                        <AtlButton
+                                            onClick={() => {
+                                              this.createLignefacture(true)
+                                            }}
+                                            appearance="primary"
+                                            isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' ||
+                                            this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
+                                            style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
+                                        <AtlButton
+                                            appearance=""
+                                            style={{ margin: 20 }}
+                                            onClick={() => {
+                                              this.setState({
+                                                TimeSheet: {
+                                                  newTime: {
+                                                    duree: '',
+                                                    client: '',
+                                                    dossier_client: {
+                                                      name:'',
+                                                      facturation: {
+                                                        language:''
+                                                      }},
+                                                    categoriesActivite: 'Temps facturé',
+                                                    description: '',
+                                                    date: new Date(),
+                                                    utilisateurOA: '',
+                                                    rateFacturation: '',
+                                                    selectedClientTimeEntree:''
+                                                  }
+                                                }
+                                              });
+                                            }}>Réinitialiser</AtlButton>
+                                      </AltButtonGroup>
+                                      <div>
+                                        <AltButtonGroup
+                                            style={{ marginTop: 10 }}>
+                                          <AtlButton
+                                              isSelected
+                                              appearance="default"
+                                              onClick={() => this.setState({selectedTimeSheetIndex:1})}
+                                          >
+                                            Etablir facture
+                                          </AtlButton>
+                                        </AltButtonGroup>
+                                      </div>
+                                    </div>
+                                  </div> :
+
+                                  <div>
+                                    <div className="mt-1">
+                                      <div>
+                                        <div style={{
+                                          textAlign: 'right',
+                                          marginTop: 15
+                                        }}>
+                                          <button
+                                              onClick={() => this.setState({
+                                                showLignesFactureClient: false
+                                              })}
+                                              className="btn btn-sm btn-outline-info">Retour
+                                          </button>
+                                        </div>
+
+                                        <div className="row mt-3">
+                                          <div
+                                              className="col-md-6">
+                                            <h5>Nom du client</h5>
+                                            <div
+                                                style={{ display: 'flex' }}>
+                                              <SelectSearch
+                                                  options={
+                                                    this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl }) =>
+                                                        ({
+                                                          value: Nom + ' ' + (Prenom || ''),
+                                                          name: Nom + ' ' + (Prenom || ''),
+                                                          ContactType: Type,
+                                                          ContactName: Nom + ' ' + (Prenom || ''),
+                                                          imageUrl: imageUrl
+                                                        }))
+                                                  }
+                                                  value={this.state.selectedClientTimeEntree}
+                                                  renderOption={main_functions.renderSearchOption}
+                                                  search
+                                                  placeholder="Chercher votre client"
+                                                  onChange={e => {
+                                                    console.log(e);
+                                                    let obj = this.state.TimeSheet;
+                                                    obj.newTime.client = e;
+
+                                                    let find_annuaire_fact_lead = this.state.annuaire_clients_mandat.find(x => (x.Nom + ' ' + x.Prenom) === e);
+                                                    console.log(find_annuaire_fact_lead);
+                                                    let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
+                                                    console.log(partner_email);
+                                                    this.setState({
+                                                      partnerFacture: partner_email,
+                                                      selectedClientTimeEntree: e,
+                                                      TimeSheet: obj
+                                                    });
+                                                  }}
+                                              />
+                                              <IconButton
+                                                  style={{ marginTop: -5 }}
+                                                  onClick={() => this.setState({ openAdvancedSearchModal: true })}>
+                                                <SearchIcon />
+                                              </IconButton>
+                                            </div>
+                                          </div>
+                                          <div
+                                              className="col-md-4">
+                                            <div
+                                                style={{ width: '100%' }}>
+                                              <h5>Date de la facture</h5>
+                                              <DatePicker
+                                                  calendarIcon={
+                                                    <img
+                                                        alt=""
+                                                        src={calendar}
+                                                        style={{ width: 20 }} />}
+                                                  onChange={(e) => {
+                                                    this.setState({ dateFacture: e });
+                                                  }}
+                                                  value={this.state.dateFacture}
+                                              />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                            }
+                          </TabPanel>
+                          <TabPanel>
+                            {
+                              this.state.time_sheets.length > 0 &&
+                              <TableTimeSheet
+                                  lignesFactures={this.state.time_sheets || []}
+                                  lignesFacturesCopy={this.state.time_sheets || []}
+                                  deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
+                                  setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
+                                  OA_contacts={this.state.contacts}
+                                  annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                  onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
+                                    this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
+                                        partner,lignes_facture)
+                                  }}
+                                  client_folders={this.state.client_folders}
+                                  updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
+                                  openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                  clientsTempo={this.state.clients_cases}
+                                  updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
+                              />
+                            } {
+                            this.state.time_sheets.length === 0 &&
+                            <div style={{
+                              marginTop: 30,
+                              marginLeft: 10
+                            }}>Aucune ligne facture encore ajoutée !</div>
+
+                          }
+                          </TabPanel>
+                          <TabPanel>
+                            <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
+                            <TableFactures factures={this.state.factures}
+                                           facturesCp={this.state.factures}
+                                           client_folders={this.state.client_folders}
+                                           clients_tempo={this.state.clients_cases}
+                                           annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                           sharedFolders={this.state.sharedReelFolders || []}
+                                           validateFacture={(row,key,template,client) => {
+                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
+                                           }}
+                                           openFacture={(id) => {
+                                             this.openPdfModal(id)
+                                           }}
+                                           openFactureFolder={(id) => {
+                                             this.redirectToFolder(id)
+                                           }}
+                                           delete_facture={(id) => {
+                                             this.delete_facture(id)
+                                           }}
+                                           openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                            />
+                          </TabPanel>
+                        </Tabs>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+    )
+
   }
+
 
   addFactureToValidated(client,client_folder,date,createdBy,partnerEmail,lignes_facture){
     this.setState({loading:true})
 
-      let lf_to_validated = this.state.facturesToValidatedCopy;
-      lf_to_validated.push({
-        ID:Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+    this.verifIsTableExist("factures").then( v => {
+
+      let newItem = {
+        ID:utilFunctions.getUID(),
         date_facture:date,
         created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
         created_by:createdBy,
@@ -1691,13 +2416,22 @@ export default class Main extends React.Component {
           id:"",
           name:client_folder
         }
-      })
+      }
 
-      firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id).set(lf_to_validated).then( ok => {
+      rethink.insert("test",'table("factures").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+        if (resAdd && resAdd === true) {
+          this.setState({partnerFacture:"",loading:false})
+          this.openSnackbar("success","La facture est bien envoyé au partner pour validation")
+        } else {
+          this.setState({partnerFacture:"",loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+        }
+      }).catch(err => {
         this.setState({partnerFacture:"",loading:false})
-        this.openSnackbar("success","La facture est bien envoyé au partner pour validation")
+        this.openSnackbar("error","Une erreur est survenue !")
       })
 
+    }).catch(err => {console.log(err)})
   }
 
   redirectToFolder(folder_id){
@@ -1705,11 +2439,65 @@ export default class Main extends React.Component {
     this.reloadGed()
   }
 
-
-  createFacture_ForSelected(facture_date,lignes_f,folder_id,facture,template,client) {
-    let id_facture = this.state.facturesToValidatedCopy.findIndex(x => x.ID === facture.ID)
-
+  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client){
     this.setState({loading:true})
+
+    let odoo_companies = this.state.odoo_companies || [];
+    let facture_company_id;
+    let findCompany = odoo_companies.find(x => x.client_id === facture.client_id );
+
+    if(findCompany){
+      facture_company_id = findCompany.odoo_company_id;
+      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id)
+
+    }else{
+
+      SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: facture.client } }).then(newCompRes => {
+        if(newCompRes.succes === true && newCompRes.status === 200){
+          facture_company_id = newCompRes.data.id;
+          this.verifIsTableExist("odoo_companies").then( v => {
+            let newItem = {
+              odoo_company_id:facture_company_id,
+              client_name:facture.client,
+              client_id:facture.client_id,
+              created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+            }
+            rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+              if (resAdd && resAdd === true) {
+
+                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id)
+
+              }else{
+                this.setState({loading:false})
+                this.openSnackbar("error","Une erreur est survenue !")
+                console.log(newCompRes.error)
+              }
+            }).catch(err => {console.log(err)})
+          }).catch(err => console.log(err))
+
+        }
+        else if(newCompRes.succes === false && newCompRes.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else{
+          this.setState({loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+          console.log(newCompRes.error)
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+        console.log(err)
+      })
+
+    }
+  }
+
+  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id) {
+    let id_facture = facture.id
+
     let lignes_factures = lignes_f;
     let odoo_data = [{
       'access_token': 'eafd285777ggobfvxyvnx',
@@ -1748,7 +2536,7 @@ export default class Main extends React.Component {
       'invoice_has_matching_suspense_amount': false,
       'has_reconciled_entries': false,
       'restrict_mode_hash_table': false,
-      'partner_id': lignes_factures[0].newTime.company_id,
+      'partner_id': facture_company_id,
       'ref': 121006,
       'invoice_vendor_bill_id': false,
       'invoice_payment_term_id': 1,
@@ -1783,73 +2571,72 @@ export default class Main extends React.Component {
       total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
       let OAContact = main_functions.getOAContactByEmail2(this.state.contacts,ligne.newTime.utilisateurOA);
       odoo_data[0].invoice_line_ids.push(
-        [
-          0,
-          'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
-          {
-            'account_id': 103,
-            'sequence': 10,
-            'origin': false,
-            'name':
-              template === '0' ? moment(ligne.newTime.date).format('DD/MM/YYYY') :
-                template === '1' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description :
-                  template === '2' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
-                    template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
-                      template === '4' ? ligne.newTime.description :
-                        template === '5' ? OAContact.nom + ' ' + OAContact.prenom :
-                          template === '6' ? ligne.newTime.duree + ' Heures' :
-                            template === '7' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
-                              template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree + ' Heures' :
-                                template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree + ' Heures' : ligne.newTime.description,
-            'quantity': ligne.newTime.duree,
-            'price_unit': parseFloat(ligne.newTime.rateFacturation),
-            'discount': 0,
-            'debit': 0,
-            'credit': ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation),
-            'amount_currency': 0,
-            'date_maturity': false,
-            'currency_id': false,
-            'partner_id': false,
-            'product_uom_id': false,
-            'product_id': 2,
-            'payment_id': false,
-            'invoice_line_tax_ids': [
-              [
-                6,
-                false,
-                []
-              ]
-            ],
-            'tax_base_amount': 0,
-            'tax_exigible': true,
-            'tax_repartition_line_id': false,
-            'tag_ids': [
-              [
-                6,
-                false,
-                []
-              ]
-            ],
-            'analytic_account_id': false,
-            'analytic_tag_ids': [
-              [
-                6,
-                false,
-                []
-              ]
-            ],
-            'recompute_tax_line': false,
-            'display_type': false,
-            'is_rounding_line': false,
-            'exclude_from_invoice_tab': false
-          }
-        ]
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              'account_id': 103,
+              'sequence': 10,
+              'origin': false,
+              'name':
+                  template === '0' ? moment(ligne.newTime.date).format('DD/MM/YYYY') :
+                      template === '1' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description :
+                          template === '2' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                              template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                                  template === '4' ? ligne.newTime.description :
+                                      template === '5' ? OAContact.nom + ' ' + OAContact.prenom :
+                                          template === '6' ? ligne.newTime.duree + ' Heures' :
+                                              template === '7' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                                                  template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree + ' Heures' :
+                                                      template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree + ' Heures' : ligne.newTime.description,
+              'quantity': ligne.newTime.duree,
+              'price_unit': parseFloat(ligne.newTime.rateFacturation),
+              'discount': 0,
+              'debit': 0,
+              'credit': ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation),
+              'amount_currency': 0,
+              'date_maturity': false,
+              'currency_id': false,
+              'partner_id': false,
+              'product_uom_id': false,
+              'product_id': 2,
+              'payment_id': false,
+              'invoice_line_tax_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+              'tax_base_amount': 0,
+              'tax_exigible': true,
+              'tax_repartition_line_id': false,
+              'tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+              'analytic_account_id': false,
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+              'recompute_tax_line': false,
+              'display_type': false,
+              'is_rounding_line': false,
+              'exclude_from_invoice_tab': false
+            }
+          ]
       );
-
     });
 
     SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
-
+      console.log(createFactRes)
       if(createFactRes.succes === true && createFactRes.status === 200){
         SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,"eafd285777ggobfvxyvnx").then(genFactRes => {
 
@@ -1860,12 +2647,12 @@ export default class Main extends React.Component {
                 let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
 
                 SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
-                  localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
 
                   if(ok.succes === true && ok.status === 200){
 
                     SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                      ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+                        ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
 
                       if(updateRes.succes === true && updateRes.status === 200){
 
@@ -1878,7 +2665,7 @@ export default class Main extends React.Component {
                             SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
                               if(r.succes === true && r.status === 200){
                                 SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                                  r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
+                                    r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
                                   if(updateRes2.succes === true && updateRes2.status === 200){
                                     this.justReloadGed()
                                   }else{
@@ -1891,18 +2678,29 @@ export default class Main extends React.Component {
                             }).catch(err => {console.log(err)})
                           }
                         }
-                        console.log("FIREBASE")
-                        firebase.database().ref("/"+ent_name+"-factures_to_Validated-"+ged_id + "/"+id_facture).update({
-                          statut:"accepted",
-                          file_id:ok.data.file_id,
-                          client_folder:{
-                            id:client,
-                            name:resF.data.name
+
+                        let updatedItem = facture;
+                        updatedItem.statut = "accepted";
+                        updatedItem.file_id = ok.data.file_id;
+                        updatedItem.client_folder = {id:client, name:resF.data.name}
+
+                        rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+                          if (updateRes && updateRes === true) {
+
+                            this.justReloadGed();
+                            this.setState({loading:false})
+                            this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+
+                          } else {
+                            this.setState({loading:false})
+                            this.openSnackbar("error","Une erreur est survenue !")
                           }
-                        }).catch(err => console.log(err))
-                        this.justReloadGed();
-                        this.setState({loading:false})
-                        this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+                        }).catch(err => {
+                          this.setState({loading:false})
+                          this.openSnackbar("error","Une erreur est survenue !")
+                          console.log(err)
+                        })
+
                       }else{
                         this.openSnackbar("error",updateRes.error)
                       }
@@ -1926,7 +2724,13 @@ export default class Main extends React.Component {
           console.log(err)
         })
 
-      }else{
+      }
+      else if(createFactRes.succes === false && createFactRes.status === 400){
+        this.setState({ loading: false });
+        localStorage.clear();
+        this.props.history.push('/login');
+      }
+      else{
         this.setState({loading:false})
         this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
       }
@@ -1936,6 +2740,7 @@ export default class Main extends React.Component {
     });
   }
 
+
   deleteLigneFact(lf) {
     const r = window.confirm('Voulez-vous vraiment supprimer cette ligne facture ?');
     if (r === true) {
@@ -1944,13 +2749,6 @@ export default class Main extends React.Component {
       lignes_facture.splice(findIndex, 1);
       this.setState({ lignesFactures: lignes_facture });
     }
-
-  }
-
-  updateLignes_facture(lignes_factures) {
-    setTimeout(() => {
-      firebase.database().ref('/'+ent_name+'-lignes_f-'+ged_id).set(lignes_factures);
-    }, 300);
 
   }
 
@@ -1965,17 +2763,14 @@ export default class Main extends React.Component {
 
     if(verif_access === true){
 
-      let CLIENTS_folder_id = "4376a4bb-d5ec-441f-8868-f9ce96077420"  //c79fcab6-9fec-4714-9572-7e36eb6761b3 => Krana   //4376a4bb-d5ec-441f-8868-f9ce96077420 => Fabien
+      let CLIENTS_folder_id = ENV_CLIENTS_FOLDER_ID  //c79fcab6-9fec-4714-9572-7e36eb6761b3 => Krana   //4376a4bb-d5ec-441f-8868-f9ce96077420 => Fabien
 
-      let clients_tmp = this.state.clients_tempo;
-      let clients_tmp_copie = this.state.clients_tempo_copie;
+      let clients_tmp = this.state.clients_cases;
       let find = clients_tmp.find(x => x.ID_client === ID);
 
       if (find) {
 
-        let findInCopyKey = clients_tmp_copie.findIndex(x => x.ID_client === find.ID_client);
         let findCopy = find;
-
 
         if(find.folder_id && find.folder_id !== ""){
 
@@ -2013,24 +2808,24 @@ export default class Main extends React.Component {
 
             if(findCopy.folders && findCopy.folders.length > 0  ){
               findCopy.folders.push(
-                {
-                  folder_id:addFolderClient.data.id,
-                  team:team,
-                  name:this.state.newClientFolder.nom,
-                  type:this.state.newClientFolder.type,
-                  contrepartie:this.state.newClientFolder.contrepartie,
-                  autrepartie:this.state.newClientFolder.autrepartie,
-                  desc:this.state.newClientFolder.desc,
-                  created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
-                  created_by:localStorage.getItem("email"),
-                  facturation:{
-                    byEmail:this.state.newClientFolder.byEmail,
-                    sentBySecr:this.state.newClientFolder.sentBySecr,
-                    sentByAvocat:this.state.newClientFolder.sentByAvocat,
-                    language:this.state.newClientFolder.language,
-                    frequence:this.state.newClientFolder.frequence
+                  {
+                    folder_id:addFolderClient.data.id,
+                    team:team,
+                    name:this.state.newClientFolder.nom,
+                    type:this.state.newClientFolder.type,
+                    contrepartie:this.state.newClientFolder.contrepartie,
+                    autrepartie:this.state.newClientFolder.autrepartie,
+                    desc:this.state.newClientFolder.desc,
+                    created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                    created_by:localStorage.getItem("email"),
+                    facturation:{
+                      byEmail:JSON.stringify(this.state.newClientFolder.byEmail),
+                      sentBySecr:JSON.stringify(this.state.newClientFolder.sentBySecr),
+                      sentByAvocat:JSON.stringify(this.state.newClientFolder.sentByAvocat),
+                      language:this.state.newClientFolder.language,
+                      frequence:this.state.newClientFolder.frequence
+                    }
                   }
-                }
               )
             }
             else{
@@ -2045,17 +2840,18 @@ export default class Main extends React.Component {
                 created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
                 created_by:localStorage.getItem("email"),
                 facturation:{
-                  byEmail:this.state.newClientFolder.byEmail,
-                  sentBySecr:this.state.newClientFolder.sentBySecr,
-                  sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                  byEmail:JSON.stringify(this.state.newClientFolder.byEmail),
+                  sentBySecr:JSON.stringify(this.state.newClientFolder.sentBySecr),
+                  sentByAvocat:JSON.stringify(this.state.newClientFolder.sentByAvocat),
                   language:this.state.newClientFolder.language,
                   frequence:this.state.newClientFolder.frequence
                 }
               }]
             }
 
-            firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id+'/'+findInCopyKey).set(findCopy).then( ok => {
-              setTimeout(() => {
+            rethink.update("test",'table("clients_cases").get('+JSON.stringify(findCopy.id)+').update('+ JSON.stringify(findCopy) + ')',db_name,false).then( updateRes => {
+              if (updateRes && updateRes === true) {
+
                 this.setState({
                   loading: false,
                   newClientFolder: {
@@ -2076,8 +2872,10 @@ export default class Main extends React.Component {
                 });
                 this.justReloadGed();
                 this.openSnackbar('success', 'Dossier ajouté avec succès');
-              }, 750);
-            });
+
+              }else{
+              }
+            }).catch(err => {console.log(err)})
 
           }).catch(err => {console.log(err)})
 
@@ -2135,17 +2933,18 @@ export default class Main extends React.Component {
                   created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
                   created_by:localStorage.getItem("email"),
                   facturation:{
-                    byEmail:this.state.newClientFolder.byEmail,
-                    sentBySecr:this.state.newClientFolder.sentBySecr,
-                    sentByAvocat:this.state.newClientFolder.sentByAvocat,
+                    byEmail:JSON.stringify(this.state.newClientFolder.byEmail),
+                    sentBySecr:JSON.stringify(this.state.newClientFolder.sentBySecr),
+                    sentByAvocat:JSON.stringify(this.state.newClientFolder.sentByAvocat),
                     language:this.state.newClientFolder.language,
                     frequence:this.state.newClientFolder.frequence
                   }
                 }
               ];
 
-              firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id+'/'+findInCopyKey).set(findCopy).then( ok => {
-                setTimeout(() => {
+              rethink.update("test",'table("clients_cases").get('+JSON.stringify(findCopy.id)+').update('+ JSON.stringify(findCopy) + ')',db_name,false).then( updateRes => {
+                if (updateRes && updateRes === true) {
+
                   this.setState({
                     loading: false,
                     newClientFolder: {
@@ -2166,135 +2965,150 @@ export default class Main extends React.Component {
                   });
                   this.justReloadGed();
                   this.openSnackbar('success', 'Dossier ajouté avec succès');
-                }, 750);
-              });
 
-
+                }else{
+                }
+              }).catch(err => {console.log(err)})
 
             }).catch(err => console.log(err))
-
-
           }).catch(err => console.log(err))
 
         }
       }
 
       else {
-        SmartService.create_client(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
-          param: {
-            name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
-            base64: false, parent_id: false, function: false, phone: false, mobile: false, email: false, website: false, title: false
-          }
-        }).then(createClientRes => {
 
-          console.log(createClientRes)
-          if (createClientRes.succes === true && createClientRes.status === 200) {
+        this.verifIsTableExist("clients_cases").then( v => {
 
-            SmartService.addFolder({
+          SmartService.create_client(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
+            param: {
               name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
-              folder_id: CLIENTS_folder_id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
-              console.log('OK');
+              base64: false, parent_id: false, function: false, phone: false, mobile: false, email: false, website: false, title: false
+            }
+          }).then(createClientRes => {
+            console.log(createClientRes)
+            if (createClientRes.succes === true && createClientRes.status === 200) {
 
               SmartService.addFolder({
-                name: this.state.newClientFolder.nom,
-                folder_id: addParentClientFolderRes.data.id,
-              },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
+                name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+                folder_id: CLIENTS_folder_id
+              }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
+                console.log('OK');
 
-
-                if(this.state.newClientFolder.type ===  "litige"){
-
-                  data.oa_litige_folders.map((item,key) => {
-                    SmartService.addFolder({
-                      name: item,
-                      folder_id: addFolderClient.data.id
-                    }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                      console.log("OK"+key)
-                    }).catch(err => {
-                      console.log(err);
-                    });
-                  })
-
-                }
-                if(this.state.newClientFolder.type === "corporate"){
-                  data.oa_corporate_folders.map((item,key) => {
-                    SmartService.addFolder({
-                      name: item,
-                      folder_id: addFolderClient.data.id
-                    }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                      console.log("OK"+key)
-                    }).catch(err => {
-                      console.log(err);
-                    });
-                  })
-                }
-
-                clients_tmp_copie.push({
+                SmartService.addFolder({
+                  name: this.state.newClientFolder.nom,
                   folder_id: addParentClientFolderRes.data.id,
-                  ID_client: ID,
-                  odoo_client_id: createClientRes.data.id,
-                  folders:[
-                    {
-                      folder_id:addFolderClient.data.id,
-                      team:team,
-                      name:this.state.newClientFolder.nom,
-                      type:this.state.newClientFolder.type,
-                      contrepartie:this.state.newClientFolder.contrepartie,
-                      autrepartie:this.state.newClientFolder.autrepartie,
-                      desc:this.state.newClientFolder.desc,
-                      created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
-                      created_by:localStorage.getItem("email"),
-                      facturation:{
-                        byEmail:this.state.newClientFolder.byEmail,
-                        sentBySecr:this.state.newClientFolder.sentBySecr,
-                        sentByAvocat:this.state.newClientFolder.sentByAvocat,
-                        language:this.state.newClientFolder.language,
-                        frequence:this.state.newClientFolder.frequence
+                },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
+
+
+                  if(this.state.newClientFolder.type ===  "litige"){
+
+                    data.oa_litige_folders.map((item,key) => {
+                      SmartService.addFolder({
+                        name: item,
+                        folder_id: addFolderClient.data.id
+                      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                        console.log("OK"+key)
+                      }).catch(err => {
+                        console.log(err);
+                      });
+                    })
+
+                  }
+                  if(this.state.newClientFolder.type === "corporate"){
+                    data.oa_corporate_folders.map((item,key) => {
+                      SmartService.addFolder({
+                        name: item,
+                        folder_id: addFolderClient.data.id
+                      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                        console.log("OK"+key)
+                      }).catch(err => {
+                        console.log(err);
+                      });
+                    })
+                  }
+
+                  let newItem = {
+                    folder_id: addParentClientFolderRes.data.id,
+                    ID_client: ID,
+                    odoo_client_id: createClientRes.data.id,
+                    folders:[
+                      {
+                        folder_id:addFolderClient.data.id,
+                        team:team,
+                        name:this.state.newClientFolder.nom,
+                        type:this.state.newClientFolder.type,
+                        contrepartie:this.state.newClientFolder.contrepartie,
+                        autrepartie:this.state.newClientFolder.autrepartie,
+                        desc:this.state.newClientFolder.desc,
+                        created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                        created_by:localStorage.getItem("email"),
+                        facturation:{
+                          byEmail:JSON.stringify(this.state.newClientFolder.byEmail),
+                          sentBySecr:JSON.stringify(this.state.newClientFolder.sentBySecr),
+                          sentByAvocat:JSON.stringify(this.state.newClientFolder.sentByAvocat),
+                          language:this.state.newClientFolder.language,
+                          frequence:this.state.newClientFolder.frequence
+                        }
                       }
+                    ]
+                  }
+
+                  rethink.insert("test",'table("clients_cases").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+                    if (resAdd && resAdd === true) {
+
+                      this.setState({
+                        loading: false,
+                        newClientFolder: {
+                          nom: '',
+                          type: 'corporate',
+                          team: [],
+                          contrepartie:'',
+                          autrepartie:'',
+                          desc:'',
+                          byEmail:true,
+                          sentBySecr:false,
+                          sentByAvocat:false,
+                          frequence:'',
+                          language:"Francais"
+                        },
+                        lead_contact_tmp: '',
+                        lead_contact_horaire_tmp: ''
+                      });
+                      this.justReloadGed();
+                      this.openSnackbar('success', 'Dossier ajouté avec succès');
+
+                    }else{
+
                     }
-                  ]
-                });
-                firebase.database().ref('/'+ent_name+"-clients_tempo-"+ged_id).set(clients_tmp_copie).then( ok => {
-                  setTimeout(() => {
-                    this.setState({
-                      loading: false,
-                      newClientFolder: {
-                        nom: '',
-                        type: 'corporate',
-                        team: [],
-                        contrepartie:'',
-                        autrepartie:'',
-                        desc:'',
-                        byEmail:true,
-                        sentBySecr:false,
-                        sentByAvocat:false,
-                        frequence:'',
-                        language:"Francais"
-                      },
-                      lead_contact_tmp: '',
-                      lead_contact_horaire_tmp: ''
-                    });
-                    this.justReloadGed();
-                    this.openSnackbar('success', 'Dossier ajouté avec succès');
-                  }, 750);
+                  }).catch(err => {console.log(err)})
+
+                }).catch(err => {
+                  console.log(err);
                 });
               }).catch(err => {
                 console.log(err);
               });
-            }).catch(err => {
-              console.log(err);
-            });
 
-          }else{
+            }
+            else if(createClientRes.succes === false && createClientRes.status === 400){
+              this.setState({ loading: false });
+              localStorage.clear();
+              this.props.history.push('/login');
+            }
+            else{
+              this.setState({ loading: false });
+              console.log(createClientRes.error)
+              this.openSnackbar("error",createClientRes.error)
+            }
+
+          }).catch(err => {
             this.setState({ loading: false });
-            console.log(createClientRes.error)
-            this.openSnackbar("error",createClientRes.error)
-          }
+            this.openSnackbar("error","Une erreur est survenue !")
+            console.log(err);
+          });
 
-        }).catch(err => {
-          this.setState({ loading: false });
-          console.log(err);
-        });
+        }).catch(err => {console.log(err)})
       }
 
     }else{
@@ -2307,51 +3121,93 @@ export default class Main extends React.Component {
 
   }
 
-  addNewClient() {
-    this.setState({ firstLoading: true, loading: true, openNewClientModal: false });
-    let all_clients = this.state.annuaire_clients_mondat;
-    let newClient = this.state.newClient;
-    newClient.ID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    newClient.created_at = (new Date()).toDateString();
-    all_clients.push(newClient);
+  async verifIsTableExist(table){
+    let tableList = this.state.tableList || [];
+    if(tableList.includes(table) === true){
+      console.log("TABLE EXIST")
+      return true;
+    }else{
+      console.log("CREATE TABLE")
+      tableList.push(table);
+      this.setState({tableList:tableList})
+      let verif =  await rethink.createTable(db_name, table, "test");
+      this.getTableChanges('test',db_name,'table("'+table+'")',table)
+      return verif;
+    }
+  }
 
-    firebase.database().ref('/annuaire_client_mondat/' + (all_clients.length - 1)).set(newClient).then(ok => {
-      this.openSnackbar('success', newClient.Nom + ' est ajouté avec succès ');
-      this.props.history.push('/home/clients/' + newClient.ID);
-      this.setState({
-        firstLoading: false, loading: false,
-        selectedSociete: newClient,
-        selectedSocieteKey: newClient.ID
-      });
-      setTimeout(() => {
-        this.setState({
-          newClient: { ID: '', Nom: '', Prenom:'', Type: '0', created_at: '', country: '', email: '', phone: '', isActif: true }
-        });
-      }, 400);
-    });
+  addNewClient() {
+    this.setState({loading: true, openNewClientModal: false });
+
+    this.verifIsTableExist("annuaire_clients_mandat").then( v => {
+
+      let newClient = this.state.newClient;
+      newClient.ID = utilFunctions.getUID();
+      newClient.created_at = moment().format("YYYY-MM-DD HH:mm:ss");
+
+      rethink.insert("test",'table("annuaire_clients_mandat").insert('+ JSON.stringify(newClient) + ')',db_name,false).then( resAdd => {
+        if (resAdd && resAdd === true) {
+          this.openSnackbar('success', newClient.Nom + ' est ajouté avec succès ');
+          setTimeout(() => {
+            let findNew = this.state.annuaire_clients_mandat.find(x => x.ID === newClient.ID )
+            this.props.history.push('/home/clients/' + (findNew.id || findNew.ID));
+            this.setState({
+              loading: false,
+              selectedSociete: findNew,
+              selectedSocieteKey: findNew.id || findNew.ID
+            });
+          },500);
+          setTimeout(() => {
+            this.setState({
+              newClient: { ID: '', Nom: '', Prenom:'', Type: '0', created_at: '', country: '', email: '', phone: '', isActif: "true" }
+            });
+          }, 250);
+
+        } else {
+          this.setState({loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+        console.log(err)
+      })
+
+    }).catch(err => {console.log(err)})
   }
 
   addNewContact(){
     this.setState({ firstLoading: true, loading: true, openAddContactModal: false });
-    let all_contacts = this.state.contacts;
-    let newContact = this.state.newContact;
-    newContact.uid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    all_contacts.push(newContact);
 
-    firebase.database().ref('/contacts/' + (all_contacts.length - 1)).set(newContact).then( ok => {
-      this.openSnackbar('success', newContact.nom + ' ' + newContact.prenom + ' est ajouté avec succès ');
-      this.props.history.push('/home/contacts/' + newContact.uid);
-      this.setState({
-        firstLoading: false, loading: false,
-        selectedContact: newContact,
-        selectedContactKey: newContact.uid
-      });
-      setTimeout(() => {
-        this.setState({
-          newContact: { uid: '', nom: '',prenom:'',  type: '', created_at: '', email: '', phone: '',rateFacturation:'' }
-        });
-      }, 400);
-    });
+    this.verifIsTableExist("contacts").then( v => {
+
+      let newContact = this.state.newContact;
+      newContact.uid = utilFunctions.getUID();
+      newContact.created_at = moment().format("YYYY-MM-DD HH:mm:ss")
+      newContact.sort = this.state.contacts.length
+
+      rethink.insert("test",'table("contacts").insert('+ JSON.stringify(newContact) + ')',db_name,false).then( resAdd => {
+        if(resAdd && resAdd === true){
+
+          this.openSnackbar('success', newContact.nom + ' ' + newContact.prenom + ' est ajouté avec succès ');
+          this.props.history.push('/home/contacts/' + newContact.uid);
+          this.setState({
+            firstLoading: false, loading: false,
+            selectedContact: newContact,
+            selectedContactKey: newContact.uid
+          });
+          setTimeout(() => {
+            this.setState({
+              newContact: { uid: '', nom: '',prenom:'',  type: '', created_at: '', email: '', phone: '',rateFacturation:'' }
+            });
+          }, 400);
+
+        }else{
+          this.openSnackbar("error","Une erreur est survenue !")
+        }
+      })
+
+    }).catch(err => {console.log(err)})
   }
 
   uploadFilesToGed(files){
@@ -2416,180 +3272,290 @@ export default class Main extends React.Component {
   }
 
   createLignefacture(duplicate){
-    this.setState({loading:true})
-    let obj = this.state.TimeSheet;
     let objCopy = this.state.TimeSheet;
-    let time = obj.newTime.duree;
-    let timeFormated = '';
-    if (time.indexOf(':') > -1) {
-      timeFormated = parseFloat(time.replace(':', '.'));
-    } else if (time.indexOf('.') > -1) {
-      timeFormated = parseFloat(time);
-    } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
-      timeFormated = parseInt(time);
-    } else {
-      this.setState({loading:false})
-      this.openSnackbar('error', 'Le format de la durée est invalide !');
-    }
-    if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
-      this.setState({loading:false})
-      this.openSnackbar('error', 'Le format de la durée est invalide !');
-    } else {
-      if(timeFormated === 0 ){
-        this.setState({loading:false})
-        this.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
+    let time = this.state.TimeSheet.newTime.duree;
+    let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+    if(regexFormat.test(time) === true){
+
+      let duree = utilFunctions.durationToNumber(time);
+
+      if(duree === 0){
+        this.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
       }else{
+        this.setState({loading:true})
+        this.verifIsTableExist("time_sheets").then( v => {
 
-        /*obj.newTime.duree = timeFormated;*/
-        let lignes_fact = this.state.lignesFactures || [];
-
-        SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: obj.newTime.client } }).then(newCompRes => {
-          if(newCompRes.succes === true && newCompRes.status === 200){
-
-            this.setState({loading:false})
-            lignes_fact.push({
-              newTime: {
-                company_id:newCompRes.data.id,
-                date:moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD HH:mm:ss'),
-                duree: timeFormated,
-                client: this.state.TimeSheet.newTime.client,
-                client_id:this.state.selectedClientTimeEntree,
-                dossier_client:this.state.TimeSheet.newTime.dossier_client,
-                categoriesActivite: this.state.TimeSheet.newTime.categoriesActivite,
-                description: this.state.TimeSheet.newTime.description,
-                utilisateurOA: this.state.TimeSheet.newTime.utilisateurOA,
-                rateFacturation: this.state.TimeSheet.newTime.rateFacturation,
-                langue:''
-              },
-              uid:Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
-              user_email:localStorage.getItem('email'),
-              created_at:moment().format('YYYY-MM-DD HH:mm:ss')
-            });
-
-            if(duplicate === false){
-              this.setState({
-                lignesFactures: lignes_fact,
-                selectedClientTimeEntree:'',
-                TimeSheet: {
-                  newTime: {
-                    duree: '',
-                    client: '',
-                    client_id:'',
-                    dossier_client:{
-                      name:'',
-                      facturation:{
-                        language:''
-                      }
-                    },
-                    categoriesActivite: 'Temps facturé',
-                    description: '',
-                    date: new Date(),
-                    utilisateurOA: obj.newTime.utilisateurOA,
-                    rateFacturation: obj.newTime.rateFacturation
-                  }
-                }
-              });
-            }
-            else{
-              this.setState({
-                lignesFactures: lignes_fact,
-                TimeSheet: {
-                  newTime: {
-                    duree: objCopy.newTime.duree,
-                    client: objCopy.newTime.client,
-                    client_id:objCopy.newTime.client_id,
-                    dossier_client:objCopy.newTime.dossier_client,
-                    categoriesActivite: objCopy.newTime.categoriesActivite,
-                    description: objCopy.newTime.description,
-                    date: new Date(objCopy.newTime.date),
-                    utilisateurOA: objCopy.newTime.utilisateurOA,
-                    rateFacturation: objCopy.newTime.rateFacturation
-                  }
-                }
-              })
-            }
-            this.updateLignes_facture(lignes_fact);
-            this.openSnackbar('success', 'Enregistrement effectué avec succès');
-          }else{
-            this.setState({loading:false})
-            this.openSnackbar("error",newCompRes.error);
-            console.log(newCompRes.error)
+          let newItem = {
+            newTime: {
+              date:moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD HH:mm:ss'),
+              duree: duree,
+              client: this.state.TimeSheet.newTime.client,
+              client_id:this.state.selectedClientTimeEntree,
+              dossier_client:this.state.TimeSheet.newTime.dossier_client,
+              categoriesActivite: this.state.TimeSheet.newTime.categoriesActivite,
+              description: this.state.TimeSheet.newTime.description,
+              utilisateurOA: this.state.TimeSheet.newTime.utilisateurOA,
+              rateFacturation: this.state.TimeSheet.newTime.rateFacturation,
+              langue:''
+            },
+            uid:utilFunctions.getUID(),
+            user_email:localStorage.getItem('email'),
+            created_at:moment().format('YYYY-MM-DD HH:mm:ss')
           }
-        }).catch(err => {
-          this.setState({loading:false})
-          console.log(err)
-        })
+          if(duplicate === false){
+            this.setState({
+              selectedClientTimeEntree:'',
+              TimeSheet: {
+                newTime: {
+                  duree: '',
+                  client: '',
+                  client_id:'',
+                  dossier_client:{
+                    name:'',
+                    facturation:{
+                      language:''
+                    }
+                  },
+                  categoriesActivite: 'Temps facturé',
+                  description: '',
+                  date: new Date(),
+                  utilisateurOA: objCopy.newTime.utilisateurOA,
+                  rateFacturation: objCopy.newTime.rateFacturation
+                }
+              }
+            });
+          }
+          else{
+            this.setState({
+              TimeSheet: {
+                newTime: {
+                  duree: objCopy.newTime.duree,
+                  client: objCopy.newTime.client,
+                  client_id:objCopy.newTime.client_id,
+                  dossier_client:objCopy.newTime.dossier_client,
+                  categoriesActivite: objCopy.newTime.categoriesActivite,
+                  description: objCopy.newTime.description,
+                  date: new Date(objCopy.newTime.date),
+                  utilisateurOA: objCopy.newTime.utilisateurOA,
+                  rateFacturation: objCopy.newTime.rateFacturation
+                }
+              }
+            })
+          }
+          rethink.insert("test",'table("time_sheets").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+            if (resAdd && resAdd === true) {
+              this.setState({loading:false})
+              this.openSnackbar('success', 'Enregistrement effectué avec succès');
+            } else {
+              this.setState({loading:false})
+              this.openSnackbar("error","Une erreur est survenue !");
+            }
+          }).catch(err => {
+            this.setState({loading:false})
+            this.openSnackbar("error","Une erreur est survenue !");
+            console.log(err)
+          })
+
+
+
+        }).catch(err => {console.log(err)})
       }
+    }else{
+      this.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
     }
+
   }
 
   updateLigneFacture(id,ligne){
-    let lf_copy = this.state.lignesFacturesCopy;
-    let key = lf_copy.findIndex(x => x.uid === id);
-    console.log(key)
-    if(key > -1){
-      firebase.database().ref('/'+ent_name+'-lignes_f-'+ged_id+'/'+key).set(ligne).then( ok => {
+
+    rethink.update("test",'table("time_sheets").get('+JSON.stringify(id)+').update('+ JSON.stringify(ligne) + ')',db_name,false).then( updateRes => {
+      if (updateRes && updateRes === true) {
         this.openSnackbar("success","Modification effectuée avec succès")
-      }).catch(err => {
-        console.log(err)
+      } else {
         this.openSnackbar("error","Une erreur est survenue !")
-      })
-    }else{
-      this.openSnackbar("error","Une erreur est survenue !")
-    }
-
-  }
-
-  updateAllLigneFacture(data) {
-    firebase.database().ref('/' + ent_name + '-lignes_f-' + ged_id).set(data).catch(err => console.log(err));
-  }
-
-  updateAllFactures(data) {
-    firebase.database().ref('/' + ent_name + '-factures_to_Validated-' + ged_id).set(data).catch(err => console.log(err));
-  }
-
-  update_client_tempo(key,data){
-    firebase.database().ref("/" + ent_name + "-clients_tempo-" + ged_id + '/' + key).set(data).then( ok => {
-      this.openSnackbar("success","Modification effectuée avec succès")
+      }
     }).catch(err => {
-      console.log(err)
       this.openSnackbar("error","Une erreur est survenue !")
     })
   }
 
-  update_client_tempo_all(data){
-    firebase.database().ref("/" + ent_name + "-clients_tempo-" + ged_id).set(data).catch(err => console.log(err))
+  deleteLigneFacture(id){
+    this.setState({loading:true})
+    rethink.remove("test",'table("time_sheets").get('+JSON.stringify(id)+').delete()',db_name,false).then(delRes => {
+      if(delRes && delRes === true){
+        this.setState({loading:false})
+        this.openSnackbar("success","Suppression effectuée  avec succès")
+      }else{
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
+    }).catch(err => {
+      this.setState({loading:false})
+      this.openSnackbar("error","Une erreur est survenue !")
+      console.log(err)
+    })
   }
 
-  update_clients(data){
-    firebase.database().ref("/annuaire_client_mondat").set(data).catch(err => console.log(err))
+  delete_annuaire_client_mandat(id){
+    this.setState({loading:true})
+    rethink.remove("test",'table("annuaire_clients_mandat").get('+JSON.stringify(id)+').delete()',db_name,false).then(delRes => {
+      if(delRes && delRes === true){
+        this.setState({loading:false})
+        this.openSnackbar("success","Suppression effectuée  avec succès")
+      }else{
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
+    }).catch(err => {
+      this.setState({loading:false})
+      this.openSnackbar("error","Une erreur est survenue !")
+      console.log(err)
+    })
   }
+
+  delete_client_case(id){
+    rethink.remove("test",'table("clients_cases").get('+JSON.stringify(id)+').delete()',db_name,false).then(delRes => {
+      if(delRes && delRes === true){
+
+      }else{
+        console.log("Une erreur est survenue !")
+      }
+    }).catch(err => {
+      console.log("Une erreur est survenue !")
+      console.log(err)
+    })
+  }
+
+  delete_facture(id){
+    this.setState({loading:true})
+    rethink.remove("test",'table("factures").get('+JSON.stringify(id)+').delete()',db_name,false).then(delRes => {
+      if(delRes && delRes === true){
+        this.setState({loading:false})
+        this.openSnackbar("success","Suppression effectuée  avec succès")
+      }else{
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
+    }).catch(err => {
+      this.setState({loading:false})
+      this.openSnackbar("error","Une erreur est survenue !")
+      console.log(err)
+    })
+  }
+
+  addNewRoomTask(title, selectedClient, assignedTo, team, selectedDateTime){
+    let room = this.state.selectedRoom;
+    let tasks = room.tasks || [];
+    let teamCp = [];
+    team.map((t,key) => {
+      teamCp.push({
+        avatar:t.avatar || "",
+        email:t.email,
+        fname:t.fname || ""
+      })
+    })
+    tasks.push({
+      uid:utilFunctions.getUID(),
+      title: title,
+      assignedTo: assignedTo,
+      team: teamCp,
+      dateTime: selectedDateTime,
+      clientAttribution: selectedClient,
+      created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+    });
+    room.tasks = tasks;
+    console.log(room)
+
+    rethink.update("test",'table("rooms").get('+JSON.stringify(room.id)+').update('+ JSON.stringify(room) + ')',db_name,false).then( updateRes => {
+      if(updateRes && updateRes === true){
+
+        this.setState({ selectedRoom: room });
+        let emails = [];
+        let teamNames = [];
+        team.map((t, key) => {
+          emails.push(t.email);
+          teamNames.push(t.fname);
+        });
+        emails.push(assignedTo.email);
+        /*maillingService.sendCustomMailsWithUrl({
+          recipients: emails,
+          subject: 'Nouvelle tâche ajoutée ',
+          msg:
+              'Bonjour, <br> Une tâche avec le nom \'' +
+              title +
+              '\' vous a été attribué pour la date du ' +
+              selectedDateTime +
+              ' .<br><br> <b>Team: </b> ' +
+              teamNames.join(', ') +
+              '<br><b>Lead: </b> ' +
+              assignedTo.prenom +
+              ' ' +
+              assignedTo.nom +
+              '<br><br>' +
+              'Pour plus de détails, merci de consulter votre compte sur OA Legal.<br><br>',
+          footerMsg:
+              '<br><br> Cordialement<br>L\'équipe OA Legal',
+          linkUrl: 'Consulter',
+          url:
+              'https://smartdom.ch:8035/home/rooms/' +
+              this.state.selectedRoomKey
+        })
+            .then((ok) => {}).catch((err) => {
+          this.openSnackbar('error', 'L\'envoi du mail de notification à été échoué ! ');
+        });*/
+        this.openSnackbar('success', 'Une notification par mail à été bien envoyé au Lead et au différents membre du Team');
+      }else{
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
+    })
+  }
+
+  deleteContact(id){
+    this.setState({loading:true})
+    rethink.remove("test",'table("contacts").get('+JSON.stringify(id)+').delete()',db_name,false).then(delRes => {
+      if(delRes && delRes === true){
+        this.setState({loading:false})
+        this.openSnackbar("success","Contact supprimé avec succès")
+      }else{
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
+    }).catch(err => {
+      this.setState({loading:false})
+      this.openSnackbar("error","Une erreur est survenue !")
+      console.log(err)
+    })
+  }
+
+  update_client_case(id,data){
+    rethink.update("test",'table("clients_cases").get('+JSON.stringify(id)+').update('+ JSON.stringify(data) + ')',db_name,false).then( updateRes => {
+      if (updateRes && updateRes === true) {
+        this.openSnackbar("success","Modification effectuée avec succès")
+      } else {
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
+    }).catch(err => {
+      this.openSnackbar("error","Une erreur est survenue !")
+    })
+  }
+
 
   render() {
 
-    const inputSuggProps = {
-      placeholder: '0:1, 0:15, 0:30...',
-      value: this.state.TimeSheet.newTime.duree,
-      onChange: this.onInputTimeSuggChange
-    };
     const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts,localStorage.getItem("email"))
-
-    let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ?
-      "Description (français)" : this.state.TimeSheet.newTime.dossier_client.facturation.language === "Anglais" ?
-        "Description (anglais)" : "Description"
-
-
 
     return (
       <div>
-        {this.state.firstLoading === false && (
-          <div>
+
+        <div>
             <TopBar
               logo={logo}
               height={70}
               onClickMenuIcon={() => this.setState({ openSideMenu: true })}
               onLogoutClick={() => {
+                let emailCp = localStorage.getItem("email")
                 localStorage.clear();
+                localStorage.setItem("email",emailCp)
                 this.props.history.push('/login');
               }}
               textSearch={this.state.textSearch}
@@ -2634,12 +3600,12 @@ export default class Main extends React.Component {
               onClose={() => this.setState({ openSideMenu: false })}
             />
           </div>
-        )}
 
-        <MuiBackdrop open={this.state.firstLoading} />
+
+       {/* <MuiBackdrop open={this.state.firstLoading} />
+        <MuiBackdrop open={this.state.loading} />*/}
         <MuiBackdrop open={this.state.loading} />
-
-        <div style={{ marginRight: 50, marginTop: 75, marginLeft: 5 }}>
+        <div style={{ marginRight: 20, marginTop: 75, marginLeft: 5, top:0,width:"100%",position:"fixed" }}>
           <div>
 
             <div style={{ display: 'flex' }}>
@@ -2652,12 +3618,13 @@ export default class Main extends React.Component {
                   minWidth: 300
                 }}
               >
-                {this.state.firstLoading === false && (
+                {
                   this.renderLeftMenu()
-                )}
+                }
+
               </div>
 
-              <div style={{ flexWrap: 'wrap', flex: '1 1 auto' }}>
+              <div style={{ flexWrap: 'wrap', flex: '1 1 auto',overflow:"auto",height:900 }}>
                 <div className="card">
                   <div className="card-body" style={{ minHeight: 750 }}>
 
@@ -2665,15 +3632,8 @@ export default class Main extends React.Component {
 
                       <Route exact path="/home/drive">
                         <div>
-                          {
-                            (this.state.loading === false && this.state.firstLoading === false) &&
                             <div>
-                                    <div
-                                      style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between'
-                                      }}
-                                    >
+                                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
                                       <div style={{ width: '100%' }}>
                                         <h5 className="mt-0 mb-1">
                                           {this.props.location.pathname.indexOf('/home/search/') > -1 ? 'Résultats de recherche'
@@ -2726,116 +3686,118 @@ export default class Main extends React.Component {
                                         />
                                       </div>
                                     </div>
-                                    <div
-                                      style={{
-                                        flexWrap: 'wrap',
-                                        display: 'block'
-                                      }}
-                                    >
+                                    <div style={{flexWrap: 'wrap', display: 'block'}}>
                                       {
-                                        (this.state.folders.length === 0 && this.state.rootFiles.length === 0) ? (
-                                        <div
-                                          style={{
-                                            marginTop: 25,
-                                            display: 'flex'
-                                          }}
-                                        >
-                                          <h5
-                                            style={{
-                                              fontSize: 16,
-                                              color: 'gray'
-                                            }}
-                                          >
-                                            Aucun dossier encore ajouté !
-                                          </h5>
-                                          &nbsp;&nbsp;
-                                          <h6
-                                            style={{
-                                              cursor: 'pointer',
-                                              color: '#000',
-                                              textDecoration: 'underline'
-                                            }}
-                                            onClick={() => {
-                                              this.setState({
-                                                newFolderModal: true,
-                                                newFolderFromRacine: true
-                                              });
-                                            }}
-                                          >
-                                            Ajouter un dossier
-                                          </h6>
-                                        </div>
-                                      ) : (
-                                        <div>
-                                          <ListFolders
-                                            items={this.state.rootFolders}
-                                            onDoubleClickFolder={(folder) => {
-                                              this.props.history.push({
-                                                pathname: '/home/drive/' + folder.id
-                                              });
-                                              this.setState({
-                                                selectedDriveItem: [folder.id],
-                                                expandedDriveItems: [folder.id],
-                                                autoExpandParent: true,
-                                                selectedFolder: main_functions.getFolderById(folder.id, this.state.folders),
-                                                selectedFoldername: folder.name,
-                                                selectedFolderFiles:
-                                                  folder.Content.files || [],
-                                                selectedFolderFolders:
-                                                  folder.Content.folders || [],
-                                                focusedItem: 'Drive',
-                                                breadcrumbs: main_functions.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedReelFolders)),
-                                                selectedFolderId: folder.id,
-                                                showContainerSection: 'Drive'
-                                              });
-                                            }}
-                                          />
-                                          <ListDocs
-                                            docs={this.state.rootFiles || []}
-                                            viewMode={this.state.viewMode}
-                                            onDocClick={(item) => {
-                                              this.openPdfModal(item.id || item.key)
-                                            }}
-                                            showDoc={(doc) =>
-                                              this.openPdfModal(doc.id)
-                                            }
-                                            setLoading={(b) =>
-                                              this.setState({ loading: b })
-                                            }
-                                            setSelectedFile={(file) =>
-                                              this.setState({
-                                                selectedFile: file
-                                              })
-                                            }
-                                            openShareFileModal={() =>
-                                              this.setState({
-                                                openShareDocModal: true
-                                              })
-                                            }
-                                            onDeleteFile={(file) => {
-                                              this.deleteFile_Folder(file);
-                                            }}
-                                            onRenameFile={(file, newName) => {
-                                              this.renameFile_Folder(file, newName);
-                                            }}
-                                            onSignBtnClick={(id) => {
-                                              this.props.history.push(
-                                                '/signDoc/doc/' + id
-                                              );
-                                            }}
-                                            onDropFile={(files) => {
-                                              this.uploadFilesToGed(files)
-                                            }}
-                                            setDocs={(docs) => this.setState({rootFiles:docs})}
-                                            onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
-                                            applyRights={false}
-                                            selectedSharedFolder={this.state.selectedSharedFolder}
-                                          />
-                                        </div>
-                                      )}
+                                        this.state.loadingGed === true ?
+                                            <div align="center" style={{marginTop:200}}>
+                                              <CircularProgress color="primary" />
+                                              <h6>Chargement...</h6>
+                                            </div>
+                                        :
+                                            (this.state.folders.length === 0 && this.state.rootFiles.length === 0) ? (
+                                                <div
+                                                    style={{
+                                                      marginTop: 25,
+                                                      display: 'flex'
+                                                    }}
+                                                >
+                                                  <h5
+                                                      style={{
+                                                        fontSize: 16,
+                                                        color: 'gray'
+                                                      }}
+                                                  >
+                                                    Aucun dossier encore ajouté !
+                                                  </h5>
+                                                  &nbsp;&nbsp;
+                                                  <h6
+                                                      style={{
+                                                        cursor: 'pointer',
+                                                        color: '#000',
+                                                        textDecoration: 'underline'
+                                                      }}
+                                                      onClick={() => {
+                                                        this.setState({
+                                                          newFolderModal: true,
+                                                          newFolderFromRacine: true
+                                                        });
+                                                      }}
+                                                  >
+                                                    Ajouter un dossier
+                                                  </h6>
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                  <ListFolders
+                                                      items={this.state.rootFolders}
+                                                      onDoubleClickFolder={(folder) => {
+                                                        this.props.history.push({
+                                                          pathname: '/home/drive/' + folder.id
+                                                        });
+                                                        this.setState({
+                                                          selectedDriveItem: [folder.id],
+                                                          expandedDriveItems: [folder.id],
+                                                          autoExpandParent: true,
+                                                          selectedFolder: main_functions.getFolderById(folder.id, this.state.folders),
+                                                          selectedFoldername: folder.name,
+                                                          selectedFolderFiles:
+                                                              folder.Content.files || [],
+                                                          selectedFolderFolders:
+                                                              folder.Content.folders || [],
+                                                          focusedItem: 'Drive',
+                                                          breadcrumbs: main_functions.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedReelFolders)),
+                                                          selectedFolderId: folder.id,
+                                                          showContainerSection: 'Drive'
+                                                        });
+                                                      }}
+                                                  />
+                                                  <ListDocs
+                                                      docs={this.state.rootFiles || []}
+                                                      viewMode={this.state.viewMode}
+                                                      onDocClick={(item) => {
+                                                        this.openPdfModal(item.id || item.key)
+                                                      }}
+                                                      showDoc={(doc) =>
+                                                          this.openPdfModal(doc.id)
+                                                      }
+                                                      setLoading={(b) =>
+                                                          this.setState({ loading: b })
+                                                      }
+                                                      setSelectedFile={(file) =>
+                                                          this.setState({
+                                                            selectedFile: file
+                                                          })
+                                                      }
+                                                      openShareFileModal={() =>
+                                                          this.setState({
+                                                            openShareDocModal: true
+                                                          })
+                                                      }
+                                                      onDeleteFile={(file) => {
+                                                        this.deleteFile_Folder(file);
+                                                      }}
+                                                      onRenameFile={(file, newName) => {
+                                                        this.renameFile_Folder(file, newName);
+                                                      }}
+                                                      onSignBtnClick={(id) => {
+                                                        this.props.history.push(
+                                                            '/signDoc/doc/' + id
+                                                        );
+                                                      }}
+                                                      onDropFile={(files) => {
+                                                        this.uploadFilesToGed(files)
+                                                      }}
+                                                      setDocs={(docs) => this.setState({rootFiles:docs})}
+                                                      onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
+                                                      applyRights={false}
+                                                      selectedSharedFolder={this.state.selectedSharedFolder}
+                                                  />
+                                                </div>
+                                            )
+
+                                      }
                                     </div>
                                   </div>
-                          }
                         </div>
                       </Route>
 
@@ -2913,8 +3875,7 @@ export default class Main extends React.Component {
                                   autoExpandParent: true,
                                   selectedFoldername: folder.name,
                                   selectedFolderFiles: folder.Content.files || [],
-                                  selectedFolderFolders:
-                                    folder.Content.folders || [],
+                                  selectedFolderFolders: folder.Content.folders || [],
                                   focusedItem: 'Drive',
                                   breadcrumbs: main_functions.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedReelFolders)),
                                   selectedFolderId: folder.id,
@@ -3177,7 +4138,21 @@ export default class Main extends React.Component {
                               }
                               selectedFolderFiles={this.state.selectedSharedFolderFiles}
                               viewMode={this.state.viewMode}
-                              onDoubleClickFolder={(folder) => {}}
+                              onDoubleClickFolder={(folder) => {
+                                console.log(folder)
+                                this.setState({
+                                  selectedDriveSharedItem: [folder.id || folder.key],
+                                  expandedDriveSharedItems: [folder.id || folder.key],
+                                  selectedSharedFolder: folder,
+                                  autoExpandSharedParent: true,
+                                  selectedSharedFoldername: folder.name || folder.title,
+                                  selectedSharedFolderFiles: folder.files || [],
+                                  selectedSharedFolderFolders: folder.children || [],
+                                  focusedItem: 'Drive',
+                                  selectedSharedFolderId: folder.id || folder.key,
+                                  showContainerSection: 'Drive'
+                                });
+                              }}
                               onDocClick={(doc) => {
                                 this.openPdfModal(doc.id || doc.key)
                               }}
@@ -3239,7 +4214,7 @@ export default class Main extends React.Component {
 
                       <Route exact path="/home/rooms">
                         {
-                          this.state.loading === false && this.state.firstLoading === false && this.state.rooms.length === 0 &&
+                          this.state.rooms.length === 0 &&
                           <div>
                             <h4 className="mt-0 mb-1">Rooms</h4>
                             <div style={{ marginTop: 25, display: 'flex' }}>
@@ -3259,110 +4234,27 @@ export default class Main extends React.Component {
                             </div>
                           </div>
                         }
-
                       </Route>
 
                       <Route exact path="/home/rooms/:room_id">
-                        {this.state.loading === false && this.state.firstLoading === false && (
-                          <Rooms
-                            rooms={this.state.rooms}
-                            selectedRoom={this.state.selectedRoom}
-                            contacts={this.state.contacts}
-                            annuaire_clients={this.state.annuaire_clients_mondat}
-                            addNewtask={(
-                              title,
-                              selectedClient,
-                              assignedTo,
-                              team,
-                              selectedDateTime
-                            ) => {
-                              let room = this.state.selectedRoom;
-                              let tasks = room.tasks || [];
-                              tasks.push({
-                                title: title,
-                                assignedTo: assignedTo,
-                                team: team,
-                                dateTime: selectedDateTime,
-                                clientAttribution: selectedClient
-                              });
-                              room.tasks = tasks;
-                              firebase.database()
-                                .ref('rooms/' + this.state.selectedRoomKey)
-                                .set(room)
-                                .then((ok) => {
-                                  this.setState({ selectedRoom: room });
-                                  let emails = [];
-                                  let teamNames = [];
-                                  team.map((t, key) => {
-                                    emails.push(t.email);
-                                    teamNames.push(t.fname);
-                                  });
-                                  emails.push(assignedTo.email);
-                                  maillingService
-                                    .sendCustomMailsWithUrl({
-                                      recipients: emails,
-                                      subject: 'Nouvelle tâche ajoutée ',
-                                      msg:
-                                        'Bonjour, <br> Une tâche avec le nom \'' +
-                                        title +
-                                        '\' vous a été attribué pour la date du ' +
-                                        selectedDateTime +
-                                        ' .<br><br> <b>Team: </b> ' +
-                                        teamNames.join(', ') +
-                                        '<br><b>Lead: </b> ' +
-                                        assignedTo.prenom +
-                                        ' ' +
-                                        assignedTo.nom +
-                                        '<br><br>' +
-                                        'Pour plus de détails, merci de consulter votre compte sur OA Legal.<br><br>',
-                                      footerMsg:
-                                        '<br><br> Cordialement<br>L\'équipe OA Legal',
-                                      linkUrl: 'Consulter',
-                                      url:
-                                        'https://smartdom.ch:8035/rooms/' +
-                                        this.state.selectedRoomKey
-                                    })
-                                    .then((ok) => {
 
-                                    })
-                                    .catch((err) => {
-                                      this.openSnackbar(
-                                        'error',
-                                        'L\'envoi du mail de notification à été échoué ! '
-                                      );
-                                    });
-                                  this.openSnackbar(
-                                    'success',
-                                    'Une notification par mail à été bien envoyé au Lead et au différents membre du Team'
-                                  );
-                                });
-                            }}
-                            onDeleteTask={(key) => {
-                              const r = window.confirm(
-                                'Voulez-vous vraiment supprimer cette tâche ?'
-                              );
-                              if (r === true) {
-                                let room = this.state.selectedRoom;
-                                let tasks = room.tasks;
-                                tasks.splice(key, 1);
-                                room.tasks = tasks;
-                                firebase
-                                  .database()
-                                  .ref('rooms/' + this.state.selectedRoomKey)
-                                  .set(room)
-                                  .then((ok) => {
-                                    this.setState({ selectedRoom: room });
-                                  });
-                              }
-                            }}
-                          />
-                        )}
+                            <Rooms
+                                rooms={this.state.rooms}
+                                selectedRoom={this.state.selectedRoom}
+                                contacts={this.state.contacts || []}
+                                annuaire_clients={this.state.annuaire_clients_mandat}
+                                //annuaire_clients={this.state.patients}
+                                addNewtask={(title, selectedClient, assignedTo, team, selectedDateTime) => {
+                                  this.addNewRoomTask(title, selectedClient, assignedTo, team, selectedDateTime)
+                                }}
+                                onDeleteTask={(key) => {
+                                  //this.deleteRoomTask(key)
+                                }}
+                            />
                       </Route>
 
                       <Route exact path="/home/meet/new">
-                        {this.state.firstLoading === false &&
-                        this.state.loading === false && (
-                          <div align="center" style={{ marginTop: 200 }}>
+                        <div align="center" style={{ marginTop: 200 }}>
                             <h3>Prêt pour la réunion ?</h3>
                             <div style={{ display: 'inline-flex' }}>
                               <p
@@ -3413,13 +4305,10 @@ export default class Main extends React.Component {
                               </button>
                             </div>
                           </div>
-                        )}
                       </Route>
 
                       <Route exact path="/home/meet/rejoin">
-                        {this.state.firstLoading === false &&
-                        this.state.loading === false && (
-                          <div align="center" style={{ marginTop: 200 }}>
+                        <div align="center" style={{ marginTop: 200 }}>
                             <h3>Vous avez un code de réunion ?</h3>
                             <p style={{ fontFamily: 'sans-serif' }}>
                               Pour participer à une réunion, saisissez le code de
@@ -3455,31 +4344,32 @@ export default class Main extends React.Component {
                               Participer
                             </button>
                           </div>
-                        )}
                       </Route>
 
                       <Route exact path="/home/contacts">
                         {
-                          this.state.loading === false && this.state.firstLoading === false &&
-                          <div>
-                            <TableContact
-                              contacts={this.state.contacts}
-                              onAddBtnClick={() => {
-                                this.setState({
-                                  openAddContactModal:true
-                                })
-                              }}
-                              onEditClick={(contact, key) => {
-                                this.setState({
-                                  selectedContact: contact,
-                                  selectedContactKey: contact.uid
-                                });
-                                this.props.history.push('/home/contacts/' + contact.uid);
-                              }}
-                            />
-                          </div>
-                        }
+                          this.state.contacts.length === 0 ?
+                              <div align="center" style={{marginTop:200}}>
+                                <CircularProgress color="primary" />
+                                <h6>Chargement...</h6>
+                              </div> :
 
+                              <TableContact
+                                  contacts={this.state.contacts}
+                                  onAddBtnClick={() => {
+                                    this.setState({
+                                      openAddContactModal:true
+                                    })
+                                  }}
+                                  onEditClick={(contact, key) => {
+                                    this.setState({
+                                      selectedContact: contact,
+                                      selectedContactKey: contact.id
+                                    });
+                                    this.props.history.push('/home/contacts/' + contact.id);
+                                  }}
+                              />
+                        }
                       </Route>
 
                       <Route exact path="/home/contacts/:contact_id">
@@ -3528,7 +4418,9 @@ export default class Main extends React.Component {
                                   </div>
                                   <div style={{ marginTop: 30 }}
                                        className="text-left">
-                                    <Tabs>
+                                    <Tabs selectedIndex={this.state.selectedContactTabIndex} onSelect={index => {
+                                      this.setState({selectedContactTabIndex:index})
+                                    }}>
                                       <TabList>
                                       <Tab>Informations générales</Tab>
                                       </TabList>
@@ -3663,41 +4555,50 @@ export default class Main extends React.Component {
 
                       <Route exact path="/home/clients">
                         {
-                          this.state.loading === false && this.state.firstLoading === false &&
-                          <TableSociete
-                            contacts={this.state.contacts || []}
-                            societes={this.state.annuaire_clients_mondat || []}
-                            clients_tempo={this.state.clients_tempo}
-                            onEditClick={(societe, key) => {
-                              this.setState({
-                                selectedSociete: societe,
-                                selectedSocieteKey: key
-                              });
-                              this.props.history.push('/home/clients/' + societe.ID);
-                            }}
-                            onFolderClick={(folder_id) => {
-                              if (folder_id) {
-                                this.setState({
-                                  showContainerSection: 'Drive',
-                                  focusedItem: 'Drive',
-                                  selectedDriveItem: [folder_id],
-                                  expandedDriveItems: [folder_id, localStorage.getItem('client_folder_id')],
-                                  selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
-                                  breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
-                                  selectedFolderId: folder_id,
-                                  selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
-                                  selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
-                                });
-                              }
-                            }}
-                            onAddBtnClick={() => {
-                              this.setState({ openNewClientModal: true });
-                            }}
-                            openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                            reloadGed={() => this.justReloadGed()}
-                            update_client_tempo_all={(data) => this.update_client_tempo_all(data)}
-                            update_clients={(data) => this.update_clients(data)}
-                          />
+                          this.state.annuaire_clients_mandat.length === 0 ?
+                              <div align="center" style={{marginTop:200}}>
+                                <CircularProgress color="primary" />
+                                <h6>Chargement...</h6>
+                              </div>
+                                :
+                              <TableSociete
+                                  contacts={this.state.contacts || []}
+                                  societes={this.state.annuaire_clients_mandat || []}
+                                  clients_tempo={this.state.clients_cases}
+                                  onEditClick={(societe, key) => {
+                                    this.setState({
+                                      selectedSociete: societe,
+                                      selectedSocieteKey: key
+                                    });
+                                    this.props.history.push('/home/clients/' + societe.id);
+                                  }}
+                                  onFolderClick={(folder_id) => {
+                                    if (folder_id) {
+                                      this.setState({
+                                        showContainerSection: 'Drive',
+                                        focusedItem: 'Drive',
+                                        selectedDriveItem: [folder_id],
+                                        expandedDriveItems: [folder_id, localStorage.getItem('client_folder_id')],
+                                        selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
+                                        breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
+                                        selectedFolderId: folder_id,
+                                        selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
+                                        selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
+                                      });
+                                    }
+                                  }}
+                                  onAddBtnClick={() => {
+                                    this.setState({ openNewClientModal: true });
+                                  }}
+                                  openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                  reloadGed={() => this.justReloadGed()}
+                                  delete_client_case={(id) => {
+                                    this.delete_client_case(id)
+                                  }}
+                                  delete_annuaire_client_mandat={(id) => {
+                                    this.delete_annuaire_client_mandat(id)
+                                  }}
+                              />
                         }
 
                       </Route>
@@ -3715,13 +4616,13 @@ export default class Main extends React.Component {
                                        alt="" style={{ cursor: 'pointer', width: 120, height: 120, objectFit: 'cover' }}
                                   />
                                   <input style={{ visibility: 'hidden', width: 0, height: 0 }}
-                                               type='file'
-                                               accept='.png,.jpeg,.jpg'
-                                               onChange={(files) => this.uploadImage(files)}
-                                               ref={(ref) => this.imageUpload = ref}
-                                />
+                                         type='file'
+                                         accept='.png,.jpeg,.jpg'
+                                         onChange={(files) => this.uploadImage(files)}
+                                         ref={(ref) => this.imageUpload = ref}
+                                  />
                                   <h4
-                                    className="mb-0">{this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '')}</h4>
+                                      className="mb-0">{this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '')}</h4>
                                   <div style={{ display: 'contents' }}>
                                     <button type="button"
                                             onClick={this.saveSocietyChanges}
@@ -3744,7 +4645,10 @@ export default class Main extends React.Component {
                                   </div>
                                   <div style={{ marginTop: 30 }}
                                        className="text-left">
-                                    <Tabs> <TabList>
+                                    <Tabs selectedIndex={this.state.selectedClientTabIndex} onSelect={index => {
+                                      this.setState({selectedClientTabIndex:index})
+                                    }}>
+                                      <TabList>
                                       <Tab>Informations client</Tab>
                                       <Tab>Ouverture dossier</Tab>
                                       <Tab>Dossiers ouverts</Tab>
@@ -3755,7 +4659,6 @@ export default class Main extends React.Component {
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Nom du client </p>
                                             <input
-                                              readOnly={true}
                                                 type="text"
                                                 className="form-control"
                                                 id="email"
@@ -3767,16 +4670,16 @@ export default class Main extends React.Component {
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Statut</p>
                                             <FormControlLabel
-                                              control={
-                                                <MuiSwitch
-                                                  checked={this.state.selectedSociete.isActif || false}
-                                                  onChange={event => {
-                                                    let obj = this.state.selectedSociete;
-                                                    obj.isActif = event.target.checked;
-                                                    this.setState({ selectedSociete: obj });
-                                                  }}
-                                                  name="isActif" />}
-                                              label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === true ? 'Actif' : 'Non actif' : 'Non actif'}
+                                                control={
+                                                  <MuiSwitch
+                                                      checked={this.state.selectedSociete.isActif === "true" || false}
+                                                      onChange={event => {
+                                                        let obj = this.state.selectedSociete;
+                                                        obj.isActif = (event.target.checked).toString();
+                                                        this.setState({ selectedSociete: obj });
+                                                      }}
+                                                      name="isActif" />}
+                                                label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === "true" ? 'Actif' : 'Non actif' : 'Non actif'}
                                             />
                                           </div>
 
@@ -3787,13 +4690,12 @@ export default class Main extends React.Component {
                                             <div className="col-md-6">
                                               <p style={{ marginBottom: 10 }}>Prénom du client </p>
                                               <input
-                                                readOnly={true}
-                                                type="text"
-                                                className="form-control"
-                                                id="email"
-                                                name="email"
-                                                value={this.state.selectedSociete.Prenom}
-                                                onChange={this.handleChange('selectedSociete', 'Prenom')} />
+                                                  type="text"
+                                                  className="form-control"
+                                                  id="email"
+                                                  name="email"
+                                                  value={this.state.selectedSociete.Prenom}
+                                                  onChange={this.handleChange('selectedSociete', 'Prenom')} />
                                             </div>
                                           </div>
                                         }
@@ -3801,40 +4703,40 @@ export default class Main extends React.Component {
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Adresse postale</p>
                                             <textarea
-                                              rows={5}
-                                              className="form-control" style={{color:"#000"}}
-                                              id="about"
-                                              name="about"
-                                              value={this.state.selectedSociete.adress}
-                                              onChange={this.handleChange('selectedSociete', 'adress')} />
+                                                rows={5}
+                                                className="form-control" style={{color:"#000"}}
+                                                id="about"
+                                                name="about"
+                                                value={this.state.selectedSociete.adress}
+                                                onChange={this.handleChange('selectedSociete', 'adress')} />
                                           </div>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Adresse email</p>
                                             <input
-                                              className="form-control"
-                                              type="email"
-                                              id="email"
-                                              name="email"
-                                              value={this.state.selectedSociete.email}
-                                              onChange={this.handleChange('selectedSociete', 'email')} />
+                                                className="form-control"
+                                                type="email"
+                                                id="email"
+                                                name="email"
+                                                value={this.state.selectedSociete.email}
+                                                onChange={this.handleChange('selectedSociete', 'email')} />
                                             <p style={{ marginBottom: 10,marginTop:10 }}>Téléphone</p>
                                             <input
-                                              className="form-control"
-                                              type="text"
-                                              id="phone"
-                                              name="phone"
-                                              value={this.state.selectedSociete.phone}
-                                              onChange={this.handleChange('selectedSociete', 'phone')} />
+                                                className="form-control"
+                                                type="text"
+                                                id="phone"
+                                                name="phone"
+                                                value={this.state.selectedSociete.phone}
+                                                onChange={this.handleChange('selectedSociete', 'phone')} />
                                           </div>
                                           <div className="col-md-12" style={{marginTop:20}}>
                                             <p style={{ marginBottom: 10 }}>Remarques</p>
                                             <textarea
-                                              rows={4}
-                                              className="form-control" style={{color:"#000"}}
-                                              id="about"
-                                              name="about"
-                                              value={this.state.selectedSociete.remarque}
-                                              onChange={this.handleChange('selectedSociete', 'remarque')} />
+                                                rows={4}
+                                                className="form-control" style={{color:"#000"}}
+                                                id="about"
+                                                name="about"
+                                                value={this.state.selectedSociete.remarque}
+                                                onChange={this.handleChange('selectedSociete', 'remarque')} />
                                           </div>
                                         </div>
 
@@ -3848,10 +4750,10 @@ export default class Main extends React.Component {
                                             </div>
                                             <div>
                                               <input
-                                                style={{ color: '#000' }}
-                                                className="form-control"
-                                                defaultValue={this.state.newClientFolder.nom}
-                                                onChange={this.handleChange('newClientFolder', 'nom')}
+                                                  style={{ color: '#000' }}
+                                                  className="form-control"
+                                                  defaultValue={this.state.newClientFolder.nom}
+                                                  onChange={this.handleChange('newClientFolder', 'nom')}
                                               />
                                             </div>
                                           </div>
@@ -3861,15 +4763,15 @@ export default class Main extends React.Component {
                                             </div>
                                             <div>
                                               <select
-                                                className="form-control custom-select"
-                                                value={this.state.newClientFolder.type}
-                                                onChange={this.handleChange('newClientFolder', 'type')}
+                                                  className="form-control custom-select"
+                                                  value={this.state.newClientFolder.type}
+                                                  onChange={this.handleChange('newClientFolder', 'type')}
                                               >
                                                 {
                                                   Data.secteurs2.map((secteur, key) =>
-                                                    <option
-                                                      key={key}
-                                                      value={secteur}>{secteur}</option>
+                                                      <option
+                                                          key={key}
+                                                          value={secteur}>{secteur}</option>
                                                   )
                                                 }
                                               </select>
@@ -3881,11 +4783,11 @@ export default class Main extends React.Component {
                                             </div>
                                             <div>
                                               <textarea
-                                                style={{color: "#000"}}
-                                                className="form-control"
-                                                value={this.state.newClientFolder.desc}
-                                                onChange={this.handleChange( "newClientFolder", "desc")}
-                                                rows={5}
+                                                  style={{color: "#000"}}
+                                                  className="form-control"
+                                                  value={this.state.newClientFolder.desc}
+                                                  onChange={this.handleChange( "newClientFolder", "desc")}
+                                                  rows={5}
                                               />
                                             </div>
                                           </div>
@@ -3894,22 +4796,22 @@ export default class Main extends React.Component {
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Contrepartie</p>
                                             <input
-                                              type="text"
-                                              className="form-control"
-                                              id="email"
-                                              name="email"
-                                              value={this.state.newClientFolder.contrepartie}
-                                              onChange={this.handleChange('newClientFolder', 'contrepartie')} />
+                                                type="text"
+                                                className="form-control"
+                                                id="email"
+                                                name="email"
+                                                value={this.state.newClientFolder.contrepartie}
+                                                onChange={this.handleChange('newClientFolder', 'contrepartie')} />
                                           </div>
                                           <div className="col-md-6">
                                             <p style={{ marginBottom: 10 }}>Autres parties</p>
                                             <input
-                                              type="text"
-                                              className="form-control"
-                                              id="email"
-                                              name="email"
-                                              value={this.state.newClientFolder.autrepartie}
-                                              onChange={this.handleChange('newClientFolder', 'autrepartie')} />
+                                                type="text"
+                                                className="form-control"
+                                                id="email"
+                                                name="email"
+                                                value={this.state.newClientFolder.autrepartie}
+                                                onChange={this.handleChange('newClientFolder', 'autrepartie')} />
                                           </div>
                                         </div>
                                         <hr style={{
@@ -3942,80 +4844,80 @@ export default class Main extends React.Component {
                                               </div>
                                               {
                                                 this.state.newClientFolder.team.map((item, key) =>
-                                                  item.type === "lead" &&
-                                                  <div style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'flex-start',
-                                                    marginTop: 15
-                                                  }}>
-                                                    <div>
+                                                    item.type === "lead" &&
+                                                    <div style={{
+                                                      display: 'flex',
+                                                      justifyContent: 'flex-start',
+                                                      marginTop: 15
+                                                    }}>
                                                       <div>
-                                                        <MuiSelect
-                                                          labelId="demo-simple-select-labOuverture dossierel"
-                                                          id="demo-simple-select"
-                                                          style={{ width: 230,marginTop:20 }}
-                                                          onChange={(e) => {
-                                                            let contact_email = e.target.value;
-                                                            let contact = main_functions.getOAContactByEmail2(this.state.contacts,contact_email);
-                                                            if (contact) {
+                                                        <div>
+                                                          <MuiSelect
+                                                              labelId="demo-simple-select-labOuverture dossierel"
+                                                              id="demo-simple-select"
+                                                              style={{ width: 230,marginTop:20 }}
+                                                              onChange={(e) => {
+                                                                let id = e.target.value;
+                                                                let contact = this.state.contacts.find(x => x.id === id );
+                                                                if (contact) {
+                                                                  let objCp = this.state.newClientFolder;
+                                                                  objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
+                                                                  objCp.team[key].email = contact.email;
+                                                                  objCp.team[key].uid = contact.uid;
+                                                                  objCp.team[key].tarif = contact.rateFacturation || '';
+                                                                  this.setState({ newClientFolder: objCp });
+                                                                }
+                                                              }}
+                                                              value={this.state.newClientFolder.team[key].id}
+                                                          >
+                                                            {this.state.contacts.filter(x => x.type === "associe" ).map((contact, key) => (
+                                                                <MenuItem
+                                                                    key={key}
+                                                                    value={contact.id}>
+                                                                  <div style={{display:"flex"}}>
+                                                                    <Avatar style={{marginLeft:10}}
+                                                                            alt=""
+                                                                            src={contact.imageUrl} />
+                                                                    <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                                  </div>
+                                                                </MenuItem>
+                                                            ))}
+                                                          </MuiSelect>
+                                                        </div>
+                                                      </div>
+                                                      <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
+                                                        <div style={{marginLeft:10}}>
+                                                          Taux horaire
+                                                        </div>
+                                                        <Input
+                                                            style={{ width: 210,marginLeft:10 }}
+                                                            className="form-control "
+                                                            id="duree35411"
+                                                            name="duree687811"
+                                                            type="text"
+                                                            endAdornment={
+                                                              <InputAdornment
+                                                                  position="end">CHF/h</InputAdornment>}
+                                                            value={this.state.newClientFolder.team[key].tarif}
+                                                            onChange={(e) => {
                                                               let objCp = this.state.newClientFolder;
-                                                              objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
-                                                              objCp.team[key].email = contact_email;
-                                                              objCp.team[key].uid = contact.uid;
-                                                              objCp.team[key].tarif = contact.rateFacturation || '';
+                                                              objCp.team[key].tarif = e.target.value;
                                                               this.setState({ newClientFolder: objCp });
-                                                            }
-                                                          }}
-                                                          value={this.state.newClientFolder.team[key].email}
+                                                            }}
+                                                        />
+                                                      </div>
+                                                      <div>
+                                                        <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].id !== '' ? 28 : 8}}
+                                                                    onClick={() => {
+                                                                      let objCp = this.state.newClientFolder;
+                                                                      objCp.team.splice(key,1)
+                                                                      this.setState({ newClientFolder: objCp });
+                                                                    }}
                                                         >
-                                                          {this.state.contacts.filter(x => x.type === "associe" ).map((contact, key) => (
-                                                            <MenuItem
-                                                              key={key}
-                                                              value={contact.email}>
-                                                              <div style={{display:"flex"}}>
-                                                                <Avatar style={{marginLeft:10}}
-                                                                        alt=""
-                                                                        src={contact.imageUrl} />
-                                                                <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                              </div>
-                                                            </MenuItem>
-                                                          ))}
-                                                        </MuiSelect>
+                                                          <DeleteOutlineIcon color="error"/>
+                                                        </IconButton>
                                                       </div>
                                                     </div>
-                                                    <div style={{ marginTop: this.state.newClientFolder.team[key].uid !== '' ? 12 : -7 }}>
-                                                      <div style={{marginLeft:10}}>
-                                                        Taux horaire
-                                                      </div>
-                                                      <Input
-                                                        style={{ width: 210,marginLeft:10 }}
-                                                        className="form-control "
-                                                        id="duree35411"
-                                                        name="duree687811"
-                                                        type="text"
-                                                        endAdornment={
-                                                          <InputAdornment
-                                                            position="end">CHF/h</InputAdornment>}
-                                                        value={this.state.newClientFolder.team[key].tarif}
-                                                        onChange={(e) => {
-                                                          let objCp = this.state.newClientFolder;
-                                                          objCp.team[key].tarif = e.target.value;
-                                                          this.setState({ newClientFolder: objCp });
-                                                        }}
-                                                      />
-                                                    </div>
-                                                    <div>
-                                                      <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].uid !== '' ? 28 : 8}}
-                                                                  onClick={() => {
-                                                                    let objCp = this.state.newClientFolder;
-                                                                    objCp.team.splice(key,1)
-                                                                    this.setState({ newClientFolder: objCp });
-                                                                  }}
-                                                      >
-                                                        <DeleteOutlineIcon color="error"/>
-                                                      </IconButton>
-                                                    </div>
-                                                  </div>
                                                 )
                                               }
                                             </div>
@@ -4039,80 +4941,80 @@ export default class Main extends React.Component {
                                               </div>
                                               {
                                                 this.state.newClientFolder.team.map((item, key) =>
-                                                  item.type === "team" &&
-                                                  <div style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'flex-start',
-                                                    marginTop: 15
-                                                  }}>
-                                                    <div>
+                                                    item.type === "team" &&
+                                                    <div style={{
+                                                      display: 'flex',
+                                                      justifyContent: 'flex-start',
+                                                      marginTop: 15
+                                                    }}>
                                                       <div>
-                                                        <MuiSelect
-                                                          labelId="demo-simple-select-label"
-                                                          id="demo-simple-select"
-                                                          style={{ width: 230 ,marginTop:20}}
-                                                          onChange={(e) => {
-                                                            let contact_email = e.target.value;
-                                                            let contact = main_functions.getOAContactByEmail2(this.state.contacts,contact_email);
-                                                            if (contact) {
+                                                        <div>
+                                                          <MuiSelect
+                                                              labelId="demo-simple-select-label"
+                                                              id="demo-simple-select"
+                                                              style={{ width: 230 ,marginTop:20}}
+                                                              onChange={(e) => {
+                                                                let id = e.target.value;
+                                                                let contact = this.state.contacts.find(x => x.id === id);
+                                                                if (contact) {
+                                                                  let objCp = this.state.newClientFolder;
+                                                                  objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
+                                                                  objCp.team[key].email = contact.email;
+                                                                  objCp.team[key].uid = contact.uid;
+                                                                  objCp.team[key].tarif = contact.rateFacturation || '';
+                                                                  this.setState({ newClientFolder: objCp });
+                                                                }
+                                                              }}
+                                                              value={this.state.newClientFolder.team[key].id}
+                                                          >
+                                                            {this.state.contacts.filter(x => !x.type ).map((contact, key) => (
+                                                                <MenuItem
+                                                                    key={key}
+                                                                    value={contact.id}>
+                                                                  <div style={{display:"flex"}}>
+                                                                    <Avatar style={{marginLeft:10}}
+                                                                            alt=""
+                                                                            src={contact.imageUrl} />
+                                                                    <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                                  </div>
+                                                                </MenuItem>
+                                                            ))}
+                                                          </MuiSelect>
+                                                        </div>
+                                                      </div>
+                                                      <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
+                                                        <div style={{marginLeft:10}}>
+                                                          Taux horaire
+                                                        </div>
+                                                        <Input
+                                                            className="form-control "
+                                                            id="duree35411"
+                                                            style={{ width: 210,marginLeft:10 }}
+                                                            name="duree687811"
+                                                            type="text"
+                                                            endAdornment={
+                                                              <InputAdornment
+                                                                  position="end">CHF/h</InputAdornment>}
+                                                            value={this.state.newClientFolder.team[key].tarif}
+                                                            onChange={(e) => {
                                                               let objCp = this.state.newClientFolder;
-                                                              objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
-                                                              objCp.team[key].email = contact_email;
-                                                              objCp.team[key].uid = contact.uid;
-                                                              objCp.team[key].tarif = contact.rateFacturation || '';
+                                                              objCp.team[key].tarif = e.target.value;
                                                               this.setState({ newClientFolder: objCp });
-                                                            }
-                                                          }}
-                                                          value={this.state.newClientFolder.team[key].email}
+                                                            }}
+                                                        />
+                                                      </div>
+                                                      <div>
+                                                        <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].id !== '' ? 28 : 8}}
+                                                                    onClick={() => {
+                                                                      let objCp = this.state.newClientFolder;
+                                                                      objCp.team.splice(key,1)
+                                                                      this.setState({ newClientFolder: objCp });
+                                                                    }}
                                                         >
-                                                          {this.state.contacts.filter(x => !x.type ).map((contact, key) => (
-                                                            <MenuItem
-                                                              key={key}
-                                                              value={contact.email}>
-                                                              <div style={{display:"flex"}}>
-                                                                <Avatar style={{marginLeft:10}}
-                                                                        alt=""
-                                                                        src={contact.imageUrl} />
-                                                                <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                              </div>
-                                                            </MenuItem>
-                                                          ))}
-                                                        </MuiSelect>
+                                                          <DeleteOutlineIcon color="error"/>
+                                                        </IconButton>
                                                       </div>
                                                     </div>
-                                                    <div style={{ marginTop: this.state.newClientFolder.team[key].uid !== '' ? 12 : -7 }}>
-                                                      <div style={{marginLeft:10}}>
-                                                        Taux horaire
-                                                      </div>
-                                                      <Input
-                                                        className="form-control "
-                                                        id="duree35411"
-                                                        style={{ width: 210,marginLeft:10 }}
-                                                        name="duree687811"
-                                                        type="text"
-                                                        endAdornment={
-                                                          <InputAdornment
-                                                            position="end">CHF/h</InputAdornment>}
-                                                        value={this.state.newClientFolder.team[key].tarif}
-                                                        onChange={(e) => {
-                                                          let objCp = this.state.newClientFolder;
-                                                          objCp.team[key].tarif = e.target.value;
-                                                          this.setState({ newClientFolder: objCp });
-                                                        }}
-                                                      />
-                                                    </div>
-                                                    <div>
-                                                      <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].uid !== '' ? 28 : 8}}
-                                                                  onClick={() => {
-                                                                    let objCp = this.state.newClientFolder;
-                                                                    objCp.team.splice(key,1)
-                                                                    this.setState({ newClientFolder: objCp });
-                                                                  }}
-                                                      >
-                                                        <DeleteOutlineIcon color="error"/>
-                                                      </IconButton>
-                                                    </div>
-                                                  </div>
                                                 )
                                               }
                                             </div>
@@ -4122,16 +5024,16 @@ export default class Main extends React.Component {
                                         <div className="mt-4">
                                           <h5>FACTURATION-CLIENT</h5>
                                           <div
-                                            className="row align-items-center">
+                                              className="row align-items-center">
                                             <div className="col-md-4">
                                               <div
-                                                className="row justify-content-center align-items-center">
+                                                  className="row justify-content-center align-items-center">
                                                 <div
-                                                  className="col-md-4">
+                                                    className="col-md-4">
                                                   <div>Par Email</div>
                                                 </div>
                                                 <div
-                                                  className="col-md-8">
+                                                    className="col-md-8">
                                                   <CB color="primary"
                                                       checked={this.state.newClientFolder.byEmail}
                                                       onChange={(e) => {
@@ -4144,46 +5046,46 @@ export default class Main extends React.Component {
                                                 </div>
                                               </div>
                                               <div
-                                                className="row justify-content-center align-items-center">
+                                                  className="row justify-content-center align-items-center">
                                                 <div
-                                                  className="col-md-4">
+                                                    className="col-md-4">
                                                   <div>Fréquence</div>
                                                 </div>
                                                 <div
-                                                  className="col-md-8">
+                                                    className="col-md-8">
                                                   <MuiSelect
-                                                    labelId="demo-simple-select-label"
-                                                    id="demo-simple-select"
-                                                    style={{ width: '100%' }}
-                                                    value={this.state.newClientFolder.frequence}
-                                                    onChange={(e) => {
-                                                      let obj = this.state.newClientFolder;
-                                                      obj.frequence = e.target.value
-                                                      this.setState({newClientFolder:obj})
-                                                    }}
+                                                      labelId="demo-simple-select-label"
+                                                      id="demo-simple-select"
+                                                      style={{ width: '100%' }}
+                                                      value={this.state.newClientFolder.frequence}
+                                                      onChange={(e) => {
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.frequence = e.target.value
+                                                        this.setState({newClientFolder:obj})
+                                                      }}
                                                   >
                                                     <MenuItem
-                                                      value={'Mensuelle'}>Mensuelle</MenuItem>
+                                                        value={'Mensuelle'}>Mensuelle</MenuItem>
                                                     <MenuItem
-                                                      value={'Trimestrielle'}>Trimestrielle</MenuItem>
+                                                        value={'Trimestrielle'}>Trimestrielle</MenuItem>
                                                     <MenuItem
-                                                      value={'Semestrielle'}>Semestrielle</MenuItem>
+                                                        value={'Semestrielle'}>Semestrielle</MenuItem>
                                                     <MenuItem
-                                                      value={'Annuelle'}>Annuelle</MenuItem>
+                                                        value={'Annuelle'}>Annuelle</MenuItem>
                                                   </MuiSelect>
                                                 </div>
                                               </div>
                                             </div>
                                             <div className="col-md-4">
                                               <div
-                                                className="row justify-content-center align-items-center">
+                                                  className="row justify-content-center align-items-center">
                                                 <div
-                                                  className="col-md-6">
+                                                    className="col-md-6">
                                                   <div>Envoyé par le secrétariat
                                                   </div>
                                                 </div>
                                                 <div
-                                                  className="col-md-6">
+                                                    className="col-md-6">
                                                   <CB color="primary"
                                                       checked={this.state.newClientFolder.sentBySecr}
                                                       onChange={(e) => {
@@ -4194,14 +5096,14 @@ export default class Main extends React.Component {
                                                 </div>
                                               </div>
                                               <div
-                                                className="row justify-content-center align-items-center">
+                                                  className="row justify-content-center align-items-center">
                                                 <div
-                                                  className="col-md-6">
+                                                    className="col-md-6">
                                                   <div>Envoyé par l’avocat
                                                   </div>
                                                 </div>
                                                 <div
-                                                  className="col-md-6">
+                                                    className="col-md-6">
                                                   <CB color="primary"
                                                       checked={this.state.newClientFolder.sentByAvocat}
                                                       onChange={(e) => {
@@ -4212,29 +5114,29 @@ export default class Main extends React.Component {
                                                 </div>
                                               </div>
                                               <div
-                                                className="row justify-content-center align-items-center">
+                                                  className="row justify-content-center align-items-center">
                                                 <div
-                                                  className="col-md-6">
+                                                    className="col-md-6">
                                                   <div>Langue de Facturation
                                                   </div>
                                                 </div>
                                                 <div
-                                                  className="col-md-6">
+                                                    className="col-md-6">
                                                   <MuiSelect
-                                                    labelId="demo-simple-select-label"
-                                                    id="demo-simple-select"
-                                                    style={{ width: '100%' }}
-                                                    value={this.state.newClientFolder.language}
-                                                    onChange={(e) => {
-                                                      let obj = this.state.newClientFolder;
-                                                      obj.language = e.target.value
-                                                      this.setState({newClientFolder:obj})
-                                                    }}
+                                                      labelId="demo-simple-select-label"
+                                                      id="demo-simple-select"
+                                                      style={{ width: '100%' }}
+                                                      value={this.state.newClientFolder.language}
+                                                      onChange={(e) => {
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.language = e.target.value
+                                                        this.setState({newClientFolder:obj})
+                                                      }}
                                                   >
                                                     <MenuItem
-                                                      value={'Francais'}>Français</MenuItem>
+                                                        value={'Francais'}>Français</MenuItem>
                                                     <MenuItem
-                                                      value={'Anglais'}>Anglais</MenuItem>
+                                                        value={'Anglais'}>Anglais</MenuItem>
                                                   </MuiSelect>
                                                 </div>
                                               </div>
@@ -4248,34 +5150,34 @@ export default class Main extends React.Component {
                                           textAlign: 'right'
                                         }}>
                                           <button
-                                            type="button"
-                                            disabled={this.state.newClientFolder.nom === ''}
-                                            onClick={() => {
-                                              let contact = main_functions.getOAContactByEmail2(this.state.contacts,this.state.lead_contact_tmp);
-                                              let objCp = this.state.newClientFolder;
-                                              if(contact){
-                                                objCp.team.push({
-                                                  fname: contact.nom + ' ' + contact.prenom,
-                                                  email: this.state.lead_contact_tmp,
-                                                  uid: contact.uid,
-                                                  tarif: this.state.lead_contact_horaire_tmp,
-                                                  type: 'lead'
-                                                });
-                                              }
-                                              this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
-                                            }}
-                                            className="btn btn-blue waves-effect mb-2 waves-light m-1">
+                                              type="button"
+                                              disabled={this.state.newClientFolder.nom === ''}
+                                              onClick={() => {
+                                                let contact = main_functions.getOAContactByEmail2(this.state.contacts,this.state.lead_contact_tmp);
+                                                let objCp = this.state.newClientFolder;
+                                                if(contact){
+                                                  objCp.team.push({
+                                                    fname: contact.nom + ' ' + contact.prenom,
+                                                    email: this.state.lead_contact_tmp,
+                                                    uid: contact.uid,
+                                                    tarif: this.state.lead_contact_horaire_tmp,
+                                                    type: 'lead'
+                                                  });
+                                                }
+                                                this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
+                                              }}
+                                              className="btn btn-blue waves-effect mb-2 waves-light m-1">
                                             <i className="fe-folder-plus" />&nbsp;&nbsp;Créer Dossier Client
                                           </button>
                                         </div>
                                       </TabPanel>
                                       <TabPanel>
                                         <h5 style={{ marginTop: 20 }}>Dossiers ouverts</h5>
-                                        <Mandats selectedClient={this.state.selectedSociete} clients_tempo={this.state.clients_tempo} clients_tempo_copie={this.state.clients_tempo_copie}
+                                        <Mandats selectedClient={this.state.selectedSociete} clients_tempo={this.state.clients_cases} clients_tempo_copie={this.state.clients_cases}
                                                  contacts={this.state.contacts}
                                                  onFolderClick={(folder_id,parentClientFolder) => {
                                                    let ged = this.state.reelFolders;
-                                                   let CLIENT_folder = ged.find(x => x.id ===  "4376a4bb-d5ec-441f-8868-f9ce96077420")
+                                                   let CLIENT_folder = ged.find(x => x.id ===  ENV_CLIENTS_FOLDER_ID)
                                                    if(CLIENT_folder){
                                                      this.setState({
                                                        showContainerSection: 'Drive',
@@ -4289,6 +5191,7 @@ export default class Main extends React.Component {
                                                        selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
                                                      });
                                                      this.props.history.push("/home/drive/" + folder_id )
+                                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                                    }else{
 
                                                      this.setState({
@@ -4296,15 +5199,15 @@ export default class Main extends React.Component {
                                                        focusedItem: 'Drive',
                                                        selectedDriveItem: [],
                                                        expandedDriveItems: [],
-                                                       selectedDriveSharedItem:['4376a4bb-d5ec-441f-8868-f9ce96077420'],
-                                                       expandedDriveSharedItems:['parent','CLIENTS'],
+                                                       selectedDriveSharedItem:[ENV_CLIENTS_FOLDER_ID],
+                                                       expandedDriveSharedItems:['parent',ENV_CLIENTS_FOLDER_ID],
                                                        breadcrumbs: 'Mon drive / Partagés avec moi',
                                                      });
-                                                     this.props.history.push("/home/shared/" + "4376a4bb-d5ec-441f-8868-f9ce96077420" )
+                                                     this.props.history.push("/home/shared/" + ENV_CLIENTS_FOLDER_ID)
                                                    }
                                                  }}
-                                                 update_client_tempo={(key,data) => {
-                                                   this.update_client_tempo(key,data)
+                                                 update_client_case={(id,data) => {
+                                                   this.update_client_case(id,data)
                                                  }}
                                                  reloadGed={() => this.justReloadGed()}
                                                  openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
@@ -4320,535 +5223,7 @@ export default class Main extends React.Component {
                       </Route>
 
                       <Route exact path="/home/timeSheet/activities">
-                        {
-                          this.state.loading === false && this.state.firstLoading === false &&
-                          <div>
-                            <div className="row">
-                              <div className="col-lg-12">
-                                <h5 className="mt-0 mb-1">TimeSheet / Activités</h5>
-                                <div className="card-box text-center" style={{ marginTop: 1 }}>
-                                  <div style={{ marginTop: 30 }} className="text-left">
-                                    <Tabs selectedIndex={this.state.selectedTimeSheetIndex} onSelect={index => {
-                                      this.setState({selectedTimeSheetIndex:index})
-                                    }}>
-                                      <TabList>
-                                        <Tab>Time Sheet</Tab>
-                                        <Tab>Activités </Tab>
-                                        <Tab>
-                                          Partner
-                                          {
-                                            this.state.facturesToValidated.filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length > 0 &&
-                                            <Badge max={100}>{this.state.facturesToValidated.filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length}</Badge>
-                                          }
-                                        </Tab>
-                                      </TabList>
-                                      <TabPanel>
-                                        {
-                                          this.state.showLignesFactureClient === false ?
-                                            <div style={{marginTop:25,padding:10,paddingBottom:50,paddingLeft:20,border:"2px solid #f0f0f0"}}>
-                                              <div className="row mt-2">
-                                                <div className="col-md-6">
-                                                  <h5>Durée</h5>
-                                                  <div className="row">
-                                                    <div className="col-md-5">
-                                                      <Autosuggest
-                                                        suggestions={this.state.timeSuggestions}
-                                                        onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
-                                                        onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
-                                                        onSuggestionSelected={(event, { suggestion }) => console.log(suggestion)}
-                                                        getSuggestionValue={suggestion => suggestion}
-                                                        renderSuggestion={suggestion => (
-                                                          <div>{suggestion}</div>)}
-                                                        inputProps={inputSuggProps}
-                                                      />
-                                                    </div>
-                                                    <div className="col-md-7">
-                                                      <div style={{ display: 'flex' }}>
-                                                        <Timer
-                                                          initialTime={0}
-                                                          startImmediately={false}
-                                                        >
-                                                          {({ start, resume, pause, stop, reset, getTimerState, getTime }) => (
-                                                            <React.Fragment>
-                                                              <div
-                                                                align="center"
-                                                                style={{
-                                                                  backgroundColor: '#c0c0c0',
-                                                                  padding: 8,
-                                                                  color: '#000',
-                                                                  height: 36,
-                                                                  fontWeight: 700,
-                                                                  fontSize: 16,
-                                                                  letterSpacing: '0.1rem'
-                                                                }}>
-                                                                <Timer.Hours
-                                                                  formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`} />
-                                                                <Timer.Minutes
-                                                                  formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`} />
-                                                                <Timer.Seconds
-                                                                  formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`} />
-                                                              </div>
-                                                              <div
-                                                                style={{ marginLeft: 10 }}>
-                                                                <div
-                                                                  align="center"
-                                                                  style={{
-                                                                    backgroundColor: (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'green' : 'red',
-                                                                    padding: 5,
-                                                                    borderRadius: 10,
-                                                                    width: 50,
-                                                                    color: '#fff',
-                                                                    fontWeight: 700,
-                                                                    cursor: 'pointer'
-                                                                  }}
-                                                                  onClick={() => {
-                                                                    if (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') {
-                                                                      start();
-                                                                    } else {
-                                                                      let timeEtablished = getTime();
-                                                                      console.log(timeEtablished);
-                                                                      let timeH = ((timeEtablished / 1000) / 60) / 60;
-                                                                      console.log(timeH);
-                                                                      let obj = this.state.TimeSheet;
-                                                                      obj.newTime.duree = timeH.toFixed(3).replace('.', ':');
-                                                                      this.setState({ TimeSheet: obj });
-                                                                      stop();
-                                                                    }
-                                                                  }}
-                                                                >
-                                                                  {(getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'Start' : 'Stop'}
-                                                                </div>
-                                                                <div
-                                                                  align="center"
-                                                                  style={{
-                                                                    backgroundColor: '#c0c0c0',
-                                                                    padding: 5,
-                                                                    borderRadius: 10,
-                                                                    width: 50,
-                                                                    color: '#fff',
-                                                                    fontWeight: 700,
-                                                                    cursor: 'pointer',
-                                                                    marginTop: 3
-                                                                  }}
-                                                                  onClick={() => {
-                                                                    let obj = this.state.TimeSheet;
-                                                                    obj.newTime.duree = '';
-                                                                    this.setState({ TimeSheet: obj });
-                                                                    reset();
-                                                                  }}
-                                                                >
-                                                                  Reset
-                                                                </div>
-                                                              </div>
-                                                            </React.Fragment>
-                                                          )}
-                                                        </Timer>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                                <div className="col-md-6">
-                                                  <div>
-                                                    <h5>Nom du client</h5>
-                                                    <div style={{ display: 'flex' }}>
-                                                      <SelectSearch
-                                                        options={
-                                                          this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
-                                                            ({
-                                                              value: ID,
-                                                              name: Nom + ' ' + (Prenom || ''),
-                                                              ContactType: Type,
-                                                              ContactName: Nom + ' ' + (Prenom || ''),
-                                                              imageUrl: imageUrl
-                                                            }))
-                                                        }
-                                                        value={this.state.selectedClientTimeEntree}
-                                                        renderOption={main_functions.renderSearchOption}
-                                                        search
-                                                        placeholder="Chercher votre client"
-                                                        onChange={ (e) => {
-
-                                                          let obj = this.state.TimeSheet;
-
-                                                          let findClientTempo = this.state.clients_tempo.find(x => x.ID_client === e)
-                                                          let findClientFname = this.state.annuaire_clients_mondat.find(x => x.ID === e)
-                                                          console.log(findClientFname)
-                                                          obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
-                                                          obj.newTime.client_id = e;
-                                                          if(findClientTempo){
-                                                            this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
-                                                          }else{
-                                                            obj.newTime.dossier_client =  {
-                                                              name:'',
-                                                              facturation: {
-                                                                language:''
-                                                              }}
-                                                            this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: e})
-                                                          }
-                                                        }}
-                                                      />
-                                                      <IconButton
-                                                        style={{ marginTop: -5 }}
-                                                        onClick={() => this.setState({ openAdvancedSearchModal: true })}>
-                                                        <SearchIcon />
-                                                      </IconButton>
-                                                    </div>
-                                                    <h5 style={{marginTop:10}}>Dossier du client </h5>
-                                                    <MuiSelect
-                                                      labelId="demo-simple-select-label"
-                                                      id="demo-simple-select"
-                                                      style={{ width: 300 }}
-                                                      value={this.state.TimeSheet.newTime.dossier_client}
-                                                      onChange={(e) => {
-                                                        console.log(e.target.value)
-                                                        let ts = this.state.TimeSheet;
-                                                        let data = e.target.value;
-                                                        let team = data.team || [];
-                                                        let find = team.find(x => x.email === this.state.TimeSheet.newTime.utilisateurOA);
-                                                        if(find){
-                                                          ts.newTime.rateFacturation = find.tarif || '';
-                                                          this.setState({ TimeSheet: ts });
-                                                        }else{
-                                                          let OA_contacts = this.state.contacts;
-                                                          let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,this.state.TimeSheet.newTime.utilisateurOA);
-                                                          ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
-                                                        }
-                                                        ts.newTime.dossier_client = e.target.value;
-                                                        this.setState({ TimeSheet: ts });
-                                                      }}
-                                                    >
-                                                      {
-                                                        this.state.selectedClientFolders.map((item,key) => (
-                                                          <MenuItem key={key} value={item}>{item.name}</MenuItem>
-                                                        ))
-                                                      }
-                                                    </MuiSelect>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                              <div className="row mt-3">
-                                                <div className="col-md-6">
-                                                  <div>
-                                                    <h5>Catégorie d’activités </h5>
-                                                    <MuiSelect
-                                                      labelId="demo-simple-select-label"
-                                                      id="demo-simple-select"
-                                                      style={{ width: 220 }}
-                                                      value={this.state.TimeSheet.newTime.categoriesActivite}
-                                                      onChange={(e) => {
-                                                        let d = this.state.TimeSheet;
-                                                        d.newTime.categoriesActivite = e.target.value;
-                                                        this.setState({ TimeSheet: d });
-                                                      }}
-                                                    >
-                                                      <MenuItem
-                                                        value={'Temps facturé'}>Temps facturé</MenuItem>
-                                                      <MenuItem
-                                                        value={'Paiement avancée'}>Provision</MenuItem>
-                                                    </MuiSelect>
-                                                  </div>
-                                                </div>
-                                                <div className="col-md-6">
-                                                  <div
-                                                    style={{ width: '100%' }}>
-                                                    <h5>Date</h5>
-                                                    <DatePicker
-                                                      calendarIcon={
-                                                        <img
-                                                          alt=""
-                                                          src={calendar}
-                                                          style={{ width: 20 }} />}
-                                                      onChange={(e) => {
-                                                        console.log(e);
-                                                        let d = this.state.TimeSheet;
-                                                        d.newTime.date = e;
-                                                        this.setState({ TimeSheet: d });
-                                                      }}
-                                                      value={this.state.TimeSheet.newTime.date}
-                                                    />
-                                                  </div>
-                                                </div>
-                                              </div>
-                                              <div className="row mt-3">
-                                                <div className="col-md-6">
-                                                  <div>
-                                                    <div>
-                                                      <h5>{new_timeSheet_desc}</h5>
-                                                    </div>
-                                                    <textarea
-                                                      className="form-control "
-                                                      id="duree"
-                                                      style={{ width: '100%' }}
-                                                      name="duree"
-                                                      rows={5}
-                                                      value={this.state.TimeSheet.newTime.description}
-                                                      onChange={(e) => {
-                                                        let d = this.state.TimeSheet;
-                                                        d.newTime.description = e.target.value;
-                                                        this.setState({ TimeSheet: d });
-                                                      }} />
-                                                  </div>
-                                                </div>
-                                                <div className="col-md-6">
-                                                  <div>
-                                                    <h6>Utilisateur OA </h6>
-                                                  </div>
-                                                  <MuiSelect
-                                                    labelId="demo-simple-select-label4545"
-                                                    id="demo-simple-select4545"
-                                                    style={{ width: 250 }}
-                                                    onChange={(e) => {
-                                                      let ts = this.state.TimeSheet;
-                                                      let dossier = this.state.TimeSheet.newTime.dossier_client;
-                                                      if(dossier && dossier.team && dossier.team.length > 0){
-                                                        let team = dossier.team;
-                                                        let find = team.find(x => x.email === e.target.value);
-                                                        if(find){
-                                                          ts.newTime.rateFacturation = find.tarif || "";
-                                                        }
-                                                      }else{
-                                                        let OA_contacts = this.state.contacts;
-                                                        let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,e.target.value);
-                                                        ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
-                                                      }
-                                                      ts.newTime.utilisateurOA = e.target.value;
-                                                      this.setState({ TimeSheet: ts });
-                                                    }}
-                                                    value={this.state.TimeSheet.newTime.utilisateurOA}
-                                                  >
-                                                    {this.state.contacts.map((contact, key) => (
-                                                      <MenuItem
-                                                        key={key}
-                                                        value={contact.email}>
-                                                        <div style={{display:"flex"}}>
-                                                          <Avatar style={{marginLeft:10}}
-                                                                  alt=""
-                                                                  src={contact.imageUrl} />
-                                                          <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                        </div>
-                                                      </MenuItem>
-                                                    ))}
-                                                  </MuiSelect>
-                                                  <div
-                                                    className="mt-3">
-                                                    <h6>
-                                                      Taux horaire
-                                                    </h6>
-                                                    <Input
-                                                      className="form-control "
-                                                      id="duree"
-                                                      style={{ width: 250 }}
-                                                      name="duree"
-                                                      type="text"
-                                                      endAdornment={
-                                                        <InputAdornment
-                                                          position="end">CHF:Hr</InputAdornment>}
-                                                      value={this.state.TimeSheet.newTime.rateFacturation + ''}
-                                                      onChange={(e) => {
-                                                        let d = this.state.TimeSheet;
-                                                        d.newTime.rateFacturation = e.target.value;
-                                                        this.setState({ TimeSheet: d });
-                                                      }} />
-                                                  </div>
-                                                </div>
-                                              </div>
-                                              <div align="center" className=" mt-4">
-                                                <AltButtonGroup>
-                                                  <AtlButton
-                                                    onClick={() => {
-                                                      this.createLignefacture(false)
-                                                    }}
-                                                    appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' }
-                                                    style={{ margin: 20 }}> Enregistrer </AtlButton>
-                                                  <AtlButton
-                                                    onClick={() => {
-                                                      this.createLignefacture(true)
-                                                    }}
-                                                    appearance="primary"
-                                                    isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' }
-                                                    style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
-                                                  <AtlButton
-                                                    appearance=""
-                                                    style={{ margin: 20 }}
-                                                    onClick={() => {
-                                                      this.setState({
-                                                        TimeSheet: {
-                                                          newTime: {
-                                                            duree: '',
-                                                            client: '',
-                                                            dossier_client: {
-                                                              name:'',
-                                                              facturation: {
-                                                                language:''
-                                                              }},
-                                                            categoriesActivite: 'Temps facturé',
-                                                            description: '',
-                                                            date: new Date(),
-                                                            utilisateurOA: '',
-                                                            rateFacturation: '',
-                                                            selectedClientTimeEntree:''
-                                                          }
-                                                        }
-                                                      });
-                                                    }}>Réinitialiser</AtlButton>
-                                                </AltButtonGroup>
-                                                <div>
-                                                  <AltButtonGroup
-                                                    style={{ marginTop: 10 }}>
-                                                    <AtlButton
-                                                      isSelected
-                                                      appearance="default"
-                                                      onClick={() => this.setState({selectedTimeSheetIndex:1})}
-                                                    >
-                                                      Etablir facture
-                                                    </AtlButton>
-                                                  </AltButtonGroup>
-                                                </div>
-                                              </div>
-                                            </div> :
-
-                                            <div>
-                                              <div className="mt-1">
-                                                <div>
-                                                  <div style={{
-                                                    textAlign: 'right',
-                                                    marginTop: 15
-                                                  }}>
-                                                    <button
-                                                      onClick={() => this.setState({
-                                                        showLignesFactureClient: false
-                                                      })}
-                                                      className="btn btn-sm btn-outline-info">Retour
-                                                    </button>
-                                                  </div>
-
-                                                  <div className="row mt-3">
-                                                    <div
-                                                      className="col-md-6">
-                                                      <h5>Nom du client</h5>
-                                                      <div
-                                                        style={{ display: 'flex' }}>
-                                                        <SelectSearch
-                                                          options={
-                                                            this.state.annuaire_clients_mondat.map(({ Nom, Prenom, Type, imageUrl }) =>
-                                                              ({
-                                                                value: Nom + ' ' + (Prenom || ''),
-                                                                name: Nom + ' ' + (Prenom || ''),
-                                                                ContactType: Type,
-                                                                ContactName: Nom + ' ' + (Prenom || ''),
-                                                                imageUrl: imageUrl
-                                                              }))
-                                                          }
-                                                          value={this.state.selectedClientTimeEntree}
-                                                          renderOption={main_functions.renderSearchOption}
-                                                          search
-                                                          placeholder="Chercher votre client"
-                                                          onChange={e => {
-                                                            console.log(e);
-                                                            let obj = this.state.TimeSheet;
-                                                            obj.newTime.client = e;
-
-                                                            let find_annuaire_fact_lead = this.state.annuaire_clients_mondat.find(x => (x.Nom + ' ' + x.Prenom) === e);
-                                                            console.log(find_annuaire_fact_lead);
-                                                            let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
-                                                            console.log(partner_email);
-                                                            this.setState({
-                                                              partnerFacture: partner_email,
-                                                              selectedClientTimeEntree: e,
-                                                              TimeSheet: obj
-                                                            });
-                                                          }}
-                                                        />
-                                                        <IconButton
-                                                          style={{ marginTop: -5 }}
-                                                          onClick={() => this.setState({ openAdvancedSearchModal: true })}>
-                                                          <SearchIcon />
-                                                        </IconButton>
-                                                      </div>
-                                                    </div>
-                                                    <div
-                                                      className="col-md-4">
-                                                      <div
-                                                        style={{ width: '100%' }}>
-                                                        <h5>Date de la facture</h5>
-                                                        <DatePicker
-                                                          calendarIcon={
-                                                            <img
-                                                              alt=""
-                                                              src={calendar}
-                                                              style={{ width: 20 }} />}
-                                                          onChange={(e) => {
-                                                            this.setState({ dateFacture: e });
-                                                          }}
-                                                          value={this.state.dateFacture}
-                                                        />
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </div>
-                                        }
-                                      </TabPanel>
-                                      <TabPanel>
-                                        {
-                                          this.state.lignesFactures.length > 0 &&
-                                          <TableTimeSheet
-                                            lignesFactures={this.state.lignesFactures}
-                                            lignesFacturesCopy={this.state.lignesFacturesCopy}
-                                            setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
-                                            OA_contacts={this.state.contacts}
-                                            annuaire_clients_mondat={this.state.annuaire_clients_mondat}
-                                            onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
-                                              this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
-                                                partner,lignes_facture)
-                                            }}
-                                            client_folders={this.state.client_folders}
-                                            updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
-                                            openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                                            clientsTempo={this.state.clients_tempo}
-                                            updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
-                                          />
-                                        } {
-                                        this.state.lignesFactures.length === 0 &&
-                                        <div style={{
-                                          marginTop: 30,
-                                          marginLeft: 10
-                                        }}>Aucune ligne facture encore ajoutée !</div>
-
-                                      }
-                                      </TabPanel>
-                                      <TabPanel>
-                                        <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
-                                        <TableFactures factures={this.state.facturesToValidated}
-                                                       facturesCp={this.state.facturesToValidatedCopy}
-                                                       client_folders={this.state.client_folders}
-                                                       clients_tempo={this.state.clients_tempo}
-                                                       annuaire_clients_mondat={this.state.annuaire_clients_mondat}
-                                                       sharedFolders={this.state.sharedReelFolders || []}
-                                                       validateFacture={(row,key,template,client) => {
-                                                         this.createFacture_ForSelected(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
-                                                       }}
-                                                       openFacture={(id) => {
-                                                         this.openPdfModal(id)
-                                                       }}
-                                                       openFactureFolder={(id) => {
-                                                         this.redirectToFolder(id)
-                                                       }}
-                                                       updateAllFactures={(data) => {
-                                                         this.updateAllFactures(data)
-                                                       }}
-                                                       openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                                        />
-                                      </TabPanel>
-                                    </Tabs>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        }
+                        {this.renderTimeSheet()}
                       </Route>
 
                     </Switch>
@@ -5695,13 +6070,13 @@ export default class Main extends React.Component {
             </DialogTitle>
             <DialogContent>
               <SearchClientsContainer
-                societes={this.state.annuaire_clients_mondat}
+                societes={this.state.annuaire_clients_mandat}
                 contacts={this.state.contacts}
                 onSelectBtnClick={(client) => {
                   let obj = this.state.TimeSheet;
 
                   let findClientTempo = this.state.clients_tempo.find(x => x.ID_client === client.ID)
-                  let findClientFname = this.state.annuaire_clients_mondat.find(x => x.ID === client.ID)
+                  let findClientFname = this.state.annuaire_clients_mandat.find(x => x.ID === client.ID)
                   console.log(findClientFname)
                   obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
                   if(findClientTempo){

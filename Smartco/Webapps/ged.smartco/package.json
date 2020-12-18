@@ -1,8 +1,9 @@
 {
-  "name": "OALegalGed",
-  "version": "0.1.0",
+  "name": "oalegal-ged",
+  "version": "0.3.1",
   "private": true,
   "dependencies": {
+    "@atlaskit/avatar-group": "^8.0.13",
     "@atlaskit/badge": "^14.0.7",
     "@atlaskit/button": "^14.0.3",
     "@atlaskit/checkbox": "^11.0.8",
@@ -20,7 +21,6 @@
     "chart.js": "^2.9.3",
     "classnames": "^2.2.6",
     "dom-to-image": "^2.6.0",
-    "firebase": "^7.17.1",
     "identicon.js": "^2.3.1",
     "immutability-helper": "^3.1.1",
     "jquery": "^3.4.1",

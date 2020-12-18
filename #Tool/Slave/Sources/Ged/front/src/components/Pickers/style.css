@@ -1,0 +1,117 @@
+.DayPicker-Day--disponible {
+    font-weight: 600!important;
+    background-color:  rgba(0, 162, 255, 0.05);
+    color: #00a2ff;
+    cursor: pointer!important;
+    font-size: 16px!important;
+    width: 44px!important;
+    height: 44px!important;
+    border-radius: 50% !important;
+}
+.DayPicker-Day--disabled {
+    color: #DCE0E0;
+    cursor: default;
+}
+.DayPicker-Day--disponible:hover {
+    background-color:  rgba(0, 162, 255, 0.15)!important;
+}
+.DayPicker-Day--disponible:focus {
+    outline-color: transparent!important;
+    color: #ffffff!important;
+    background-color: #00a2ff!important;
+}
+.DayPicker {
+    font-size: 1.2rem!important;
+}
+.DayPicker-Month {
+    border-collapse: separate!important;
+    border-spacing: 18px 10px!important;
+}
+.btn-call {
+    width: 100%;
+    height: 52px;
+    color: rgb(0, 162, 255);
+    border: 1px solid rgba(0, 162, 255, 0.5);
+    padding: 13px 10px;
+    font-weight: 700;
+    vertical-align: top;
+    border-radius: 4px;
+    background-color: #FFFFFF;
+}
+.btn-call:hover {
+    border: 2px solid rgb(0, 162, 255) !important;
+}
+
+.btn-disabled{
+    width: 48.5%;
+    color: white;
+    background-color: #c0c0c0;
+    border-color: transparent;
+    height: 52px;
+    border-radius: 4px;
+}
+
+.btn-confirm{
+    width: 48.5%;
+    height: 52px;
+    margin-left: 3%;
+    color:  #ffffff;
+    background-color:  rgb(0, 162, 255);
+    box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    border-color: transparent;
+}
+.btn-confirm:hover{
+    background-color: rgba(0, 162, 255, 0.5);
+}
+
+.call-wrapper{
+    display: flex;
+    justify-content: center;
+    min-height: 700px!important;
+}
+
+.call-container{
+    /*min-width: 1000px;
+    max-width: 1400px;*/
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 550px;
+    /*border: 1px solid  rgba(77, 80, 85, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.08);
+    background-color: #fff;*/
+    width: 850px;
+}
+.btn-confirm-evt{
+    color:  #ffffff;
+    background-color:  rgb(0, 162, 255);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 44px;
+    padding: 8px 16px;
+    font-size: 14px;
+    line-height: 20px;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    border-radius: 6px;
+}
+
+.btn-return{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 43px;
+    height: 43px;
+    color:  rgb(0, 162, 255);
+    font-size: 24px;
+    background-clip: padding-box;
+    border: 1px solid rgba(77, 80, 85, 0.1);
+    border-radius: 50%;
+    margin-left: 15px;
+    margin-bottom: 15px;
+    margin-top: 10px;
+}
