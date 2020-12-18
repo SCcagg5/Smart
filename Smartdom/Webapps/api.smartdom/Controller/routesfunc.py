@@ -576,6 +576,27 @@ def asset_transfert(cn, nextc):
     err = asset.transfert(cn.private["user"].id, cn.pr["from_wallet"], cn.pr["to"], cn.rt["asset"])
     return cn.call_next(nextc, err)
 
+def infos_asset(cn, nextc):
+    type = cn.rt["asset"] if "asset" in cn.rt else None
+    id = cn.rt[type] if type in cn.rt else None
+    if type not in ["54daf43b-9226-4277-b9a2-155fa656a324"]:
+        return cn.toret.add_error("invalid type", 404)
+    if id not in ["1WER"]:
+        return cn.toret.add_error("invalid id", 404)
+    err = [True, {
+                  "name": "Gillioz",
+                  "surname": "fabien",
+                  "offerd_by": {"CN": "Oalegal", "intern": "eliot courtel"},
+                  "date": "1608303245000",
+                  "message": None,
+                  "asset": {"name": "bouteille de vin"},
+                  "eth": {
+                    "contract": "0x214936e173c366082548c22746cb83c3d42a3baf",
+                    "token_id": ["0xdac17f958d2ee523a2206206994597c13d831ec7"]
+                    }
+                  }, None]
+    return cn.call_next(nextc, err)
+
 def admtoken(cn, nextc):
     err = check.contain(cn.pr, ["password"])
     if not err[0]:

@@ -10,16 +10,16 @@ from datetime import datetime
 import random
 import string
 
-smtp_user =     ""
+smtp_user =     "system@smartdom.ch"
 smtp_pass =     ""
-smtp_server =   ""
+smtp_server =   "mail.smartdom.ch"
 smtp_port =   "465"
 url = "https://api.smartdom.ch/"
 adm_tok = ""
 
-emails = []
-ged_id = ""
-toshare = []
+emails = [""]
+ged_id = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
+toshare = ["4376a4bb-d5ec-441f-8868-f9ce96077420", "a0bbcad0-ab99-460f-8c70-5bfa98cca144"]
 rights = {"administrate": True, "share": True, "edit": True, "read": True}
 path = "../Template/"
 
@@ -82,7 +82,7 @@ class Mailer():
         self.server.quit()
 
 
-def send(header, data, url):
+def send(headers, data, url):
     ret =  json.loads(requests.request("POST", url, headers=headers, data = json.dumps(data)).text.encode('utf8'))
     if not ret['succes']:
         print(ret['error'])
@@ -129,3 +129,5 @@ def addemails(emails):
             }
             for i in toshare:
                 send(headers, payload, url + f"ged/{ged_id}/doc/{i}/share")
+
+addemails(emails)

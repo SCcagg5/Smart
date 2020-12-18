@@ -65,6 +65,8 @@ def setuproute(app, call):
     @app.route('/ged/<>/rooms/<>/file',     ['OPTIONS', 'DELETE'],       lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_room_all])                                  )
     @app.route('/ged/<>/rooms/<>/files',     ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_room_files_get])                           )
 
+    @app.route('/asset/<>/<>',               ['OPTIONS', 'GET'],          lambda x = None: call([myauth, infos_asset])                           )
+
     @app.route('/odoo/<>/odoo',              ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_infos]) )
     @app.route('/odoo/<>/users',             ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_users]) )
     @app.route('/odoo/<>/user/<>',           ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_user]) )
