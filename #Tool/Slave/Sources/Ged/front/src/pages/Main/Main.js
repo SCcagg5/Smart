@@ -668,7 +668,7 @@ export default class Main extends React.Component {
           if (r1 === false) console.log("DB ALREADY EXIST");
 
           rethink.tableList(db_name,"test").then(tablesRes => {
-          
+
             if(tablesRes.includes("contacts") === false){
               this.setState({contacts:[]})
             }
@@ -684,7 +684,6 @@ export default class Main extends React.Component {
             if(tablesRes.includes("prestataires") === false){
               this.setState({prestataires:[]})
             }
-            
             this.setState({tableList:tablesRes || []})
 
             tablesRes.map((item,key) => {
@@ -1084,9 +1083,6 @@ export default class Main extends React.Component {
                 this.componentDidMount();
               }
               }
-
-
-
 
           }).catch(err => {console.log(err)})
 
@@ -2131,32 +2127,36 @@ export default class Main extends React.Component {
       }
     });
     if (arrayToAdd.length > 0) {
-      rethink.clearTable(db_name, "annuaire_clients_mandat", "test").then(clearRes => {
-        if (clearRes && clearRes === true) {
 
-          rethink.insert("test", 'table("annuaire_clients_mandat").insert(' + JSON.stringify(arrayToAdd) + ')', db_name, false).then(rAdd => {
-            if (rAdd && rAdd === true) {
-              this.setState({loading: false})
-              this.openSnackbar("success", "Fichier importé avec succès");
-            } else {
-              this.openSnackbar("error", "Une erreur est survenue !")
+      this.verifIsTableExist("annuaire_clients_mandat").then( v => {
+        rethink.clearTable(db_name, "annuaire_clients_mandat", "test").then(clearRes => {
+          if (clearRes && clearRes === true) {
+
+            rethink.insert("test", 'table("annuaire_clients_mandat").insert(' + JSON.stringify(arrayToAdd) + ')', db_name, false).then(rAdd => {
+              if (rAdd && rAdd === true) {
+                this.setState({loading: false})
+                this.openSnackbar("success", "Fichier importé avec succès");
+              } else {
+                this.openSnackbar("error", "Une erreur est survenue !")
+              }
+            }).catch(err => {
+              console.log(err)
+            })
+
+            if (test === true) {
+              setTimeout(() => {
+                this.openSnackbar("warning", "Certaines lignes ne sont pas ajoutées ! Merci de vérifier le format de leurs adresses mail et réessayer")
+              }, 1500);
             }
-          }).catch(err => {
-            console.log(err)
-          })
 
-          if (test === true) {
-            setTimeout(() => {
-              this.openSnackbar("warning", "Certaines lignes ne sont pas ajoutées ! Merci de vérifier le format de leurs adresses mail et réessayer")
-            }, 1500);
+          } else {
+            this.openSnackbar("error", "Une erreur est survenue !")
           }
+        }).catch(err => {
+          console.log(err)
+        })
+      }).catch(err => {console.log(err)});
 
-        } else {
-          this.openSnackbar("error", "Une erreur est survenue !")
-        }
-      }).catch(err => {
-        console.log(err)
-      })
     } else {
       this.setState({loading:false})
       this.openSnackbar("error", "Ficher vide ou aucune ligne encore ajoutée ! Merci de vérifier votre document")
@@ -4125,7 +4125,7 @@ export default class Main extends React.Component {
                                           noResultsMessage='Aucun utilisateur trouvé'
                                           selection
                                           options={
-                                            this.state.contacts.map(({ nom,prenom, email, imageUrl, id }) =>
+                                            (this.state.contacts || []).map(({ nom,prenom, email, imageUrl, id }) =>
                                                 ({
                                                   key: id,
                                                   text: nom + " " + prenom,
@@ -4376,7 +4376,6 @@ export default class Main extends React.Component {
 
     return (
       <div>
-        {this.state.firstLoading === false && (
           <div>
             <TopBar
               logo={this.state.logo}
@@ -4433,7 +4432,6 @@ export default class Main extends React.Component {
               onClose={() => this.setState({ openSideMenu: false })}
             />
           </div>
-        )}
 
         {/*<MuiBackdrop open={this.state.firstLoading} />*/}
         <MuiBackdrop open={this.state.loading} />
@@ -4451,9 +4449,10 @@ export default class Main extends React.Component {
                   minWidth: 300
                 }}
               >
-                {this.state.firstLoading === false && (
+                {
                   this.renderLeftMenu()
-                )}
+                }
+
               </div>
 
               <div style={{ flexWrap: 'wrap', flex: '1 1 auto',overflowY:"auto" }}>
@@ -6099,7 +6098,7 @@ export default class Main extends React.Component {
                                                                       }}
                                                                       value={this.state.newClientFolder.team[key].id}
                                                                   >
-                                                                    {this.state.contacts.map((contact, key) => (
+                                                                    {(this.state.contacts || []).map((contact, key) => (
                                                                         <MenuItem
                                                                             key={key}
                                                                             value={contact.id}>
@@ -6196,7 +6195,7 @@ export default class Main extends React.Component {
                                                                       }}
                                                                       value={this.state.newClientFolder.team[key].id}
                                                                   >
-                                                                    {this.state.contacts.filter(x => !x.type ).map((contact, key) => (
+                                                                    {(this.state.contacts || []).filter(x => !x.type ).map((contact, key) => (
                                                                         <MenuItem
                                                                             key={key}
                                                                             value={contact.id}>
