@@ -259,7 +259,9 @@ export default function LeftMenuV3(props) {
                     startIcon={<AddIcon style={{color: "#A00015", fontSize: 28}}/>}
                     size="large"
                     style={{textTransform: "none", borderRadius: 20, backgroundColor: "#fff", color: "#000"}}
-                    onClick={(event) => setAnchorEl(event.currentTarget)}
+                    onClick={(event) => {
+                        props.loadingGed === false && setAnchorEl(event.currentTarget)
+                    }}
                 >
                     Nouveau
                 </MuiButton>
@@ -327,58 +329,66 @@ export default function LeftMenuV3(props) {
                 {
                     props.showDriveMenuItems === true &&
                     <div>
-                        <Search style={{marginBottom: 8}} placeholder="Chercher" onChange={onChange}/>
-                        <DirectoryTree
-                            draggable
-                            showIcon={true}
-                            onExpand={onExpand}
-                            onSelect={onSelect}
-                            onDoubleClick={onDoubleClick}
-                            onDragEnter={onDragEnter}
-                            onDrop={onDrop}
-                            treeData={loop(props.driveFolders)}
-                            expandAction="click"
-                            onRightClick={info => {
-                                if (info.node.typeF === "folder") {
-                                    setAnchorElMenu(info.event.currentTarget)
-                                    props.setSelectedFolder(info.node)
-                                    props.setFolderName(info.node.title)
-                                    props.setFolderId(info.node.key)
-                                }
-                            }}
+                        {
+                            props.loadingGed === true ?
+                                <div align="center" className="mt-1">
+                                    <h6>Chargement...</h6>
+                                </div> :
+                                <div>
+                                    <Search style={{marginBottom: 8}} placeholder="Chercher" onChange={onChange}/>
+                                    <DirectoryTree
+                                        draggable
+                                        showIcon={true}
+                                        onExpand={onExpand}
+                                        onSelect={onSelect}
+                                        onDoubleClick={onDoubleClick}
+                                        onDragEnter={onDragEnter}
+                                        onDrop={onDrop}
+                                        treeData={loop(props.driveFolders)}
+                                        expandAction="click"
+                                        onRightClick={info => {
+                                            if (info.node.typeF === "folder") {
+                                                setAnchorElMenu(info.event.currentTarget)
+                                                props.setSelectedFolder(info.node)
+                                                props.setFolderName(info.node.title)
+                                                props.setFolderId(info.node.key)
+                                            }
+                                        }}
 
-                            expandedKeys={props.expandedDriveItems}
-                            selectedKeys={props.selectedDriveItem}
-                            onDragStart={e => {
-                                let node = {key: e.node.key, typeF: e.node.typeF}
-                                e.event.dataTransfer.setData("node", JSON.stringify(node))
-                            }}
-                            autoExpandParent={props.autoExpandParent}
-                        />
-                        <DirectoryTree
-                            loadData={props.onLoadSharedData}
-                            draggable
-                            showIcon={true}
-                            onExpand={onExpand_shared}
-                            onSelect={onSelect_shared}
-                            treeData={props.sharedFolders}
-                            expandAction="click"
-                            onRightClick={info => {
+                                        expandedKeys={props.expandedDriveItems}
+                                        selectedKeys={props.selectedDriveItem}
+                                        onDragStart={e => {
+                                            let node = {key: e.node.key, typeF: e.node.typeF}
+                                            e.event.dataTransfer.setData("node", JSON.stringify(node))
+                                        }}
+                                        autoExpandParent={props.autoExpandParent}
+                                    />
+                                    <DirectoryTree
+                                        loadData={props.onLoadSharedData}
+                                        draggable
+                                        showIcon={true}
+                                        onExpand={onExpand_shared}
+                                        onSelect={onSelect_shared}
+                                        treeData={props.sharedFolders}
+                                        expandAction="click"
+                                        onRightClick={info => {
 
-                                if (info.node.typeF === "folder" && info.node.key !== "parent") {
-                                    let rights = info.node.rights || [];
-                                    setRights(rights);
-                                    setShareAnchorElMenu(info.event.currentTarget)
-                                    props.setSelectedFolder(info.node)
-                                    props.setFolderName(info.node.title)
-                                    props.setSharedFolderId(info.node.key)
+                                            if (info.node.typeF === "folder" && info.node.key !== "parent") {
+                                                let rights = info.node.rights || [];
+                                                setRights(rights);
+                                                setShareAnchorElMenu(info.event.currentTarget)
+                                                props.setSelectedFolder(info.node)
+                                                props.setFolderName(info.node.title)
+                                                props.setSharedFolderId(info.node.key)
 
-                                }
-                            }}
-                            expandedKeys={props.expandedDriveSharedItems}
-                            selectedKeys={props.selectedDriveSharedItem}
-                            autoExpandParent={props.autoExpandSharedParent}
-                        />
+                                            }
+                                        }}
+                                        expandedKeys={props.expandedDriveSharedItems}
+                                        selectedKeys={props.selectedDriveSharedItem}
+                                        autoExpandParent={props.autoExpandSharedParent}
+                                    />
+                                </div>
+                        }
                     </div>
 
                 }
