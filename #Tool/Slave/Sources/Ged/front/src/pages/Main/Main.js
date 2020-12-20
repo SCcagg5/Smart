@@ -668,6 +668,23 @@ export default class Main extends React.Component {
           if (r1 === false) console.log("DB ALREADY EXIST");
 
           rethink.tableList(db_name,"test").then(tablesRes => {
+          
+            if(tablesRes.includes("contacts") === false){
+              this.setState({contacts:[]})
+            }
+            if(tablesRes.includes("annuaire_clients_mandat") === false){
+              this.setState({annuaire_clients_mandat:[]})
+            }
+            if(tablesRes.includes("time_sheets") === false){
+              this.setState({time_sheets:[]})
+            }
+            if(tablesRes.includes("factures") === false){
+              this.setState({factures:[]})
+            }
+            if(tablesRes.includes("prestataires") === false){
+              this.setState({prestataires:[]})
+            }
+            
             this.setState({tableList:tablesRes || []})
 
             tablesRes.map((item,key) => {
