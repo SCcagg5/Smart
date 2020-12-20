@@ -92,6 +92,36 @@ async function createTable(db_name,table_name,usr_token){
   });
 }
 
+async function clearTable(db_name,table_name,usr_token){
+
+  return new Promise(function(resolve, reject) {
+    let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
+
+    socket.onopen = function(e) {
+      console.log("Connection for clear Table established");
+      let payload;
+      payload = {"cmd": "db("+JSON.stringify(db_name)+").table("+JSON.stringify(table_name)+").delete()"}
+      socket.send(JSON.stringify(payload));
+    };
+    let test = false;
+    socket.onmessage = function(event) {
+      //console.log(event)
+      let recieve = JSON.parse(event.data);
+      if(recieve && recieve === "deleted")
+        test =true
+    }
+    socket.error = function(event) {
+      console.log("ERROR CLEAR TABLE RETHINK");
+      reject(event)
+    };
+    socket.onclose = (event) => {
+      console.log("CLOSED");
+      resolve(test)
+    };
+
+  });
+}
+
 async function getTableData(db_name,usr_token,table){
   return new Promise(function(resolve, reject) {
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
@@ -293,4 +323,4 @@ async function verfiDB(db_name,usr_token){
 
 
 
-export default {insert,remove,update,verfiDB,createDB,createTable,getTableChanges,tableList,getTableData};
+export default {insert,remove,update,verfiDB,createDB,createTable,getTableChanges,tableList,getTableData,clearTable};

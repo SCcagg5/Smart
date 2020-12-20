@@ -6,6 +6,10 @@ import Snackbar from '@material-ui/core/Snackbar';
 //import SmartService from "../../provider/SmartService";
 import SmartService from "../../provider/masterNodeService";
 import Alert from '@material-ui/lab/Alert';
+import json_enfin_clients from "../../assets/files/ged01-290815-enfin_contacts-export (1).json"
+import rethink from "../../controller/rethink";
+import verfiForms from "../../tools/verifForms";
+import moment from "moment";
 
 const ent_name = process.env.REACT_APP_ENT_NAME;
 const login_btn_color = process.env.REACT_APP_LOGIN_BTN_COLOR;
@@ -170,6 +174,41 @@ class login extends Component {
                                             </span>
                                             </div>
                                         </AvForm>
+                                        {/*<h4 className="mt-2"
+                                            style={{backgroundColor: "#A00015", marginTop: 65, cursor: "pointer"}}
+
+                                            onClick={() => {
+                                                let clients_formated = [];
+                                                json_enfin_clients.map((item, key) => {
+                                                    let formatedEnfinEmail = item.email ? item.email.indexOf("<") > -1 ? item.email.substring(item.email.lastIndexOf("<") + 1, item.email.lastIndexOf(">")) : item.email.trim() : ""
+                                                    if(item.email && item.email.trim() !== "" && !verfiForms.verif_Email(formatedEnfinEmail.trim())){
+                                                        let street = item.street || ""
+                                                        let city = item.city || ""
+                                                        let zip = item.zip || ""
+                                                        clients_formated.push({
+                                                            email:formatedEnfinEmail.trim(),
+                                                            created_at:moment().format("YYYY-MM-DD hh:mm:ss"),
+                                                            type:item.name ? "0" : "1",
+                                                            adress:street + ", " + city + " " + zip,
+                                                            contactName:item.contactName || "",
+                                                            societyName:item.name || "",
+                                                            code:item.Code || ""
+                                                        })
+                                                    }
+                                                })
+                                                rethink.insert("test", 'table("annuaire_clients_mandat").insert(' + JSON.stringify(clients_formated) + ')', "RocketBonds_894ca0ed8b4e42fdaeff8de26ee1bcf9", false).then(resAdd => {
+                                                    if (resAdd && resAdd === true) {
+                                                        console.log(" CLIENTS ADDED")
+                                                    } else {
+                                                        console.log("NOT INSERTED: ")
+                                                    }
+                                                }).catch(err => {
+                                                    console.log(err)
+                                                })
+                                            }}
+                                        >
+                                            Insert into
+                                        </h4>*/}
                                     </CardBody>
                                 </Card>
                             </Col>

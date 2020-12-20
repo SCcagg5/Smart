@@ -9,8 +9,8 @@
     /*font-family: Helvetica, sans-serif;*/
     font-weight: 300;
     font-size: 16px;
-    border: 1px solid #aaa;
-    border-radius: 5px;
+    border: 1px solid rgba(34,36,38,.15);
+    border-radius: 0.285714rem!important;
 }
 
 .react-autosuggest__input--focused {
@@ -31,7 +31,8 @@
     position: absolute;
     top: 47px;
     width: 280px;
-    border: 1px solid #aaa;
+    border: 1px solid rgba(34,36,38,.15);
+    border-radius: 0.285714rem!important;
     background-color: #fff;
     font-family: Helvetica, sans-serif;
     font-weight: 300;

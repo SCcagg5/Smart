@@ -129,7 +129,7 @@ export default function TableContact(props) {
                         className="btn btn-danger waves-effect waves-light mb-2">
                         <i className="mdi mdi-plus-circle mr-1" /> Ajouter
                     </button>
-                    <button style={{marginLeft:10}}
+                    {/*<button style={{marginLeft:10}}
                             onClick={() => {
                                 fileUpload.click();
                             }}
@@ -142,7 +142,7 @@ export default function TableContact(props) {
                             }}
                             className="btn btn-light waves-effect waves-light mb-2">
                         <i className="mdi mdi-export" />Exporter
-                    </button>
+                    </button>*/}
                     <input
                         style={{ visibility: 'hidden', width: 0, height: 0 }}
                         onChange={(event) => {
@@ -240,8 +240,11 @@ export default function TableContact(props) {
                                     ))}
 
                                     {emptyRows > 0 && (
-                                        <TableRow  style={{ height: 40,textAlign:"center"}}>
-                                            <th style={{marginTop:15}}>Aucun résultat trouvé !</th>
+                                        <TableRow  style={{ height: emptyRows * 50,textAlign:"center"}}>
+                                            <TableCell style={{width:"25%"}}>
+                                                <h6 style={{marginTop:10}}>Aucun contact encore ajouté !</h6>
+                                            </TableCell>
+
                                         </TableRow>
                                     )}
                                 </TableBody>
