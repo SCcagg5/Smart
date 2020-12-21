@@ -470,7 +470,8 @@ export default function LeftMenuV3(props) {
                                     <SocietyMenuItems items={data.SocietyMenuItem} selectedSocietyItem={props.selectedSocietyItem}
                                                       onClick={(nodeId) => {
                                                           props.onSocietyItemClick(nodeId)
-                                                      }} handleSelectSocietyMenu={props.handleSelectSocietyMenu}
+                                                      }}
+                                                      handleSelectSocietyMenu={props.handleSelectSocietyMenu}
                                     />
                                 </div>
 
