@@ -1513,13 +1513,18 @@ export default class Main extends React.Component {
   }
 
   onLoadSharedData = ({ key, children }) => {
+    console.log(key)
     return new Promise((resolve) => {
+      console.log(key)
       if (children) {
         resolve();
         return;
       }
       let origin = this.state.sharedFolders;
+      //this.setState({loading:true})
       SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+        if(Res.succes === true && Res.status === 200){
+
           let sub_folders = Res.data.Content.folders || [];
           let sub_files = Res.data.Content.files || [];
           let childrens = [];
@@ -1528,14 +1533,14 @@ export default class Main extends React.Component {
               title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
               key:sub_folders[i].id,
               icon: sub_folders[i].type ? (
-                <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+                  <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
               ) : (
-                ({ selected }) =>
-                  selected ? (
-                    <FolderIcon style={{ color: '#1a73e8' }} />
-                  ) : (
-                    <FolderIcon style={{ color: 'grey' }} />
-                  )
+                  ({ selected }) =>
+                      selected ? (
+                          <FolderIcon style={{ color: '#1a73e8' }} />
+                      ) : (
+                          <FolderIcon style={{ color: 'grey' }} />
+                      )
               ),
               files: [] ,
               folders: [] ,
@@ -1546,52 +1551,73 @@ export default class Main extends React.Component {
             childrens.push(treeNode)
           }
           this.setState({
+            loading:false,
             selectedSharedFolderFolders:Res.data.Content.folders,
-            selectedSharedFolderFiles:Res.data.Content.files
+            selectedSharedFolderFiles:sub_files
           })
           let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
           this.setState({sharedFolders:update})
-        resolve();
-        }).catch(err => {
           resolve();
-          console.log(err)})
+
+        }else if(Res.succes === false && Res.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }else{
+          this.setState({loading:false})
+          resolve();
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        resolve();
+        console.log(err)})
 
     });
   }
 
   updateShared = (key, origin) => {
     SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
-      let sub_folders = Res.data.Content.folders || [];
-      let sub_files = Res.data.Content.files || [];
-      let childrens = [];
-      for(let i =0 ; i < sub_folders.length ; i++){
-        let treeNode = {
-          title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
-          key:sub_folders[i].id,
-          icon: sub_folders[i].type ? (
-            <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
-          ) : (
-            ({ selected }) =>
-              selected ? (
-                <FolderIcon style={{ color: '#1a73e8' }} />
-              ) : (
-                <FolderIcon style={{ color: 'grey' }} />
-              )
-          ),
-          files: [] ,
-          folders: [] ,
-          typeF: sub_folders[i].type ? 'file' : 'folder',
-          rights:sub_folders[i].rights,
-          proprietary:sub_folders[i].proprietary || undefined
-        };
-        childrens.push(treeNode)
+      if(Res.succes === true && Res.status === 200){
+        let sub_folders = Res.data.Content.folders || [];
+        let sub_files = Res.data.Content.files || [];
+        let childrens = [];
+        for(let i =0 ; i < sub_folders.length ; i++){
+          let treeNode = {
+            title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
+            key:sub_folders[i].id,
+            icon: sub_folders[i].type ? (
+                <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+            ) : (
+                ({ selected }) =>
+                    selected ? (
+                        <FolderIcon style={{ color: '#1a73e8' }} />
+                    ) : (
+                        <FolderIcon style={{ color: 'grey' }} />
+                    )
+            ),
+            files: [] ,
+            folders: [] ,
+            typeF: sub_folders[i].type ? 'file' : 'folder',
+            rights:sub_folders[i].rights,
+            proprietary:sub_folders[i].proprietary || undefined
+          };
+          childrens.push(treeNode)
+        }
+        this.setState({
+          selectedSharedFolderFolders:Res.data.Content.folders,
+          selectedSharedFolderFiles:Res.data.Content.files
+        })
+        let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
+        this.setState({sharedFolders:update,loading:false})
+      }else if(Res.succes === false && Res.status === 400){
+        this.setState({ loading: false });
+        localStorage.clear();
+        this.props.history.push('/login');
+      }else{
+        this.setState({ loading: false });
+        console.log(Res.error)
       }
-      this.setState({
-        selectedSharedFolderFolders:Res.data.Content.folders,
-        selectedSharedFolderFiles:Res.data.Content.files
-      })
-      let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
-      this.setState({sharedFolders:update,loading:false})
+
     }).catch(err => {
       console.log(err)})
   }
