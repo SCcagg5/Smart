@@ -50,6 +50,17 @@ class ScanBouteille extends Component {
             }
         })
 
+        SmartService.getToken().then((res)=>{
+            let token = res.data.token
+            SmartService.getBouteilleCadeaux(token,"1WER").then((ress)=>{
+                console.log(ress.data)
+                if(ress.status===200){
+                    this.setState({dataBouteille:ress.data,BienScanner:true,showButton:false,scan:false})
+
+                }
+            })
+        })
+
 
     }
     handleScan = data => {
@@ -57,6 +68,7 @@ class ScanBouteille extends Component {
             SmartService.getToken().then((res)=>{
                 let token = res.data.token
                 SmartService.getBouteilleCadeaux(token,data).then((ress)=>{
+
                     console.log(ress.data)
                     if(ress.status===200){
                         this.setState({dataBouteille:ress.data,BienScanner:true,showButton:false,scan:false})
@@ -143,11 +155,22 @@ class ScanBouteille extends Component {
                         }
                         {
                             this.state.BienScanner===true &&
+
+
                                 <div className="text-center">
+
+                                    <div>
+                                        <h3 style={{color:"#7B2528"}}>
+                                           Cher , {this.state.dataBouteille.name + " "+this.state.dataBouteille.surname}
+
+                                        </h3>
+                                    </div>
+                                    <div>
                                     <h3 style={{color:"#7B2528"}}>
-                                        OALegal vous souhaite la bonne année  {this.state.dataBouteille.name + " "+this.state.dataBouteille.surname}
+                                        OA Legal vous adresse ses voeux les meilleurs pour 2021
 
                                     </h3>
+                                    </div>
 
                                <div className="col-md-5   ml-auto mr-auto mt-4">
 
@@ -207,6 +230,14 @@ class ScanBouteille extends Component {
 
 
                                     </div>
+
+                                   <div className="text-center mt-4">
+                                       <h4 style={{color:"#7B2528"}}>
+                                           Votre bouteille est un actif numérique inscrit dans la blockchain. Regardez la vidéo pour en savoir plus !
+                                       </h4>
+
+                                   </div>
+
 
 
                                </div>
