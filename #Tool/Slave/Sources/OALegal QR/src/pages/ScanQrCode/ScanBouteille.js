@@ -34,7 +34,7 @@ class ScanBouteille extends Component {
 
     }
     componentDidMount() {
-        navigator.mediaDevices.getUserMedia({
+        /*navigator.mediaDevices.getUserMedia({
             video: {
                 width: {
                     min: 1280,
@@ -48,18 +48,17 @@ class ScanBouteille extends Component {
                 },
                 facingMode: 'environment'
             }
-        })
+        })*/
 
-        SmartService.getToken().then((res)=>{
+        /*SmartService.getToken().then((res)=>{
             let token = res.data.token
             SmartService.getBouteilleCadeaux(token,"1WER").then((ress)=>{
                 console.log(ress.data)
                 if(ress.status===200){
                     this.setState({dataBouteille:ress.data,BienScanner:true,showButton:false,scan:false})
-
                 }
             })
-        })
+        })*/
 
 
     }
