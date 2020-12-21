@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import logo from "../../assets/images/logos/OALegalLogoV2.jpeg"
 import Button from '@material-ui/core/Button';
 import SaveIcon from '@material-ui/icons/Save';
+import CropFreeIcon from '@material-ui/icons/CropFree';
+import InputIcon from '@material-ui/icons/Input';
 import QrReader from "react-camera-qr";
 import "./scanner.css"
 import SmartService from "../../provider/SmartService"
@@ -9,6 +11,8 @@ import { Player } from 'video-react';
 import  video from "../../assets/videos/oalegal.mp4"
 import moment from "moment"
 import {  Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import {IconButton} from "@material-ui/core";
+import SendIcon from '@material-ui/icons/Send';
 
 
 class ScanBouteille extends Component {
@@ -20,7 +24,10 @@ class ScanBouteille extends Component {
             BienScanner:false,
             showModal:false,
             titleModal:"",
-            textModal:""
+            textModal:"",
+            showQrInput:false,
+            qrInputValue:""
+
         }
         this.toggle= this.toggle.bind(this)
 
@@ -144,10 +151,47 @@ class ScanBouteille extends Component {
                                 style={{backgroundColor:"#7B2528",color: "white"}}
                                 letiant="contained"
                                 size="large"
-                                startIcon={<SaveIcon />}
+                                startIcon={<CropFreeIcon />}
                             >
                                 Scanner votre QrCode
-                            </Button>
+                            </Button><br/>
+                                <Button
+
+                                    onClick={()=>{this.setState({showQrInput:true})}}
+
+                                    style={{backgroundColor:"#7B2528",color: "white",marginTop:15}}
+                                    letiant="contained"
+                                    size="large"
+                                    startIcon={<InputIcon />}
+                                >
+                                    Entrer votre QrCode manuellement
+                                </Button><br/>
+                                {
+                                    this.state.showQrInput === true  &&
+                                        <div align="center">
+                                            <div style={{display:"inline-flex"}}>
+                                                <input className="form-control" type="text"
+                                                       style={{marginTop:20,width:300,height:45}}
+                                                       placeholder="QR Code"
+                                                       value={this.state.qrInputValue}
+                                                       onChange={(event => {
+                                                           this.setState({qrInputValue:event.target.value})
+                                                       })}
+                                                />
+                                                <IconButton style={{backgroundColor:"#f0f0f0",marginTop:18}}
+                                                            onClick={() => {
+                                                                if(this.state.qrInputValue !== ""){
+                                                                    this.handleScan(this.state.qrInputValue)
+                                                                }
+                                                            }}
+                                                >
+                                                    <SendIcon style={{color:"green"}}/>
+                                                </IconButton>
+                                            </div>
+
+                                        </div>
+
+                                }
                             </div>
 
 

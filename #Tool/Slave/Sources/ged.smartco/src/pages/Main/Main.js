@@ -124,6 +124,8 @@ const AntSwitch = withStyles((theme) => ({
   },
   checked: {},
 }))(Sswitch);
+
+
 export default class Main extends React.Component {
 
   imageUpload = {};
@@ -923,12 +925,9 @@ export default class Main extends React.Component {
     this.setState({bouteilles:bouteilles})
   }
   openCadeauModal(societe,bouteilles){
-
     this.setState({
-      /*bouteilles:data,*/
       showCadeauModal1:true
     })
-
   }
   openCadeauModal2(){
     let nbbouteilles = this.state.nbBouteille
@@ -1004,6 +1003,8 @@ export default class Main extends React.Component {
 
 
   }
+
+
   updateTreeData(list, key, children, files) {
     return list.map((node) => {
       if (node.key === key) {
