@@ -2155,6 +2155,7 @@ export default class Main extends React.Component {
     if (arrayToAdd.length > 0) {
 
       this.verifIsTableExist("annuaire_clients_mandat").then( v => {
+
         rethink.clearTable(db_name, "annuaire_clients_mandat", "test").then(clearRes => {
           if (clearRes && clearRes === true) {
 
@@ -3354,7 +3355,7 @@ export default class Main extends React.Component {
           },500);
           setTimeout(() => {
             this.setState({
-              newClient: { contactName: '', societyName:'', Type: '0', created_at: '', adress: '', email: '', phone: '', isActif: "true" }
+              newClient: { contactName: '', societyName:'', type: '0', created_at: '', adress: '', email: '', phone: '', isActif: "true" }
             });
           }, 250);
 
@@ -4011,7 +4012,7 @@ export default class Main extends React.Component {
                                               search
                                               selection
                                               options={
-                                                this.state.annuaire_clients_mandat.map(({ contactName,societyName, type, imageUrl, ID }) =>
+                                                (this.state.annuaire_clients_mandat || []).map(({ contactName,societyName, type, imageUrl, ID }) =>
                                                     ({
                                                       key: ID,
                                                       text: contactName + (societyName !== "" ? (" - " + societyName) : ""),
@@ -4023,7 +4024,7 @@ export default class Main extends React.Component {
                                                 console.log(value)
                                                 let obj = this.state.TimeSheet;
                                                 let findClientTempo = this.state.clients_cases.find(x => x.ID_client === value)
-                                                let findClientFname = this.state.annuaire_clients_mandat.find(x => x.ID === value)
+                                                let findClientFname = (this.state.annuaire_clients_mandat || []).find(x => x.ID === value)
                                                 obj.newTime.client = findClientFname.contactName;
                                                 obj.newTime.client_id = value;
                                                 if(findClientTempo){
@@ -4274,7 +4275,7 @@ export default class Main extends React.Component {
                                               style={{ display: 'flex' }}>
                                             <SelectSearch
                                                 options={
-                                                  this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl }) =>
+                                                  (this.state.annuaire_clients_mandat || []).map(({ Nom, Prenom, Type, imageUrl }) =>
                                                       ({
                                                         value: Nom + ' ' + (Prenom || ''),
                                                         name: Nom + ' ' + (Prenom || ''),
@@ -4292,7 +4293,7 @@ export default class Main extends React.Component {
                                                   let obj = this.state.TimeSheet;
                                                   obj.newTime.client = e;
 
-                                                  let find_annuaire_fact_lead = this.state.annuaire_clients_mandat.find(x => (x.Nom + ' ' + x.Prenom) === e);
+                                                  let find_annuaire_fact_lead = (this.state.annuaire_clients_mandat || []).find(x => (x.Nom + ' ' + x.Prenom) === e);
                                                   console.log(find_annuaire_fact_lead);
                                                   let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
                                                   console.log(partner_email);
@@ -4343,7 +4344,7 @@ export default class Main extends React.Component {
                                 deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
                                 setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
                                 OA_contacts={this.state.contacts}
-                                annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
                                 onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
                                   this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
                                       partner,lignes_facture)
@@ -4369,7 +4370,7 @@ export default class Main extends React.Component {
                                          facturesCp={this.state.factures}
                                          client_folders={this.state.client_folders}
                                          clients_tempo={this.state.clients_cases}
-                                         annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                         annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
                                          sharedFolders={this.state.sharedReelFolders || []}
                                          validateFacture={(row,key,template,client) => {
                                            this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
@@ -5096,7 +5097,7 @@ export default class Main extends React.Component {
                                         rooms={this.state.rooms}
                                         selectedRoom={this.state.selectedRoom}
                                         contacts={this.state.contacts || []}
-                                        annuaire_clients={this.state.annuaire_clients_mandat}
+                                        annuaire_clients={this.state.annuaire_clients_mandat || []}
                                         //annuaire_clients={this.state.patients}
                                         addNewtask={(title, selectedClient, assignedTo, team, selectedDateTime) => {
                                           this.addNewRoomTask(title, selectedClient, assignedTo, team, selectedDateTime)
@@ -9505,12 +9506,12 @@ export default class Main extends React.Component {
             </DialogTitle>
             <DialogContent>
               <SearchClientsContainer
-                societes={this.state.annuaire_clients_mandat}
+                societes={this.state.annuaire_clients_mandat || []}
                 contacts={this.state.contacts}
                 onSelectBtnClick={(client) => {
                   let obj = this.state.TimeSheet;
                   obj.newTime.client = client.ContactName;
-                  let find_annuaire_fact_lead = this.state.annuaire_clients_mandat.find(
+                  let find_annuaire_fact_lead = (this.state.annuaire_clients_mandat || []).find(
                     (x) => x.contactName === client.contactName
                   );
                   let partner_email = find_annuaire_fact_lead
