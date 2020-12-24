@@ -10,7 +10,7 @@ from Object.ged import folder, file, ged, sign, room
 from Object.contacter import contacter
 from Object.rethinkproxy import rethinkproxy
 from Object.odoo import odoo
-import json
+import json, time
 
 def wscall(cn, nextc):
     # usrtoken = cn.rt["ws"] if "ws" in cn.rt else None
@@ -576,25 +576,57 @@ def asset_transfert(cn, nextc):
     err = asset.transfert(cn.private["user"].id, cn.pr["from_wallet"], cn.pr["to"], cn.rt["asset"])
     return cn.call_next(nextc, err)
 
+try:
+    with open('oa_asset.json') as json_file:
+        OA_asset = json.load(json_file)
+except:
+    OA_asset = {}
+
 def infos_asset(cn, nextc):
     type = cn.rt["asset"] if "asset" in cn.rt else None
     id = cn.rt[type] if type in cn.rt else None
     if type not in ["54daf43b-9226-4277-b9a2-155fa656a324"]:
         return cn.toret.add_error("invalid type", 404)
-    if id not in ["1WER"]:
+    id = str(id).split('.')[0]
+    if id not in OA_asset:
         return cn.toret.add_error("invalid id", 404)
-    err = [True, {
-                  "name": "Gillioz",
-                  "surname": "fabien",
-                  "offerd_by": {"CN": "Oalegal", "intern": "eliot courtel"},
-                  "date": "1608303245000",
-                  "message": None,
-                  "asset": {"name": "bouteille de vin"},
-                  "eth": {
-                    "contract": "0x214936e173c366082548c22746cb83c3d42a3baf",
-                    "token_id": ["0xdac17f958d2ee523a2206206994597c13d831ec7"]
-                    }
-                  }, None]
+    err = [True, OA_asset[id], None]
+    return cn.call_next(nextc, err)
+
+def push_asset(cn, nextc):
+    type = cn.rt["asset"] if "asset" in cn.rt else None
+    if type not in ["54daf43b-9226-4277-b9a2-155fa656a324"]:
+        return cn.toret.add_error("invalid type", 404)
+    err = check.contain(cn.pr, ["name", "surname", "id", ["company_id", "email"]])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    if cn.pr["id"] in OA_asset:
+        return cn.toret.add_error("invalid id", 404)
+    cn.pr = err[1]
+    d = {
+          "name": cn.pr["name"],
+          "surname": cn.pr["surname"],
+          "offerd_by": {"CN": "Oalegal", "intern": cn.private["user"].id if "user" in cn.private else None},
+          "date": str(int(round(time.time() * 1000))),
+          "message": None,
+	  "additional": {"company_id": cn.pr["company_id"], "email": cn.pr["email"]},
+          "asset": {"name": "Millésime, Château de Quinsac"},
+          "eth": {
+              "contract": "Coming soon",
+              "token_id": ["Coming soon"]
+          }
+    }
+    OA_asset[cn.pr["id"]] = d
+    with open('oa_asset.json', 'w') as outfile:
+    	json.dump(OA_asset, outfile)
+    err = [True, {}, None]
+    return cn.call_next(nextc, err)
+
+def infos_assets(cn, nextc):
+    type = cn.rt["asset"] if "asset" in cn.rt else None
+    if type not in ["54daf43b-9226-4277-b9a2-155fa656a324"]:
+        return cn.toret.add_error("invalid type", 404)
+    err = [True, OA_asset, None]
     return cn.call_next(nextc, err)
 
 def admtoken(cn, nextc):

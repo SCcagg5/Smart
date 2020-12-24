@@ -57,7 +57,7 @@ class odoo:
             "username" : res[0][2],
             "db": res[0][1],
             "password": res[0][3],
-            "lang": resp[0][4]
+            "lang": res[0][4]
         }
         try:
             common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(self.opt['url']))
