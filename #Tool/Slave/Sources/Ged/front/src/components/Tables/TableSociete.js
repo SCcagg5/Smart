@@ -174,8 +174,17 @@ export default function TableSociete(props) {
                     </button>
                     <button style={{marginLeft:10}}
                             onClick={(e) => {
-                                if (buttonRef.current) {
-                                    buttonRef.current.open(e)
+                                if(props.societes.length > 0 ){
+                                    const r = window.confirm("Attention ! La liste des clients déja existante sera supprimé ");
+                                    if (r === true) {
+                                        if (buttonRef.current) {
+                                            buttonRef.current.open(e)
+                                        }
+                                    }
+                                }else{
+                                    if (buttonRef.current) {
+                                        buttonRef.current.open(e)
+                                    }
                                 }
                             }}
                             className="btn btn-success waves-effect waves-light mb-2">

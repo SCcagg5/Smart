@@ -57,6 +57,15 @@ let utilFunctions = {
         let hourFormated = parseInt(hourValue) || 0
         let minuteFormated = parseInt(minuteValue) || 0
         return hourFormated + (minuteFormated / 60)
+    },
+
+
+    createJsonFile(content, fileName, contentType) {
+        var a = document.createElement("a");
+        var file = new Blob([content], {type: contentType});
+        a.href = URL.createObjectURL(file);
+        a.download = fileName;
+        a.click();
     }
 
 

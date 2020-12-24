@@ -310,6 +310,23 @@ let SmartService = {
 
 
 
+    getBouteilleCadeaux(token,id){
+        return fetch(endpoint + '/asset/54daf43b-9226-4277-b9a2-155fa656a324/'+id, {
+            method: 'GET',
+            headers:this.loadHeaders(token)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+    sendBouteilleCadeau(token,usrtoken,data){
+        return fetch(endpoint + '/asset/54daf43b-9226-4277-b9a2-155fa656a324', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
 
 
 

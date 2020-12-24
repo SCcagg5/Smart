@@ -79,14 +79,55 @@ import TableFactures from '../../components/Tables/TableFactures';
 import Mandats from './Mandats';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import Badge from '@atlaskit/badge';
+import {Button} from "@material-ui/core";
+import {Switch as Sswitch}  from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import { withStyles } from '@material-ui/core/styles';
 import utilFunctions from "../../tools/functions";
 import rethink from "../../controller/rethink";
 import test from "../test";
+import TableGift from "../../components/Tables/TableGift";
+import verifForms from "../../tools/verifForms"
 
 const ged_id = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9";
 const ent_name = "OaLegal";
 const db_name = "OA_LEGAL";
 const ENV_CLIENTS_FOLDER_ID = "4376a4bb-d5ec-441f-8868-f9ce96077420"
+
+
+const AntSwitch = withStyles((theme) => ({
+  root: {
+    width: 28,
+    height: 16,
+    padding: 0,
+    display: 'flex',
+  },
+  switchBase: {
+    padding: 2,
+    color: theme.palette.grey[500],
+    '&$checked': {
+      transform: 'translateX(12px)',
+      color: theme.palette.common.white,
+      '& + $track': {
+        opacity: 1,
+        backgroundColor: theme.palette.primary.main,
+        borderColor: theme.palette.primary.main,
+      },
+    },
+  },
+  thumb: {
+    width: 12,
+    height: 12,
+    boxShadow: 'none',
+  },
+  track: {
+    border: `1px solid ${theme.palette.grey[500]}`,
+    borderRadius: 16 / 2,
+    opacity: 1,
+    backgroundColor: theme.palette.common.white,
+  },
+  checked: {},
+}))(Sswitch);
 
 export default class Main extends React.Component {
 
@@ -97,6 +138,18 @@ export default class Main extends React.Component {
     loading: false,
     firstLoading: false,
     loadingGed:true,
+
+    showCadeauModal2:false,
+    showCadeauModal1:false,
+    bouteilleToCampany:true,
+    bouteilles:[],
+    nbBouteille:0,
+    clientCadeau:{
+      nom:"",
+      prenom:"",
+      email:"",
+      id:""
+    },
 
     openAlert: false,
     alertMessage: '',
@@ -164,7 +217,7 @@ export default class Main extends React.Component {
     autoExpandParent: true,
     autoExpandSharedParent:true,
     selectedMeetMenuItem: ['new'],
-    selectedSocietyMenuItem: ['clients_mondat'],
+    selectedSocietyMenuItem: ['clients'],
     selectedContactsMenuItem: ['aia'],
     selectedTimeSheetMenuItem: ['activities'],
 
@@ -401,7 +454,7 @@ export default class Main extends React.Component {
         this.setState({
           showContainerSection: 'Societe',
           focusedItem: 'Societe',
-          selectedSocietyMenuItem: ['clients_mondat'],
+          selectedSocietyMenuItem: ['clients'],
           openSocietyMenuItem: true
         });
       } else if (this.props.location.pathname === '/home/timeSheet/activities') {
@@ -561,6 +614,38 @@ export default class Main extends React.Component {
             rethink.getTableData(db_name,"test",item).then( rr => {
 
               if(item === "annuaire_clients_mandat"){
+
+                if (this.props.location.pathname.indexOf('/home/clients') > -1) {
+                  if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
+                    let client_id = this.props.location.pathname.replace('/home/clients/', '');
+                    let client = rr.find(x => x.id === client_id);
+                    if (client) {
+                      this.setState({
+                        selectedSociete: client,
+                        selectedSocieteKey: client_id,
+                        showContainerSection: 'Societe',
+                        focusedItem: 'Societe',
+                        selectedSocietyMenuItem: ['clients'],
+                        openSocietyMenuItem: true,
+                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                        firstLoading: false,
+                        loading: false
+                      });
+                    } else {
+                      this.props.history.push('/');
+                    }
+                  } else {
+                    this.setState({
+                      showContainerSection: 'Societe',
+                      focusedItem: 'Societe',
+                      selectedSocietyMenuItem: ['clients'],
+                      openSocietyMenuItem: true,
+                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                      firstLoading: false,
+                      loading: false
+                    });
+                  }
+                }
                 this.setState({[item]:rr.sort( (a,b) => {
                     let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
                     let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
@@ -569,35 +654,57 @@ export default class Main extends React.Component {
                     return 0;
                   })
                 })
-              }else if(item === "contacts"){
+              }
+              else if(item === "contacts"){
+               if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
+                  if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
+                    let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
+                    let contact = rr.find(x => x.id === contact_id)
+                    if (contact) {
+                      this.setState({
+                        selectedContact: contact,
+                        selectedContactKey: contact_id,
+                        showContainerSection: 'Contacts',
+                        focusedItem: 'Contacts',
+                        openContactsMenu: true,
+                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                        firstLoading: false,
+                        loading: false
+                      });
+                    } else {
+                      this.props.history.push('/');
+                    }
+
+                  } else {
+                    this.setState({
+                      showContainerSection: 'Contacts',
+                      focusedItem: 'Contacts',
+                      openContactsMenu: true,
+                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                      firstLoading: false,
+                      loading: false
+                    });
+                  }
+                }
                 let connected_email = localStorage.getItem("email");
                 let oa_contact = main_functions.getOAContactByEmail2(rr,connected_email);
                 if(oa_contact){
-                  this.setState({
-                    TimeSheet: {
-                      newTime: {
-                        duree: '',
-                        client: '',
-                        dossier_client: {
-                          facturation: {
-                            language:''
-                          },
-                        },
-                        langue:'',
-                        categoriesActivite: 'Temps facturé',
-                        description: '',
-                        date: new Date(),
-                        utilisateurOA: connected_email,
-                        rateFacturation: oa_contact.rateFacturation || ""
-                      }
-                    },
-                  })
+                  let newTimeSheet = this.state.TimeSheet;
+                  newTimeSheet.newTime.utilisateurOA = connected_email;
+                  newTimeSheet.newTime.rateFacturation = oa_contact.rateFacturation || "";
+                  this.setState({TimeSheet:newTimeSheet,[item]:rr.sort( (a,b) => {
+                      var c = a.sort || -1
+                      var d = b.sort || -1
+                      return c-d;
+                    })})
                 }
-                this.setState({[item]:rr.sort( (a,b) => {
-                    var c = a.sort || -1
-                    var d = b.sort || -1
-                    return c-d;
-                  })})
+                else{
+                  this.setState({[item]:rr.sort( (a,b) => {
+                      var c = a.sort || -1
+                      var d = b.sort || -1
+                      return c-d;
+                    })})
+                }
               }
               else{
                 this.setState({[item]:rr})
@@ -650,6 +757,17 @@ export default class Main extends React.Component {
                 });
               }
             }
+            else if (this.props.location.pathname === '/home/cadeau_Entx') {
+              console.log("gift")
+              this.setState({
+                showContainerSection: 'Societe',
+                focusedItem: 'Societe',
+                selectedSocietyMenuItem: ['cadeau_Entx'],
+                openSocietyMenuItem: true,
+                firstLoading: false,
+                loading: false
+              });
+            }
             else if (this.props.location.pathname === '/home/meet/new') {
               this.setState({
                 showContainerSection: 'Meet',
@@ -671,70 +789,6 @@ export default class Main extends React.Component {
                 firstLoading: false,
                 loading: false
               });
-            }
-            else if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
-              if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
-                let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
-                let contact = this.state.contacts.find(x => x.id === contact_id)
-                if (contact) {
-                  this.setState({
-                    selectedContact: contact,
-                    selectedContactKey: contact_id,
-                    showContainerSection: 'Contacts',
-                    focusedItem: 'Contacts',
-                    openContactsMenu: true,
-                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                    firstLoading: false,
-                    loading: false
-                  });
-                } else {
-                  this.props.history.push('/');
-                }
-
-              } else {
-                this.setState({
-                  showContainerSection: 'Contacts',
-                  focusedItem: 'Contacts',
-                  openContactsMenu: true,
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                  firstLoading: false,
-                  loading: false
-                });
-              }
-
-            }
-            else if (this.props.location.pathname.indexOf('/home/clients') > -1) {
-              if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
-                let client_id = this.props.location.pathname.replace('/home/clients/', '');
-                let client = this.state.annuaire_clients_mandat.find(x => x.id === client_id);
-                if (client) {
-                  this.setState({
-                    selectedSociete: client,
-                    selectedSocieteKey: client_id,
-                    showContainerSection: 'Societe',
-                    focusedItem: 'Societe',
-                    selectedSocietyMenuItem: ['clients_mondat'],
-                    openSocietyMenuItem: true,
-                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                    firstLoading: false,
-                    loading: false
-                  });
-                } else {
-
-                }
-
-              } else {
-                this.setState({
-                  showContainerSection: 'Societe',
-                  focusedItem: 'Societe',
-                  selectedSocietyMenuItem: ['clients_mondat'],
-                  openSocietyMenuItem: true,
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                  firstLoading: false,
-                  loading: false
-                });
-              }
-
             }
             else if (this.props.location.pathname === '/home/timeSheet/activities') {
               this.setState({
@@ -796,7 +850,9 @@ export default class Main extends React.Component {
               });
             }
             else {
-              if(this.props.location.pathname.indexOf('/home/drive/') === -1 && this.props.location.pathname.indexOf('/home/drive') === -1 && this.props.location.pathname !== '/home/shared/parent' ){
+              if(this.props.location.pathname.indexOf('/home/drive/') === -1 && this.props.location.pathname.indexOf('/home/drive') === -1 &&
+                  this.props.location.pathname !== '/home/shared/parent' && this.props.location.pathname.indexOf('/home/contacts') === -1 &&
+                  this.props.location.pathname.indexOf('/home/clients') === -1){
                 console.log('URL ERROR');
                 this.props.history.push('/home/drive');
                 this.componentDidMount();
@@ -808,6 +864,108 @@ export default class Main extends React.Component {
       }).catch(err => {console.log(err)})
 
     }
+  }
+
+  handleChangeBouteille(e,key){
+    let bouteilles = this.state.bouteilles
+    bouteilles[key].value=e.target.value
+    this.setState({bouteilles:bouteilles})
+  }
+  openCadeauModal(societe,bouteilles){
+    this.setState({
+      showCadeauModal1:true
+    })
+  }
+  openCadeauModal2(){
+    let nbbouteilles = this.state.nbBouteille
+    console.log(nbbouteilles)
+    let bouteilles  = this.state.bouteilles
+    let data = []
+
+    for (let i=1 ;i<=parseInt(nbbouteilles);i++){
+      data.push({
+        name:"bouteille "+i,
+        value:""
+      })
+
+
+    }
+
+
+    this.setState({
+      bouteilles:data,
+      showCadeauModal2:true,
+      showCadeauModal1:false
+    })
+
+  }
+
+  envoyerCadeau(){
+    let token = localStorage.getItem('token')
+    let usrtoken= localStorage.getItem('usrtoken')
+    let client = this.state.clientCadeau
+    let data ={
+      name:client.nom,
+      surname:client.prenom,
+    }
+    if (this.state.bouteilleToCampany===true){
+      data.company_id=client.id
+    }else {
+      data.email=client.email
+    }
+    this.state.bouteilles.map((item,key)=>{
+      data.id=item.value
+      SmartService.sendBouteilleCadeau(token,usrtoken,data).then((res)=>{
+        console.log(res)
+        if (res.status===200){
+          this.openSnackbar("success",item.name+" est bien envoyée au client ")
+
+          if (this.state.bouteilleToCampany===true){
+            let nb = client.nbGifts + this.state.bouteilles.length;
+            rethink.update("test",'table("annuaire_clients_mandat").get('+JSON.stringify(client.id)+').update({"nbGifts":'+ JSON.stringify(nb) + '})',db_name,false).then( updateRes => {
+              if (updateRes && updateRes === true) {
+                this.setState({
+                  showCadeauModal2:false,
+                  showCadeauModal1:false,
+                  bouteilleToCampany:true,
+                  bouteilles:[],
+                  nbBouteille:0,
+                  clientCadeau:{
+                    nom:"",
+                    prenom:"",
+                    email:"",
+                    id:""
+                  }})
+              } else {
+                this.openSnackbar('error', 'Une erreur est survenue !');
+              }
+            }).catch(err => {
+              this.openSnackbar('error', 'Une erreur est survenue !');
+              console.log(err)
+            })
+          }else{
+            this.setState({
+              showCadeauModal2:false,
+              showCadeauModal1:false,
+              bouteilleToCampany:true,
+              bouteilles:[],
+              nbBouteille:0,
+              clientCadeau:{
+                nom:"",
+                prenom:"",
+                email:"",
+                id:""
+              }})
+          }
+
+        }else{
+          this.openSnackbar("error","Code erroné !")
+        }
+      }).catch(err => {
+        console.log(err)
+        this.openSnackbar("error","Une erreur est survenue ! ")
+      })
+    })
   }
 
   getTableChanges(ust_token,db,table,table_name){
@@ -1585,7 +1743,7 @@ export default class Main extends React.Component {
               : []
           }
           onSocietyItemClick={(nodeId) => {
-            this.props.history.push('/home/clients');
+            this.props.history.push('/home/'+nodeId);
             this.setState({ showContainerSection: 'Societe' });
           }}
           handleSelectSocietyMenu={(event, nodeIds) => {
@@ -3601,7 +3759,6 @@ export default class Main extends React.Component {
             />
           </div>
 
-
        {/* <MuiBackdrop open={this.state.firstLoading} />
         <MuiBackdrop open={this.state.loading} />*/}
         <MuiBackdrop open={this.state.loading} />
@@ -4374,182 +4531,186 @@ export default class Main extends React.Component {
 
                       <Route exact path="/home/contacts/:contact_id">
                         {
-                          this.state.loading === false && this.state.firstLoading === false &&
-                          <div>
-                            <div className="row">
-                              <div className="col-lg-12">
-                                <div className="card-box text-center"
-                                     style={{ marginTop: 1 }}>
-                                  <img onClick={() => this.imageUpload.click()}
-                                       src={this.state.selectedContact.imageUrl || defaultAvatar}
-                                       className="rounded-circle avatar-lg img-thumbnail"
-                                       alt="" style={{
-                                    cursor: 'pointer',
-                                    width: 120,
-                                    height: 120,
-                                    objectFit: 'contain'
-                                  }} /> <input style={{
-                                  visibility: 'hidden',
-                                  width: 0,
-                                  height: 0
-                                }}
-                                               type='file' accept='.png,.jpeg,.jpg'
-                                               onChange={(files) => this.uploadImage(files)}
-                                               ref={(ref) => this.imageUpload = ref}
-                                />
-                                  <h4 className="mb-0">{this.state.selectedContact.prenom + ' ' + this.state.selectedContact.nom}</h4>
-                                  <p className="text-muted">{this.state.selectedContact.specialite} </p>
-                                  <div style={{ display: 'contents' }}>
-                                    <button type="button"
-                                            onClick={this.saveContactChanges}
-                                            className="btn btn-success btn-xs waves-effect mb-2 waves-light m-1">
-                                      <i className="fe-edit" />&nbsp;&nbsp;Enregistrer
-                                    </button>
-                                    <button type="button"
-                                            onClick={() => {}}
-                                            className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
-                                      <i className="fe-printer" />&nbsp;&nbsp;Aperçu
-                                    </button>
-                                    <button type="button"
-                                            onClick={() => {}}
-                                            className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
-                                      <i className="fe-printer" />&nbsp;&nbsp;Book
-                                    </button>
-                                  </div>
-                                  <div style={{ marginTop: 30 }}
-                                       className="text-left">
-                                    <Tabs selectedIndex={this.state.selectedContactTabIndex} onSelect={index => {
-                                      this.setState({selectedContactTabIndex:index})
-                                    }}>
-                                      <TabList>
-                                      <Tab>Informations générales</Tab>
-                                      </TabList>
-                                      <TabPanel>
-                                        <h5 style={{ marginTop: 20 }}>Informations générales</h5>
-                                        <div className="row"
-                                             style={{ marginTop: 35 }}>
-                                          <div className="col-md-8">
-                                            <p style={{ marginBottom: 10 }}>À propos</p>
-                                            <textarea
-                                              rows={7}
-                                              className="form-control"
-                                              id="about"
-                                              name="about"
-                                              value={this.state.selectedContact.about}
-                                              onChange={this.handleChange('selectedContact', 'about')} />
-                                          </div>
-                                          <div className="col-md-4">
-                                            <h6>
-                                              Taux horaire
-                                            </h6>
-                                            <Input
-                                              className="form-control "
-                                              id="duree354"
-                                              style={{ width: '100%' }}
-                                              name="duree6878"
-                                              type="text"
-                                              endAdornment={
-                                                <InputAdornment
-                                                  position="end">CHF/h</InputAdornment>}
-                                              value={this.state.selectedContact.rateFacturation}
-                                              onChange={this.handleChange('selectedContact', 'rateFacturation')}
-                                            />
-                                          </div>
-                                        </div>
-                                        <div className="row"
-                                             style={{ marginTop: 35 }}>
-                                          <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Nom</p>
-                                            <input
-                                              className="form-control"
-                                              type="text"
-                                              id="nom"
-                                              name="nom"
-                                              value={this.state.selectedContact.nom}
-                                              onChange={this.handleChange('selectedContact','nom')} />
-                                          </div>
-                                          <div
-                                            className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Prénom</p>
-                                            <input
-                                              className="form-control"
-                                              type="text"
-                                              id="prenom"
-                                              name="prenom"
-                                              value={this.state.selectedContact.prenom}
-                                              onChange={this.handleChange('selectedContact', 'prenom')} />
-                                          </div>
-                                        </div>
-                                        <div className="row"
-                                             style={{ marginTop: 20 }}>
-                                          <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Email</p>
-                                            <input
-                                              className="form-control"
-                                              type="text"
-                                              id="email"
-                                              name="email"//readOnly={true}
-                                              value={this.state.selectedContact.email}
-                                              onChange={this.handleChange('selectedContact', 'email')} />
-                                          </div>
-                                          <div
-                                            className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Téléphone</p>
-                                            <input
-                                              className="form-control"
-                                              type="text"
-                                              id="phone"
-                                              name="phone"
-                                              value={this.state.selectedContact.phone}
-                                              onChange={this.handleChange('selectedContact', 'phone')} />
-                                          </div>
-                                        </div>
-                                        <div className="row"
-                                             style={{ marginTop: 20 }}>
-                                          <div className="col-sm-6">
-                                            <p style={{ marginBottom: 10 }}>Titre</p>
-                                            <select
-                                              className="form-control custom-select"
-                                              id="titre"
-                                              name="titre"
-                                              placeholder="Titre"
-                                              value={this.state.selectedContact.type}
-                                              onChange={this.handleChange('selectedContact', 'type')}
-                                            >
-                                              {
-                                                data.titres.map((titre, key) =>
-                                                  <option key={key} value={titre.value} label={titre.label} />
-                                                )
-                                              }
-                                            </select>
-                                          </div>
-                                          <div className="col-sm-6">
-                                            <p style={{ marginBottom: 10 }}>Pays</p>
-                                            <select
-                                              className="form-control custom-select"
-                                              id="pays"
-                                              name="pays"
-                                              placeholder="Pays"
-                                              value={this.state.selectedContact.pays}
-                                              onChange={this.handleChange('selectedContact', 'pays')}>
-                                              {
-                                                countryList.map((country, key) =>
-                                                  <option
-                                                    key={key}
-                                                    value={country.Name}
-                                                    label={country.Name} />
-                                                )
-                                              }
-                                            </select>
-                                          </div>
-                                        </div>
-                                      </TabPanel>
-                                    </Tabs>
+                          this.state.selectedContact === "" ?
+                              <div align="center" style={{marginTop:200}}>
+                                <CircularProgress color="primary" />
+                                <h6>Chargement...</h6>
+                              </div> :
+                              <div>
+                                <div className="row">
+                                  <div className="col-lg-12">
+                                    <div className="card-box text-center"
+                                         style={{ marginTop: 1 }}>
+                                      <img onClick={() => this.imageUpload.click()}
+                                           src={this.state.selectedContact.imageUrl || defaultAvatar}
+                                           className="rounded-circle avatar-lg img-thumbnail"
+                                           alt="" style={{
+                                        cursor: 'pointer',
+                                        width: 120,
+                                        height: 120,
+                                        objectFit: 'contain'
+                                      }} /> <input style={{
+                                      visibility: 'hidden',
+                                      width: 0,
+                                      height: 0
+                                    }}
+                                                   type='file' accept='.png,.jpeg,.jpg'
+                                                   onChange={(files) => this.uploadImage(files)}
+                                                   ref={(ref) => this.imageUpload = ref}
+                                    />
+                                      <h4 className="mb-0">{this.state.selectedContact.prenom + ' ' + this.state.selectedContact.nom}</h4>
+                                      <p className="text-muted">{this.state.selectedContact.specialite} </p>
+                                      <div style={{ display: 'contents' }}>
+                                        <button type="button"
+                                                onClick={this.saveContactChanges}
+                                                className="btn btn-success btn-xs waves-effect mb-2 waves-light m-1">
+                                          <i className="fe-edit" />&nbsp;&nbsp;Enregistrer
+                                        </button>
+                                        <button type="button"
+                                                onClick={() => {}}
+                                                className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
+                                          <i className="fe-printer" />&nbsp;&nbsp;Aperçu
+                                        </button>
+                                        <button type="button"
+                                                onClick={() => {}}
+                                                className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
+                                          <i className="fe-printer" />&nbsp;&nbsp;Book
+                                        </button>
+                                      </div>
+                                      <div style={{ marginTop: 30 }}
+                                           className="text-left">
+                                        <Tabs selectedIndex={this.state.selectedContactTabIndex} onSelect={index => {
+                                          this.setState({selectedContactTabIndex:index})
+                                        }}>
+                                          <TabList>
+                                            <Tab>Informations générales</Tab>
+                                          </TabList>
+                                          <TabPanel>
+                                            <h5 style={{ marginTop: 20 }}>Informations générales</h5>
+                                            <div className="row"
+                                                 style={{ marginTop: 35 }}>
+                                              <div className="col-md-8">
+                                                <p style={{ marginBottom: 10 }}>À propos</p>
+                                                <textarea
+                                                    rows={7}
+                                                    className="form-control"
+                                                    id="about"
+                                                    name="about"
+                                                    value={this.state.selectedContact.about}
+                                                    onChange={this.handleChange('selectedContact', 'about')} />
+                                              </div>
+                                              <div className="col-md-4">
+                                                <h6>
+                                                  Taux horaire
+                                                </h6>
+                                                <Input
+                                                    className="form-control "
+                                                    id="duree354"
+                                                    style={{ width: '100%' }}
+                                                    name="duree6878"
+                                                    type="text"
+                                                    endAdornment={
+                                                      <InputAdornment
+                                                          position="end">CHF/h</InputAdornment>}
+                                                    value={this.state.selectedContact.rateFacturation}
+                                                    onChange={this.handleChange('selectedContact', 'rateFacturation')}
+                                                />
+                                              </div>
+                                            </div>
+                                            <div className="row"
+                                                 style={{ marginTop: 35 }}>
+                                              <div className="col-md-6">
+                                                <p style={{ marginBottom: 10 }}>Nom</p>
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="nom"
+                                                    name="nom"
+                                                    value={this.state.selectedContact.nom}
+                                                    onChange={this.handleChange('selectedContact','nom')} />
+                                              </div>
+                                              <div
+                                                  className="col-md-6">
+                                                <p style={{ marginBottom: 10 }}>Prénom</p>
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="prenom"
+                                                    name="prenom"
+                                                    value={this.state.selectedContact.prenom}
+                                                    onChange={this.handleChange('selectedContact', 'prenom')} />
+                                              </div>
+                                            </div>
+                                            <div className="row"
+                                                 style={{ marginTop: 20 }}>
+                                              <div className="col-md-6">
+                                                <p style={{ marginBottom: 10 }}>Email</p>
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="email"
+                                                    name="email"//readOnly={true}
+                                                    value={this.state.selectedContact.email}
+                                                    onChange={this.handleChange('selectedContact', 'email')} />
+                                              </div>
+                                              <div
+                                                  className="col-md-6">
+                                                <p style={{ marginBottom: 10 }}>Téléphone</p>
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="phone"
+                                                    name="phone"
+                                                    value={this.state.selectedContact.phone}
+                                                    onChange={this.handleChange('selectedContact', 'phone')} />
+                                              </div>
+                                            </div>
+                                            <div className="row"
+                                                 style={{ marginTop: 20 }}>
+                                              <div className="col-sm-6">
+                                                <p style={{ marginBottom: 10 }}>Titre</p>
+                                                <select
+                                                    className="form-control custom-select"
+                                                    id="titre"
+                                                    name="titre"
+                                                    placeholder="Titre"
+                                                    value={this.state.selectedContact.type}
+                                                    onChange={this.handleChange('selectedContact', 'type')}
+                                                >
+                                                  {
+                                                    data.titres.map((titre, key) =>
+                                                        <option key={key} value={titre.value} label={titre.label} />
+                                                    )
+                                                  }
+                                                </select>
+                                              </div>
+                                              <div className="col-sm-6">
+                                                <p style={{ marginBottom: 10 }}>Pays</p>
+                                                <select
+                                                    className="form-control custom-select"
+                                                    id="pays"
+                                                    name="pays"
+                                                    placeholder="Pays"
+                                                    value={this.state.selectedContact.pays}
+                                                    onChange={this.handleChange('selectedContact', 'pays')}>
+                                                  {
+                                                    countryList.map((country, key) =>
+                                                        <option
+                                                            key={key}
+                                                            value={country.Name}
+                                                            label={country.Name} />
+                                                    )
+                                                  }
+                                                </select>
+                                              </div>
+                                            </div>
+                                          </TabPanel>
+                                        </Tabs>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          </div>
                         }
                       </Route>
 
@@ -4605,183 +4766,188 @@ export default class Main extends React.Component {
 
                       <Route exact path="/home/clients/:client_id">
                         {
-                          this.state.loading === false && this.state.firstLoading === false &&
-                          <div>
-                            <div className="row">
-                              <div className="col-lg-12">
-                                <div className="card-box text-center">
-                                  <img onClick={() => {}}
-                                       src={this.state.selectedSociete.imageUrl ? this.state.selectedSociete.imageUrl : this.state.selectedSociete.Type === '0' ? entIcon : userAvatar}
-                                       className="rounded-circle avatar-lg img-thumbnail"
-                                       alt="" style={{ cursor: 'pointer', width: 120, height: 120, objectFit: 'cover' }}
-                                  />
-                                  <input style={{ visibility: 'hidden', width: 0, height: 0 }}
-                                         type='file'
-                                         accept='.png,.jpeg,.jpg'
-                                         onChange={(files) => this.uploadImage(files)}
-                                         ref={(ref) => this.imageUpload = ref}
-                                  />
-                                  <h4
-                                      className="mb-0">{this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '')}</h4>
-                                  <div style={{ display: 'contents' }}>
-                                    <button type="button"
-                                            onClick={this.saveSocietyChanges}
-                                            className="btn btn-success btn-sm waves-effect mb-2 waves-light m-1">
-                                      <i className="fe-save" />&nbsp;&nbsp;Enregistrer
-                                    </button>
-                                    <button type="button"
-                                            onClick={() => {
+                          this.state.selectedSociete === "" ?
+                              <div align="center" style={{marginTop:200}}>
+                                <CircularProgress color="primary" />
+                                <h6>Chargement...</h6>
+                              </div> :
+                              <div>
+                                <div className="row">
+                                  <div className="col-lg-12">
+                                    <div className="card-box text-center">
+                                      <img onClick={() => {}}
+                                           src={this.state.selectedSociete.imageUrl ? this.state.selectedSociete.imageUrl : this.state.selectedSociete.Type === '0' ? entIcon : userAvatar}
+                                           className="rounded-circle avatar-lg img-thumbnail"
+                                           alt="" style={{ cursor: 'pointer', width: 120, height: 120, objectFit: 'cover' }}
+                                      />
+                                      <input style={{ visibility: 'hidden', width: 0, height: 0 }}
+                                             type='file'
+                                             accept='.png,.jpeg,.jpg'
+                                             onChange={(files) => this.uploadImage(files)}
+                                             ref={(ref) => this.imageUpload = ref}
+                                      />
+                                      <h4
+                                          className="mb-0">{this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '')}</h4>
+                                      <div style={{ display: 'contents' }}>
+                                        <button type="button"
+                                                onClick={this.saveSocietyChanges}
+                                                className="btn btn-success btn-sm waves-effect mb-2 waves-light m-1">
+                                          <i className="fe-save" />&nbsp;&nbsp;Enregistrer
+                                        </button>
+                                        <button type="button"
+                                                onClick={() => {
 
-                                            }}
-                                            className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
-                                      <i className="fe-printer" />&nbsp;&nbsp;Aperçu
-                                    </button>
-                                    <button type="button"
-                                            onClick={() => {
-                                            }}
-                                            className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
-                                      <i className="fe-book-open" />&nbsp;&nbsp;Livre
-                                    </button>
-                                  </div>
-                                  <div style={{ marginTop: 30 }}
-                                       className="text-left">
-                                    <Tabs selectedIndex={this.state.selectedClientTabIndex} onSelect={index => {
-                                      this.setState({selectedClientTabIndex:index})
-                                    }}>
-                                      <TabList>
-                                      <Tab>Informations client</Tab>
-                                      <Tab>Ouverture dossier</Tab>
-                                      <Tab>Dossiers ouverts</Tab>
-                                    </TabList>
-                                      <TabPanel>
-                                        <h5 style={{ marginTop: 20 }}>Informations Client</h5>
-                                        <div className="row" style={{ marginTop: 30 }}>
-                                          <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Nom du client </p>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="email"
-                                                name="email"
-                                                value={this.state.selectedSociete.Nom}
-                                                onChange={this.handleChange('selectedSociete', 'Nom')} />
+                                                }}
+                                                className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
+                                          <i className="fe-printer" />&nbsp;&nbsp;Aperçu
+                                        </button>
+                                        <button type="button"
+                                                onClick={() => {
+                                                }}
+                                                className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
+                                          <i className="fe-book-open" />&nbsp;&nbsp;Livre
+                                        </button>
+                                      </div>
+                                      <div style={{ marginTop: 30 }}
+                                           className="text-left">
+                                        <Tabs selectedIndex={this.state.selectedClientTabIndex} onSelect={index => {
+                                          this.setState({selectedClientTabIndex:index})
+                                        }}>
+                                          <TabList>
+                                            <Tab>Informations client</Tab>
+                                            <Tab>Ouverture dossier</Tab>
+                                            <Tab>Dossiers ouverts</Tab>
+                                          </TabList>
+                                          <TabPanel>
+                                            <h5 style={{ marginTop: 20 }}>Informations Client</h5>
+                                            <div className="row" style={{ marginTop: 30 }}>
+                                              <div className="col-md-6">
+                                                <p style={{ marginBottom: 10 }}>Nom du client </p>
+                                                <input
+                                                    readOnly
+                                                    type="text"
+                                                    className="form-control"
+                                                    id="email"
+                                                    name="email"
+                                                    value={this.state.selectedSociete.Nom}
+                                                    onChange={this.handleChange('selectedSociete', 'Nom')} />
 
-                                          </div>
-                                          <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Statut</p>
-                                            <FormControlLabel
-                                                control={
-                                                  <MuiSwitch
-                                                      checked={this.state.selectedSociete.isActif === "true" || false}
-                                                      onChange={event => {
-                                                        let obj = this.state.selectedSociete;
-                                                        obj.isActif = (event.target.checked).toString();
-                                                        this.setState({ selectedSociete: obj });
-                                                      }}
-                                                      name="isActif" />}
-                                                label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === "true" ? 'Actif' : 'Non actif' : 'Non actif'}
-                                            />
-                                          </div>
+                                              </div>
+                                              <div className="col-md-6">
+                                                <p style={{ marginBottom: 10 }}>Statut</p>
+                                                <FormControlLabel
+                                                    control={
+                                                      <MuiSwitch
+                                                          checked={this.state.selectedSociete.isActif === "true" || false}
+                                                          onChange={event => {
+                                                            let obj = this.state.selectedSociete;
+                                                            obj.isActif = (event.target.checked).toString();
+                                                            this.setState({ selectedSociete: obj });
+                                                          }}
+                                                          name="isActif" />}
+                                                    label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === "true" ? 'Actif' : 'Non actif' : 'Non actif'}
+                                                />
+                                              </div>
 
-                                        </div>
-                                        {
-                                          this.state.selectedSociete.Type === "1" &&
-                                          <div className="row" style={{ marginTop: 5 }}>
-                                            <div className="col-md-6">
-                                              <p style={{ marginBottom: 10 }}>Prénom du client </p>
-                                              <input
-                                                  type="text"
-                                                  className="form-control"
-                                                  id="email"
-                                                  name="email"
-                                                  value={this.state.selectedSociete.Prenom}
-                                                  onChange={this.handleChange('selectedSociete', 'Prenom')} />
                                             </div>
-                                          </div>
-                                        }
-                                        <div className="row" style={{ marginTop: 20 }}>
-                                          <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Adresse postale</p>
-                                            <textarea
-                                                rows={5}
-                                                className="form-control" style={{color:"#000"}}
-                                                id="about"
-                                                name="about"
-                                                value={this.state.selectedSociete.adress}
-                                                onChange={this.handleChange('selectedSociete', 'adress')} />
-                                          </div>
-                                          <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Adresse email</p>
-                                            <input
-                                                className="form-control"
-                                                type="email"
-                                                id="email"
-                                                name="email"
-                                                value={this.state.selectedSociete.email}
-                                                onChange={this.handleChange('selectedSociete', 'email')} />
-                                            <p style={{ marginBottom: 10,marginTop:10 }}>Téléphone</p>
-                                            <input
-                                                className="form-control"
-                                                type="text"
-                                                id="phone"
-                                                name="phone"
-                                                value={this.state.selectedSociete.phone}
-                                                onChange={this.handleChange('selectedSociete', 'phone')} />
-                                          </div>
-                                          <div className="col-md-12" style={{marginTop:20}}>
-                                            <p style={{ marginBottom: 10 }}>Remarques</p>
-                                            <textarea
-                                                rows={4}
-                                                className="form-control" style={{color:"#000"}}
-                                                id="about"
-                                                name="about"
-                                                value={this.state.selectedSociete.remarque}
-                                                onChange={this.handleChange('selectedSociete', 'remarque')} />
-                                          </div>
-                                        </div>
+                                            {
+                                              this.state.selectedSociete.Type === "1" &&
+                                              <div className="row" style={{ marginTop: 5 }}>
+                                                <div className="col-md-6">
+                                                  <p style={{ marginBottom: 10 }}>Prénom du client </p>
+                                                  <input
+                                                      type="text"
+                                                      className="form-control"
+                                                      id="email"
+                                                      name="email"
+                                                      value={this.state.selectedSociete.Prenom}
+                                                      onChange={this.handleChange('selectedSociete', 'Prenom')} />
+                                                </div>
+                                              </div>
+                                            }
+                                            <div className="row" style={{ marginTop: 20 }}>
+                                              <div className="col-md-6">
+                                                <p style={{ marginBottom: 10 }}>Adresse postale</p>
+                                                <textarea
+                                                    rows={5}
+                                                    className="form-control" style={{color:"#000"}}
+                                                    id="about"
+                                                    name="about"
+                                                    value={this.state.selectedSociete.adress}
+                                                    onChange={this.handleChange('selectedSociete', 'adress')} />
+                                              </div>
+                                              <div className="col-md-6">
+                                                <p style={{ marginBottom: 10 }}>Adresse email</p>
+                                                <input
+                                                    className="form-control"
+                                                    type="email"
+                                                    id="email"
+                                                    name="email"
+                                                    value={this.state.selectedSociete.email}
+                                                    onChange={this.handleChange('selectedSociete', 'email')} />
+                                                <p style={{ marginBottom: 10,marginTop:10 }}>Téléphone</p>
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    id="phone"
+                                                    name="phone"
+                                                    value={this.state.selectedSociete.phone}
+                                                    onChange={this.handleChange('selectedSociete', 'phone')} />
+                                              </div>
+                                              <div className="col-md-12" style={{marginTop:20}}>
+                                                <p style={{ marginBottom: 10 }}>Remarques</p>
+                                                <textarea
+                                                    rows={4}
+                                                    className="form-control" style={{color:"#000"}}
+                                                    id="about"
+                                                    name="about"
+                                                    value={this.state.selectedSociete.remarque}
+                                                    onChange={this.handleChange('selectedSociete', 'remarque')} />
+                                              </div>
+                                            </div>
 
-                                      </TabPanel>
-                                      <TabPanel>
-                                        <h5 style={{ marginTop: 20 }}>Ouverture du dossier</h5>
-                                        <div className="row mt-4">
-                                          <div className="col-md-6">
-                                            <div>
-                                              Nom du dossier
-                                            </div>
-                                            <div>
-                                              <input
-                                                  style={{ color: '#000' }}
-                                                  className="form-control"
-                                                  defaultValue={this.state.newClientFolder.nom}
-                                                  onChange={this.handleChange('newClientFolder', 'nom')}
-                                              />
-                                            </div>
-                                          </div>
-                                          <div className="col-md-6">
-                                            <div>
-                                              Type de dossier
-                                            </div>
-                                            <div>
-                                              <select
-                                                  className="form-control custom-select"
-                                                  value={this.state.newClientFolder.type}
-                                                  onChange={this.handleChange('newClientFolder', 'type')}
-                                              >
-                                                {
-                                                  Data.secteurs2.map((secteur, key) =>
-                                                      <option
-                                                          key={key}
-                                                          value={secteur}>{secteur}</option>
-                                                  )
-                                                }
-                                              </select>
-                                            </div>
-                                          </div>
-                                          <div className="col-md-12" style={{marginTop:20}}>
-                                            <div>
-                                              Description du mandat
-                                            </div>
-                                            <div>
+                                          </TabPanel>
+                                          <TabPanel>
+                                            <h5 style={{ marginTop: 20 }}>Ouverture du dossier</h5>
+                                            <div className="row mt-4">
+                                              <div className="col-md-6">
+                                                <div>
+                                                  Nom du dossier
+                                                </div>
+                                                <div>
+                                                  <input
+                                                      style={{ color: '#000' }}
+                                                      className="form-control"
+                                                      defaultValue={this.state.newClientFolder.nom}
+                                                      onChange={this.handleChange('newClientFolder', 'nom')}
+                                                  />
+                                                </div>
+                                              </div>
+                                              <div className="col-md-6">
+                                                <div>
+                                                  Type de dossier
+                                                </div>
+                                                <div>
+                                                  <select
+                                                      className="form-control custom-select"
+                                                      value={this.state.newClientFolder.type}
+                                                      onChange={this.handleChange('newClientFolder', 'type')}
+                                                  >
+                                                    {
+                                                      Data.secteurs2.map((secteur, key) =>
+                                                          <option
+                                                              key={key}
+                                                              value={secteur}>{secteur}</option>
+                                                      )
+                                                    }
+                                                  </select>
+                                                </div>
+                                              </div>
+                                              <div className="col-md-12" style={{marginTop:20}}>
+                                                <div>
+                                                  Description du mandat
+                                                </div>
+                                                <div>
                                               <textarea
                                                   style={{color: "#000"}}
                                                   className="form-control"
@@ -4789,437 +4955,630 @@ export default class Main extends React.Component {
                                                   onChange={this.handleChange( "newClientFolder", "desc")}
                                                   rows={5}
                                               />
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div className="row" style={{marginTop:20}}>
-                                          <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Contrepartie</p>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="email"
-                                                name="email"
-                                                value={this.state.newClientFolder.contrepartie}
-                                                onChange={this.handleChange('newClientFolder', 'contrepartie')} />
-                                          </div>
-                                          <div className="col-md-6">
-                                            <p style={{ marginBottom: 10 }}>Autres parties</p>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="email"
-                                                name="email"
-                                                value={this.state.newClientFolder.autrepartie}
-                                                onChange={this.handleChange('newClientFolder', 'autrepartie')} />
-                                          </div>
-                                        </div>
-                                        <hr style={{
-                                          width: '100%',
-                                          height: 1,
-                                          backgroundColor: '#c0c0c0',
-                                          marginTop: 35,
-                                          marginBottom: 30
-                                        }} />
-                                        <div>
-                                          <h4>Facturation</h4>
-                                          <div className="row mt-2">
-                                            <div className="col-md-6" style={{minWidth:500}}>
-                                              <div style={{ display: 'flex' }}>
-                                                <div className="mt-2">Associés</div>
-                                                <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
-                                                            onClick={() => {
-                                                              let objCp = this.state.newClientFolder;
-                                                              objCp.team.push({
-                                                                fname: '',
-                                                                email: '',
-                                                                uid: '',
-                                                                tarif: '',
-                                                                type: 'lead'
-                                                              });
-                                                              this.setState({ newClientFolder: objCp });
-                                                            }}>
-                                                  <AddCircleIcon color="primary" />
-                                                </IconButton>
+                                                </div>
                                               </div>
-                                              {
-                                                this.state.newClientFolder.team.map((item, key) =>
-                                                    item.type === "lead" &&
-                                                    <div style={{
-                                                      display: 'flex',
-                                                      justifyContent: 'flex-start',
-                                                      marginTop: 15
-                                                    }}>
-                                                      <div>
-                                                        <div>
-                                                          <MuiSelect
-                                                              labelId="demo-simple-select-labOuverture dossierel"
-                                                              id="demo-simple-select"
-                                                              style={{ width: 230,marginTop:20 }}
-                                                              onChange={(e) => {
-                                                                let id = e.target.value;
-                                                                let contact = this.state.contacts.find(x => x.id === id );
-                                                                if (contact) {
+                                            </div>
+                                            <div className="row" style={{marginTop:20}}>
+                                              <div className="col-md-6">
+                                                <p style={{ marginBottom: 10 }}>Contrepartie</p>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    id="email"
+                                                    name="email"
+                                                    value={this.state.newClientFolder.contrepartie}
+                                                    onChange={this.handleChange('newClientFolder', 'contrepartie')} />
+                                              </div>
+                                              <div className="col-md-6">
+                                                <p style={{ marginBottom: 10 }}>Autres parties</p>
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    id="email"
+                                                    name="email"
+                                                    value={this.state.newClientFolder.autrepartie}
+                                                    onChange={this.handleChange('newClientFolder', 'autrepartie')} />
+                                              </div>
+                                            </div>
+                                            <hr style={{
+                                              width: '100%',
+                                              height: 1,
+                                              backgroundColor: '#c0c0c0',
+                                              marginTop: 35,
+                                              marginBottom: 30
+                                            }} />
+                                            <div>
+                                              <h4>Facturation</h4>
+                                              <div className="row mt-2">
+                                                <div className="col-md-6" style={{minWidth:500}}>
+                                                  <div style={{ display: 'flex' }}>
+                                                    <div className="mt-2">Associés</div>
+                                                    <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
+                                                                onClick={() => {
                                                                   let objCp = this.state.newClientFolder;
-                                                                  objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
-                                                                  objCp.team[key].email = contact.email;
-                                                                  objCp.team[key].uid = contact.uid;
-                                                                  objCp.team[key].tarif = contact.rateFacturation || '';
+                                                                  objCp.team.push({
+                                                                    fname: '',
+                                                                    email: '',
+                                                                    uid: '',
+                                                                    tarif: '',
+                                                                    type: 'lead'
+                                                                  });
                                                                   this.setState({ newClientFolder: objCp });
-                                                                }
-                                                              }}
-                                                              value={this.state.newClientFolder.team[key].id}
-                                                          >
-                                                            {this.state.contacts.filter(x => x.type === "associe" ).map((contact, key) => (
-                                                                <MenuItem
-                                                                    key={key}
-                                                                    value={contact.id}>
-                                                                  <div style={{display:"flex"}}>
-                                                                    <Avatar style={{marginLeft:10}}
-                                                                            alt=""
-                                                                            src={contact.imageUrl} />
-                                                                    <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                                  </div>
-                                                                </MenuItem>
-                                                            ))}
-                                                          </MuiSelect>
-                                                        </div>
-                                                      </div>
-                                                      <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
-                                                        <div style={{marginLeft:10}}>
-                                                          Taux horaire
-                                                        </div>
-                                                        <Input
-                                                            style={{ width: 210,marginLeft:10 }}
-                                                            className="form-control "
-                                                            id="duree35411"
-                                                            name="duree687811"
-                                                            type="text"
-                                                            endAdornment={
-                                                              <InputAdornment
-                                                                  position="end">CHF/h</InputAdornment>}
-                                                            value={this.state.newClientFolder.team[key].tarif}
-                                                            onChange={(e) => {
-                                                              let objCp = this.state.newClientFolder;
-                                                              objCp.team[key].tarif = e.target.value;
-                                                              this.setState({ newClientFolder: objCp });
-                                                            }}
-                                                        />
-                                                      </div>
-                                                      <div>
-                                                        <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].id !== '' ? 28 : 8}}
-                                                                    onClick={() => {
+                                                                }}>
+                                                      <AddCircleIcon color="primary" />
+                                                    </IconButton>
+                                                  </div>
+                                                  {
+                                                    this.state.newClientFolder.team.map((item, key) =>
+                                                        item.type === "lead" &&
+                                                        <div style={{
+                                                          display: 'flex',
+                                                          justifyContent: 'flex-start',
+                                                          marginTop: 15
+                                                        }}>
+                                                          <div>
+                                                            <div>
+                                                              <MuiSelect
+                                                                  labelId="demo-simple-select-labOuverture dossierel"
+                                                                  id="demo-simple-select"
+                                                                  style={{ width: 230,marginTop:20 }}
+                                                                  onChange={(e) => {
+                                                                    let id = e.target.value;
+                                                                    let contact = this.state.contacts.find(x => x.id === id );
+                                                                    if (contact) {
                                                                       let objCp = this.state.newClientFolder;
-                                                                      objCp.team.splice(key,1)
+                                                                      objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
+                                                                      objCp.team[key].email = contact.email;
+                                                                      objCp.team[key].uid = contact.uid;
+                                                                      objCp.team[key].tarif = contact.rateFacturation || '';
                                                                       this.setState({ newClientFolder: objCp });
-                                                                    }}
-                                                        >
-                                                          <DeleteOutlineIcon color="error"/>
-                                                        </IconButton>
+                                                                    }
+                                                                  }}
+                                                                  value={this.state.newClientFolder.team[key].id}
+                                                              >
+                                                                {this.state.contacts.filter(x => x.type === "associe" ).map((contact, key) => (
+                                                                    <MenuItem
+                                                                        key={key}
+                                                                        value={contact.id}>
+                                                                      <div style={{display:"flex"}}>
+                                                                        <Avatar style={{marginLeft:10}}
+                                                                                alt=""
+                                                                                src={contact.imageUrl} />
+                                                                        <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                                      </div>
+                                                                    </MenuItem>
+                                                                ))}
+                                                              </MuiSelect>
+                                                            </div>
+                                                          </div>
+                                                          <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
+                                                            <div style={{marginLeft:10}}>
+                                                              Taux horaire
+                                                            </div>
+                                                            <Input
+                                                                style={{ width: 210,marginLeft:10 }}
+                                                                className="form-control "
+                                                                id="duree35411"
+                                                                name="duree687811"
+                                                                type="text"
+                                                                endAdornment={
+                                                                  <InputAdornment
+                                                                      position="end">CHF/h</InputAdornment>}
+                                                                value={this.state.newClientFolder.team[key].tarif}
+                                                                onChange={(e) => {
+                                                                  let objCp = this.state.newClientFolder;
+                                                                  objCp.team[key].tarif = e.target.value;
+                                                                  this.setState({ newClientFolder: objCp });
+                                                                }}
+                                                            />
+                                                          </div>
+                                                          <div>
+                                                            <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].id !== '' ? 28 : 8}}
+                                                                        onClick={() => {
+                                                                          let objCp = this.state.newClientFolder;
+                                                                          objCp.team.splice(key,1)
+                                                                          this.setState({ newClientFolder: objCp });
+                                                                        }}
+                                                            >
+                                                              <DeleteOutlineIcon color="error"/>
+                                                            </IconButton>
+                                                          </div>
+                                                        </div>
+                                                    )
+                                                  }
+                                                </div>
+                                                <div className="col-md-6" style={{minWidth:500}}>
+                                                  <div style={{ display: 'flex' }}>
+                                                    <div className="mt-2">Collaborateur/Stagiaire</div>
+                                                    <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
+                                                                onClick={() => {
+                                                                  let objCp = this.state.newClientFolder;
+                                                                  objCp.team.push({
+                                                                    fname: '',
+                                                                    email: '',
+                                                                    uid: '',
+                                                                    tarif: '',
+                                                                    type: 'team'
+                                                                  });
+                                                                  this.setState({ newClientFolder: objCp });
+                                                                }}>
+                                                      <AddCircleIcon color="primary" />
+                                                    </IconButton>
+                                                  </div>
+                                                  {
+                                                    this.state.newClientFolder.team.map((item, key) =>
+                                                        item.type === "team" &&
+                                                        <div style={{
+                                                          display: 'flex',
+                                                          justifyContent: 'flex-start',
+                                                          marginTop: 15
+                                                        }}>
+                                                          <div>
+                                                            <div>
+                                                              <MuiSelect
+                                                                  labelId="demo-simple-select-label"
+                                                                  id="demo-simple-select"
+                                                                  style={{ width: 230 ,marginTop:20}}
+                                                                  onChange={(e) => {
+                                                                    let id = e.target.value;
+                                                                    let contact = this.state.contacts.find(x => x.id === id);
+                                                                    if (contact) {
+                                                                      let objCp = this.state.newClientFolder;
+                                                                      objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
+                                                                      objCp.team[key].email = contact.email;
+                                                                      objCp.team[key].uid = contact.uid;
+                                                                      objCp.team[key].tarif = contact.rateFacturation || '';
+                                                                      this.setState({ newClientFolder: objCp });
+                                                                    }
+                                                                  }}
+                                                                  value={this.state.newClientFolder.team[key].id}
+                                                              >
+                                                                {this.state.contacts.filter(x => !x.type ).map((contact, key) => (
+                                                                    <MenuItem
+                                                                        key={key}
+                                                                        value={contact.id}>
+                                                                      <div style={{display:"flex"}}>
+                                                                        <Avatar style={{marginLeft:10}}
+                                                                                alt=""
+                                                                                src={contact.imageUrl} />
+                                                                        <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                                      </div>
+                                                                    </MenuItem>
+                                                                ))}
+                                                              </MuiSelect>
+                                                            </div>
+                                                          </div>
+                                                          <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
+                                                            <div style={{marginLeft:10}}>
+                                                              Taux horaire
+                                                            </div>
+                                                            <Input
+                                                                className="form-control "
+                                                                id="duree35411"
+                                                                style={{ width: 210,marginLeft:10 }}
+                                                                name="duree687811"
+                                                                type="text"
+                                                                endAdornment={
+                                                                  <InputAdornment
+                                                                      position="end">CHF/h</InputAdornment>}
+                                                                value={this.state.newClientFolder.team[key].tarif}
+                                                                onChange={(e) => {
+                                                                  let objCp = this.state.newClientFolder;
+                                                                  objCp.team[key].tarif = e.target.value;
+                                                                  this.setState({ newClientFolder: objCp });
+                                                                }}
+                                                            />
+                                                          </div>
+                                                          <div>
+                                                            <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].id !== '' ? 28 : 8}}
+                                                                        onClick={() => {
+                                                                          let objCp = this.state.newClientFolder;
+                                                                          objCp.team.splice(key,1)
+                                                                          this.setState({ newClientFolder: objCp });
+                                                                        }}
+                                                            >
+                                                              <DeleteOutlineIcon color="error"/>
+                                                            </IconButton>
+                                                          </div>
+                                                        </div>
+                                                    )
+                                                  }
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            <div className="mt-4">
+                                              <h5>FACTURATION-CLIENT</h5>
+                                              <div
+                                                  className="row align-items-center">
+                                                <div className="col-md-4">
+                                                  <div
+                                                      className="row justify-content-center align-items-center">
+                                                    <div
+                                                        className="col-md-4">
+                                                      <div>Par Email</div>
+                                                    </div>
+                                                    <div
+                                                        className="col-md-8">
+                                                      <CB color="primary"
+                                                          checked={this.state.newClientFolder.byEmail}
+                                                          onChange={(e) => {
+                                                            let obj = this.state.newClientFolder;
+                                                            obj.byEmail = e.target.checked
+                                                            this.setState({newClientFolder:obj})
+                                                            //this.handleChange("newClientFolder",e.target.checked)
+                                                          }}
+                                                      />
+                                                    </div>
+                                                  </div>
+                                                  <div
+                                                      className="row justify-content-center align-items-center">
+                                                    <div
+                                                        className="col-md-4">
+                                                      <div>Fréquence</div>
+                                                    </div>
+                                                    <div
+                                                        className="col-md-8">
+                                                      <MuiSelect
+                                                          labelId="demo-simple-select-label"
+                                                          id="demo-simple-select"
+                                                          style={{ width: '100%' }}
+                                                          value={this.state.newClientFolder.frequence}
+                                                          onChange={(e) => {
+                                                            let obj = this.state.newClientFolder;
+                                                            obj.frequence = e.target.value
+                                                            this.setState({newClientFolder:obj})
+                                                          }}
+                                                      >
+                                                        <MenuItem
+                                                            value={'Mensuelle'}>Mensuelle</MenuItem>
+                                                        <MenuItem
+                                                            value={'Trimestrielle'}>Trimestrielle</MenuItem>
+                                                        <MenuItem
+                                                            value={'Semestrielle'}>Semestrielle</MenuItem>
+                                                        <MenuItem
+                                                            value={'Annuelle'}>Annuelle</MenuItem>
+                                                      </MuiSelect>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                <div className="col-md-4">
+                                                  <div
+                                                      className="row justify-content-center align-items-center">
+                                                    <div
+                                                        className="col-md-6">
+                                                      <div>Envoyé par le secrétariat
                                                       </div>
                                                     </div>
-                                                )
-                                              }
-                                            </div>
-                                            <div className="col-md-6" style={{minWidth:500}}>
-                                              <div style={{ display: 'flex' }}>
-                                                <div className="mt-2">Collaborateur/Stagiaire</div>
-                                                <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
-                                                            onClick={() => {
-                                                              let objCp = this.state.newClientFolder;
-                                                              objCp.team.push({
-                                                                fname: '',
-                                                                email: '',
-                                                                uid: '',
-                                                                tarif: '',
-                                                                type: 'team'
-                                                              });
-                                                              this.setState({ newClientFolder: objCp });
-                                                            }}>
-                                                  <AddCircleIcon color="primary" />
-                                                </IconButton>
-                                              </div>
-                                              {
-                                                this.state.newClientFolder.team.map((item, key) =>
-                                                    item.type === "team" &&
-                                                    <div style={{
-                                                      display: 'flex',
-                                                      justifyContent: 'flex-start',
-                                                      marginTop: 15
-                                                    }}>
-                                                      <div>
-                                                        <div>
-                                                          <MuiSelect
-                                                              labelId="demo-simple-select-label"
-                                                              id="demo-simple-select"
-                                                              style={{ width: 230 ,marginTop:20}}
-                                                              onChange={(e) => {
-                                                                let id = e.target.value;
-                                                                let contact = this.state.contacts.find(x => x.id === id);
-                                                                if (contact) {
-                                                                  let objCp = this.state.newClientFolder;
-                                                                  objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
-                                                                  objCp.team[key].email = contact.email;
-                                                                  objCp.team[key].uid = contact.uid;
-                                                                  objCp.team[key].tarif = contact.rateFacturation || '';
-                                                                  this.setState({ newClientFolder: objCp });
-                                                                }
-                                                              }}
-                                                              value={this.state.newClientFolder.team[key].id}
-                                                          >
-                                                            {this.state.contacts.filter(x => !x.type ).map((contact, key) => (
-                                                                <MenuItem
-                                                                    key={key}
-                                                                    value={contact.id}>
-                                                                  <div style={{display:"flex"}}>
-                                                                    <Avatar style={{marginLeft:10}}
-                                                                            alt=""
-                                                                            src={contact.imageUrl} />
-                                                                    <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                                  </div>
-                                                                </MenuItem>
-                                                            ))}
-                                                          </MuiSelect>
-                                                        </div>
-                                                      </div>
-                                                      <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
-                                                        <div style={{marginLeft:10}}>
-                                                          Taux horaire
-                                                        </div>
-                                                        <Input
-                                                            className="form-control "
-                                                            id="duree35411"
-                                                            style={{ width: 210,marginLeft:10 }}
-                                                            name="duree687811"
-                                                            type="text"
-                                                            endAdornment={
-                                                              <InputAdornment
-                                                                  position="end">CHF/h</InputAdornment>}
-                                                            value={this.state.newClientFolder.team[key].tarif}
-                                                            onChange={(e) => {
-                                                              let objCp = this.state.newClientFolder;
-                                                              objCp.team[key].tarif = e.target.value;
-                                                              this.setState({ newClientFolder: objCp });
-                                                            }}
-                                                        />
-                                                      </div>
-                                                      <div>
-                                                        <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].id !== '' ? 28 : 8}}
-                                                                    onClick={() => {
-                                                                      let objCp = this.state.newClientFolder;
-                                                                      objCp.team.splice(key,1)
-                                                                      this.setState({ newClientFolder: objCp });
-                                                                    }}
-                                                        >
-                                                          <DeleteOutlineIcon color="error"/>
-                                                        </IconButton>
+                                                    <div
+                                                        className="col-md-6">
+                                                      <CB color="primary"
+                                                          checked={this.state.newClientFolder.sentBySecr}
+                                                          onChange={(e) => {
+                                                            let obj = this.state.newClientFolder;
+                                                            obj.sentBySecr = e.target.checked
+                                                            this.setState({newClientFolder:obj})
+                                                          }} />
+                                                    </div>
+                                                  </div>
+                                                  <div
+                                                      className="row justify-content-center align-items-center">
+                                                    <div
+                                                        className="col-md-6">
+                                                      <div>Envoyé par l’avocat
                                                       </div>
                                                     </div>
-                                                )
-                                              }
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        <div className="mt-4">
-                                          <h5>FACTURATION-CLIENT</h5>
-                                          <div
-                                              className="row align-items-center">
-                                            <div className="col-md-4">
-                                              <div
-                                                  className="row justify-content-center align-items-center">
-                                                <div
-                                                    className="col-md-4">
-                                                  <div>Par Email</div>
-                                                </div>
-                                                <div
-                                                    className="col-md-8">
-                                                  <CB color="primary"
-                                                      checked={this.state.newClientFolder.byEmail}
-                                                      onChange={(e) => {
-                                                        let obj = this.state.newClientFolder;
-                                                        obj.byEmail = e.target.checked
-                                                        this.setState({newClientFolder:obj})
-                                                        //this.handleChange("newClientFolder",e.target.checked)
-                                                      }}
-                                                  />
-                                                </div>
-                                              </div>
-                                              <div
-                                                  className="row justify-content-center align-items-center">
-                                                <div
-                                                    className="col-md-4">
-                                                  <div>Fréquence</div>
-                                                </div>
-                                                <div
-                                                    className="col-md-8">
-                                                  <MuiSelect
-                                                      labelId="demo-simple-select-label"
-                                                      id="demo-simple-select"
-                                                      style={{ width: '100%' }}
-                                                      value={this.state.newClientFolder.frequence}
-                                                      onChange={(e) => {
-                                                        let obj = this.state.newClientFolder;
-                                                        obj.frequence = e.target.value
-                                                        this.setState({newClientFolder:obj})
-                                                      }}
-                                                  >
-                                                    <MenuItem
-                                                        value={'Mensuelle'}>Mensuelle</MenuItem>
-                                                    <MenuItem
-                                                        value={'Trimestrielle'}>Trimestrielle</MenuItem>
-                                                    <MenuItem
-                                                        value={'Semestrielle'}>Semestrielle</MenuItem>
-                                                    <MenuItem
-                                                        value={'Annuelle'}>Annuelle</MenuItem>
-                                                  </MuiSelect>
-                                                </div>
-                                              </div>
-                                            </div>
-                                            <div className="col-md-4">
-                                              <div
-                                                  className="row justify-content-center align-items-center">
-                                                <div
-                                                    className="col-md-6">
-                                                  <div>Envoyé par le secrétariat
+                                                    <div
+                                                        className="col-md-6">
+                                                      <CB color="primary"
+                                                          checked={this.state.newClientFolder.sentByAvocat}
+                                                          onChange={(e) => {
+                                                            let obj = this.state.newClientFolder;
+                                                            obj.sentByAvocat = e.target.checked
+                                                            this.setState({newClientFolder:obj})
+                                                          }} />
+                                                    </div>
+                                                  </div>
+                                                  <div
+                                                      className="row justify-content-center align-items-center">
+                                                    <div
+                                                        className="col-md-6">
+                                                      <div>Langue de Facturation
+                                                      </div>
+                                                    </div>
+                                                    <div
+                                                        className="col-md-6">
+                                                      <MuiSelect
+                                                          labelId="demo-simple-select-label"
+                                                          id="demo-simple-select"
+                                                          style={{ width: '100%' }}
+                                                          value={this.state.newClientFolder.language}
+                                                          onChange={(e) => {
+                                                            let obj = this.state.newClientFolder;
+                                                            obj.language = e.target.value
+                                                            this.setState({newClientFolder:obj})
+                                                          }}
+                                                      >
+                                                        <MenuItem
+                                                            value={'Francais'}>Français</MenuItem>
+                                                        <MenuItem
+                                                            value={'Anglais'}>Anglais</MenuItem>
+                                                      </MuiSelect>
+                                                    </div>
                                                   </div>
                                                 </div>
-                                                <div
-                                                    className="col-md-6">
-                                                  <CB color="primary"
-                                                      checked={this.state.newClientFolder.sentBySecr}
-                                                      onChange={(e) => {
-                                                        let obj = this.state.newClientFolder;
-                                                        obj.sentBySecr = e.target.checked
-                                                        this.setState({newClientFolder:obj})
-                                                      }} />
-                                                </div>
                                               </div>
-                                              <div
-                                                  className="row justify-content-center align-items-center">
-                                                <div
-                                                    className="col-md-6">
-                                                  <div>Envoyé par l’avocat
-                                                  </div>
-                                                </div>
-                                                <div
-                                                    className="col-md-6">
-                                                  <CB color="primary"
-                                                      checked={this.state.newClientFolder.sentByAvocat}
-                                                      onChange={(e) => {
-                                                        let obj = this.state.newClientFolder;
-                                                        obj.sentByAvocat = e.target.checked
-                                                        this.setState({newClientFolder:obj})
-                                                      }} />
-                                                </div>
-                                              </div>
-                                              <div
-                                                  className="row justify-content-center align-items-center">
-                                                <div
-                                                    className="col-md-6">
-                                                  <div>Langue de Facturation
-                                                  </div>
-                                                </div>
-                                                <div
-                                                    className="col-md-6">
-                                                  <MuiSelect
-                                                      labelId="demo-simple-select-label"
-                                                      id="demo-simple-select"
-                                                      style={{ width: '100%' }}
-                                                      value={this.state.newClientFolder.language}
-                                                      onChange={(e) => {
-                                                        let obj = this.state.newClientFolder;
-                                                        obj.language = e.target.value
-                                                        this.setState({newClientFolder:obj})
-                                                      }}
-                                                  >
-                                                    <MenuItem
-                                                        value={'Francais'}>Français</MenuItem>
-                                                    <MenuItem
-                                                        value={'Anglais'}>Anglais</MenuItem>
-                                                  </MuiSelect>
-                                                </div>
-                                              </div>
+
                                             </div>
-                                          </div>
 
-                                        </div>
+                                            <div style={{
+                                              margintop: 10,
+                                              textAlign: 'right'
+                                            }}>
+                                              <button
+                                                  type="button"
+                                                  disabled={this.state.newClientFolder.nom === ''}
+                                                  onClick={() => {
+                                                    let contact = main_functions.getOAContactByEmail2(this.state.contacts,this.state.lead_contact_tmp);
+                                                    let objCp = this.state.newClientFolder;
+                                                    if(contact){
+                                                      objCp.team.push({
+                                                        fname: contact.nom + ' ' + contact.prenom,
+                                                        email: this.state.lead_contact_tmp,
+                                                        uid: contact.uid,
+                                                        tarif: this.state.lead_contact_horaire_tmp,
+                                                        type: 'lead'
+                                                      });
+                                                    }
+                                                    this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
+                                                  }}
+                                                  className="btn btn-blue waves-effect mb-2 waves-light m-1">
+                                                <i className="fe-folder-plus" />&nbsp;&nbsp;Créer Dossier Client
+                                              </button>
+                                            </div>
+                                          </TabPanel>
+                                          <TabPanel>
+                                            <h5 style={{ marginTop: 20 }}>Dossiers ouverts</h5>
+                                            <Mandats selectedClient={this.state.selectedSociete} clients_tempo={this.state.clients_cases} clients_tempo_copie={this.state.clients_cases}
+                                                     contacts={this.state.contacts}
+                                                     onFolderClick={(folder_id,parentClientFolder) => {
+                                                       let ged = this.state.reelFolders;
+                                                       let CLIENT_folder = ged.find(x => x.id ===  ENV_CLIENTS_FOLDER_ID)
+                                                       if(CLIENT_folder){
+                                                         this.setState({
+                                                           showContainerSection: 'Drive',
+                                                           focusedItem: 'Drive',
+                                                           selectedDriveItem: [folder_id],
+                                                           expandedDriveItems: [folder_id, parentClientFolder, localStorage.getItem('client_folder_id')],
+                                                           selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
+                                                           breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
+                                                           selectedFolderId: folder_id,
+                                                           selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
+                                                           selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
+                                                         });
+                                                         this.props.history.push("/home/drive/" + folder_id )
+                                                         window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                       }else{
 
-                                        <div style={{
-                                          margintop: 10,
-                                          textAlign: 'right'
-                                        }}>
-                                          <button
-                                              type="button"
-                                              disabled={this.state.newClientFolder.nom === ''}
-                                              onClick={() => {
-                                                let contact = main_functions.getOAContactByEmail2(this.state.contacts,this.state.lead_contact_tmp);
-                                                let objCp = this.state.newClientFolder;
-                                                if(contact){
-                                                  objCp.team.push({
-                                                    fname: contact.nom + ' ' + contact.prenom,
-                                                    email: this.state.lead_contact_tmp,
-                                                    uid: contact.uid,
-                                                    tarif: this.state.lead_contact_horaire_tmp,
-                                                    type: 'lead'
-                                                  });
-                                                }
-                                                this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
-                                              }}
-                                              className="btn btn-blue waves-effect mb-2 waves-light m-1">
-                                            <i className="fe-folder-plus" />&nbsp;&nbsp;Créer Dossier Client
-                                          </button>
-                                        </div>
-                                      </TabPanel>
-                                      <TabPanel>
-                                        <h5 style={{ marginTop: 20 }}>Dossiers ouverts</h5>
-                                        <Mandats selectedClient={this.state.selectedSociete} clients_tempo={this.state.clients_cases} clients_tempo_copie={this.state.clients_cases}
-                                                 contacts={this.state.contacts}
-                                                 onFolderClick={(folder_id,parentClientFolder) => {
-                                                   let ged = this.state.reelFolders;
-                                                   let CLIENT_folder = ged.find(x => x.id ===  ENV_CLIENTS_FOLDER_ID)
-                                                   if(CLIENT_folder){
-                                                     this.setState({
-                                                       showContainerSection: 'Drive',
-                                                       focusedItem: 'Drive',
-                                                       selectedDriveItem: [folder_id],
-                                                       expandedDriveItems: [folder_id, parentClientFolder, localStorage.getItem('client_folder_id')],
-                                                       selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
-                                                       breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
-                                                       selectedFolderId: folder_id,
-                                                       selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
-                                                       selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
-                                                     });
-                                                     this.props.history.push("/home/drive/" + folder_id )
-                                                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                                                   }else{
-
-                                                     this.setState({
-                                                       showContainerSection: 'Drive',
-                                                       focusedItem: 'Drive',
-                                                       selectedDriveItem: [],
-                                                       expandedDriveItems: [],
-                                                       selectedDriveSharedItem:[ENV_CLIENTS_FOLDER_ID],
-                                                       expandedDriveSharedItems:['parent',ENV_CLIENTS_FOLDER_ID],
-                                                       breadcrumbs: 'Mon drive / Partagés avec moi',
-                                                     });
-                                                     this.props.history.push("/home/shared/" + ENV_CLIENTS_FOLDER_ID)
-                                                   }
-                                                 }}
-                                                 update_client_case={(id,data) => {
-                                                   this.update_client_case(id,data)
-                                                 }}
-                                                 reloadGed={() => this.justReloadGed()}
-                                                 openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                                        />
-                                      </TabPanel>
-                                    </Tabs>
+                                                         this.setState({
+                                                           showContainerSection: 'Drive',
+                                                           focusedItem: 'Drive',
+                                                           selectedDriveItem: [],
+                                                           expandedDriveItems: [],
+                                                           selectedDriveSharedItem:[ENV_CLIENTS_FOLDER_ID],
+                                                           expandedDriveSharedItems:['parent',ENV_CLIENTS_FOLDER_ID],
+                                                           breadcrumbs: 'Mon drive / Partagés avec moi',
+                                                         });
+                                                         this.props.history.push("/home/shared/" + ENV_CLIENTS_FOLDER_ID)
+                                                       }
+                                                     }}
+                                                     update_client_case={(id,data) => {
+                                                       this.update_client_case(id,data)
+                                                     }}
+                                                     reloadGed={() => this.justReloadGed()}
+                                                     openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                            />
+                                          </TabPanel>
+                                        </Tabs>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          </div>
                         }
+
+
+                      </Route>
+
+                      <Route exact path="/home/cadeau_Entx">
+                          <TableGift
+                              patients={this.state.annuaire_clients_mandat || []}
+                              openModal={()=>{
+                                this.openCadeauModal("ss","ss")}
+                              }
+                              onDelecteClick={(societe,key)=>{
+                                //this.deletepatient(societe.id_user)
+                              }}
+                          />
+                        <Modal
+                            isOpen={this.state.showCadeauModal2}
+                            size="md"
+                            centered={true}
+                            zIndex={1500}
+                            toggle={() =>
+                                this.setState({ showCadeauModal2: false })
+                            }
+                        >
+                          <ModalHeader
+                              toggle={() =>
+                                  this.setState({ showCadeauModal2: false })
+                              }
+                          >
+                            Envoyer des cadeaux
+                          </ModalHeader>
+                          <ModalBody>
+                            <div className="row justify-content-around">
+                              {
+                                this.state.bouteilles.map((item,key)=>(
+                                    <div className="col-md-5 mt-2">
+                                      <TextField value={item.value}     inputProps={{ maxLength: 4 }}
+                                                 onChange={(e)=>{this.handleChangeBouteille(e,key)}}
+                                                 id="outlined-basic" label={"Code " + item.name} variant="outlined"  />
+
+                                    </div>
+                                ))
+                              }
+
+                              <div className="text-center mt-3 col-md-12">
+                                <Button>
+                                  <Button onClick={()=>{this.envoyerCadeau()}} variant="contained" color="primary">
+                                    Envoyer Cadeaux
+                                  </Button>
+                                </Button>
+
+                              </div>
+
+                            </div>
+
+                          </ModalBody>
+                        </Modal>
+                        <Modal
+                            isOpen={this.state.showCadeauModal1}
+                            size="lg"
+                            centered={true}
+                            zIndex={1500}
+                            toggle={() =>
+                                this.setState({ showCadeauModal1: !this.state.showCadeauModal1 })
+                            }
+                        >
+                          <ModalHeader
+                              toggle={() =>
+                                  this.setState({ showCadeauModal1: !this.state.showCadeauModal1 })
+                              }
+                          >
+                            Envoyer des bouteilles
+                          </ModalHeader>
+                          <ModalBody>
+                            <div className="row justify-content-around align-items-center">
+                              <div className="col-md-4">
+
+                                {this.state.bouteilleToCampany===true?
+                                    <div>
+                                      <h5>
+                                        Société
+                                      </h5>
+
+                                      <SelectSearch
+                                          options={
+                                            this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl, id }) =>
+                                                ({
+                                                  value: id,
+                                                  name: Nom + ' ' + (Prenom || ''),
+                                                  ContactType: Type,
+                                                  ContactName: Nom + ' ' + (Prenom || ''),
+                                                  imageUrl: imageUrl
+                                                }))
+                                          }
+                                          value={this.state.clientCadeau.id}
+                                          renderOption={main_functions.renderSearchOption}
+                                          search
+                                          placeholder="Chercher votre client"
+                                          onChange={ (e) => {
+
+                                            let findClient = this.state.annuaire_clients_mandat.find(x => x.id === e)
+                                            let data = this.state.clientCadeau
+                                            data.email=findClient.email
+                                            data.nom = findClient.Nom
+                                            data.prenom = findClient.Prenom
+                                            data.id = findClient.id
+                                            data.nbGifts = findClient.nbGifts || 0
+                                            this.setState({clientCadeau:data})
+                                            console.log(data)
+                                          }}
+                                      />
+                                      {
+                                        (this.state.clientCadeau.email === undefined || this.state.clientCadeau.email === null) &&
+                                            <h6 style={{color:"red"}}>Adresse mail non encore attribué à cet client !</h6>
+                                      }
+                                      {
+                                        (verifForms.verif_Email(this.state.clientCadeau.email) && this.state.clientCadeau.email !== "" && this.state.clientCadeau.email !== undefined   ) &&
+                                        <h6 style={{color:"red"}}>Format mail invalide pour ce client !</h6>
+                                      }
+                                    </div>:
+                                    <div>
+                                      <TextField id="outlined-basic" label="Email" value={this.state.clientCadeau.email}  onChange={(e)=>{
+                                        let data = this.state.clientCadeau
+                                        data.email=e.target.value
+                                        this.setState({clientCadeau:data})
+                                      }} variant="outlined" />
+
+                                    </div>
+                                }
+
+
+
+
+                              </div>
+                              <div className="col-md-4">
+                                <Typography component="div">
+                                  <Grid component="label" container alignItems="center" spacing={1}>
+                                    <Grid item>Email</Grid>
+                                    <Grid item>
+                                      <AntSwitch   checked={this.state.bouteilleToCampany} name="checkedC"
+                                                   onChange={(e)=>{
+                                                     this.setState({bouteilleToCampany:e.target.checked})
+                                                   }}
+                                      />
+                                    </Grid>
+                                    <Grid item>Société</Grid>
+                                  </Grid>
+                                </Typography>
+                              </div>
+
+
+                            </div>
+
+                            <div className="row justify-content-around align-items-center mt-2">
+                              <div className="col-md-4">
+                                <TextField id="outlined-basic" value={this.state.clientCadeau.prenom} onChange={(e)=>{
+                                  let data = this.state.clientCadeau
+                                  data.prenom=e.target.value
+                                  this.setState({clientCadeau:data})
+                                }} label="Prénom" variant="outlined" />
+
+                              </div>
+                              <div className="col-md-4">
+                                <TextField id="outlined-basic" value={this.state.clientCadeau.nom}  onChange={(e)=>{
+                                  let data = this.state.clientCadeau
+                                  data.nom=e.target.value
+                                  this.setState({clientCadeau:data})
+                                }}   label="Nom" variant="outlined" />
+
+                              </div>
+
+                            </div>
+
+                            <div className="row justify-content-around align-items-center mt-2">
+                              <div className="col-md-4">
+                                <TextField id="outlined-basic" type="number"
+                                           onChange={(e)=>{this.setState({nbBouteille:e.target.value})}}
+                                           label="Nombre de bouteilles" variant="outlined" />
+
+                              </div>
+                              <div className="col-md-4 text-center">
+                                <Button onClick={()=>{this.openCadeauModal2()}} variant="contained" color="secondary"
+                                        disabled={this.state.nbBouteille === "" || parseInt(this.state.nbBouteille) <= 0  || verifForms.verif_Email(this.state.clientCadeau.email) }
+                                >
+                                  suivant
+                                </Button>
+                              </div>
+
+                            </div>
+
+
+                          </ModalBody>
+                        </Modal>
+
                       </Route>
 
                       <Route exact path="/home/timeSheet/activities">

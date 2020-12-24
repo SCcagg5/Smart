@@ -79,7 +79,9 @@
     "styled-components": "^4.4.1",
     "styletron-engine-atomic": "^1.4.6",
     "styletron-react": "^5.2.7",
-    "timeago.js": "^4.0.0-beta.2"
+    "timeago.js": "^4.0.0-beta.2",
+    "react-camera-qr": "^1.0.1",
+    "video-react": "^0.14.1"
   },
   "scripts": {
     "start": "GENERATE_SOURCEMAP=false react-scripts start",
