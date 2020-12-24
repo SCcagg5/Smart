@@ -33,8 +33,13 @@ let Data = {
 
     SocietyMenuItem : [
         {
-            nodeId:"clients_mondat",
+            nodeId:"clients",
             title:"Client (Mandat)",
+            icon:HomeWorkIcon
+        },
+        {
+            nodeId:"cadeau_Entx",
+            title:"Cadeau Entx",
             icon:HomeWorkIcon
         }
         /*{

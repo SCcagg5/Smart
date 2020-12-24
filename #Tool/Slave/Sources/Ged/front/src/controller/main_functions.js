@@ -36,7 +36,7 @@ function renderSearchOption(props, option, snapshot, className) {
             <span>
                 <img alt="" style={imgStyle}
                      src={option.ContactType === '1' ? option.imageUrl ? option.imageUrl : userAvatar : entIcon} />
-                <span style={{ fontSize: 13 }}>{option.ContactName}</span>
+                <span style={{ fontSize: 13 }}>{option.ContactName + (option.societyName !== "" ? (" - " + option.societyName) : "") }</span>
             </span>
     </button>
   );
@@ -621,44 +621,29 @@ const generateGed = () => {
   });
 }
 
-function exportCSVFile( items, fileTitle) {
-  var headers = {
-    Nom: "Nom",
-    Prenom: "Prenom",
-    email: "email",
-    phone: "phone",
-    adress: "adress",
-    Type:"Type"
-  };
+function exportAnnuaire_clients_To_CSVFile(items, fileTitle) {
+  let headers = {"type":"type","email":"email","contactName":"contactName","societyName":"societyName","phone":"phone","adress":"adress"}
   var itemsFormatted = [];
   items.forEach((item) => {
     itemsFormatted.push({
-      Nom: item.Nom || " ",
-      Prenom: item.Prenom || " ",
-      email: item.email || " ",
-      phone: item.phone || " ",
-      adress: item.adress || " ",
-      Type: item.Type || "0"
+      type: item.type || "0",
+      email: item.email || "",
+      contactName: item.contactName || "",
+      societyName: item.societyName || "",
+      phone: item.phone || "",
+      adress: item.adress || ""
     });
   });
-  if (headers) {
-    itemsFormatted.unshift(headers);
-  }
-
-  // Convert Object to JSON
+  itemsFormatted.unshift(headers);
   var jsonObject = JSON.stringify(itemsFormatted);
-
   var csv = convertToCSV(jsonObject);
-
   var exportedFilenmae = fileTitle || 'export.csv';
-
   var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   if (navigator.msSaveBlob) { // IE 10+
     navigator.msSaveBlob(blob, exportedFilenmae);
   } else {
     var link = document.createElement("a");
-    if (link.download !== undefined) { // feature detection
-      // Browsers that support HTML5 download attribute
+    if (link.download !== undefined) {
       var url = URL.createObjectURL(blob);
       link.setAttribute("href", url);
       link.setAttribute("download", exportedFilenmae);
@@ -740,9 +725,34 @@ function convertToCSV(objArray) {
   return str;
 }
 
+function csvToJSON(csv){
+
+  var lines=csv.split("\n");
+
+  var result = [];
+
+  var headers=lines[0].split(",");
+
+  for(var i=1;i<lines.length;i++){
+
+    var obj = {};
+    var currentline=lines[i].split(",");
+
+    for(var j=0;j<headers.length;j++){
+      obj[headers[j]] = currentline[j];
+    }
+
+    result.push(obj);
+
+  }
+
+  //return result; //JavaScript object
+  return JSON.stringify(result); //JSON
+}
 
 
 
- export default {renderSearchOption,getTimeSuggestions,icon,getLabel,checkedIcon,getPath,generateGed,buildIndex,exportCSVFile,exportContactCSVFile,convertToCSV,
-   changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,
+
+ export default {renderSearchOption,getTimeSuggestions,icon,getLabel,checkedIcon,getPath,generateGed,buildIndex,exportAnnuaire_clients_To_CSVFile,exportContactCSVFile,convertToCSV,
+   changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,csvToJSON,
    getBreadcumpsPath,getFolderNameById,getFolderTypeById,findClientMondatById,findContactByEmail,findContactByUid,getOAContactByEmail2,getOAContactByUid};

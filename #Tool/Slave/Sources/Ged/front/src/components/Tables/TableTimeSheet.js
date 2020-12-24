@@ -36,6 +36,8 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import utilFunctions from "../../tools/functions";
+import {Dropdown} from "semantic-ui-react";
 
 const getTimeSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
@@ -135,6 +137,7 @@ export default function TableTimeSheet(props) {
     const [toUpdated_desc, setToUpdated_desc] = React.useState("");
     const [toUpdated_template, setToUpdated_template] = React.useState("");
     const [timeSuggestions, setTimeSuggestions] = React.useState([]);
+    const [duration, setDuration] = React.useState("");
 
     //const [lf_client_search, setLf_client_search] = React.useState(props.annuaire_clients_mondat[0].Nom + ' ' + (props.annuaire_clients_mondat[0].Prenom || '') );
     const [lf_client_search, setLf_client_search] = React.useState("");
@@ -236,7 +239,7 @@ export default function TableTimeSheet(props) {
             <button {...props} className={className} type="button">
                 <span>
                     <img alt="" style={imgStyle}
-                         src={option.ContactType === "Person" ? option.imageUrl ? option.imageUrl : userAvatar : entIcon}/>
+                         src={option.ContactType === "0" ? option.imageUrl ? option.imageUrl : userAvatar : entIcon}/>
                     <span style={{fontSize: 13,marginTop:12,marginLeft:5}}>{option.ContactName}</span>
                 </span>
             </button>
@@ -244,9 +247,10 @@ export default function TableTimeSheet(props) {
     }
 
     function onInputTimeSuggChange(event, {newValue})  {
-        let d = lf_toUpdated
+        setDuration(newValue)
+        /*let d = lf_toUpdated
         d.newTime.duree = newValue
-        setLf_toUpdated(d)
+        setLf_toUpdated(d)*/
     }
 
     function onTimeSuggestionsFetchRequested({value}){
@@ -258,8 +262,8 @@ export default function TableTimeSheet(props) {
     }
 
     const inputSuggProps = {
-        placeholder: '0:1, 0:15, 0:30...',
-        value: lf_toUpdated !== "" && lf_toUpdated.newTime.duree.toString().replace(".",":") ,
+        placeholder: 'Format: --h--',
+        value: duration ,
         onChange: onInputTimeSuggChange
     };
 
@@ -405,26 +409,25 @@ export default function TableTimeSheet(props) {
                 <div className="col-md-5 mt-2">
                     <div style={{display:"flex"}}>
                         <h5 style={{marginRight:10}}>Par client</h5>
-                        <SelectSearch
-                            className="select-search"
+                        <Dropdown
+                            value={lf_client_search}
+                            labeled
+                            placeholder={"Chercher..."}
+                            search
+                            selection
                             options={
-                                props.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
+                                props.annuaire_clients_mandat.map(({ contactName,societyName, type, imageUrl, ID }) =>
                                     ({
+                                        key: ID,
+                                        text: contactName + (societyName !== "" ? (" - " + societyName) : ""),
                                         value: ID,
-                                        name: Nom + ' ' + (Prenom || ''),
-                                        ContactType: Type,
-                                        ContactName: Nom + ' ' + (Prenom || ''),
-                                        imageUrl: imageUrl
+                                        image: {avatar:true,src:imageUrl ? imageUrl : type === "0" ? entIcon : userAvatar}
                                     }))
                             }
-                            value={lf_client_search}
-                            renderOption={main_functions.renderSearchOption}
-                            search
-                            placeholder="Sélectionner.."
-                            onChange={e => {
+                            onChange={ (e,{value}) => {
                                 setPage(0);
-                                setLf_client_search(e)
-                                setLf_client_search_ID(e)
+                                setLf_client_search(value)
+                                setLf_client_search_ID(value)
                                 let ch_rows = props.lignesFactures;
                                 ch_rows.map((item,key) => {
                                     item.checked = false
@@ -458,7 +461,32 @@ export default function TableTimeSheet(props) {
                 <div className="col-md-12 mt-2">
                     <div style={{display:"flex"}}>
                         <h5 >Par utilisateur OA</h5>
-                        <MuiSelect
+                        <div style={{marginLeft:10,marginRight:10}}>
+                            <Dropdown
+                                value={lf_oaUser_search}
+                                labeled
+                                placeholder={""}
+                                search
+                                noResultsMessage='Aucun utilisateur trouvé'
+                                selection
+                                options={
+                                    props.OA_contacts.map(({ nom,prenom, email, imageUrl, id }) =>
+                                        ({
+                                            key: id,
+                                            text: nom + " " + prenom,
+                                            value: email,
+                                            image: {avatar:true,src:imageUrl || userAvatar}
+                                        }))
+                                }
+                                onChange={(e, {value}) => {
+                                    console.log(value);
+                                    setPage(0);
+                                    setLf_oaUser_search(value)
+                                }}
+                            />
+                        </div>
+
+                        {/*<MuiSelect
                             labelId="demo-mutiple-chip-label14545"
                             id="demo-mutiple-chip34688"
                             style={{ width: 250,marginLeft:10,marginRight:10 }}
@@ -490,7 +518,7 @@ export default function TableTimeSheet(props) {
                                     </div>
                                 </MenuItem>
                             ))}
-                        </MuiSelect>
+                        </MuiSelect>*/}
                     </div>
                 </div>
             </div>
@@ -518,7 +546,7 @@ export default function TableTimeSheet(props) {
                         <TableCell align="center" style={{width:"8%",fontWeight:600}}>Date</TableCell>
                         <TableCell align="center" style={{width:"17%",fontWeight:600}}>Nom du dossier</TableCell>
                         <TableCell align="center" style={{width:"25%",fontWeight:600}}>Description</TableCell>
-                        <TableCell  style={{width:"20%",fontWeight:600}}>Utilisateur OA</TableCell>
+                        <TableCell  style={{width:"20%",fontWeight:600}}>Utilisateur</TableCell>
                         <TableCell align="center" style={{width:"10%",fontWeight:600}}>Taux horaire</TableCell>
                         <TableCell align="center" style={{width:"10%",fontWeight:600}}>Durée</TableCell>
                         <TableCell align="center" style={{width:"10%",fontWeight:600}}>Total</TableCell>
@@ -541,6 +569,7 @@ export default function TableTimeSheet(props) {
                                 <IconButton size="small" color="default" onClick={() => {
                                     if(row.user_email === localStorage.getItem("email") || localStorage.getItem("email") === "fgillioz@oalegal.ch"){
                                         const row_copy = row;
+                                        setDuration(utilFunctions.formatDuration(row_copy.newTime.duree.toString()))
                                         setToUpdated_date(new Date(row_copy.newTime.date))
                                         setToUpdated_rate(row_copy.newTime.rateFacturation)
                                         setToUpdated_OAUser(row_copy.newTime.utilisateurOA)
@@ -602,7 +631,7 @@ export default function TableTimeSheet(props) {
                                 {row.newTime.rateFacturation +" CHF/h"}
                             </TableCell>
                             <TableCell style={{ width: "10%" }} align="center">
-                                <div>{row.newTime.duree+"h"}</div>
+                                <div>{utilFunctions.formatDuration(row.newTime.duree.toString())}</div>
                             </TableCell>
                             <TableCell style={{ width: "10%" }} align="center">
                                 <div>{(row.newTime.duree * parseInt(row.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF</div>
@@ -654,7 +683,7 @@ export default function TableTimeSheet(props) {
                                     }}
                                     MenuProps={Data.MenuProps}
                                 >
-                                    {props.OA_contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
+                                    {props.OA_contacts.map((contact, key) => (
                                         <MenuItem
                                             key={key}
                                             value={contact.email}>
@@ -749,7 +778,7 @@ export default function TableTimeSheet(props) {
 
 
 
-            <Dialog open={showUpdateModal} maxWidth="xl"   onClose={() => {
+            <Dialog open={showUpdateModal} maxWidth="xl" fullWidth={true}    onClose={() => {
                 setShowUpdateModal(false)
             }}
                     aria-labelledby="form-dialog-title"
@@ -796,12 +825,12 @@ export default function TableTimeSheet(props) {
                                             style={{display: "flex"}}>
                                             <SelectSearch
                                                 options={
-                                                    props.annuaire_clients_mandat.map(({Nom, Prenom, Type, imageUrl, ID}) =>
+                                                    props.annuaire_clients_mandat.map(({contactName, type, imageUrl, ID}) =>
                                                         ({
                                                             value: ID,
-                                                            name: Nom + " " + (Prenom || ""),
-                                                            ContactType: Type,
-                                                            ContactName: Nom + " " + (Prenom || ""),
+                                                            name: contactName,
+                                                            ContactType: type,
+                                                            ContactName: contactName,
                                                             imageUrl: imageUrl
                                                         }))
                                                 }
@@ -813,7 +842,7 @@ export default function TableTimeSheet(props) {
                                                     let obj = lf_toUpdated;
                                                     obj.newTime.client_id = e;
                                                     let findClientFname = props.annuaire_clients_mandat.find(x => x.ID === e)
-                                                    obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                                                    obj.newTime.client = findClientFname.contactName
                                                     let findClientTempo = props.clientsTempo.find(x => x.ID_client === e);
                                                     if(findClientTempo){
                                                         setSelectedClientFolders(findClientTempo.folders || [])
@@ -991,39 +1020,26 @@ export default function TableTimeSheet(props) {
                             </div>
                             <div style={{marginTop:20,textAlign:"right"}}>
                                 <AtlButton
-                                    isDisabled={lf_toUpdated.newTime.duree.toString().trim() === "" || lf_toUpdated.newTime.duree === "0" || lf_toUpdated.newTime.client_id === "" }
+                                    isDisabled={lf_toUpdated.newTime.client_id === "" || lf_toUpdated.newTime.rateFacturation === "" || lf_toUpdated.newTime.utilisateurOA === ''  }
                                     appearance="primary"
                                     onClick={() => {
-
+                                        lf_toUpdated.newTime.duree = duration;
                                         let time = lf_toUpdated.newTime.duree;
-                                        let timeFormated = '';
-                                        if(typeof time !== "number"){
-                                            if (time.indexOf(':') > -1) {
-                                                timeFormated = parseFloat(time.replace(':', '.'));
-                                            } else if (time.indexOf('.') > -1) {
-                                                timeFormated = parseFloat(time);
-                                            } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
-                                                timeFormated = parseInt(time);
-                                            } else {
-                                                props.openSnackbar('error', 'Le format de la durée est invalide !');
-                                            }
+                                        let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+                                        if(regexFormat.test(time) === true){
 
-                                            if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
-                                                props.openSnackbar('error', 'Le format de la durée est invalide !');
-                                            } else {
-                                                if(timeFormated === 0 ){
-                                                    props.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
-                                                }else {
-                                                    lf_toUpdated.newTime.duree = timeFormated;
-                                                    console.log(lf_toUpdated)
-                                                    setShowUpdateModal(false)
-                                                    props.updateLigneFacture(lf_toUpdated.id,lf_toUpdated)
-                                                }
+                                            let duree = utilFunctions.durationToNumber(time);
+
+                                            if(duree === 0){
+                                                props.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
+                                            }else{
+                                                lf_toUpdated.newTime.duree = utilFunctions.durationToNumber(lf_toUpdated.newTime.duree)
+                                                console.log(lf_toUpdated)
+                                                props.updateLigneFacture(lf_toUpdated.id,lf_toUpdated)
+                                                setShowUpdateModal(false)
                                             }
                                         }else{
-                                            console.log(lf_toUpdated)
-                                            setShowUpdateModal(false)
-                                            props.updateLigneFacture(lf_toUpdated.id,lf_toUpdated)
+                                            props.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
                                         }
                                     }}>
                                     Modifier</AtlButton>
@@ -1044,6 +1060,7 @@ export default function TableTimeSheet(props) {
                             { text: 'Supprimer', onClick: () => {
                                     props.deleteLigneFacture(lf_TooDeleted)
                                     setLf_TooDeleted("")
+                                    setOpenDeleteModal(false)
                                 } },
                             { text: 'Annuler', onClick: () => {
                                     setLf_TooDeleted("")

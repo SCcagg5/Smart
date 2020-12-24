@@ -66,6 +66,7 @@
     "react-loadable": "^5.5.0",
     "react-loading": "^2.0.3",
     "react-multi-email": "^0.5.3",
+    "react-papaparse": "^3.11.1",
     "react-pdf": "^4.2.0",
     "react-phone-input-2": "^2.11.0",
     "react-responsive-modal": "^4.0.1",

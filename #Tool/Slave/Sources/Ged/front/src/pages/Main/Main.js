@@ -118,6 +118,9 @@ import TableSociete from "../../components/Tables/TableSociete";
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import Mandats from './Mandats';
 import utilFunctions from "../../tools/functions";
+import {Dropdown} from 'semantic-ui-react'
+import { Input as SuiInput } from 'semantic-ui-react'
+
 
 //const endpoint = process.env.REACT_APP_ENDPOINT
 const endpoint = "http://localhost:8080"
@@ -148,8 +151,9 @@ export default class Main extends React.Component {
   state = {
     logo:localStorage.getItem("logo"),
 
-    loading: true,
-    firstLoading: true,
+    loading: false,
+    firstLoading: false,
+    loadingGed:true,
 
     openAlert: false,
     alertMessage: '',
@@ -264,13 +268,13 @@ export default class Main extends React.Component {
         Mode: ''
       }
     },
-    contacts: [],
+    //contacts: [],
     societes: [],
-    prestataires:[],
+    //prestataires:[],
     prestatairesCp:[],
     clients_cases:[],
-    annuaire_clients_mandat: [],
-    time_sheets:[],
+    //annuaire_clients_mandat: [],
+    //time_sheets:[],
     rooms: [],
     selectedContact: '',
     selectedContactKey: '',
@@ -342,12 +346,11 @@ export default class Main extends React.Component {
     openNewClientModal: false,
 
     newClient: {
-      ID: '',
-      Nom: '',
-      Prenom:'',
-      Type: '0',
+      contactName: '',
+      societyName: '',
+      type: '0',
       created_at: '',
-      country: '',
+      adress: '',
       email: '',
       phone: '',
       isActif: "true"
@@ -549,10 +552,9 @@ export default class Main extends React.Component {
       this.props.history.push('/login');
     } else {
       let sharedFolders = [];
+      let meeturl = meet_url + '_' + moment().format('DDMMYYYYHHmmss');
+      this.setState({meeturl: meeturl})
 
-      this.setState({ firstLoading: true });
-
-      setTimeout(() => {
         SmartService.getGed(
           localStorage.getItem('token'),
           localStorage.getItem('usrtoken')
@@ -590,7 +592,7 @@ export default class Main extends React.Component {
                 localStorage.setItem('recette_folder_id', recette_folder.id);
                 console.log(recette_folder.id);
               }
-              let meeturl = meet_url + '_' + moment().format('DDMMYYYYHHmmss');
+
               let sharedFiles = gedRes.data.Shared.Content.files || [];
 
               this.setState({
@@ -601,398 +603,53 @@ export default class Main extends React.Component {
                 rootFolders: gedRes.data.Proprietary.Content.folders || [],
                 sharedRootFiles: sharedFiles,
                 sharedFolders: sharedFolders,
-                meeturl: meeturl
+                loadingGed:false
               })
 
-              //RethinkDB
-              rethink.createDB(db_name,"test").then( r1 => {
-                if (r1 === true) console.log("NEW DB CREATED");
-                if (r1 === false) console.log("DB ALREADY EXIST");
-
-                rethink.tableList(db_name,"test").then(tablesRes => {
-                  this.setState({tableList:tablesRes || []})
-
-                  tablesRes.map((item,key) => {
-
-                    rethink.getTableData(db_name,"test",item).then( rr => {
-
-                      if(item === "annuaire_clients_mandat"){
-                        this.setState({[item]:rr.sort( (a,b) => {
-                            let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
-                            let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
-                            if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
-                            if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
-                            return 0;
-                          })})
-                      }else if(item === "contacts"){
-                        this.setState({[item]:rr.sort( (a,b) => {
-                            var c = a.sort || -1
-                            var d = b.sort || -1
-                            return c-d;
-                          })})
-                      }
-                      else{
-                        this.setState({[item]:rr})
-                      }
-                    });
-                    this.getTableChanges('test',db_name,'table("'+item+'")',item);
+              if (this.props.location.pathname.indexOf('/home/drive/') > -1) {
+                let folders = gedRes.data.Proprietary.Content.folders || [];
+                let folder_id = this.props.location.pathname.replace('/home/drive/', '');
+                let folder_name = main_functions.getFolderNameById(folder_id, folders);
+                if (folder_name !== undefined && folder_name !== null) {
+                  this.setState({
+                    selectedDriveItem: [folder_id],
+                    expandedDriveItems: [folder_id],
+                    selectedFoldername: folder_name,
+                    breadcrumbs: main_functions.getBreadcumpsPath(folder_id, folders),
+                    selectedFolderId: folder_id,
+                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                    selectedFolderFiles: main_functions.getFolderFilesById(folder_id, folders),
+                    selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, folders),
+                    firstLoading: false,
+                    loading: false
                   });
-
-
-                  setTimeout(() => {
-
-                    let connected_email = localStorage.getItem("email");
-                    let oa_contact = main_functions.getOAContactByEmail2(this.state.contacts,connected_email);
-                    if(oa_contact){
-                      this.setState({
-                        TimeSheet: {
-                          newTime: {
-                            duree: '',
-                            client: '',
-                            dossier_client: {
-                              facturation: {
-                                language:''
-                              },
-                            },
-                            langue:'',
-                            categoriesActivite: 'Temps facturé',
-                            description: '',
-                            date: new Date(),
-                            utilisateurOA: connected_email,
-                            rateFacturation: oa_contact.rateFacturation || ""
-                          }
-                        },
-                      })
-                    }
-
-                    if (this.props.location.pathname.indexOf('/home/drive/') > -1) {
-                      let folders = gedRes.data.Proprietary.Content.folders || [];
-                      let folder_id = this.props.location.pathname.replace('/home/drive/', '');
-                      let folder_name = main_functions.getFolderNameById(folder_id, folders);
-                      if (folder_name !== undefined && folder_name !== null) {
-                        this.setState({
-                          selectedDriveItem: [folder_id],
-                          expandedDriveItems: [folder_id],
-                          selectedFoldername: folder_name,
-                          breadcrumbs: main_functions.getBreadcumpsPath(folder_id, folders),
-                          selectedFolderId: folder_id,
-                          selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                          selectedFolderFiles: main_functions.getFolderFilesById(folder_id, folders),
-                          selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, folders),
-                          firstLoading: false,
-                          loading: false
-                        });
-                      } else {
-                        console.log('ERROR FOLDER ID');
-                        this.props.history.push("/home/drive")
-                        this.componentDidMount();
-                      }
-                    }
-                    else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
-                      this.setState({
-                        selectedDriveItem: [],
-                        expandedDriveItems: [],
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    }
-                    else if (this.props.location.pathname === '/home/shared/parent') {
-                      this.setState({
-                        selectedDriveItem: [],
-                        expandedDriveItems: [],
-                        selectedDriveSharedItem:['parent'],
-                        expandedDriveSharedItems:['parent'],
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                        breadcrumbs: 'Mon drive / Partagés avec moi',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    }
-                    else if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
-                        if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
-                        if (this.state.rooms.length > 0) {
-                          let room_id = this.props.location.pathname.replace('/home/rooms/', '');
-                          this.setState({
-                            showContainerSection: 'Rooms',
-                            focusedItem: 'Rooms',
-                            selectedRoomItems: [room_id],
-                            expandedRoomItems: [room_id],
-                            openRoomMenuItem: true,
-                            selectedRoom: this.state.rooms[room_id],
-                            firstLoading: false,
-                            loading: false
-                          });
-                        } else {
-                          this.props.history.push('/home/rooms');
-                          this.setState({
-                            showContainerSection: 'Rooms',
-                            focusedItem: 'Rooms',
-                            selectedRoomItems: [],
-                            expandedRoomItems: [],
-                            openRoomMenuItem: true,
-                            selectedRoom: '',
-                            firstLoading: false,
-                            loading: false
-                          });
-                        }
-                      }else{
-                          this.setState({
-                            showContainerSection: 'Rooms',
-                            focusedItem: 'Rooms',
-                            selectedRoomItems: [],
-                            expandedRoomItems: [],
-                            openRoomMenuItem: true,
-                            selectedRoom: '',
-                            firstLoading: false,
-                            loading: false
-                          });
-                        }
-                    }
-                    else if (this.props.location.pathname === '/home/meet/new') {
-                      this.setState({
-                        showContainerSection: 'Meet',
-                        focusedItem: 'Meet',
-                        selectedMeetMenuItem: ['new'],
-                        openMeetMenuItem: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else if (this.props.location.pathname === '/home/meet/rejoin') {
-                      this.setState({
-                        showContainerSection: 'Meet',
-                        focusedItem: 'Meet',
-                        selectedMeetMenuItem: ['rejoin'],
-                        openMeetMenuItem: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
-                      if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
-                        let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
-                        let contact = this.state.contacts.find(x => x.id === contact_id)
-                        if (contact) {
-                          this.setState({
-                            selectedContact: contact,
-                            selectedContactKey: contact_id,
-                            showContainerSection: 'Contacts',
-                            focusedItem: 'Contacts',
-                            openContactsMenu: true,
-                            selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                            firstLoading: false,
-                            loading: false
-                          });
-                        } else {
-                          this.props.history.push('/');
-                        }
-
-                      } else {
-                        this.setState({
-                          showContainerSection: 'Contacts',
-                          focusedItem: 'Contacts',
-                          openContactsMenu: true,
-                          selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                          firstLoading: false,
-                          loading: false
-                        });
-                      }
-
-                    } else if (this.props.location.pathname.indexOf('/home/clients') > -1) {
-                      if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
-                        let client_id = this.props.location.pathname.replace('/home/clients/', '');
-                        let client = this.state.annuaire_clients_mandat.find(x => x.id === client_id);
-                        if (client) {
-                          this.setState({
-                            selectedSociete: client,
-                            selectedSocieteKey: client_id,
-                            showContainerSection: 'Societe',
-                            focusedItem: 'Societe',
-                            selectedSocietyMenuItem: ['clients_mondat'],
-                            openSocietyMenuItem: true,
-                            selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                            firstLoading: false,
-                            loading: false
-                          });
-                        } else {
-
-                        }
-
-                      } else {
-                        this.setState({
-                          showContainerSection: 'Societe',
-                          focusedItem: 'Societe',
-                          selectedSocietyMenuItem: ['clients_mondat'],
-                          openSocietyMenuItem: true,
-                          selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                          firstLoading: false,
-                          loading: false
-                        });
-                      }
-
-                    } else if (this.props.location.pathname === '/home/timeSheet/activities') {
-                      this.setState({
-                        showContainerSection: 'TimeSheet',
-                        focusedItem: 'TimeSheet',
-                        selectedTimeSheetMenuItem: ['activities'],
-                        openTimeSheetsMenu: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else if (this.props.location.pathname === '/home/timeSheet/dashboard') {
-                      this.setState({
-                        showContainerSection: 'TimeSheet',
-                        focusedItem: 'TimeSheet',
-                        selectedTimeSheetMenuItem: ['dashboard'],
-                        openTimeSheetsMenu: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else if (this.props.location.pathname === '/home/timeSheet/dashboardPerson') {
-                      this.setState({
-                        showContainerSection: 'TimeSheet',
-                        focusedItem: 'TimeSheet',
-                        selectedTimeSheetMenuItem: ['dashboardPerson'],
-                        openTimeSheetsMenu: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else if (this.props.location.pathname === '/home/timeSheet/dashboardProject') {
-                      this.setState({
-                        showContainerSection: 'TimeSheet',
-                        focusedItem: 'TimeSheet',
-                        selectedTimeSheetMenuItem: ['dashboardProject'],
-                        openTimeSheetsMenu: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else if (this.props.location.pathname.indexOf("/home/marketplace/recettes/") > -1) {
-
-                      let recette_id = this.props.location.pathname.replace('/home/marketplace/recettes/', '');
-
-                      recetteService.getRecettebyID(recette_id).then(res1=> {
-                        recetteService.getIngredientID(recette_id).then(res2=>{
-
-                          this.setState({
-                            selectedRecette:res1[0],
-                            selectedRecetteIngredients:res2,
-                            showContainerSection: 'marketplace',
-                            focusedItem: 'marketplace',
-                            selectedMarketplaceMenuItem: ['recettes'],
-                            openMarketplaceMenuItem: true,
-                            selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                            firstLoading: false,
-                            loading: false
-                          });
-                        })
-                      })
-                    }
-                    else if(this.props.location.pathname.indexOf("/home/marketplace/recettes") > -1 ){
-                      this.setState({
-                        showContainerSection: 'marketplace',
-                        focusedItem: 'marketplace',
-                        selectedMarketplaceMenuItem: ['recettes'],
-                        openMarketplaceMenuItem: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else if (this.props.location.pathname.indexOf('/home/marketplace/RH_Support_ponctuel') > -1) {
-                      if (this.props.location.pathname.indexOf('/home/marketplace/RH_Support_ponctuel/') > -1) {
-                        let contact_id = this.props.location.pathname.replace('/home/marketplace/RH_Support_ponctuel/', '');
-                        let contact = this.state.prestataires.find(x => x.id === contact_id)
-                        if (contact) {
-                          this.setState({
-                            selectedContact: contact,
-                            selectedContactKey: contact_id,
-                            showContainerSection: 'marketplace',
-                            focusedItem: 'marketplace',
-                            selectedMarketplaceMenuItem: ['RH_Support_ponctuel'],
-                            openMarketplaceMenuItem: true,
-                            selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                            firstLoading: false,
-                            loading: false
-                          });
-                        } else {
-                          this.props.history.push('/');
-                        }
-
-                      } else {
-                        this.setState({
-                          showContainerSection: 'marketplace',
-                          focusedItem: 'marketplace',
-                          selectedMarketplaceMenuItem: ['RH_Support_ponctuel'],
-                          openMarketplaceMenuItem: true,
-                          selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                          firstLoading: false,
-                          loading: false
-                        });
-                      }
-
-                    } else if (this.props.location.pathname === '/home/search') {
-                      if (this.props.match.params.section_id) {
-                        let textToSearch = this.props.match.params.section_id;
-                        SmartService.search(
-                            textToSearch,
-                            localStorage.getItem('token'),
-                            localStorage.getItem('usrtoken')
-                        )
-                            .then((searchRes) => {
-                              if (
-                                  searchRes.succes === true &&
-                                  searchRes.status === 200
-                              ) {
-                                this.setState({
-                                  searchResult: searchRes.data,
-                                  textSearch: textToSearch,
-                                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                                  firstLoading: false,
-                                  loading: false
-                                });
-                              } else {
-                                console.log(searchRes.error);
-                              }
-                            })
-                            .catch((err) => {
-                              console.log(err);
-                            });
-                      }
-                    } else if (this.props.location.pathname.indexOf('/home/search/') > -1) {
-                      let textToSearch = this.props.location.pathname.replace('/home/search/', '');
-                      SmartService.search(textToSearch, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(searchRes => {
-
-                        if (searchRes.succes === true && searchRes.status === 200) {
-                          this.setState({
-                            searchResult: searchRes.data,
-                            textSearch: textToSearch,
-                            selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                            firstLoading: false,
-                            loading: false
-                          });
-                        } else {
-                          console.log(searchRes.error);
-                        }
-                      }).catch(err => {
-                        console.log(err);
-                      });
-                    } else {
-                      console.log('URL ERROR');
-                      this.props.history.push('/home/drive');
-                      this.componentDidMount();
-                    }
-
-
-                  },2000);
-
-
-                }).catch(err => {console.log(err)})
-
-              }).catch(err => {console.log(err)})
+                } else {
+                  console.log('ERROR FOLDER ID');
+                  this.props.history.push("/home/drive")
+                  this.componentDidMount();
+                }
+              }
+              else if (this.props.location.pathname.indexOf('/home/drive') > -1) {
+                this.setState({
+                  selectedDriveItem: [],
+                  expandedDriveItems: [],
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+              else if (this.props.location.pathname === '/home/shared/parent') {
+                this.setState({
+                  selectedDriveItem: [],
+                  expandedDriveItems: [],
+                  selectedDriveSharedItem:['parent'],
+                  expandedDriveSharedItems:['parent'],
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  breadcrumbs: 'Mon drive / Partagés avec moi',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
 
             } else {
               this.setState({ loading: false });
@@ -1004,7 +661,433 @@ export default class Main extends React.Component {
             this.props.history.push('/error');
             console.log(err);
           });
-      }, 200);
+
+        //RethinkDB
+        rethink.createDB(db_name,"test").then( r1 => {
+          if (r1 === true) console.log("NEW DB CREATED");
+          if (r1 === false) console.log("DB ALREADY EXIST");
+
+          rethink.tableList(db_name,"test").then(tablesRes => {
+
+            if(tablesRes.includes("contacts") === false){
+              this.setState({contacts:[]})
+            }
+            if(tablesRes.includes("annuaire_clients_mandat") === false){
+              this.setState({annuaire_clients_mandat:[]})
+            }
+            if(tablesRes.includes("time_sheets") === false){
+              this.setState({time_sheets:[]})
+            }
+            if(tablesRes.includes("factures") === false){
+              this.setState({factures:[]})
+            }
+            if(tablesRes.includes("prestataires") === false){
+              this.setState({prestataires:[]})
+            }
+            this.setState({tableList:tablesRes || []})
+
+            tablesRes.map((item,key) => {
+
+              rethink.getTableData(db_name,"test",item).then( rr => {
+
+                if(item === "annuaire_clients_mandat"){
+
+                  if (this.props.location.pathname.indexOf('/home/clients') > -1) {
+                    if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
+                      let client_id = this.props.location.pathname.replace('/home/clients/', '');
+                      let client = rr.find(x => x.id === client_id);
+                      if (client) {
+                        this.setState({
+                          selectedSociete: client,
+                          selectedSocieteKey: client_id,
+                          showContainerSection: 'Societe',
+                          focusedItem: 'Societe',
+                          selectedSocietyMenuItem: ['clients_mondat'],
+                          openSocietyMenuItem: true,
+                          selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                          firstLoading: false,
+                          loading: false
+                        });
+                      } else {
+                        this.props.history.push('/');
+                      }
+                    } else {
+                      this.setState({
+                        showContainerSection: 'Societe',
+                        focusedItem: 'Societe',
+                        selectedSocietyMenuItem: ['clients_mondat'],
+                        openSocietyMenuItem: true,
+                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                        firstLoading: false,
+                        loading: false
+                      });
+                    }
+                  }
+
+                  this.setState({[item]:rr.sort( (a,b) => {
+                      let fname1 = a.contactName
+                      let fname2 = b.contactName
+                      if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
+                      if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
+                      return 0;
+                    })})
+                }else if(item === "contacts"){
+
+                  if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
+                    if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
+                      let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
+                      let contact = rr.find(x => x.id === contact_id)
+                      if (contact) {
+                        this.setState({
+                          selectedContact: contact,
+                          selectedContactKey: contact_id,
+                          showContainerSection: 'Contacts',
+                          focusedItem: 'Contacts',
+                          openContactsMenu: true,
+                          selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                          firstLoading: false,
+                          loading: false
+                        });
+                      } else {
+                        this.props.history.push('/');
+                      }
+
+                    } else {
+                      this.setState({
+                        showContainerSection: 'Contacts',
+                        focusedItem: 'Contacts',
+                        openContactsMenu: true,
+                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                        firstLoading: false,
+                        loading: false
+                      });
+                    }
+                  }
+                  let connected_email = localStorage.getItem("email");
+                  let oa_contact = main_functions.getOAContactByEmail2(rr,connected_email);
+                  if(oa_contact){
+                    let newTimeSheet = this.state.TimeSheet;
+                    newTimeSheet.newTime.utilisateurOA = connected_email;
+                    newTimeSheet.newTime.rateFacturation = oa_contact.rateFacturation || "";
+                    this.setState({TimeSheet:newTimeSheet,[item]:rr.sort( (a,b) => {
+                        var c = a.sort || -1
+                        var d = b.sort || -1
+                        return c-d;
+                      })})
+                  }else{
+                    this.setState({[item]:rr.sort( (a,b) => {
+                        var c = a.sort || -1
+                        var d = b.sort || -1
+                        return c-d;
+                      })})
+                  }
+                }
+                else{
+                  this.setState({[item]:rr})
+                }
+              });
+              this.getTableChanges('test',db_name,'table("'+item+'")',item);
+            });
+
+
+
+            if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
+                if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
+                  if (this.state.rooms.length > 0) {
+                    let room_id = this.props.location.pathname.replace('/home/rooms/', '');
+                    this.setState({
+                      showContainerSection: 'Rooms',
+                      focusedItem: 'Rooms',
+                      selectedRoomItems: [room_id],
+                      expandedRoomItems: [room_id],
+                      openRoomMenuItem: true,
+                      selectedRoom: this.state.rooms[room_id],
+                      firstLoading: false,
+                      loading: false
+                    });
+                  } else {
+                    this.props.history.push('/home/rooms');
+                    this.setState({
+                      showContainerSection: 'Rooms',
+                      focusedItem: 'Rooms',
+                      selectedRoomItems: [],
+                      expandedRoomItems: [],
+                      openRoomMenuItem: true,
+                      selectedRoom: '',
+                      firstLoading: false,
+                      loading: false
+                    });
+                  }
+                }else{
+                  this.setState({
+                    showContainerSection: 'Rooms',
+                    focusedItem: 'Rooms',
+                    selectedRoomItems: [],
+                    expandedRoomItems: [],
+                    openRoomMenuItem: true,
+                    selectedRoom: '',
+                    firstLoading: false,
+                    loading: false
+                  });
+                }
+              }
+              else if (this.props.location.pathname === '/home/meet/new') {
+                this.setState({
+                  showContainerSection: 'Meet',
+                  focusedItem: 'Meet',
+                  selectedMeetMenuItem: ['new'],
+                  openMeetMenuItem: true,
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+              else if (this.props.location.pathname === '/home/meet/rejoin') {
+                this.setState({
+                  showContainerSection: 'Meet',
+                  focusedItem: 'Meet',
+                  selectedMeetMenuItem: ['rejoin'],
+                  openMeetMenuItem: true,
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+              else if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
+                if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
+                  let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
+                  let contact = this.state.contacts.find(x => x.id === contact_id)
+                  if (contact) {
+                    this.setState({
+                      selectedContact: contact,
+                      selectedContactKey: contact_id,
+                      showContainerSection: 'Contacts',
+                      focusedItem: 'Contacts',
+                      openContactsMenu: true,
+                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                      firstLoading: false,
+                      loading: false
+                    });
+                  } else {
+                    this.props.history.push('/');
+                  }
+
+                } else {
+                  this.setState({
+                    showContainerSection: 'Contacts',
+                    focusedItem: 'Contacts',
+                    openContactsMenu: true,
+                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                    firstLoading: false,
+                    loading: false
+                  });
+                }
+
+              }
+              else if (this.props.location.pathname.indexOf('/home/clients') > -1) {
+                if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
+                  let client_id = this.props.location.pathname.replace('/home/clients/', '');
+                  let client = this.state.annuaire_clients_mandat.find(x => x.id === client_id);
+                  if (client) {
+                    this.setState({
+                      selectedSociete: client,
+                      selectedSocieteKey: client_id,
+                      showContainerSection: 'Societe',
+                      focusedItem: 'Societe',
+                      selectedSocietyMenuItem: ['clients_mondat'],
+                      openSocietyMenuItem: true,
+                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                      firstLoading: false,
+                      loading: false
+                    });
+                  } else {
+
+                  }
+
+                } else {
+                  this.setState({
+                    showContainerSection: 'Societe',
+                    focusedItem: 'Societe',
+                    selectedSocietyMenuItem: ['clients_mondat'],
+                    openSocietyMenuItem: true,
+                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                    firstLoading: false,
+                    loading: false
+                  });
+                }
+
+              }
+              else if (this.props.location.pathname === '/home/timeSheet/activities') {
+                this.setState({
+                  showContainerSection: 'TimeSheet',
+                  focusedItem: 'TimeSheet',
+                  selectedTimeSheetMenuItem: ['activities'],
+                  openTimeSheetsMenu: true,
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+              else if (this.props.location.pathname === '/home/timeSheet/dashboard') {
+                this.setState({
+                  showContainerSection: 'TimeSheet',
+                  focusedItem: 'TimeSheet',
+                  selectedTimeSheetMenuItem: ['dashboard'],
+                  openTimeSheetsMenu: true,
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+              else if (this.props.location.pathname === '/home/timeSheet/dashboardPerson') {
+                this.setState({
+                  showContainerSection: 'TimeSheet',
+                  focusedItem: 'TimeSheet',
+                  selectedTimeSheetMenuItem: ['dashboardPerson'],
+                  openTimeSheetsMenu: true,
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+              else if (this.props.location.pathname === '/home/timeSheet/dashboardProject') {
+                this.setState({
+                  showContainerSection: 'TimeSheet',
+                  focusedItem: 'TimeSheet',
+                  selectedTimeSheetMenuItem: ['dashboardProject'],
+                  openTimeSheetsMenu: true,
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+              else if (this.props.location.pathname.indexOf("/home/marketplace/recettes/") > -1) {
+
+                let recette_id = this.props.location.pathname.replace('/home/marketplace/recettes/', '');
+
+                recetteService.getRecettebyID(recette_id).then(res1=> {
+                  recetteService.getIngredientID(recette_id).then(res2=>{
+
+                    this.setState({
+                      selectedRecette:res1[0],
+                      selectedRecetteIngredients:res2,
+                      showContainerSection: 'marketplace',
+                      focusedItem: 'marketplace',
+                      selectedMarketplaceMenuItem: ['recettes'],
+                      openMarketplaceMenuItem: true,
+                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                      firstLoading: false,
+                      loading: false
+                    });
+                  })
+                })
+              }
+              else if(this.props.location.pathname.indexOf("/home/marketplace/recettes") > -1 ){
+                this.setState({
+                  showContainerSection: 'marketplace',
+                  focusedItem: 'marketplace',
+                  selectedMarketplaceMenuItem: ['recettes'],
+                  openMarketplaceMenuItem: true,
+                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  firstLoading: false,
+                  loading: false
+                });
+              }
+              else if (this.props.location.pathname.indexOf('/home/marketplace/RH_Support_ponctuel') > -1) {
+                if (this.props.location.pathname.indexOf('/home/marketplace/RH_Support_ponctuel/') > -1) {
+                  let contact_id = this.props.location.pathname.replace('/home/marketplace/RH_Support_ponctuel/', '');
+                  let contact = this.state.prestataires.find(x => x.id === contact_id)
+                  if (contact) {
+                    this.setState({
+                      selectedContact: contact,
+                      selectedContactKey: contact_id,
+                      showContainerSection: 'marketplace',
+                      focusedItem: 'marketplace',
+                      selectedMarketplaceMenuItem: ['RH_Support_ponctuel'],
+                      openMarketplaceMenuItem: true,
+                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                      firstLoading: false,
+                      loading: false
+                    });
+                  } else {
+                    this.props.history.push('/');
+                  }
+
+                } else {
+                  this.setState({
+                    showContainerSection: 'marketplace',
+                    focusedItem: 'marketplace',
+                    selectedMarketplaceMenuItem: ['RH_Support_ponctuel'],
+                    openMarketplaceMenuItem: true,
+                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                    firstLoading: false,
+                    loading: false
+                  });
+                }
+
+              }
+              else if (this.props.location.pathname === '/home/search') {
+                if (this.props.match.params.section_id) {
+                  let textToSearch = this.props.match.params.section_id;
+                  SmartService.search(
+                      textToSearch,
+                      localStorage.getItem('token'),
+                      localStorage.getItem('usrtoken')
+                  )
+                      .then((searchRes) => {
+                        if (
+                            searchRes.succes === true &&
+                            searchRes.status === 200
+                        ) {
+                          this.setState({
+                            searchResult: searchRes.data,
+                            textSearch: textToSearch,
+                            selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                            firstLoading: false,
+                            loading: false
+                          });
+                        } else {
+                          console.log(searchRes.error);
+                        }
+                      })
+                      .catch((err) => {
+                        console.log(err);
+                      });
+                }
+              }
+              else if (this.props.location.pathname.indexOf('/home/search/') > -1) {
+                let textToSearch = this.props.location.pathname.replace('/home/search/', '');
+                SmartService.search(textToSearch, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(searchRes => {
+
+                  if (searchRes.succes === true && searchRes.status === 200) {
+                    this.setState({
+                      searchResult: searchRes.data,
+                      textSearch: textToSearch,
+                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                      firstLoading: false,
+                      loading: false
+                    });
+                  } else {
+                    console.log(searchRes.error);
+                  }
+                }).catch(err => {
+                  console.log(err);
+                });
+              }
+              else {
+              if(this.props.location.pathname.indexOf('/home/drive/') === -1 && this.props.location.pathname.indexOf('/home/drive') === -1 &&
+                  this.props.location.pathname !== '/home/shared/parent' && this.props.location.pathname.indexOf('/home/contacts') === -1 &&
+                  this.props.location.pathname.indexOf('/home/clients') === -1){
+                console.log('URL ERROR');
+                this.props.history.push('/home/drive');
+                this.componentDidMount();
+              }
+              }
+
+          }).catch(err => {console.log(err)})
+
+        }).catch(err => {console.log(err)})
+
     }
   }
 
@@ -1430,13 +1513,18 @@ export default class Main extends React.Component {
   }
 
   onLoadSharedData = ({ key, children }) => {
+    console.log(key)
     return new Promise((resolve) => {
+      console.log(key)
       if (children) {
         resolve();
         return;
       }
       let origin = this.state.sharedFolders;
+      //this.setState({loading:true})
       SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+        if(Res.succes === true && Res.status === 200){
+
           let sub_folders = Res.data.Content.folders || [];
           let sub_files = Res.data.Content.files || [];
           let childrens = [];
@@ -1445,14 +1533,14 @@ export default class Main extends React.Component {
               title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
               key:sub_folders[i].id,
               icon: sub_folders[i].type ? (
-                <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+                  <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
               ) : (
-                ({ selected }) =>
-                  selected ? (
-                    <FolderIcon style={{ color: '#1a73e8' }} />
-                  ) : (
-                    <FolderIcon style={{ color: 'grey' }} />
-                  )
+                  ({ selected }) =>
+                      selected ? (
+                          <FolderIcon style={{ color: '#1a73e8' }} />
+                      ) : (
+                          <FolderIcon style={{ color: 'grey' }} />
+                      )
               ),
               files: [] ,
               folders: [] ,
@@ -1463,52 +1551,73 @@ export default class Main extends React.Component {
             childrens.push(treeNode)
           }
           this.setState({
+            loading:false,
             selectedSharedFolderFolders:Res.data.Content.folders,
-            selectedSharedFolderFiles:Res.data.Content.files
+            selectedSharedFolderFiles:sub_files
           })
           let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
           this.setState({sharedFolders:update})
-        resolve();
-        }).catch(err => {
           resolve();
-          console.log(err)})
+
+        }else if(Res.succes === false && Res.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }else{
+          this.setState({loading:false})
+          resolve();
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        resolve();
+        console.log(err)})
 
     });
   }
 
   updateShared = (key, origin) => {
     SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
-      let sub_folders = Res.data.Content.folders || [];
-      let sub_files = Res.data.Content.files || [];
-      let childrens = [];
-      for(let i =0 ; i < sub_folders.length ; i++){
-        let treeNode = {
-          title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
-          key:sub_folders[i].id,
-          icon: sub_folders[i].type ? (
-            <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
-          ) : (
-            ({ selected }) =>
-              selected ? (
-                <FolderIcon style={{ color: '#1a73e8' }} />
-              ) : (
-                <FolderIcon style={{ color: 'grey' }} />
-              )
-          ),
-          files: [] ,
-          folders: [] ,
-          typeF: sub_folders[i].type ? 'file' : 'folder',
-          rights:sub_folders[i].rights,
-          proprietary:sub_folders[i].proprietary || undefined
-        };
-        childrens.push(treeNode)
+      if(Res.succes === true && Res.status === 200){
+        let sub_folders = Res.data.Content.folders || [];
+        let sub_files = Res.data.Content.files || [];
+        let childrens = [];
+        for(let i =0 ; i < sub_folders.length ; i++){
+          let treeNode = {
+            title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
+            key:sub_folders[i].id,
+            icon: sub_folders[i].type ? (
+                <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+            ) : (
+                ({ selected }) =>
+                    selected ? (
+                        <FolderIcon style={{ color: '#1a73e8' }} />
+                    ) : (
+                        <FolderIcon style={{ color: 'grey' }} />
+                    )
+            ),
+            files: [] ,
+            folders: [] ,
+            typeF: sub_folders[i].type ? 'file' : 'folder',
+            rights:sub_folders[i].rights,
+            proprietary:sub_folders[i].proprietary || undefined
+          };
+          childrens.push(treeNode)
+        }
+        this.setState({
+          selectedSharedFolderFolders:Res.data.Content.folders,
+          selectedSharedFolderFiles:Res.data.Content.files
+        })
+        let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
+        this.setState({sharedFolders:update,loading:false})
+      }else if(Res.succes === false && Res.status === 400){
+        this.setState({ loading: false });
+        localStorage.clear();
+        this.props.history.push('/login');
+      }else{
+        this.setState({ loading: false });
+        console.log(Res.error)
       }
-      this.setState({
-        selectedSharedFolderFolders:Res.data.Content.folders,
-        selectedSharedFolderFiles:Res.data.Content.files
-      })
-      let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
-      this.setState({sharedFolders:update,loading:false})
+
     }).catch(err => {
       console.log(err)})
   }
@@ -1964,7 +2073,7 @@ export default class Main extends React.Component {
         }
       }).catch(err => {
         this.setState({ loading: false });
-        this.openSnackbar('error', err);
+        this.openSnackbar('error', "Service temporairement indisponible ou en maintenance");
       });
 
     }).catch(err => {console.log(err)})
@@ -1987,7 +2096,8 @@ export default class Main extends React.Component {
       let file = e.target.files[0];
       if(file.type === "application/vnd.oasis.opendocument.spreadsheet" || file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
           file.type === "application/vnd.ms-excel" || file.type === "text/csv"){
-        xlsxParser.onFileSelection(e.target.files[0])
+
+        xlsxParser.onFileSelection(file)
             .then( data => {
               let parsedData = Object.entries(data);
               let contacts = parsedData[0][1];
@@ -2028,10 +2138,72 @@ export default class Main extends React.Component {
       }
   }
 
+  importCSVClients(lignes) {
+    this.setState({loading: true})
+    let test = false;
+    let arrayToAdd = [];
+    lignes.map((c, key) => {
+      if (c.email && c.email !== "" && !verfiForms.verif_Email(c.email)) {
+        c.ID = utilFunctions.getUID()
+        c.created_at = moment().format("YYYY-MM-DD HH:mm:ss")
+        c.isActif = "true"
+        arrayToAdd.push(c)
+      } else {
+        test = true
+      }
+    });
+    if (arrayToAdd.length > 0) {
+
+      this.verifIsTableExist("annuaire_clients_mandat").then( v => {
+
+        rethink.clearTable(db_name, "annuaire_clients_mandat", "test").then(clearRes => {
+          if (clearRes && clearRes === true) {
+
+            rethink.insert("test", 'table("annuaire_clients_mandat").insert(' + JSON.stringify(arrayToAdd) + ')', db_name, false).then(rAdd => {
+              if (rAdd && rAdd === true) {
+                this.setState({loading: false})
+                this.openSnackbar("success", "Fichier importé avec succès");
+              } else {
+                this.openSnackbar("error", "Une erreur est survenue !")
+              }
+            }).catch(err => {
+              console.log(err)
+            })
+
+            if (test === true) {
+              setTimeout(() => {
+                this.openSnackbar("warning", "Certaines lignes ne sont pas ajoutées ! Merci de vérifier le format de leurs adresses mail et réessayer")
+              }, 1500);
+            }
+
+          } else {
+            this.openSnackbar("error", "Une erreur est survenue !")
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+      }).catch(err => {console.log(err)});
+
+    } else {
+      this.setState({loading:false})
+      this.openSnackbar("error", "Ficher vide ou aucune ligne encore ajoutée ! Merci de vérifier votre document")
+    }
+
+    /*if (file.type === "application/vnd.oasis.opendocument.spreadsheet" || file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+        file.type === "application/vnd.ms-excel" || file.type === "text/csv") {
+    }else{
+      this.setState({loading:false})
+      this.openSnackbar("error","Type de fichier erroné ! Seulement les formats .xls, .xls, .csv sont acceptés")
+    }*/
+  }
+
+
+
   renderLeftMenu = () => {
     return (
       <div>
         <LeftMenuV3
+            loadingGed={this.state.loadingGed}
           openNewFolderModalFromRacine={() =>
             this.setState({
               newFolderModal: true,
@@ -2913,7 +3085,7 @@ export default class Main extends React.Component {
         else{
 
           SmartService.addFolder({
-            name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+            name: this.state.selectedSociete.contactName + (this.state.selectedSociete.societyName !== "" ? (" - " + this.state.selectedSociete.societyName) : ""),
             folder_id: CLIENTS_folder_id
           }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
 
@@ -3011,7 +3183,7 @@ export default class Main extends React.Component {
 
           SmartService.create_client(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
             param: {
-              name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+              name: this.state.selectedSociete.contactName + (this.state.selectedSociete.societyName !== "" ? (" - " + this.state.selectedSociete.societyName) : ""),
               base64: false, parent_id: false, function: false, phone: false, mobile: false, email: false, website: false, title: false
             }
           }).then(createClientRes => {
@@ -3019,7 +3191,7 @@ export default class Main extends React.Component {
             if (createClientRes.succes === true && createClientRes.status === 200) {
 
               SmartService.addFolder({
-                name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+                name: this.state.selectedSociete.contactName + (this.state.selectedSociete.societyName !== "" ? (" - " + this.state.selectedSociete.societyName) : ""),
                 folder_id: CLIENTS_folder_id
               }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
                 console.log('OK');
@@ -3171,7 +3343,7 @@ export default class Main extends React.Component {
 
       rethink.insert("test",'table("annuaire_clients_mandat").insert('+ JSON.stringify(newClient) + ')',db_name,false).then( resAdd => {
         if (resAdd && resAdd === true) {
-          this.openSnackbar('success', newClient.Nom + ' est ajouté avec succès ');
+          this.openSnackbar('success', newClient.contactName + ' est ajouté avec succès ');
           setTimeout(() => {
             let findNew = this.state.annuaire_clients_mandat.find(x => x.ID === newClient.ID)
             this.props.history.push('/home/clients/' + findNew.id);
@@ -3183,7 +3355,7 @@ export default class Main extends React.Component {
           },500);
           setTimeout(() => {
             this.setState({
-              newClient: { ID: '', Nom: '', Prenom:'', Type: '0', created_at: '', country: '', email: '', phone: '', isActif: "true" }
+              newClient: { contactName: '', societyName:'', type: '0', created_at: '', adress: '', email: '', phone: '', isActif: "true" }
             });
           }, 250);
 
@@ -3262,39 +3434,23 @@ export default class Main extends React.Component {
   }
 
   createLignefacture(duplicate){
-    this.setState({loading:true})
+    let objCopy = this.state.TimeSheet;
+    let time = this.state.TimeSheet.newTime.duree;
+    let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+    if(regexFormat.test(time) === true){
 
-    this.verifIsTableExist("time_sheets").then( v => {
+      let duree = utilFunctions.durationToNumber(time);
 
-      let obj = this.state.TimeSheet;
-      let objCopy = this.state.TimeSheet;
-      let time = obj.newTime.duree;
-      let timeFormated = '';
-      if (time.indexOf(':') > -1) {
-        timeFormated = parseFloat(time.replace(':', '.'));
-      } else if (time.indexOf('.') > -1) {
-        timeFormated = parseFloat(time);
-      } else if (time.indexOf(':') === -1 && time.indexOf('.') === -1) {
-        timeFormated = parseInt(time);
-      } else {
-        this.setState({loading:false})
-        this.openSnackbar('error', 'Le format de la durée est invalide !');
-      }
-      if ((typeof timeFormated) !== 'number' || isNaN(timeFormated)) {
-        this.setState({loading:false})
-        this.openSnackbar('error', 'Le format de la durée est invalide !');
-      } else {
-        if(timeFormated === 0 ){
-          this.setState({loading:false})
-          this.openSnackbar('error', 'La durée doit etre supérieur à 0 ');
-        }
-        else{
-
+      if(duree === 0){
+        this.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
+      }else{
+        this.setState({loading:true})
+        this.verifIsTableExist("time_sheets").then( v => {
 
           let newItem = {
             newTime: {
               date:moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD HH:mm:ss'),
-              duree: timeFormated,
+              duree: duree,
               client: this.state.TimeSheet.newTime.client,
               client_id:this.state.selectedClientTimeEntree,
               dossier_client:this.state.TimeSheet.newTime.dossier_client,
@@ -3325,8 +3481,8 @@ export default class Main extends React.Component {
                   categoriesActivite: 'Temps facturé',
                   description: '',
                   date: new Date(),
-                  utilisateurOA: obj.newTime.utilisateurOA,
-                  rateFacturation: obj.newTime.rateFacturation
+                  utilisateurOA: objCopy.newTime.utilisateurOA,
+                  rateFacturation: objCopy.newTime.rateFacturation
                 }
               }
             });
@@ -3362,10 +3518,14 @@ export default class Main extends React.Component {
             console.log(err)
           })
 
-        }
-      }
 
-    }).catch(err => {console.log(err)})
+
+        }).catch(err => {console.log(err)})
+      }
+    }else{
+      this.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
+    }
+
   }
 
   updateLigneFacture(id,ligne){
@@ -3675,22 +3835,574 @@ export default class Main extends React.Component {
     })
   }
 
-  render() {
+  renderTimeSheet = () => {
 
     const inputSuggProps = {
-      placeholder: '0:1, 0:15, 0:30...',
+      placeholder: 'Format: --h--',
       value: this.state.TimeSheet.newTime.duree,
       onChange: this.onInputTimeSuggChange
     };
-    const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts,localStorage.getItem("email"))
-
     let new_timeSheet_desc = this.state.TimeSheet.newTime.dossier_client.facturation.language === "Francais" ?
-      "Description (français)" : this.state.TimeSheet.newTime.dossier_client.facturation.language === "Anglais" ?
-        "Description (anglais)" : "Description"
+        "Description (français)" : this.state.TimeSheet.newTime.dossier_client.facturation.language === "Anglais" ?
+            "Description (anglais)" : "Description"
+
+    let DurationFormatError = "";
+    let time = this.state.TimeSheet.newTime.duree;
+    let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+    if(regexFormat.test(time) === false){
+      DurationFormatError = "Format durée invalide ! Veuillez utiliser le format --h-- "
+    }else{
+      let duree = utilFunctions.durationToNumber(time);
+      if(duree === 0){
+        DurationFormatError = "Durée inférieur à zéro !"
+      }
+    }
+
+    return(
+        !this.state.time_sheets ?
+            <div align="center" style={{marginTop:200}}>
+              <CircularProgress color="primary" />
+              <h6>Chargement...</h6>
+            </div> :
+            <div>
+              <div className="row">
+                <div className="col-lg-12">
+                  <h5 className="mt-0 mb-1">TimeSheet / Activités</h5>
+                  <div className="card-box text-center" style={{ marginTop: 1 }}>
+                    <div style={{ marginTop: 30 }} className="text-left">
+                      <Tabs selectedIndex={this.state.selectedTimeSheetIndex} onSelect={index => {
+                        this.setState({selectedTimeSheetIndex:index})
+                      }}>
+                        <TabList>
+                          <Tab>Time Sheet</Tab>
+                          <Tab>Activités </Tab>
+                          <Tab>
+                            Partner
+                            {
+                              (this.state.factures || []).filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length > 0 &&
+                              <Badge max={100}>{(this.state.factures || []).filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length}</Badge>
+                            }
+                          </Tab>
+                        </TabList>
+
+                        <TabPanel>
+                          {
+                            this.state.showLignesFactureClient === false ?
+                                <div style={{marginTop:25,padding:10,paddingBottom:50,paddingLeft:20,border:"2px solid #f0f0f0"}}>
+                                  <div className="row mt-2">
+                                    <div className="col-md-6">
+                                      <h5>Durée</h5>
+                                      <div className="row">
+                                        <div className="col-md-5">
+                                          <Autosuggest
+                                              suggestions={this.state.timeSuggestions}
+                                              onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
+                                              onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
+                                              onSuggestionSelected={(event, { suggestion }) => {/*console.log(suggestion)*/}}
+                                              getSuggestionValue={suggestion => suggestion}
+                                              renderSuggestion={suggestion => (
+                                                  <div>{suggestion}</div>)}
+                                              inputProps={inputSuggProps}
+                                          />
+                                        </div>
+                                        <div className="col-md-7">
+                                          <div style={{ display: 'flex' }}>
+                                            <Timer
+                                                initialTime={0}
+                                                startImmediately={false}
+                                            >
+                                              {({ start, resume, pause, stop, reset, getTimerState, getTime }) => (
+                                                  <React.Fragment>
+                                                    <div
+                                                        align="center"
+                                                        style={{
+                                                          backgroundColor: '#c0c0c0',
+                                                          padding: 8,
+                                                          color: '#000',
+                                                          height: 36,
+                                                          fontWeight: 700,
+                                                          fontSize: 16,
+                                                          letterSpacing: '0.1rem'
+                                                        }}>
+                                                      <Timer.Hours
+                                                          formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`} />
+                                                      <Timer.Minutes
+                                                          formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`} />
+                                                      <Timer.Seconds
+                                                          formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`} />
+                                                    </div>
+                                                    <div
+                                                        style={{ marginLeft: 10 }}>
+                                                      <div
+                                                          align="center"
+                                                          style={{
+                                                            backgroundColor: (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'green' : 'red',
+                                                            padding: 5,
+                                                            borderRadius: 10,
+                                                            width: 50,
+                                                            color: '#fff',
+                                                            fontWeight: 700,
+                                                            cursor: 'pointer'
+                                                          }}
+                                                          onClick={() => {
+                                                            if (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') {
+                                                              start();
+                                                            } else {
+                                                              let timeEtablished = getTime();
+                                                              console.log(timeEtablished);
+                                                              let timeH = ((timeEtablished / 1000) / 60) / 60;
+                                                              console.log(timeH);
+                                                              let obj = this.state.TimeSheet;
+                                                              obj.newTime.duree = timeH.toFixed(3).replace('.', ':');
+                                                              this.setState({ TimeSheet: obj });
+                                                              stop();
+                                                            }
+                                                          }}
+                                                      >
+                                                        {(getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'Start' : 'Stop'}
+                                                      </div>
+                                                      <div
+                                                          align="center"
+                                                          style={{
+                                                            backgroundColor: '#c0c0c0',
+                                                            padding: 5,
+                                                            borderRadius: 10,
+                                                            width: 50,
+                                                            color: '#fff',
+                                                            fontWeight: 700,
+                                                            cursor: 'pointer',
+                                                            marginTop: 3
+                                                          }}
+                                                          onClick={() => {
+                                                            let obj = this.state.TimeSheet;
+                                                            obj.newTime.duree = '';
+                                                            this.setState({ TimeSheet: obj });
+                                                            reset();
+                                                          }}
+                                                      >
+                                                        Reset
+                                                      </div>
+                                                    </div>
+                                                  </React.Fragment>
+                                              )}
+                                            </Timer>
+                                          </div>
+                                        </div>
+                                        <div className="col-md-12">
+                                          {
+                                            this.state.TimeSheet.newTime.duree !== "" && DurationFormatError !== "" ?
+                                                <h6 style={{color:"red"}}>{DurationFormatError}</h6> :
+                                                this.state.TimeSheet.newTime.rateFacturation !== "" &&
+                                                <span style={{color:"#000",fontWeight:"bold"}}>Total:&nbsp;&nbsp;
+                                                  <span>{(parseFloat(this.state.TimeSheet.newTime.rateFacturation) * utilFunctions.durationToNumber(this.state.TimeSheet.newTime.duree)).toFixed(2) + " CHF"}</span>
+                                                  </span>
+                                          }
+                                        </div>
+
+                                      </div>
+                                    </div>
+                                    <div className="col-md-6">
+                                      <div>
+                                        <h5>Nom du client</h5>
+                                        <div style={{ display: 'flex',marginTop:5}}>
+                                          <Dropdown
+                                              value={this.state.selectedClientTimeEntree}
+                                              labeled
+                                              placeholder={"Chercher..."}
+                                              search
+                                              selection
+                                              options={
+                                                (this.state.annuaire_clients_mandat || []).map(({ contactName,societyName, type, imageUrl, ID }) =>
+                                                    ({
+                                                      key: ID,
+                                                      text: contactName + (societyName !== "" ? (" - " + societyName) : ""),
+                                                      value: ID,
+                                                      image: {avatar:true,src:imageUrl ? imageUrl : type === "0" ? entIcon : userAvatar}
+                                                    }))
+                                              }
+                                              onChange={ (e,{value}) => {
+                                                console.log(value)
+                                                let obj = this.state.TimeSheet;
+                                                let findClientTempo = this.state.clients_cases.find(x => x.ID_client === value)
+                                                let findClientFname = (this.state.annuaire_clients_mandat || []).find(x => x.ID === value)
+                                                obj.newTime.client = findClientFname.contactName;
+                                                obj.newTime.client_id = value;
+                                                if(findClientTempo){
+                                                  this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: value,TimeSheet: obj})
+                                                }else{
+                                                  obj.newTime.dossier_client =  {
+                                                    name:'',
+                                                    facturation: {
+                                                      language:''
+                                                    }}
+                                                  this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: value})
+                                                }
+                                                setTimeout(() => {
+                                                  console.log(this.state.selectedClientFolders)
+                                                },400)
+                                              }}
+                                          />
+                                        </div>
+                                        <h5 style={{marginTop:10}}>Dossier du client </h5>
+                                        <Dropdown
+                                            value={this.state.TimeSheet.newTime.dossier_client}
+                                            onChange={(e, {value}) => {
+                                              let ts = this.state.TimeSheet;
+                                              let team = value.team || [];
+                                              let find = team.find(x => x.email === this.state.TimeSheet.newTime.utilisateurOA);
+                                              if(find){
+                                                ts.newTime.rateFacturation = find.tarif || '';
+                                                this.setState({ TimeSheet: ts });
+                                              }else{
+                                                let OA_contacts = this.state.contacts;
+                                                let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,this.state.TimeSheet.newTime.utilisateurOA);
+                                                ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
+                                              }
+                                              ts.newTime.dossier_client = value;
+                                              this.setState({ TimeSheet: ts });
+                                            }}
+                                            placeholder=''
+                                            noResultsMessage='Aucun dossier trouvé'
+                                            labeled
+                                            search
+                                            selection
+                                            options={
+                                              this.state.selectedClientFolders.map((item,key) =>
+                                                  ({
+                                                    key: key,
+                                                    text: item.name,
+                                                    value: item,
+                                                    //image: {avatar:true}
+                                                  }))
+                                            }
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="row mt-3">
+                                    <div className="col-md-6">
+                                      <div>
+                                        <h5>Catégorie d’activités </h5>
+                                        <Dropdown
+                                            value={this.state.TimeSheet.newTime.categoriesActivite}
+                                            onChange={(e,{value}) => {
+                                              let d = this.state.TimeSheet;
+                                              d.newTime.categoriesActivite = value;
+                                              this.setState({ TimeSheet: d });
+                                            }}
+                                            placeholder=''
+                                            labeled
+                                            selection
+                                            options={[
+                                              {key:0,value:"Temps facturé",text:"Temps facturé"},
+                                              {key:1,value:"Paiement avancée",text:"Provision"},
+                                            ]}
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="col-md-6">
+                                      <div style={{ width: '100%' }}>
+                                        <h5>Date</h5>
+                                        <DatePicker
+                                            calendarIcon={
+                                              <img
+                                                  alt=""
+                                                  src={calendar}
+                                                  style={{ width: 20 }} />}
+                                            onChange={(e) => {
+                                              console.log(e);
+                                              let d = this.state.TimeSheet;
+                                              d.newTime.date = e;
+                                              this.setState({ TimeSheet: d });
+                                            }}
+                                            value={this.state.TimeSheet.newTime.date}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="row mt-3">
+                                    <div className="col-md-6">
+                                      <div>
+                                        <div>
+                                          <h5>{new_timeSheet_desc}</h5>
+                                        </div>
+                                        <textarea
+                                            className="form-control "
+                                            id="duree"
+                                            style={{ width: '100%',border:"1px solid rgba(34,36,38,.15)",borderRadius:"0.285714rem" }}
+                                            name="duree"
+                                            rows={5}
+                                            value={this.state.TimeSheet.newTime.description}
+                                            onChange={(e) => {
+                                              let d = this.state.TimeSheet;
+                                              d.newTime.description = e.target.value;
+                                              this.setState({ TimeSheet: d });
+                                            }} />
+                                      </div>
+                                    </div>
+                                    <div className="col-md-6">
+                                      <div>
+                                        <h5>Utilisateur </h5>
+                                      </div>
+                                      <Dropdown
+                                          value={this.state.TimeSheet.newTime.utilisateurOA}
+                                          labeled
+                                          placeholder={""}
+                                          search
+                                          noResultsMessage='Aucun utilisateur trouvé'
+                                          selection
+                                          options={
+                                            (this.state.contacts || []).map(({ nom,prenom, email, imageUrl, id }) =>
+                                                ({
+                                                  key: id,
+                                                  text: nom + " " + prenom,
+                                                  value: email,
+                                                  image: {avatar:true,src:imageUrl || userAvatar}
+                                                }))
+                                          }
+                                          onChange={(e,{value}) => {
+                                            let ts = this.state.TimeSheet;
+                                            let dossier = this.state.TimeSheet.newTime.dossier_client;
+                                            if(dossier && dossier.team && dossier.team.length > 0){
+                                              let team = dossier.team;
+                                              let find = team.find(x => x.email === value);
+                                              if(find){
+                                                ts.newTime.rateFacturation = find.tarif || "";
+                                              }
+                                            }else{
+                                              let OA_contacts = this.state.contacts;
+                                              let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,value);
+                                              ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
+                                            }
+                                            ts.newTime.utilisateurOA = value;
+                                            this.setState({ TimeSheet: ts });
+                                          }}
+                                      />
+                                      <div
+                                          className="mt-3">
+                                        <h5>Taux horaire</h5>
+                                        <SuiInput
+                                            label={{ basic: true, content: 'CHF/h' }}
+                                            labelPosition='right'
+                                            value={this.state.TimeSheet.newTime.rateFacturation}
+                                            onChange={(e,{value}) => {
+                                              let d = this.state.TimeSheet;
+                                              d.newTime.rateFacturation = value;
+                                              this.setState({ TimeSheet: d });
+                                            }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div align="center" className=" mt-4">
+                                    <AltButtonGroup>
+                                      <AtlButton
+                                          onClick={() => {
+                                            this.createLignefacture(false)
+                                          }}
+                                          appearance="primary"
+                                          isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' ||
+                                          this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
+                                          style={{ margin: 20 }}> Enregistrer </AtlButton>
+                                      <AtlButton
+                                          onClick={() => {
+                                            this.createLignefacture(true)
+                                          }}
+                                          appearance="primary"
+                                          isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' ||
+                                          this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
+                                          style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
+                                      <AtlButton
+                                          appearance=""
+                                          style={{ margin: 20 }}
+                                          onClick={() => {
+                                            this.setState({
+                                              TimeSheet: {
+                                                newTime: {
+                                                  duree: '',
+                                                  client: '',
+                                                  dossier_client: {
+                                                    name:'',
+                                                    facturation: {
+                                                      language:''
+                                                    }},
+                                                  categoriesActivite: 'Temps facturé',
+                                                  description: '',
+                                                  date: new Date(),
+                                                  utilisateurOA: '',
+                                                  rateFacturation: '',
+                                                  selectedClientTimeEntree:''
+                                                }
+                                              }
+                                            });
+                                          }}>Réinitialiser</AtlButton>
+                                    </AltButtonGroup>
+                                    <div>
+                                      <AltButtonGroup
+                                          style={{ marginTop: 10 }}>
+                                        <AtlButton
+                                            isSelected
+                                            appearance="default"
+                                            onClick={() => this.setState({selectedTimeSheetIndex:1})}
+                                        >
+                                          Etablir facture
+                                        </AtlButton>
+                                      </AltButtonGroup>
+                                    </div>
+                                  </div>
+                                </div> :
+
+                                <div>
+                                  <div className="mt-1">
+                                    <div>
+                                      <div style={{
+                                        textAlign: 'right',
+                                        marginTop: 15
+                                      }}>
+                                        <button
+                                            onClick={() => this.setState({
+                                              showLignesFactureClient: false
+                                            })}
+                                            className="btn btn-sm btn-outline-info">Retour
+                                        </button>
+                                      </div>
+
+                                      <div className="row mt-3">
+                                        <div
+                                            className="col-md-6">
+                                          <h5>Nom du client</h5>
+                                          <div
+                                              style={{ display: 'flex' }}>
+                                            <SelectSearch
+                                                options={
+                                                  (this.state.annuaire_clients_mandat || []).map(({ Nom, Prenom, Type, imageUrl }) =>
+                                                      ({
+                                                        value: Nom + ' ' + (Prenom || ''),
+                                                        name: Nom + ' ' + (Prenom || ''),
+                                                        ContactType: Type,
+                                                        ContactName: Nom + ' ' + (Prenom || ''),
+                                                        imageUrl: imageUrl
+                                                      }))
+                                                }
+                                                value={this.state.selectedClientTimeEntree}
+                                                renderOption={main_functions.renderSearchOption}
+                                                search
+                                                placeholder="Chercher votre client"
+                                                onChange={e => {
+                                                  console.log(e);
+                                                  let obj = this.state.TimeSheet;
+                                                  obj.newTime.client = e;
+
+                                                  let find_annuaire_fact_lead = (this.state.annuaire_clients_mandat || []).find(x => (x.Nom + ' ' + x.Prenom) === e);
+                                                  console.log(find_annuaire_fact_lead);
+                                                  let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
+                                                  console.log(partner_email);
+                                                  this.setState({
+                                                    partnerFacture: partner_email,
+                                                    selectedClientTimeEntree: e,
+                                                    TimeSheet: obj
+                                                  });
+                                                }}
+                                            />
+                                            <IconButton
+                                                style={{ marginTop: -5 }}
+                                                onClick={() => this.setState({ openAdvancedSearchModal: true })}>
+                                              <SearchIcon />
+                                            </IconButton>
+                                          </div>
+                                        </div>
+                                        <div
+                                            className="col-md-4">
+                                          <div
+                                              style={{ width: '100%' }}>
+                                            <h5>Date de la facture</h5>
+                                            <DatePicker
+                                                calendarIcon={
+                                                  <img
+                                                      alt=""
+                                                      src={calendar}
+                                                      style={{ width: 20 }} />}
+                                                onChange={(e) => {
+                                                  this.setState({ dateFacture: e });
+                                                }}
+                                                value={this.state.dateFacture}
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                          }
+                        </TabPanel>
+                        <TabPanel>
+                          {
+                            this.state.time_sheets.length > 0 &&
+                            <TableTimeSheet
+                                lignesFactures={this.state.time_sheets || []}
+                                lignesFacturesCopy={this.state.time_sheets || []}
+                                deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
+                                setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
+                                OA_contacts={this.state.contacts}
+                                annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
+                                onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
+                                  this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
+                                      partner,lignes_facture)
+                                }}
+                                client_folders={this.state.client_folders}
+                                updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
+                                openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                clientsTempo={this.state.clients_cases}
+                                updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
+                            />
+                          } {
+                          this.state.time_sheets.length === 0 &&
+                          <div style={{
+                            marginTop: 30,
+                            marginLeft: 10
+                          }}>Aucune ligne facture encore ajoutée !</div>
+
+                        }
+                        </TabPanel>
+                        <TabPanel>
+                          <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
+                          <TableFactures factures={this.state.factures}
+                                         facturesCp={this.state.factures}
+                                         client_folders={this.state.client_folders}
+                                         clients_tempo={this.state.clients_cases}
+                                         annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
+                                         sharedFolders={this.state.sharedReelFolders || []}
+                                         validateFacture={(row,key,template,client) => {
+                                           this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
+                                         }}
+                                         openFacture={(id) => {
+                                           this.openPdfModal(id)
+                                         }}
+                                         openFactureFolder={(id) => {
+                                           this.redirectToFolder(id)
+                                         }}
+                                         delete_facture={(id) => {
+                                           this.delete_facture(id)
+                                         }}
+                                         openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                          />
+                        </TabPanel>
+                      </Tabs>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+    )
+
+  }
+
+  render() {
+
+    const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts || [],localStorage.getItem("email"))
 
     return (
       <div>
-        {this.state.firstLoading === false && (
           <div>
             <TopBar
               logo={this.state.logo}
@@ -3747,9 +4459,8 @@ export default class Main extends React.Component {
               onClose={() => this.setState({ openSideMenu: false })}
             />
           </div>
-        )}
 
-        <MuiBackdrop open={this.state.firstLoading} />
+        {/*<MuiBackdrop open={this.state.firstLoading} />*/}
         <MuiBackdrop open={this.state.loading} />
 
         <div style={{ marginRight: 50, marginTop: 75, marginLeft: 5 }}>
@@ -3765,9 +4476,10 @@ export default class Main extends React.Component {
                   minWidth: 300
                 }}
               >
-                {this.state.firstLoading === false && (
+                {
                   this.renderLeftMenu()
-                )}
+                }
+
               </div>
 
               <div style={{ flexWrap: 'wrap', flex: '1 1 auto',overflowY:"auto" }}>
@@ -3839,113 +4551,115 @@ export default class Main extends React.Component {
                                         />
                                       </div>
                                     </div>
-                                    <div
-                                      style={{
-                                        flexWrap: 'wrap',
-                                        display: 'block'
-                                      }}
-                                    >
+                                    <div style={{flexWrap: 'wrap', display: 'block'}}>
                                       {
-                                        (this.state.folders.length === 0 && this.state.rootFiles.length === 0) ? (
-                                        <div
-                                          style={{
-                                            marginTop: 25,
-                                            display: 'flex'
-                                          }}
-                                        >
-                                          <h5
-                                            style={{
-                                              fontSize: 16,
-                                              color: 'gray'
-                                            }}
-                                          >
-                                            Aucun dossier encore ajouté !
-                                          </h5>
-                                          &nbsp;&nbsp;
-                                          <h6
-                                            style={{
-                                              cursor: 'pointer',
-                                              color: '#000',
-                                              textDecoration: 'underline'
-                                            }}
-                                            onClick={() => {
-                                              this.setState({
-                                                newFolderModal: true,
-                                                newFolderFromRacine: true
-                                              });
-                                            }}
-                                          >
-                                            Ajouter un dossier
-                                          </h6>
-                                        </div>
-                                      ) : (
-                                        <div>
-                                          <ListFolders
-                                            items={this.state.rootFolders}
-                                            onDoubleClickFolder={(folder) => {
-                                              this.props.history.push({
-                                                pathname: '/home/drive/' + folder.id
-                                              });
-                                              this.setState({
-                                                selectedDriveItem: [folder.id],
-                                                expandedDriveItems: [folder.id],
-                                                autoExpandParent: true,
-                                                selectedFolder: main_functions.getFolderById(folder.id, this.state.folders),
-                                                selectedFoldername: folder.name,
-                                                selectedFolderFiles:
-                                                  folder.Content.files || [],
-                                                selectedFolderFolders:
-                                                  folder.Content.folders || [],
-                                                focusedItem: 'Drive',
-                                                breadcrumbs: main_functions.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedReelFolders)),
-                                                selectedFolderId: folder.id,
-                                                showContainerSection: 'Drive'
-                                              });
-                                            }}
-                                          />
-                                          <ListDocs
-                                            docs={this.state.rootFiles || []}
-                                            viewMode={this.state.viewMode}
-                                            onDocClick={(item) => {
-                                              this.openPdfModal(item.id || item.key)
-                                            }}
-                                            showDoc={(doc) =>
-                                              this.openPdfModal(doc.id)
-                                            }
-                                            setLoading={(b) =>
-                                              this.setState({ loading: b })
-                                            }
-                                            setSelectedFile={(file) =>
-                                              this.setState({
-                                                selectedFile: file
-                                              })
-                                            }
-                                            openShareFileModal={() =>
-                                              this.setState({
-                                                openShareDocModal: true
-                                              })
-                                            }
-                                            onDeleteFile={(file) => {
-                                              this.deleteFile_Folder(file);
-                                            }}
-                                            onRenameFile={(file, newName) => {
-                                              this.renameFile_Folder(file, newName);
-                                            }}
-                                            onSignBtnClick={(id) => {
-                                              this.props.history.push(
-                                                '/signDoc/doc/' + id
-                                              );
-                                            }}
-                                            onDropFile={(files) => {
-                                              this.uploadFilesToGed(files)
-                                            }}
-                                            setDocs={(docs) => this.setState({rootFiles:docs})}
-                                            onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
-                                            applyRights={false}
-                                            selectedSharedFolder={this.state.selectedSharedFolder}
-                                          />
-                                        </div>
-                                      )}
+                                        this.state.loadingGed === true ?
+                                            <div align="center" style={{marginTop: 200}}>
+                                              <CircularProgress color="primary"/>
+                                              <h6>Chargement...</h6>
+                                            </div>
+                                            :
+                                            (this.state.folders.length === 0 && this.state.rootFiles.length === 0) ? (
+                                                <div
+                                                    style={{
+                                                      marginTop: 25,
+                                                      display: 'flex'
+                                                    }}
+                                                >
+                                                  <h5
+                                                      style={{
+                                                        fontSize: 16,
+                                                        color: 'gray'
+                                                      }}
+                                                  >
+                                                    Aucun dossier encore ajouté !
+                                                  </h5>
+                                                  &nbsp;&nbsp;
+                                                  <h6
+                                                      style={{
+                                                        cursor: 'pointer',
+                                                        color: '#000',
+                                                        textDecoration: 'underline'
+                                                      }}
+                                                      onClick={() => {
+                                                        this.setState({
+                                                          newFolderModal: true,
+                                                          newFolderFromRacine: true
+                                                        });
+                                                      }}
+                                                  >
+                                                    Ajouter un dossier
+                                                  </h6>
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                  <ListFolders
+                                                      items={this.state.rootFolders}
+                                                      onDoubleClickFolder={(folder) => {
+                                                        this.props.history.push({
+                                                          pathname: '/home/drive/' + folder.id
+                                                        });
+                                                        this.setState({
+                                                          selectedDriveItem: [folder.id],
+                                                          expandedDriveItems: [folder.id],
+                                                          autoExpandParent: true,
+                                                          selectedFolder: main_functions.getFolderById(folder.id, this.state.folders),
+                                                          selectedFoldername: folder.name,
+                                                          selectedFolderFiles:
+                                                              folder.Content.files || [],
+                                                          selectedFolderFolders:
+                                                              folder.Content.folders || [],
+                                                          focusedItem: 'Drive',
+                                                          breadcrumbs: main_functions.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedReelFolders)),
+                                                          selectedFolderId: folder.id,
+                                                          showContainerSection: 'Drive'
+                                                        });
+                                                      }}
+                                                  />
+                                                  <ListDocs
+                                                      docs={this.state.rootFiles || []}
+                                                      viewMode={this.state.viewMode}
+                                                      onDocClick={(item) => {
+                                                        this.openPdfModal(item.id || item.key)
+                                                      }}
+                                                      showDoc={(doc) =>
+                                                          this.openPdfModal(doc.id)
+                                                      }
+                                                      setLoading={(b) =>
+                                                          this.setState({ loading: b })
+                                                      }
+                                                      setSelectedFile={(file) =>
+                                                          this.setState({
+                                                            selectedFile: file
+                                                          })
+                                                      }
+                                                      openShareFileModal={() =>
+                                                          this.setState({
+                                                            openShareDocModal: true
+                                                          })
+                                                      }
+                                                      onDeleteFile={(file) => {
+                                                        this.deleteFile_Folder(file);
+                                                      }}
+                                                      onRenameFile={(file, newName) => {
+                                                        this.renameFile_Folder(file, newName);
+                                                      }}
+                                                      onSignBtnClick={(id) => {
+                                                        this.props.history.push(
+                                                            '/signDoc/doc/' + id
+                                                        );
+                                                      }}
+                                                      onDropFile={(files) => {
+                                                        this.uploadFilesToGed(files)
+                                                      }}
+                                                      setDocs={(docs) => this.setState({rootFiles:docs})}
+                                                      onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
+                                                      applyRights={false}
+                                                      selectedSharedFolder={this.state.selectedSharedFolder}
+                                                  />
+                                                </div>
+                                            )
+                                      }
                                     </div>
                                   </div>
                           }
@@ -4383,7 +5097,7 @@ export default class Main extends React.Component {
                                         rooms={this.state.rooms}
                                         selectedRoom={this.state.selectedRoom}
                                         contacts={this.state.contacts || []}
-                                        annuaire_clients={this.state.annuaire_clients_mandat}
+                                        annuaire_clients={this.state.annuaire_clients_mandat || []}
                                         //annuaire_clients={this.state.patients}
                                         addNewtask={(title, selectedClient, assignedTo, team, selectedDateTime) => {
                                           this.addNewRoomTask(title, selectedClient, assignedTo, team, selectedDateTime)
@@ -4502,543 +5216,555 @@ export default class Main extends React.Component {
                         [
                           <Route key={0} exact path="/home/contacts">
                             {
-                              this.state.loading === false && this.state.firstLoading === false &&
-                              <div>
-                                <TableContact
-                                    contacts={this.state.contacts}
-                                    onEditClick={(contact, key) => {
-                                      this.setState({
-                                        selectedContact: contact,
-                                        selectedContactKey: contact.id
-                                      });
-                                      this.props.history.push('/home/contacts/' + contact.id);
-                                    }}
-                                    onImportClick={(e) => {
-                                      this.importCSVContacts(e)
-                                    }}
-                                    onAddBtnClick={() => {
-                                      this.setState({
-                                        openAddContactModal:true
-                                      })
-                                    }}
-                                    deleteContact={(id) => {
-                                      this.deleteContact(id)
-                                    }}
-                                />
-                              </div>
+                              !this.state.contacts ?
+                                  <div align="center" style={{marginTop: 200}}>
+                                    <CircularProgress color="primary"/>
+                                    <h6>Chargement...</h6>
+                                  </div>
+                                  :
+                                  <div>
+                                    <TableContact
+                                        contacts={this.state.contacts}
+                                        onEditClick={(contact, key) => {
+                                          this.setState({
+                                            selectedContact: contact,
+                                            selectedContactKey: contact.id
+                                          });
+                                          this.props.history.push('/home/contacts/' + contact.id);
+                                        }}
+                                        onImportClick={(e) => {
+                                          this.importCSVContacts(e)
+                                        }}
+                                        onAddBtnClick={() => {
+                                          this.setState({
+                                            openAddContactModal:true
+                                          })
+                                        }}
+                                        deleteContact={(id) => {
+                                          this.deleteContact(id)
+                                        }}
+                                    />
+                                  </div>
                             }
+
+
                           </Route>,
                           <Route key={1} exact path="/home/contacts/:contact_id">
                             {
-                              this.state.loading === false && this.state.firstLoading === false &&
-                              <div>
-                                <div className="row">
-                                  <div className="col-lg-12">
-                                    <div className="card-box text-center"
-                                         style={{ marginTop: 1 }}>
-                                      <img onClick={() => this.imageUpload.click()}
-                                           src={this.state.selectedContact.imageUrl || defaultAvatar}
-                                           className="rounded-circle avatar-lg img-thumbnail"
-                                           alt="" style={{
-                                        cursor: 'pointer',
-                                        width: 120,
-                                        height: 120,
-                                        objectFit: 'contain'
-                                      }} /> <input style={{
-                                      visibility: 'hidden',
-                                      width: 0,
-                                      height: 0
-                                    }}
-                                                   type='file' accept='.png,.jpeg,.jpg'
-                                                   onChange={(files) => this.uploadImage(files)}
-                                                   ref={(ref) => this.imageUpload = ref}
-                                    />
-                                      <h4 className="mb-0">{this.state.selectedContact.prenom + ' ' + this.state.selectedContact.nom}</h4>
-                                      <p className="text-muted">{this.state.selectedContact.specialite} </p>
-                                      <div style={{ display: 'contents' }}>
-                                        <button type="button"
-                                                onClick={this.saveContactChanges}
-                                                className="btn btn-success btn-xs waves-effect mb-2 waves-light m-1">
-                                          <i className="fe-edit" />&nbsp;&nbsp;Enregistrer
-                                        </button>
-                                        <button type="button"
-                                                onClick={() => {}}
-                                                className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
-                                          <i className="fe-printer" />&nbsp;&nbsp;Aperçu
-                                        </button>
-                                        <button type="button"
-                                                onClick={() => {}}
-                                                className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
-                                          <i className="fe-printer" />&nbsp;&nbsp;Book
-                                        </button>
-                                      </div>
-                                      <div style={{ marginTop: 30 }}
-                                           className="text-left">
-                                        <Tabs>
-                                          <TabList>
-                                            <Tab>Informations générales</Tab>
-                                            {
-                                              localStorage.getItem('role') === 'admin' &&
-                                              [
-                                                <Tab key={0}>Famille & Vie privée</Tab>,
-                                                <Tab key={1}>Parcours professionnel</Tab>,
-                                                <Tab key={2}>Formations</Tab>,
-                                                <Tab key={3}>Affiliations</Tab>,
-                                                <Tab key={4}>Domaine d'activités</Tab>,
-                                                <Tab key={5}>Langues</Tab>,
-                                                <Tab key={6}>Domaines d'intérêt, loisirs et sports</Tab>
-                                              ]
-                                            }
-                                          </TabList>
-                                          <TabPanel>
-                                            <h5 style={{ marginTop: 20 }}>Informations générales</h5>
-                                            <div className="row"
-                                                 style={{ marginTop: 35 }}>
-                                              <div className="col-md-8">
-                                                <p style={{ marginBottom: 10 }}>À propos</p>
-                                                <textarea
-                                                    rows={7}
-                                                    className="form-control"
-                                                    id="about"
-                                                    name="about"
-                                                    value={this.state.selectedContact.about}
-                                                    onChange={this.handleChange('selectedContact', 'about')} />
-                                              </div>
-                                              <div className="col-md-4">
-                                                <h6>
-                                                  Taux horaire
-                                                </h6>
-                                                <Input
-                                                    className="form-control "
-                                                    id="duree354"
-                                                    style={{ width: '100%' }}
-                                                    name="duree6878"
-                                                    type="text"
-                                                    endAdornment={
-                                                      <InputAdornment
-                                                          position="end">CHF/h</InputAdornment>}
-                                                    value={this.state.selectedContact.rateFacturation}
-                                                    onChange={this.handleChange('selectedContact', 'rateFacturation')}
-                                                />
-                                              </div>
-                                            </div>
-                                            <div className="row"
-                                                 style={{ marginTop: 35 }}>
-                                              <div className="col-md-6">
-                                                <p style={{ marginBottom: 10 }}>Nom</p>
-                                                <input
-                                                    className="form-control"
-                                                    type="text"
-                                                    id="nom"
-                                                    name="nom"
-                                                    value={this.state.selectedContact.nom}
-                                                    onChange={this.handleChange('selectedContact','nom')} />
-                                              </div>
-                                              <div
-                                                  className="col-md-6">
-                                                <p style={{ marginBottom: 10 }}>Prénom</p>
-                                                <input
-                                                    className="form-control"
-                                                    type="text"
-                                                    id="prenom"
-                                                    name="prenom"
-                                                    value={this.state.selectedContact.prenom}
-                                                    onChange={this.handleChange('selectedContact', 'prenom')} />
-                                              </div>
-                                            </div>
-                                            <div className="row"
-                                                 style={{ marginTop: 20 }}>
-                                              <div className="col-md-6">
-                                                <p style={{ marginBottom: 10 }}>Email</p>
-                                                <input
-                                                    className="form-control"
-                                                    type="text"
-                                                    id="email"
-                                                    name="email"//readOnly={true}
-                                                    value={this.state.selectedContact.email}
-                                                    onChange={this.handleChange('selectedContact', 'email')} />
-                                              </div>
-                                              <div
-                                                  className="col-md-6">
-                                                <p style={{ marginBottom: 10 }}>Téléphone</p>
-                                                <input
-                                                    className="form-control"
-                                                    type="text"
-                                                    id="phone"
-                                                    name="phone"
-                                                    value={this.state.selectedContact.phone}
-                                                    onChange={this.handleChange('selectedContact', 'phone')} />
-                                              </div>
-                                            </div>
-                                            <div className="row"
-                                                 style={{ marginTop: 20 }}>
-                                              <div className="col-sm-6">
-                                                <p style={{ marginBottom: 10 }}>Titre</p>
-                                                <select
-                                                    className="form-control custom-select"
-                                                    id="titre"
-                                                    name="titre"
-                                                    placeholder="Titre"
-                                                    value={this.state.selectedContact.type}
-                                                    onChange={this.handleChange('selectedContact', 'type')}
-                                                >
-                                                  {
-                                                    data.titres.map((titre, key) =>
-                                                        <option
-                                                            key={key}
-                                                            value={titre.value}
-                                                            label={titre.label} />
-                                                    )
-                                                  }
-                                                </select>
-                                              </div>
-                                              <div className="col-sm-6">
-                                                <p style={{ marginBottom: 10 }}>Pays</p>
-                                                <select
-                                                    className="form-control custom-select"
-                                                    id="pays"
-                                                    name="pays"
-                                                    placeholder="Pays"
-                                                    value={this.state.selectedContact.pays}
-                                                    onChange={this.handleChange('selectedContact', 'pays')}>
-                                                  {
-                                                    countryList.map((country, key) =>
-                                                        <option
-                                                            key={key}
-                                                            value={country.Name}
-                                                            label={country.Name} />
-                                                    )
-                                                  }
-                                                </select>
-                                              </div>
-                                            </div>
-                                          </TabPanel>
-                                          {
-                                            localStorage.getItem('role') === 'admin' &&
-                                            [
-                                              <TabPanel key={0}>
-                                                <h5 style={{ marginTop: 20 }}>Famille & Vie privée</h5>
+                              this.state.selectedContact === "" ?
+                                  <div align="center" style={{marginTop: 200}}>
+                                    <CircularProgress color="primary"/>
+                                    <h6>Chargement...</h6>
+                                  </div> :
+                                  <div>
+                                    <div className="row">
+                                      <div className="col-lg-12">
+                                        <div className="card-box text-center"
+                                             style={{ marginTop: 1 }}>
+                                          <img onClick={() => this.imageUpload.click()}
+                                               src={this.state.selectedContact.imageUrl || defaultAvatar}
+                                               className="rounded-circle avatar-lg img-thumbnail"
+                                               alt="" style={{
+                                            cursor: 'pointer',
+                                            width: 120,
+                                            height: 120,
+                                            objectFit: 'contain'
+                                          }} /> <input style={{
+                                          visibility: 'hidden',
+                                          width: 0,
+                                          height: 0
+                                        }}
+                                                       type='file' accept='.png,.jpeg,.jpg'
+                                                       onChange={(files) => this.uploadImage(files)}
+                                                       ref={(ref) => this.imageUpload = ref}
+                                        />
+                                          <h4 className="mb-0">{this.state.selectedContact.prenom + ' ' + this.state.selectedContact.nom}</h4>
+                                          <p className="text-muted">{this.state.selectedContact.specialite} </p>
+                                          <div style={{ display: 'contents' }}>
+                                            <button type="button"
+                                                    onClick={this.saveContactChanges}
+                                                    className="btn btn-success btn-xs waves-effect mb-2 waves-light m-1">
+                                              <i className="fe-edit" />&nbsp;&nbsp;Enregistrer
+                                            </button>
+                                            <button type="button"
+                                                    onClick={() => {}}
+                                                    className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
+                                              <i className="fe-printer" />&nbsp;&nbsp;Aperçu
+                                            </button>
+                                            <button type="button"
+                                                    onClick={() => {}}
+                                                    className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
+                                              <i className="fe-printer" />&nbsp;&nbsp;Book
+                                            </button>
+                                          </div>
+                                          <div style={{ marginTop: 30 }}
+                                               className="text-left">
+                                            <Tabs>
+                                              <TabList>
+                                                <Tab>Informations générales</Tab>
+                                                {
+                                                  localStorage.getItem('role') === 'admin' &&
+                                                  [
+                                                    <Tab key={0}>Famille & Vie privée</Tab>,
+                                                    <Tab key={1}>Parcours professionnel</Tab>,
+                                                    <Tab key={2}>Formations</Tab>,
+                                                    <Tab key={3}>Affiliations</Tab>,
+                                                    <Tab key={4}>Domaine d'activités</Tab>,
+                                                    <Tab key={5}>Langues</Tab>,
+                                                    <Tab key={6}>Domaines d'intérêt, loisirs et sports</Tab>
+                                                  ]
+                                                }
+                                              </TabList>
+                                              <TabPanel>
+                                                <h5 style={{ marginTop: 20 }}>Informations générales</h5>
                                                 <div className="row"
                                                      style={{ marginTop: 35 }}>
-                                                  <div className="col-md-12">
-                                                    <p style={{ marginBottom: 10 }}>Décrire en quelques lignes </p>
+                                                  <div className="col-md-8">
+                                                    <p style={{ marginBottom: 10 }}>À propos</p>
                                                     <textarea
-                                                        rows={10}
+                                                        rows={7}
                                                         className="form-control"
                                                         id="about"
                                                         name="about"
-                                                        value={this.state.selectedContact.personalLife}
-                                                        onChange={this.handleChange('selectedContact', 'personalLife')} />
+                                                        value={this.state.selectedContact.about}
+                                                        onChange={this.handleChange('selectedContact', 'about')} />
                                                   </div>
-                                                </div>
-                                              </TabPanel>,
-                                              <TabPanel key={1}>
-                                                <h5 style={{ marginTop: 20 }}>Parcours professionnel</h5>
-                                                <div style={{
-                                                  display: 'flex',
-                                                  flexWrap: 'wrap',
-                                                  marginTop: 10
-                                                }}>
-                                                  {
-                                                    (this.state.selectedContact.parcoursP || []).map((item, key) => (
-                                                        <div key={key}
-                                                             style={{ margin: 3 }}>
-                                                          <Chip
-                                                              icon={
-                                                                <Staricon />}
-                                                              label={item}
-                                                              color="secondary"
-                                                              onDelete={this.removeItem('parcour', key)}
-                                                              style={{
-                                                                fontWeight: 'bold',
-                                                                backgroundColor: 'cornflowerblue'
-                                                              }}
-                                                          />
-                                                        </div>
-                                                    ))
-                                                  }
+                                                  <div className="col-md-4">
+                                                    <h6>
+                                                      Taux horaire
+                                                    </h6>
+                                                    <Input
+                                                        className="form-control "
+                                                        id="duree354"
+                                                        style={{ width: '100%' }}
+                                                        name="duree6878"
+                                                        type="text"
+                                                        endAdornment={
+                                                          <InputAdornment
+                                                              position="end">CHF/h</InputAdornment>}
+                                                        value={this.state.selectedContact.rateFacturation}
+                                                        onChange={this.handleChange('selectedContact', 'rateFacturation')}
+                                                    />
+                                                  </div>
                                                 </div>
                                                 <div className="row"
-                                                     style={{ marginTop: 10 }}>
-                                                  <div
-                                                      className="col-sm-12">
-                                                    <a style={{
-                                                      cursor: 'pointer',
-                                                      fontSize: 'medium',
-                                                      fontWeight: 'bold'
-                                                    }}
-                                                       onClick={this.openAddModal('parcour')}>
-                                                  <span className="btn__text" id="btn-add-child">
-                                                    <i className="fe-plus-square" /> Ajouter un parcour
-                                                  </span>
-                                                    </a>
+                                                     style={{ marginTop: 35 }}>
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Nom</p>
+                                                    <input
+                                                        className="form-control"
+                                                        type="text"
+                                                        id="nom"
+                                                        name="nom"
+                                                        value={this.state.selectedContact.nom}
+                                                        onChange={this.handleChange('selectedContact','nom')} />
                                                   </div>
-                                                </div>
-                                              </TabPanel>,
-                                              <TabPanel key={2}>
-                                                <h5 style={{ marginTop: 20 }}>Formation</h5>
-                                                <div style={{flexWrap: 'wrap', marginTop: 10
-                                                }}
-                                                >
-                                                  {
-                                                    (this.state.selectedContact.formations || []).map((item, key) => (
-                                                        <div key={key}
-                                                             style={{
-                                                               margin: 3,
-                                                               marginBottom: 6
-                                                             }}>
-                                                          <Chip
-                                                              icon={
-                                                                <CheckCircle />}
-                                                              label={item}
-                                                              color="primary"
-                                                              onDelete={this.removeItem('formation', key)}
-                                                              style={{
-                                                                fontWeight: 'bold',
-                                                                backgroundColor: 'lightseagreen'
-                                                              }}
-                                                          />
-                                                        </div>
-                                                    ))
-                                                  }
+                                                  <div
+                                                      className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Prénom</p>
+                                                    <input
+                                                        className="form-control"
+                                                        type="text"
+                                                        id="prenom"
+                                                        name="prenom"
+                                                        value={this.state.selectedContact.prenom}
+                                                        onChange={this.handleChange('selectedContact', 'prenom')} />
+                                                  </div>
                                                 </div>
                                                 <div className="row"
-                                                     style={{ marginTop: 10 }}>
+                                                     style={{ marginTop: 20 }}>
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Email</p>
+                                                    <input
+                                                        className="form-control"
+                                                        type="text"
+                                                        id="email"
+                                                        name="email"//readOnly={true}
+                                                        value={this.state.selectedContact.email}
+                                                        readOnly
+                                                        onChange={this.handleChange('selectedContact', 'email')} />
+                                                  </div>
                                                   <div
-                                                      className="col-sm-12">
-                                                    <a style={{
-                                                      cursor: 'pointer',
-                                                      fontSize: 'medium',
-                                                      fontWeight: 'bold'
-                                                    }}
-                                                       onClick={this.openAddModal('formation')}>
-                                                  <span className="btn__text"
-                                                        id="btn-add-child">
-                                                    <i className="fe-plus-square" /> Ajouter une formation
-                                                  </span>
-                                                    </a>
+                                                      className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Téléphone</p>
+                                                    <input
+                                                        className="form-control"
+                                                        type="text"
+                                                        id="phone"
+                                                        name="phone"
+                                                        value={this.state.selectedContact.phone}
+                                                        onChange={this.handleChange('selectedContact', 'phone')} />
                                                   </div>
                                                 </div>
-                                              </TabPanel>,
-                                              <TabPanel key={3}>
-                                                <h5 style={{ marginTop: 20 }}>Affiliations</h5>
-                                                <div style={{ marginTop: 15 }}>
-                                                  <Autocomplete
-                                                      value={this.state.selectedContact.affiliations || []}
-                                                      onChange={(event, values) => {
-                                                        let selectedContact = this.state.selectedContact;
-                                                        selectedContact.affiliations = values;
-                                                        this.setState({ selectedContact: selectedContact });
-                                                      }}
-                                                      title={'Affiliations'}
-                                                      multiple
-                                                      id="checkboxes-af-demo"
-                                                      options={data.affiliations}
-                                                      disableCloseOnSelect
-                                                      getOptionLabel={(option) => option}
-                                                      renderOption={(option, { selected }) => (
-                                                          <React.Fragment>
-                                                            <MuiCheckbox
-                                                                icon={main_functions.icon}
-                                                                checkedIcon={main_functions.checkedIcon}
-                                                                style={{ marginRight: 8 }}
-                                                                checked={selected}
-                                                            /> {option}
-                                                          </React.Fragment>
-                                                      )}
-                                                      style={{
-                                                        width: 500,
-                                                        marginLeft: 10,
-                                                        borderColor: '#f0f0f0'
-                                                      }}
-                                                      renderInput={(params) => (
-                                                          <TextField {...params}
-                                                                     variant="outlined"
-                                                                     placeholder="" />
-                                                      )}
-                                                  />
-                                                </div>
-                                              </TabPanel>,
-                                              <TabPanel key={4}>
-                                                <h5 style={{ marginTop: 20 }}>Domaine d'activités</h5>
-                                                <div>
-                                                  <div style={{flexWrap: 'wrap', marginTop: 10
-                                                  }}
-                                                  >
-                                                    {
-                                                      (this.state.selectedContact.domaines || []).map((item, key) => (
-                                                          <div key={key} style={{margin: 3, marginBottom: 6}}>
-                                                            <Chip
-                                                                icon={
-                                                                  <CheckCircle />}
-                                                                label={item}
-                                                                color="primary"
-                                                                onDelete={this.removeItem('domaine', key)}
-                                                                style={{
-                                                                  fontWeight: 'bold',
-                                                                  backgroundColor: 'lightseagreen'
-                                                                }}
-                                                            />
-                                                          </div>
-                                                      ))
-                                                    }
+                                                <div className="row"
+                                                     style={{ marginTop: 20 }}>
+                                                  <div className="col-sm-6">
+                                                    <p style={{ marginBottom: 10 }}>Titre</p>
+                                                    <select
+                                                        className="form-control custom-select"
+                                                        id="titre"
+                                                        name="titre"
+                                                        placeholder="Titre"
+                                                        value={this.state.selectedContact.type}
+                                                        onChange={this.handleChange('selectedContact', 'type')}
+                                                    >
+                                                      {
+                                                        data.titres.map((titre, key) =>
+                                                            <option
+                                                                key={key}
+                                                                value={titre.value}
+                                                                label={titre.label} />
+                                                        )
+                                                      }
+                                                    </select>
                                                   </div>
-                                                  <div className="row"
-                                                       style={{ marginTop: 10 }}>
-                                                    <div className="col-sm-12" style={{margin:10}}>
-                                                      <a style={{
-                                                        cursor: 'pointer',
-                                                        fontSize: 'medium',
-                                                        fontWeight: 'bold'
-                                                      }}
-                                                         onClick={this.openAddModal('domaine')}>
-                                                  <span className="btn__text"
-                                                        id="btn-add-child">
-                                                    <i className="fe-plus-square" /> Ajouter un domaine
-                                                  </span>
-                                                      </a>
+                                                  <div className="col-sm-6">
+                                                    <p style={{ marginBottom: 10 }}>Pays</p>
+                                                    <select
+                                                        className="form-control custom-select"
+                                                        id="pays"
+                                                        name="pays"
+                                                        placeholder="Pays"
+                                                        value={this.state.selectedContact.pays}
+                                                        onChange={this.handleChange('selectedContact', 'pays')}>
+                                                      {
+                                                        countryList.map((country, key) =>
+                                                            <option
+                                                                key={key}
+                                                                value={country.Name}
+                                                                label={country.Name} />
+                                                        )
+                                                      }
+                                                    </select>
+                                                  </div>
+                                                </div>
+                                              </TabPanel>
+                                              {
+                                                localStorage.getItem('role') === 'admin' &&
+                                                [
+                                                  <TabPanel key={0}>
+                                                    <h5 style={{ marginTop: 20 }}>Famille & Vie privée</h5>
+                                                    <div className="row"
+                                                         style={{ marginTop: 35 }}>
+                                                      <div className="col-md-12">
+                                                        <p style={{ marginBottom: 10 }}>Décrire en quelques lignes </p>
+                                                        <textarea
+                                                            rows={10}
+                                                            className="form-control"
+                                                            id="about"
+                                                            name="about"
+                                                            value={this.state.selectedContact.personalLife}
+                                                            onChange={this.handleChange('selectedContact', 'personalLife')} />
+                                                      </div>
                                                     </div>
-                                                  </div>
-                                                  {
-                                                    (this.state.selectedContact.domaine || []).map((dom,key) => (
-                                                        <div key={key}>
-                                                          <div className="row mt-1">
-                                                            <div className="col-md-3">
-                                                              <Chip
-                                                                  icon={
-                                                                    <CheckCircle />}
-                                                                  label={dom.domaine}
-                                                                  color="primary"
-                                                                  onDelete={this.removeItem('domaine', key)}
-                                                                  style={{
-                                                                    fontWeight: 'bold',
-                                                                    backgroundColor: 'lightseagreen'
-                                                                  }}
-                                                              />
-                                                            </div>
-                                                            <div className="col-md-9">
-
-                                                              <Autocomplete
-                                                                  value={this.state.selectedContact.domaine[key].specialite || []}
-                                                                  title={'Spécialités'}
-                                                                  multiple
-                                                                  id="checkboxes-da-demo"
-                                                                  options={this.state.selectedContact.domaine[key].domaine === "COMPTABILITÉ" ? data.comptabilite :
-                                                                      this.state.selectedContact.domaine[key].domaine === "SALAIRES" ? data.salaire :
-                                                                          this.state.selectedContact.domaine[key].domaine === "IMPOTS" ? data.impot :
-                                                                              this.state.selectedContact.domaine[key].domaine === "Droit" ? data.domainesAct : []
-                                                                  }
-                                                                  disableCloseOnSelect
-
-                                                                  getOptionLabel={(option) => option}
-                                                                  renderOption={(option, { selected }) => (
-                                                                      <React.Fragment>
-                                                                        <MuiCheckbox
-                                                                            icon={main_functions.icon}
-                                                                            checkedIcon={main_functions.checkedIcon}
-                                                                            style={{ marginRight: 8 }}
-                                                                            checked={selected}
-                                                                        /> {option}
-                                                                      </React.Fragment>
-                                                                  )}
-                                                                  style={{
-                                                                    width: 500,
-                                                                    marginLeft: 10,
-                                                                    borderColor: '#f0f0f0'
-                                                                  }}
-                                                                  renderInput={(params) => (
-                                                                      <TextField {...params}
-                                                                                 variant="outlined"
-                                                                                 placeholder="" />
-                                                                  )}
-                                                              />
-
-                                                            </div>
-                                                          </div>
-                                                          <div style={{backgroundColor:"#f0f0f0",height:2,margin:10,marginTop:20}}/>
-                                                        </div>
-
-                                                    ))
-                                                  }
-
-                                                </div>
-                                              </TabPanel>,
-                                              <TabPanel key={5}>
-                                                <h5 style={{ marginTop: 20 }}>Langues</h5>
-                                                <Autocomplete
-                                                    value={this.state.selectedContact.langues || []}
-                                                    onChange={(event, values) => {
-                                                      let selectedContact = this.state.selectedContact;
-                                                      selectedContact.langues = values;
-                                                      this.setState({ selectedContact: selectedContact });
-                                                    }}
-                                                    title={'langues'}
-                                                    multiple
-                                                    id="checkboxes-l-demo"
-                                                    options={data.langues}
-                                                    disableCloseOnSelect
-                                                    getOptionLabel={(option) => option}
-                                                    renderOption={(option, { selected }) => (
-                                                        <React.Fragment>
-                                                          <MuiCheckbox
-                                                              icon={main_functions.icon}
-                                                              checkedIcon={main_functions.checkedIcon}
-                                                              style={{ marginRight: 8 }}
-                                                              checked={selected}
-                                                          /> {option}
-                                                        </React.Fragment>
-                                                    )}
-                                                    style={{
-                                                      width: 500,
-                                                      marginLeft: 10,
-                                                      borderColor: '#f0f0f0'
-                                                    }}
-                                                    renderInput={(params) => (
-                                                        <TextField {...params}
-                                                                   variant="outlined"
-                                                                   placeholder="" />
-                                                    )}
-                                                /> </TabPanel>,
-                                              <TabPanel key={6}>
-                                                <h5 style={{ marginTop: 20 }}>Domaines d'intérêt, loisirs et sports</h5>
-                                                <div className="row">
-                                                  <div className="col-md-8">
+                                                  </TabPanel>,
+                                                  <TabPanel key={1}>
+                                                    <h5 style={{ marginTop: 20 }}>Parcours professionnel</h5>
                                                     <div style={{
                                                       display: 'flex',
                                                       flexWrap: 'wrap',
                                                       marginTop: 10
                                                     }}>
                                                       {
-                                                        (this.state.selectedContact.hobbies || []).map((item, key) => (
+                                                        (this.state.selectedContact.parcoursP || []).map((item, key) => (
                                                             <div key={key}
                                                                  style={{ margin: 3 }}>
                                                               <Chip
                                                                   icon={
-                                                                    <MoodIcon />}
+                                                                    <Staricon />}
                                                                   label={item}
                                                                   color="secondary"
-                                                                  onDelete={this.removeItem('hobbies', key)}
+                                                                  onDelete={this.removeItem('parcour', key)}
                                                                   style={{
                                                                     fontWeight: 'bold',
-                                                                    backgroundColor: 'lightpink'
+                                                                    backgroundColor: 'cornflowerblue'
                                                                   }}
                                                               />
                                                             </div>
                                                         ))
                                                       }
                                                     </div>
-                                                  </div>
-                                                </div>
-                                                <div className="row"
-                                                     style={{ marginTop: 20 }}>
-                                                  <div
-                                                      className="col-sm-12">
-                                                    <a style={{
-                                                      cursor: 'pointer',
-                                                      fontSize: 'medium',
-                                                      fontWeight: 'bold'
+                                                    <div className="row"
+                                                         style={{ marginTop: 10 }}>
+                                                      <div
+                                                          className="col-sm-12">
+                                                        <a style={{
+                                                          cursor: 'pointer',
+                                                          fontSize: 'medium',
+                                                          fontWeight: 'bold'
+                                                        }}
+                                                           onClick={this.openAddModal('parcour')}>
+                                                  <span className="btn__text" id="btn-add-child">
+                                                    <i className="fe-plus-square" /> Ajouter un parcour
+                                                  </span>
+                                                        </a>
+                                                      </div>
+                                                    </div>
+                                                  </TabPanel>,
+                                                  <TabPanel key={2}>
+                                                    <h5 style={{ marginTop: 20 }}>Formation</h5>
+                                                    <div style={{flexWrap: 'wrap', marginTop: 10
                                                     }}
-                                                       onClick={this.openAddModal('hobbies')}>
+                                                    >
+                                                      {
+                                                        (this.state.selectedContact.formations || []).map((item, key) => (
+                                                            <div key={key}
+                                                                 style={{
+                                                                   margin: 3,
+                                                                   marginBottom: 6
+                                                                 }}>
+                                                              <Chip
+                                                                  icon={
+                                                                    <CheckCircle />}
+                                                                  label={item}
+                                                                  color="primary"
+                                                                  onDelete={this.removeItem('formation', key)}
+                                                                  style={{
+                                                                    fontWeight: 'bold',
+                                                                    backgroundColor: 'lightseagreen'
+                                                                  }}
+                                                              />
+                                                            </div>
+                                                        ))
+                                                      }
+                                                    </div>
+                                                    <div className="row"
+                                                         style={{ marginTop: 10 }}>
+                                                      <div
+                                                          className="col-sm-12">
+                                                        <a style={{
+                                                          cursor: 'pointer',
+                                                          fontSize: 'medium',
+                                                          fontWeight: 'bold'
+                                                        }}
+                                                           onClick={this.openAddModal('formation')}>
+                                                  <span className="btn__text"
+                                                        id="btn-add-child">
+                                                    <i className="fe-plus-square" /> Ajouter une formation
+                                                  </span>
+                                                        </a>
+                                                      </div>
+                                                    </div>
+                                                  </TabPanel>,
+                                                  <TabPanel key={3}>
+                                                    <h5 style={{ marginTop: 20 }}>Affiliations</h5>
+                                                    <div style={{ marginTop: 15 }}>
+                                                      <Autocomplete
+                                                          value={this.state.selectedContact.affiliations || []}
+                                                          onChange={(event, values) => {
+                                                            let selectedContact = this.state.selectedContact;
+                                                            selectedContact.affiliations = values;
+                                                            this.setState({ selectedContact: selectedContact });
+                                                          }}
+                                                          title={'Affiliations'}
+                                                          multiple
+                                                          id="checkboxes-af-demo"
+                                                          options={data.affiliations}
+                                                          disableCloseOnSelect
+                                                          getOptionLabel={(option) => option}
+                                                          renderOption={(option, { selected }) => (
+                                                              <React.Fragment>
+                                                                <MuiCheckbox
+                                                                    icon={main_functions.icon}
+                                                                    checkedIcon={main_functions.checkedIcon}
+                                                                    style={{ marginRight: 8 }}
+                                                                    checked={selected}
+                                                                /> {option}
+                                                              </React.Fragment>
+                                                          )}
+                                                          style={{
+                                                            width: 500,
+                                                            marginLeft: 10,
+                                                            borderColor: '#f0f0f0'
+                                                          }}
+                                                          renderInput={(params) => (
+                                                              <TextField {...params}
+                                                                         variant="outlined"
+                                                                         placeholder="" />
+                                                          )}
+                                                      />
+                                                    </div>
+                                                  </TabPanel>,
+                                                  <TabPanel key={4}>
+                                                    <h5 style={{ marginTop: 20 }}>Domaine d'activités</h5>
+                                                    <div>
+                                                      <div style={{flexWrap: 'wrap', marginTop: 10
+                                                      }}
+                                                      >
+                                                        {
+                                                          (this.state.selectedContact.domaines || []).map((item, key) => (
+                                                              <div key={key} style={{margin: 3, marginBottom: 6}}>
+                                                                <Chip
+                                                                    icon={
+                                                                      <CheckCircle />}
+                                                                    label={item}
+                                                                    color="primary"
+                                                                    onDelete={this.removeItem('domaine', key)}
+                                                                    style={{
+                                                                      fontWeight: 'bold',
+                                                                      backgroundColor: 'lightseagreen'
+                                                                    }}
+                                                                />
+                                                              </div>
+                                                          ))
+                                                        }
+                                                      </div>
+                                                      <div className="row"
+                                                           style={{ marginTop: 10 }}>
+                                                        <div className="col-sm-12" style={{margin:10}}>
+                                                          <a style={{
+                                                            cursor: 'pointer',
+                                                            fontSize: 'medium',
+                                                            fontWeight: 'bold'
+                                                          }}
+                                                             onClick={this.openAddModal('domaine')}>
+                                                  <span className="btn__text"
+                                                        id="btn-add-child">
+                                                    <i className="fe-plus-square" /> Ajouter un domaine
+                                                  </span>
+                                                          </a>
+                                                        </div>
+                                                      </div>
+                                                      {
+                                                        (this.state.selectedContact.domaine || []).map((dom,key) => (
+                                                            <div key={key}>
+                                                              <div className="row mt-1">
+                                                                <div className="col-md-3">
+                                                                  <Chip
+                                                                      icon={
+                                                                        <CheckCircle />}
+                                                                      label={dom.domaine}
+                                                                      color="primary"
+                                                                      onDelete={this.removeItem('domaine', key)}
+                                                                      style={{
+                                                                        fontWeight: 'bold',
+                                                                        backgroundColor: 'lightseagreen'
+                                                                      }}
+                                                                  />
+                                                                </div>
+                                                                <div className="col-md-9">
+
+                                                                  <Autocomplete
+                                                                      value={this.state.selectedContact.domaine[key].specialite || []}
+                                                                      title={'Spécialités'}
+                                                                      multiple
+                                                                      id="checkboxes-da-demo"
+                                                                      options={this.state.selectedContact.domaine[key].domaine === "COMPTABILITÉ" ? data.comptabilite :
+                                                                          this.state.selectedContact.domaine[key].domaine === "SALAIRES" ? data.salaire :
+                                                                              this.state.selectedContact.domaine[key].domaine === "IMPOTS" ? data.impot :
+                                                                                  this.state.selectedContact.domaine[key].domaine === "Droit" ? data.domainesAct : []
+                                                                      }
+                                                                      disableCloseOnSelect
+
+                                                                      getOptionLabel={(option) => option}
+                                                                      renderOption={(option, { selected }) => (
+                                                                          <React.Fragment>
+                                                                            <MuiCheckbox
+                                                                                icon={main_functions.icon}
+                                                                                checkedIcon={main_functions.checkedIcon}
+                                                                                style={{ marginRight: 8 }}
+                                                                                checked={selected}
+                                                                            /> {option}
+                                                                          </React.Fragment>
+                                                                      )}
+                                                                      style={{
+                                                                        width: 500,
+                                                                        marginLeft: 10,
+                                                                        borderColor: '#f0f0f0'
+                                                                      }}
+                                                                      renderInput={(params) => (
+                                                                          <TextField {...params}
+                                                                                     variant="outlined"
+                                                                                     placeholder="" />
+                                                                      )}
+                                                                  />
+
+                                                                </div>
+                                                              </div>
+                                                              <div style={{backgroundColor:"#f0f0f0",height:2,margin:10,marginTop:20}}/>
+                                                            </div>
+
+                                                        ))
+                                                      }
+
+                                                    </div>
+                                                  </TabPanel>,
+                                                  <TabPanel key={5}>
+                                                    <h5 style={{ marginTop: 20 }}>Langues</h5>
+                                                    <Autocomplete
+                                                        value={this.state.selectedContact.langues || []}
+                                                        onChange={(event, values) => {
+                                                          let selectedContact = this.state.selectedContact;
+                                                          selectedContact.langues = values;
+                                                          this.setState({ selectedContact: selectedContact });
+                                                        }}
+                                                        title={'langues'}
+                                                        multiple
+                                                        id="checkboxes-l-demo"
+                                                        options={data.langues}
+                                                        disableCloseOnSelect
+                                                        getOptionLabel={(option) => option}
+                                                        renderOption={(option, { selected }) => (
+                                                            <React.Fragment>
+                                                              <MuiCheckbox
+                                                                  icon={main_functions.icon}
+                                                                  checkedIcon={main_functions.checkedIcon}
+                                                                  style={{ marginRight: 8 }}
+                                                                  checked={selected}
+                                                              /> {option}
+                                                            </React.Fragment>
+                                                        )}
+                                                        style={{
+                                                          width: 500,
+                                                          marginLeft: 10,
+                                                          borderColor: '#f0f0f0'
+                                                        }}
+                                                        renderInput={(params) => (
+                                                            <TextField {...params}
+                                                                       variant="outlined"
+                                                                       placeholder="" />
+                                                        )}
+                                                    /> </TabPanel>,
+                                                  <TabPanel key={6}>
+                                                    <h5 style={{ marginTop: 20 }}>Domaines d'intérêt, loisirs et sports</h5>
+                                                    <div className="row">
+                                                      <div className="col-md-8">
+                                                        <div style={{
+                                                          display: 'flex',
+                                                          flexWrap: 'wrap',
+                                                          marginTop: 10
+                                                        }}>
+                                                          {
+                                                            (this.state.selectedContact.hobbies || []).map((item, key) => (
+                                                                <div key={key}
+                                                                     style={{ margin: 3 }}>
+                                                                  <Chip
+                                                                      icon={
+                                                                        <MoodIcon />}
+                                                                      label={item}
+                                                                      color="secondary"
+                                                                      onDelete={this.removeItem('hobbies', key)}
+                                                                      style={{
+                                                                        fontWeight: 'bold',
+                                                                        backgroundColor: 'lightpink'
+                                                                      }}
+                                                                  />
+                                                                </div>
+                                                            ))
+                                                          }
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                    <div className="row"
+                                                         style={{ marginTop: 20 }}>
+                                                      <div
+                                                          className="col-sm-12">
+                                                        <a style={{
+                                                          cursor: 'pointer',
+                                                          fontSize: 'medium',
+                                                          fontWeight: 'bold'
+                                                        }}
+                                                           onClick={this.openAddModal('hobbies')}>
                                                                                             <span className="btn__text"
                                                                                                   id="btn-add-child">
                                                                                                 <i
@@ -5046,26 +5772,31 @@ export default class Main extends React.Component {
                                                                                                 un centre d'intérêt,
                                                                                                 loisir ou sport
                                                                                             </span> </a>
-                                                  </div>
-                                                </div>
-                                              </TabPanel>
-                                            ]
-                                          }
-                                        </Tabs>
+                                                      </div>
+                                                    </div>
+                                                  </TabPanel>
+                                                ]
+                                              }
+                                            </Tabs>
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-                              </div>
                             }
                           </Route>,
 
                           <Route key={2} exact path="/home/clients">
                             {
-                              this.state.loading === false && this.state.firstLoading === false &&
-                              <div>
-                                {
-                                  active_modules.includes("MARKETPLACE") === true &&
+                              !this.state.annuaire_clients_mandat ?
+                                  <div align="center" style={{marginTop: 200}}>
+                                    <CircularProgress color="primary"/>
+                                    <h6>Chargement...</h6>
+                                  </div>
+                                  :
+                                  <div>
+                                    {
+                                      active_modules.includes("MARKETPLACE") === true &&
                                       <TablePatientsBrainy
                                           patients={this.state.patients || []}
                                           bodycheck={this.sendBodyChekMail}
@@ -5082,223 +5813,230 @@ export default class Main extends React.Component {
                                             this.deletepatient(societe.id_user)
                                           }}
                                       />
-                                }
+                                    }
 
-                                <TableSociete
-                                    contacts={this.state.contacts || []}
-                                    societes={this.state.annuaire_clients_mandat || []}
-                                    clients_tempo={this.state.clients_cases}
-                                    onEditClick={(societe, key) => {
-                                      this.setState({
-                                        selectedSociete: societe,
-                                        selectedSocieteKey: key
-                                      });
-                                      this.props.history.push('/home/clients/' + societe.id);
-                                    }}
-                                    onFolderClick={(folder_id) => {
-                                      if (folder_id) {
-                                        this.setState({
-                                          showContainerSection: 'Drive',
-                                          focusedItem: 'Drive',
-                                          selectedDriveItem: [folder_id],
-                                          expandedDriveItems: [folder_id, localStorage.getItem('client_folder_id')],
-                                          selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
-                                          breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
-                                          selectedFolderId: folder_id,
-                                          selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
-                                          selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
-                                        });
-                                      }
-                                    }}
-                                    onAddBtnClick={() => {
-                                      this.setState({ openNewClientModal: true });
-                                    }}
-                                    openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                                    reloadGed={() => this.justReloadGed()}
-                                    update_client_tempo_all={(data) => this.update_client_tempo_all(data)}
-                                    update_clients={(data) => this.update_clients(data)}
-                                />
-                              </div>
-
+                                    <TableSociete
+                                        contacts={this.state.contacts || []}
+                                        societes={this.state.annuaire_clients_mandat || []}
+                                        clients_tempo={this.state.clients_cases}
+                                        onEditClick={(societe, key) => {
+                                          this.setState({
+                                            selectedSociete: societe,
+                                            selectedSocieteKey: key
+                                          });
+                                          this.props.history.push('/home/clients/' + societe.id);
+                                        }}
+                                        onFolderClick={(folder_id) => {
+                                          if (folder_id) {
+                                            this.setState({
+                                              showContainerSection: 'Drive',
+                                              focusedItem: 'Drive',
+                                              selectedDriveItem: [folder_id],
+                                              expandedDriveItems: [folder_id, localStorage.getItem('client_folder_id')],
+                                              selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
+                                              breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
+                                              selectedFolderId: folder_id,
+                                              selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
+                                              selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
+                                            });
+                                          }
+                                        }}
+                                        onAddBtnClick={() => {
+                                          this.setState({ openNewClientModal: true });
+                                        }}
+                                        onImportClick={(e) => {
+                                          this.importCSVClients(e)
+                                        }}
+                                        openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                        reloadGed={() => this.justReloadGed()}
+                                        update_client_tempo_all={(data) => this.update_client_tempo_all(data)}
+                                        update_clients={(data) => this.update_clients(data)}
+                                    />
+                                  </div>
                             }
+
+
+
 
                           </Route>,
                           <Route key={3} exact path="/home/clients/:client_id">
                             {
-                              this.state.loading === false && this.state.firstLoading === false &&
-                              <div>
-                                <div className="row">
-                                  <div className="col-lg-12">
-                                    <div className="card-box text-center">
-                                      <img onClick={() => {}}
-                                           src={this.state.selectedSociete.imageUrl ? this.state.selectedSociete.imageUrl : this.state.selectedSociete.Type === '0' ? entIcon : userAvatar}
-                                           className="rounded-circle avatar-lg img-thumbnail"
-                                           alt="" style={{ cursor: 'pointer', width: 120, height: 120, objectFit: 'cover' }}
-                                      />
-                                      <input style={{ visibility: 'hidden', width: 0, height: 0 }}
-                                             type='file'
-                                             accept='.png,.jpeg,.jpg'
-                                             onChange={(files) => this.uploadImage(files)}
-                                             ref={(ref) => this.imageUpload = ref}
-                                      />
-                                      <h4
-                                          className="mb-0">{this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '')}</h4>
-                                      <div style={{ display: 'contents' }}>
-                                        <button type="button"
-                                                onClick={this.saveSocietyChanges}
-                                                className="btn btn-success btn-sm waves-effect mb-2 waves-light m-1">
-                                          <i className="fe-save" />&nbsp;&nbsp;Enregistrer
-                                        </button>
-                                        <button type="button"
-                                                onClick={() => {
+                              this.state.selectedSociete === "" ?
+                                  <div align="center" style={{marginTop: 200}}>
+                                    <CircularProgress color="primary"/>
+                                    <h6>Chargement...</h6>
+                                  </div> :
+                                  <div>
+                                    <div className="row">
+                                      <div className="col-lg-12">
+                                        <div className="card-box text-center">
+                                          <img onClick={() => {}}
+                                               src={this.state.selectedSociete.imageUrl ? this.state.selectedSociete.imageUrl : this.state.selectedSociete.type === '0' ? entIcon : userAvatar}
+                                               className="rounded-circle avatar-lg img-thumbnail"
+                                               alt="" style={{ cursor: 'pointer', width: 120, height: 120, objectFit: 'cover' }}
+                                          />
+                                          <input style={{ visibility: 'hidden', width: 0, height: 0 }}
+                                                 type='file'
+                                                 accept='.png,.jpeg,.jpg'
+                                                 onChange={(files) => this.uploadImage(files)}
+                                                 ref={(ref) => this.imageUpload = ref}
+                                          />
+                                          <h4
+                                              className="mb-0">{this.state.selectedSociete.type === "0" ? this.state.selectedSociete.societyName : this.state.selectedSociete.contactName}</h4>
+                                          <div style={{ display: 'contents' }}>
+                                            <button type="button"
+                                                    onClick={this.saveSocietyChanges}
+                                                    className="btn btn-success btn-sm waves-effect mb-2 waves-light m-1">
+                                              <i className="fe-save" />&nbsp;&nbsp;Enregistrer
+                                            </button>
+                                            <button type="button"
+                                                    onClick={() => {
 
-                                                }}
-                                                className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
-                                          <i className="fe-printer" />&nbsp;&nbsp;Aperçu
-                                        </button>
-                                        <button type="button"
-                                                onClick={() => {
-                                                }}
-                                                className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
-                                          <i className="fe-book-open" />&nbsp;&nbsp;Livre
-                                        </button>
-                                      </div>
-                                      <div style={{ marginTop: 30 }}
-                                           className="text-left">
-                                        <Tabs> <TabList>
-                                          <Tab>Informations client</Tab>
-                                          <Tab>Ouverture dossier</Tab>
-                                          <Tab>Dossiers ouverts</Tab>
-                                        </TabList>
-                                          <TabPanel>
-                                            <h5 style={{ marginTop: 20 }}>Informations Client</h5>
-                                            <div className="row" style={{ marginTop: 30 }}>
-                                              <div className="col-md-6">
-                                                <p style={{ marginBottom: 10 }}>Nom du client </p>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="email"
-                                                    name="email"
-                                                    value={this.state.selectedSociete.Nom}
-                                                    onChange={this.handleChange('selectedSociete', 'Nom')} />
+                                                    }}
+                                                    className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
+                                              <i className="fe-printer" />&nbsp;&nbsp;Aperçu
+                                            </button>
+                                            <button type="button"
+                                                    onClick={() => {
+                                                    }}
+                                                    className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
+                                              <i className="fe-book-open" />&nbsp;&nbsp;Livre
+                                            </button>
+                                          </div>
+                                          <div style={{ marginTop: 30 }}
+                                               className="text-left">
+                                            <Tabs> <TabList>
+                                              <Tab>Informations client</Tab>
+                                              <Tab>Ouverture dossier</Tab>
+                                              <Tab>Dossiers ouverts</Tab>
+                                            </TabList>
+                                              <TabPanel>
+                                                <h5 style={{ marginTop: 20 }}>Informations Client</h5>
+                                                <div className="row" style={{ marginTop: 30 }}>
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Nom & Prénom</p>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        id="email"
+                                                        name="email"
+                                                        value={this.state.selectedSociete.contactName}
+                                                        onChange={this.handleChange('selectedSociete', 'contactName')} />
 
-                                              </div>
-                                              <div className="col-md-6">
-                                                <p style={{ marginBottom: 10 }}>Statut</p>
-                                                <FormControlLabel
-                                                    control={
-                                                      <MuiSwitch
-                                                          checked={this.state.selectedSociete.isActif === "true" || false}
-                                                          onChange={event => {
-                                                            let obj = this.state.selectedSociete;
-                                                            obj.isActif = (event.target.checked).toString();
-                                                            this.setState({ selectedSociete: obj });
-                                                          }}
-                                                          name="isActif" />}
-                                                    label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === "true" ? 'Actif' : 'Non actif' : 'Non actif'}
-                                                />
-                                              </div>
+                                                  </div>
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Statut</p>
+                                                    <FormControlLabel
+                                                        control={
+                                                          <MuiSwitch
+                                                              checked={this.state.selectedSociete.isActif === "true" || false}
+                                                              onChange={event => {
+                                                                let obj = this.state.selectedSociete;
+                                                                obj.isActif = (event.target.checked).toString();
+                                                                this.setState({ selectedSociete: obj });
+                                                              }}
+                                                              name="isActif" />}
+                                                        label={this.state.selectedSociete.isActif ? this.state.selectedSociete.isActif === "true" ? 'Actif' : 'Non actif' : 'Non actif'}
+                                                    />
+                                                  </div>
+                                                  {
+                                                    this.state.selectedSociete.type === "0" &&
+                                                    <div className="col-md-6">
+                                                      <p style={{ marginBottom: 10 }}>Nom de la société</p>
+                                                      <input
+                                                          type="text"
+                                                          className="form-control"
+                                                          id="email"
+                                                          name="email"
+                                                          value={this.state.selectedSociete.societyName}
+                                                          onChange={this.handleChange('selectedSociete', 'societyName')} />
 
-                                            </div>
-                                            {
-                                              this.state.selectedSociete.Type === "1" &&
-                                              <div className="row" style={{ marginTop: 5 }}>
-                                                <div className="col-md-6">
-                                                  <p style={{ marginBottom: 10 }}>Prénom du client </p>
-                                                  <input
-                                                      type="text"
-                                                      className="form-control"
-                                                      id="email"
-                                                      name="email"
-                                                      value={this.state.selectedSociete.Prenom}
-                                                      onChange={this.handleChange('selectedSociete', 'Prenom')} />
+                                                    </div>
+                                                  }
                                                 </div>
-                                              </div>
-                                            }
-                                            <div className="row" style={{ marginTop: 20 }}>
-                                              <div className="col-md-6">
-                                                <p style={{ marginBottom: 10 }}>Adresse postale</p>
-                                                <textarea
-                                                    rows={5}
-                                                    className="form-control" style={{color:"#000"}}
-                                                    id="about"
-                                                    name="about"
-                                                    value={this.state.selectedSociete.adress}
-                                                    onChange={this.handleChange('selectedSociete', 'adress')} />
-                                              </div>
-                                              <div className="col-md-6">
-                                                <p style={{ marginBottom: 10 }}>Adresse email</p>
-                                                <input
-                                                    className="form-control"
-                                                    type="email"
-                                                    id="email"
-                                                    name="email"
-                                                    value={this.state.selectedSociete.email}
-                                                    onChange={this.handleChange('selectedSociete', 'email')} />
-                                                <p style={{ marginBottom: 10,marginTop:10 }}>Téléphone</p>
-                                                <input
-                                                    className="form-control"
-                                                    type="text"
-                                                    id="phone"
-                                                    name="phone"
-                                                    value={this.state.selectedSociete.phone}
-                                                    onChange={this.handleChange('selectedSociete', 'phone')} />
-                                              </div>
-                                              <div className="col-md-12" style={{marginTop:20}}>
-                                                <p style={{ marginBottom: 10 }}>Remarques</p>
-                                                <textarea
-                                                    rows={4}
-                                                    className="form-control" style={{color:"#000"}}
-                                                    id="about"
-                                                    name="about"
-                                                    value={this.state.selectedSociete.remarque}
-                                                    onChange={this.handleChange('selectedSociete', 'remarque')} />
-                                              </div>
-                                            </div>
+                                                <div className="row" style={{ marginTop: 20 }}>
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Adresse postale</p>
+                                                    <textarea
+                                                        rows={5}
+                                                        className="form-control" style={{color:"#000"}}
+                                                        id="about"
+                                                        name="about"
+                                                        value={this.state.selectedSociete.adress}
+                                                        onChange={this.handleChange('selectedSociete', 'adress')} />
+                                                  </div>
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Adresse email</p>
+                                                    <input
+                                                        className="form-control"
+                                                        type="email"
+                                                        id="email"
+                                                        name="email"
+                                                        value={this.state.selectedSociete.email}
+                                                        onChange={this.handleChange('selectedSociete', 'email')} />
+                                                    <p style={{ marginBottom: 10,marginTop:10 }}>Téléphone</p>
+                                                    <input
+                                                        className="form-control"
+                                                        type="text"
+                                                        id="phone"
+                                                        name="phone"
+                                                        value={this.state.selectedSociete.phone}
+                                                        onChange={this.handleChange('selectedSociete', 'phone')} />
+                                                  </div>
+                                                  <div className="col-md-12" style={{marginTop:20}}>
+                                                    <p style={{ marginBottom: 10 }}>Remarques</p>
+                                                    <textarea
+                                                        rows={4}
+                                                        className="form-control" style={{color:"#000"}}
+                                                        id="about"
+                                                        name="about"
+                                                        value={this.state.selectedSociete.remarque}
+                                                        onChange={this.handleChange('selectedSociete', 'remarque')} />
+                                                  </div>
+                                                </div>
 
-                                          </TabPanel>
-                                          <TabPanel>
-                                            <h5 style={{ marginTop: 20 }}>Ouverture du dossier</h5>
-                                            <div className="row mt-4">
-                                              <div className="col-md-6">
-                                                <div>
-                                                  Nom du dossier
-                                                </div>
-                                                <div>
-                                                  <input
-                                                      style={{ color: '#000' }}
-                                                      className="form-control"
-                                                      defaultValue={this.state.newClientFolder.nom}
-                                                      onChange={this.handleChange('newClientFolder', 'nom')}
-                                                  />
-                                                </div>
-                                              </div>
-                                              <div className="col-md-6">
-                                                <div>
-                                                  Type de dossier
-                                                </div>
-                                                <div>
-                                                  <select
-                                                      className="form-control custom-select"
-                                                      value={this.state.newClientFolder.type}
-                                                      onChange={this.handleChange('newClientFolder', 'type')}
-                                                  >
-                                                    {
-                                                      Data.secteurs2.map((secteur, key) =>
-                                                          <option
-                                                              key={key}
-                                                              value={secteur}>{secteur}</option>
-                                                      )
-                                                    }
-                                                  </select>
-                                                </div>
-                                              </div>
-                                              <div className="col-md-12" style={{marginTop:20}}>
-                                                <div>
-                                                  Description du mandat
-                                                </div>
-                                                <div>
+                                              </TabPanel>
+                                              <TabPanel>
+                                                <h5 style={{ marginTop: 20 }}>Ouverture du dossier</h5>
+                                                <div className="row mt-4">
+                                                  <div className="col-md-6">
+                                                    <div>
+                                                      Nom du dossier
+                                                    </div>
+                                                    <div>
+                                                      <input
+                                                          style={{ color: '#000' }}
+                                                          className="form-control"
+                                                          defaultValue={this.state.newClientFolder.nom}
+                                                          onChange={this.handleChange('newClientFolder', 'nom')}
+                                                      />
+                                                    </div>
+                                                  </div>
+                                                  <div className="col-md-6">
+                                                    <div>
+                                                      Type de dossier
+                                                    </div>
+                                                    <div>
+                                                      <select
+                                                          className="form-control custom-select"
+                                                          value={this.state.newClientFolder.type}
+                                                          onChange={this.handleChange('newClientFolder', 'type')}
+                                                      >
+                                                        {
+                                                          Data.secteurs2.map((secteur, key) =>
+                                                              <option
+                                                                  key={key}
+                                                                  value={secteur}>{secteur}</option>
+                                                          )
+                                                        }
+                                                      </select>
+                                                    </div>
+                                                  </div>
+                                                  <div className="col-md-12" style={{marginTop:20}}>
+                                                    <div>
+                                                      Description du mandat
+                                                    </div>
+                                                    <div>
                                               <textarea
                                                   style={{color: "#000"}}
                                                   className="form-control"
@@ -5306,436 +6044,436 @@ export default class Main extends React.Component {
                                                   onChange={this.handleChange( "newClientFolder", "desc")}
                                                   rows={5}
                                               />
-                                                </div>
-                                              </div>
-                                            </div>
-                                            <div className="row" style={{marginTop:20}}>
-                                              <div className="col-md-6">
-                                                <p style={{ marginBottom: 10 }}>Contrepartie</p>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="email"
-                                                    name="email"
-                                                    value={this.state.newClientFolder.contrepartie}
-                                                    onChange={this.handleChange('newClientFolder', 'contrepartie')} />
-                                              </div>
-                                              <div className="col-md-6">
-                                                <p style={{ marginBottom: 10 }}>Autres parties</p>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="email"
-                                                    name="email"
-                                                    value={this.state.newClientFolder.autrepartie}
-                                                    onChange={this.handleChange('newClientFolder', 'autrepartie')} />
-                                              </div>
-                                            </div>
-                                            <hr style={{
-                                              width: '100%',
-                                              height: 1,
-                                              backgroundColor: '#c0c0c0',
-                                              marginTop: 35,
-                                              marginBottom: 30
-                                            }} />
-                                            <div>
-                                              <h4>Facturation</h4>
-                                              <div className="row mt-2">
-                                                <div className="col-md-6" style={{minWidth:500}}>
-                                                  <div style={{ display: 'flex' }}>
-                                                    <div className="mt-2">Associés</div>
-                                                    <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
-                                                                onClick={() => {
-                                                                  let objCp = this.state.newClientFolder;
-                                                                  objCp.team.push({
-                                                                    fname: '',
-                                                                    email: '',
-                                                                    id: '',
-                                                                    tarif: '',
-                                                                    type: 'lead'
-                                                                  });
-                                                                  this.setState({ newClientFolder: objCp });
-                                                                }}>
-                                                      <AddCircleIcon color="primary" />
-                                                    </IconButton>
+                                                    </div>
                                                   </div>
-                                                  {
-                                                    this.state.newClientFolder.team.map((item, key) =>
-                                                        item.type === "lead" &&
-                                                        <div style={{
-                                                          display: 'flex',
-                                                          justifyContent: 'flex-start',
-                                                          marginTop: 15
-                                                        }}>
-                                                          <div>
-                                                            <div>
-                                                              <MuiSelect
-                                                                  labelId="demo-simple-select-labOuverture dossierel"
-                                                                  id="demo-simple-select"
-                                                                  style={{ width: 230,marginTop:20 }}
-                                                                  onChange={(e) => {
-                                                                    let id = e.target.value;
-                                                                    let contact = this.state.contacts.find(x => x.id === id );
-                                                                    if (contact) {
+                                                </div>
+                                                <div className="row" style={{marginTop:20}}>
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Contrepartie</p>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        id="email"
+                                                        name="email"
+                                                        value={this.state.newClientFolder.contrepartie}
+                                                        onChange={this.handleChange('newClientFolder', 'contrepartie')} />
+                                                  </div>
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Autres parties</p>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        id="email"
+                                                        name="email"
+                                                        value={this.state.newClientFolder.autrepartie}
+                                                        onChange={this.handleChange('newClientFolder', 'autrepartie')} />
+                                                  </div>
+                                                </div>
+                                                <hr style={{
+                                                  width: '100%',
+                                                  height: 1,
+                                                  backgroundColor: '#c0c0c0',
+                                                  marginTop: 35,
+                                                  marginBottom: 30
+                                                }} />
+                                                <div>
+                                                  <h4>Facturation</h4>
+                                                  <div className="row mt-2">
+                                                    <div className="col-md-6" style={{minWidth:500}}>
+                                                      <div style={{ display: 'flex' }}>
+                                                        <div className="mt-2">Associés</div>
+                                                        <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
+                                                                    onClick={() => {
                                                                       let objCp = this.state.newClientFolder;
-                                                                      objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
-                                                                      objCp.team[key].email = contact.email;
-                                                                      objCp.team[key].id = contact.id;
-                                                                      objCp.team[key].tarif = contact.rateFacturation || '';
+                                                                      objCp.team.push({
+                                                                        fname: '',
+                                                                        email: '',
+                                                                        id: '',
+                                                                        tarif: '',
+                                                                        type: 'lead'
+                                                                      });
                                                                       this.setState({ newClientFolder: objCp });
-                                                                    }
-                                                                  }}
-                                                                  value={this.state.newClientFolder.team[key].id}
-                                                              >
-                                                                {this.state.contacts.filter(x => x.type === "associe" ).map((contact, key) => (
-                                                                    <MenuItem
-                                                                        key={key}
-                                                                        value={contact.id}>
-                                                                      <div style={{display:"flex"}}>
-                                                                        <Avatar style={{marginLeft:10}}
-                                                                                alt=""
-                                                                                src={contact.imageUrl} />
-                                                                        <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                                      </div>
-                                                                    </MenuItem>
-                                                                ))}
-                                                              </MuiSelect>
-                                                            </div>
-                                                          </div>
-                                                          <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
-                                                            <div style={{marginLeft:10}}>
-                                                              Taux horaire
-                                                            </div>
-                                                            <Input
-                                                                style={{ width: 210,marginLeft:10 }}
-                                                                className="form-control "
-                                                                id="duree35411"
-                                                                name="duree687811"
-                                                                type="text"
-                                                                endAdornment={
-                                                                  <InputAdornment
-                                                                      position="end">CHF/h</InputAdornment>}
-                                                                value={this.state.newClientFolder.team[key].tarif}
-                                                                onChange={(e) => {
-                                                                  let objCp = this.state.newClientFolder;
-                                                                  objCp.team[key].tarif = e.target.value;
-                                                                  this.setState({ newClientFolder: objCp });
-                                                                }}
-                                                            />
-                                                          </div>
-                                                          <div>
-                                                            <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].id !== '' ? 28 : 8}}
-                                                                        onClick={() => {
+                                                                    }}>
+                                                          <AddCircleIcon color="primary" />
+                                                        </IconButton>
+                                                      </div>
+                                                      {
+                                                        this.state.newClientFolder.team.map((item, key) =>
+                                                            item.type === "lead" &&
+                                                            <div style={{
+                                                              display: 'flex',
+                                                              justifyContent: 'flex-start',
+                                                              marginTop: 15
+                                                            }}>
+                                                              <div>
+                                                                <div>
+                                                                  <MuiSelect
+                                                                      labelId="demo-simple-select-labOuverture dossierel"
+                                                                      id="demo-simple-select"
+                                                                      style={{ width: 230,marginTop:20 }}
+                                                                      onChange={(e) => {
+                                                                        let id = e.target.value;
+                                                                        let contact = this.state.contacts.find(x => x.id === id );
+                                                                        if (contact) {
                                                                           let objCp = this.state.newClientFolder;
-                                                                          objCp.team.splice(key,1)
+                                                                          objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
+                                                                          objCp.team[key].email = contact.email;
+                                                                          objCp.team[key].id = contact.id;
+                                                                          objCp.team[key].tarif = contact.rateFacturation || '';
                                                                           this.setState({ newClientFolder: objCp });
-                                                                        }}
-                                                            >
-                                                              <DeleteOutlineIcon color="error"/>
-                                                            </IconButton>
+                                                                        }
+                                                                      }}
+                                                                      value={this.state.newClientFolder.team[key].id}
+                                                                  >
+                                                                    {(this.state.contacts || []).map((contact, key) => (
+                                                                        <MenuItem
+                                                                            key={key}
+                                                                            value={contact.id}>
+                                                                          <div style={{display:"flex"}}>
+                                                                            <Avatar style={{marginLeft:10}}
+                                                                                    alt=""
+                                                                                    src={contact.imageUrl} />
+                                                                            <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                                          </div>
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                  </MuiSelect>
+                                                                </div>
+                                                              </div>
+                                                              <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
+                                                                <div style={{marginLeft:10}}>
+                                                                  Taux horaire
+                                                                </div>
+                                                                <Input
+                                                                    style={{ width: 210,marginLeft:10 }}
+                                                                    className="form-control "
+                                                                    id="duree35411"
+                                                                    name="duree687811"
+                                                                    type="text"
+                                                                    endAdornment={
+                                                                      <InputAdornment
+                                                                          position="end">CHF/h</InputAdornment>}
+                                                                    value={this.state.newClientFolder.team[key].tarif}
+                                                                    onChange={(e) => {
+                                                                      let objCp = this.state.newClientFolder;
+                                                                      objCp.team[key].tarif = e.target.value;
+                                                                      this.setState({ newClientFolder: objCp });
+                                                                    }}
+                                                                />
+                                                              </div>
+                                                              <div>
+                                                                <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].id !== '' ? 28 : 8}}
+                                                                            onClick={() => {
+                                                                              let objCp = this.state.newClientFolder;
+                                                                              objCp.team.splice(key,1)
+                                                                              this.setState({ newClientFolder: objCp });
+                                                                            }}
+                                                                >
+                                                                  <DeleteOutlineIcon color="error"/>
+                                                                </IconButton>
+                                                              </div>
+                                                            </div>
+                                                        )
+                                                      }
+                                                    </div>
+                                                    <div className="col-md-6" style={{minWidth:500}}>
+                                                      <div style={{ display: 'flex' }}>
+                                                        <div className="mt-2">Collaborateur/Stagiaire</div>
+                                                        <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
+                                                                    onClick={() => {
+                                                                      let objCp = this.state.newClientFolder;
+                                                                      objCp.team.push({
+                                                                        fname: '',
+                                                                        email: '',
+                                                                        id: '',
+                                                                        tarif: '',
+                                                                        type: 'team'
+                                                                      });
+                                                                      this.setState({ newClientFolder: objCp });
+                                                                    }}>
+                                                          <AddCircleIcon color="primary" />
+                                                        </IconButton>
+                                                      </div>
+                                                      {
+                                                        this.state.newClientFolder.team.map((item, key) =>
+                                                            item.type === "team" &&
+                                                            <div style={{
+                                                              display: 'flex',
+                                                              justifyContent: 'flex-start',
+                                                              marginTop: 15
+                                                            }}>
+                                                              <div>
+                                                                <div>
+                                                                  <MuiSelect
+                                                                      labelId="demo-simple-select-label"
+                                                                      id="demo-simple-select"
+                                                                      style={{ width: 230 ,marginTop:20}}
+                                                                      onChange={(e) => {
+                                                                        let id = e.target.value;
+                                                                        let contact = this.state.contacts.find(x => x.id === id);
+                                                                        if (contact) {
+                                                                          let objCp = this.state.newClientFolder;
+                                                                          objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
+                                                                          objCp.team[key].email = contact.email;
+                                                                          objCp.team[key].id = id;
+                                                                          objCp.team[key].tarif = contact.rateFacturation || '';
+                                                                          this.setState({ newClientFolder: objCp });
+                                                                        }
+                                                                      }}
+                                                                      value={this.state.newClientFolder.team[key].id}
+                                                                  >
+                                                                    {(this.state.contacts || []).filter(x => !x.type ).map((contact, key) => (
+                                                                        <MenuItem
+                                                                            key={key}
+                                                                            value={contact.id}>
+                                                                          <div style={{display:"flex"}}>
+                                                                            <Avatar style={{marginLeft:10}}
+                                                                                    alt=""
+                                                                                    src={contact.imageUrl} />
+                                                                            <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                                          </div>
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                  </MuiSelect>
+                                                                </div>
+                                                              </div>
+                                                              <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
+                                                                <div style={{marginLeft:10}}>
+                                                                  Taux horaire
+                                                                </div>
+                                                                <Input
+                                                                    className="form-control "
+                                                                    id="duree35411"
+                                                                    style={{ width: 210,marginLeft:10 }}
+                                                                    name="duree687811"
+                                                                    type="text"
+                                                                    endAdornment={
+                                                                      <InputAdornment
+                                                                          position="end">CHF/h</InputAdornment>}
+                                                                    value={this.state.newClientFolder.team[key].tarif}
+                                                                    onChange={(e) => {
+                                                                      let objCp = this.state.newClientFolder;
+                                                                      objCp.team[key].tarif = e.target.value;
+                                                                      this.setState({ newClientFolder: objCp });
+                                                                    }}
+                                                                />
+                                                              </div>
+                                                              <div>
+                                                                <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].id !== '' ? 28 : 8}}
+                                                                            onClick={() => {
+                                                                              let objCp = this.state.newClientFolder;
+                                                                              objCp.team.splice(key,1)
+                                                                              this.setState({ newClientFolder: objCp });
+                                                                            }}
+                                                                >
+                                                                  <DeleteOutlineIcon color="error"/>
+                                                                </IconButton>
+                                                              </div>
+                                                            </div>
+                                                        )
+                                                      }
+                                                    </div>
+                                                  </div>
+                                                </div>
+
+                                                <div className="mt-4">
+                                                  <h5>FACTURATION-CLIENT</h5>
+                                                  <div
+                                                      className="row align-items-center">
+                                                    <div className="col-md-4">
+                                                      <div
+                                                          className="row justify-content-center align-items-center">
+                                                        <div
+                                                            className="col-md-4">
+                                                          <div>Par Email</div>
+                                                        </div>
+                                                        <div
+                                                            className="col-md-8">
+                                                          <CB color="primary"
+                                                              checked={this.state.newClientFolder.byEmail}
+                                                              onChange={(e) => {
+                                                                let obj = this.state.newClientFolder;
+                                                                obj.byEmail = e.target.checked
+                                                                this.setState({newClientFolder:obj})
+                                                                //this.handleChange("newClientFolder",e.target.checked)
+                                                              }}
+                                                          />
+                                                        </div>
+                                                      </div>
+                                                      <div
+                                                          className="row justify-content-center align-items-center">
+                                                        <div
+                                                            className="col-md-4">
+                                                          <div>Fréquence</div>
+                                                        </div>
+                                                        <div
+                                                            className="col-md-8">
+                                                          <MuiSelect
+                                                              labelId="demo-simple-select-label"
+                                                              id="demo-simple-select"
+                                                              style={{ width: '100%' }}
+                                                              value={this.state.newClientFolder.frequence}
+                                                              onChange={(e) => {
+                                                                let obj = this.state.newClientFolder;
+                                                                obj.frequence = e.target.value
+                                                                this.setState({newClientFolder:obj})
+                                                              }}
+                                                          >
+                                                            <MenuItem
+                                                                value={'Mensuelle'}>Mensuelle</MenuItem>
+                                                            <MenuItem
+                                                                value={'Trimestrielle'}>Trimestrielle</MenuItem>
+                                                            <MenuItem
+                                                                value={'Semestrielle'}>Semestrielle</MenuItem>
+                                                            <MenuItem
+                                                                value={'Annuelle'}>Annuelle</MenuItem>
+                                                          </MuiSelect>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                    <div className="col-md-4">
+                                                      <div
+                                                          className="row justify-content-center align-items-center">
+                                                        <div
+                                                            className="col-md-6">
+                                                          <div>Envoyé par le secrétariat
                                                           </div>
                                                         </div>
-                                                    )
-                                                  }
-                                                </div>
-                                                <div className="col-md-6" style={{minWidth:500}}>
-                                                  <div style={{ display: 'flex' }}>
-                                                    <div className="mt-2">Collaborateur/Stagiaire</div>
-                                                    <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
-                                                                onClick={() => {
-                                                                  let objCp = this.state.newClientFolder;
-                                                                  objCp.team.push({
-                                                                    fname: '',
-                                                                    email: '',
-                                                                    id: '',
-                                                                    tarif: '',
-                                                                    type: 'team'
-                                                                  });
-                                                                  this.setState({ newClientFolder: objCp });
-                                                                }}>
-                                                      <AddCircleIcon color="primary" />
-                                                    </IconButton>
-                                                  </div>
-                                                  {
-                                                    this.state.newClientFolder.team.map((item, key) =>
-                                                        item.type === "team" &&
-                                                        <div style={{
-                                                          display: 'flex',
-                                                          justifyContent: 'flex-start',
-                                                          marginTop: 15
-                                                        }}>
-                                                          <div>
-                                                            <div>
-                                                              <MuiSelect
-                                                                  labelId="demo-simple-select-label"
-                                                                  id="demo-simple-select"
-                                                                  style={{ width: 230 ,marginTop:20}}
-                                                                  onChange={(e) => {
-                                                                    let id = e.target.value;
-                                                                    let contact = this.state.contacts.find(x => x.id === id);
-                                                                    if (contact) {
-                                                                      let objCp = this.state.newClientFolder;
-                                                                      objCp.team[key].fname = contact.nom + ' ' + contact.prenom;
-                                                                      objCp.team[key].email = contact.email;
-                                                                      objCp.team[key].id = id;
-                                                                      objCp.team[key].tarif = contact.rateFacturation || '';
-                                                                      this.setState({ newClientFolder: objCp });
-                                                                    }
-                                                                  }}
-                                                                  value={this.state.newClientFolder.team[key].id}
-                                                              >
-                                                                {this.state.contacts.filter(x => !x.type ).map((contact, key) => (
-                                                                    <MenuItem
-                                                                        key={key}
-                                                                        value={contact.id}>
-                                                                      <div style={{display:"flex"}}>
-                                                                        <Avatar style={{marginLeft:10}}
-                                                                                alt=""
-                                                                                src={contact.imageUrl} />
-                                                                        <div className="text-ellipsis-230" style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                                      </div>
-                                                                    </MenuItem>
-                                                                ))}
-                                                              </MuiSelect>
-                                                            </div>
-                                                          </div>
-                                                          <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
-                                                            <div style={{marginLeft:10}}>
-                                                              Taux horaire
-                                                            </div>
-                                                            <Input
-                                                                className="form-control "
-                                                                id="duree35411"
-                                                                style={{ width: 210,marginLeft:10 }}
-                                                                name="duree687811"
-                                                                type="text"
-                                                                endAdornment={
-                                                                  <InputAdornment
-                                                                      position="end">CHF/h</InputAdornment>}
-                                                                value={this.state.newClientFolder.team[key].tarif}
-                                                                onChange={(e) => {
-                                                                  let objCp = this.state.newClientFolder;
-                                                                  objCp.team[key].tarif = e.target.value;
-                                                                  this.setState({ newClientFolder: objCp });
-                                                                }}
-                                                            />
-                                                          </div>
-                                                          <div>
-                                                            <IconButton title="Supprimer cette ligne" style={{marginLeft:10,marginTop: this.state.newClientFolder.team[key].id !== '' ? 28 : 8}}
-                                                                        onClick={() => {
-                                                                          let objCp = this.state.newClientFolder;
-                                                                          objCp.team.splice(key,1)
-                                                                          this.setState({ newClientFolder: objCp });
-                                                                        }}
-                                                            >
-                                                              <DeleteOutlineIcon color="error"/>
-                                                            </IconButton>
+                                                        <div
+                                                            className="col-md-6">
+                                                          <CB color="primary"
+                                                              checked={this.state.newClientFolder.sentBySecr}
+                                                              onChange={(e) => {
+                                                                let obj = this.state.newClientFolder;
+                                                                obj.sentBySecr = e.target.checked
+                                                                this.setState({newClientFolder:obj})
+                                                              }} />
+                                                        </div>
+                                                      </div>
+                                                      <div
+                                                          className="row justify-content-center align-items-center">
+                                                        <div
+                                                            className="col-md-6">
+                                                          <div>Envoyé par l’avocat
                                                           </div>
                                                         </div>
-                                                    )
-                                                  }
-                                                </div>
-                                              </div>
-                                            </div>
-
-                                            <div className="mt-4">
-                                              <h5>FACTURATION-CLIENT</h5>
-                                              <div
-                                                  className="row align-items-center">
-                                                <div className="col-md-4">
-                                                  <div
-                                                      className="row justify-content-center align-items-center">
-                                                    <div
-                                                        className="col-md-4">
-                                                      <div>Par Email</div>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-8">
-                                                      <CB color="primary"
-                                                          checked={this.state.newClientFolder.byEmail}
-                                                          onChange={(e) => {
-                                                            let obj = this.state.newClientFolder;
-                                                            obj.byEmail = e.target.checked
-                                                            this.setState({newClientFolder:obj})
-                                                            //this.handleChange("newClientFolder",e.target.checked)
-                                                          }}
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                      className="row justify-content-center align-items-center">
-                                                    <div
-                                                        className="col-md-4">
-                                                      <div>Fréquence</div>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-8">
-                                                      <MuiSelect
-                                                          labelId="demo-simple-select-label"
-                                                          id="demo-simple-select"
-                                                          style={{ width: '100%' }}
-                                                          value={this.state.newClientFolder.frequence}
-                                                          onChange={(e) => {
-                                                            let obj = this.state.newClientFolder;
-                                                            obj.frequence = e.target.value
-                                                            this.setState({newClientFolder:obj})
-                                                          }}
-                                                      >
-                                                        <MenuItem
-                                                            value={'Mensuelle'}>Mensuelle</MenuItem>
-                                                        <MenuItem
-                                                            value={'Trimestrielle'}>Trimestrielle</MenuItem>
-                                                        <MenuItem
-                                                            value={'Semestrielle'}>Semestrielle</MenuItem>
-                                                        <MenuItem
-                                                            value={'Annuelle'}>Annuelle</MenuItem>
-                                                      </MuiSelect>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                                <div className="col-md-4">
-                                                  <div
-                                                      className="row justify-content-center align-items-center">
-                                                    <div
-                                                        className="col-md-6">
-                                                      <div>Envoyé par le secrétariat
+                                                        <div
+                                                            className="col-md-6">
+                                                          <CB color="primary"
+                                                              checked={this.state.newClientFolder.sentByAvocat}
+                                                              onChange={(e) => {
+                                                                let obj = this.state.newClientFolder;
+                                                                obj.sentByAvocat = e.target.checked
+                                                                this.setState({newClientFolder:obj})
+                                                              }} />
+                                                        </div>
+                                                      </div>
+                                                      <div
+                                                          className="row justify-content-center align-items-center">
+                                                        <div
+                                                            className="col-md-6">
+                                                          <div>Langue de Facturation
+                                                          </div>
+                                                        </div>
+                                                        <div
+                                                            className="col-md-6">
+                                                          <MuiSelect
+                                                              labelId="demo-simple-select-label"
+                                                              id="demo-simple-select"
+                                                              style={{ width: '100%' }}
+                                                              value={this.state.newClientFolder.language}
+                                                              onChange={(e) => {
+                                                                let obj = this.state.newClientFolder;
+                                                                obj.language = e.target.value
+                                                                this.setState({newClientFolder:obj})
+                                                              }}
+                                                          >
+                                                            <MenuItem
+                                                                value={'Francais'}>Français</MenuItem>
+                                                            <MenuItem
+                                                                value={'Anglais'}>Anglais</MenuItem>
+                                                          </MuiSelect>
+                                                        </div>
                                                       </div>
                                                     </div>
-                                                    <div
-                                                        className="col-md-6">
-                                                      <CB color="primary"
-                                                          checked={this.state.newClientFolder.sentBySecr}
-                                                          onChange={(e) => {
-                                                            let obj = this.state.newClientFolder;
-                                                            obj.sentBySecr = e.target.checked
-                                                            this.setState({newClientFolder:obj})
-                                                          }} />
-                                                    </div>
                                                   </div>
-                                                  <div
-                                                      className="row justify-content-center align-items-center">
-                                                    <div
-                                                        className="col-md-6">
-                                                      <div>Envoyé par l’avocat
-                                                      </div>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-6">
-                                                      <CB color="primary"
-                                                          checked={this.state.newClientFolder.sentByAvocat}
-                                                          onChange={(e) => {
-                                                            let obj = this.state.newClientFolder;
-                                                            obj.sentByAvocat = e.target.checked
-                                                            this.setState({newClientFolder:obj})
-                                                          }} />
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                      className="row justify-content-center align-items-center">
-                                                    <div
-                                                        className="col-md-6">
-                                                      <div>Langue de Facturation
-                                                      </div>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-6">
-                                                      <MuiSelect
-                                                          labelId="demo-simple-select-label"
-                                                          id="demo-simple-select"
-                                                          style={{ width: '100%' }}
-                                                          value={this.state.newClientFolder.language}
-                                                          onChange={(e) => {
-                                                            let obj = this.state.newClientFolder;
-                                                            obj.language = e.target.value
-                                                            this.setState({newClientFolder:obj})
-                                                          }}
-                                                      >
-                                                        <MenuItem
-                                                            value={'Francais'}>Français</MenuItem>
-                                                        <MenuItem
-                                                            value={'Anglais'}>Anglais</MenuItem>
-                                                      </MuiSelect>
-                                                    </div>
-                                                  </div>
+
                                                 </div>
-                                              </div>
 
-                                            </div>
+                                                <div style={{
+                                                  margintop: 10,
+                                                  textAlign: 'right'
+                                                }}>
+                                                  <button
+                                                      type="button"
+                                                      disabled={this.state.newClientFolder.nom === ''}
+                                                      onClick={() => {
+                                                        let contact = main_functions.getOAContactByEmail2(this.state.contacts,this.state.lead_contact_tmp);
+                                                        let objCp = this.state.newClientFolder;
+                                                        if(contact){
+                                                          objCp.team.push({
+                                                            fname: contact.nom + ' ' + contact.prenom,
+                                                            email: this.state.lead_contact_tmp,
+                                                            uid: contact.uid,
+                                                            tarif: this.state.lead_contact_horaire_tmp,
+                                                            type: 'lead'
+                                                          });
+                                                        }
+                                                        this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
+                                                      }}
+                                                      className="btn btn-blue waves-effect mb-2 waves-light m-1">
+                                                    <i className="fe-folder-plus" />&nbsp;&nbsp;Créer Dossier Client
+                                                  </button>
+                                                </div>
+                                              </TabPanel>
+                                              <TabPanel>
+                                                <h5 style={{ marginTop: 20 }}>Dossiers ouverts</h5>
+                                                <Mandats selectedClient={this.state.selectedSociete} clients_tempo={this.state.clients_cases} clients_tempo_copie={this.state.clients_cases}
+                                                         contacts={this.state.contacts}
+                                                         onFolderClick={(folder_id,parentClientFolder) => {
+                                                           let ged = this.state.reelFolders;
+                                                           let CLIENT_folder = ged.find(x => x.id ===  ENV_CLIENTS_FOLDER_ID)
+                                                           if(CLIENT_folder){
+                                                             this.setState({
+                                                               showContainerSection: 'Drive',
+                                                               focusedItem: 'Drive',
+                                                               selectedDriveItem: [folder_id],
+                                                               expandedDriveItems: [folder_id, parentClientFolder, localStorage.getItem('client_folder_id')],
+                                                               selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
+                                                               breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
+                                                               selectedFolderId: folder_id,
+                                                               selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
+                                                               selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
+                                                             });
+                                                             this.props.history.push("/home/drive/" + folder_id )
+                                                             window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                           }else{
 
-                                            <div style={{
-                                              margintop: 10,
-                                              textAlign: 'right'
-                                            }}>
-                                              <button
-                                                  type="button"
-                                                  disabled={this.state.newClientFolder.nom === ''}
-                                                  onClick={() => {
-                                                    let contact = main_functions.getOAContactByEmail2(this.state.contacts,this.state.lead_contact_tmp);
-                                                    let objCp = this.state.newClientFolder;
-                                                    if(contact){
-                                                      objCp.team.push({
-                                                        fname: contact.nom + ' ' + contact.prenom,
-                                                        email: this.state.lead_contact_tmp,
-                                                        uid: contact.uid,
-                                                        tarif: this.state.lead_contact_horaire_tmp,
-                                                        type: 'lead'
-                                                      });
-                                                    }
-                                                    this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
-                                                  }}
-                                                  className="btn btn-blue waves-effect mb-2 waves-light m-1">
-                                                <i className="fe-folder-plus" />&nbsp;&nbsp;Créer Dossier Client
-                                              </button>
-                                            </div>
-                                          </TabPanel>
-                                          <TabPanel>
-                                            <h5 style={{ marginTop: 20 }}>Dossiers ouverts</h5>
-                                            <Mandats selectedClient={this.state.selectedSociete} clients_tempo={this.state.clients_cases} clients_tempo_copie={this.state.clients_cases}
-                                                     contacts={this.state.contacts}
-                                                     onFolderClick={(folder_id,parentClientFolder) => {
-                                                       let ged = this.state.reelFolders;
-                                                       let CLIENT_folder = ged.find(x => x.id ===  ENV_CLIENTS_FOLDER_ID)
-                                                       if(CLIENT_folder){
-                                                         this.setState({
-                                                           showContainerSection: 'Drive',
-                                                           focusedItem: 'Drive',
-                                                           selectedDriveItem: [folder_id],
-                                                           expandedDriveItems: [folder_id, parentClientFolder, localStorage.getItem('client_folder_id')],
-                                                           selectedFoldername: main_functions.getFolderNameById(folder_id, this.state.reelFolders),
-                                                           breadcrumbs: main_functions.getBreadcumpsPath(folder_id, this.state.reelFolders),
-                                                           selectedFolderId: folder_id,
-                                                           selectedFolderFiles: main_functions.getFolderFilesById(folder_id, this.state.reelFolders),
-                                                           selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, this.state.reelFolders)
-                                                         });
-                                                         this.props.history.push("/home/drive/" + folder_id )
-                                                         window.scrollTo({ top: 0, behavior: 'smooth' });
-                                                       }else{
-
-                                                         this.setState({
-                                                           showContainerSection: 'Drive',
-                                                           focusedItem: 'Drive',
-                                                           selectedDriveItem: [],
-                                                           expandedDriveItems: [],
-                                                           selectedDriveSharedItem:[ENV_CLIENTS_FOLDER_ID],
-                                                           expandedDriveSharedItems:['parent',ENV_CLIENTS_FOLDER_ID],
-                                                           breadcrumbs: 'Mon drive / Partagés avec moi',
-                                                         });
-                                                         this.props.history.push("/home/shared/" + ENV_CLIENTS_FOLDER_ID)
-                                                       }
-                                                     }}
-                                                     update_client_case={(id,data) => {
-                                                       this.update_client_case(id,data)
-                                                     }}
-                                                     reloadGed={() => this.justReloadGed()}
-                                                     openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                                            />
-                                          </TabPanel>
-                                        </Tabs>
+                                                             this.setState({
+                                                               showContainerSection: 'Drive',
+                                                               focusedItem: 'Drive',
+                                                               selectedDriveItem: [],
+                                                               expandedDriveItems: [],
+                                                               selectedDriveSharedItem:[ENV_CLIENTS_FOLDER_ID],
+                                                               expandedDriveSharedItems:['parent',ENV_CLIENTS_FOLDER_ID],
+                                                               breadcrumbs: 'Mon drive / Partagés avec moi',
+                                                             });
+                                                             this.props.history.push("/home/shared/" + ENV_CLIENTS_FOLDER_ID)
+                                                           }
+                                                         }}
+                                                         update_client_case={(id,data) => {
+                                                           this.update_client_case(id,data)
+                                                         }}
+                                                         reloadGed={() => this.justReloadGed()}
+                                                         openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                                />
+                                              </TabPanel>
+                                            </Tabs>
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-                              </div>
                             }
                           </Route>
                         ]
@@ -5746,535 +6484,7 @@ export default class Main extends React.Component {
                         active_modules.includes("TIMESHEET") === true &&
                         [
                           <Route key={1} exact path="/home/timeSheet/activities">
-                            {
-                              this.state.loading === false && this.state.firstLoading === false &&
-                              <div>
-                                <div className="row">
-                                  <div className="col-lg-12">
-                                    <h5 className="mt-0 mb-1">TimeSheet / Activités</h5>
-                                    <div className="card-box text-center" style={{ marginTop: 1 }}>
-                                      <div style={{ marginTop: 30 }} className="text-left">
-                                        <Tabs selectedIndex={this.state.selectedTimeSheetIndex} onSelect={index => {
-                                          this.setState({selectedTimeSheetIndex:index})
-                                        }}>
-                                          <TabList>
-                                            <Tab>Time Sheet</Tab>
-                                            <Tab>Activités </Tab>
-                                            <Tab>
-                                              Partner
-                                              {
-                                                this.state.factures.filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length > 0 &&
-                                                <Badge max={100}>{this.state.factures.filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length}</Badge>
-                                              }
-                                            </Tab>
-                                          </TabList>
-                                          <TabPanel>
-                                            {
-                                              this.state.showLignesFactureClient === false ?
-                                                  <div style={{marginTop:25,padding:10,paddingBottom:50,paddingLeft:20,border:"2px solid #f0f0f0"}}>
-                                                    <div className="row mt-2">
-                                                      <div className="col-md-6">
-                                                        <h5>Durée</h5>
-                                                        <div className="row">
-                                                          <div className="col-md-5">
-                                                            <Autosuggest
-                                                                suggestions={this.state.timeSuggestions}
-                                                                onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
-                                                                onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
-                                                                onSuggestionSelected={(event, { suggestion }) => console.log(suggestion)}
-                                                                getSuggestionValue={suggestion => suggestion}
-                                                                renderSuggestion={suggestion => (
-                                                                    <div>{suggestion}</div>)}
-                                                                inputProps={inputSuggProps}
-                                                            />
-                                                          </div>
-                                                          <div className="col-md-7">
-                                                            <div style={{ display: 'flex' }}>
-                                                              <Timer
-                                                                  initialTime={0}
-                                                                  startImmediately={false}
-                                                              >
-                                                                {({ start, resume, pause, stop, reset, getTimerState, getTime }) => (
-                                                                    <React.Fragment>
-                                                                      <div
-                                                                          align="center"
-                                                                          style={{
-                                                                            backgroundColor: '#c0c0c0',
-                                                                            padding: 8,
-                                                                            color: '#000',
-                                                                            height: 36,
-                                                                            fontWeight: 700,
-                                                                            fontSize: 16,
-                                                                            letterSpacing: '0.1rem'
-                                                                          }}>
-                                                                        <Timer.Hours
-                                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`} />
-                                                                        <Timer.Minutes
-                                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`} />
-                                                                        <Timer.Seconds
-                                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`} />
-                                                                      </div>
-                                                                      <div
-                                                                          style={{ marginLeft: 10 }}>
-                                                                        <div
-                                                                            align="center"
-                                                                            style={{
-                                                                              backgroundColor: (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'green' : 'red',
-                                                                              padding: 5,
-                                                                              borderRadius: 10,
-                                                                              width: 50,
-                                                                              color: '#fff',
-                                                                              fontWeight: 700,
-                                                                              cursor: 'pointer'
-                                                                            }}
-                                                                            onClick={() => {
-                                                                              if (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') {
-                                                                                start();
-                                                                              } else {
-                                                                                let timeEtablished = getTime();
-                                                                                console.log(timeEtablished);
-                                                                                let timeH = ((timeEtablished / 1000) / 60) / 60;
-                                                                                console.log(timeH);
-                                                                                let obj = this.state.TimeSheet;
-                                                                                obj.newTime.duree = timeH.toFixed(3).replace('.', ':');
-                                                                                this.setState({ TimeSheet: obj });
-                                                                                stop();
-                                                                              }
-                                                                            }}
-                                                                        >
-                                                                          {(getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'Start' : 'Stop'}
-                                                                        </div>
-                                                                        <div
-                                                                            align="center"
-                                                                            style={{
-                                                                              backgroundColor: '#c0c0c0',
-                                                                              padding: 5,
-                                                                              borderRadius: 10,
-                                                                              width: 50,
-                                                                              color: '#fff',
-                                                                              fontWeight: 700,
-                                                                              cursor: 'pointer',
-                                                                              marginTop: 3
-                                                                            }}
-                                                                            onClick={() => {
-                                                                              let obj = this.state.TimeSheet;
-                                                                              obj.newTime.duree = '';
-                                                                              this.setState({ TimeSheet: obj });
-                                                                              reset();
-                                                                            }}
-                                                                        >
-                                                                          Reset
-                                                                        </div>
-                                                                      </div>
-                                                                    </React.Fragment>
-                                                                )}
-                                                              </Timer>
-                                                            </div>
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                      <div className="col-md-6">
-                                                        <div>
-                                                          <h5>Nom du client</h5>
-                                                          <div style={{ display: 'flex' }}>
-                                                            <SelectSearch
-                                                                options={
-                                                                  this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
-                                                                      ({
-                                                                        value: ID,
-                                                                        name: Nom + ' ' + (Prenom || ''),
-                                                                        ContactType: Type,
-                                                                        ContactName: Nom + ' ' + (Prenom || ''),
-                                                                        imageUrl: imageUrl
-                                                                      }))
-                                                                }
-                                                                value={this.state.selectedClientTimeEntree}
-                                                                renderOption={main_functions.renderSearchOption}
-                                                                search
-                                                                placeholder="Chercher votre client"
-                                                                onChange={ (e) => {
-                                                                  let obj = this.state.TimeSheet;
-                                                                  let findClientTempo = this.state.clients_cases.find(x => x.ID_client === e)
-                                                                  let findClientFname = this.state.annuaire_clients_mandat.find(x => x.ID === e)
-                                                                  obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
-                                                                  obj.newTime.client_id = e;
-                                                                  if(findClientTempo){
-                                                                    this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
-                                                                  }else{
-                                                                    obj.newTime.dossier_client =  {
-                                                                      name:'',
-                                                                      facturation: {
-                                                                        language:''
-                                                                      }}
-                                                                    this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: e})
-                                                                  }
-                                                                  setTimeout(() => {
-                                                                    console.log(this.state.selectedClientFolders)
-                                                                  },400)
-                                                                }}
-                                                            />
-                                                            <IconButton
-                                                                style={{ marginTop: -5 }}
-                                                                onClick={() => this.setState({ openAdvancedSearchModal: true })}>
-                                                              <SearchIcon />
-                                                            </IconButton>
-                                                          </div>
-                                                          <h5 style={{marginTop:10}}>Dossier du client </h5>
-                                                          <MuiSelect
-                                                              labelId="demo-simple-select-label"
-                                                              id="demo-simple-select"
-                                                              style={{ width: 300 }}
-                                                              value={this.state.TimeSheet.newTime.dossier_client}
-                                                              onChange={(e) => {
-                                                                let ts = this.state.TimeSheet;
-                                                                let data = e.target.value;
-                                                                let team = data.team || [];
-                                                                let find = team.find(x => x.email === this.state.TimeSheet.newTime.utilisateurOA);
-                                                                if(find){
-                                                                  ts.newTime.rateFacturation = find.tarif || '';
-                                                                  this.setState({ TimeSheet: ts });
-                                                                }else{
-                                                                  let OA_contacts = this.state.contacts;
-                                                                  let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,this.state.TimeSheet.newTime.utilisateurOA);
-                                                                  ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
-                                                                }
-                                                                ts.newTime.dossier_client = e.target.value;
-                                                                this.setState({ TimeSheet: ts });
-                                                              }}
-                                                          >
-                                                            {
-                                                              this.state.selectedClientFolders.map((item,key) => (
-                                                                  <MenuItem key={key} value={item}>{item.name}</MenuItem>
-                                                              ))
-                                                            }
-                                                          </MuiSelect>
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                    <div className="row mt-3">
-                                                      <div className="col-md-6">
-                                                        <div>
-                                                          <h5>Catégorie d’activités </h5>
-                                                          <MuiSelect
-                                                              labelId="demo-simple-select-label"
-                                                              id="demo-simple-select"
-                                                              style={{ width: 220 }}
-                                                              value={this.state.TimeSheet.newTime.categoriesActivite}
-                                                              onChange={(e) => {
-                                                                let d = this.state.TimeSheet;
-                                                                d.newTime.categoriesActivite = e.target.value;
-                                                                this.setState({ TimeSheet: d });
-                                                              }}
-                                                          >
-                                                            <MenuItem
-                                                                value={'Temps facturé'}>Temps facturé</MenuItem>
-                                                            <MenuItem
-                                                                value={'Paiement avancée'}>Provision</MenuItem>
-                                                          </MuiSelect>
-                                                        </div>
-                                                      </div>
-                                                      <div className="col-md-6">
-                                                        <div
-                                                            style={{ width: '100%' }}>
-                                                          <h5>Date</h5>
-                                                          <DatePicker
-                                                              calendarIcon={
-                                                                <img
-                                                                    alt=""
-                                                                    src={calendar}
-                                                                    style={{ width: 20 }} />}
-                                                              onChange={(e) => {
-                                                                console.log(e);
-                                                                let d = this.state.TimeSheet;
-                                                                d.newTime.date = e;
-                                                                this.setState({ TimeSheet: d });
-                                                              }}
-                                                              value={this.state.TimeSheet.newTime.date}
-                                                          />
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                    <div className="row mt-3">
-                                                      <div className="col-md-6">
-                                                        <div>
-                                                          <div>
-                                                            <h5>{new_timeSheet_desc}</h5>
-                                                          </div>
-                                                          <textarea
-                                                              className="form-control "
-                                                              id="duree"
-                                                              style={{ width: '100%' }}
-                                                              name="duree"
-                                                              rows={5}
-                                                              value={this.state.TimeSheet.newTime.description}
-                                                              onChange={(e) => {
-                                                                let d = this.state.TimeSheet;
-                                                                d.newTime.description = e.target.value;
-                                                                this.setState({ TimeSheet: d });
-                                                              }} />
-                                                        </div>
-                                                      </div>
-                                                      <div className="col-md-6">
-                                                        <div>
-                                                          <h6>Utilisateur </h6>
-                                                        </div>
-                                                        <MuiSelect
-                                                            labelId="demo-simple-select-label4545"
-                                                            id="demo-simple-select4545"
-                                                            style={{ width: 250 }}
-                                                            onChange={(e) => {
-                                                              let ts = this.state.TimeSheet;
-                                                              let dossier = this.state.TimeSheet.newTime.dossier_client;
-                                                              if(dossier && dossier.team && dossier.team.length > 0){
-                                                                let team = dossier.team;
-                                                                let find = team.find(x => x.email === e.target.value);
-                                                                if(find){
-                                                                  ts.newTime.rateFacturation = find.tarif || "";
-                                                                }
-                                                              }else{
-                                                                let OA_contacts = this.state.contacts;
-                                                                let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,e.target.value);
-                                                                ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
-                                                              }
-                                                              ts.newTime.utilisateurOA = e.target.value;
-                                                              this.setState({ TimeSheet: ts });
-                                                            }}
-                                                            value={this.state.TimeSheet.newTime.utilisateurOA}
-                                                        >
-                                                          {this.state.contacts.map((contact, key) => (
-                                                              <MenuItem
-                                                                  key={key}
-                                                                  value={contact.email}>
-                                                                <div style={{display:"flex"}}>
-                                                                  <Avatar style={{marginLeft:10}}
-                                                                          alt=""
-                                                                          src={contact.imageUrl} />
-                                                                  <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                                </div>
-                                                              </MenuItem>
-                                                          ))}
-                                                        </MuiSelect>
-                                                        <div
-                                                            className="mt-3">
-                                                          <h6>
-                                                            Taux horaire
-                                                          </h6>
-                                                          <Input
-                                                              className="form-control "
-                                                              id="duree"
-                                                              style={{ width: 250 }}
-                                                              name="duree"
-                                                              type="text"
-                                                              endAdornment={
-                                                                <InputAdornment
-                                                                    position="end">CHF:Hr</InputAdornment>}
-                                                              value={this.state.TimeSheet.newTime.rateFacturation + ''}
-                                                              onChange={(e) => {
-                                                                let d = this.state.TimeSheet;
-                                                                d.newTime.rateFacturation = e.target.value;
-                                                                this.setState({ TimeSheet: d });
-                                                              }} />
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                    <div align="center" className=" mt-4">
-                                                      <AltButtonGroup>
-                                                        <AtlButton
-                                                            onClick={() => {
-                                                              this.createLignefacture(false)
-                                                            }}
-                                                            appearance="primary"
-                                                            isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' }
-                                                            style={{ margin: 20 }}> Enregistrer </AtlButton>
-                                                        <AtlButton
-                                                            onClick={() => {
-                                                              this.createLignefacture(true)
-                                                            }}
-                                                            appearance="primary"
-                                                            isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' }
-                                                            style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
-                                                        <AtlButton
-                                                            appearance=""
-                                                            style={{ margin: 20 }}
-                                                            onClick={() => {
-                                                              this.setState({
-                                                                TimeSheet: {
-                                                                  newTime: {
-                                                                    duree: '',
-                                                                    client: '',
-                                                                    dossier_client: {
-                                                                      name:'',
-                                                                      facturation: {
-                                                                        language:''
-                                                                      }},
-                                                                    categoriesActivite: 'Temps facturé',
-                                                                    description: '',
-                                                                    date: new Date(),
-                                                                    utilisateurOA: '',
-                                                                    rateFacturation: '',
-                                                                    selectedClientTimeEntree:''
-                                                                  }
-                                                                }
-                                                              });
-                                                            }}>Réinitialiser</AtlButton>
-                                                      </AltButtonGroup>
-                                                      <div>
-                                                        <AltButtonGroup
-                                                            style={{ marginTop: 10 }}>
-                                                          <AtlButton
-                                                              isSelected
-                                                              appearance="default"
-                                                              onClick={() => this.setState({selectedTimeSheetIndex:1})}
-                                                          >
-                                                            Etablir facture
-                                                          </AtlButton>
-                                                        </AltButtonGroup>
-                                                      </div>
-                                                    </div>
-                                                  </div> :
-
-                                                  <div>
-                                                    <div className="mt-1">
-                                                      <div>
-                                                        <div style={{
-                                                          textAlign: 'right',
-                                                          marginTop: 15
-                                                        }}>
-                                                          <button
-                                                              onClick={() => this.setState({
-                                                                showLignesFactureClient: false
-                                                              })}
-                                                              className="btn btn-sm btn-outline-info">Retour
-                                                          </button>
-                                                        </div>
-
-                                                        <div className="row mt-3">
-                                                          <div
-                                                              className="col-md-6">
-                                                            <h5>Nom du client</h5>
-                                                            <div
-                                                                style={{ display: 'flex' }}>
-                                                              <SelectSearch
-                                                                  options={
-                                                                    this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl }) =>
-                                                                        ({
-                                                                          value: Nom + ' ' + (Prenom || ''),
-                                                                          name: Nom + ' ' + (Prenom || ''),
-                                                                          ContactType: Type,
-                                                                          ContactName: Nom + ' ' + (Prenom || ''),
-                                                                          imageUrl: imageUrl
-                                                                        }))
-                                                                  }
-                                                                  value={this.state.selectedClientTimeEntree}
-                                                                  renderOption={main_functions.renderSearchOption}
-                                                                  search
-                                                                  placeholder="Chercher votre client"
-                                                                  onChange={e => {
-                                                                    console.log(e);
-                                                                    let obj = this.state.TimeSheet;
-                                                                    obj.newTime.client = e;
-
-                                                                    let find_annuaire_fact_lead = this.state.annuaire_clients_mandat.find(x => (x.Nom + ' ' + x.Prenom) === e);
-                                                                    console.log(find_annuaire_fact_lead);
-                                                                    let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
-                                                                    console.log(partner_email);
-                                                                    this.setState({
-                                                                      partnerFacture: partner_email,
-                                                                      selectedClientTimeEntree: e,
-                                                                      TimeSheet: obj
-                                                                    });
-                                                                  }}
-                                                              />
-                                                              <IconButton
-                                                                  style={{ marginTop: -5 }}
-                                                                  onClick={() => this.setState({ openAdvancedSearchModal: true })}>
-                                                                <SearchIcon />
-                                                              </IconButton>
-                                                            </div>
-                                                          </div>
-                                                          <div
-                                                              className="col-md-4">
-                                                            <div
-                                                                style={{ width: '100%' }}>
-                                                              <h5>Date de la facture</h5>
-                                                              <DatePicker
-                                                                  calendarIcon={
-                                                                    <img
-                                                                        alt=""
-                                                                        src={calendar}
-                                                                        style={{ width: 20 }} />}
-                                                                  onChange={(e) => {
-                                                                    this.setState({ dateFacture: e });
-                                                                  }}
-                                                                  value={this.state.dateFacture}
-                                                              />
-                                                            </div>
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                            }
-                                          </TabPanel>
-                                          <TabPanel>
-                                            {
-                                              this.state.time_sheets.length > 0 &&
-                                              <TableTimeSheet
-                                                  lignesFactures={this.state.time_sheets || []}
-                                                  lignesFacturesCopy={this.state.time_sheets || []}
-                                                  deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
-                                                  setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
-                                                  OA_contacts={this.state.contacts}
-                                                  annuaire_clients_mandat={this.state.annuaire_clients_mandat}
-                                                  onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
-                                                    this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
-                                                        partner,lignes_facture)
-                                                  }}
-                                                  client_folders={this.state.client_folders}
-                                                  updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
-                                                  openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                                                  clientsTempo={this.state.clients_cases}
-                                                  updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
-                                              />
-                                            } {
-                                            this.state.time_sheets.length === 0 &&
-                                            <div style={{
-                                              marginTop: 30,
-                                              marginLeft: 10
-                                            }}>Aucune ligne facture encore ajoutée !</div>
-
-                                          }
-                                          </TabPanel>
-                                          <TabPanel>
-                                            <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
-                                            <TableFactures factures={this.state.factures}
-                                                           facturesCp={this.state.factures}
-                                                           client_folders={this.state.client_folders}
-                                                           clients_tempo={this.state.clients_cases}
-                                                           annuaire_clients_mandat={this.state.annuaire_clients_mandat}
-                                                           sharedFolders={this.state.sharedReelFolders || []}
-                                                           validateFacture={(row,key,template,client) => {
-                                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
-                                                           }}
-                                                           openFacture={(id) => {
-                                                             this.openPdfModal(id)
-                                                           }}
-                                                           openFactureFolder={(id) => {
-                                                             this.redirectToFolder(id)
-                                                           }}
-                                                           delete_facture={(id) => {
-                                                             this.delete_facture(id)
-                                                           }}
-                                                           openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                                            />
-                                          </TabPanel>
-                                        </Tabs>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            }
+                            {this.renderTimeSheet()}
                           </Route>,
                           <Route key={2} exact path="/home/timeSheet/dashboard">
                             {
@@ -6300,8 +6510,7 @@ export default class Main extends React.Component {
                                             <Tab disabled={true}>Scheduled Next Week </Tab>
                                           </TabList>
                                           <TabPanel>
-                                            <div
-                                                className="row justify-content-start align-items-center mt-3">
+                                            <div className="row justify-content-start align-items-center mt-3">
                                               <div>
                                                 <BT
                                                     variant="contained"
@@ -6438,7 +6647,7 @@ export default class Main extends React.Component {
                                             </div>
                                             <div>
                                               {
-                                                this.state.contacts.length > 0 &&
+                                                this.state.contacts &&
                                                 <TableTimeSheetDashboard
                                                     contacts={this.state.contacts || []}
                                                     onEditClick={(contact, key) => {
@@ -6529,7 +6738,7 @@ export default class Main extends React.Component {
                                               </div>
                                             </div>
                                             {
-                                              this.state.contacts.length > 0 &&
+                                              this.state.contacts  &&
                                               <TableTimeSheet
                                                   contacts={this.state.prestatairesCp}
                                                   onEditClick={(contact, key) => {
@@ -6596,7 +6805,7 @@ export default class Main extends React.Component {
                                                       }}
                                                       MenuProps={Data.MenuProps}
                                                   >
-                                                    {this.state.contacts.map((name, key) => (
+                                                    {(this.state.contacts || []).map((name, key) => (
                                                         <MenuItem
                                                             key={key}
                                                             value={name}>
@@ -7616,7 +7825,7 @@ export default class Main extends React.Component {
                                             </div>
                                           </div>
                                           {
-                                            this.state.contacts.length > 0 &&
+                                            (this.state.contacts || []).length > 0 &&
                                             <TableTimeSheet
                                                 contacts={this.state.contacts}
                                                 onEditClick={(contact, key) => {
@@ -7872,85 +8081,88 @@ export default class Main extends React.Component {
                                   [
                                     <Route key={2} exact path="/home/marketplace/RH_Support_ponctuel" >
                                       {
-                                        this.state.loading === false && this.state.firstLoading === false &&
-                                        <div>
-                                          <h4 className="mt-0 mb-1">Contacts de fournisseurs de prestations de services</h4>
-                                          <div className="mt-2" style={{textAlign: "right"}}>
-                                            <div className="text-sm-right">
-                                              <button
-                                                  onClick={() => {
-                                                    this.setState({openAddPrestataireModal: true})
-                                                  }}
-                                                  className="btn btn-danger waves-effect waves-light mb-2">
-                                                <i className="mdi mdi-plus-circle mr-1"/> Ajouter
-                                              </button>
+                                        !this.state.prestataires ?
+                                            <div align="center" style={{marginTop: 200}}>
+                                              <CircularProgress color="primary"/>
+                                              <h6>Chargement...</h6>
                                             </div>
-                                          </div>
-                                          <div>
-                                            <Table_prestataire_service
-                                                service="Avocats" bgcolor="#FF4F4E"
-                                                contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "avocat")}
-                                                onEditClick={(contact, key) => {
-                                                  this.setState({
-                                                    selectedContact: contact,
-                                                    selectedContactKey: contact.id
-                                                  });
-                                                  this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.id);
-                                                }}
-                                            />
-                                            <Table_prestataire_service
-                                                service="Notaires" bgcolor="#FF7F7D"
-                                                contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "notaire")}
-                                                onEditClick={(contact, key) => {
-                                                  this.setState({
-                                                    selectedContact: contact,
-                                                    selectedContactKey: contact.id
-                                                  });
-                                                  this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.id);
-                                                }}
-                                            />
-                                            <Table_prestataire_service
-                                                service="Experts compatable" bgcolor="#F92BA5"
-                                                contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "expert_comptable")}
-                                                onEditClick={(contact, key) => {
-                                                  this.setState({
-                                                    selectedContact: contact,
-                                                    selectedContactKey: contact.id
-                                                  });
-                                                  this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.id);
-                                                }}
-                                            />
-                                            <Table_prestataire_service
-                                                service="Audit" bgcolor="#83c5be"
-                                                contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "audit")}
-                                                onEditClick={(contact, key) => {
-                                                  this.setState({
-                                                    selectedContact: contact,
-                                                    selectedContactKey: contact.id
-                                                  });
-                                                  this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.id);
-                                                }}
-                                            />
-                                            <Table_prestataire_service
-                                                service="CFO(financiers)" bgcolor="#0077b6"
-                                                contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "CFO")}
-                                                onEditClick={(contact, key) => {
-                                                  this.setState({
-                                                    selectedContact: contact,
-                                                    selectedContactKey: contact.id
-                                                  });
-                                                  this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.id);
-                                                }}
-                                            />
-                                          </div>
+                                            :
+                                            <div>
+                                              <h4 className="mt-0 mb-1">Contacts de fournisseurs de prestations de services</h4>
+                                              <div className="mt-2" style={{textAlign: "right"}}>
+                                                <div className="text-sm-right">
+                                                  <button
+                                                      onClick={() => {
+                                                        this.setState({openAddPrestataireModal: true})
+                                                      }}
+                                                      className="btn btn-danger waves-effect waves-light mb-2">
+                                                    <i className="mdi mdi-plus-circle mr-1"/> Ajouter
+                                                  </button>
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <Table_prestataire_service
+                                                    service="Avocats" bgcolor="#FF4F4E"
+                                                    contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "avocat")}
+                                                    onEditClick={(contact, key) => {
+                                                      this.setState({
+                                                        selectedContact: contact,
+                                                        selectedContactKey: contact.id
+                                                      });
+                                                      this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.id);
+                                                    }}
+                                                />
+                                                <Table_prestataire_service
+                                                    service="Notaires" bgcolor="#FF7F7D"
+                                                    contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "notaire")}
+                                                    onEditClick={(contact, key) => {
+                                                      this.setState({
+                                                        selectedContact: contact,
+                                                        selectedContactKey: contact.id
+                                                      });
+                                                      this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.id);
+                                                    }}
+                                                />
+                                                <Table_prestataire_service
+                                                    service="Experts compatable" bgcolor="#F92BA5"
+                                                    contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "expert_comptable")}
+                                                    onEditClick={(contact, key) => {
+                                                      this.setState({
+                                                        selectedContact: contact,
+                                                        selectedContactKey: contact.id
+                                                      });
+                                                      this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.id);
+                                                    }}
+                                                />
+                                                <Table_prestataire_service
+                                                    service="Audit" bgcolor="#83c5be"
+                                                    contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "audit")}
+                                                    onEditClick={(contact, key) => {
+                                                      this.setState({
+                                                        selectedContact: contact,
+                                                        selectedContactKey: contact.id
+                                                      });
+                                                      this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.id);
+                                                    }}
+                                                />
+                                                <Table_prestataire_service
+                                                    service="CFO(financiers)" bgcolor="#0077b6"
+                                                    contacts={this.state.prestataires.filter(x => x.type1 && x.type1 === "CFO")}
+                                                    onEditClick={(contact, key) => {
+                                                      this.setState({
+                                                        selectedContact: contact,
+                                                        selectedContactKey: contact.id
+                                                      });
+                                                      this.props.history.push('/home/marketplace/RH_Support_ponctuel/' + contact.id);
+                                                    }}
+                                                />
+                                              </div>
 
-                                        </div>
+                                            </div>
                                       }
                                     </Route>,
                                     <Route key={3} exact path="/home/marketplace/RH_Support_ponctuel/:prestataire_id">
-                                      {
-                                        this.state.loading === false && this.state.firstLoading === false &&
-                                        <div>
+                                      <div>
                                           <div className="row">
                                             <div className="col-lg-12">
                                               <div className="card-box text-center"
@@ -8467,7 +8679,6 @@ export default class Main extends React.Component {
                                             </div>
                                           </div>
                                         </div>
-                                      }
                                     </Route>
                                   ]
                             ]
@@ -9071,7 +9282,7 @@ export default class Main extends React.Component {
                       open={Boolean(this.state.anchorElContactsMenu)}
                       onClose={() => this.setState({ anchorElContactsMenu: null })}
                     >
-                      {this.state.contacts.map((contact, key) => (
+                      {(this.state.contacts || []).map((contact, key) => (
                           <MenuItem
                             key={key}
                             onClick={() => {
@@ -9295,13 +9506,13 @@ export default class Main extends React.Component {
             </DialogTitle>
             <DialogContent>
               <SearchClientsContainer
-                societes={this.state.annuaire_clients_mandat}
+                societes={this.state.annuaire_clients_mandat || []}
                 contacts={this.state.contacts}
                 onSelectBtnClick={(client) => {
                   let obj = this.state.TimeSheet;
                   obj.newTime.client = client.ContactName;
-                  let find_annuaire_fact_lead = this.state.annuaire_clients_mandat.find(
-                    (x) => (x.Nom + ' ' + x.Prenom) === client.Nom + ' ' + client.Prenom
+                  let find_annuaire_fact_lead = (this.state.annuaire_clients_mandat || []).find(
+                    (x) => x.contactName === client.contactName
                   );
                   let partner_email = find_annuaire_fact_lead
                     ? find_annuaire_fact_lead.facturation
@@ -9356,8 +9567,8 @@ export default class Main extends React.Component {
                       className="form-control custom-select"
                       id="nomt"
                       name="nomt"
-                      value={this.state.newClient.Type}
-                      onChange={this.handleChange('newClient', 'Type')}>
+                      value={this.state.newClient.type}
+                      onChange={this.handleChange('newClient', 'type')}>
                     <option value="0">Une société</option>
                     <option value="1">Personne physique</option>
                   </select>
@@ -9377,28 +9588,28 @@ export default class Main extends React.Component {
               </div>
               <div className="row mt-3">
                 <div className="col-md-6">
-                  <p style={{ marginBottom: 10 }}>Nom du client</p>
+                  <p style={{ marginBottom: 10 }}>Nom & prénom</p>
                   <input
                       style={{ minWidth: 300, height: 40 }}
                       type="text"
                       className="form-control"
                       id="nomc"
                       name="nomc"
-                      value={this.state.newClient.Nom}
-                      onChange={this.handleChange('newClient', 'Nom')} />
+                      value={this.state.newClient.contactName}
+                      onChange={this.handleChange('newClient', 'contactName')} />
                 </div>
                 {
-                  this.state.newClient.Type === "1" &&
+                  this.state.newClient.type === "0" &&
                   <div className="col-md-6">
-                    <p style={{ marginBottom: 10 }}>Prénom du client</p>
+                    <p style={{ marginBottom: 10 }}>Nom de la société</p>
                     <input
                         style={{ minWidth: 300, height: 40 }}
                         type="text"
                         className="form-control"
                         id="nomc"
                         name="nomc"
-                        value={this.state.newClient.Prenom}
-                        onChange={this.handleChange('newClient', 'Prenom')} />
+                        value={this.state.newClient.societyName}
+                        onChange={this.handleChange('newClient', 'societyName')} />
                   </div>
                 }
               </div>
@@ -9416,20 +9627,15 @@ export default class Main extends React.Component {
 
                 </div>
                 <div className="col-md-6">
-                  <p style={{ marginBottom: 10 }}>Pays</p>
-                  <select
+                  <p style={{ marginBottom: 10 }}>Adresse</p>
+                  <input
                       style={{ minWidth: 300, height: 40 }}
-                      className="form-control custom-select"
-                      id="nomt"
-                      name="nomt"
-                      value={this.state.newClient.country}
-                      onChange={this.handleChange('newClient', 'country')}>
-                    {
-                      countryList.map((c, key) => (
-                          <option key={key} value={c.Name}>{c.Name}</option>
-                      ))
-                    }
-                  </select>
+                      type="text"
+                      className="form-control"
+                      id="nomc"
+                      name="nomc"
+                      value={this.state.newClient.adress}
+                      onChange={this.handleChange('newClient', 'adress')} />
                 </div>
               </div>
             </DialogContent>
@@ -9445,7 +9651,7 @@ export default class Main extends React.Component {
                 Annuler
               </MuiButton>
               <MuiButton
-                  disabled={this.state.newClient.Nom === '' || this.state.newClient.email === ''}
+                  disabled={this.state.newClient.contactName === '' || verfiForms.verif_Email(this.state.newClient.email.trim())}
                   onClick={() => {
                     this.addNewClient();
                   }}

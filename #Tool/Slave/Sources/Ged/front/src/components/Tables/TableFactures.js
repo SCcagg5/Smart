@@ -30,6 +30,9 @@ import SelectSearch from 'react-select-search';
 import main_functions from '../../controller/main_functions';
 import ClearOutlinedIcon from '@material-ui/icons/ClearOutlined';
 import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
+import entIcon from "../../assets/images/entreprise-icon.png";
+import userAvatar from "../../assets/images/users/user4.jpg";
+import {Dropdown} from "semantic-ui-react";
 
 const useRowStyles = makeStyles({
   root: {
@@ -51,7 +54,7 @@ export default function CollapsibleTable(props) {
 
   let factures = props.factures.filter(x => x.partner === localStorage.getItem("email"));
 
-  const searchFilter = factures.filter((lf) => ( ( (lf.client.trim() === client_search.trim() ) || client_search === "") &&
+  const searchFilter = factures.filter((lf) => ( ( (lf.client_id === client_search ) || client_search === "") &&
       ( (sdate_search !== null && ( new Date(lf.created_at).getTime() >= sdate_search.getTime())) || sdate_search === null  ) &&
       ( (edate_search !== null && (new Date(lf.created_at).getTime() <= (moment(edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || edate_search === null  ) &&
       ( (statut_search === lf.statut) || statut_search === "tous" )
@@ -116,7 +119,26 @@ export default function CollapsibleTable(props) {
             <div className="col-md-10 mt-2">
               <div style={{display:"flex"}}>
                 <h5 style={{marginRight:10}}>Par client</h5>
-                <SelectSearch
+                <Dropdown
+                    value={client_search}
+                    labeled
+                    placeholder={"Sélectionner.."}
+                    search
+                    selection
+                    options={
+                      props.annuaire_clients_mandat.map(({ contactName,societyName, type, imageUrl, ID }) =>
+                          ({
+                            key: ID,
+                            text: contactName + (societyName !== "" ? (" - " + societyName) : ""),
+                            value: ID,
+                            image: {avatar:true,src:imageUrl ? imageUrl : type === "0" ? entIcon : userAvatar}
+                          }))
+                    }
+                    onChange={ (e,{value}) => {
+                      setClient_search(value)
+                    }}
+                />
+                {/*<SelectSearch
                     className="select-search"
                     options={
                       props.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl }) =>
@@ -135,7 +157,7 @@ export default function CollapsibleTable(props) {
                     onChange={e => {
                       setClient_search(e)
                     }}
-                />
+                />*/}
               </div>
             </div>
 

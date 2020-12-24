@@ -129,9 +129,9 @@ export default function RoomTabs(props) {
     const contactSelectOptions=[];
     contactSelectOptions.push({label:"Aucun",value:""})
     props.annuaire_clients.map((client,key) => {
-        contactSelectOptions.push({value:client.Nom + " " + (client.Prenom ||""),
+        contactSelectOptions.push({value:client.contactName,
             label:<div><img alt="" src={client.Type === "1" ? client.imageUrl ? client.imageUrl : userAvatar : entIcon}
-                            style={{width:30,height:30,objectFit:"cover"}}/>{" "}{client.Nom+" "+(client.Prenom || "")}</div>
+                            style={{width:30,height:30,objectFit:"cover"}}/>{client.contactName}</div>
         })
     })
 
