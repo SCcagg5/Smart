@@ -326,6 +326,12 @@ def ged_share(cn, nextc):
     err = cn.private["ged"].share(doc_id, cn.pr["to"], cn.pr["access"])
     return cn.call_next(nextc, err)
 
+def ged_share(cn, nextc):
+    doc_id = cn.rt["doc"] if "doc" in cn.rt else None
+    to_id = cn.rt["move"] if "move" in cn.rt else None
+    err = cn.private["ged"].move(doc_id, to_id)
+    return cn.call_next(nextc, err)
+
 def ged_update(cn, nextc):
     err = check.contain(cn.pr, [["name", "content"]])
     if not err[0]:

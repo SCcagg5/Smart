@@ -346,6 +346,14 @@ class folder:
                 return [False, "data input error", 500]
         return [True, {"id": id_folder}, None]
 
+    def move(self, id_folder, to_id):
+        if not self.is_proprietary(id_folder) and not self.is_editor(id_folder):
+            return [False, "Can't move this folder, invalid rights", 403]
+        succes = sql.input("UPDATE `ged_folder` SET `inside` = %s WHERE `ged_folder`.`id` = %s;", (to_id, id_folder))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {}, None]
+
     def delete(self, id_folder):
         if not self.is_proprietary(id_folder) or id_folder is None:
             return [False, "Invalid rights", 403]
@@ -515,6 +523,14 @@ class file:
         sql.input("UPDATE  `" + table + "` SET active = 0 WHERE user_id = %s AND file_id = %s", (user_id, file_id))
         succes = sql.input("INSERT INTO `" + table + "` (`id`, `ged_id`, `user_id`, `file_id`, `can_administrate`, `can_share`, `can_edit`, `can_read`, `date`, `shared_by`, active) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", \
         (share_id, self.ged_id, user_id, file_id, access["administrate"], access["share"], access["edit"], access["read"], date, self.usr_id, True))
+        if not succes:
+            return [False, "data input error", 500]
+        return [True, {}, None]
+
+    def move(self, file_id, to_id):
+        if not self.is_proprietary(file_id) and not self.is_editor(file_id):
+            return [False, "Can't share this file, invalid rights", 403]
+        succes = sql.input("UPDATE `ged_file` SET `inside` = %s WHERE `ged_file`.`id` = %s;", (to_id, file_id))
         if not succes:
             return [False, "data input error", 500]
         return [True, {}, None]
@@ -802,6 +818,27 @@ class ged:
             ret = fil.share(email, doc_id, access)
         else:
             ret = [False, "Doc_id isn't a valid file_id or folder_id", 404]
+        return ret
+
+    def move(self, doc_id, to_id):
+        fol = folder(self.usr_id, self.ged_id)
+        if fol.exist(to_id):
+            if fol.exist(doc_id):
+                p = self.vpath(to_id)
+                if p[0]:
+                    if doc_id not in p[1]:
+                        ret = fol.move(doc_id, to_id)
+                    else:
+                        ret = [False, "Can't move a folder into itself", 400]
+                else:
+                    ret = p
+            elif file.exist(doc_id):
+                fil = file(self.usr_id, self.ged_id)
+                ret = fil.move(doc_id, to_id)
+            else:
+                ret = [False, "Doc_id isn't a valid file_id or folder_id", 404]
+        else:
+            ret = [False, "Destination isn't a valid folder_id", 404]
         return ret
 
     def update(self, doc_id, name, content):
