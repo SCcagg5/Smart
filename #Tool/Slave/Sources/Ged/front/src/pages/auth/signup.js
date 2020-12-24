@@ -3,12 +3,12 @@ import {Container, Row, Col, Card, CardBody, Label, FormGroup} from 'reactstrap'
 import {AvForm, AvGroup, AvInput, AvFeedback} from 'availity-reactstrap-validation';
 import Loader from '../../components/Loaders/Loader';
 import Snackbar from '@material-ui/core/Snackbar';
-//import SmartService from "../../provider/SmartService";
-import SmartService from "../../provider/masterNodeService";
+import SmartService from "../../provider/SmartService";
+//import SmartService from "../../provider/masterNodeService";
 import Alert from '@material-ui/lab/Alert';
 
 const ent_name = process.env.REACT_APP_ENT_NAME;
-const login_btn_color = process.env.REACT_APP_LOGIN_BTN_COLOR;
+const login_btn_color = process.env.REACT_APP_LOGIN_BTN_COLOR
 
 export default class signup extends Component {
 

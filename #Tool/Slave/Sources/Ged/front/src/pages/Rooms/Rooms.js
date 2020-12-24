@@ -16,6 +16,7 @@ export default function Rooms(props) {
                                   }}
                                   onDeleteTask={(key) => props.onDeleteTask(key) }
                                   onDropFile={(node) => props.onDropFile(node)}
+                                  history={props.history}
                         />
                     </div>
         </div>

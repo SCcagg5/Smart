@@ -1,6 +1,6 @@
 import React from 'react';
-//import SmartService from '../../provider/SmartService';
-import SmartService from '../../provider/masterNodeService';
+import SmartService from '../../provider/SmartService';
+//import SmartService from '../../provider/masterNodeService';
 
 import moment from 'moment';
 import FolderIcon from '@material-ui/icons/Folder';
@@ -77,10 +77,6 @@ import TableTimeSheet from '../../components/Tables/TableTimeSheet';
 import main_functions from '../../controller/main_functions';
 import DescriptionIcon from '@material-ui/icons/Description';
 import xlsxParser from 'xlsx-parse-json';
-import Slide from "@material-ui/core/Slide";
-import TablePatientsBrainy from "../../components/Tables/TablePatientsBrainy";
-import QuestionService from "../../provider/webserviceQuestions";
-import PatientService from "../../provider/patientservice";
 import recetteService from "../../provider/RecetteService";
 import edit from '../../assets/icons/edit.svg';
 import time from '../../assets/icons/time.svg';
@@ -102,7 +98,6 @@ import defaultAvatar from '../../assets/images/users/default_avatar.jpg';
 import Staricon from '@material-ui/icons/Star';
 import CheckCircle from '@material-ui/icons/CheckCircle';
 import MoodIcon from '@material-ui/icons/Mood';
-import RecetteDetail from "../Marketplace/Recettes/RecetteDetail";
 import ClampLines from 'react-clamp-lines';
 import Table_prestataire_service from "../../components/Tables/Table_prestataire_service";
 import Autosuggest from 'react-autosuggest';
@@ -122,26 +117,13 @@ import {Dropdown} from 'semantic-ui-react'
 import { Input as SuiInput } from 'semantic-ui-react'
 
 
-//const endpoint = process.env.REACT_APP_ENDPOINT
-const endpoint = "http://localhost:8080"
-
-const url=process.env.REACT_APP_JAWHER_API_ENDPOINT
-const question1food1me=process.env.REACT_APP_question1food1me
-const bodycheckQuestion=process.env.REACT_APP_bodycheckQuestion
+const endpoint = process.env.REACT_APP_ENDPOINT;
 const ged_id = process.env.REACT_APP_GED_ID;
-//const ent_name = process.env.REACT_APP_ENT_NAME;
 const meet_url = process.env.REACT_APP_MEET_URL;
-const ENV_CLIENTS_FOLDER_ID = process.env.REACT_APP_CLIENTS_FOLDER_ID;
-
-const rethinkdb_begin_name = process.env.REACT_APP_RETHINKDB_BEGIN_NAME;
-const db_name = rethinkdb_begin_name+"_"+ged_id.replaceAll("-","");
-
+const ENV_CLIENTS_FOLDER_ID = process.env.REACT_APP_CLIENTS_FOLDER_ID
+const db_name = process.env.REACT_APP_RETHINKDB_BEGIN_NAME;
 const modules = process.env.REACT_APP_ACTIVE_MODULES;
 const active_modules = (modules || "").split("/")
-
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
 
 export default class Main extends React.Component {
 
@@ -275,7 +257,7 @@ export default class Main extends React.Component {
     clients_cases:[],
     //annuaire_clients_mandat: [],
     //time_sheets:[],
-    rooms: [],
+    //rooms: [],
     selectedContact: '',
     selectedContactKey: '',
     editContactForm: false,
@@ -562,8 +544,6 @@ export default class Main extends React.Component {
           .then((gedRes) => {
             if (gedRes.succes === true && gedRes.status === 200) {
 
-              this.getRecettes()
-              this.getpatient();
 
               let parentSharedFolder = [{
                 id:"parent",
@@ -617,7 +597,6 @@ export default class Main extends React.Component {
                     selectedFoldername: folder_name,
                     breadcrumbs: main_functions.getBreadcumpsPath(folder_id, folders),
                     selectedFolderId: folder_id,
-                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                     selectedFolderFiles: main_functions.getFolderFilesById(folder_id, folders),
                     selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, folders),
                     firstLoading: false,
@@ -633,7 +612,6 @@ export default class Main extends React.Component {
                 this.setState({
                   selectedDriveItem: [],
                   expandedDriveItems: [],
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   firstLoading: false,
                   loading: false
                 });
@@ -644,7 +622,6 @@ export default class Main extends React.Component {
                   expandedDriveItems: [],
                   selectedDriveSharedItem:['parent'],
                   expandedDriveSharedItems:['parent'],
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   breadcrumbs: 'Mon drive / Partagés avec moi',
                   firstLoading: false,
                   loading: false
@@ -684,22 +661,38 @@ export default class Main extends React.Component {
             if(tablesRes.includes("prestataires") === false){
               this.setState({prestataires:[]})
             }
+            if(tablesRes.includes("rooms") === false){
+              this.setState({rooms:[]})
+            }
             this.setState({tableList:tablesRes || []})
 
             tablesRes.map((item,key) => {
+              if(item !== "chat"){
+                rethink.getTableData(db_name,"test",item).then( rr => {
 
-              rethink.getTableData(db_name,"test",item).then( rr => {
+                  if(item === "annuaire_clients_mandat"){
 
-                if(item === "annuaire_clients_mandat"){
-
-                  if (this.props.location.pathname.indexOf('/home/clients') > -1) {
-                    if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
-                      let client_id = this.props.location.pathname.replace('/home/clients/', '');
-                      let client = rr.find(x => x.id === client_id);
-                      if (client) {
+                    if (this.props.location.pathname.indexOf('/home/clients') > -1) {
+                      if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
+                        let client_id = this.props.location.pathname.replace('/home/clients/', '');
+                        let client = rr.find(x => x.id === client_id);
+                        if (client) {
+                          this.setState({
+                            selectedSociete: client,
+                            selectedSocieteKey: client_id,
+                            showContainerSection: 'Societe',
+                            focusedItem: 'Societe',
+                            selectedSocietyMenuItem: ['clients_mondat'],
+                            openSocietyMenuItem: true,
+                            selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                            firstLoading: false,
+                            loading: false
+                          });
+                        } else {
+                          this.props.history.push('/');
+                        }
+                      } else {
                         this.setState({
-                          selectedSociete: client,
-                          selectedSocieteKey: client_id,
                           showContainerSection: 'Societe',
                           focusedItem: 'Societe',
                           selectedSocietyMenuItem: ['clients_mondat'],
@@ -708,39 +701,39 @@ export default class Main extends React.Component {
                           firstLoading: false,
                           loading: false
                         });
-                      } else {
-                        this.props.history.push('/');
                       }
-                    } else {
-                      this.setState({
-                        showContainerSection: 'Societe',
-                        focusedItem: 'Societe',
-                        selectedSocietyMenuItem: ['clients_mondat'],
-                        openSocietyMenuItem: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
                     }
-                  }
 
-                  this.setState({[item]:rr.sort( (a,b) => {
-                      let fname1 = a.contactName
-                      let fname2 = b.contactName
-                      if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
-                      if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
-                      return 0;
-                    })})
-                }else if(item === "contacts"){
+                    this.setState({[item]:rr.sort( (a,b) => {
+                        let fname1 = a.contactName
+                        let fname2 = b.contactName
+                        if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
+                        if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
+                        return 0;
+                      })})
+                  }else if(item === "contacts"){
 
-                  if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
-                    if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
-                      let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
-                      let contact = rr.find(x => x.id === contact_id)
-                      if (contact) {
+                    if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
+                      if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
+                        let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
+                        let contact = rr.find(x => x.id === contact_id)
+                        if (contact) {
+                          this.setState({
+                            selectedContact: contact,
+                            selectedContactKey: contact_id,
+                            showContainerSection: 'Contacts',
+                            focusedItem: 'Contacts',
+                            openContactsMenu: true,
+                            selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                            firstLoading: false,
+                            loading: false
+                          });
+                        } else {
+                          this.props.history.push('/');
+                        }
+
+                      } else {
                         this.setState({
-                          selectedContact: contact,
-                          selectedContactKey: contact_id,
                           showContainerSection: 'Contacts',
                           focusedItem: 'Contacts',
                           openContactsMenu: true,
@@ -748,90 +741,80 @@ export default class Main extends React.Component {
                           firstLoading: false,
                           loading: false
                         });
-                      } else {
-                        this.props.history.push('/');
                       }
-
-                    } else {
-                      this.setState({
-                        showContainerSection: 'Contacts',
-                        focusedItem: 'Contacts',
-                        openContactsMenu: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                        firstLoading: false,
-                        loading: false
-                      });
+                    }
+                    let connected_email = localStorage.getItem("email");
+                    let oa_contact = main_functions.getOAContactByEmail2(rr,connected_email);
+                    if(oa_contact){
+                      let newTimeSheet = this.state.TimeSheet;
+                      newTimeSheet.newTime.utilisateurOA = connected_email;
+                      newTimeSheet.newTime.rateFacturation = oa_contact.rateFacturation || "";
+                      this.setState({TimeSheet:newTimeSheet,[item]:rr.sort( (a,b) => {
+                          var c = a.sort || -1
+                          var d = b.sort || -1
+                          return c-d;
+                        })})
+                    }else{
+                      this.setState({[item]:rr.sort( (a,b) => {
+                          var c = a.sort || -1
+                          var d = b.sort || -1
+                          return c-d;
+                        })})
+                    }
+                  }else if(item === "rooms"){
+                    this.setState({[item]:rr})
+                    if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
+                      if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
+                        if (rr.length > 0) {
+                          let room_id = this.props.location.pathname.replace('/home/rooms/', '');
+                          this.setState({
+                            showContainerSection: 'Rooms',
+                            focusedItem: 'Rooms',
+                            selectedRoomItems: [room_id],
+                            expandedRoomItems: [room_id],
+                            openRoomMenuItem: true,
+                            selectedRoom: rr[room_id],
+                            firstLoading: false,
+                            loading: false
+                          });
+                        } else {
+                          this.props.history.push('/home/rooms');
+                          this.setState({
+                            showContainerSection: 'Rooms',
+                            focusedItem: 'Rooms',
+                            selectedRoomItems: [],
+                            expandedRoomItems: [],
+                            openRoomMenuItem: true,
+                            selectedRoom: '',
+                            firstLoading: false,
+                            loading: false
+                          });
+                        }
+                      }else{
+                        this.setState({
+                          showContainerSection: 'Rooms',
+                          focusedItem: 'Rooms',
+                          selectedRoomItems:rr.length > 0 ? ['0'] : [],
+                          expandedRoomItems: rr.length > 0 ? ['0'] : [],
+                          openRoomMenuItem: true,
+                          selectedRoom: rr[0],
+                          firstLoading: false,
+                          loading: false
+                        });
+                        rr.length > 0 && this.props.history.push("/home/rooms/0")
+                      }
                     }
                   }
-                  let connected_email = localStorage.getItem("email");
-                  let oa_contact = main_functions.getOAContactByEmail2(rr,connected_email);
-                  if(oa_contact){
-                    let newTimeSheet = this.state.TimeSheet;
-                    newTimeSheet.newTime.utilisateurOA = connected_email;
-                    newTimeSheet.newTime.rateFacturation = oa_contact.rateFacturation || "";
-                    this.setState({TimeSheet:newTimeSheet,[item]:rr.sort( (a,b) => {
-                        var c = a.sort || -1
-                        var d = b.sort || -1
-                        return c-d;
-                      })})
-                  }else{
-                    this.setState({[item]:rr.sort( (a,b) => {
-                        var c = a.sort || -1
-                        var d = b.sort || -1
-                        return c-d;
-                      })})
+                  else{
+                    this.setState({[item]:rr})
                   }
-                }
-                else{
-                  this.setState({[item]:rr})
-                }
-              });
-              this.getTableChanges('test',db_name,'table("'+item+'")',item);
+                });
+                this.getTableChanges('test',db_name,'table("'+item+'")',item);
+              }
             });
 
 
-
-            if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
-                if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
-                  if (this.state.rooms.length > 0) {
-                    let room_id = this.props.location.pathname.replace('/home/rooms/', '');
-                    this.setState({
-                      showContainerSection: 'Rooms',
-                      focusedItem: 'Rooms',
-                      selectedRoomItems: [room_id],
-                      expandedRoomItems: [room_id],
-                      openRoomMenuItem: true,
-                      selectedRoom: this.state.rooms[room_id],
-                      firstLoading: false,
-                      loading: false
-                    });
-                  } else {
-                    this.props.history.push('/home/rooms');
-                    this.setState({
-                      showContainerSection: 'Rooms',
-                      focusedItem: 'Rooms',
-                      selectedRoomItems: [],
-                      expandedRoomItems: [],
-                      openRoomMenuItem: true,
-                      selectedRoom: '',
-                      firstLoading: false,
-                      loading: false
-                    });
-                  }
-                }else{
-                  this.setState({
-                    showContainerSection: 'Rooms',
-                    focusedItem: 'Rooms',
-                    selectedRoomItems: [],
-                    expandedRoomItems: [],
-                    openRoomMenuItem: true,
-                    selectedRoom: '',
-                    firstLoading: false,
-                    loading: false
-                  });
-                }
-              }
-              else if (this.props.location.pathname === '/home/meet/new') {
+            if (this.props.location.pathname === '/home/meet/new') {
                 this.setState({
                   showContainerSection: 'Meet',
                   focusedItem: 'Meet',
@@ -1077,7 +1060,7 @@ export default class Main extends React.Component {
               else {
               if(this.props.location.pathname.indexOf('/home/drive/') === -1 && this.props.location.pathname.indexOf('/home/drive') === -1 &&
                   this.props.location.pathname !== '/home/shared/parent' && this.props.location.pathname.indexOf('/home/contacts') === -1 &&
-                  this.props.location.pathname.indexOf('/home/clients') === -1){
+                  this.props.location.pathname.indexOf('/home/clients') === -1 && this.props.location.pathname.indexOf('/home/rooms') === -1 ){
                 console.log('URL ERROR');
                 this.props.history.push('/home/drive');
                 this.componentDidMount();
@@ -1136,132 +1119,6 @@ export default class Main extends React.Component {
     })
   }
 
-  // brainy food ENT
-  verifFolders(folders){
-
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/fhir+json');
-    headers.append('Access-Control-Allow-Origin','*');
-    headers.append('Access-Control-Allow-Headers','Content-Type');
-    headers.append('Access-Control-Allow-Methods','POST, GET, OPTIONS')
-
-    let client_folder = folders.find((x) => x.name === 'CLIENTS');
-    let recette_folder = folders.find((x) => x.name === 'RECETTES');
-
-
-    if(!client_folder){
-      console.log("NOT CLIENT FOLDER FOUNDED")
-      SmartService.addFolder({
-        name: 'CLIENTS',
-        folder_id: null
-      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addClientFolderRes => {
-
-        fetch('http://91.121.162.202:8199/Patient', {
-          method: 'GET',
-          headers:headers,
-        }).then(response => response.json()).then((res)=>{
-
-          res.entry.map((item,key) => {
-
-            let family = item.resource.name ? item.resource.name[0].family : "";
-            let name = item.resource.name ? item.resource.name[0].given[0] : "";
-            let folder_name = family + " " + name;
-
-            SmartService.addFolder({
-              name: folder_name,
-              folder_id: addClientFolderRes.data.id
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
-              console.log("ok")
-              this.justReloadGed()
-            }).catch(err => {console.log(err)})
-
-          })
-          if (res.link[0].relation==="next"){
-            fetch(res.link[0].url,{
-              method:'GET',
-              headers:headers
-            }).then(fres=>fres.json()).then((ffres)=>{
-              ffres.entry.map((item,key)=>{
-
-                SmartService.addFolder({
-                  name: item.resource ? (item.resource.name[0].family || "" + " " + item.resource.name[0].given[0] || "") : "Inconu",
-                  folder_id: addClientFolderRes.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
-                  console.log("ok")
-                  this.justReloadGed()
-                }).catch(err => {console.log(err)})
-
-              })
-            })
-          }
-        }).catch(error => {
-          console.log(error);
-        });
-
-      }).catch(err => {console.log(err)})
-    }
-    else{
-      console.log("CLIENT FOLDER FOUNDED")
-      fetch('http://91.121.162.202:8199/Patient', {
-        method: 'GET',
-        headers:headers,
-      }).then(response => response.json()).then((res)=>{
-
-        res.entry.map((item,key) => {
-
-          let family = item.resource.name ? item.resource.name[0].family : "";
-          let name = item.resource.name ? item.resource.name[0].given[0] : "";
-          let folder_name = family + " " + name;
-
-          let find = client_folder.Content.folders.find((x) => x.name === folder_name);
-
-          if(!find){
-            console.log(" not found")
-            SmartService.addFolder({
-              name: folder_name,
-              folder_id: localStorage.getItem("client_folder_id")
-            }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then( addFolderRes => {
-              console.log("ok")
-              this.justReloadGed()
-            }).catch(err => {console.log(err)})
-            if (res.link[0].relation === "next"){
-              fetch(res.link[0].url,{
-                method:'GET',
-                headers:headers
-              }).then(fres=>fres.json()).then((ffres)=>{
-                ffres.entry.map((item,key)=>{
-
-                  SmartService.addFolder({
-                    name: item.resource ? (item.resource.name[0].family || "" + " " + item.resource.name[0].given[0] || "") : "Inconu",
-                    folder_id: localStorage.getItem("client_folder_id")
-                  }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
-                    console.log("ok")
-                    this.justReloadGed()
-                  }).catch(err => {console.log(err)})
-
-                })
-              })
-            }
-          }
-
-        })
-
-      }).catch(error => {
-        console.log(error);
-      });
-
-    }
-
-    if(!recette_folder){
-      SmartService.addFolder({
-        name: 'RECETTES',
-        folder_id: null
-      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addRecFolderRes => {
-        this.justReloadGed()
-      }).catch(err => {console.log(err)})
-    }
-
-  }
 
   openAddModal = (type) => () => {
     this.setState({
@@ -1513,18 +1370,13 @@ export default class Main extends React.Component {
   }
 
   onLoadSharedData = ({ key, children }) => {
-    console.log(key)
     return new Promise((resolve) => {
-      console.log(key)
       if (children) {
         resolve();
         return;
       }
       let origin = this.state.sharedFolders;
-      //this.setState({loading:true})
       SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
-        if(Res.succes === true && Res.status === 200){
-
           let sub_folders = Res.data.Content.folders || [];
           let sub_files = Res.data.Content.files || [];
           let childrens = [];
@@ -1533,14 +1385,14 @@ export default class Main extends React.Component {
               title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
               key:sub_folders[i].id,
               icon: sub_folders[i].type ? (
-                  <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+                <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
               ) : (
-                  ({ selected }) =>
-                      selected ? (
-                          <FolderIcon style={{ color: '#1a73e8' }} />
-                      ) : (
-                          <FolderIcon style={{ color: 'grey' }} />
-                      )
+                ({ selected }) =>
+                  selected ? (
+                    <FolderIcon style={{ color: '#1a73e8' }} />
+                  ) : (
+                    <FolderIcon style={{ color: 'grey' }} />
+                  )
               ),
               files: [] ,
               folders: [] ,
@@ -1551,73 +1403,52 @@ export default class Main extends React.Component {
             childrens.push(treeNode)
           }
           this.setState({
-            loading:false,
             selectedSharedFolderFolders:Res.data.Content.folders,
-            selectedSharedFolderFiles:sub_files
+            selectedSharedFolderFiles:Res.data.Content.files
           })
           let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
           this.setState({sharedFolders:update})
-          resolve();
-
-        }else if(Res.succes === false && Res.status === 400){
-          this.setState({ loading: false });
-          localStorage.clear();
-          this.props.history.push('/login');
-        }else{
-          this.setState({loading:false})
-          resolve();
-        }
-      }).catch(err => {
-        this.setState({loading:false})
         resolve();
-        console.log(err)})
+        }).catch(err => {
+          resolve();
+          console.log(err)})
 
     });
   }
 
   updateShared = (key, origin) => {
     SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
-      if(Res.succes === true && Res.status === 200){
-        let sub_folders = Res.data.Content.folders || [];
-        let sub_files = Res.data.Content.files || [];
-        let childrens = [];
-        for(let i =0 ; i < sub_folders.length ; i++){
-          let treeNode = {
-            title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
-            key:sub_folders[i].id,
-            icon: sub_folders[i].type ? (
-                <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
-            ) : (
-                ({ selected }) =>
-                    selected ? (
-                        <FolderIcon style={{ color: '#1a73e8' }} />
-                    ) : (
-                        <FolderIcon style={{ color: 'grey' }} />
-                    )
-            ),
-            files: [] ,
-            folders: [] ,
-            typeF: sub_folders[i].type ? 'file' : 'folder',
-            rights:sub_folders[i].rights,
-            proprietary:sub_folders[i].proprietary || undefined
-          };
-          childrens.push(treeNode)
-        }
-        this.setState({
-          selectedSharedFolderFolders:Res.data.Content.folders,
-          selectedSharedFolderFiles:Res.data.Content.files
-        })
-        let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
-        this.setState({sharedFolders:update,loading:false})
-      }else if(Res.succes === false && Res.status === 400){
-        this.setState({ loading: false });
-        localStorage.clear();
-        this.props.history.push('/login');
-      }else{
-        this.setState({ loading: false });
-        console.log(Res.error)
+      let sub_folders = Res.data.Content.folders || [];
+      let sub_files = Res.data.Content.files || [];
+      let childrens = [];
+      for(let i =0 ; i < sub_folders.length ; i++){
+        let treeNode = {
+          title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
+          key:sub_folders[i].id,
+          icon: sub_folders[i].type ? (
+            <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+          ) : (
+            ({ selected }) =>
+              selected ? (
+                <FolderIcon style={{ color: '#1a73e8' }} />
+              ) : (
+                <FolderIcon style={{ color: 'grey' }} />
+              )
+          ),
+          files: [] ,
+          folders: [] ,
+          typeF: sub_folders[i].type ? 'file' : 'folder',
+          rights:sub_folders[i].rights,
+          proprietary:sub_folders[i].proprietary || undefined
+        };
+        childrens.push(treeNode)
       }
-
+      this.setState({
+        selectedSharedFolderFolders:Res.data.Content.folders,
+        selectedSharedFolderFiles:Res.data.Content.files
+      })
+      let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
+      this.setState({sharedFolders:update,loading:false})
     }).catch(err => {
       console.log(err)})
   }
@@ -1872,7 +1703,7 @@ export default class Main extends React.Component {
           formData.append('file', files[i]);
           formData.append('folder_id', addFolderRes.data.id);
           calls.push(axios.request({
-              method: 'POST', url: endpoint + '/ged/doc/addfile',
+              method: 'POST', url: endpoint + '/ged/' + ged_id + '/doc/addfile',
               data: formData,
               headers: {
                 'Content-Type': 'multipart/form-data',
@@ -2155,7 +1986,6 @@ export default class Main extends React.Component {
     if (arrayToAdd.length > 0) {
 
       this.verifIsTableExist("annuaire_clients_mandat").then( v => {
-
         rethink.clearTable(db_name, "annuaire_clients_mandat", "test").then(clearRes => {
           if (clearRes && clearRes === true) {
 
@@ -2215,8 +2045,8 @@ export default class Main extends React.Component {
             item === 'Drive'
               ? this.props.history.push('/home/drive')
               : item === 'Rooms'
-              ? this.state.rooms.length > 0
-                ? this.props.history.push('/home/rooms/0')
+              ? (this.state.rooms || []).length > 0
+                ? this.props.history.push('/home/rooms/'+this.state.selectedRoomItems[0])
                 : this.props.history.push('/home/rooms')
               : item === 'Meet'
                 ? this.props.history.push('/home/meet/new')
@@ -2246,10 +2076,10 @@ export default class Main extends React.Component {
           }}
           showRoomsMenuItems={this.state.openRoomMenuItem}
           setShowRoomsMenuItems={() => {
-            if(this.state.rooms.length > 0 ){
+            if((this.state.rooms || []).length > 0 ){
               this.setState({
-                selectedRoom: this.state.rooms[0],
-                selectedRoomKey: 0,
+                selectedRoom: this.state.rooms[parseInt(this.state.selectedRoomItems[0])],
+                selectedRoomKey: parseInt(this.state.selectedRoomItems[0]),
                 showContainerSection: 'Rooms',
                 focusedItem: 'Rooms',
                 openRoomMenuItem: !this.state.openRoomMenuItem
@@ -2863,7 +2693,7 @@ export default class Main extends React.Component {
 
             SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
               if(resF.succes === true && resF.status === 200){
-                let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+                let comptaFolder = resF.data.Content.folders.find(x => x.name === "Compta client");
 
                 SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
                     localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
@@ -2982,7 +2812,7 @@ export default class Main extends React.Component {
 
             if(this.state.newClientFolder.type ===  "litige"){
 
-              data.oa_litige_folders.map((item,key) => {
+              data.enfin_folders.map((item,key) => {
                 SmartService.addFolder({
                   name: item,
                   folder_id: addFolderClient.data.id
@@ -2995,7 +2825,7 @@ export default class Main extends React.Component {
 
             }
             if(this.state.newClientFolder.type === "corporate"){
-              data.oa_corporate_folders.map((item,key) => {
+              data.enfin_folders.map((item,key) => {
                 SmartService.addFolder({
                   name: item,
                   folder_id: addFolderClient.data.id
@@ -3096,7 +2926,7 @@ export default class Main extends React.Component {
 
               if(this.state.newClientFolder.type ===  "litige"){
 
-                data.oa_litige_folders.map((item,key) => {
+                data.enfin_folders.map((item,key) => {
                   SmartService.addFolder({
                     name: item,
                     folder_id: addFolderClient.data.id
@@ -3109,7 +2939,7 @@ export default class Main extends React.Component {
 
               }
               if(this.state.newClientFolder.type === "corporate"){
-                data.oa_corporate_folders.map((item,key) => {
+                data.enfin_folders.map((item,key) => {
                   SmartService.addFolder({
                     name: item,
                     folder_id: addFolderClient.data.id
@@ -3204,7 +3034,7 @@ export default class Main extends React.Component {
 
                   if(this.state.newClientFolder.type ===  "litige"){
 
-                    data.oa_litige_folders.map((item,key) => {
+                    data.enfin_folders.map((item,key) => {
                       SmartService.addFolder({
                         name: item,
                         folder_id: addFolderClient.data.id
@@ -3217,7 +3047,7 @@ export default class Main extends React.Component {
 
                   }
                   if(this.state.newClientFolder.type === "corporate"){
-                    data.oa_corporate_folders.map((item,key) => {
+                    data.enfin_folders.map((item,key) => {
                       SmartService.addFolder({
                         name: item,
                         folder_id: addFolderClient.data.id
@@ -3385,7 +3215,7 @@ export default class Main extends React.Component {
           this.state.selectedFolderId
         );
         calls.push(axios.request({
-            method: 'POST', url: endpoint + '/ged/doc/addfile',
+            method: 'POST', url: endpoint + '/ged/' + ged_id + '/doc/addfile',
             data: formData,
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -3642,97 +3472,6 @@ export default class Main extends React.Component {
     })
   }
 
-  getDataDashboard(email){
-
-    fetch(url+'questionbyEmail/'+email.trim(),{
-      method:'GET',
-    }).then((res)=>res.json()).then((result)=>{
-      if(result.length!==0){
-        this.setState({patientData:result[0]})
-      }
-    })
-  }
-
-  getBodyCheckNl(email){
-
-    this.setState({bodyCheck:""})
-    fetch(url+'BodyCheckByEmail/'+email.trim(),{
-      method:'GET',
-    }).then((res)=>res.json()).then((result)=>{
-      if(result.length!==0){
-        QuestionService.getBodyCheckdata(email).then((databd)=>{
-          this.setState({bodyCheck:databd.data})
-        })
-      }
-    })
-  }
-
-  sendBodyChekMail(email,name){
-    let dd =""
-    if(name === "parrainage" ){
-      dd={
-        emailReciver:email,
-        subject:"1foof1me Quizz",
-        linkUrl :"Click ici ",
-        ////url 1foof1me project
-        url:question1food1me,
-        msg:"1foof1me  Quizz ",
-        footerMsg : "merci"
-      }
-    }else if(name==="bodycheck"){
-      dd={
-        emailReciver:email,
-        subject:"BodyCheck NL ",
-        linkUrl :"Click ici ",
-        ////url 1foof1me project
-        url:bodycheckQuestion,
-        msg:"body check quizz NL  ",
-        footerMsg : "merci"
-      }
-    }
-
-    fetch(url+'sendCustomMailWithUrl', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body:JSON.stringify(dd)
-    }).then(response => response.json()).then((res)=>{
-      if (res.status===200){
-        this.openSnackbar('success',
-            'Mail a été envoyé avec succès')
-      }
-    }).catch(error => {
-      console.log(error);
-    })
-  }
-
-  deletepatient(id){
-    fetch(url+'deletePatient/'+id, {
-      method: 'GET',
-    }).then(()=>{this.componentDidMount()})
-        .catch(error => {
-          console.log(error);
-        });
-  }
-
-  getpatient(){
-    PatientService.getPatients().then((res)=>{
-      if (res){
-        console.log(res)
-        this.setState({patients:res})
-      }
-    }).catch(err => {console.log(err)})
-  }
-
-  getRecettes(){
-    recetteService.getRecettes().then(res => {
-      if(res){
-        this.setState({recettes:res})
-      }
-    }).catch(err => {console.log(err)})
-  }
 
   addNewContact(){
     this.setState({ firstLoading: true, loading: true, openAddContactModal: false });
@@ -4463,7 +4202,7 @@ export default class Main extends React.Component {
         {/*<MuiBackdrop open={this.state.firstLoading} />*/}
         <MuiBackdrop open={this.state.loading} />
 
-        <div style={{ marginRight: 50, marginTop: 75, marginLeft: 5 }}>
+        <div style={{ marginRight: 20, marginTop: 75, marginLeft: 5,top:0,width:"100%",position:"fixed" }}>
           <div>
 
             <div style={{ display: 'flex' }}>
@@ -4482,7 +4221,7 @@ export default class Main extends React.Component {
 
               </div>
 
-              <div style={{ flexWrap: 'wrap', flex: '1 1 auto',overflowY:"auto" }}>
+              <div style={{ flexWrap: 'wrap', flex: '1 1 auto',overflowY:"auto",height:900 }}>
                 <div className="card">
                   <div className="card-body" style={{ minHeight: 750 }}>
 
@@ -5069,44 +4808,55 @@ export default class Main extends React.Component {
                             [
                               <Route key={0} exact path="/home/rooms">
                                 {
-                                  this.state.loading === false && this.state.firstLoading === false && this.state.rooms.length === 0 &&
-                                  <div>
-                                    <h4 className="mt-0 mb-1">Rooms</h4>
-                                    <div style={{ marginTop: 25, display: 'flex' }}>
-                                      <h5 style={{ fontSize: 16, color: 'gray' }}>
-                                        Aucune "Room" encore ajouté !</h5>&nbsp;&nbsp;
-                                      <h6 style={{
-                                        cursor: 'pointer',
-                                        color: '#000',
-                                        textDecoration: 'underline', marginTop: 12
-                                      }} onClick={() => {
-                                        this.setState({
-                                          openNewRoomModal: true
-                                        });
-                                      }}
-                                      >
-                                        Ajouter une</h6>
-                                    </div>
-                                  </div>
+                                  this.state.rooms && this.state.rooms.length === 0 ?
+                                      <div>
+                                        <h4 className="mt-0 mb-1">Rooms</h4>
+                                        <div style={{ marginTop: 25, display: 'flex' }}>
+                                          <h5 style={{ fontSize: 16, color: 'gray' }}>
+                                            Aucune "Room" encore ajouté !</h5>&nbsp;&nbsp;
+                                          <h6 style={{
+                                            cursor: 'pointer',
+                                            color: '#000',
+                                            textDecoration: 'underline', marginTop: 12
+                                          }} onClick={() => {
+                                            this.setState({
+                                              openNewRoomModal: true
+                                            });
+                                          }}
+                                          >
+                                            Ajouter une</h6>
+                                        </div>
+                                      </div>
+                                      :
+                                      <div align="center" style={{marginTop: 200}}>
+                                        <CircularProgress color="primary"/>
+                                        <h6>Chargement...</h6>
+                                      </div>
                                 }
-
                               </Route>,
                               <Route key={1} exact path="/home/rooms/:room_id">
-                                {this.state.loading === false && this.state.firstLoading === false && (
-                                    <Rooms
-                                        rooms={this.state.rooms}
-                                        selectedRoom={this.state.selectedRoom}
-                                        contacts={this.state.contacts || []}
-                                        annuaire_clients={this.state.annuaire_clients_mandat || []}
-                                        //annuaire_clients={this.state.patients}
-                                        addNewtask={(title, selectedClient, assignedTo, team, selectedDateTime) => {
-                                          this.addNewRoomTask(title, selectedClient, assignedTo, team, selectedDateTime)
-                                        }}
-                                        onDeleteTask={(key) => {
-                                          //this.deleteRoomTask(key)
-                                        }}
-                                    />
-                                )}
+                                {
+                                  !this.state.rooms ?
+                                      <div align="center" style={{marginTop: 200}}>
+                                        <CircularProgress color="primary"/>
+                                        <h6>Chargement...</h6>
+                                      </div>
+                                      :
+                                      <Rooms
+                                          rooms={this.state.rooms || []}
+                                          selectedRoom={this.state.selectedRoom}
+                                          contacts={this.state.contacts || []}
+                                          annuaire_clients={this.state.annuaire_clients_mandat || []}
+                                          //annuaire_clients={this.state.patients}
+                                          addNewtask={(title, selectedClient, assignedTo, team, selectedDateTime) => {
+                                            this.addNewRoomTask(title, selectedClient, assignedTo, team, selectedDateTime)
+                                          }}
+                                          onDeleteTask={(key) => {
+                                            //this.deleteRoomTask(key)
+                                          }}
+                                          history={this.props.history}
+                                      />
+                                }
                               </Route>
                             ]
 
@@ -5269,7 +5019,8 @@ export default class Main extends React.Component {
                                             width: 120,
                                             height: 120,
                                             objectFit: 'contain'
-                                          }} /> <input style={{
+                                          }} />
+                                          <input style={{
                                           visibility: 'hidden',
                                           width: 0,
                                           height: 0
@@ -5795,26 +5546,6 @@ export default class Main extends React.Component {
                                   </div>
                                   :
                                   <div>
-                                    {
-                                      active_modules.includes("MARKETPLACE") === true &&
-                                      <TablePatientsBrainy
-                                          patients={this.state.patients || []}
-                                          bodycheck={this.sendBodyChekMail}
-                                          bodycheckNl={this.getBodyCheckNl}
-                                          getDataDashboard={this.getDataDashboard}
-                                          onEditClick={(societe, key) => {
-                                            this.setState({
-                                              selectedSociete: societe,
-                                              selectedSocieteKey: key
-                                            })
-                                            this.props.history.push('/home/clients/' + societe.id_user);
-                                          }}
-                                          onDelecteClick={(societe,key)=>{
-                                            this.deletepatient(societe.id_user)
-                                          }}
-                                      />
-                                    }
-
                                     <TableSociete
                                         contacts={this.state.contacts || []}
                                         societes={this.state.annuaire_clients_mandat || []}
@@ -8069,12 +7800,6 @@ export default class Main extends React.Component {
                                             </div>
                                           </div>
                                         }
-                                      </Route>,
-                                      <Route key={1} exact path="/home/marketplace/recettes/:recette_id">
-                                        <RecetteDetail recette={this.state.selectedRecette} ingrediens={this.state.selectedRecetteIngredients}
-                                                       reloadGed={() => {this.justReloadGed()}}
-                                                       folders={this.state.reelFolders}
-                                        />
                                       </Route>
                                     ],
                               active_modules.includes("MARKETPLACE_RH_SP") === true &&
@@ -9432,7 +9157,7 @@ export default class Main extends React.Component {
                               this.state.selectedFolderId
                             );
                             calls.push(axios.request({
-                                method: 'POST', url: endpoint + '/ged/doc/addfile',
+                                method: 'POST', url: endpoint + '/ged/' + ged_id + '/doc/addfile',
                                 data: formData,
                                 headers: {
                                   'Content-Type': 'multipart/form-data',

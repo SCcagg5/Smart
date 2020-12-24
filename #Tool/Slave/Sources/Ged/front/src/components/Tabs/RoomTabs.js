@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -30,12 +30,16 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import DialogActions from "@material-ui/core/DialogActions";
 import RoomDocs from "../List/RoomDocs";
 import CircularProgress from '@material-ui/core/CircularProgress';
-//import SmartService from "../../provider/SmartService";
-import SmartService from "../../provider/masterNodeService";
+import SmartService from "../../provider/SmartService";
+//import SmartService from "../../provider/masterNodeService";
 import entIcon from "../../assets/images/entreprise-icon.png";
 import userAvatar from "../../assets/images/users/user4.jpg";
 import Select from "react-select";
 import Modal, {ModalTransition} from "@atlaskit/modal-dialog";
+import rethink from "../../controller/rethink";
+import Chat from "../../pages/Chat/Chat";
+
+
 
 
 function TabPanel(props) {
@@ -90,13 +94,12 @@ function renderSearchOption(props, option, snapshot, className) {
     );
 }
 
+
 export default function RoomTabs(props) {
-    let inputDateRef = {}
 
     const [value, setValue] = React.useState(2);
     const [newTaskTitle, setnewTaskTitle] = React.useState("");
     const [anchorEl, setAnchorEl] = useState(null);
-    const [anchorEl_annuaire, setAnchorEl_annuaire] = useState(null);
     const [selectedAssign, setSelectedAssign] = useState("");
     const [showAddForm, setShowAddForm] = useState(false);
     const [openDateTimePickerModal, setOpenDateTimePickerModal] = useState(false);
@@ -110,6 +113,8 @@ export default function RoomTabs(props) {
     const [roomDocs, setRoomDocs] = useState([]);
     const [selectedClient, setSelectedClient] = useState("");
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+
 
 
     const handleChange = (event, newValue) => {
@@ -138,12 +143,15 @@ export default function RoomTabs(props) {
     return (
         <div>
             <Tabs value={value} onChange={handleChange} aria-label="room tabs ">
-                <Tab label="Chat" {...a11yProps(0)} style={{fontWeight:600,textTransform:"capitalize"}} disabled={true} />
+                <Tab label="Chat" {...a11yProps(0)} style={{fontWeight:600,textTransform:"capitalize"}} disabled={false} />
                 <Tab label="Fichiers" {...a11yProps(1)} style={{fontWeight:600,textTransform:"capitalize"}} disabled={true} />
                 <Tab label="Tâches" {...a11yProps(2)} style={{fontWeight:600,textTransform:"capitalize"}} />
             </Tabs>
             <TabPanel value={value} index={0}>
-                <div style={{backgroundColor:"#f0f0f0",height:2,marginTop:-2}}/>
+                <div style={{marginTop:15}}>
+
+                    <Chat contacts={props.contacts || []} room_id={props.room.id} history={props.history}/>
+                </div>
             </TabPanel>
 
             <TabPanel value={value} index={1}>
@@ -412,6 +420,8 @@ export default function RoomTabs(props) {
 
                 </div>
             </TabPanel>
+
+
 
             <Dialog open={openDateTimePickerModal} onClose={() => {
                 setOpenDateTimePickerModal(false)

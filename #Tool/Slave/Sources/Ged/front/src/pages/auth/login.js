@@ -3,21 +3,20 @@ import {Container, Row, Col, Card, CardBody, Label, FormGroup} from 'reactstrap'
 import {AvForm, AvGroup, AvInput, AvFeedback} from 'availity-reactstrap-validation';
 import Loader from '../../components/Loaders/Loader';
 import Snackbar from '@material-ui/core/Snackbar';
-//import SmartService from "../../provider/SmartService";
-import SmartService from "../../provider/masterNodeService";
+import SmartService from "../../provider/SmartService";
+//import SmartService from "../../provider/masterNodeService";
 import Alert from '@material-ui/lab/Alert';
-import json_enfin_clients from "../../assets/files/ged01-290815-enfin_contacts-export (1).json"
+/*import json_enfin_clients from "../../assets/files/ged01-290815-enfin_contacts-export (1).json"
 import rethink from "../../controller/rethink";
 import verfiForms from "../../tools/verifForms";
-import moment from "moment";
+import moment from "moment";*/
 
 const ent_name = process.env.REACT_APP_ENT_NAME;
-const login_btn_color = process.env.REACT_APP_LOGIN_BTN_COLOR;
+const login_btn_color = process.env.REACT_APP_LOGIN_BTN_COLOR
 
 
 
 class login extends Component {
-
 
 
     state = {
@@ -71,8 +70,8 @@ class login extends Component {
                                             localStorage.setItem("token",tokenRes.data.token)
                                             localStorage.setItem("usrtoken",loginRes.data.usrtoken)
                                             localStorage.setItem("email",infoRes.data.email)
-                                            //localStorage.setItem("role",infoGedRes.data.self.role.role)
-                                            localStorage.setItem("role","admin")
+                                            localStorage.setItem("role",infoGedRes.data.self.role.role)
+                                            //localStorage.setItem("role","admin")
                                             this.setState({loading:false})
                                             this.props.history.push('/home/drive');
 

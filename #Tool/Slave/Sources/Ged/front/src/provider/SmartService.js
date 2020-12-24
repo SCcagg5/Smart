@@ -1,4 +1,4 @@
-const endpoint = process.env.REACT_APP_ENDPOINT
+const endpoint = process.env.REACT_APP_ENDPOINT;
 const ged_id = process.env.REACT_APP_GED_ID;
 const odoo_id = process.env.REACT_APP_ODOO_ID;
 const password = "password"

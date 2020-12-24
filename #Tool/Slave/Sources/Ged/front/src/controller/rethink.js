@@ -152,6 +152,66 @@ async function getTableData(db_name,usr_token,table){
   });
 }
 
+async function getTableLength(db_name,usr_token,table,label,value){
+  return new Promise(function(resolve, reject) {
+    let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
+
+    socket.onopen = function(e) {
+      console.log("Connection for get Table count established");
+      let payload;
+      payload = {"cmd": "db('"+db_name+"').table('"+table+"').filter({'"+label+"':'"+value+"'}).count()"}
+      socket.send(JSON.stringify(payload));
+    };
+    let count = 0
+    socket.onmessage = function(event) {
+      //console.log(event)
+      console.log(event.data)
+      let recieve = JSON.parse(event.data);
+      console.log(recieve)
+    }
+    socket.error = function(event) {
+      console.log("ERROR GET TABLE COUNT");
+      reject(event)
+    };
+
+    socket.onclose = (event) => {
+      console.log("CLOSED");
+      resolve(count)
+    };
+
+  });
+}
+
+async function getTableDataByLabel(db_name,usr_token,table,label,value,order,limit,skip){
+  return new Promise(function(resolve, reject) {
+    let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
+
+    socket.onopen = function(e) {
+      console.log("Connection for get Table data established");
+      let payload;
+      payload = {"cmd": "db('"+db_name+"').table('"+table+"').filter({'"+label+"':'"+value+"'}).order_by(r.desc('"+order+"')).limit("+limit+").skip("+skip+")"}
+      socket.send(JSON.stringify(payload));
+    };
+    let data = [];
+    socket.onmessage = function(event) {
+      let recieve = JSON.parse(event.data);
+      if(recieve && recieve.id){
+        data.push(recieve)
+      }
+    }
+    socket.error = function(event) {
+      console.log("ERROR GET TABLE LIST RETHINK");
+      reject(event)
+    };
+
+    socket.onclose = (event) => {
+      console.log("CLOSED");
+      resolve(data)
+    };
+
+  });
+}
+
 async function insert(usr_token, cmd, db , read_change=false){
 
   return new Promise(function(resolve, reject) {
@@ -323,4 +383,4 @@ async function verfiDB(db_name,usr_token){
 
 
 
-export default {insert,remove,update,verfiDB,createDB,createTable,getTableChanges,tableList,getTableData,clearTable};
+export default {insert,remove,update,verfiDB,createDB,createTable,getTableChanges,tableList,getTableData,clearTable,getTableDataByLabel,getTableLength};

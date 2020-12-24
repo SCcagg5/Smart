@@ -34,7 +34,7 @@ export default function TopBar(props) {
 
 
     return(
-        <AppBar position="fixed" color="default" className="fe-ai" style={{zIndex:20}} >
+        <AppBar position="fixed" color="default" className="fe-ai" style={{zIndex:1}} >
             <Toolbar style={{height:props.height}} onAuxClick={event => event.preventDefault()}
             >
                 <IconButton edge="start" aria-label="menu" onClick={props.onClickMenuIcon}>

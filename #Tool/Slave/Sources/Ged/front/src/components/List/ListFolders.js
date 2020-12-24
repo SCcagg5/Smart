@@ -12,7 +12,7 @@ export default function ListFolders(props) {
                 {
                     props.items.map((folder,key) =>
                         <div key={key} className="folder_item_container">
-                            <div className="folder_item" onClick={(e) => {
+                            <div className="folder_item" onDoubleClick={(e) => {
                                 props.onDoubleClickFolder(folder)
                             }}>
                                 <div>
