@@ -15,7 +15,7 @@ class rethinkproxy:
         try:
             cmd = wsock.receive()
             if type(cmd) is not dict and type(cmd) is not str:
-                wsock.send("Invalid json chibre")
+                wsock.send("Invalid json")
                 wsock.close()
                 return
             if type(cmd) is str:
@@ -27,20 +27,23 @@ class rethinkproxy:
             wsock.send("Invalid json")
             wsock.close()
             return
-        wsock.send(json.dumps(cmd))
-        r.connect("smartdom.ch", 28015, password="test", db=cmd['db']).repl()
-        d = locals()
         try:
-            exec(f"cursor = r.{cmd['cmd']}.run()", globals(), d)
-        except:
-            wsock.send("Invalid cmd")
-            wsock.close()
-            return
-        for document in d['cursor']:
-            wsock.send(json.dumps(document))
-        if cmd['read_change'] is True:
-            exec(f"cursor = r.{cmd['cmd']}.changes().run()", globals(), d)
+            wsock.send(json.dumps(cmd))
+            r.connect("smartdom.ch", 28015, password="test", db=cmd['db']).repl()
+            d = locals()
+            try:
+                exec(f"cursor = r.{cmd['cmd']}.run()", globals(), d)
+            except:
+                wsock.send("Invalid cmd")
+                wsock.close()
+                return
             for document in d['cursor']:
                 wsock.send(json.dumps(document))
-        wsock.close()
+            if cmd['read_change'] is True:
+                exec(f"cursor = r.{cmd['cmd']}.changes().run()", globals(), d)
+                for document in d['cursor']:
+                    wsock.send(json.dumps(document))
+            wsock.close()
+        except:
+            continue
         return
