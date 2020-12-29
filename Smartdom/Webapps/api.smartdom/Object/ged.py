@@ -529,7 +529,7 @@ class file:
 
     def move(self, file_id, to_id):
         if not self.is_proprietary(file_id) and not self.is_editor(file_id):
-            return [False, "Can't share this file, invalid rights", 403]
+            return [False, "Can't move this file, invalid rights", 403]
         succes = sql.input("UPDATE `ged_file` SET `inside` = %s WHERE `ged_file`.`id` = %s;", (to_id, file_id))
         if not succes:
             return [False, "data input error", 500]
@@ -822,7 +822,7 @@ class ged:
 
     def move(self, doc_id, to_id):
         fol = folder(self.usr_id, self.ged_id)
-        if fol.exist(to_id):
+        if fol.exist(to_id) or to_id is None:
             if fol.exist(doc_id):
                 p = self.vpath(to_id)
                 if p[0]:
