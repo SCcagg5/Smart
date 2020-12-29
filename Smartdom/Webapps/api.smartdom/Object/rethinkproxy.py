@@ -45,5 +45,5 @@ class rethinkproxy:
                     wsock.send(json.dumps(document))
             wsock.close()
         except:
-            continue
+            pass
         return
