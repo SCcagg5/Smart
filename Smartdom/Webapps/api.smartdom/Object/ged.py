@@ -1,18 +1,18 @@
 import os
-import uuid
-import time
-import base64
-import re
-import fitz
-import tempfile
-import io
-from PIL import Image
-from io import BytesIO
-from base64 import b64decode
-from datetime import date
-from .sql import sql
-from .users import user
-from .pdf import pdf
+import uuid 
+import time 
+import base64 
+import re 
+import fitz 
+import tempfile 
+import io 
+from PIL import Image 
+from io import BytesIO 
+from base64 import b64decode 
+from datetime import date 
+from .sql import sql 
+from .users import user 
+from .pdf import pdf 
 from .elastic import es, elastic
 
 class sign:
@@ -822,7 +822,8 @@ class ged:
 
     def move(self, doc_id, to_id):
         fol = folder(self.usr_id, self.ged_id)
-        if fol.exist(to_id) or to_id is None:
+        if fol.exist(to_id) or to_id.strip() == "":
+            to_id = to_id if to_id.strip() != "" else None
             if fol.exist(doc_id):
                 p = self.vpath(to_id)
                 if p[0]:
