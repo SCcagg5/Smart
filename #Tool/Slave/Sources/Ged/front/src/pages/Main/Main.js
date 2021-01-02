@@ -115,7 +115,12 @@ import Mandats from './Mandats';
 import utilFunctions from "../../tools/functions";
 import {Dropdown} from 'semantic-ui-react'
 import { Input as SuiInput } from 'semantic-ui-react'
-
+import {BlockPicker} from 'react-color'
+import Popover from '@material-ui/core/Popover';
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import test from "../test";
 
 const endpoint = process.env.REACT_APP_ENDPOINT;
 const ged_id = process.env.REACT_APP_GED_ID;
@@ -267,9 +272,9 @@ export default class Main extends React.Component {
     checkedNotif: true,
     msgNotif: '',
     emailsDriveShare: [],
+    shareRights:[],
 
     focusedItem: 'Drive', // => Drive || Rooms || Meet || Contacts
-    expandedRoomItems: ['0'],
 
     viewMode: 'list',
 
@@ -278,9 +283,11 @@ export default class Main extends React.Component {
       specialite:[],
     },
 
-    selectedRoomItems: ['0'],
+    selectedRoomItems: [],
+    expandedRoomItems: [],
     openNewRoomModal: false,
     newRoomTitle: '',
+    newRoomColor:"#f0f0f0",
     newRoomCheck1: false,
     newRoomCheck2: true,
     NewRoomEmails: [],
@@ -397,7 +404,14 @@ export default class Main extends React.Component {
     selectedRecetteIngredients:[],
 
     openAddContactModal:false,
-    openAddPrestataireModal:false
+    openAddPrestataireModal:false,
+
+    anchorEl_colorPicker: null,
+
+    selectedRoomTab:0,
+    showFileInGed:true,
+
+    settRoomAnchorEl:null,
   };
 
   componentDidMount() {
@@ -555,7 +569,7 @@ export default class Main extends React.Component {
 
               }]
               parentSharedFolder[0].Content.folders = gedRes.data.Shared.Content.folders || []
-              sharedFolders = main_functions.changeStructure(parentSharedFolder)
+              sharedFolders = main_functions.changeStructure(parentSharedFolder,false)
 
               let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.id === ENV_CLIENTS_FOLDER_ID);
               let client_shared_folder = gedRes.data.Shared.Content.folders.find((x) => x.id === ENV_CLIENTS_FOLDER_ID);
@@ -575,8 +589,10 @@ export default class Main extends React.Component {
 
               let sharedFiles = gedRes.data.Shared.Content.files || [];
 
+
+
               this.setState({
-                folders:main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                folders:main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || [],this.state.showFileInGed),
                 reelFolders: gedRes.data.Proprietary.Content.folders || [],
                 sharedReelFolders: gedRes.data.Shared.Content.folders || [],
                 rootFiles: gedRes.data.Proprietary.Content.files || [],
@@ -711,7 +727,8 @@ export default class Main extends React.Component {
                         if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
                         return 0;
                       })})
-                  }else if(item === "contacts"){
+                  }
+                  else if(item === "contacts"){
 
                     if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
                       if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
@@ -761,8 +778,15 @@ export default class Main extends React.Component {
                           return c-d;
                         })})
                     }
-                  }else if(item === "rooms"){
-                    this.setState({[item]:rr})
+                  }
+                  else if(item === "rooms"){
+                    let user_rooms = [];
+                    rr.map((room,key) => {
+                      if(room.members.find(x => x.email === localStorage.getItem("email"))){
+                        user_rooms.push(room)
+                      }
+                    })
+                    this.setState({[item]:user_rooms})
                     if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
                       if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
                         if (rr.length > 0) {
@@ -773,7 +797,7 @@ export default class Main extends React.Component {
                             selectedRoomItems: [room_id],
                             expandedRoomItems: [room_id],
                             openRoomMenuItem: true,
-                            selectedRoom: rr[room_id],
+                            selectedRoom: user_rooms.find(x => x.id === room_id),
                             firstLoading: false,
                             loading: false
                           });
@@ -794,14 +818,13 @@ export default class Main extends React.Component {
                         this.setState({
                           showContainerSection: 'Rooms',
                           focusedItem: 'Rooms',
-                          selectedRoomItems:rr.length > 0 ? ['0'] : [],
-                          expandedRoomItems: rr.length > 0 ? ['0'] : [],
+                          selectedRoomItems:[],
+                          expandedRoomItems: [],
                           openRoomMenuItem: true,
-                          selectedRoom: rr[0],
+                          selectedRoom: "",
                           firstLoading: false,
                           loading: false
                         });
-                        rr.length > 0 && this.props.history.push("/home/rooms/0")
                       }
                     }
                   }
@@ -1748,7 +1771,7 @@ export default class Main extends React.Component {
         this.setState({
           rootFiles: gedRes.data.Proprietary.Content.files || [],
           rootFolders: gedRes.data.Proprietary.Content.folders || [],
-          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+          folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || [],this.state.showFileInGed),
           reelFolders: gedRes.data.Proprietary.Content.folders || []
         });
       } else {
@@ -1781,7 +1804,7 @@ export default class Main extends React.Component {
 
             this.setState({
               autoExpandParent:true,
-              folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+              folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || [],this.state.showFileInGed),
               reelFolders: gedRes.data.Proprietary.Content.folders || [],
               rootFiles: gedRes.data.Proprietary.Content.files || [],
               rootFolders: gedRes.data.Proprietary.Content.folders || [],
@@ -1802,7 +1825,7 @@ export default class Main extends React.Component {
             this.setState({
               rootFiles: gedRes.data.Proprietary.Content.files || [],
               rootFolders: gedRes.data.Proprietary.Content.folders || [],
-              folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+              folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || [],this.state.showFileInGed),
               reelFolders: gedRes.data.Proprietary.Content.folders || [],
               loading: false
             });
@@ -1818,7 +1841,7 @@ export default class Main extends React.Component {
               }
             }]
             parentSharedFolder[0].Content.folders = gedRes.data.Shared.Content.folders || []
-            let sharedFolders = main_functions.changeStructure(parentSharedFolder);
+            let sharedFolders = main_functions.changeStructure(parentSharedFolder,false);
             let sharedFiles = gedRes.data.Shared.Content.files;
             this.setState({
               sharedReelFolders: gedRes.data.Shared.Content.folders || [],
@@ -1838,7 +1861,7 @@ export default class Main extends React.Component {
             this.setState({
               rootFiles: gedRes.data.Proprietary.Content.files || [],
               rootFolders: gedRes.data.Proprietary.Content.folders || [],
-              folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+              folders: main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || [],this.state.showFileInGed),
               reelFolders: gedRes.data.Proprietary.Content.folders || [],
               loading: false
             });
@@ -1866,12 +1889,16 @@ export default class Main extends React.Component {
           localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addRoomRes => {
         if (addRoomRes.status === 200 && addRoomRes.succes === true) {
           let members = [];
+          if((room.members || []).filter(x => x.email === localStorage.getItem("email")).length === 0){
+            members.push({email:localStorage.getItem("email"),id:main_functions.getContactIdByEmail(this.state.contacts,localStorage.getItem("email"))})
+          }
           (room.members || []).map((m,key) => {
-            members.push({email:m.email})
+            members.push({email:m.email,id:main_functions.getContactIdByEmail(this.state.contacts,m.email)})
           })
           let newRoom={
             uid : addRoomRes.data.id,
             title:room.title,
+            color:room.color,
             created_by:room.created_by,
             created_at:room.created_at,
             members:members
@@ -1879,17 +1906,19 @@ export default class Main extends React.Component {
           rethink.insert("test",'table("rooms").insert('+ JSON.stringify(newRoom) + ')',db_name,false).then( resAdd => {
             if (resAdd && resAdd === true) {
               setTimeout(() => {
+                let findNew = this.state.rooms.find(x => x.uid === newRoom.uid)
                 this.setState({
                   loading: false,
                   newRoomTitle: '',
+                  newRoomColor:"#f0f0f0",
                   NewRoomEmails: [],
-                  selectedRoom: room,
+                  selectedRoom: findNew,
                   selectedRoomKey: (this.state.rooms.length - 1),
-                  selectedRoomItems: [(this.state.rooms.length - 1).toString()]
+                  selectedRoomItems: [findNew.id]
                 });
-                this.props.history.push('/home/rooms/' + (this.state.rooms.length - 1));
+                this.props.history.push('/home/rooms/' + findNew.id);
                 this.openSnackbar('success', 'Room ajouté avec succès');
-              },1000);
+              },500)
             } else {
               this.setState({ loading: false });
               this.openSnackbar('error', "Une erreur est survenue");
@@ -1917,9 +1946,14 @@ export default class Main extends React.Component {
         this.setState({ loading: false });
         this.showDocInPdfModal(fileRes.data.Content.Data);
       } else {
+        this.setState({ loading: false });
+        this.openSnackbar("error",fileRes.error)
         console.log(fileRes.error);
       }
-    }).catch(err => console.log(err));
+    }).catch(err => {
+      this.setState({ loading: false });
+      console.log(err)
+    });
   };
 
   importCSVContacts(e){
@@ -2034,6 +2068,14 @@ export default class Main extends React.Component {
       <div>
         <LeftMenuV3
             loadingGed={this.state.loadingGed}
+            showFileInGed={this.state.showFileInGed}
+            setShowFileInGed={(value) => {
+              console.log("CHANGE")
+              this.setState({
+                folders: main_functions.changeStructure(this.state.reelFolders || [],value),
+                showFileInGed:!this.state.showFileInGed,
+              });
+            }}
           openNewFolderModalFromRacine={() =>
             this.setState({
               newFolderModal: true,
@@ -2045,9 +2087,7 @@ export default class Main extends React.Component {
             item === 'Drive'
               ? this.props.history.push('/home/drive')
               : item === 'Rooms'
-              ? (this.state.rooms || []).length > 0
-                ? this.props.history.push('/home/rooms/'+this.state.selectedRoomItems[0])
-                : this.props.history.push('/home/rooms')
+              ? this.props.history.push('/home/rooms')
               : item === 'Meet'
                 ? this.props.history.push('/home/meet/new')
                 : item === 'Contacts'
@@ -2076,19 +2116,12 @@ export default class Main extends React.Component {
           }}
           showRoomsMenuItems={this.state.openRoomMenuItem}
           setShowRoomsMenuItems={() => {
-            if((this.state.rooms || []).length > 0 ){
               this.setState({
-                selectedRoom: this.state.rooms[parseInt(this.state.selectedRoomItems[0])],
-                selectedRoomKey: parseInt(this.state.selectedRoomItems[0]),
-                showContainerSection: 'Rooms',
-                focusedItem: 'Rooms',
-                openRoomMenuItem: !this.state.openRoomMenuItem
-              });
-            }else{
-              this.setState({
+                selectedRoom:"",
+                selectedRoomKey:"",
+                selectedRoomItems:[],
                 openRoomMenuItem: !this.state.openRoomMenuItem
               })
-            }
           }}
           showMeetMenuItems={this.state.openMeetMenuItem}
           setShowMeetMenuItems={() =>
@@ -2409,7 +2442,8 @@ export default class Main extends React.Component {
               selectedRoom: room,
               selectedRoomKey: roomId,
               showContainerSection: 'Rooms',
-              focusedItem: 'Rooms'
+              focusedItem: 'Rooms',
+              selectedRoomTab:0
             });
             this.props.history.push('/home/rooms/' + roomId);
           }}
@@ -3405,67 +3439,39 @@ export default class Main extends React.Component {
     })
   }
 
-  addNewRoomTask(title, selectedClient, assignedTo, team, selectedDateTime){
+  addNewRoomTask(title,desc, assignedTo,client,teamEmails,priority,tags,date_deadline){
     let room = this.state.selectedRoom;
     let tasks = room.tasks || [];
     let teamCp = [];
-    team.map((t,key) => {
+    teamEmails.map((email,key) => {
       teamCp.push({
-        avatar:t.avatar || "",
-        email:t.email,
-        fname:t.fname || ""
+        id:main_functions.getContactIdByEmail(this.state.contacts || [],email),
+        email:email
       })
     })
     tasks.push({
       uid:utilFunctions.getUID(),
       title: title,
-      assignedTo: assignedTo,
+      desc:desc,
+      leader: {
+        id:assignedTo.id,
+        email:assignedTo.email
+      },
       team: teamCp,
-      dateTime: selectedDateTime,
-      clientAttribution: selectedClient,
-      created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+      date_deadline: date_deadline,
+      client: client,
+      priority:priority,
+      tags:tags,
+      created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+      created_by:localStorage.getItem("email")
     });
     room.tasks = tasks;
     console.log(room)
 
     rethink.update("test",'table("rooms").get('+JSON.stringify(room.id)+').update('+ JSON.stringify(room) + ')',db_name,false).then( updateRes => {
       if(updateRes && updateRes === true){
-
         this.setState({ selectedRoom: room });
-        let emails = [];
-        let teamNames = [];
-        team.map((t, key) => {
-          emails.push(t.email);
-          teamNames.push(t.fname);
-        });
-        emails.push(assignedTo.email);
-        maillingService.sendCustomMailsWithUrl({
-          recipients: emails,
-          subject: 'Nouvelle tâche ajoutée ',
-          msg:
-              'Bonjour, <br> Une tâche avec le nom \'' +
-              title +
-              '\' vous a été attribué pour la date du ' +
-              selectedDateTime +
-              ' .<br><br> <b>Team: </b> ' +
-              teamNames.join(', ') +
-              '<br><b>Lead: </b> ' +
-              assignedTo.prenom +
-              ' ' +
-              assignedTo.nom +
-              '<br><br>' +
-              'Pour plus de détails, merci de consulter votre compte sur OA Legal.<br><br>',
-          footerMsg:
-              '<br><br> Cordialement<br>L\'équipe OA Legal',
-          linkUrl: 'Consulter',
-          url:
-              'https://smartdom.ch:8035/home/rooms/' +
-              this.state.selectedRoomKey
-        })
-            .then((ok) => {}).catch((err) => {
-              this.openSnackbar('error', 'L\'envoi du mail de notification à été échoué ! ');
-            });
-        this.openSnackbar('success', 'Une notification par mail à été bien envoyé au Lead et au différents membre du Team');
+        this.openSnackbar("success","La nouvelle tache est ajoutée avec succès")
       }else{
         this.openSnackbar("error","Une erreur est survenue !")
       }
@@ -3627,7 +3633,7 @@ export default class Main extends React.Component {
                         <TabPanel>
                           {
                             this.state.showLignesFactureClient === false ?
-                                <div style={{marginTop:25,padding:10,paddingBottom:50,paddingLeft:20,border:"2px solid #f0f0f0"}}>
+                                <div style={{marginTop:25,padding:10,paddingBottom:50,paddingLeft:20,border:"2px solid #f0f0f0",minWidth:900}}>
                                   <div className="row mt-2">
                                     <div className="col-md-6">
                                       <h5>Durée</h5>
@@ -4136,9 +4142,29 @@ export default class Main extends React.Component {
 
   }
 
+  handleRoomTabsChange = (event, newValue) => {
+    this.setState({selectedRoomTab:newValue})
+    /*if(newValue === 1){
+      setloadingFiles(true)
+      SmartService.getRoomFiles(localStorage.getItem("token"),localStorage.getItem("usrtoken"),props.room.id).then( res => {
+        console.log(res)
+        setRoomDocs(res.data)
+        setloadingFiles(false)
+      }).catch(err => {
+        console.log(err)
+      })
+    }*/
+  };
+
   render() {
 
     const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts || [],localStorage.getItem("email"))
+
+    const openRoomColorPicker = Boolean(this.state.anchorEl_colorPicker);
+    const id = openRoomColorPicker ? 'color-picker-popover' : undefined;
+
+    const openRoomSetting = Boolean(this.state.settRoomAnchorEl);
+    const id_settRoom = openRoomSetting ? 'setting-room-popover' : undefined;
 
     return (
       <div>
@@ -4212,7 +4238,8 @@ export default class Main extends React.Component {
                   overflow: 'overlay',
                   minHeight: 900,
                   width: 300,
-                  minWidth: 300
+                  minWidth: 300,
+                  //maxWidth:400
                 }}
               >
                 {
@@ -4334,6 +4361,16 @@ export default class Main extends React.Component {
                                                 <div>
                                                   <ListFolders
                                                       items={this.state.rootFolders}
+                                                      pathname={this.props.location.pathname}
+                                                      rootFiles={this.state.rootFiles}
+                                                      setRootFiles={(files) => {this.setState({rootFiles:files})}}
+                                                      reelFolders={this.state.reelFolders}
+                                                      setReelFolders={(items) => {this.setState({reelFolders:items})}}
+                                                      setGedMenu={(ged) => {this.setState({folders:main_functions.changeStructure(ged,this.state.showFileInGed)})}}
+                                                      selectedFolderFolders={this.state.selectedFolderFolders}
+                                                      setSelectedFolderFolders={(folders) => {this.setState({selectedFolderFolders:folders})}}
+                                                      rootFolders={this.state.rootFolders}
+                                                      setRootFolders={(folders) => {this.setState({rootFolders:folders})}}
                                                       onDoubleClickFolder={(folder) => {
                                                         this.props.history.push({
                                                           pathname: '/home/drive/' + folder.id
@@ -4344,19 +4381,25 @@ export default class Main extends React.Component {
                                                           autoExpandParent: true,
                                                           selectedFolder: main_functions.getFolderById(folder.id, this.state.folders),
                                                           selectedFoldername: folder.name,
-                                                          selectedFolderFiles:
-                                                              folder.Content.files || [],
-                                                          selectedFolderFolders:
-                                                              folder.Content.folders || [],
+                                                          selectedFolderFiles: folder.Content.files || [],
+                                                          selectedFolderFolders: folder.Content.folders || [],
                                                           focusedItem: 'Drive',
                                                           breadcrumbs: main_functions.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedReelFolders)),
                                                           selectedFolderId: folder.id,
                                                           showContainerSection: 'Drive'
                                                         });
                                                       }}
+                                                      setLoading={(b) =>
+                                                          this.setState({ loading: b })
+                                                      }
                                                   />
                                                   <ListDocs
                                                       docs={this.state.rootFiles || []}
+                                                      selectedFolderFiles={this.state.selectedFolderFiles}
+                                                      reelFolders={this.state.reelFolders}
+                                                      setReelFolders={(items) => {this.setState({reelFolders:items})}}
+                                                      setGedMenu={(ged) => {this.setState({folders:main_functions.changeStructure(ged,this.state.showFileInGed)})}}
+                                                      pathname={this.props.location.pathname}
                                                       viewMode={this.state.viewMode}
                                                       onDocClick={(item) => {
                                                         this.openPdfModal(item.id || item.key)
@@ -4466,10 +4509,17 @@ export default class Main extends React.Component {
                               </div>
                             </div>
                             <FolderDetail
-                              selectedFolderFolders={
-                                this.state.selectedFolderFolders
-                              }
+                                reelFolders={this.state.reelFolders}
+                                setReelFolders={(items) => {this.setState({reelFolders:items})}}
+                                setGedMenu={(ged) => {this.setState({folders:main_functions.changeStructure(ged,this.state.showFileInGed)})}}
+                                selectedFolderId={this.state.selectedFolderId}
+                              selectedFolderFolders={this.state.selectedFolderFolders}
+                                setSelectedFolderFolders={(folders) => this.setState({selectedFolderFolders:folders})}
                               selectedFolderFiles={this.state.selectedFolderFiles}
+                                setSelectedFolderFiles={(files) => {this.setState({selectedFolderFiles:files})}}
+                                rootFiles={this.state.rootFiles}
+                                setRootFiles={(files) => {this.setState({rootFiles:files})}}
+                                pathname={this.props.location.pathname}
                               viewMode={this.state.viewMode}
                               onDoubleClickFolder={(folder) => {
                                 this.setState({
@@ -4807,32 +4857,114 @@ export default class Main extends React.Component {
                         active_modules.includes("ROOMS") === true &&
                             [
                               <Route key={0} exact path="/home/rooms">
+
                                 {
-                                  this.state.rooms && this.state.rooms.length === 0 ?
-                                      <div>
-                                        <h4 className="mt-0 mb-1">Rooms</h4>
-                                        <div style={{ marginTop: 25, display: 'flex' }}>
-                                          <h5 style={{ fontSize: 16, color: 'gray' }}>
-                                            Aucune "Room" encore ajouté !</h5>&nbsp;&nbsp;
-                                          <h6 style={{
-                                            cursor: 'pointer',
-                                            color: '#000',
-                                            textDecoration: 'underline', marginTop: 12
-                                          }} onClick={() => {
-                                            this.setState({
-                                              openNewRoomModal: true
-                                            });
-                                          }}
-                                          >
-                                            Ajouter une</h6>
-                                        </div>
-                                      </div>
-                                      :
+                                  !this.state.rooms ?
                                       <div align="center" style={{marginTop: 200}}>
                                         <CircularProgress color="primary"/>
                                         <h6>Chargement...</h6>
                                       </div>
+                                      :
+                                      <div>
+                                        <div style={{marginTop:10}}>
+                                          <h5>Rooms</h5>
+                                        </div>
+                                        <div className="row mt-3" style={{maxWidth:1000}}>
+                                          {
+                                            (this.state.rooms || []).map((room,key) => (
+                                                <div className="col-lg-3 mb-2">
+                                                  <div className="card-container" style={{backgroundColor:room.color}} onClick={() => {
+                                                    this.setState({
+                                                      selectedRoom: room,
+                                                      selectedRoomKey: room.id,
+                                                      showContainerSection: 'Rooms',
+                                                      focusedItem: 'Rooms',
+                                                      selectedRoomItems:[room.id]
+                                                    });
+                                                    this.props.history.push('/home/rooms/' + room.id);
+                                                  }}>
+                                                    <div style={{display:"flex",justifyContent:"space-between"}}>
+                                                      <h6 style={{color:"#fff",fontWeight:600}}>{room.title}</h6>
+                                                      <MoreHorizIcon  style={{color:"#fff",marginTop:-5}}
+                                                                      onClick={(e) => {
+                                                                        e.preventDefault()
+                                                                        e.stopPropagation()
+                                                                        this.setState({settRoomAnchorEl:e.currentTarget})
+                                                                      }}
+                                                      />
+                                                      <Popover
+                                                          id={id_settRoom}
+                                                          open={openRoomSetting}
+                                                          anchorEl={this.state.settRoomAnchorEl}
+                                                          onClose={(e) => {
+                                                            e.preventDefault()
+                                                            e.stopPropagation()
+                                                            this.setState({settRoomAnchorEl:null})
+                                                          }}
+                                                          anchorOrigin={{
+                                                            vertical: 'top',
+                                                            horizontal: 'center',
+                                                          }}
+                                                          transformOrigin={{
+                                                            vertical: 'top',
+                                                            horizontal: 'center',
+                                                          }}
+                                                      >
+                                                        <MenuItem onClick={(e) => {
+                                                          e.preventDefault();e.stopPropagation()
+                                                        }}  >
+                                                          <ListItemIcon>
+                                                            <PersonAddIcon style={{color:"#c0c0c0"}}/>
+                                                          </ListItemIcon>
+                                                          <Typography variant="inherit">
+                                                            Ajouter
+                                                          </Typography>
+                                                        </MenuItem>
+                                                        <MenuItem onClick={(e) => {
+                                                          e.preventDefault();e.stopPropagation()
+                                                        }}  >
+                                                          <ListItemIcon>
+                                                            <EditIcon style={{color:"#c0c0c0"}}/>
+                                                          </ListItemIcon>
+                                                          <Typography variant="inherit">
+                                                            Modifier
+                                                          </Typography>
+                                                        </MenuItem>
+                                                        <MenuItem onClick={(e) => {
+                                                          e.preventDefault();e.stopPropagation()
+                                                        }}  >
+                                                          <ListItemIcon>
+                                                            <DeleteIcon style={{color:"#c0c0c0"}}/>
+                                                          </ListItemIcon>
+                                                          <Typography variant="inherit">
+                                                            Supprimer
+                                                          </Typography>
+                                                        </MenuItem>
+                                                      </Popover>
+                                                    </div>
+
+                                                    <div style={{marginTop:60,marginLeft:10}}>
+                                                      <div style={{display:"flex"}}>
+                                                        <i className="fa fa-users" style={{color:"#fff",fontSize:14}}>&nbsp;{room.members.length}</i>
+                                                        <i className="fa fa-tasks" style={{color:"#fff",fontSize:14,marginLeft:10}}>&nbsp;{(room.tasks || []).length}</i>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                            ))
+                                          }
+                                          <div className="col-lg-3">
+                                              <div className="card-container" onClick={() => {this.setState({openNewRoomModal:true})}}>
+                                              <div className="card-container-center-item">
+                                                <i className="fa fa-plus" style={{color: "#c0c0c0", fontSize: 22}}/>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+
                                 }
+
                               </Route>,
                               <Route key={1} exact path="/home/rooms/:room_id">
                                 {
@@ -4845,16 +4977,24 @@ export default class Main extends React.Component {
                                       <Rooms
                                           rooms={this.state.rooms || []}
                                           selectedRoom={this.state.selectedRoom}
+                                          setSelectedRoom={(room) => {this.setState({selectedRoom:room})}}
                                           contacts={this.state.contacts || []}
-                                          annuaire_clients={this.state.annuaire_clients_mandat || []}
+                                          annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
                                           //annuaire_clients={this.state.patients}
-                                          addNewtask={(title, selectedClient, assignedTo, team, selectedDateTime) => {
-                                            this.addNewRoomTask(title, selectedClient, assignedTo, team, selectedDateTime)
+                                          addNewtask={(title,desc, assignedTo,client,teamEmails,priority,tags,date_deadline) => {
+                                            this.addNewRoomTask(title,desc, assignedTo,client,teamEmails,priority,tags,date_deadline)
                                           }}
                                           onDeleteTask={(key) => {
                                             //this.deleteRoomTask(key)
                                           }}
                                           history={this.props.history}
+                                          selectedRoomTab={this.state.selectedRoomTab}
+                                          handleRoomTabsChange={(event,newValue) => {
+                                            this.handleRoomTabsChange(event,newValue)
+                                          }}
+                                          miniDrive={this.state.folders || []}
+                                          openPdfModal={(id) => {this.openPdfModal(id)}}
+                                          openSnackbar={(type,msg) => {this.openSnackbar(type,msg)}}
                                       />
                                 }
                               </Route>
@@ -8732,17 +8872,17 @@ export default class Main extends React.Component {
 
           {/*Share folder Modal*/}
           <Dialog
-            open={this.state.openShareDocModal}
-            onClose={() => {
-              this.setState({
-                openShareDocModal: !this.state.openShareDocModal
-              });
-            }}
-            aria-labelledby="form-dialog-title"
+              open={this.state.openShareDocModal}
+              onClose={() => {
+                this.setState({
+                  openShareDocModal: !this.state.openShareDocModal
+                });
+              }}
+              aria-labelledby="form-dialog-title"
           >
             <DialogTitle
-              id="form-dialog-title"
-              style={{ marginLeft: -22, marginBottom: -10 }}
+                id="form-dialog-title"
+                style={{ marginLeft: -22, marginBottom: -10 }}
             >
               <IconButton aria-label="Partager" color="primary">
                 <PersonAddIcon />
@@ -8754,175 +8894,171 @@ export default class Main extends React.Component {
                 <div className="col-md-12">
                   <div style={{ marginLeft: 11 }}>
                     <Chips
-                      chips={[]}
-                      placeholder="Ajouter des personnes"
-                      save={(data) => {
-                        this.setState({ emailsDriveShare: data });
-                      }}
-                      pattern={data.emailPatern}
-                      requiredMessage={'Email incorrect'}
-                      required={true}
-                      limit={20}
-                      limitMessage="Vous avez atteint le nombre maximal d'e-mails"
+                        chips={[]}
+                        placeholder="Ajouter des personnes"
+                        save={(data) => {
+                          console.log(data)
+                          this.setState({ emailsDriveShare: data });
+                        }}
+                        pattern={data.emailPatern}
+                        limit={20}
+                        limitMessage="Vous avez atteint le nombre maximal d'e-mails"
                     />
                   </div>
                 </div>
                 <div className="col-md-12">
                   <h5>Droits d'accès</h5>
                   <Autocomplete
-                    title={'Droits d\'accès'}
-                    multiple
-                    id="checkboxes-tags-demo"
-                    options={data.Acces}
-                    disableCloseOnSelect
-                    getOptionLabel={(option) => option.label}
-                    renderOption={(option, { selected }) => (
-                      <React.Fragment>
-                        <MuiCheckbox
-                          icon={main_functions.icon}
-                          checkedIcon={main_functions.checkedIcon}
-                          style={{ marginRight: 8 }}
-                          checked={selected}
-                        />
-                        {option.label}
-                      </React.Fragment>
-                    )}
-                    style={{
-                      width: 500,
-                      marginLeft: 10,
-                      borderColor: '#f0f0f0'
-                    }}
-                    renderInput={(params) => (
-                      <TextField {...params} variant="outlined" placeholder="" />
-                    )}
-                    onChange={(event, values) => {
-                      console.log(values)
-                      this.setState({shareRights:values})
-                    }}
+                      title={'Droits d\'accès'}
+                      multiple
+                      id="checkboxes-tags-demo"
+                      options={data.Acces}
+                      disableCloseOnSelect
+                      getOptionLabel={(option) => option.label}
+                      renderOption={(option, { selected }) => (
+                          <React.Fragment>
+                            <MuiCheckbox
+                                icon={main_functions.icon}
+                                checkedIcon={main_functions.checkedIcon}
+                                style={{ marginRight: 8 }}
+                                checked={selected}
+                            />
+                            {option.label}
+                          </React.Fragment>
+                      )}
+                      style={{
+                        width: 500,
+                        marginLeft: 10,
+                        borderColor: '#f0f0f0'
+                      }}
+                      renderInput={(params) => (
+                          <TextField {...params} variant="outlined" placeholder="" />
+                      )}
+                      onChange={(event, values) => {
+                        console.log(values)
+                        this.setState({shareRights:values})
+                      }}
                   />
                 </div>
                 <div className="col-md-12" style={{ marginTop: 20 }}>
                   <FormControlLabel
-                    control={
-                      <MuiCheckbox
-                        checked={this.state.checkedNotif}
-                        onChange={() =>
-                          this.setState({
-                            checkedNotif: !this.state.checkedNotif
-                          })
-                        }
-                        name="checkedNotif"
-                      />
-                    }
-                    label="Envoyer une notification"
+                      control={
+                        <MuiCheckbox
+                            checked={this.state.checkedNotif}
+                            onChange={() =>
+                                this.setState({
+                                  checkedNotif: !this.state.checkedNotif
+                                })
+                            }
+                            name="checkedNotif"
+                        />
+                      }
+                      label="Envoyer une notification"
                   />
                 </div>
                 {this.state.checkedNotif === true && (
-                  <div className="col-md-12">
-                    <TextField
-                      id="msg-notif"
-                      label="Message"
-                      variant="filled"
-                      value={this.state.msgNotif}
-                      onChange={(event) =>
-                        this.setState({ msgNotif: event.target.value })
-                      }
-                      multiline
-                      rows={5}
-                      style={{ width: 500, marginLeft: 8 }}
-                    />
-                  </div>
+                    <div className="col-md-12">
+                      <TextField
+                          id="msg-notif"
+                          label="Message"
+                          variant="filled"
+                          value={this.state.msgNotif}
+                          onChange={(event) =>
+                              this.setState({ msgNotif: event.target.value })
+                          }
+                          multiline
+                          rows={5}
+                          style={{ width: 500, marginLeft: 8 }}
+                      />
+                    </div>
                 )}
                 <div className="col-md-12" style={{ marginTop: 15 }}>
                   <Chip
-                    icon={
-                      this.state.selectedFile  === '' ? (
-                        <FolderIcon />
-                      ) : (
-                        <PictureAsPdfIcon
-                          style={{ color: 'red', backgroundColor: '#fff' }}
-                        />
-                      )
-                    }
-                    label={
-                      this.state.selectedFile === ''
-                        ? this.state.selectedFoldername
-                        : this.state.selectedFile.name + '.pdf'
-                    }
-                    style={{
-                      fontWeight: 'bold',
-                      backgroundColor: 'white',
-                      border: '1px solid #c0c0c0'
-                    }}
+                      icon={
+                        this.state.selectedFile  === '' ? (
+                            <FolderIcon />
+                        ) : (
+                            <PictureAsPdfIcon
+                                style={{ color: 'red', backgroundColor: '#fff' }}
+                            />
+                        )
+                      }
+                      label={
+                        this.state.selectedFile === ''
+                            ? this.state.selectedFoldername
+                            : this.state.selectedFile.name + '.pdf'
+                      }
+                      style={{
+                        fontWeight: 'bold',
+                        backgroundColor: 'white',
+                        border: '1px solid #c0c0c0'
+                      }}
                   />
                 </div>
               </div>
             </DialogContent>
             <DialogActions style={{ padding: 20 }}>
               <MuiButton
-                onClick={() => {
-                  this.setState({ openShareDocModal: false });
-                }}
-                color="primary"
-                style={{ textTransform: 'capitalize' }}
+                  onClick={() => {
+                    this.setState({ openShareDocModal: false });
+                  }}
+                  color="primary"
+                  style={{ textTransform: 'capitalize' }}
               >
                 Annuler
               </MuiButton>
               <MuiButton
-                disabled={
-                  (this.state.checkedNotif === true && this.state.msgNotif === '') ||
-                  this.state.emailsDriveShare.length === 0 || this.state.shareRights.length === 0
-                }
-                onClick={() => {
-                  this.setState({ loading: true, openShareDocModal: false });
-                  let rights = this.state.shareRights || [];
-                  SmartService.share(
-                    this.state.selectedFile === ''
-                      ? this.state.selectedFolderId
-                      : this.state.selectedFile.id,
-                    {
-                      to: this.state.emailsDriveShare[0].email,
-                      access: {
-                        administrate: rights.find(x => x.value === "administrate") !== undefined ,
-                        share: rights.find(x => x.value === "share") !== undefined,
-                        edit:  rights.find(x => x.value === "edit") !== undefined,
-                        read: rights.find(x => x.value === "read") !== undefined
-                      }
-                    },
-                    localStorage.getItem('token'),
-                    localStorage.getItem('usrtoken')
-                  )
-                    .then((share) => {
-                      console.log(share)
-                      if (share.succes === true && share.status === 200) {
-                        this.setState({
-                          loading: false,
-                          openShareDocModal: false,
-                          selectedFile:"",
-                          shareRights:[],
-                          emailsDriveShare:[],
-                          checkedNotif:false
+                  disabled={this.state.emailsDriveShare.length === 0 || this.state.shareRights.length === 0}
+                  onClick={() => {
+                    this.setState({ loading: true, openShareDocModal: false });
+                    let rights = this.state.shareRights || [];
+                    SmartService.share(
+                        this.state.selectedFile === ''
+                            ? this.state.selectedFolderId
+                            : this.state.selectedFile.id,
+                        {
+                          to: this.state.emailsDriveShare[0].email,
+                          access: {
+                            administrate: rights.find(x => x.value === "administrate") !== undefined ,
+                            share: rights.find(x => x.value === "share") !== undefined,
+                            edit:  rights.find(x => x.value === "edit") !== undefined,
+                            read: rights.find(x => x.value === "read") !== undefined
+                          }
+                        },
+                        localStorage.getItem('token'),
+                        localStorage.getItem('usrtoken')
+                    )
+                        .then((share) => {
+                          console.log(share)
+                          if (share.succes === true && share.status === 200) {
+                            this.setState({
+                              loading: false,
+                              openShareDocModal: false,
+                              selectedFile:"",
+                              shareRights:[],
+                              emailsDriveShare:[],
+                              checkedNotif:false
+                            });
+                            this.openSnackbar(
+                                'success',
+                                this.state.selectedFile === ''
+                                    ? 'Le partage du dossier est effectué avec succès, Un mail d\'invitation à été envoyé au personnes ajoutées'
+                                    : 'Le partage du fichier est effectué avec succès, Un mail d\'invitation à été envoyé au personnes ajoutées'
+                            );
+                          } else {
+                            console.log(share.error);
+                            this.setState({ loading: false });
+                            this.openSnackbar('error', share.error);
+                          }
+                        })
+                        .catch((err) => {
+                          this.setState({ loading: false });
+                          console.log(err);
                         });
-                        this.openSnackbar(
-                          'success',
-                          this.state.selectedFile === ''
-                            ? 'Le partage du dossier est effectué avec succès, Un mail d\'invitation à été envoyé au personnes ajoutées'
-                            : 'Le partage du fichier est effectué avec succès, Un mail d\'invitation à été envoyé au personnes ajoutées'
-                        );
-                      } else {
-                        console.log(share.error);
-                        this.setState({ loading: false });
-                        this.openSnackbar('error', share.error);
-                      }
-                    })
-                    .catch((err) => {
-                      this.setState({ loading: false });
-                      console.log(err);
-                    });
-                }}
-                color="primary"
-                variant="contained"
-                style={{ textTransform: 'capitalize' }}
+                  }}
+                  color="primary"
+                  variant="contained"
+                  style={{ textTransform: 'capitalize' }}
               >
 
                 Envoyer
@@ -8958,80 +9094,66 @@ export default class Main extends React.Component {
               </IconButton>
             </DialogTitle>
             <DialogContent>
-              <div className="row">
-                <div className="col-md-2">
-                  <div style={{
-                    backgroundColor: '#f0f0f0',
-                    height: 48,
-                    borderRadius: 5,
-                    width: 60
-                  }}
-                  />
-                </div>
-                <div className="col-md-10">
-                  <TextField
+              <div style={{display:"flex"}}>
+                <div style={{
+                  backgroundColor: this.state.newRoomColor,
+                  height: 48,
+                  borderRadius: 5,
+                  width: 60,cursor:"pointer"
+                }}
+                     onClick={(e) => {this.setState({anchorEl_colorPicker:e.currentTarget})}}
+                />
+                <TextField
                     id="room-name"
                     label="Ajouter un titre"
                     variant="filled"
                     value={this.state.newRoomTitle}
                     onChange={(event) =>
-                      this.setState({ newRoomTitle: event.target.value })
+                        this.setState({ newRoomTitle: event.target.value })
                     }
-                    style={{ width: 408, marginLeft: -5 }}
+                    style={{ width: 408, marginLeft: 33 }}
                     size="small"
+                />
+                <Popover
+                    id={id}
+                    open={openRoomColorPicker}
+                    anchorEl={this.state.anchorEl_colorPicker}
+                    onClose={() => {
+                      this.setState({anchorEl_colorPicker: null})
+                    }}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'center',
+                    }}
+                    transformOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'center',
+                    }}
+                >
+                  <BlockPicker color={this.state.newRoomColor} onChange={(color,event) => {
+                    this.setState({newRoomColor:color.hex})
+                  }}
+                               colors={['#F0F0F0','#FF6900', '#FCB900', '#7BDCB5', '#00D084', '#8ED1FC', '#0693E3', '#ABB8C3', '#EB144C', '#F78DA7',
+                                 '#D9E3F0', '#F47373', '#697689', '#37D67A', '#2CCCE4', '#dce775', '#ff8a65', '#ba68c8']}
                   />
-                </div>
+                </Popover>
+              </div>
+              <div className="row">
                 <div className="col-md-12" style={{ marginTop: 25 }}>
                   <div>
                     <Chips
-                      chips={this.state.NewRoomEmails}
-                      placeholder="Ajouter des personnes"
+                        chips={[]}
                       save={(data) => {
+                        console.log(data)
                         this.setState({ NewRoomEmails: data });
                       }}
-                      pattern={data.emailPatern}
                       requiredMessage={'Email incorrect'}
-                      required={true}
+                      placeholder="Ajouter des personnes"
+                      pattern={data.emailPatern}
                       limit={20}
                       limitMessage="Vous avez atteint le nombre maximal d'e-mails"
-                      onInputClick={(event) => {
-                        this.setState({
-                          anchorElContactsMenu: event.currentTarget
-                        });
-                      }}
-                    />{' '}
-                    <Menu
-                      id="add-person-room--menu"
-                      anchorEl={this.state.anchorElContactsMenu}
-                      keepMounted
-                      open={Boolean(this.state.anchorElContactsMenu)}
-                      onClose={() => this.setState({ anchorElContactsMenu: null })}
-                    >
-                      {(this.state.contacts || []).map((contact, key) => (
-                          <MenuItem
-                            key={key}
-                            onClick={() => {
-                              let emails = this.state.NewRoomEmails;
-                              emails.push({
-                                email: contact.email,
-                                valid: true,
-                                key: parseInt(moment().format('DDMMYYYYHHmmss'))
-                              });
-                              this.setState({
-                                anchorElContactsMenu: null,
-                                NewRoomEmails: emails
-                              });
-                            }}
-                          >
-                            <ListItemIcon>
-                              <Avatar src={contact.imageUrl} />
-                            </ListItemIcon>{' '}
-                            <Typography variant="inherit">
-                              {contact.prenom + ' ' + contact.nom}
-                            </Typography>
-                          </MenuItem>
-                        ))}
-                    </Menu>
+                        contacts={this.state.contacts || []}
+                    />
                   </div>
                 </div>
                 <div className="col-md-12" style={{ marginTop: 20 }}>
@@ -9086,6 +9208,7 @@ export default class Main extends React.Component {
                 onClick={() => {
                   this.addNewRoom({
                     title: this.state.newRoomTitle,
+                    color:this.state.newRoomColor,
                     members: this.state.NewRoomEmails,
                     created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
                     created_by:localStorage.getItem("email")
@@ -9147,7 +9270,7 @@ export default class Main extends React.Component {
                       onDrop={(acceptedFiles, rejectedFiles) => {
                         let calls = [];
                         for (let i = 0; i < acceptedFiles.length; i++) {
-                          if(acceptedFiles[i].type === "application/pdf"){
+                          if(acceptedFiles[i].type === "application/pdf" || acceptedFiles[i].type.startsWith("image/") ){
                             let formData = new FormData();
                             formData.append('file', acceptedFiles[i]);
                             console.log(this.state.selectedFolderId)

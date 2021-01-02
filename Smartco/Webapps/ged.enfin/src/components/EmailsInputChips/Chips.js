@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ChipsList from './ChipsList';
 import './chips.scss';
+import {Avatar, MenuItem} from "@material-ui/core";
+import moment from "moment";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import Typography from "@material-ui/core/Typography";
+import Menu from "@material-ui/core/Menu";
 
 class Chips extends Component {
     constructor(props) {
@@ -13,7 +18,9 @@ class Chips extends Component {
                 tab: 9,
                 enter: 13
             },
-            disableInput: false
+            disableInput: false,
+            anchorElContactsMenu:null,
+            clickMenuValue:""
         };
         this.inputRef = React.createRef();
     }
@@ -45,6 +52,10 @@ class Chips extends Component {
             if (save) {
                 this.props.save(validChips);
             }
+        }else{
+            const validChips = this.getValidChips(chips);
+            this.setState({chips})
+            this.props.save(validChips);
         }
     }
 
@@ -70,6 +81,23 @@ class Chips extends Component {
         }
     }
 
+    onContactMenuClick(value){
+        this.clearRequiredValidation();
+        if (!value) {
+            return;
+        }
+        const chipValue = value.trim().toLowerCase();
+        const [chipExists] = this.state.chips.filter(chip => chip.email === chipValue);
+        if (chipExists) {
+            this.setState({clickMenuValue:""})
+            return;
+        }
+        const valid = this.props.pattern ? this.props.pattern.test(chipValue) : true;
+        const chips = this.state.chips.concat([{ email: chipValue, valid, key: Date.now() }]);
+        this.setChips(chips, valid);
+        this.setState({clickMenuValue:""})
+    }
+
     clearRequiredValidation() {
         this.setState({
             requiredValidation: false
@@ -77,6 +105,7 @@ class Chips extends Component {
     }
 
     deleteChip(removedChip) {
+
         if (!removedChip) {
             return;
         }
@@ -99,15 +128,11 @@ class Chips extends Component {
     }
 
     updateChips(event) {
-
         const value = event.target.value;
-
         if (!value) {
             return;
         }
-
         const chipValue = value.trim().toLowerCase();
-
         // check if it is already exists
         const [chipExists] = this.state.chips.filter(chip => chip.email === chipValue);
 
@@ -116,7 +141,6 @@ class Chips extends Component {
             event.target.value = '';
             return;
         }
-
         const valid = this.props.pattern ? this.props.pattern.test(chipValue) : true;
         const chips = this.state.chips.concat([{ email: chipValue, valid, key: Date.now() }]);
 
@@ -132,16 +156,44 @@ class Chips extends Component {
             <div>
                 <div className="chips" onClick={() => this.focusInput()}>
                     <ChipsList chips={this.state.chips} onChipClick={(event, chip) => {event.stopPropagation(); this.deleteChip(chip)}} />
-                    { !this.state.disableInput && <input
+                    { !this.state.disableInput &&
+                    <input
                         type="text"
                         className="chips-input"
                         onFocus={() => this.clearRequiredValidation()}
                         placeholder={placeholder}
                         onKeyDown={e => this.onKeyDown(e)}
+                        onBlur={(e) => {
+                            this.updateChips(e)
+                        }}
                         ref={this.inputRef}
-                        onClick={(event) => this.props.onInputClick && this.props.onInputClick(event)}
+                        onClick={(event) => this.setState({anchorElContactsMenu:event.currentTarget})}
                     />}
                 </div>
+                <Menu
+                    id="add-person-room--menu"
+                    anchorEl={this.state.anchorElContactsMenu}
+                    keepMounted
+                    open={Boolean(this.state.anchorElContactsMenu)}
+                    onClose={() => this.setState({ anchorElContactsMenu: null })}
+                >
+                    {(this.props.contacts || []).map((contact, key) => (
+                        <MenuItem
+                            key={key}
+                            onClick={() => {
+                                this.setState({clickMenuValue:contact.email,anchorElContactsMenu:null})
+                                this.onContactMenuClick(contact.email)
+                            }}
+                        >
+                            <ListItemIcon>
+                                <Avatar src={contact.imageUrl} />
+                            </ListItemIcon>{' '}
+                            <Typography variant="inherit">
+                                {contact.prenom + ' ' + contact.nom}
+                            </Typography>
+                        </MenuItem>
+                    ))}
+                </Menu>
             </div>
         );
     }

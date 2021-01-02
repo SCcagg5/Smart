@@ -12,7 +12,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import SearchBar from "material-ui-search-bar";
-
+import userAvatar from '../../assets/images/users/user4.jpg';
 
 export default function TopBar(props) {
 
@@ -34,13 +34,14 @@ export default function TopBar(props) {
 
 
     return(
-        <AppBar position="fixed" color="default" className="fe-ai" style={{zIndex:20}} >
-            <Toolbar style={{height:props.height}} onAuxClick={event => event.preventDefault()}>
+        <AppBar position="fixed" color="default" className="fe-ai" style={{zIndex:1}} >
+            <Toolbar style={{height:props.height}} onAuxClick={event => event.preventDefault()}
+            >
                 <IconButton edge="start" aria-label="menu" onClick={props.onClickMenuIcon}>
                     <MenuIcon style={{fontSize:26}} />
                 </IconButton>
                 <img alt="" src={props.logo} style={{width:55,marginLeft:10}}/>
-                <SearchBar style={{marginLeft:110,width:700,marginTop:3}}
+                <SearchBar style={{marginLeft:110,width:"50%",marginTop:3}}
                     value={props.textSearch}
                            placeholder="Rechercher"
                     onChange={(newValue) => {props.onChangeSearch(newValue)}}
@@ -50,7 +51,7 @@ export default function TopBar(props) {
 
                     {
                         (props.current_user_contact && props.current_user_contact !== "") ?
-                          <img alt="" src={props.current_user_contact.imageUrl} onClick={handleToggle} ref={anchorRef}
+                          <img alt="" src={props.current_user_contact.imageUrl || userAvatar } onClick={handleToggle} ref={anchorRef}
                                aria-controls={open ? 'menu-list-grow' : undefined} aria-haspopup="true"
                                style={{width:50,height:50,objectFit:"contain",borderRadius:"50%",border:"2px solid gainsboro",cursor:"pointer"}}/> :
                           <Avatar onClick={handleToggle} ref={anchorRef}
@@ -74,7 +75,7 @@ export default function TopBar(props) {
                                         backgroundColor:utilFunctions.getCharColor(localStorage.getItem("email").charAt(0))}}>
                                         {localStorage.getItem("email").charAt(0).toUpperCase()}
                                     </Avatar>
-                                    <p>{localStorage.getItem("email")}</p>
+                                    <p>{localStorage.getItem("email")+" ("+localStorage.getItem("role")+")"}</p>
                                 </div>
                                 <ClickAwayListener onClickAway={handleClose}>
                                     <MenuList autoFocusItem={open} id="menu-list-grow" style={{marginTop:-15}}>

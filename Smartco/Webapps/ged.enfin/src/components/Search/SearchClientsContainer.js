@@ -107,17 +107,11 @@ export default function SearchClientsContainer(props) {
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [textSearch, setTextSearch] = React.useState("");
     const [searchByType, setSearchByType] = React.useState("");
-    const [searchBySector, setSearchBySector] = React.useState("");
-    const [searchByPays, setSearchByPays] = React.useState("");
-    const [searchByLead, setSearchByLead] = React.useState("");
     const [selectedSearchLettre, setSelectedSearchLettre] = React.useState("");
 
-    const searchFilter= props.societes.filter((annuaire) => (  (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
-         (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
-        (annuaire.Type === searchByType || searchByType === "") &&
-        ((annuaire.secteur && annuaire.secteur === searchBySector)  || searchBySector === "" ) &&
-        ((annuaire.country && annuaire.country === searchByPays)  || searchByPays === "" ) &&
-        ((annuaire.facturation && annuaire.facturation.collaborateur_lead === searchByLead)  || searchByLead === "" )
+    const searchFilter= props.societes.filter((annuaire) => (  (annuaire.contactName.trim()).toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
+         (annuaire.contactName.trim()).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
+        (annuaire.type === searchByType || searchByType === "")
 
     ))
 
@@ -136,7 +130,7 @@ export default function SearchClientsContainer(props) {
     contactSelectOptions.push({label:"Aucun",value:""})
     props.contacts.map((contact,key) => {
         contactSelectOptions.push({value:contact.email,
-            label:<div><img alt="" src={contact.imageUrl || null} style={{width:30,height:30,objectFit:"contain"}}/>{"  "}{contact.nom+" "+contact.prenom}</div>
+            label:<div><img alt="" src={contact.imageUrl || null} style={{width:30,height:30,objectFit:"contain"}}/>{"  "}{contact.contactName}</div>
         })
     })
 
@@ -161,7 +155,7 @@ export default function SearchClientsContainer(props) {
                                             id="search"
                                             name="search"
                                             type="text"
-                                            placeholder="Chercher par nom"
+                                            placeholder="Chercher par nom & prénom"
                                             value={textSearch}
                                             onChange={(e)=>  setTextSearch(e.target.value) }/>
 
@@ -263,55 +257,6 @@ export default function SearchClientsContainer(props) {
                                             }
                                         </select>
                                     </div>
-                                    <div className="col-md-6">
-                                        <h6>Par secteur</h6>
-                                        <select className="form-control custom-select" style={{width:350}}
-                                                value={searchBySector} onChange={(e) => setSearchBySector(e.target.value) }
-                                        >
-                                            {
-                                                Data.secteurs.map((secteur,key) =>
-                                                    <option key={key} value={secteur}>{secteur}</option>
-                                                )
-                                            }
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="row mt-1">
-                                    <div className="col-md-6">
-                                        <h6>Par pays</h6>
-                                        <select className="form-control custom-select" style={{width:350}}
-                                                value={searchByPays} onChange={(e) => setSearchByPays(e.target.value) }
-                                        >
-                                            {
-                                                countryList.map((pay,key) =>
-                                                    <option key={key} value={pay.Name}>{pay.Name}</option>
-                                                )
-                                            }
-                                        </select>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <h6>Par collaborateur lead sur le dossier</h6>
-                                        <Select
-                                            defaultValue={searchByLead}
-                                            options={contactSelectOptions}
-                                            closeMenuOnSelect={true}
-                                            isMulti={false}
-                                            hideSelectedOptions={true}
-                                            styles={{
-                                                container: (provided, state) => ({
-                                                    ...provided,
-                                                    width:350
-                                                }),
-                                                menuPortal: styles => ({ ...styles, zIndex: 9999 })
-                                            }}
-                                            menuPortalTarget={document.body}
-                                            onChange={(e) => {
-                                                console.log(e.value)
-                                                setSearchByLead(e.value)
-                                            }}
-                                        />
-
-                                    </div>
                                 </div>
                             </Panel>
                         </Collapse>
@@ -322,10 +267,11 @@ export default function SearchClientsContainer(props) {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell style={{width:"15%",fontWeight:600}}>Type</TableCell>
-                                        <TableCell style={{width:"20%",fontWeight:600}}>Nom</TableCell>
-                                        <TableCell  style={{width:"20%",fontWeight:600}}>Prénom</TableCell>
+                                        <TableCell style={{width:"20%",fontWeight:600}}>Nom & prénom</TableCell>
+                                        <TableCell  style={{width:"20%",fontWeight:600}}>Société</TableCell>
                                         <TableCell  style={{width:"15%",fontWeight:600}}>Pays</TableCell>
-                                        <TableCell  style={{width:"15%",fontWeight:600}}>Date de création</TableCell>
+                                        <TableCell  style={{width:"20%",fontWeight:600}}>Adresse</TableCell>
+                                        <TableCell  style={{width:"15%",fontWeight:600}}>Téléphone</TableCell>
                                         <TableCell  style={{width:"15%",fontWeight:600}}>Action</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -343,23 +289,23 @@ export default function SearchClientsContainer(props) {
                                                             height: 30,
                                                             objectFit: "cover"
                                                         }}
-                                                        src={row.imageUrl ? row.imageUrl : row.ContactType === "Company" ? entIcon : userAvatar}
+                                                        src={row.imageUrl ? row.imageUrl : row.type === "0" ? entIcon : userAvatar}
                                                         alt=""/>
 
-                                                    <div className="ml-1">{row.ContactType === "Company" ? "Société" : "Personne physique"}</div>
+                                                    <div className="ml-1">{row.type === "0" ? "Société" : "Personne physique"}</div>
                                                 </div>
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} align="center">
-                                                {row.Nom || ""}
+                                                {row.contactName || ""}
                                             </TableCell>
-                                            <TableCell style={{ width: "20%" }} align="center">
-                                                {row.Prenom || ""}
+                                            <TableCell style={{ width: "20%" }} >
+                                                {row.societyName || ""}
                                             </TableCell>
-                                            <TableCell style={{ width: "15%" }} align="center">
-                                                {row.country || ""}
+                                            <TableCell style={{ width: "20%" }} >
+                                                {row.adress || ""}
                                             </TableCell>
-                                            <TableCell style={{ width: "15%" }} align="center">
-                                                {row.created_at ? moment(row.created_at).format("DD/MM/YYYY") : ""}
+                                            <TableCell style={{ width: "15%" }} >
+                                                {row.phone || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} align="center">
                                                 <Button color="default" size="small" style={{

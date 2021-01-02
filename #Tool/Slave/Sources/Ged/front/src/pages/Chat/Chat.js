@@ -8,8 +8,13 @@ import Popover from '@material-ui/core/Popover';
 import 'emoji-mart/css/emoji-mart.css'
 import {Picker} from 'emoji-mart'
 import * as ReactDOM from 'react-dom';
+import {Tree} from "antd";
+import main_functions from "../../controller/main_functions";
+import SmartService from "../../provider/SmartService";
+import {IconButton} from "@material-ui/core";
+import CloseIcon from '@material-ui/icons/Close';
 
-
+const {DirectoryTree} = Tree;
 const db_name = process.env.REACT_APP_RETHINKDB_BEGIN_NAME;
 
 export default class Chat extends React.Component {
@@ -24,10 +29,17 @@ export default class Chat extends React.Component {
         loading: true,
         showImageModal: false,
         imageModal: "",
-        anchorEl: null,
+        anchorElEmoji: null,
+        anchorElFiles:null,
         limit: 10,
         skipCount: 0,
-        loadingScroll: false
+        loadingScroll: false,
+        textareaHeight:45,
+
+        miniDrive:this.props.miniDrive,
+        autoExpandParent:true,
+        expandedKeys:[],
+        selectedKeys:[]
     }
 
     async verifIsTableExist(table){
@@ -66,7 +78,6 @@ export default class Chat extends React.Component {
             console.log(err)
         })
     }
-
 
     getChatChanges(ust_token, db, table) {
 
@@ -147,6 +158,44 @@ export default class Chat extends React.Component {
         }
     }
 
+    addGedFile(file){
+        let newItem = {
+            created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+            room_id: this.props.room_id,
+            sender: {
+                email: localStorage.getItem("email")
+            },
+            type: "ged_file",
+            id_in_ged:file.id,
+            name_in_ged:file.name
+        }
+        let room_members = (this.props.room.members || []).filter(x => x.email !== localStorage.getItem("email"));
+        room_members.map((member,key) => {
+            SmartService.share(file.id,
+                {
+                    to: member.email,
+                    access: {administrate: false, share: false, edit:  false, read: true}
+                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(shareRes => {
+                if (shareRes.succes === true && shareRes.status === 200) {
+                    console.log("Share"+key +" OK")
+                }else{
+                    console.log(shareRes.error)
+                }
+            }).catch(err => {console.log(err)})
+        })
+        this.verifIsTableExist("chat").then( v => {
+            rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+                if (resAdd && resAdd === true) {
+
+                } else {
+                    console.log("Erreur add msg chat !")
+                }
+            }).catch(err => {
+                console.log(err)
+            })
+        }).catch(err => {console.log(err)})
+    }
+
     uploadImage = (image) => {
 
         let imgToUpload = image.target.files[0];
@@ -218,7 +267,6 @@ export default class Chat extends React.Component {
         ReactDOM.findDOMNode(this.messageList).scrollTop = x;
     }
 
-
     scrollToBottom = () => {
         if(this.messageList){
             const scrollHeight = this.messageList.scrollHeight;
@@ -226,6 +274,30 @@ export default class Chat extends React.Component {
             const maxScrollTop = scrollHeight - height;
             ReactDOM.findDOMNode(this.messageList).scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
         }
+    }
+
+    adjustTextArea(e) {
+        //this.setState({textareaHeight: 25 + e.scrollHeight})
+        e.target.style.height = (e.target.scrollHeight > e.target.clientHeight) ? (e.target.scrollHeight)+"px" : "45px";
+    }
+
+    onExpand = (expandedKeys) => {
+        this.setState({expandedKeys:expandedKeys,autoExpandParent:false})
+    }
+
+    onSelect = (selectedKeys, info) => {
+        this.setState({selectedKeys:selectedKeys})
+    }
+
+    onDrop_container(e){
+        e.preventDefault();e.stopPropagation();
+        let recievedItem = JSON.parse(e.dataTransfer.getData("file"));
+        if(recievedItem.typeF === "file"){
+            this.addGedFile(recievedItem)
+        }else{
+            this.props.openSnackbar("warning","Seuls les fichiers peuvent être glissés ici")
+        }
+        e.dataTransfer.clearData();
     }
 
     render() {
@@ -236,8 +308,11 @@ export default class Chat extends React.Component {
             return c - d;
         })
 
-        const open = Boolean(this.state.anchorEl);
-        const id = open ? 'emoji-popover' : undefined;
+        const openEmojiPopup = Boolean(this.state.anchorElEmoji);
+        const id1 = openEmojiPopup ? 'emoji-popover' : undefined;
+
+        const openFilesPopup = Boolean(this.state.anchorElFiles);
+        const id2 = openFilesPopup ? 'files-popover' : undefined;
 
         return (
             <div>
@@ -246,7 +321,15 @@ export default class Chat extends React.Component {
                         <div align="center" style={{marginTop: 200}}>
                             <CircularProgress size={20} color="secondary"/>
                         </div> :
-                        <div id="frame">
+                        <div id="frame"
+                             onDragOver={(e) => {
+                                 e.preventDefault();e.stopPropagation();
+                             }}
+                             onDragLeave={(e) => {
+                                 e.preventDefault();e.stopPropagation();
+                             }}
+                             onDrop={(e) => {this.onDrop_container(e)}}
+                        >
                             <div className="content">
                                 <div className="contact-profile"/>
                                 {
@@ -266,19 +349,51 @@ export default class Chat extends React.Component {
                                             msgs.map((msg,key) => (
                                                 msg.sender.email === localStorage.getItem("email") ?
                                                     <div key={key}>
-                                                        <li  className="sent">
+                                                        <li  className="replies">
                                                             {
                                                                 msg.type === "image" ?
-                                                                    <div style={{backgroundColor:"#f5f5f5",padding:"5px 15px",borderRadius:20,display:"inline-block",marginBottom:15}}>
-                                                                        <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
+                                                                    <div style={{backgroundColor:"#dcf8c6",padding:"3px",borderRadius:7.5,
+                                                                        display:"inline-block",marginBottom:15,float:"right",boxShadow: "0 1px 0.5px rgba(0,0,0,.13)"}}
+                                                                    >
                                                                         <img alt="" src={msg.text}
-                                                                             style={{width:"100%",height:"100%",objectFit:"contain",borderRadius:10,marginBottom:10,maxHeight:230,maxWidth:350,cursor:"pointer"}}
+                                                                             style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:10,marginBottom:10,maxHeight:300,maxWidth:450,cursor:"pointer"}}
                                                                              onClick={() => {this.setState({showImageModal:true,imageModal:msg.text})}}
                                                                         />
-                                                                        <h6 style={{color:"gray",marginBottom:-2,fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
+                                                                        <h6 style={{color:"gray",fontSize:"0.6rem",textAlign:"end",marginRight:5}}>{moment(msg.created_at).fromNow(false)}</h6>
                                                                     </div> :
+                                                                    msg.type === "ged_file" ?
+                                                                        <div style={{backgroundColor:"#dcf8c6",padding:"3px",borderRadius:7.5,
+                                                                            display:"inline-block",marginBottom:15,float:"right",boxShadow: "0 1px 0.5px rgba(0,0,0,.13)"}}
+                                                                        >
+                                                                            <div style={{backgroundColor:"#cfe9ba"}}>
+                                                                                <div style={{padding:"13px 19px",alignItems:"center",display:"flex"}}>
+                                                                                    <div className="msg_file_icon"/>
+                                                                                    <div className="msg_file_text"
+                                                                                         onClick={() => this.props.openPdfModal(msg.id_in_ged)}
+                                                                                    >
+                                                                                        <span>{msg.name_in_ged}</span>
+                                                                                    </div>
+                                                                                    <div className="msg_file_download_icon">
+                                                                                        <div style={{color:"rgba(51,51,51,.5"}}>
+                                                                                            <span>
+                                                                                                <svg xmlns="http://www.w3.org/2000/svg" width={34} height={34} viewBox="0 0 34 34">
+                                                                                                    <path d="M17 2c8.3 0 15 6.7 15 15s-6.7 15-15 15S2 25.3 2 17 8.7 2 17 2m0-1C8.2 1 1 8.2 1 17s7.2 16 16 16 16-7.2 16-16S25.8 1 17 1z"
+                                                                                                          fill="currentColor"
+                                                                                                    />
+                                                                                                    <path d="M22.4 17.5h-3.2v-6.8c0-.4-.3-.7-.7-.7h-3.2c-.4 0-.7.3-.7.7v6.8h-3.2c-.6 0-.8.4-.4.8l5 5.3c.5.7 1 .5 1.5 0l5-5.3c.7-.5.5-.8-.1-.8z"
+                                                                                                          fill="currentColor"
+                                                                                                    />
+                                                                                                </svg>
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <h6 style={{color:"gray",marginTop:4,marginBottom:2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
+
+                                                                        </div>
+                                                                        :
                                                                     <p>
-                                                                        <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
                                                                         {msg.text}
                                                                         <h6 style={{color:"gray",marginBottom:-2,fontSize:"0.6rem",float:"right",marginTop:20}}>{moment(msg.created_at).fromNow(false)}</h6>
                                                                     </p>
@@ -287,30 +402,61 @@ export default class Chat extends React.Component {
                                                     </div>
                                                     :
                                                     <div key={key}>
-                                                        <li  className="replies">
+                                                        <li  className="sent">
                                                             {
                                                                 msg.type === "image" ?
                                                                     <div style={{
                                                                         backgroundColor: "#f5f5f5",
-                                                                        padding: "5px 15px",
-                                                                        borderRadius: 20,
+                                                                        padding: "3px",
+                                                                        borderRadius: 7.5,
                                                                         display: "inline-block",
-                                                                        float:"right",
                                                                         marginBottom:15
                                                                     }}>
-                                                                        <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
+                                                                        <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1,marginLeft:5}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
                                                                         <img alt="" src={msg.text} style={{
                                                                             width: "100%",
                                                                             height: "100%",
-                                                                            objectFit: "contain",
+                                                                            objectFit: "cover",
                                                                             borderRadius:10,marginBottom:10,
-                                                                            maxHeight:230,maxWidth:350,cursor:"pointer"
+                                                                            maxHeight:300,maxWidth:450,cursor:"pointer"
                                                                         }}
                                                                              onClick={() => {this.setState({showImageModal:true,imageModal:msg.text})}}
                                                                         />
-                                                                        <h6 style={{color: "gray", marginBottom: -2,fontSize:"0.6rem"}}>
+                                                                        <h6 style={{color: "gray",fontSize:"0.6rem",textAlign:"end",marginRight:5}}>
                                                                             {moment(msg.created_at).fromNow(false)}</h6>
                                                                     </div> :
+                                                                    msg.type === "ged_file" ?
+                                                                        <div style={{backgroundColor:"#fff",padding:"3px",borderRadius:7.5,
+                                                                            display:"inline-block",marginBottom:15,boxShadow: "0 1px 0.5px rgba(0,0,0,.13)"}}
+                                                                        >
+                                                                            <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:2,marginBottom:4,marginLeft:5}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
+                                                                            <div style={{backgroundColor:"#f0f0f0"}}>
+                                                                                <div style={{padding:"13px 19px",alignItems:"center",display:"flex"}}>
+                                                                                    <div className="msg_file_icon"/>
+                                                                                    <div className="msg_file_text"
+                                                                                         onClick={() => this.props.openPdfModal(msg.id_in_ged)}
+                                                                                    >
+                                                                                        <span>{msg.name_in_ged}</span>
+                                                                                    </div>
+                                                                                    <div className="msg_file_download_icon">
+                                                                                        <div style={{color:"rgba(51,51,51,.5"}}>
+                                                                                            <span>
+                                                                                                <svg xmlns="http://www.w3.org/2000/svg" width={34} height={34} viewBox="0 0 34 34">
+                                                                                                    <path d="M17 2c8.3 0 15 6.7 15 15s-6.7 15-15 15S2 25.3 2 17 8.7 2 17 2m0-1C8.2 1 1 8.2 1 17s7.2 16 16 16 16-7.2 16-16S25.8 1 17 1z"
+                                                                                                          fill="currentColor"
+                                                                                                    />
+                                                                                                    <path d="M22.4 17.5h-3.2v-6.8c0-.4-.3-.7-.7-.7h-3.2c-.4 0-.7.3-.7.7v6.8h-3.2c-.6 0-.8.4-.4.8l5 5.3c.5.7 1 .5 1.5 0l5-5.3c.7-.5.5-.8-.1-.8z"
+                                                                                                          fill="currentColor"
+                                                                                                    />
+                                                                                                </svg>
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <h6 style={{color:"gray",marginTop:4,marginBottom:2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
+                                                                        </div>
+                                                                        :
                                                                     <p>
                                                                         <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
                                                                         {msg.text}
@@ -327,25 +473,43 @@ export default class Chat extends React.Component {
                                     </ul>
                                 </div>
                                 <div>
-                                    <i className="fa fa-smile attachment" aria-hidden="true"
+                                    <i className="fa fa-file-alt attachment" aria-hidden="true"
                                        style={{
                                            position: "absolute",
-                                           left: 15,
-                                           bottom: 20,
-                                           fontSize: 17,
-                                           cursor: "pointer"
+                                           left: 75,
+                                           bottom: 17,
+                                           fontSize: 22,
+                                           cursor: "pointer",
+                                           color:"dodgerblue",
+                                           boxShadow:"2px 4px 6px lightblue"
                                        }}
                                        onClick={(event) => {
-                                           this.setState({anchorEl: event.currentTarget})
+                                           this.setState({anchorElFiles: event.currentTarget})
                                        }}
                                     />
-                                    <i className="fa fa-image attachment" aria-hidden="true"
+                                    <i className="fa fa-laugh attachment" aria-hidden="true"
                                        style={{
                                            position: "absolute",
-                                           left: 40,
-                                           bottom: 20,
-                                           fontSize: 17,
-                                           cursor: "pointer"
+                                           left: 8,
+                                           bottom: 17,
+                                           fontSize: 22,
+                                           cursor: "pointer",
+                                           color:"inherit",
+                                           boxShadow:"#fff 2px 4px 6px"
+                                       }}
+                                       onClick={(event) => {
+                                           this.setState({anchorElEmoji: event.currentTarget})
+                                       }}
+                                    />
+                                    <i className="fa fa-images attachment" aria-hidden="true"
+                                       style={{
+                                           position: "absolute",
+                                           left: 38,
+                                           bottom: 17,
+                                           fontSize: 22,
+                                           cursor: "pointer",
+                                           color:"inherit",
+                                           boxShadow:"#fff 2px 4px 6px"
                                        }}
                                        onClick={() => {
                                            this.imageUpload.click()
@@ -354,16 +518,17 @@ export default class Chat extends React.Component {
                                 </div>
                                 <div className="message-input">
                                     <div className="wrap">
-                                        <input type="text" placeholder="Tapez votre message ici..."
+                                        <textarea  placeholder="Tapez votre message ici..."
                                                value={this.state.text}
                                                onChange={(e => {
                                                    this.setState({text: e.target.value})
                                                })}
                                                onKeyPress={(event => {
-                                                   if (event.key === 'Enter') {
+                                                   if (event.key === 'Enter' && !event.shiftKey) {
                                                        this.addNewMessage(this.state.text)
                                                    }
                                                })}
+                                                   //onKeyUp={(event => {this.adjustTextArea(event)})}
                                         />
                                         <button className="submit"
                                                 onClick={() => {
@@ -384,11 +549,11 @@ export default class Chat extends React.Component {
                 }
 
                 <Popover
-                    id={id}
-                    open={open}
-                    anchorEl={this.state.anchorEl}
+                    id={id1}
+                    open={openEmojiPopup}
+                    anchorEl={this.state.anchorElEmoji}
                     onClose={() => {
-                        this.setState({anchorEl: null})
+                        this.setState({anchorElEmoji: null})
                     }}
                     anchorOrigin={{
                         vertical: 'top',
@@ -408,6 +573,55 @@ export default class Chat extends React.Component {
                                 categories: {search: 'Résultats de recherche', recent: 'Récents'}
                             }}
                     />
+                </Popover>
+
+                <Popover
+                    style={{zIndex:0,position:"unset"}}
+                    id={id2}
+                    open={openFilesPopup}
+                    anchorEl={this.state.anchorElFiles}
+                    onClose={() => {
+                        this.setState({anchorElFiles: null})
+                    }}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                >
+                    <div style={{padding:15,height:600,width:300,paddingBottom:50}}>
+                        <div align="right">
+                            <IconButton size="small" onClick={() => {this.setState({anchorElFiles:null})}}>
+                                <CloseIcon />
+                            </IconButton>
+                        </div>
+
+                        <h6 style={{color:"darkblue"}}>Glisser des fichiers de votre drive directement dans la discussion</h6>
+                        <div style={{marginTop:30}}>
+                            <DirectoryTree
+                                draggable={true}
+                                allowDrop={(options) => {
+                                    return false
+                                }}
+                                showIcon={true}
+                                onExpand={this.onExpand}
+                                onSelect={this.onSelect}
+                                treeData={this.state.miniDrive}
+                                expandAction="click"
+                                expandedKeys={this.state.expandedKeys}
+                                selectedKeys={this.state.selectedKeys}
+                                onDragStart={e => {
+                                    let file = {id:e.node.key,name:e.node.title,typeF:e.node.typeF}
+                                    console.log(file)
+                                    e.event.dataTransfer.setData("file", JSON.stringify(file))
+                                }}
+                                autoExpandParent={this.state.autoExpandParent}
+                            />
+                        </div>
+                    </div>
                 </Popover>
 
                 {

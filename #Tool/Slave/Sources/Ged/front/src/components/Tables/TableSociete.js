@@ -242,7 +242,7 @@ export default function TableSociete(props) {
                 </div>
             </div>
             <div className="row mt-3">
-                <div className="col-xl-12">
+                <div className="col-xl-12" style={{minWidth:900}}>
                     <div className="row">
                         <div className="col">
                             <div className="page-title-box">

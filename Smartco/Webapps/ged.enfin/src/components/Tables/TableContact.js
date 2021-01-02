@@ -16,13 +16,18 @@ import defaultAvatar from "../../assets/images/users/default_avatar.jpg";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
 import TableHead from '@material-ui/core/TableHead';
+import main_functions from "../../controller/main_functions";
+import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
 
+const ent_name = "ENFIN";
 const useStyles1 = makeStyles((theme) => ({
     root: {
         flexShrink: 0,
         marginLeft: theme.spacing(2.5),
     },
 }));
+
+let fileUpload = {};
 
 function TablePaginationActions(props) {
     const classes = useStyles1();
@@ -94,8 +99,12 @@ export default function TableContact(props) {
     const classes = useStyles2();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
+    const [contact_ToDeleted, setContact_ToDeleted] = React.useState("");
 
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, props.contacts.length - page * rowsPerPage);
+    let contacts = props.contacts;
+
+    const emptyRows = rowsPerPage - Math.min(rowsPerPage, contacts - page * rowsPerPage);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -106,83 +115,194 @@ export default function TableContact(props) {
         setPage(0);
     };
 
+
+
     return (
-        <Table className={classes.table} aria-label="custom pagination table">
-            <TableHead>
-                <TableRow>
-                    <TableCell align="center" style={{width:"25%",fontWeight:600}}>Nom & Prénom</TableCell>
-                     <TableCell align="center" style={{width:"30%",fontWeight:600}}>Email</TableCell>
-                    <TableCell align="center" style={{width:"25%",fontWeight:600}}>Taux horaire</TableCell>
-                    <TableCell align="center" style={{width:"20%",fontWeight:600}}>Action</TableCell>
-                </TableRow>
-            </TableHead>
-                <TableBody>
-                    {(rowsPerPage > 0 ? props.contacts.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : props.contacts).map((row,key) => (
-                        <TableRow key={key}>
-                            <TableCell component="th" scope="row" style={{width:"25%"}}>
-                                <div
-                                    className="media align-items-center">
-                                    <img className=" rounded-circle text-center"
-                                        style={{
-                                            width: 50,
-                                            height: 50,
-                                            objectFit: "contain"
-                                        }}
-                                        src={row.imageUrl || defaultAvatar}
-                                        alt=""/>
-
-                                    <div className="ml-1"
-                                         style={{
-                                             color: "#000",
-                                             fontFamily: "sans-serif",
-                                             fontWeight: 600,
-                                             fontSize: 12
-                                         }}>{row.nom} {row.prenom}
-                                    </div>
-                                </div>
-                            </TableCell>
-                             <TableCell style={{ width: "30%" }} align="center">
-                                  {row.email}
-                             </TableCell>
-                            <TableCell style={{ width: "25%" }} align="center">
-                                { row.rateFacturation ? row.rateFacturation + " CHF/h" : "" }
-                            </TableCell>
-                            <TableCell style={{ width: "20%" }} align="center">
-                                <IconButton aria-label="Modifier" title="Modifier" color="default" size="small" onClick={() => props.onEditClick(row,key)}>
-                                    <EditIcon fontSize="small"/>
-                                </IconButton>
-                                <IconButton aria-label="Supprimer" title="Supprimer" color="secondary" size="small">
-                                    <DeleteOutlineIcon fontSize="small"/>
-                                </IconButton>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-
-                    {emptyRows > 0 && (
-                        <TableRow style={{ height: 53 * emptyRows }}>
-                            <TableCell colSpan={6} />
-                        </TableRow>
-                    )}
-                </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TablePagination
-                            rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                            colSpan={3}
-                            count={props.contacts.length}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            SelectProps={{
-                                inputProps: { 'aria-label': 'rows per page' },
-                                native: true,
+        <div>
+            <h4 className="mt-0 mb-1">Contacts de fournisseurs de prestations de services</h4>
+            <div className="mt-2" style={{textAlign:"right"}}>
+                <div className="text-sm-right">
+                    <button
+                        onClick={() => {
+                            props.onAddBtnClick()
+                        }}
+                        className="btn btn-danger waves-effect waves-light mb-2">
+                        <i className="mdi mdi-plus-circle mr-1" /> Ajouter
+                    </button>
+                    {/*<button style={{marginLeft:10}}
+                            onClick={() => {
+                                fileUpload.click();
                             }}
-                            onChangePage={handleChangePage}
-                            onChangeRowsPerPage={handleChangeRowsPerPage}
-                            ActionsComponent={TablePaginationActions}
-                            labelRowsPerPage="Lignes par page"
-                        />
-                    </TableRow>
-                </TableFooter>
-            </Table>
+                            className="btn btn-success waves-effect waves-light mb-2">
+                        <i className="mdi mdi-import" />Importer(.csv .xlsx)
+                    </button>
+                    <button style={{marginLeft:10}}
+                            onClick={() => {
+                                main_functions.exportContactCSVFile(contacts,"contacts.csv")
+                            }}
+                            className="btn btn-light waves-effect waves-light mb-2">
+                        <i className="mdi mdi-export" />Exporter
+                    </button>*/}
+                    <input
+                        style={{ visibility: 'hidden', width: 0, height: 0 }}
+                        onChange={(event) => {
+                            props.onImportClick(event)
+                        }}
+                        type="file"
+                        multiple={false}
+                        ref={(ref) => (fileUpload = ref)}
+                    />
+                </div>
+            </div>
+            <div className="row mt-3">
+                <div className="col-xl-12">
+                    <div className="row">
+                        <div className="col">
+                            <div className="page-title-box">
+                                <div className="row ">
+                                    <div
+                                        className="col-md-2 bg-danger text-center "
+                                        style={{width: "10%"}}>
+                                        <h4 style={{color: "white"}}>{ent_name}</h4>
+                                    </div>
+                                    <hr style={{
+                                        backgroundColor: "#a6a6a6",
+                                        height: "2px",
+                                        borderStyle: "solid",
+                                        color: "red",
+                                        width: "80%"
+                                    }}/>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card">
+                        <div className="card-body" style={{marginTop:35}}>
+                            <Table className={classes.table} aria-label="custom pagination table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Nom & Prénom</TableCell>
+                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Email</TableCell>
+                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Téléphone</TableCell>
+                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Taux horaire</TableCell>
+                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}>Action</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {(rowsPerPage > 0 ? contacts.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : contacts).map((row,key) => (
+                                        <TableRow key={key}>
+                                            <TableCell component="th" scope="row" style={{width:"20%"}}>
+                                                <div
+                                                    className="media align-items-center">
+                                                    <img className=" rounded-circle text-center"
+                                                         style={{
+                                                             width: 40,
+                                                             height: 40,
+                                                             objectFit: "contain"
+                                                         }}
+                                                         src={row.imageUrl || defaultAvatar}
+                                                         alt=""/>
+
+                                                    <div className="ml-1"
+                                                         style={{
+                                                             color: "#000",
+                                                             fontFamily: "sans-serif",
+                                                             fontWeight: 600,
+                                                             fontSize: 12
+                                                         }}>{row.nom || ""} {row.prenom || ""}
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell style={{ width: "20%" }} align="center">
+                                                {row.email}
+                                            </TableCell>
+                                            <TableCell style={{ width: "20%" }} align="center">
+                                                {row.phone}
+                                            </TableCell>
+                                            <TableCell style={{ width: "20%" }} align="center">
+                                                { row.rateFacturation ? row.rateFacturation + " CHF/h" : "" }
+                                            </TableCell>
+                                            <TableCell style={{ width: "20%" }} align="center">
+                                                <IconButton aria-label="Modifier" title="Modifier" color="default" size="small" onClick={() => props.onEditClick(row,key)}>
+                                                    <EditIcon fontSize="small" color="primary"/>
+                                                </IconButton>
+                                                <IconButton aria-label="Supprimer" title="Supprimer" color="secondary" size="small"
+                                                            onClick={() => {
+                                                                setContact_ToDeleted(row.id)
+                                                                setOpenDeleteModal(true)
+                                                            }}
+                                                >
+                                                    <DeleteOutlineIcon fontSize="small"/>
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+
+                                    {emptyRows > 0 && (
+                                        <TableRow  style={{ height: emptyRows * 50,textAlign:"center"}}>
+                                            <TableCell style={{width:"25%"}}>
+                                                <h6 style={{marginTop:10}}>Aucun contact encore ajouté !</h6>
+                                            </TableCell>
+
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                                <TableFooter style={{textAlign:"center"}}>
+                                    <TableRow>
+                                        <TablePagination
+                                            rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                                            //colSpan={3}
+                                            count={contacts.length}
+                                            rowsPerPage={rowsPerPage}
+                                            page={page}
+                                            SelectProps={{
+                                                inputProps: { 'aria-label': 'rows per page' },
+                                                native: true,
+                                            }}
+                                            onChangePage={handleChangePage}
+                                            onChangeRowsPerPage={handleChangeRowsPerPage}
+                                            ActionsComponent={TablePaginationActions}
+                                            labelRowsPerPage="Lignes par page"
+                                        />
+                                    </TableRow>
+                                </TableFooter>
+                            </Table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <ModalTransition>
+                {openDeleteModal === true && (
+                    <Modal
+                        actions={[
+                            { text: 'Supprimer', onClick: () => {
+
+                                props.deleteContact(contact_ToDeleted);
+                                setContact_ToDeleted("")
+                                    setOpenDeleteModal(false)
+
+                                } },
+                            { text: 'Annuler', onClick: () => {
+                                    setContact_ToDeleted("")
+                                    setOpenDeleteModal(false)
+                                }},
+                        ]}
+                        onClose={() => {
+                            setContact_ToDeleted("")
+                            setOpenDeleteModal(false)
+                        }}
+                        heading="Vous êtes sur le point de supprimer ce contact !"
+                        appearance="danger"
+                    >
+
+                    </Modal>
+                )}
+            </ModalTransition>
+
+        </div>
+
     );
 }

@@ -4,6 +4,8 @@
     grid-gap: 0;
     grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
     padding-left: 20px;
+    padding: 7.5px;
+    border-radius: 7.5px;
 }
 
 .folder_item_container{
@@ -31,4 +33,24 @@
     transition: box-shadow 200ms cubic-bezier(0.4,0.0,0.2,1);
     padding: 10px;
     cursor: pointer;
+}
+.folder_item_drag_over{
+    border: 2px solid dodgerblue;
+}
+.folders_container_drag_over{
+    border: 2px solid dodgerblue;
+    /*min-height: 200px;*/
+}
+
+.docs_container_hover{
+    margin-top:15px;
+    border: 2px solid dodgerblue;
+    padding: 10px;
+    border-radius: 7.5px;
+    height: 350px;
+    width: 100%;
+    margin-right: 15px;
+}
+.folder_container_empty{
+    min-height: 250px;
 }

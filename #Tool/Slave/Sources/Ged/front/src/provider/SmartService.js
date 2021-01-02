@@ -143,6 +143,15 @@ let SmartService = {
         });
     },
 
+    move(id,to_folder_id,token,usrtoken){
+        return fetch(endpoint + '/ged/'+ged_id+'/doc/'+id+'/move/'+to_folder_id, {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     search(text,token,usrtoken){
         return fetch(endpoint + '/ged/'+ged_id+'/doc/search?search='+ text, {
             method: 'GET',

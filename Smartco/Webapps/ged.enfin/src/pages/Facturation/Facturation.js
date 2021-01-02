@@ -13,6 +13,7 @@ import TextField from '@material-ui/core/TextField';
 import {Button} from "@material-ui/core";
 import {Modal} from "react-bootstrap";
 import SmartService from "../../provider/SmartService"
+//import SmartService from "../../provider/masterNodeService"
 import moment from "moment"
 import InputAdornment from '@material-ui/core/InputAdornment';
 
@@ -311,7 +312,7 @@ class Facturation extends Component {
         return (
              <div  className="Container text-center">
                  {
-                     this.state.showStep1===true&&
+                     this.state.showStep1===true &&
                          <div className="mt-5">
                              <div className="row justify-content-center">
                                  <div className="col-md-3 "style={{borderRadius:100,backgroundColor:"#f6f6fe",padding:5,cursor:"pointer"}}>
@@ -327,7 +328,8 @@ class Facturation extends Component {
                                  </div>
                              </div>
                              <div className="row justify-content-center mt-3">
-                                 <div onClick={()=>{this.setState({showStep1:false,showStep2:true})}} className="col-md-3 "style={{borderRadius:100,backgroundColor:"#f6f6fe",padding:5,cursor:"pointer"}}>
+                                 <div onClick={()=>{this.setState({showStep1:false,showStep2:true})}} className="col-md-3 "
+                                      style={{borderRadius:100,backgroundColor:"#f6f6fe",padding:5,cursor:"pointer"}}>
                                      <div className="row align-items-center justify-content-center">
                                          <div className="col-md-1">
                                              <img src={quote} style={{width:30,height:30}}/>
@@ -342,7 +344,7 @@ class Facturation extends Component {
                          </div>
                  }
                  {
-                     this.state.showStep2===true&&
+                     this.state.showStep2===true &&
                      <div>
                          <div className="row justify-content-center">
                              <div className="col-md-4">
@@ -350,13 +352,8 @@ class Facturation extends Component {
                                      <div className="col-md-2">
                                          <img src={arrow} style={{width:30,height:30}}/>
                                      </div>
-
-
-
                                  </div>
-
                              </div>
-
                          </div>
                          <div className="row justify-content-center mt-4 ">
                              <div className="col-md-4">
@@ -382,16 +379,8 @@ class Facturation extends Component {
                                      <div style={{width:"100%"}}>
                                          <TextField id="standard-basic" label="Description (facultatif) " style={{width:"100%"}}/>
                                      </div>
-
-
-
-
-
                                  </div>
-
                              </div>
-
-
                          </div>
                          <div className="row justify-content-center mt-4">
                              <Button onClick={()=>{this.setState({showStep2:false,showStep3:true})}} variant="contained" color="primary" style={{position:"absolute",bottom:70,borderRadius:100,width:"20%"}}>
@@ -402,7 +391,7 @@ class Facturation extends Component {
                      </div>
                  }
                  {
-                     this.state.showStep3===true&&
+                     this.state.showStep3===true &&
                      <div>
                          <div className="row justify-content-center">
                              <div className="col-md-4">
@@ -410,13 +399,8 @@ class Facturation extends Component {
                                      <div className="col-md-2">
                                          <img src={arrow} style={{width:30,height:30}}/>
                                      </div>
-
-
-
                                  </div>
-
                              </div>
-
                          </div>
                          <div className="row justify-content-center mt-4 ">
                              <div className="col-md-4">
@@ -497,24 +481,17 @@ class Facturation extends Component {
                                          </div>
                                      </div>
                                  </div>
-
-
-
-
                              </div>
-
-
                          </div>
                          <div className="row justify-content-center mt-4">
                              <Button onClick={()=>{this.setState({showStep3:false,showStep4:true})}} variant="contained" color="primary" style={{position:"absolute",bottom:70,borderRadius:100,width:"20%"}}>
                                  Suivant
                              </Button>
                          </div>
-
                      </div>
                  }
                  {
-                     this.state.showStep4===true&&
+                     this.state.showStep4===true &&
                      <div>
                          <div className="row justify-content-center">
                              <div className="col-md-4">
@@ -522,13 +499,8 @@ class Facturation extends Component {
                                      <div className="col-md-2">
                                          <img src={arrow} style={{width:30,height:30}}/>
                                      </div>
-
-
-
                                  </div>
-
                              </div>
-
                          </div>
                          <div className="row justify-content-center mt-4 ">
                              <div className="col-md-4">
@@ -548,8 +520,6 @@ class Facturation extends Component {
                                      <h5>
                                          Votre client aura 30 jours pour vous payer apres l'envoi de votre facture
                                      </h5>
-
-
                                  </div>
                                  <div className="mt-5">
                                      <FormControl style={{width:"100%"}} >
@@ -566,15 +536,10 @@ class Facturation extends Component {
                                              <MenuItem value={30}>30%</MenuItem>
                                              <MenuItem value={40}>40%</MenuItem>
                                              <MenuItem value={50}>50%</MenuItem>
-
-
                                          </Select>
                                      </FormControl>
                                  </div>
-
                              </div>
-
-
                          </div>
                          <div className="row justify-content-center mt-4">
                              <Button onClick={()=>{this.createFacture()}} variant="contained" color="primary" style={{position:"absolute",bottom:70,borderRadius:100,width:"20%"}}>
@@ -584,6 +549,7 @@ class Facturation extends Component {
 
                      </div>
                  }
+
 
 
                  <Modal

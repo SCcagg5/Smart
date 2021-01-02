@@ -18,11 +18,17 @@ import EditIcon from "@material-ui/icons/Edit";
 import TableHead from '@material-ui/core/TableHead';
 import { Collapse } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
-import countryList from "../../tools/countryList";
-import Select from 'react-select';
-import FolderIcon from '@material-ui/icons/Folder';
 import Data from "../../data/Data";
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
+import SmartService from '../../provider/SmartService';
+//import SmartService from '../../provider/masterNodeService';
+import { Checkbox } from '@atlaskit/checkbox';
+import main_functions from "../../controller/main_functions";
 import moment from "moment";
+import { CSVReader } from 'react-papaparse'
+import verfiForms from "../../tools/verifForms";
+
 
 
 const { Panel } = Collapse;
@@ -33,6 +39,9 @@ const useStyles1 = makeStyles((theme) => ({
         marginLeft: theme.spacing(2.5),
     },
 }));
+
+let fileUpload = {};
+let csvFileUpload = {};
 
 function TablePaginationActions(props) {
     const classes = useStyles1();
@@ -98,7 +107,11 @@ const useStyles2 = makeStyles({
     },
 });
 
+
+
 export default function TableSociete(props) {
+
+    const buttonRef = React.createRef()
 
     const classes = useStyles2();
 
@@ -107,19 +120,18 @@ export default function TableSociete(props) {
     const [textSearch, setTextSearch] = React.useState("");
     const [searchByState, setSearchByState] = React.useState("");
     const [searchByType, setSearchByType] = React.useState("");
-    const [searchBySector, setSearchBySector] = React.useState("");
-    const [searchByPays, setSearchByPays] = React.useState("");  
-    const [searchByLead, setSearchByLead] = React.useState("");
+    const [searchBySocietyName, setSearchBySocietyName] = React.useState("");
     const [selectedSearchLettre, setSelectedSearchLettre] = React.useState("");
+    const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
+    const [toRemoveClient_id, setToRemoveClient_id] = React.useState("");
+    const [delete_folder_ged, setDelete_folder_ged] = React.useState(false);
 
-    const searchFilter= props.societes.filter((annuaire) => (  (annuaire.name || annuaire.contactName).toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
-         (annuaire.name || annuaire.contactName).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
-        (annuaire.Type === searchByType || searchByType === "") &&
-        ((annuaire.isActif && annuaire.isActif  === searchByState) || searchByState === "") &&
-        ((annuaire.secteur && annuaire.secteur === searchBySector)  || searchBySector === "" ) &&
-        ((annuaire.PrimaryAddressCountry && annuaire.PrimaryAddressCountry === searchByPays)  || searchByPays === "" ) &&
-        ((annuaire.facturation && annuaire.facturation.collaborateur_lead === searchByLead)  || searchByLead === "" )
 
+    const searchFilter= props.societes.filter( annuaire => (  (annuaire.contactName.trim().toLowerCase().indexOf(textSearch.toLowerCase()) !== -1) &&
+        ((annuaire.societyName.trim()).toLowerCase().indexOf(searchBySocietyName.toLowerCase()) !== -1) &&
+         (annuaire.contactName.trim()).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
+        (annuaire.type === searchByType || searchByType === "") &&
+        ((annuaire.isActif && annuaire.isActif  === searchByState) || searchByState === "")
     ))
 
 
@@ -150,7 +162,7 @@ export default function TableSociete(props) {
 
     return (
         <div>
-            <h4 className="mt-0 mb-1">Clients (Mondat)</h4>
+            <h4 className="mt-0 mb-1">Clients</h4>
             <div className="mt-2" style={{textAlign:"right"}}>
                 <div className="text-sm-right">
                     <button
@@ -160,18 +172,83 @@ export default function TableSociete(props) {
                          className="btn btn-danger waves-effect waves-light mb-2">
                         <i className="mdi mdi-plus-circle mr-1" /> Ajouter
                     </button>
+                    <button style={{marginLeft:10}}
+                            onClick={(e) => {
+                                if(props.societes.length > 0 ){
+                                    const r = window.confirm("Attention ! La liste des clients déja existante sera supprimé ");
+                                    if (r === true) {
+                                        if (buttonRef.current) {
+                                            buttonRef.current.open(e)
+                                        }
+                                    }
+                                }else{
+                                    if (buttonRef.current) {
+                                        buttonRef.current.open(e)
+                                    }
+                                }
+                            }}
+                            className="btn btn-success waves-effect waves-light mb-2">
+                        <i className="mdi mdi-import" />Importer(.csv .xlsx)
+                    </button>
+                    <CSVReader
+                        ref={buttonRef}
+                        onFileLoad={(data) => {
+                            let lignes = [];
+                            for(let i = 1 ; i < data.length -1 ; i++){
+                                    let type = data[i].data[0];
+                                    let email = data[i].data[1];
+                                    let contactName = data[i].data[2];
+                                    let societyName = data[i].data[3];
+                                    let phone = data[i].data[4];
+                                    let adress = data[i].data[5];
+                                    lignes.push({
+                                        type:type,
+                                        email:email,
+                                        contactName:contactName,
+                                        societyName:societyName,
+                                        phone:phone,
+                                        adress:adress
+                                    })
+                            }
+                            props.onImportClick(lignes)
+                        }}
+                        onError={(err) => console.log(err)}
+                        noDrag noProgressBar noClick
+                        style={{dropArea:{display:"none"}}}
+                    />
+
+                    <button style={{marginLeft:10}}
+                            onClick={() => {
+                                let data = props.societes;
+                                data.map((item,key) => {
+                                    item.contactName = JSON.stringify(item.contactName)
+                                    item.societyName = JSON.stringify(item.societyName)
+                                    item.adress = JSON.stringify(item.adress);
+                                })
+                                main_functions.exportAnnuaire_clients_To_CSVFile(data,"Liste_clients_"+moment().format("DD-MM-YYYY-HH:mm")+".csv")
+                            }}
+                            className="btn btn-light waves-effect waves-light mb-2">
+                        <i className="mdi mdi-export" />Exporter
+                    </button>
+                    <input
+                        style={{ visibility: 'hidden', width: 0, height: 0 }}
+                        onChange={(event) => {
+                            props.onImportClick(event)
+                        }}
+                        type="file"
+                        multiple={false}
+                        ref={(ref) => (fileUpload = ref)}
+                    />
                 </div>
             </div>
             <div className="row mt-3">
-                <div className="col-xl-12">
+                <div className="col-xl-12" style={{minWidth:900}}>
                     <div className="row">
                         <div className="col">
                             <div className="page-title-box">
-                                <div className="row ">
-                                    <div
-                                        className="col-md-2 bg-danger text-center "
-                                        style={{width: "10%"}}>
-                                        <h4 style={{color: "white"}}>Enfin</h4>
+                                <div className="row">
+                                    <div className="col-md-2  text-center " style={{width: "10%",backgroundColor:"rgb(0, 119, 182)"}}>
+                                        <h4 style={{color: "white"}}>Mandats</h4>
                                     </div>
                                     <hr style={{
                                         backgroundColor: "#a6a6a6",
@@ -200,16 +277,21 @@ export default function TableSociete(props) {
                                             id="search"
                                             name="search"
                                             type="text"
-                                            placeholder="Chercher par nom"
+                                            placeholder="Par nom & prénom"
                                             value={textSearch}
-                                            onChange={(e)=>  setTextSearch(e.target.value) }/>
+                                            onChange={(e)=>  {
+                                                setPage(0)
+                                                setTextSearch(e.target.value)
+                                            } }/>
 
                                     </div>
                                     <div className="col-md-1" style={{borderLeftColor:"#a6a6a6",borderLeftStyle:"solid",borderLeftWidth:1,display:"flex"}}>
                                         {
                                             ["A","B","C"].map((l,key) =>
                                                 <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
-                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    onClick={() => {
+                                                        setPage(0)
+                                                        selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
                                                     {l}{key < 2 && "-"}
                                                 </h5>
                                             )
@@ -219,7 +301,9 @@ export default function TableSociete(props) {
                                         {
                                             ["D","E","F"].map((l,key) =>
                                                 <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
-                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    onClick={() => {
+                                                        setPage(0)
+                                                        selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
                                                     {l}{key < 2 && "-"}
                                                 </h5>
                                             )
@@ -229,7 +313,9 @@ export default function TableSociete(props) {
                                         {
                                             ["G","H","I"].map((l,key) =>
                                                 <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
-                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    onClick={() => {
+                                                        setPage(0)
+                                                        selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
                                                     {l}{key < 2 && "-"}
                                                 </h5>
                                             )
@@ -239,7 +325,9 @@ export default function TableSociete(props) {
                                         {
                                             ["J","K","L"].map((l,key) =>
                                                 <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
-                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    onClick={() => {
+                                                        setPage(0)
+                                                        selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
                                                     {l}{key < 2 && "-"}
                                                 </h5>
                                             )
@@ -249,7 +337,9 @@ export default function TableSociete(props) {
                                         {
                                             ["M","N","O"].map((l,key) =>
                                                 <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
-                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    onClick={() => {
+                                                        setPage(0)
+                                                        selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
                                                     {l}{key < 2 && "-"}
                                                 </h5>
                                             )
@@ -269,7 +359,9 @@ export default function TableSociete(props) {
                                         {
                                             ["S","T","U"].map((l,key) =>
                                                 <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
-                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    onClick={() => {
+                                                        setPage(0)
+                                                        selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
                                                     {l}{key < 2 && "-"}
                                                 </h5>
                                             )
@@ -279,7 +371,9 @@ export default function TableSociete(props) {
                                         {
                                             ["W","X","Y","Z"].map((l,key) =>
                                                 <h5 key={key} className={selectedSearchLettre === l ? "over-search-lettre-selected over-search-lettre " :"over-search-lettre"}
-                                                    onClick={() => {selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
+                                                    onClick={() => {
+                                                        setPage(0)
+                                                        selectedSearchLettre === l ? setSelectedSearchLettre("") : setSelectedSearchLettre(l)}}>
                                                     {l}{key < 3 && "-"}
                                                 </h5>
                                             )
@@ -287,32 +381,30 @@ export default function TableSociete(props) {
                                     </div>
                                 </div>
                                 <div className="row mt-2">
-                                    <div className="col-md-12">
+                                    <div className="col-md-6">
                                         <h6>Par statut</h6>
                                         <select className="form-control custom-select" style={{width:350}}
                                                 value={searchByState} onChange={(e) => {
+                                                    setPage(0)
                                                     if(e.target.value === "true"){
-                                                        setSearchByState(true)
+                                                        setSearchByState("true")
                                                     }else if(e.target.value === "false"){
-                                                        setSearchByState(false)
+                                                        setSearchByState("false")
                                                     }else{
                                                         setSearchByState("")
                                                     }
-                                        } }
-                                        >
+                                        }}>
                                             <option value={""}/>
                                             <option  value="true" >Actif</option>
                                             <option  value="false">Non actif</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div className="row mt-1">
                                     <div className="col-md-6">
                                         <h6>Par type</h6>
                                         <select className="form-control custom-select" style={{width:350}}
                                                 value={searchByType} onChange={(e) => {
-                                                 setSearchByType(e.target.value)
-                                                 console.log(e.target.value)
+                                            setPage(0)
+                                            setSearchByType(e.target.value)
                                         }}
                                         >
                                             {
@@ -322,55 +414,16 @@ export default function TableSociete(props) {
                                             }
                                         </select>
                                     </div>
-                                    <div className="col-md-6">
-                                        <h6>Par secteur</h6>
-                                        <select className="form-control custom-select" style={{width:350}}
-                                                value={searchBySector} onChange={(e) => setSearchBySector(e.target.value) }
-                                        >
-                                            {
-                                                Data.secteurs.map((secteur,key) =>
-                                                    <option key={key} value={secteur}>{secteur}</option>
-                                                )
-                                            }
-                                        </select>
-                                    </div>
                                 </div>
-
                                 <div className="row mt-1">
                                     <div className="col-md-6">
-                                        <h6>Par pays</h6>
-                                        <select className="form-control custom-select" style={{width:350}}
-                                                value={searchByPays} onChange={(e) => setSearchByPays(e.target.value) }
-                                        >
-                                            {
-                                                countryList.map((pay,key) =>
-                                                    <option key={key} value={pay.Name}>{pay.Name}</option>
-                                                )
-                                            }
-                                        </select>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <h6>Par collaborateur lead sur le dossier</h6>
-                                        <Select
-                                            defaultValue={searchByLead}
-                                                options={contactSelectOptions}
-                                                closeMenuOnSelect={true}
-                                                isMulti={false}
-                                                hideSelectedOptions={true}
-                                                styles={{
-                                                    container: (provided, state) => ({
-                                                        ...provided,
-                                                        width:350
-                                                    }),
-                                                    menuPortal: styles => ({ ...styles, zIndex: 9999 })
-                                                }}
-                                                menuPortalTarget={document.body}
-                                                onChange={(e) => {
-                                                    console.log(e.value)
-                                                    setSearchByLead(e.value)
-                                                }}
+                                        <h6>Par nom de société</h6>
+                                        <input type="text" className="form-control" value={searchBySocietyName} style={{width:350}}
+                                               onChange={(e) => {
+                                                   setPage(0)
+                                                   setSearchBySocietyName(e.target.value)
+                                               }}
                                         />
-
                                     </div>
                                 </div>
                             </Panel>
@@ -382,10 +435,11 @@ export default function TableSociete(props) {
                                 <TableHead>
                                     <TableRow style={{padding:10}}>
                                         <TableCell style={{width:"15%",fontWeight:600}}>Type</TableCell>
-                                        <TableCell style={{width:"20%",fontWeight:600}}>Nom</TableCell>
-                                        <TableCell style={{width:"20%",fontWeight:600}}>Email</TableCell>
-                                        <TableCell style={{width:"20%",fontWeight:600}}>Adresse</TableCell>
+                                        <TableCell style={{width:"20%",fontWeight:600}}>Nom & Prénom</TableCell>
+                                        <TableCell  style={{width:"20%",fontWeight:600}}>Société</TableCell>
+                                        <TableCell  style={{width:"20%",fontWeight:600}}>Adresse</TableCell>
                                         <TableCell  style={{width:"15%",fontWeight:600}}>Téléphone</TableCell>
+                                        {/*<TableCell  style={{width:"15%",fontWeight:600}}>Date de création</TableCell>*/}
                                         <TableCell  style={{width:"15%",fontWeight:600}}>Action</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -403,49 +457,59 @@ export default function TableSociete(props) {
                                                             height: 30,
                                                             objectFit: "cover"
                                                         }}
-                                                        src={row.imageUrl ? row.imageUrl : row.name && row.name !== ""  ? entIcon : userAvatar}
+                                                        src={row.imageUrl ? row.imageUrl : row.type === "0" ? entIcon : userAvatar}
                                                         alt=""/>
 
-                                                    <div className="ml-1">{row.name && row.name !== "" ? "Société" : "Personne physique"}</div>
+                                                    <div className="ml-1">{row.type === "0" ? "Société" : "Personne physique"}</div>
                                                 </div>
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} >
-                                                {row.name ? row.name : row.contactName}
-                                            </TableCell>
-                                            <TableCell style={{ width: "15%" }} >
-                                                {row.email.indexOf("<") > -1  ? row.email.substring(row.email.lastIndexOf("<") + 1, row.email.lastIndexOf(">")) : row.email}
+                                                {row.contactName || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "20%" }} >
-                                                {row.street ? row.street + " " + row.zip + " " + row.city : ""}
+                                                {row.societyName || ""}
+                                            </TableCell>
+                                            <TableCell style={{ width: "20%" }} >
+                                                {row.adress || ""}
                                             </TableCell>
                                             <TableCell style={{ width: "15%" }} >
                                                 {row.phone || ""}
                                             </TableCell>
+                                            {/*<TableCell style={{ width: "15%" }} >
+                                                {row.created_at ? moment(row.created_at).format("DD/MM/YYYY") : ""}
+                                            </TableCell>*/}
                                             <TableCell style={{ width: "15%" }} >
                                                 <IconButton aria-label="Modifier" title="Modifier" color="default" size="small"
                                                             onClick={() => props.onEditClick(row,key)}>
                                                     <EditIcon fontSize="small" style={{color:"#1a73e8"}}/>
                                                 </IconButton>
-                                                <IconButton aria-label="folder" title="folder" color="default" size="small" onClick={() => {
-                                                    //props.onFolderClick(row.folder_id)
+                                                <IconButton aria-label="delete" title="Supprimer" color="default" size="small" onClick={() => {
+                                                    if(localStorage.getItem("client_folder_id") || localStorage.getItem("client_shared_folder_id")  ){
+                                                        //setOpenDeleteModal(true)
+                                                        //setToRemoveClient_id(row.ID)
+                                                    }else{
+                                                        alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
+                                                    }
                                                 }}>
-                                                    <FolderIcon fontSize="small" />
+                                                    <DeleteOutlineIcon color="error"/>
                                                 </IconButton>
                                             </TableCell>
                                         </TableRow>
                                     ))}
 
                                     {emptyRows > 0 && (
-                                        <TableRow  style={{ height: 40,textAlign:"center"}}>
-                                            <th style={{marginTop:15}}>Aucun résultat trouvé !</th>
+                                        <TableRow  style={{ height: emptyRows * 50,textAlign:"center"}}>
+                                            <TableCell style={{width:"25%"}}>
+                                                <h6 style={{marginTop:30}}>Aucun client encore ajouté !</h6>
+                                            </TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>
-                                <TableFooter>
+                                <TableFooter style={{textAlign:"center"}}>
                                     <TableRow>
                                         <TablePagination
                                             rowsPerPageOptions={[5, 10, 25, { label: 'Tous', value: -1 }]}
-                                            colSpan={3}
+                                            //colSpan={3}
                                             count={searchFilter.length}
                                             rowsPerPage={rowsPerPage}
                                             page={page}
@@ -465,6 +529,74 @@ export default function TableSociete(props) {
                     </div>
                 </div>
             </div>
+
+
+
+            <ModalTransition>
+                {openDeleteModal === true && (
+                  <Modal
+                    actions={[
+                        { text: 'Supprimer', onClick: () => {
+                            let clients_mandats = props.clients_tempo || [];
+                            let find = clients_mandats.find(x => x.ID_client === toRemoveClient_id);
+                            if(find){
+
+                                let new_clients_mandat = clients_mandats.filter(x => x.ID_client !== toRemoveClient_id);
+                                props.update_client_tempo_all(new_clients_mandat);
+                                let new_clients = props.societes.filter(x => x.ID !== toRemoveClient_id);
+                                props.update_clients(new_clients)
+                                props.openSnackbar("success","Client supprimé avec succès")
+                                setOpenDeleteModal(false)
+
+                                if(find.folder_id && find.folder_id !== "" && delete_folder_ged === true){
+                                    SmartService.deleteFile(find.folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+                                        console.log(ok)
+                                        if (ok.succes === true && ok.status === 200) {
+                                            props.reloadGed()
+                                        }else{
+                                            if(ok.error === "Invalid rights"){
+                                                props.openSnackbar("error","Vous n'avez pas le droit de supprimer le dossier du client dans la ged !")
+                                            }else{
+                                                props.openSnackbar("error",ok.error)
+                                            }
+                                        }
+                                    }).catch(err => console.log(err))
+                                }
+                            }else{
+                                let new_clients = props.societes.filter(x => x.ID !== toRemoveClient_id);
+                                props.update_clients(new_clients)
+                                props.openSnackbar("success","Client supprimé avec succès")
+                                setOpenDeleteModal(false)
+                            }
+                            } },
+                        { text: 'Annuler', onClick: () => {
+                            setOpenDeleteModal(false)
+                                setToRemoveClient_id("")
+                                setDelete_folder_ged(false)
+                            }},
+                    ]}
+                    onClose={() => {
+                        setOpenDeleteModal(false)
+                        setToRemoveClient_id("")
+                        setDelete_folder_ged(false)
+                    }}
+                    heading="Vous êtes sur le point de supprimer ce client"
+                    appearance="danger"
+                  >
+
+                      <Checkbox
+                        isChecked={delete_folder_ged}
+                        label="Voulez-vous supprimer les dossiers de ce client dans la ged aussi ?"
+                        onChange={() => {
+                            setDelete_folder_ged(!delete_folder_ged)
+                        }}
+                        name="checkbox-default-1"
+                        value="checkbox-default-1"
+                      />
+
+                  </Modal>
+                )}
+            </ModalTransition>
 
         </div>
 

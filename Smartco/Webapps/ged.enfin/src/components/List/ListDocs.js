@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import IconButton from '@material-ui/core/IconButton';
-import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import moment from 'moment';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -8,11 +7,11 @@ import Typography from '@material-ui/core/Typography';
 import Menu from '@material-ui/core/Menu';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
 import EditIcon from '@material-ui/icons/Edit';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import SmartService from '../../provider/SmartService';
+//import SmartService from '../../provider/masterNodeService';
 import Slide from '@material-ui/core/Slide';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -22,6 +21,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { Modal, ModalBody, ModalHeader } from 'reactstrap';
 import GestureIcon from '@material-ui/icons/Gesture';
 import DescriptionIcon from '@material-ui/icons/Description';
+import main_functions from "../../controller/main_functions";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -34,31 +34,71 @@ export default function ListDocs(props) {
   const [openRenameeModal, setOpenRenameModal] = useState(false);
   const [newFileName, setNewFileName] = useState('');
   const [open, setOpen] = React.useState(false);
+  const [rights, setRights] = React.useState(null );
+  const [isContainerDragOver, setIsContainerDragOver] = React.useState(false);
 
-  const selected_docs = props.docs.filter(x => x.selected && x.selected === true);
+
+  const selected_docs = (props.selectedFolderFiles || []).filter(x => x.selected && x.selected === true);
 
 
+  const onDrop_container = (e) => {
+    e.preventDefault();e.stopPropagation();
+    if(isContainerDragOver === true){
+      setIsContainerDragOver(false)
+      let recievedItem = JSON.parse(e.dataTransfer.getData("file"));
+      if(props.pathname === "/home/drive"){
+        if(props.docs.find(x=> x.id === recievedItem.id || x.id === recievedItem.key) === undefined){
+          let drive = props.reelFolders;
+          let newNode = main_functions.getFileById((recievedItem.key || recievedItem.id),drive)
+          if(newNode){
+            props.setLoading(true)
+            SmartService.move(recievedItem.key || recievedItem.id, "",
+                localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( moveRes => {
+              if (moveRes.succes === true && moveRes.status === 200) {
+                props.setLoading(false)
+                console.log("MOVE SUCCES")
+                props.docs.push(newNode)
+                main_functions.deleteFileFromTree(drive,(recievedItem.key || recievedItem.id))
+                props.setReelFolders(drive)
+                props.setGedMenu(drive)
+              }else{
+                console.log(moveRes.error)
+              }
+            }).catch(err => {console.log(err)})
+          }
+        }else{
+          console.log("file to his container not permited")
+        }
+      }else{
+        if(props.selectedFolderFiles.find(x=> x.id === recievedItem.id || x.id === recievedItem.key) === undefined){
+          let drive = props.reelFolders;
+          let newNode = main_functions.getFileById((recievedItem.key || recievedItem.id),drive)
+          if(newNode){
+            props.setLoading(true)
+            SmartService.move(recievedItem.key || recievedItem.id, props.selectedFolderId,
+                localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( moveRes => {
+              if (moveRes.succes === true && moveRes.status === 200) {
+                props.setLoading(false)
+                console.log("MOVE SUCCES")
+                main_functions.deleteFileFromTree(drive,(recievedItem.key || recievedItem.id))
+                main_functions.insertNodeIntoTree(drive,props.selectedFolderId,newNode);
+                props.setReelFolders(drive)
+                props.setGedMenu(drive)
+              }else{
+                console.log(moveRes.error)
+              }
+            }).catch(err => {console.log(err)})
+          }
+        }else{
+          console.log("file to his container not permited")
+        }
+      }
+    }
+    e.dataTransfer.clearData();
+  }
 
   return (
-    <div
-      onDragOver={e => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-      onDragLeave={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-      onDrop={e => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-          props.onDropFile(e.dataTransfer.files);
-          e.dataTransfer.clearData();
-        }
-      }}
-      style={{ overflow:'overlay',height:800 }}
-    >
+    <div  style={{ overflow:'overlay',height:800,minWidth:900 }}>
       <h5 style={{ marginTop: 20 }}>Fichiers ({props.docs.length})</h5>
       {
         selected_docs.length > 1 &&
@@ -165,27 +205,43 @@ export default function ListDocs(props) {
                    props.setDocs(update_docs)
                    props.setSelectedFile(item);
                    setDoc(item);
+                   if(props.applyRights === true && item.rights){
+                     if(item.proprietary === localStorage.getItem("email")){
+                       setRights(null)
+                     }else{
+                       setRights(item.rights)
+                     }
+
+                   }
                    setNewFileName(item.name);
                    setAnchorEl(event.currentTarget);
             }}
             >
-              <div style={{ width: 56 }}>
-                <IconButton
-                  color="default">
-                  <DescriptionIcon
-                    style={{
-                      color: 'red',
-                      backgroundColor: '#fff'
-                    }} />
-                </IconButton>
+              <div style={{display:"flex"}}
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData("file", JSON.stringify(item))
+                    e.dataTransfer.effectAllowed = "move"
+                  }}
+              >
+                <div style={{ width: 56 }}>
+                  <IconButton
+                      color="default">
+                    <DescriptionIcon
+                        style={{
+                          color: 'red',
+                          backgroundColor: '#fff'
+                        }} />
+                  </IconButton>
+                </div>
+                <div style={{ width: 300,marginTop:10 }}>
+                  <h6>{item.name + '.pdf'}</h6>
+                </div>
               </div>
-              <div
-                style={{ width: 300 }}>
-                <h6>{item.name + '.pdf'}</h6>
-              </div>
-              <div
-                style={{ width: 215 }}>
-                <h6 style={{ color: 'grey' }}>{item.proprietary || 'Moi'}</h6>
+              <div style={{ width: 215 }}>
+                <h6 style={{ color: 'grey' }}>{item.proprietary ?
+                    item.proprietary === localStorage.getItem("email") ?
+                        "Moi" : item.proprietary  : 'Moi'}</h6>
               </div>
               <div
                 style={{ width: 200 }}>
@@ -193,11 +249,27 @@ export default function ListDocs(props) {
               </div>
               <div
                 style={{ width: 150 }}>
-                <h6 style={{ color: 'grey' }}>50 Ko</h6>
+                <h6 style={{ color: 'grey' }}>-- Ko</h6>
               </div>
             </div>
         )
       }
+      <div style={{height:350}} className={isContainerDragOver === true ? "docs_container_hover" : ""}
+           onDragOver={(e) => {
+             e.preventDefault();e.stopPropagation();
+             if(e.dataTransfer.effectAllowed === "move" ){
+               setIsContainerDragOver(true)
+             }
+           }}
+           onDragLeave={(e) => {
+             e.preventDefault();e.stopPropagation();
+             setIsContainerDragOver(false)
+           }}
+           onDrop={(e) => {onDrop_container(e)}}
+      >
+
+      </div>
+
       <Menu id="right-menu_doc"
             anchorEl={anchorEl}
             keepMounted
@@ -207,7 +279,9 @@ export default function ListDocs(props) {
         <MenuItem key={1} onClick={() => {
           setAnchorEl(null);
           props.showDoc(doc);
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.read === false) : false }
+        >
           <ListItemIcon>
             <VisibilityIcon fontSize="small" />
           </ListItemIcon>
@@ -216,7 +290,9 @@ export default function ListDocs(props) {
         <MenuItem key={2} onClick={() => {
           setAnchorEl(null);
           props.openShareFileModal();
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.share === false) : false }
+        >
           <ListItemIcon>
             <PersonAddIcon fontSize="small" />
           </ListItemIcon>
@@ -225,7 +301,9 @@ export default function ListDocs(props) {
         <MenuItem key={3} onClick={() => {
           setAnchorEl(null);
           props.onSignBtnClick(doc.id);
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.edit === false) : false }
+        >
           <ListItemIcon>
             <GestureIcon fontSize="small" />
           </ListItemIcon>
@@ -234,7 +312,9 @@ export default function ListDocs(props) {
         <MenuItem key={4} onClick={() => {
           setAnchorEl(null);
           setOpenRenameModal(true);
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.edit === false) : false }
+        >
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
@@ -254,7 +334,9 @@ export default function ListDocs(props) {
               console.log(fileRes.error);
             }
           }).catch(err => console.log(err));
-        }}>
+        }}
+                  disabled={props.applyRights === true && rights !== null ? (rights.read === false) : false }
+        >
           <ListItemIcon>
             <GetAppIcon fontSize="small" />
           </ListItemIcon>
@@ -264,6 +346,7 @@ export default function ListDocs(props) {
           setAnchorEl(null);
           setOpen(true);
         }} //disabled={localStorage.getItem("role") !== "admin"}
+                  disabled={props.applyRights === true && rights !== null ? (rights.administrate === false) : false }
         >
           <ListItemIcon>
             <DeleteOutlineIcon fontSize="small" />

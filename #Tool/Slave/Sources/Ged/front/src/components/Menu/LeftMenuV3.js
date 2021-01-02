@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Button as MuiButton} from "@material-ui/core";
+import {Button as MuiButton, Checkbox as MuiCheckbox} from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -31,6 +31,10 @@ import '../../assets/css/antDesign.css';
 import {Input, Tree} from 'antd';
 import TimeSheetMenuItems from "./TimeSheetMenuItems";
 import MarketplaceMenuItems from "./MarketplaceMenuItems";
+import SettingsIcon from '@material-ui/icons/Settings';
+import {Picker} from "emoji-mart";
+import Popover from "@material-ui/core/Popover";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 const modules = process.env.REACT_APP_ACTIVE_MODULES;
 const active_modules = (modules || "").split("/")
@@ -52,6 +56,10 @@ export default function LeftMenuV3(props) {
     const [newFolderName, setnewFolderName] = React.useState(props.selectedFolder.name);
     const [searchValue, setSearchValue] = React.useState("");
     const [rights, setRights] = React.useState({});
+    const [settingAnchorEl, setSettingAnchorEl] = React.useState(null);
+    const [checkbox_showicons, setCheckbox_showicons] = React.useState(true);
+    const [checkbox_enableDrag, setCheckbox_enableDrag] = React.useState(true);
+
 
 
     const dataList = [];
@@ -102,6 +110,7 @@ export default function LeftMenuV3(props) {
     }
 
     function onDrop(info) {
+        console.log(info)
         /*let driveFolders  = props.driveFolders;
         const dropKey = info.node.props.eventKey;
         const dragKey = info.dragNode.props.eventKey;
@@ -174,9 +183,14 @@ export default function LeftMenuV3(props) {
 
     function onSelect(selectedKeys, info) {
         console.log(info.node)
-        props.setSelectedDriveSharedItem([])
-        props.setSelectedDriveItem(selectedKeys)
+        /*if(info.node.typeF === "file"){
+            props.onDoubleClickFile(info.node)
+        }*/
+
         if (info.node.typeF === "folder") {
+            props.setSelectedDriveSharedItem([])
+            props.setSelectedDriveItem(selectedKeys)
+
             props.setSelectedFolder(info.node)
             props.setFolderName(info.node.title)
             props.setFolderId(info.node.key)
@@ -248,6 +262,11 @@ export default function LeftMenuV3(props) {
         });
 
 
+    const open = Boolean(settingAnchorEl);
+    const id = open ? 'setting-popover' : undefined;
+
+    //console.log(props.driveFolders)
+
     return (
 
         <div style={{marginTop: 20, paddingRight: 10}}>
@@ -307,12 +326,18 @@ export default function LeftMenuV3(props) {
             <div style={{marginTop: 25, marginLeft: 5}}>
 
                 <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Drive" ? "aliceblue" : ""}}
-                     onClick={() => {
+                     onDoubleClick={() => {
                          props.setSelectedDriveItem([])
-                         props.setExpandedDriveItems([])
+                         //props.setExpandedDriveItems([])
                          props.setSelectedDriveSharedItem([])
                          props.setExpandedDriveSharedItems([])
                          props.setShowDriveMenuItems()
+                         props.setFocusedItem("Drive")
+                     }}
+                     onClick={() => {
+                         props.setSelectedDriveItem([])
+                         props.setSelectedDriveSharedItem([])
+                         props.setExpandedDriveSharedItems([])
                          props.setFocusedItem("Drive")
                      }}
                 >
@@ -323,8 +348,14 @@ export default function LeftMenuV3(props) {
                                 <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                         }
                         <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Mon Drive</Typography>
+                        <IconButton style={{marginLeft: 140, marginTop: -10}} size="medium" onClick={(event) => {
+                            event.stopPropagation()
+                            setSettingAnchorEl(event.currentTarget)
+                        }}>
+                            <SettingsIcon style={{color:"#c0c0c0"}}/>
+                        </IconButton>
                     </div>
-                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                    <div style={{height: 1, backgroundColor: "#f0f0f0", marginBottom: 10}}/>
                 </div>
                 {
                     props.showDriveMenuItems === true &&
@@ -337,15 +368,19 @@ export default function LeftMenuV3(props) {
                                 <div>
                                     <Search style={{marginBottom: 8}} placeholder="Chercher" onChange={onChange}/>
                                     <DirectoryTree
-                                        draggable
-                                        showIcon={true}
+                                        draggable={true}
+                                        allowDrop={(options) => {
+                                            return false
+                                        }}
+                                        showIcon={checkbox_showicons}
                                         onExpand={onExpand}
                                         onSelect={onSelect}
                                         onDoubleClick={onDoubleClick}
                                         onDragEnter={onDragEnter}
+
                                         onDrop={onDrop}
                                         treeData={loop(props.driveFolders)}
-                                        expandAction="click"
+                                        expandAction="doubleClick"
                                         onRightClick={info => {
                                             if (info.node.typeF === "folder") {
                                                 setAnchorElMenu(info.event.currentTarget)
@@ -358,8 +393,15 @@ export default function LeftMenuV3(props) {
                                         expandedKeys={props.expandedDriveItems}
                                         selectedKeys={props.selectedDriveItem}
                                         onDragStart={e => {
-                                            let node = {key: e.node.key, typeF: e.node.typeF}
-                                            e.event.dataTransfer.setData("node", JSON.stringify(node))
+                                            console.log(e.node)
+                                            let file = {key:e.node.key,name:e.node.name,typeF:e.node.typeF}
+                                            e.event.dataTransfer.setData("file", JSON.stringify(file))
+                                            if(e.node.typeF === "folder"){
+                                                e.event.dataTransfer.effectAllowed = "link"
+                                            }else{
+                                                e.event.dataTransfer.effectAllowed = "move"
+                                            }
+
                                         }}
                                         autoExpandParent={props.autoExpandParent}
                                     />
@@ -631,7 +673,7 @@ export default function LeftMenuV3(props) {
                                     <Typography variant="inherit"
                                                 style={{color: "#000", marginTop: 3}}>Rooms</Typography>
 
-                                    <IconButton style={{marginLeft: 160, marginTop: -10}} onClick={(event) => {
+                                    <IconButton style={{marginLeft: 160, marginTop: -10,visibility:"hidden"}} onClick={(event) => {
                                         event.stopPropagation()
                                         props.onClickAddRoomBtn()
                                     }}>
@@ -849,6 +891,65 @@ export default function LeftMenuV3(props) {
 
 
             </div>
+
+            <Popover
+                id={id}
+                open={open}
+                anchorEl={settingAnchorEl}
+                onClose={() => {
+                    setSettingAnchorEl(null)
+                }}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+            >
+                <div style={{padding:10,paddingLeft:20,maxWidth:300}}>
+                    <h6>Paramètres Ged</h6>
+                    <div style={{display:"grid"}}>
+                        <FormControlLabel
+                            control={
+                                <MuiCheckbox
+                                    checked={props.showFileInGed}
+                                    onChange={() =>
+                                        props.setShowFileInGed(!props.showFileInGed)
+                                    }
+                                    name="checkboxshowfiles"
+                                />
+                            }
+                            label="Afficher les fichiers"
+                        />
+                        <FormControlLabel
+                            control={
+                                <MuiCheckbox
+                                    checked={checkbox_showicons}
+                                    onChange={() =>
+                                        setCheckbox_showicons(!checkbox_showicons)
+                                    }
+                                    name="checkboxshowicons"
+                                />
+                            }
+                            label="Afficher les icones"
+                        />
+                        {/*<FormControlLabel
+                            control={
+                                <MuiCheckbox
+                                    checked={checkbox_enableDrag}
+                                    onChange={() =>
+                                        setCheckbox_enableDrag(!checkbox_enableDrag)
+                                    }
+                                    name="checkboxdrag"
+                                />
+                            }
+                            label="Activer le déplacement dans le menu Ged"
+                        />*/}
+                    </div>
+                </div>
+            </Popover>
 
         </div>
 

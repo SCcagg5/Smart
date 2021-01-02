@@ -305,7 +305,7 @@ export default function TableTimeSheet(props) {
 
     return (
 
-        <div>
+        <div style={{minWidth:900}}>
             <div align="center">
                 <AltButtonGroup>
                     <AtlButton appearance="default" isDisabled={selectedDate === ""}

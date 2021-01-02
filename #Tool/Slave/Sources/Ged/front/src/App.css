@@ -137,10 +137,12 @@
 
 .App {
     text-align: center;
-    font-family: "MyriadPro", sans-serif!important;
+    /*font-family: "MyriadPro", sans-serif!important;*/
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 body{
-    font-family: "MyriadPro", sans-serif!important;
+    /*font-family: "MyriadPro", sans-serif!important;*/
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
 .App-logo {
@@ -166,6 +168,7 @@ body{
     margin: 10px 0;
     font-weight: 500;
     /*font-family: "Baloo2-Bold", sans-serif!important;*/
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif!important;
     color: #343a40;
 }
 
@@ -1141,4 +1144,12 @@ select{
 }
 .MuiDialog-paperWidthXl {
     min-width: 800px;
+}
+
+/*image modal*/
+.__react_modal_image__modal_container{
+    margin-top: 75px!important;
+}
+.__react_modal_image__modal_content{
+    height: 93% !important;
 }

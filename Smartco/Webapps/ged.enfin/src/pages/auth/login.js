@@ -2,20 +2,28 @@ import React, {Component} from "react";
 import {Container, Row, Col, Card, CardBody, Label, FormGroup} from 'reactstrap';
 import {AvForm, AvGroup, AvInput, AvFeedback} from 'availity-reactstrap-validation';
 import Loader from '../../components/Loaders/Loader';
-import logo from "../../assets/images/logos/logo_enfin_fidu.jpg"
-import "firebase/auth";
-import "firebase/database"
 import Snackbar from '@material-ui/core/Snackbar';
 import SmartService from "../../provider/SmartService";
+//import SmartService from "../../provider/masterNodeService";
 import Alert from '@material-ui/lab/Alert';
+/*import json_enfin_clients from "../../assets/files/ged01-290815-enfin_contacts-export (1).json"
+import rethink from "../../controller/rethink";
+import verfiForms from "../../tools/verifForms";
+import moment from "moment";*/
+
+const ent_name = "ENFIN";
+const login_btn_color = "rgb(244, 56, 0)"
+
+
 
 class login extends Component {
 
-    state = {
 
+    state = {
+        logo:localStorage.getItem("logo"),
         loading: false,
         error: '',
-        email: '',
+        email: localStorage.getItem("email") || "",
         password: '',
         openAlert: false,
         alertMessage: '',
@@ -23,8 +31,7 @@ class login extends Component {
     };
 
     componentDidMount() {
-
-
+        this.setState({logo:localStorage.getItem("logo")})
     }
 
     openSnackbar = (type, msg) => {
@@ -64,6 +71,7 @@ class login extends Component {
                                             localStorage.setItem("usrtoken",loginRes.data.usrtoken)
                                             localStorage.setItem("email",infoRes.data.email)
                                             localStorage.setItem("role",infoGedRes.data.self.role.role)
+                                            //localStorage.setItem("role","admin")
                                             this.setState({loading:false})
                                             this.props.history.push('/home/drive');
 
@@ -76,13 +84,15 @@ class login extends Component {
                                         this.setState({loading: false})
                                     })
 
-                                }else{
+                                }
+                                else{
                                     this.openSnackbar('error', infoRes.error);
                                     this.setState({loading: false})
                                 }
 
                             }).catch( err => {
-                                this.openSnackbar('error', err);
+                                console.log(err)
+                                this.openSnackbar('error', "Une erreur est survenue !");
                                 this.setState({loading: false})
                             })
 
@@ -91,7 +101,8 @@ class login extends Component {
                             this.setState({loading: false})
                         }
                     }).catch(err => {
-                        this.openSnackbar('error', err);
+                        console.log(err)
+                        this.openSnackbar('error', "Une erreur est survenue !");
                         this.setState({loading: false})
                     })
 
@@ -129,7 +140,7 @@ class login extends Component {
                                         {this.state.loading && <Loader/>}
 
                                         <div align="center" className="mb-2">
-                                            <img style={{width:250,objectFit:"cover"}} src={logo} alt=""/>
+                                            <img style={{width:250,objectFit:"cover"}} src={this.state.logo} alt=""/>
                                         </div>
 
                                         <AvForm onValidSubmit={this.login}>
@@ -153,9 +164,50 @@ class login extends Component {
                                             </AvGroup>
 
                                             <FormGroup>
-                                                <button className="btn-block btn" style={{backgroundColor:"#F43800",marginTop:65}}>Se connecter</button>
+                                                <button className="btn-block btn" style={{backgroundColor:login_btn_color || "#c0c0c0",marginTop:65}}>Se connecter</button>
                                             </FormGroup>
+                                            <div align="center">
+                                            <span>Vous n'avez pas encore un compte ?
+                                                <span style={{fontWeight:"bold",cursor:"pointer",color:"#000",textDecoration:"underline"}} onClick={() => this.props.history.push("/signup")}>
+                                                    &nbsp;&nbsp;S'inscrire</span>
+                                            </span>
+                                            </div>
                                         </AvForm>
+                                        {/*<h4 className="mt-2"
+                                            style={{backgroundColor: "#A00015", marginTop: 65, cursor: "pointer"}}
+
+                                            onClick={() => {
+                                                let clients_formated = [];
+                                                json_enfin_clients.map((item, key) => {
+                                                    let formatedEnfinEmail = item.email ? item.email.indexOf("<") > -1 ? item.email.substring(item.email.lastIndexOf("<") + 1, item.email.lastIndexOf(">")) : item.email.trim() : ""
+                                                    if(item.email && item.email.trim() !== "" && !verfiForms.verif_Email(formatedEnfinEmail.trim())){
+                                                        let street = item.street || ""
+                                                        let city = item.city || ""
+                                                        let zip = item.zip || ""
+                                                        clients_formated.push({
+                                                            email:formatedEnfinEmail.trim(),
+                                                            created_at:moment().format("YYYY-MM-DD hh:mm:ss"),
+                                                            type:item.name ? "0" : "1",
+                                                            adress:street + ", " + city + " " + zip,
+                                                            contactName:item.contactName || "",
+                                                            societyName:item.name || "",
+                                                            code:item.Code || ""
+                                                        })
+                                                    }
+                                                })
+                                                rethink.insert("test", 'table("annuaire_clients_mandat").insert(' + JSON.stringify(clients_formated) + ')', "RocketBonds_894ca0ed8b4e42fdaeff8de26ee1bcf9", false).then(resAdd => {
+                                                    if (resAdd && resAdd === true) {
+                                                        console.log(" CLIENTS ADDED")
+                                                    } else {
+                                                        console.log("NOT INSERTED: ")
+                                                    }
+                                                }).catch(err => {
+                                                    console.log(err)
+                                                })
+                                            }}
+                                        >
+                                            Insert into
+                                        </h4>*/}
                                     </CardBody>
                                 </Card>
                             </Col>
@@ -165,8 +217,8 @@ class login extends Component {
 
                     </Container>
                 </div>
-                <footer className="footer footer-alt">
-                    2020 - 2021 &copy; Enfin
+                <footer className="footer footer-alt" style={{textTransform:"capitalize"}}>
+                    2020 - 2021 &copy; {ent_name}
                 </footer>
 
                 <Snackbar

@@ -7,11 +7,8 @@ import Data from '../data/Data';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import SmartService from '../provider/SmartService';
+//import SmartService from '../provider/masterNodeService';
 import PeopleOutlineOutlinedIcon from '@material-ui/icons/PeopleOutlineOutlined';
-
-const enfin_clients = ["Rocket","SmartCo","RectoVerso"]
-const enfin_sub_folders = ["Compta client","Compta fournis.","Compta.Autres","Livre banque","RH","Clients.Info",
-  "Clients.Fournisseur","Fabrication","Assistance","Rendez vous","To be signed","Urgence","Actionnaires"];
 
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -39,7 +36,7 @@ function renderSearchOption(props, option, snapshot, className) {
             <span>
                 <img alt="" style={imgStyle}
                      src={option.ContactType === '1' ? option.imageUrl ? option.imageUrl : userAvatar : entIcon} />
-                <span style={{ fontSize: 13 }}>{option.ContactName}</span>
+                <span style={{ fontSize: 13 }}>{option.ContactName + (option.societyName !== "" ? (" - " + option.societyName) : "") }</span>
             </span>
     </button>
   );
@@ -122,7 +119,7 @@ const getTimeSuggestions = value => {
   }
 };
 
- const changeStructure = (drive) => {
+ const changeStructure = (drive,showFiles) => {
   const list = [];
   for (let i = 0; i < drive.length; i++) {
     const key = drive[i].id.toString();
@@ -141,16 +138,19 @@ const getTimeSuggestions = value => {
       ),
       files: drive[i].Content ? drive[i].Content.files || [] : [],
       folders: drive[i].Content ? drive[i].Content.folders || [] : [],
-      typeF: drive[i].type ? 'file' : 'folder'
+      typeF: drive[i].type ? 'file' : 'folder',
+      rights:drive[i].rights || undefined,
+      proprietary:drive[i].proprietary || undefined
     };
 
     if (drive[i].Content && (drive[i].Content.folders.length > 0)) {
-      treeNode.children = changeStructure(drive[i].Content.folders);
+      treeNode.children = changeStructure(drive[i].Content.folders || [],showFiles);
     }
-    if (drive[i].Content && (drive[i].Content.files.length > 0)) {
-      treeNode.children = (treeNode.children || []).concat(changeStructure(drive[i].Content.files) || []);
+    if(showFiles === true){
+      if (drive[i].Content && (drive[i].Content.files.length > 0)) {
+        treeNode.children = (treeNode.children || []).concat(changeStructure(drive[i].Content.files,showFiles) || []);
+      }
     }
-
     list.push(treeNode);
   }
   return list;
@@ -171,6 +171,71 @@ const getTimeSuggestions = value => {
     }
   }
 };
+
+const getFileById = (id, drive) => {
+  for (let i = 0; i < drive.length; i++) {
+    if (drive[i].Content.files) {
+      let item = drive[i].Content.files.find(x => x.id === id);
+      if(item){
+        return item
+      }else{
+        let found = getFileById(id, drive[i].Content.folders);
+        if (found) return found;
+      }
+    }
+  }
+};
+
+function insertNodeIntoTree(drive, nodeId, newNode) {
+  for (let j = 0; j < drive.length; j++) {
+    if (drive[j].id === nodeId) {
+      if (newNode.type) {
+        drive[j].Content.files.push(newNode);
+      }else{
+        drive[j].Content.folders.push(newNode)
+      }
+    } else if (drive[j].Content.folders != null) {
+      insertNodeIntoTree(drive[j].Content.folders, nodeId, newNode);
+    }
+  }
+}
+
+ //File seulement
+function deleteFileFromTree(drive, nodeId) {
+  for (let j = 0; j < drive.length; j++) {
+    if(drive[j].Content.files != null){
+      let filtered = drive[j].Content.files.filter(f => f.id === nodeId);
+      if (filtered && filtered.length > 0) {
+        console.log("found")
+        drive[j].Content.files = drive[j].Content.files.filter(f => f.id !== nodeId);
+        return;
+      }
+    }
+    if (drive[j].Content.folders != null) {
+      deleteFileFromTree(drive[j].Content.folders, nodeId);
+    }
+  }
+}
+
+function deleteFolderFromTree(drive, nodeId) {
+  for (let j = 0; j < drive.length; j++) {
+    if (drive[j].id === nodeId) {
+      console.log("found")
+      drive = drive.filter(f => f.id !== nodeId);
+      return drive
+    }
+    if(drive[j].Content.folders != null){
+      let filtered = drive[j].Content.folders.filter(f => f.id === nodeId);
+      if (filtered && filtered.length > 0) {
+        console.log("found")
+        drive[j].Content.folders = drive[j].Content.folders.filter(f => f.id !== nodeId);
+        return ;
+      }
+      deleteFolderFromTree(drive[j].Content.folders, nodeId);
+    }
+  }
+}
+
 
 const findContactByEmail = (email, contacts) => {
   let index;
@@ -210,6 +275,57 @@ const getOAContactByUid = (contacts,uid) => {
     if (contact && contact.uid && contact.uid === uid) OAcontact = contact;
   });
   return OAcontact;
+}
+
+const getContactById = (contacts,id) => {
+  return contacts.find(x => x.id === id);
+}
+
+const getContactImageById = (contacts,id) => {
+  let find = contacts.find(x => x.id === id);
+  return find ? find.imageUrl : "";
+}
+
+const getContactFnameById = (contacts,id) => {
+  let find = contacts.find(x => x.id === id);
+  if(find) return find.nom + " " + find.prenom
+  else return ""
+}
+
+const getContactEmailById = (contacts,id) => {
+  let find = contacts.find(x => x.id === id);
+  return find ? find.email : "";
+}
+
+const getContactIdByEmail = (contacts,email) => {
+  let find = contacts.find(x => x.email === email);
+  return find ? find.id : "";
+}
+
+const getClientById = (clients,id) => {
+  return clients.find(x => x.id === id)
+}
+
+const getClientNameById = (clients,id) => {
+  let find = clients.find(x => x.id === id)
+  if(find){
+    if(find.type === "0") return find.contactName + " - " + find.societyName
+    else return find.contactName
+  }else return ""
+}
+
+const getClientEmailById = (clients,id) => {
+  let find = clients.find(x => x.id === id)
+  if(find){
+    return find.email
+  }else return ""
+}
+
+const getClientTypeById = (clients,id) => {
+  let find = clients.find(x => x.id === id)
+  if(find){
+    return find.type
+  }else return ""
 }
 
 const generateGed = () => {
@@ -622,46 +738,139 @@ const generateGed = () => {
   });
 }
 
-const generateComptaGed = () => {
-
-  SmartService.addFolder({
-    name: 'CLIENTS',
-    folder_id: null
-  }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes => {
-    console.log('ok1');
-    enfin_clients.map((item,key) => {
-
-      SmartService.addFolder({
-        name: item,
-        folder_id: addFolderClientRes.data.id
-      }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addSubFolderRes => {
-        console.log('ok2');
-
-        enfin_sub_folders.map((item2,key2) => {
-          SmartService.addFolder({
-            name: item2,
-            folder_id: addSubFolderRes.data.id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(res => {
-            console.log('ok3');
-          }).catch(err => {
-            console.log(err);
-          });
-        })
-      }).catch(err => {
-        console.log(err);
-      });
-
-    })
-
-  }).catch(err => {
-    console.log(err);
+function exportAnnuaire_clients_To_CSVFile(items, fileTitle) {
+  let headers = {"type":"type","email":"email","contactName":"contactName","societyName":"societyName","phone":"phone","adress":"adress"}
+  var itemsFormatted = [];
+  items.forEach((item) => {
+    itemsFormatted.push({
+      type: item.type || "0",
+      email: item.email || "",
+      contactName: item.contactName || "",
+      societyName: item.societyName || "",
+      phone: item.phone || "",
+      adress: item.adress || ""
+    });
   });
+  itemsFormatted.unshift(headers);
+  var jsonObject = JSON.stringify(itemsFormatted);
+  var csv = convertToCSV(jsonObject);
+  var exportedFilenmae = fileTitle || 'export.csv';
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  if (navigator.msSaveBlob) { // IE 10+
+    navigator.msSaveBlob(blob, exportedFilenmae);
+  } else {
+    var link = document.createElement("a");
+    if (link.download !== undefined) {
+      var url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", exportedFilenmae);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+}
 
+function exportContactCSVFile( items, fileTitle) {
+  var headers = {
+    nom: "nom",
+    prenom: "prenom",
+    email: "email",
+    phone: "phone",
+    adress: "adress",
+    pays:"pays",
+    rateFacturation:"rateFacturation",
+    imageUrl:"imageUrl",
+    about:"about"
+  };
+  var itemsFormatted = [];
+  items.forEach((item) => {
+    itemsFormatted.push({
+      nom: item.nom || " ",
+      prenom: item.prenom || " ",
+      email: item.email || " ",
+      phone: item.phone || " ",
+      adress: item.adress || " ",
+      pays: item.pays || " ",
+      rateFacturation: item.rateFacturation || " ",
+      imageUrl: item.imageUrl || " ",
+      about: item.about || " "
+    });
+  });
+  if (headers) {
+    itemsFormatted.unshift(headers);
+  }
+
+  // Convert Object to JSON
+  var jsonObject = JSON.stringify(itemsFormatted);
+
+  var csv = convertToCSV(jsonObject);
+
+  var exportedFilenmae = fileTitle  || 'export.csv';
+
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  if (navigator.msSaveBlob) { // IE 10+
+    navigator.msSaveBlob(blob, exportedFilenmae);
+  } else {
+    var link = document.createElement("a");
+    if (link.download !== undefined) { // feature detection
+      // Browsers that support HTML5 download attribute
+      var url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", exportedFilenmae);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+}
+
+function convertToCSV(objArray) {
+  var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+  var str = '';
+  for (var i = 0; i < array.length; i++) {
+    var line = '';
+    for (var index in array[i]) {
+      if (line !== '') line += ','
+
+      line += array[i][index];
+    }
+    str += line + '\r\n';
+  }
+  return str;
+}
+
+function csvToJSON(csv){
+
+  var lines=csv.split("\n");
+
+  var result = [];
+
+  var headers=lines[0].split(",");
+
+  for(var i=1;i<lines.length;i++){
+
+    var obj = {};
+    var currentline=lines[i].split(",");
+
+    for(var j=0;j<headers.length;j++){
+      obj[headers[j]] = currentline[j];
+    }
+
+    result.push(obj);
+
+  }
+
+  //return result; //JavaScript object
+  return JSON.stringify(result); //JSON
 }
 
 
 
 
- export default {renderSearchOption,getTimeSuggestions,icon,getLabel,checkedIcon,getPath,generateGed,generateComptaGed,buildIndex,
-   changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,
-   getBreadcumpsPath,getFolderNameById,getFolderTypeById,findClientMondatById,findContactByEmail,findContactByUid,getOAContactByEmail2,getOAContactByUid};
+ export default {renderSearchOption,getTimeSuggestions,icon,getLabel,checkedIcon,getPath,generateGed,buildIndex,exportAnnuaire_clients_To_CSVFile,exportContactCSVFile,convertToCSV,
+   changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,csvToJSON,getFileById,getContactById,getContactImageById,getContactFnameById,getContactEmailById,getContactIdByEmail,
+   getClientById,getClientEmailById,getClientNameById,getClientTypeById,
+   getBreadcumpsPath,getFolderNameById,getFolderTypeById,findClientMondatById,findContactByEmail,findContactByUid,getOAContactByEmail2,getOAContactByUid,deleteFileFromTree,deleteFolderFromTree, insertNodeIntoTree};

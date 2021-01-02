@@ -137,10 +137,12 @@
 
 .App {
     text-align: center;
-    font-family: "MyriadPro", sans-serif!important;
+    /*font-family: "MyriadPro", sans-serif!important;*/
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 body{
-    font-family: "MyriadPro", sans-serif!important;
+    /*font-family: "MyriadPro", sans-serif!important;*/
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
 .App-logo {
@@ -166,6 +168,7 @@ body{
     margin: 10px 0;
     font-weight: 500;
     /*font-family: "Baloo2-Bold", sans-serif!important;*/
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif!important;
     color: #343a40;
 }
 
@@ -1094,7 +1097,10 @@ select{
     display: flex;
     flex-grow: 1;
     flex-shrink: 0;
-    border: 1px solid darkgray;
+    border: 1px solid rgba(34,36,38,.15);
+    padding: 0.1rem;
+    border-radius: 0.285714rem;
+    padding-left: 5px;
 }
 
 .react-date-picker__inputGroup {
@@ -1102,4 +1108,48 @@ select{
     flex-grow: 1;
     padding: 6px 2px;
     box-sizing: content-box;
+}
+.select-search__value{
+    z-index: 0;
+}
+
+.MuiSelect-selectMenu {
+    white-space: normal;
+}
+
+.mandat_collapse_header{
+    color:#000!important;
+}
+
+.text-ellipsis-230{
+    text-overflow: ellipsis;
+    width: 230px;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+}
+
+.hcmLHh {
+    margin-left: 3px;
+    background-color: orange;
+    color: #fff;
+    border-radius: 2em;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 1;
+    min-width: 1px;
+    padding: 0.16666666666667em 0.5em;
+    text-align: center;
+}
+.MuiDialog-paperWidthXl {
+    min-width: 800px;
+}
+
+/*image modal*/
+.__react_modal_image__modal_container{
+    margin-top: 75px!important;
+}
+.__react_modal_image__modal_content{
+    height: 93% !important;
 }

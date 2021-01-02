@@ -6,6 +6,7 @@ import PictureAsPdfIcon from "@material-ui/icons/PictureAsPdf";
 import VerticalAlignBottomIcon from '@material-ui/icons/VerticalAlignBottom';
 import styles from "./highlight.css"
 import SmartService from "../../provider/SmartService";
+//import SmartService from "../../provider/masterNodeService";
 
 export default function SearchResults(props){
 

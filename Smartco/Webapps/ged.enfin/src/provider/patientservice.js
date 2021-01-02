@@ -1,5 +1,4 @@
-
-const endpoint = "http://localhost:3001/api/"
+const endpoint = process.env.REACT_APP_JAWHER_API_ENDPOINT
 
 let  PatientService = {
 
@@ -35,30 +34,6 @@ let  PatientService = {
             }).then(response => response.json()).catch(error => {
                 console.log(error);
             });
-
-    },
-
-    sendMailDevi(data){
-        return fetch(endpoint + 'MailDevi', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body:JSON.stringify(data),
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
-    },
-
-    getPatientbyId(id){
-
-        return fetch(endpoint+'PatientById/'+id, {
-            method: 'GET',
-            headers:this.loadHeaders(),
-        }).then(response => response.json()).catch(error => {
-            console.log(error);
-        });
 
     },
     getPatients(){
