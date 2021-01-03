@@ -729,11 +729,12 @@
 }
 
 #frame .content .message-input {
-    position: absolute;
+    /*position: absolute;
     bottom: 5px;
     left: 105px;
-    width: 100%;
+    width: 84%;*/
     z-index: 99;
+    align-self: center;
 }
 
 #frame .content .message-input .wrap {
@@ -744,16 +745,15 @@
     font-family: sans-serif;
     float: left;
     border: none;
-    width: calc(100% - 160px);
+    width: 100%;
     padding: 11px 32px 10px 8px;
     font-size: 1.1em;
     color: #32465a;
     height: 45px;
     min-height: 45px;
     max-height: 150px;
-    /*overflow-y: auto;
-    word-wrap:break-word*/
-    /*height: 45px;*/
+    border-radius: 21px;
+    padding-left: 18px;
 }
 
 @media screen and (max-width: 735px) {

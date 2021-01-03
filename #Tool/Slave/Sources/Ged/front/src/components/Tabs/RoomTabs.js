@@ -50,6 +50,9 @@ import PostAddIcon from '@material-ui/icons/PostAdd';
 import ChatOutlinedIcon from '@material-ui/icons/ChatOutlined';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import Board from 'react-trello'
+import VoiceRecorder from "../Recorder/VoiceRecorder";
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
 
 const {DirectoryTree} = Tree;
 
@@ -284,6 +287,8 @@ export default function RoomTabs(props) {
     const openFilesPopup = Boolean(anchorElFiles);
     const id = openFilesPopup ? 'files-popover' : undefined;
 
+    let [audioURL, isRecording, startRecording, stopRecording] = VoiceRecorder();
+
     return (
         <div>
             <Tabs value={props.selectedRoomTab} onChange={props.handleRoomTabsChange} aria-label="room tabs " indicatorColor="primary" textColor="primary"
@@ -293,6 +298,7 @@ export default function RoomTabs(props) {
                 <Tab label="Fichiers" icon={<PostAddIcon/>} {...a11yProps(1)} style={{fontWeight:600,textTransform:"capitalize"}} disabled={false} />
                 <Tab label="Chat" icon={<ChatOutlinedIcon/>} {...a11yProps(2)} style={{fontWeight:600,textTransform:"capitalize"}} disabled={false} />
                 <Tab label="tableau kanban" icon={<DashboardIcon/>} {...a11yProps(3)} style={{fontWeight:600,textTransform:"capitalize"}} disabled={true} />
+                {/*<Tab label="Recorder Test" icon={<DashboardIcon/>} {...a11yProps(3)} style={{fontWeight:600,textTransform:"capitalize"}} disabled={false} />*/}
             </Tabs>
 
             <TabPanel value={props.selectedRoomTab} index={2}>
@@ -605,6 +611,28 @@ export default function RoomTabs(props) {
                 </div>
 
             </TabPanel>
+
+            {/*<TabPanel index={4} value={props.selectedRoomTab}>
+                <div style={{marginTop:25}}>
+                    <audio controls src={audioURL} />
+                    <AudioPlayer
+                        autoPlay={false}
+                        src={audioURL}
+                        onPlay={e => console.log("onPlay")}
+                        showSkipControls={false}
+                        showJumpControls={false}
+                        autoPlayAfterSrcChange={false}
+                        showFilledVolume={false}
+                    />
+                    <button onClick={startRecording} disabled={isRecording}>
+                        start recording
+                    </button>
+                    <button onClick={stopRecording} disabled={!isRecording}>
+                        stop recording
+                    </button>
+                </div>
+
+            </TabPanel>*/}
 
             <Popover
                 style={{zIndex:0,position:"unset"}}

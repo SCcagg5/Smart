@@ -13,6 +13,7 @@ import main_functions from "../../controller/main_functions";
 import SmartService from "../../provider/SmartService";
 import {IconButton} from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
+import { Anchorme } from 'react-anchorme'
 
 const {DirectoryTree} = Tree;
 const db_name = process.env.REACT_APP_RETHINKDB_BEGIN_NAME;
@@ -21,7 +22,7 @@ export default class Chat extends React.Component {
 
     imageUpload = {}
     scrollParentRef={}
-    messageList ={}
+    messageList = React.createRef()
     state = {
         tableList:[],
         text: "",
@@ -393,10 +394,15 @@ export default class Chat extends React.Component {
 
                                                                         </div>
                                                                         :
-                                                                    <p>
-                                                                        {msg.text}
-                                                                        <h6 style={{color:"gray",marginBottom:-2,fontSize:"0.6rem",float:"right",marginTop:20}}>{moment(msg.created_at).fromNow(false)}</h6>
-                                                                    </p>
+
+                                                                            <p>
+                                                                                <Anchorme  target="_blank" style={{color:"#039be5"}}>
+                                                                                {msg.text}
+                                                                                </Anchorme>
+                                                                                <h6 style={{color:"gray",marginBottom:-2,fontSize:"0.6rem",float:"right",marginTop:20}}>{moment(msg.created_at).fromNow(false)}</h6>
+                                                                            </p>
+
+
                                                             }
                                                         </li>
                                                     </div>
@@ -457,11 +463,15 @@ export default class Chat extends React.Component {
                                                                             <h6 style={{color:"gray",marginTop:4,marginBottom:2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
                                                                         </div>
                                                                         :
-                                                                    <p>
-                                                                        <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
-                                                                        {msg.text}
-                                                                        <h6 style={{color:"gray",marginTop:20,marginBottom:-2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
-                                                                    </p>
+
+                                                                            <p>
+                                                                                <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
+                                                                                <Anchorme  target="_blank" style={{color:"#039be5"}}>
+                                                                                {msg.text}
+                                                                                </Anchorme>
+                                                                                <h6 style={{color:"gray",marginTop:20,marginBottom:-2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
+                                                                            </p>
+
                                                             }
 
 
@@ -472,73 +482,77 @@ export default class Chat extends React.Component {
                                         }
                                     </ul>
                                 </div>
-                                <div>
-                                    <i className="fa fa-file-alt attachment" aria-hidden="true"
-                                       style={{
-                                           position: "absolute",
-                                           left: 75,
-                                           bottom: 17,
-                                           fontSize: 22,
-                                           cursor: "pointer",
-                                           color:"dodgerblue",
-                                           boxShadow:"2px 4px 6px lightblue"
-                                       }}
-                                       onClick={(event) => {
-                                           this.setState({anchorElFiles: event.currentTarget})
-                                       }}
-                                    />
-                                    <i className="fa fa-laugh attachment" aria-hidden="true"
-                                       style={{
-                                           position: "absolute",
-                                           left: 8,
-                                           bottom: 17,
-                                           fontSize: 22,
-                                           cursor: "pointer",
-                                           color:"inherit",
-                                           boxShadow:"#fff 2px 4px 6px"
-                                       }}
-                                       onClick={(event) => {
-                                           this.setState({anchorElEmoji: event.currentTarget})
-                                       }}
-                                    />
-                                    <i className="fa fa-images attachment" aria-hidden="true"
-                                       style={{
-                                           position: "absolute",
-                                           left: 38,
-                                           bottom: 17,
-                                           fontSize: 22,
-                                           cursor: "pointer",
-                                           color:"inherit",
-                                           boxShadow:"#fff 2px 4px 6px"
-                                       }}
-                                       onClick={() => {
-                                           this.imageUpload.click()
-                                       }}
-                                    />
-                                </div>
-                                <div className="message-input">
-                                    <div className="wrap">
-                                        <textarea  placeholder="Tapez votre message ici..."
-                                               value={this.state.text}
-                                               onChange={(e => {
-                                                   this.setState({text: e.target.value})
-                                               })}
-                                               onKeyPress={(event => {
-                                                   if (event.key === 'Enter' && !event.shiftKey) {
-                                                       this.addNewMessage(this.state.text)
-                                                   }
-                                               })}
-                                                   //onKeyUp={(event => {this.adjustTextArea(event)})}
+                                <div style={{backgroundColor:"#f0f0f0",position:"absolute",bottom:0,height:60,width:"100%",display:"flex"}}>
+                                    <div style={{alignSelf:"center",margin:10,flex:"none"}}>
+                                        <i className="fa fa-laugh attachment" aria-hidden="true"
+                                           style={{
+                                               fontSize: 20,
+                                               cursor: "pointer",
+                                               color:"#919191",
+                                               boxShadow:"#fff 2px 4px 6px",
+                                               margin:5
+                                           }}
+                                           onClick={(event) => {
+                                               this.setState({anchorElEmoji: event.currentTarget})
+                                           }}
                                         />
-                                        <button className="submit"
-                                                onClick={() => {
-                                                    this.addNewMessage(this.state.text)
-                                                }}
-                                        >
-                                            <i className="fa fa-paper-plane" aria-hidden="true"/>
-                                        </button>
+                                        <i className="fa fa-images attachment" aria-hidden="true"
+                                           style={{
+                                               fontSize: 20,
+                                               cursor: "pointer",
+                                               color:"#919191",
+                                               boxShadow:"#fff 2px 4px 6px",
+                                               margin:5
+                                           }}
+                                           onClick={() => {
+                                               this.imageUpload.click()
+                                           }}
+                                        />
+                                        <i className="fa fa-file-alt attachment" aria-hidden="true"
+                                           style={{
+                                               fontSize: 20,
+                                               cursor: "pointer",
+                                               color:"dodgerblue",
+                                               boxShadow:"2px 4px 6px lightblue",
+                                               margin:5
+                                           }}
+                                           onClick={(event) => {
+                                               this.setState({anchorElFiles: event.currentTarget})
+                                           }}
+                                        />
                                     </div>
+                                    <div className="message-input" style={{flex:"1 1 auto"}}>
+                                        <div className="wrap">
+                                        <textarea  placeholder="Tapez votre message ici..."
+                                                   value={this.state.text}
+                                                   onChange={(e => {
+                                                       this.setState({text: e.target.value})
+                                                   })}
+                                                   onKeyPress={(event => {
+                                                       if (event.key === 'Enter' && !event.shiftKey) {
+                                                           this.addNewMessage(this.state.text)
+                                                       }
+                                                   })}
+                                        />
+                                        </div>
+                                    </div>
+                                    <div style={{alignSelf:"center",flex:"none",margin:10}}>
+                                        <i className="fa fa-microphone attachment" aria-hidden="true"
+                                           style={{
+                                               fontSize: 20,
+                                               cursor: "pointer",
+                                               color:"#919191",
+                                               boxShadow:"#fff 2px 4px 6px",
+                                               margin:5
+                                           }}
+                                           onClick={(event) => {
+                                               //this.setState({anchorElFiles: event.currentTarget})
+                                           }}
+                                        />
+                                    </div>
+
                                 </div>
+
                                 <input style={{visibility: 'hidden', width: 0, height: 0}}
                                        type='file' accept='.png,.jpeg,.jpg'
                                        onChange={(files) => this.uploadImage(files)}
