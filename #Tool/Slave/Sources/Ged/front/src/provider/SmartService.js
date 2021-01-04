@@ -24,7 +24,7 @@ let SmartService = {
 
 
     getLogo(){
-        return fetch(endpoint + '/', {
+        return fetch(endpoint + '/' + ged_id, {
             method: 'GET',
             headers:this.loadHeadersWithoutToken()
         }).then(response => response.json()).catch(error => {

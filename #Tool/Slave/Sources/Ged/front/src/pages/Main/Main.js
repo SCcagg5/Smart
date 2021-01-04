@@ -78,6 +78,7 @@ import main_functions from '../../controller/main_functions';
 import DescriptionIcon from '@material-ui/icons/Description';
 import xlsxParser from 'xlsx-parse-json';
 import recetteService from "../../provider/RecetteService";
+import PatientService from "../../provider/patientservice";
 import edit from '../../assets/icons/edit.svg';
 import time from '../../assets/icons/time.svg';
 import money from '../../assets/icons/money.svg';
@@ -121,6 +122,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import test from "../test";
+
 
 const endpoint = process.env.REACT_APP_ENDPOINT;
 const ged_id = process.env.REACT_APP_GED_ID;
@@ -558,6 +560,10 @@ export default class Main extends React.Component {
           .then((gedRes) => {
             if (gedRes.succes === true && gedRes.status === 200) {
 
+              if(active_modules.includes("MARKETPLACE") === true){
+                this.getRecettes()
+                this.getpatient();
+              }
 
               let parentSharedFolder = [{
                 id:"parent",
@@ -1098,7 +1104,22 @@ export default class Main extends React.Component {
   }
 
 
+  getpatient(){
+    PatientService.getPatients().then((res)=>{
+      if (res){
+        console.log(res)
+        this.setState({patients:res})
+      }
+    }).catch(err => {console.log(err)})
+  }
 
+  getRecettes(){
+    recetteService.getRecettes().then(res => {
+      if(res){
+        this.setState({recettes:res})
+      }
+    }).catch(err => {console.log(err)})
+  }
 
   getTableChanges(ust_token,db,table,table_name){
 
@@ -7724,7 +7745,7 @@ export default class Main extends React.Component {
                       {
                         active_modules.includes("MARKETPLACE") === true &&
                             [
-                                active_modules.includes("MARKETPLACE_EDITEUR_RECETTE") === true &&
+                                active_modules.includes("MARKETPLACE") === true &&
                                     [
                                       <Route key={0} exact path="/home/marketplace/recettes">
                                         {
@@ -7942,7 +7963,7 @@ export default class Main extends React.Component {
                                         }
                                       </Route>
                                     ],
-                              active_modules.includes("MARKETPLACE_RH_SP") === true &&
+                              active_modules.includes("MARKETPLACE") === true &&
                                   [
                                     <Route key={2} exact path="/home/marketplace/RH_Support_ponctuel" >
                                       {
