@@ -1,0 +1,53 @@
+version: '3'
+
+networks:
+  proxy:
+    external:
+      name: docker-compose_proxy
+  builder-{{ID}}:
+
+services:
+    ged_build-{{ID}}:
+       build:
+         context: .
+         dockerfile: Dockerfile
+         target: builder
+       container_name: nl-build
+       volumes:
+         - ../front/:/app
+       networks:
+         - builder-{{ID}}
+       environment:
+         REACT_APP_GED_ID: {{ID}}
+         REACT_APP_CLIENTS_FOLDER_ID:
+         REACT_APP_ENT_NAME: TEST
+         REACT_APP_RETHINKDB_BEGIN_NAME: {{ID}}
+         REACT_APP_MEET_URL: https://meet.smartdom.ch/xxxxx
+         REACT_APP_LOGIN_BTN_COLOR: "#cf1322"
+         REACT_APP_ACTIVE_MODULES: ROOMS/MEET/TIMESHEET
+
+    ged-{{ID}}:
+       build:
+         context: .
+         dockerfile: Dockerfile
+         target: prod
+       container_name: ged-{{ID}}
+       restart: always
+       tty: true
+       stdin_open: true
+       ports:
+        - 80:$V_VIRTUAL_HOST
+       volumes:
+         - ../front/prod/:/app
+       networks:
+         - proxy
+       environment:
+         VIRTUAL_HOST: $V_VIRTUAL_HOST
+         VIRTUAL_PORT: $V_VIRTUAL_PORT
+         LETSENCRYPT_HOST: $V_VIRTUAL_HOST
+         LETSENCRYPT_EMAIL: $V_LETSENCRYPT_EMAIL
+       healthcheck:
+         test: "curl -Ls -o /dev/null -w \"%{http_code}\n%{url_effective}\n\" http://localhost:$$VIRTUAL_PORT"
+         interval: 30s
+         timeout: 3s
+         retries: 2
