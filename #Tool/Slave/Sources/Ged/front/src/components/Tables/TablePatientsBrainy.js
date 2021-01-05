@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import deleteIcon from '../../assets/icons/delete.svg'
+import roomIcon from "../../assets/icons/room_icon.jpg"
 import TableCell from '@material-ui/core/TableCell';
 import IconButton from '@material-ui/core/IconButton';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -102,7 +103,7 @@ export default function TablePatientsBrainy(props) {
                                     <div
                                         className="col-md-2 bg-danger text-center "
                                         style={{width: "10%"}}>
-                                        <h4 style={{color: "white",marginTop:5}}>1Food1Me</h4>
+                                        <h4 style={{color: "white",marginTop:5}}>Prospect</h4>
                                     </div>
                                     <hr style={{
                                         backgroundColor: "#a6a6a6",
@@ -251,16 +252,28 @@ export default function TablePatientsBrainy(props) {
 
                                             <div className="row justify-content-center">
                                                 <div className="col-md-auto">
-                                                    <img src={loope}  onClick={()=>{props.onEditClick(item,key)
-                                                     props.getDataDashboard(item.email)
+                                                    <img src={loope}  onClick={()=>{
+                                                        props.onEditClick(item,key)
+                                                        props.getDataDashboard(item.email)
                                                         props.bodycheckNl(item.email)}}
-                                                             style={{width:30,height:30,cursor:"pointer"}} >
+                                                         style={{width:30,height:30,cursor:"pointer"}}
+                                                    >
 
                                                     </img>
                                                 </div>
                                                 <div className="col-md-4">
+                                                    <img src={roomIcon} style={{width:"100%",cursor:"pointer"}}
+                                                         onClick={()=> {
+                                                             const r = window.confirm(
+                                                                 'Voulez-vous vraiment créer un espace Room avec ce client ?'
+                                                             );
+                                                             if (r === true) {
+                                                                 props.createProspectRoom(item)
+                                                             }else{
 
-                                                    <img src={deleteIcon} style={{width:"100%",cursor:"pointer"}} onClick={()=>props.onDelecteClick(item,key)}/>
+                                                             }
+                                                         }}
+                                                    />
                                                 </div>
 
                                             </div>

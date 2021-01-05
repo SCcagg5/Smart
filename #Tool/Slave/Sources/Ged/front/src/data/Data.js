@@ -39,7 +39,7 @@ let Data = {
     SocietyMenuItem : [
         {
             nodeId:"clients_mondat",
-            title:"Clients (Mandat)",
+            title:"Clients",
             icon:HomeWorkIcon
         }
     ],
