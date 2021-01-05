@@ -6,6 +6,8 @@ import moment from 'moment';
 import FolderIcon from '@material-ui/icons/Folder';
 import TopBar from '../../components/TopBar/TopBar';
 import SideMenu from '../../components/SideMenu/SideMenu';
+import Dashboard from "../dashboardDataWatch/Dashboard/Dashboard";
+
 import data from '../../data/Data';
 import Data from '../../data/Data';
 import MuiBackdrop from '../../components/Loading/MuiBackdrop';
@@ -140,15 +142,23 @@ const modules = process.env.REACT_APP_ACTIVE_MODULES;
 const active_modules = (modules || "").split("/")
 
 const url=process.env.REACT_APP_JAWHER_API_ENDPOINT
+
 const question1food1me=process.env.REACT_APP_question1food1me
 const bodycheckQuestion=process.env.REACT_APP_bodycheckQuestion
+const capteurs=process.env.REACT_APP_CAPTEURS
 
 export default class Main extends React.Component {
 
+
   imageUpload = {};
   folderupload = {};
+  sendCapteursMail=this.sendCapteursMail.bind(this)
+
+
+
 
   state = {
+
     logo:localStorage.getItem("logo"),
 
     loading: false,
@@ -406,7 +416,7 @@ export default class Main extends React.Component {
     openImportAlertModal:false,
 
     recettes:[],
-    //patients:[],
+    patients:[],
     percentage:"",
     dataLength:"",
     plat:{
@@ -426,6 +436,9 @@ export default class Main extends React.Component {
     showFileInGed:true,
 
     settRoomAnchorEl:null,
+
+
+    patientData:"",
   };
 
   componentDidMount() {
@@ -1106,6 +1119,43 @@ export default class Main extends React.Component {
       }
     }).catch(err => {console.log(err)})
   }
+
+  sendCapteursMail(email,id){
+
+    let dd ={
+      emailReciver:email,
+      subject:"Brainy food GoogleFIt",
+      linkUrl :"Click ici ",
+
+      ////url 1foof1me project
+      url:capteurs+id,
+      msg:"vous pouvez voir votre données de GoogleFit ",
+      footerMsg : "merci"
+    }
+
+
+
+    fetch(url+'sendCustomMailWithUrl', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify(dd)
+    }).then(response => response.json()).then((res)=>{
+      console.log(res)
+      if (res.status===200){
+       this.setState({
+         openAlert: true,
+         alertMessage: 'Mail a été envoyé avec succès',
+         alertType: 'success',
+       })
+      }
+    }).catch(error => {
+      console.log(error);
+    })
+  }
+
 
   getRecettes(){
     recetteService.getRecettes().then(res => {
@@ -4171,6 +4221,7 @@ export default class Main extends React.Component {
     }*/
   };
 
+
   getDataDashboard(email){
 
     fetch(url+'questionbyEmail/'+email.trim(),{
@@ -5818,6 +5869,8 @@ export default class Main extends React.Component {
                                     {
                                       active_modules.includes("MARKETPLACE") === true &&
                                       <TablePatientsBrainy
+                                          mailCapteurs={this.sendCapteursMail}
+
                                           patients={this.state.patients || []}
                                           bodycheck={(email,name) => {this.sendBodyChekMail(email,name)}}
                                           bodycheckNl={(email) => {this.getBodyCheckNl(email)}}
@@ -6503,14 +6556,12 @@ export default class Main extends React.Component {
                             {
                               this.state.selectedProspect !== '' &&
                               <div style={{marginTop: 30,padding:20,paddingRight:40,border:"2px solid #f0f0f0",margin:20}} className="text-left">
-                                <Tabs>
+                                <Tabs className="text-center">
                                   <TabList>
                                     <Tab >
                                       Ma fiche perso
                                     </Tab>
-                                    <Tab>
-                                      Moi et la Cuisine
-                                    </Tab>
+
                                     <Tab>
                                       Activité physique
                                     </Tab>
@@ -6519,6 +6570,9 @@ export default class Main extends React.Component {
                                     </Tab>
                                     <Tab>
                                       Objectifs
+                                    </Tab>
+                                    <Tab>
+                                      Coeur
                                     </Tab>
                                     <Tab>
                                       Pb santé
@@ -6535,7 +6589,7 @@ export default class Main extends React.Component {
 
                                             </div>
                                             <div className="col-md-2">
-                                              {/*<div>{this.state.selectedProspect.bodycheck.objectif.taille}</div>*/}
+                                              <text>{this.state.patientData.taille}</text>
                                             </div>
 
                                           </div>
@@ -6547,7 +6601,7 @@ export default class Main extends React.Component {
 
                                             </div>
                                             <div className="col-md-2">
-                                              <text>75 Kg</text>
+                                              <text>{this.state.patientData.poids +" kg"} </text>
                                             </div>
 
                                           </div>
@@ -6558,8 +6612,8 @@ export default class Main extends React.Component {
                                               <h4 className="font-weight-bold">Mon age </h4>
 
                                             </div>
-                                            <div className="col-md-2 " style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>25 ans </text>
+                                            <div className="col-md-2 " style={{backgroundColor:"#ff0000"}}>
+                                              <text style={{color:"white"}}>{this.state.patientData.age} ans </text>
                                             </div>
 
                                           </div>
@@ -6704,7 +6758,8 @@ export default class Main extends React.Component {
                                             </div>
 
                                             <div>
-                                              <Line data={ data}/>
+                                              <Line data={ data}
+                                              />
                                             </div>
                                           </TabPanel>
                                           <TabPanel>
@@ -6712,6 +6767,8 @@ export default class Main extends React.Component {
 
                                               <div className="col-md-6  text-center">
                                                 <img src={bascule} style={{width:"50%"}}/>
+
+
                                               </div>
                                               <div className="col-md-6 p-1" style={{borderColor:"black",borderStyle:"solid",borderRadius:8,borderWidth:0.8}}>
                                                 <div className="row align-items-center">
@@ -6736,6 +6793,8 @@ export default class Main extends React.Component {
                                                 </div>
 
                                                 <div style={{marginTop:"20%"}}>
+
+
                                                   <div className="row mt-2">
                                                     <div className="col-md-6">
                                                       <FormControl fullWidth  variant="outlined">
@@ -6771,8 +6830,11 @@ export default class Main extends React.Component {
                                             <div className="mt-2">
                                               <h4>
                                                 Evolution de mes mensurations
+
                                               </h4>
+
                                             </div>
+
                                             <div>
                                               <Line data={ data}
                                               />
@@ -6785,272 +6847,25 @@ export default class Main extends React.Component {
 
 
                                   </TabPanel>
-                                  <TabPanel>
-                                    <div className="row align-items-start mt-3">
-                                      <div className="col-md-6 text-left">
-                                        <div>
-                                          <text style={{fontWeight:"bold",fontSize:"1.2vw"}}>
-                                            Généraliste
-                                          </text>
-                                        </div>
-                                        <div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-4">
-                                              <text className="font-weight-bold">
-                                                Souhait sur Cuisine
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                J'aime cuisiner
-                                              </text>
 
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-4">
-                                              <text className="font-weight-bold">
-                                                Mon alimentation est
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                Trop riche
-                                              </text>
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-4">
-                                              <text className="font-weight-bold">
-                                                Mon budget alimentaire
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                {"< 30 euros"}
-                                              </text>
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-4">
-                                              <text className="font-weight-bold">
-                                                Est ce que vous grignotez :
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                Oui
-                                              </text>
-
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-4">
-                                              <text className="font-weight-bold">
-                                                Vous sautez des repas ?
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                Parfois
-                                              </text>
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-4">
-                                              <text className="font-weight-bold">
-                                                Lequel ?
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                Petit déjeuner
-                                              </text>
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-
-                                        </div>
-
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="text-left">
-                                          <text style={{fontWeight:"bold",fontSize:"1.2vw"}}>
-                                            Habitudes alimentaires actuelles
-                                          </text>
-                                        </div>
-                                        <div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-5 text-left">
-                                              <text className="font-weight-bold">
-                                                Les Féculents pour moi, c’est :
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                2 à 3 portions par jour
-                                              </text>
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-5 text-left">
-                                              <text className="font-weight-bold">
-                                                Les fruits , c’est :
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                0 à 1 portion par jour
-                                              </text>
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-5 text-left">
-                                              <text className="font-weight-bold">
-                                                La viande, poisson, c’est
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                2 à 3 portions par jour
-                                              </text>
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-5 text-left">
-                                              <text className="font-weight-bold">
-                                                Les produits laitiers, c’est
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                0 à 1 portion par jour
-                                              </text>
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-5 text-left">
-                                              <text className="font-weight-bold">
-                                                La consommation produit gras
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                2-3 fois par semaine
-                                              </text>
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-5 text-left">
-                                              <text className="font-weight-bold">
-                                                Les produits sucrés c’est
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                Tous les jours
-                                              </text>
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-                                          <div className="row justify-content-start mt-3">
-                                            <div className="col-md-5 text-left">
-                                              <text className="font-weight-bold">
-                                                La consommation d’alcool c’est:
-                                              </text>
-                                            </div>
-                                            <div className="col-md-4" style={{backgroundColor:"#2eba5f"}}>
-                                              <text style={{color:"white"}}>
-                                                le week-end ou jour de fete
-                                              </text>
-
-                                            </div>
-                                            <div className="col-md-1">
-                                              <img src={edit} style={{width:"100%"}}/>
-                                            </div>
-
-                                          </div>
-
-                                        </div>
-                                      </div>
-
-                                    </div>
-                                  </TabPanel>
                                   <TabPanel>
                                     <div className="col-md-12 text-left mt-5">
                                       <div>
                                         <text className="font-weight-bold" style={{fontSize:"1.2vw"}}>
-                                          Habitudes spprtives
+                                          Habitudes sportives
                                         </text>
 
                                       </div>
                                       <div className="row align-items-center mt-3 justify-content-start">
                                         <div className="col-md-4 " >
                                           <text >
-                                            Par jour, vous faite 30 min d'activités
+                                            Activité sportive par jours
                                           </text>
 
                                         </div>
-                                        <div className="col-md-4 text-center " style={{backgroundColor:"#2eba5f"}}>
+                                        <div className="col-md-4 text-center " style={{backgroundColor:"#ff0000"}}>
                                           <text style={{color:"white"}}>
-                                            Loisir (jardinage , bricolage randonnées , marche rapide ,velo..)
+                                            {this.state.patientData.activite_sportive}
                                           </text>
 
                                         </div>
@@ -7059,15 +6874,15 @@ export default class Main extends React.Component {
                                         </div>
                                       </div>
                                       <div className="row align-items-center mt-3 justify-content-start">
-                                        <div className="col-md-4">
-                                          <text>
-                                            Par semaine, l’activité sportive c’est :
+                                        <div className="col-md-4 " >
+                                          <text >
+                                            Activité physique par jours
                                           </text>
 
                                         </div>
-                                        <div className="col-md-4 text-center" style={{backgroundColor:"#2eba5f"}}>
+                                        <div className="col-md-4 text-center " style={{backgroundColor:"#ff0000"}}>
                                           <text style={{color:"white"}}>
-                                            de  1 a 2h
+                                            {this.state.patientData.activite_physique}
                                           </text>
 
                                         </div>
@@ -7075,19 +6890,20 @@ export default class Main extends React.Component {
                                           <img src={edit} style={{width:20}}/>
                                         </div>
                                       </div>
+
                                     </div>
                                   </TabPanel>
                                   <TabPanel>
                                     <div  className="row align-items-center mt-3">
                                       <div className="col-md-2 text-left">
                                         <text>
-                                          Travail en heure décalée
+                                          How much Pensez-vous expérimenter du stress ?
                                         </text>
 
                                       </div>
-                                      <div className="col-md-2 text-center" style={{backgroundColor:"#2eba5f"}}>
+                                      <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
                                         <text style={{color:"white"}}>
-                                          Oui
+                                          {this.state.patientData.stress}
                                         </text>
 
                                       </div>
@@ -7098,13 +6914,13 @@ export default class Main extends React.Component {
                                     <div  className="row align-items-center mt-3">
                                       <div className="col-md-2 text-left">
                                         <text>
-                                          Mon principale problème :
+                                          Habitudes alimentaires
                                         </text>
 
                                       </div>
-                                      <div className="col-md-2 text-center" style={{backgroundColor:"#2eba5f"}}>
+                                      <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
                                         <text style={{color:"white"}}>
-                                          Circulation
+                                          {this.state.patientData.habitude_alim}
                                         </text>
 
                                       </div>
@@ -7116,21 +6932,17 @@ export default class Main extends React.Component {
                                       <div className="col-md-2 text-left">
                                         <div>
                                           <text >
-                                            Mes autre problémes
+                                            Y-a-t-il des aliments que vous ne consommez pas ?
                                           </text>
                                         </div>
-                                        <div>
-                                          <small>
-                                            ( en ordre décroissant )
-                                          </small>
-                                        </div>
+
 
                                       </div>
                                       <div className="col-md-3 text-center" >
                                         <div className="row justify-content-start">
-                                          <div  className="col-md-9" style={{padding:10,borderStyle:"solid",borderColor:"#2eba5f",borderWidth:0.5,borderRadius:10}}>
-                                            <text style={{color:"#2eba5f"}}>
-                                              Sommeil Fatigue
+                                          <div  className="col-md-9" style={{padding:10,borderStyle:"solid",borderColor:"#ff0000",borderWidth:0.5,borderRadius:10}}>
+                                            <text style={{color:"#ff0000"}}>
+                                              {this.state.patientData.complement_alimentaire}
                                             </text>
 
 
@@ -7139,50 +6951,7 @@ export default class Main extends React.Component {
                                             <img src={edit} style={{width:20}}/>
                                           </div>
                                         </div>
-                                        <div className="row justify-content-start align-items-center mt-2">
-                                          <div className="col-md-9"  style={{width:"100%",padding:10,borderStyle:"solid",borderColor:"#2eba5f",borderWidth:0.5,borderRadius:10}}>
-                                            <text style={{color:"#2eba5f"}}>
-                                              Digestion Transit
-                                            </text>
 
-                                          </div>
-                                          <div className="col-md-1 ">
-                                            <img src={edit} style={{width:20}}/>
-                                          </div>
-                                        </div>
-                                        <div className="row justify-content-start align-items-center mt-2">
-                                          <div className="col-md-9"  style={{width:"100%",padding:10,borderStyle:"solid",borderColor:"#2eba5f",borderWidth:0.5,borderRadius:10}}>
-                                            <text style={{color:"#2eba5f"}}>
-                                              Rien de tous cela
-                                            </text>
-
-                                          </div>
-                                          <div className="col-md-1 ">
-                                            <img src={edit} style={{width:20}}/>
-                                          </div>
-                                        </div>
-                                        <div className="row justify-content-start align-items-center mt-2">
-                                          <div className="col-md-9"  style={{width:"100%",padding:10,borderStyle:"solid",borderColor:"#2eba5f",borderWidth:0.5,borderRadius:10}}>
-                                            <text style={{color:"#2eba5f"}}>
-                                              Articulation
-                                            </text>
-
-                                          </div>
-                                          <div className="col-md-1 ">
-                                            <img src={edit} style={{width:20}}/>
-                                          </div>
-                                        </div>
-                                        <div className="row justify-content-start align-items-center mt-2">
-                                          <div className="col-md-9"  style={{width:"100%",padding:10,borderStyle:"solid",borderColor:"#2eba5f",borderWidth:0.5,borderRadius:10}}>
-                                            <text style={{color:"#2eba5f"}}>
-                                              Infections répétées
-                                            </text>
-
-                                          </div>
-                                          <div className="col-md-1 ">
-                                            <img src={edit} style={{width:20}}/>
-                                          </div>
-                                        </div>
 
                                       </div>
 
@@ -7190,13 +6959,30 @@ export default class Main extends React.Component {
                                     <div  className="row align-items-center mt-3">
                                       <div className="col-md-2 text-left">
                                         <text>
-                                          Est ce que je fumes ?
+                                          lequels ?
                                         </text>
 
                                       </div>
-                                      <div className="col-md-2 text-center" style={{backgroundColor:"#2eba5f"}}>
+                                      <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
                                         <text style={{color:"white"}}>
-                                          Oui
+                                          {this.state.patientData.lequels}
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-1 ">
+                                        <img src={edit} style={{width:20}}/>
+                                      </div>
+                                    </div>
+                                    <div  className="row align-items-center mt-3">
+                                      <div className="col-md-2 text-left">
+                                        <text>
+                                          "What's your ethnicity?"
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
+                                        <text style={{color:"white"}}>
+                                          {this.state.patientData.ethnicity}
                                         </text>
 
                                       </div>
@@ -7209,13 +6995,13 @@ export default class Main extends React.Component {
                                     <div className="row align-items-center mt-5">
                                       <div className="col-md-3 text-left">
                                         <text>
-                                          Mon objectif principale
+                                          Quels sont vos objectifs pour votre programme 1Food1Me ?
                                         </text>
 
                                       </div>
-                                      <div className="col-md-2 text-center p-1" style={{backgroundColor:"#2eba5f"}}>
+                                      <div className="col-md-2 text-center p-1" style={{backgroundColor:"#ff0000"}}>
                                         <text style={{color:"white"}}>
-                                          Miniceur
+                                          {this.state.patientData.objectif}
                                         </text>
 
                                       </div>
@@ -7224,88 +7010,17 @@ export default class Main extends React.Component {
                                       </div>
 
                                     </div>
-                                    <div className="row align-items-center mt-5">
-                                      <div className="col-md-3 text-left">
-                                        <text>
-                                          Ma principale motivation
-                                        </text>
 
-                                      </div>
-                                      <div className="col-md-3 text-center p-1"  style={{backgroundColor:"#2eba5f"}}>
-                                        <text style={{color:"white"}}>
-                                          Détoxiquer mon organisme
-                                        </text>
-
-                                      </div>
-                                      <div className="col-md-1 ">
-                                        <img src={edit} style={{width:20}}/>
-                                      </div>
-
-                                    </div>
-                                    <div  className="row align-items-start mt-3">
-                                      <div className="col-md-3 text-left">
-                                        <div>
-                                          <text >
-                                            Mes autres motivations :
-                                          </text>
-                                        </div>
-                                        <div>
-                                          <small>
-                                            ( en ordre décroissant )
-                                          </small>
-                                        </div>
-
-                                      </div>
-                                      <div className="col-md-3 text-center" >
-                                        <div className="row justify-content-start align-items-center">
-                                          <div className="col-md-10"  style={{padding:10,borderStyle:"solid",borderColor:"#2eba5f",borderWidth:0.5,borderRadius:10}}>
-                                            <text style={{color:"#2eba5f"}}>
-                                              Retrouver un confort digestif
-                                            </text>
-
-                                          </div>
-                                          <div className="col-md-1 ">
-                                            <img src={edit} style={{width:20}}/>
-                                          </div>
-                                        </div>
-                                        <div className="row justify-content-start align-items-center mt-2">
-                                          <div className="col-md-10"  style={{padding:10,borderStyle:"solid",borderColor:"#2eba5f",borderWidth:0.5,borderRadius:10}}>
-                                            <text style={{color:"#2eba5f"}}>
-                                              Retrouver du tonus de l'énergie
-                                            </text>
-
-                                          </div>
-                                          <div className="col-md-1 ">
-                                            <img src={edit} style={{width:20}}/>
-                                          </div>
-                                        </div>
-                                        <div className="row justify-content-start align-items-center mt-2">
-                                          <div className="col-md-10"  style={{padding:10,borderStyle:"solid",borderColor:"#2eba5f",borderWidth:0.5,borderRadius:10}}>
-                                            <text style={{color:"#2eba5f"}}>
-                                              Mieux dormir
-                                            </text>
-
-                                          </div>
-                                          <div className="col-md-1 ">
-                                            <img src={edit} style={{width:20}}/>
-                                          </div>
-                                        </div>
-                                        <div className="row justify-content-start align-items-center mt-2">
-                                          <div className="col-md-10"  style={{padding:10,borderStyle:"solid",borderColor:"#2eba5f",borderWidth:0.5,borderRadius:10}}>
-                                            <text style={{color:"#2eba5f"}}>
-                                              Manger équilibrer en évitant les carences
-                                            </text>
-
-                                          </div>
-                                          <div className="col-md-1 ">
-                                            <img src={edit} style={{width:20}}/>
-                                          </div>
-                                        </div>
-
-                                      </div>
-
-                                    </div>
                                   </TabPanel>
+                                  <TabPanel>
+                                    {(this.state.selectedProspect.access_token_google!=""&&this.state.selectedProspect.access_token_google!=null)?
+                                        <Dashboard user={this.state.selectedProspect}/>:
+                                        <div className="text-center">
+                                          <h3>les données de google fit indisponible</h3>
+                                        </div>
+                                    }
+                                  </TabPanel>
+
                                 </Tabs>
                               </div>
                             }

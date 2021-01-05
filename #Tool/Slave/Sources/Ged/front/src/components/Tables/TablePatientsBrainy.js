@@ -182,15 +182,29 @@ export default function TablePatientsBrainy(props) {
                                         </td>
                                         <td className="text-center" style={{ width: "5%" }} >
 
-                                            <Checkbox
+                                            {
+                                                item.access_token_google===""|| item.access_token_google===null ?
+                                                    <Checkbox
 
-                                                onChange={(e)=>{console.log(e.target.checked)}}
-                                                style={{color:"black"}}
 
-                                                size="medium"
+                                                        onChange={(e)=>{props.mailCapteurs(item.email,item.id_user)}}
+                                                        style={{color:"black"}}
 
-                                            />
+                                                        size="medium"
 
+                                                    />
+                                                    :
+                                                    <Checkbox
+                                                        checked={true}
+                                                        onChange={(e)=>{console.log(item.access_token_google)}}
+                                                        style={{color:"#07b550"}}
+
+                                                        size="medium"
+
+                                                    />
+
+
+                                            }
 
 
                                         </td>

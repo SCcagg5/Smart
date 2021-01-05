@@ -46,6 +46,26 @@ let  PatientService = {
         });
 
     },
+    getPatientbyId(id){
+
+        return fetch(endpoint+'PatientById/'+id, {
+            method: 'GET',
+            headers:this.loadHeaders(),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+
+    },
+    getDataDashboard(email){
+
+        fetch(endpoint+'questionbyEmail/'+email.trim(),{
+            method:'GET',
+
+        }).then((response)=>response.json()).catch( error =>{
+            console.log(error);
+        });
+
+    },
     UpdatePatient(data) {
         let formBody = [];
         for (let property in data) {
