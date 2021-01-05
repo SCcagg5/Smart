@@ -29,6 +29,7 @@ import SelectSearch from 'react-select-search';
 import main_functions from '../../controller/main_functions';
 import ClearOutlinedIcon from '@material-ui/icons/ClearOutlined';
 import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
+import utilFunctions from "../../tools/functions";
 
 const useRowStyles = makeStyles({
   root: {
@@ -283,8 +284,8 @@ function Row(props) {
           <TableCell align="center">{moment(row.date_facture).format("DD-MM-YYYY")}</TableCell>
           <TableCell align="center">{row.client}</TableCell>
           <TableCell align="center">{row.client_folder.name}</TableCell>
-          <TableCell align="center">{nb_heures.toFixed(2) + " h"}</TableCell>
-          <TableCell align="center">{total + " CHF"}</TableCell>
+          <TableCell align="center">{utilFunctions.formatDuration(nb_heures.toString())}</TableCell>
+          <TableCell align="center">{total.toFixed(2) + " CHF"}</TableCell>
           <TableCell align="center">
           <span className={row.statut === "wait" ? "badge badge-warning text-white p-1" : "badge badge-success text-white p-1"}>
             {row.statut === "wait" ? "En attente" : "Validée"}</span>
@@ -361,7 +362,7 @@ function Row(props) {
                           <TableCell align="center">{lf.newTime.utilisateurOA}</TableCell>
                           <TableCell align="center">{lf.newTime.rateFacturation + " CHF"}</TableCell>
                           <TableCell align="center">
-                            {lf.newTime.duree + " h"}
+                            {utilFunctions.formatDuration(lf.newTime.duree.toString())}
                           </TableCell>
                           <TableCell align="center">
                             {(lf.newTime.duree * parseInt(lf.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF

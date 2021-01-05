@@ -2657,22 +2657,25 @@ export default class Main extends React.Component {
     let id_facture = facture.id
 
     let lignes_factures = lignes_f;
+    let total = 0;
+    lignes_factures.map((ligne, key) => {
+      total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
+    })
     let odoo_data = [{
       'access_token': 'eafd285777ggobfvxyvnx',
-      'state': 'draft',
       'type': 'out_invoice',
-      'invoice_sent': false,
+      /*'invoice_sent': false,*/
       "move_name":false,"user_id":6,"team_id":1,"comment":false,
       'l10n_ch_isr_sent': false,
-      'name': false,
+      'name': false,   //on peut mettre une petite desc sous le titre de la facture avec ce champs
       'invoice_date': moment(facture_date).format('YYYY-MM-DD'),
       'date': moment(facture_date).format('YYYY-MM-DD'),
       'journal_id': 1,
       'currency_id': 5,
       'invoice_user_id': 3,
       'invoice_incoterm_id': false,
-      'auto_post': false,
-      'to_check': false,
+      /*'auto_post': false,
+      'to_check': false,*/
       'authorized_transaction_ids': [
         [
           6,
@@ -2695,10 +2698,9 @@ export default class Main extends React.Component {
       'has_reconciled_entries': false,
       'restrict_mode_hash_table': false,
       'partner_id': facture_company_id,
-      'ref': 121006,
       'invoice_vendor_bill_id': false,
       'invoice_payment_term_id': 1,
-      'invoice_date_due': '2020-09-06',
+      'invoice_date_due': moment(facture_date).format('YYYY-MM-DD'),
       'company_id': 1,
       'amount_untaxed': 0,
       'amount_by_group': [],
@@ -2706,7 +2708,7 @@ export default class Main extends React.Component {
       'invoice_payments_widget': 'False',
       'amount_residual': 0,
       'invoice_outstanding_credits_debits_widget': false,
-      'narration': false,
+      /*'narration': false,*/
       'invoice_origin': false,
       'invoice_cash_rounding_id': false,
       'invoice_source_email': false,
@@ -2722,18 +2724,58 @@ export default class Main extends React.Component {
       "reference": false,
       "fiscal_position_id": false,
       "origin": false,
+      "model":"account.invoice",
+      "method":"create",
+      "kwargs":{
+        "context":{
+          "lang":"fr_CH",
+          "tz":false,
+          "uid":8,
+          "type":"out_invoice",
+          "journal_type":"sale"
+        }
+      },
+      "reference_type":"none",
+      "incoterm_id":false,
+      "sequence_number_next":false,
+      "partner_shipping_id":facture_company_id,
+      "payment_term_id":1,
+      "payment_mode_id":false,
+      "cash_rounding_id":false,
+      "date_invoice":moment(facture_date).format('YYYY-MM-DD'),
+      "date_due":moment(facture_date).format('YYYY-MM-DD'),
+      "partner_bank_id":false,
+      "tax_line_ids":[
+        [
+          0,
+          "virtual_1035",
+          {
+            "analytic_tag_ids":[[6, false, []]],
+            "name":"TVA due à 7.7% (Incl. TN)",
+            "tax_id":14,
+            "account_id":75,
+            "account_analytic_id":false,
+            "amount":(total * 7.7) / 100,
+            "amount_rounding":0,
+            "manual":false,
+            "sequence":0,
+            "currency_id":5
+          }
+        ]
+      ],
+      "no_overdue_reminder":false,
+      "__last_update":false,
       //'line_ids': []
     }];
-    let total = 0;
+
     lignes_factures.map((ligne, key) => {
-      total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
       let OAContact = main_functions.getOAContactByEmail2(this.state.contacts,ligne.newTime.utilisateurOA);
       odoo_data[0].invoice_line_ids.push(
           [
             0,
             'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
             {
-              'account_id': 103,
+              'account_id': 101,  //103
               'sequence': 10,
               'origin': false,
               'name':
@@ -2754,16 +2796,15 @@ export default class Main extends React.Component {
               'credit': ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation),
               'amount_currency': 0,
               'date_maturity': false,
-              'currency_id': false,
               'partner_id': false,
               'product_uom_id': false,
-              'product_id': 2,
+              'product_id': 1,  //2
               'payment_id': false,
               'invoice_line_tax_ids': [
                 [
                   6,
                   false,
-                  []
+                  [14]
                 ]
               ],
               'tax_base_amount': 0,
@@ -2784,10 +2825,13 @@ export default class Main extends React.Component {
                   []
                 ]
               ],
+              "uom_id":1,
               'recompute_tax_line': false,
               'display_type': false,
               'is_rounding_line': false,
-              'exclude_from_invoice_tab': false
+              'exclude_from_invoice_tab': false,
+              "account_analytic_id":false,
+              "currency_id":5
             }
           ]
       );

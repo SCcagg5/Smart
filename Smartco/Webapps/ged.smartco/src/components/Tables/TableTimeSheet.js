@@ -189,7 +189,7 @@ export default function TableTimeSheet(props) {
     let total = 0;
     let nb_heures = 0;
     selected.map((item,key) => {
-        let value = parseInt(item.newTime.rateFacturation) * parseFloat(item.newTime.duree);
+        let value = parseFloat(item.newTime.rateFacturation) * parseFloat(item.newTime.duree);
         total = total + value;
         nb_heures = nb_heures + parseFloat(item.newTime.duree);
     })
@@ -714,8 +714,8 @@ export default function TableTimeSheet(props) {
                         </div>
                     </div>
                     <div className="mt-3" style={{textAlign:"right"}}>
-                        <span className="badge badge-blue text-white p-2 font-16">Total heures: {nb_heures.toFixed(2) + " h"}</span><br/>
-                        <span className="badge badge-blue text-white p-2 font-16" style={{marginTop:7}}>Total: {total+ " CHF"}</span>
+                        <span className="badge badge-blue text-white p-2 font-16">Total heures: {utilFunctions.formatDuration(nb_heures.toString())}</span><br/>
+                        <span className="badge badge-blue text-white p-2 font-16" style={{marginTop:7}}>Total: {total.toFixed(2)+ " CHF"}</span>
                     </div>
                     <div className="mt-3" style={{textAlign:"right"}}>
                         <AtlButton
