@@ -19,7 +19,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import main_functions from "../../controller/main_functions";
 
 const {DirectoryTree} = Tree;
-const db_name = process.env.REACT_APP_RETHINKDB_BEGIN_NAME;
+const db_name = "Majorsante";
 
 export default class Chat extends React.Component {
 

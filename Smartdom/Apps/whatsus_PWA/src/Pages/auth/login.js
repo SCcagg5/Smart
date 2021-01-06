@@ -7,8 +7,8 @@ import SmartService from "../../provider/SmartService";
 import Alert from '@material-ui/lab/Alert';
 
 
-const ent_name = process.env.REACT_APP_ENT_NAME;
-const login_btn_color = process.env.REACT_APP_LOGIN_BTN_COLOR
+const ent_name = "Majorsante";
+const login_btn_color = "#f1556c"
 
 
 
