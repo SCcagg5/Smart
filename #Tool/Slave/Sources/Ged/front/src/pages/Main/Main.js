@@ -4336,6 +4336,47 @@ export default class Main extends React.Component {
     }).catch(err => {console.log(err)})
   }
 
+  moveProspectToClients(prospect){
+    this.setState({loading:true})
+
+    this.verifIsTableExist("annuaire_clients_mandat").then( v => {
+      let newClient = {
+        contactName:prospect.nom + " " + prospect.prenom,
+        societyName:"",
+        type:"1",
+        adress:"",
+        email:prospect.email,
+        phone:prospect.telephone || "",
+        isActif:"true"
+      }
+      newClient.ID = utilFunctions.getUID();
+      newClient.created_at = moment().format("YYYY-MM-DD HH:mm:ss");
+
+      rethink.insert("test",'table("annuaire_clients_mandat").insert('+ JSON.stringify(newClient) + ')',db_name,false).then( resAdd => {
+        if (resAdd && resAdd === true) {
+          this.openSnackbar('success', newClient.contactName + ' est ajouté avec succès ');
+          setTimeout(() => {
+            let findNew = this.state.annuaire_clients_mandat.find(x => x.ID === newClient.ID)
+            this.props.history.push('/home/clients/' + findNew.id);
+            this.setState({
+              loading: false,
+              selectedSociete: findNew,
+              selectedSocieteKey: findNew.id
+            });
+          },500);
+        } else {
+          this.setState({loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+        console.log(err)
+      })
+
+    }).catch(err => {console.log(err)})
+  }
+
   render() {
 
     const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts || [],localStorage.getItem("email"))
@@ -5888,6 +5929,7 @@ export default class Main extends React.Component {
                                           createProspectRoom={(client) => {
                                             this.createProspectRoom(client)
                                           }}
+                                          moveProspectToClients={(prospect) => this.moveProspectToClients(prospect)}
                                       />
                                     }
 

@@ -14,6 +14,10 @@ import LastPageIcon from '@material-ui/icons/LastPage';
 import { Collapse } from 'antd';
 import mailSend from "../../assets/icons/mail-send.svg"
 import loope from "../../assets/icons/loupe.svg"
+import addIcon from "../../assets/icons/add_icon.png"
+
+
+
 const { Panel } = Collapse;
 const useStyles1 = makeStyles((theme) => ({
     root: {
@@ -262,21 +266,34 @@ export default function TablePatientsBrainy(props) {
                                         <td className="text-center" style={{ width: "10%" }} >
                                             <img src={mailSend} style={{width:35,cursor:"pointer"}}/>
                                         </td>
-                                        <td style={{ width: "10%"}}>
+                                        <td style={{ width: "15%"}}>
 
-                                            <div className="row justify-content-center">
-                                                <div className="col-md-auto">
+                                            <div style={{display:"flex"}}>
+                                                <div style={{margin:3}}>
+                                                    <img src={addIcon}  onClick={()=>{
+                                                        const r = window.confirm(
+                                                            'Voulez-vous vraiment ajouter ce "Prospect" à la liste des clients mandat ?'
+                                                        );
+                                                        if (r === true) {
+                                                            props.moveProspectToClients(item)
+                                                        }else{
+                                                        }
+                                                    }}
+                                                         style={{width:45,height:45,cursor:"pointer",marginTop:-8}}
+                                                    >
+                                                    </img>
+                                                </div>
+                                                <div style={{margin:3}}>
                                                     <img src={loope}  onClick={()=>{
                                                         props.onEditClick(item,key)
                                                         props.getDataDashboard(item.email)
                                                         props.bodycheckNl(item.email)}}
                                                          style={{width:30,height:30,cursor:"pointer"}}
                                                     >
-
                                                     </img>
                                                 </div>
-                                                <div className="col-md-4">
-                                                    <img src={roomIcon} style={{width:"100%",cursor:"pointer"}}
+                                                <div style={{margin:3}}>
+                                                    <img src={roomIcon} style={{width:30,height:30,cursor:"pointer"}}
                                                          onClick={()=> {
                                                              const r = window.confirm(
                                                                  'Voulez-vous vraiment créer un espace Room avec ce client ?'
@@ -284,7 +301,6 @@ export default function TablePatientsBrainy(props) {
                                                              if (r === true) {
                                                                  props.createProspectRoom(item)
                                                              }else{
-
                                                              }
                                                          }}
                                                     />
