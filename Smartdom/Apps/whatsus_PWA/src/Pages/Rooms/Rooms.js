@@ -4,7 +4,7 @@ import SmartService from "../../provider/SmartService";
 import rethink from "../../controller/rethink";
 import TopBar from "../../Components/TopBar/TopBar";
 
-const db_name = "Majorsante";
+const db_name = "c116081d-3145-4dc3-b2df-5ac2bde13e9d";
 
 export default class Rooms extends React.Component{
 
