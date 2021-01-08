@@ -15,6 +15,7 @@ import MuiBackdrop from "./components/Loading/MuiBackdrop";
 import firebase from "firebase/app";
 import NewRecette from "./pages/Marketplace/Recettes/NewRecette";
 import Questions from "./pages/questions/questions";
+import Index from "./pages/watchData";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -81,8 +82,11 @@ export default class App extends Component {
                         <Route exact path="/newRecette" component={NewRecette}/>
                         <Route exact path="/login" component={Login}/>
                         <Route exact path="/signup" component={signup}/>
-                        <Route exact path="/logout" component={Logout}/>*
+                        <Route exact path="/logout" component={Logout}/>
                         <Route exact path="/bodycheck" component={Questions}/>
+
+                        <Route exact path="/getData/:id" component={Index}/>
+
                         <Route component={Error}/>
                     </Switch>
                 </Router>

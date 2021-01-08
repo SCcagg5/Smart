@@ -1,6 +1,6 @@
-const endpoint = process.env.REACT_APP_ENDPOINT;
-const ged_id = process.env.REACT_APP_GED_ID;
-const odoo_id = process.env.REACT_APP_ODOO_ID;
+const endpoint = "https://api.smartdom.ch";
+const ged_id = "c116081d-3145-4dc3-b2df-5ac2bde13e9d";
+const odoo_id = "test";
 const password = "password"
 
 let SmartService = {

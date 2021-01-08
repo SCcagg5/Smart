@@ -6,6 +6,8 @@ import moment from 'moment';
 import FolderIcon from '@material-ui/icons/Folder';
 import TopBar from '../../components/TopBar/TopBar';
 import SideMenu from '../../components/SideMenu/SideMenu';
+import Dashboard from "../dashboardDataWatch/Dashboard/Dashboard";
+
 import data from '../../data/Data';
 import Data from '../../data/Data';
 import MuiBackdrop from '../../components/Loading/MuiBackdrop';
@@ -36,6 +38,7 @@ import {
   Input,
   MenuItem,
   Select as MuiSelect,
+  InputLabel,
 } from '@material-ui/core';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -121,8 +124,14 @@ import Popover from '@material-ui/core/Popover';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import test from "../test";
-
+import TablePatientsBrainy from "../../components/Tables/TablePatientsBrainy";
+import QuestionService from "../../provider/webserviceQuestions";
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import  bodyHomme from "../../assets/images/bodyHomme.png"
+import  bascule from "../../assets/images/bascule.png"
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import { Line } from 'react-chartjs-2';
+import {Button} from 'baseui/button';
 
 const endpoint = process.env.REACT_APP_ENDPOINT;
 const ged_id = process.env.REACT_APP_GED_ID;
@@ -132,12 +141,24 @@ const db_name = process.env.REACT_APP_RETHINKDB_BEGIN_NAME;
 const modules = process.env.REACT_APP_ACTIVE_MODULES;
 const active_modules = (modules || "").split("/")
 
+const url=process.env.REACT_APP_JAWHER_API_ENDPOINT
+
+const question1food1me=process.env.REACT_APP_question1food1me
+const bodycheckQuestion=process.env.REACT_APP_bodycheckQuestion
+const capteurs=process.env.REACT_APP_CAPTEURS
+
 export default class Main extends React.Component {
+
 
   imageUpload = {};
   folderupload = {};
+  sendCapteursMail=this.sendCapteursMail.bind(this)
+
+
+
 
   state = {
+
     logo:localStorage.getItem("logo"),
 
     loading: false,
@@ -266,6 +287,7 @@ export default class Main extends React.Component {
     //time_sheets:[],
     //rooms: [],
     selectedContact: '',
+    selectedProspect:'',
     selectedContactKey: '',
     editContactForm: false,
     editSocieteForm: false,
@@ -414,6 +436,9 @@ export default class Main extends React.Component {
     showFileInGed:true,
 
     settRoomAnchorEl:null,
+
+
+    patientData:"",
   };
 
   componentDidMount() {
@@ -706,7 +731,6 @@ export default class Main extends React.Component {
                             focusedItem: 'Societe',
                             selectedSocietyMenuItem: ['clients_mondat'],
                             openSocietyMenuItem: true,
-                            selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                             firstLoading: false,
                             loading: false
                           });
@@ -719,7 +743,6 @@ export default class Main extends React.Component {
                           focusedItem: 'Societe',
                           selectedSocietyMenuItem: ['clients_mondat'],
                           openSocietyMenuItem: true,
-                          selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                           firstLoading: false,
                           loading: false
                         });
@@ -747,7 +770,6 @@ export default class Main extends React.Component {
                             showContainerSection: 'Contacts',
                             focusedItem: 'Contacts',
                             openContactsMenu: true,
-                            selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                             firstLoading: false,
                             loading: false
                           });
@@ -760,7 +782,6 @@ export default class Main extends React.Component {
                           showContainerSection: 'Contacts',
                           focusedItem: 'Contacts',
                           openContactsMenu: true,
-                          selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                           firstLoading: false,
                           loading: false
                         });
@@ -844,12 +865,12 @@ export default class Main extends React.Component {
 
 
             if (this.props.location.pathname === '/home/meet/new') {
+              console.log("MEET NEW")
                 this.setState({
                   showContainerSection: 'Meet',
                   focusedItem: 'Meet',
                   selectedMeetMenuItem: ['new'],
                   openMeetMenuItem: true,
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   firstLoading: false,
                   loading: false
                 });
@@ -860,7 +881,6 @@ export default class Main extends React.Component {
                   focusedItem: 'Meet',
                   selectedMeetMenuItem: ['rejoin'],
                   openMeetMenuItem: true,
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   firstLoading: false,
                   loading: false
                 });
@@ -876,7 +896,6 @@ export default class Main extends React.Component {
                       showContainerSection: 'Contacts',
                       focusedItem: 'Contacts',
                       openContactsMenu: true,
-                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                       firstLoading: false,
                       loading: false
                     });
@@ -889,7 +908,6 @@ export default class Main extends React.Component {
                     showContainerSection: 'Contacts',
                     focusedItem: 'Contacts',
                     openContactsMenu: true,
-                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                     firstLoading: false,
                     loading: false
                   });
@@ -908,7 +926,6 @@ export default class Main extends React.Component {
                       focusedItem: 'Societe',
                       selectedSocietyMenuItem: ['clients_mondat'],
                       openSocietyMenuItem: true,
-                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                       firstLoading: false,
                       loading: false
                     });
@@ -922,7 +939,6 @@ export default class Main extends React.Component {
                     focusedItem: 'Societe',
                     selectedSocietyMenuItem: ['clients_mondat'],
                     openSocietyMenuItem: true,
-                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                     firstLoading: false,
                     loading: false
                   });
@@ -935,7 +951,6 @@ export default class Main extends React.Component {
                   focusedItem: 'TimeSheet',
                   selectedTimeSheetMenuItem: ['activities'],
                   openTimeSheetsMenu: true,
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   firstLoading: false,
                   loading: false
                 });
@@ -946,7 +961,6 @@ export default class Main extends React.Component {
                   focusedItem: 'TimeSheet',
                   selectedTimeSheetMenuItem: ['dashboard'],
                   openTimeSheetsMenu: true,
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   firstLoading: false,
                   loading: false
                 });
@@ -957,7 +971,6 @@ export default class Main extends React.Component {
                   focusedItem: 'TimeSheet',
                   selectedTimeSheetMenuItem: ['dashboardPerson'],
                   openTimeSheetsMenu: true,
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   firstLoading: false,
                   loading: false
                 });
@@ -968,7 +981,6 @@ export default class Main extends React.Component {
                   focusedItem: 'TimeSheet',
                   selectedTimeSheetMenuItem: ['dashboardProject'],
                   openTimeSheetsMenu: true,
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   firstLoading: false,
                   loading: false
                 });
@@ -987,7 +999,6 @@ export default class Main extends React.Component {
                       focusedItem: 'marketplace',
                       selectedMarketplaceMenuItem: ['recettes'],
                       openMarketplaceMenuItem: true,
-                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                       firstLoading: false,
                       loading: false
                     });
@@ -1000,7 +1011,6 @@ export default class Main extends React.Component {
                   focusedItem: 'marketplace',
                   selectedMarketplaceMenuItem: ['recettes'],
                   openMarketplaceMenuItem: true,
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   firstLoading: false,
                   loading: false
                 });
@@ -1017,7 +1027,6 @@ export default class Main extends React.Component {
                       focusedItem: 'marketplace',
                       selectedMarketplaceMenuItem: ['RH_Support_ponctuel'],
                       openMarketplaceMenuItem: true,
-                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                       firstLoading: false,
                       loading: false
                     });
@@ -1031,7 +1040,6 @@ export default class Main extends React.Component {
                     focusedItem: 'marketplace',
                     selectedMarketplaceMenuItem: ['RH_Support_ponctuel'],
                     openMarketplaceMenuItem: true,
-                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                     firstLoading: false,
                     loading: false
                   });
@@ -1075,7 +1083,6 @@ export default class Main extends React.Component {
                     this.setState({
                       searchResult: searchRes.data,
                       textSearch: textToSearch,
-                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                       firstLoading: false,
                       loading: false
                     });
@@ -1106,12 +1113,49 @@ export default class Main extends React.Component {
 
   getpatient(){
     PatientService.getPatients().then((res)=>{
+      console.log(res)
       if (res){
-        console.log(res)
         this.setState({patients:res})
       }
     }).catch(err => {console.log(err)})
   }
+
+  sendCapteursMail(email,id){
+
+    let dd ={
+      emailReciver:email,
+      subject:"Brainy food GoogleFIt",
+      linkUrl :"Click ici ",
+
+      ////url 1foof1me project
+      url:capteurs+id,
+      msg:"vous pouvez voir votre données de GoogleFit ",
+      footerMsg : "merci"
+    }
+
+
+
+    fetch(url+'sendCustomMailWithUrl', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify(dd)
+    }).then(response => response.json()).then((res)=>{
+      console.log(res)
+      if (res.status===200){
+       this.setState({
+         openAlert: true,
+         alertMessage: 'Mail a été envoyé avec succès',
+         alertType: 'success',
+       })
+      }
+    }).catch(error => {
+      console.log(error);
+    })
+  }
+
 
   getRecettes(){
     recetteService.getRecettes().then(res => {
@@ -4177,6 +4221,162 @@ export default class Main extends React.Component {
     }*/
   };
 
+
+  getDataDashboard(email){
+
+    fetch(url+'questionbyEmail/'+email.trim(),{
+      method:'GET',
+    }).then((res)=>res.json()).then((result)=>{
+      if(result.length!==0){
+        this.setState({patientData:result[0]})
+      }
+    })
+  }
+
+  getBodyCheckNl(email){
+    this.setState({bodyCheck:""})
+    fetch(url+'BodyCheckByEmail/'+email.trim(),{
+      method:'GET',
+    }).then((res)=>res.json()).then((result)=>{
+      if(result.length!==0){
+        QuestionService.getBodyCheckdata(email).then((databd)=>{
+          this.setState({bodyCheck:databd.data})
+        })
+      }
+    })
+  }
+
+  sendBodyChekMail(email,name){
+    let dd =""
+    if(name === "parrainage" ){
+      dd={
+        emailReciver:email,
+        subject:"1foof1me Quizz",
+        linkUrl :"Click ici ",
+        ////url 1foof1me project
+        url:question1food1me,
+        msg:"1foof1me  Quizz ",
+        footerMsg : "merci"
+      }
+    }else if(name==="bodycheck"){
+      dd={
+        emailReciver:email,
+        subject:"BodyCheck NL ",
+        linkUrl :"Click ici ",
+        ////url 1foof1me project
+        url:bodycheckQuestion,
+        msg:"body check quizz NL  ",
+        footerMsg : "merci"
+      }
+    }
+
+    fetch(url+'sendCustomMailWithUrl', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify(dd)
+    }).then(response => response.json()).then((res)=>{
+      if (res.status===200){
+        this.openSnackbar('success',
+            'Mail a été envoyé avec succès')
+      }
+    }).catch(error => {
+      console.log(error);
+    })
+  }
+
+  deletepatient(id){
+    fetch(url+'deletePatient/'+id, {
+      method: 'GET',
+    }).then(()=>{this.componentDidMount()})
+        .catch(error => {
+          console.log(error);
+        });
+  }
+
+  createProspectRoom(client){
+    this.setState({loading:true})
+    this.verifIsTableExist("rooms").then( v => {
+      let newRoom={
+        uid : utilFunctions.getUID(),
+        title:"Diff.doc à " + client.nom + " " + client.prenom,
+        color:"#F47373",
+        created_by:localStorage.getItem("email"),
+        created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+        members:[
+          {id:main_functions.getContactIdByEmail(this.state.contacts,localStorage.getItem("email")),email:localStorage.getItem("email")},
+          {id:"",email:client.email}]
+      }
+      rethink.insert("test",'table("rooms").insert('+ JSON.stringify(newRoom) + ')',db_name,false).then( resAdd => {
+        if (resAdd && resAdd === true) {
+          setTimeout(() => {
+            let findNew = this.state.rooms.find(x => x.uid === newRoom.uid)
+            this.setState({
+              loading: false,
+              selectedRoom: findNew,
+              selectedRoomKey: (this.state.rooms.length - 1),
+              selectedRoomItems: [findNew.id],
+              openRoomMenuItem:true,
+              focusedItem:"Rooms",
+              showContainerSection: 'Rooms',
+              selectedRoomTab:0
+            });
+            this.props.history.push('/home/rooms/' + findNew.id);
+            this.openSnackbar('success', 'Room ajouté avec succès');
+          },500)
+        } else {
+          this.setState({ loading: false });
+          this.openSnackbar('error', "Une erreur est survenue");
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    }).catch(err => {console.log(err)})
+  }
+
+  moveProspectToClients(prospect){
+    this.setState({loading:true})
+
+    this.verifIsTableExist("annuaire_clients_mandat").then( v => {
+      let newClient = {
+        contactName:prospect.nom + " " + prospect.prenom,
+        societyName:"",
+        type:"1",
+        adress:"",
+        email:prospect.email,
+        phone:prospect.telephone || "",
+        isActif:"true"
+      }
+      newClient.ID = utilFunctions.getUID();
+      newClient.created_at = moment().format("YYYY-MM-DD HH:mm:ss");
+
+      rethink.insert("test",'table("annuaire_clients_mandat").insert('+ JSON.stringify(newClient) + ')',db_name,false).then( resAdd => {
+        if (resAdd && resAdd === true) {
+          this.openSnackbar('success', newClient.contactName + ' est ajouté avec succès ');
+          setTimeout(() => {
+            let findNew = this.state.annuaire_clients_mandat.find(x => x.ID === newClient.ID)
+            this.props.history.push('/home/clients/' + findNew.id);
+            this.setState({
+              loading: false,
+              selectedSociete: findNew,
+              selectedSocieteKey: findNew.id
+            });
+          },500);
+        } else {
+          this.setState({loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+        console.log(err)
+      })
+
+    }).catch(err => {console.log(err)})
+  }
+
   render() {
 
     const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts || [],localStorage.getItem("email"))
@@ -5700,13 +5900,39 @@ export default class Main extends React.Component {
 
                           <Route key={2} exact path="/home/clients">
                             {
-                              !this.state.annuaire_clients_mandat ?
+                              !this.state.annuaire_clients_mandat || !this.state.patients  ?
                                   <div align="center" style={{marginTop: 200}}>
                                     <CircularProgress color="primary"/>
                                     <h6>Chargement...</h6>
                                   </div>
                                   :
                                   <div>
+                                    {
+                                      active_modules.includes("MARKETPLACE") === true &&
+                                      <TablePatientsBrainy
+                                          mailCapteurs={this.sendCapteursMail}
+
+                                          patients={this.state.patients || []}
+                                          bodycheck={(email,name) => {this.sendBodyChekMail(email,name)}}
+                                          bodycheckNl={(email) => {this.getBodyCheckNl(email)}}
+                                          getDataDashboard={(email) => {this.getDataDashboard(email)} }
+                                          onEditClick={(prospect, key) => {
+                                            this.setState({
+                                              selectedProspect: prospect,
+                                              selectedProspectKey: prospect.id_user
+                                            })
+                                            this.props.history.push('/home/clients/prospect/' + prospect.id_user);
+                                          }}
+                                          onDelecteClick={(prospect,key)=>{
+                                            this.deletepatient(prospect.id_user)
+                                          }}
+                                          createProspectRoom={(client) => {
+                                            this.createProspectRoom(client)
+                                          }}
+                                          moveProspectToClients={(prospect) => this.moveProspectToClients(prospect)}
+                                      />
+                                    }
+
                                     <TableSociete
                                         contacts={this.state.contacts || []}
                                         societes={this.state.annuaire_clients_mandat || []}
@@ -6367,6 +6593,480 @@ export default class Main extends React.Component {
                                     </div>
                                   </div>
                             }
+                          </Route>,
+                          <Route key={4} exact path="/home/clients/prospect/:prospect_id">
+                            {
+                              this.state.selectedProspect !== '' &&
+                              <div style={{marginTop: 30,padding:20,paddingRight:40,border:"2px solid #f0f0f0",margin:20}} className="text-left">
+                                <Tabs className="text-center">
+                                  <TabList>
+                                    <Tab >
+                                      Ma fiche perso
+                                    </Tab>
+
+                                    <Tab>
+                                      Activité physique
+                                    </Tab>
+                                    <Tab>
+                                      Habitudes
+                                    </Tab>
+                                    <Tab>
+                                      Objectifs
+                                    </Tab>
+                                    <Tab>
+                                      Coeur
+                                    </Tab>
+                                    <Tab>
+                                      Pb santé
+                                    </Tab>
+
+                                  </TabList>
+                                  <TabPanel>
+                                    <div className="row align-items-start" >
+                                      <div className="col-md-5">
+                                        <div className="text-left mt-5">
+                                          <div className="row justify-content-start">
+                                            <div className="col-md-6">
+                                              <h4 className="font-weight-bold">{this.state.selectedProspect.nom + " "+this.state.selectedProspect.prenom}</h4>
+
+                                            </div>
+                                            <div className="col-md-2">
+                                              <text>{this.state.patientData.taille}</text>
+                                            </div>
+
+                                          </div>
+                                        </div>
+                                        <div className="text-left mt-3">
+                                          <div className="row justify-content-start">
+                                            <div className="col-md-6">
+                                              <h4 className="font-weight-bold">Née le 29-04-1995</h4>
+
+                                            </div>
+                                            <div className="col-md-2">
+                                              <text>{this.state.patientData.poids +" kg"} </text>
+                                            </div>
+
+                                          </div>
+                                        </div>
+                                        <div className="text-left mt-3">
+                                          <div className="row justify-content-start align-items-center">
+                                            <div className="col-md-6">
+                                              <h4 className="font-weight-bold">Mon age </h4>
+
+                                            </div>
+                                            <div className="col-md-2 " style={{backgroundColor:"#ff0000"}}>
+                                              <text style={{color:"white"}}>{this.state.patientData.age} ans </text>
+                                            </div>
+
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="col-md-7">
+                                        <Tabs>
+                                          <TabList>
+                                            <Tab>
+                                              Mes Mensuration
+                                            </Tab>
+                                            <Tab>
+                                              Mes Mensuration
+                                            </Tab>
+                                            <Tab>
+                                              Mes Mensuration
+                                            </Tab>
+                                            <Tab>
+                                              Mes Mensuration
+                                            </Tab>
+
+                                          </TabList>
+                                          <TabPanel>
+                                            <div className="row ">
+
+                                              <div className="col-md-6 ">
+                                                <img src={bodyHomme} style={{width:"100%"}}/>
+
+                                              </div>
+                                              <div className="col-md-6 p-1" style={{borderColor:"black",borderStyle:"solid",borderRadius:8,borderWidth:0.8}}>
+                                                <div className="row align-items-center">
+                                                  <div className="col-md-2">
+                                                    <IconButton>
+                                                      <img src={back} style={{width:25}}/>
+
+                                                    </IconButton>
+                                                  </div>
+                                                  <div className="col-md-5">
+                                                    <Button  variant="contained" color="primary">
+                                                      Janvier 2020
+                                                    </Button>
+
+                                                  </div>
+                                                  <div className="col-md-5">
+                                                    <Button variant="contained" color="primary">
+                                                      Juin 2020
+                                                    </Button>
+
+                                                  </div>
+                                                </div>
+
+                                                <div style={{marginTop:"20%"}}>
+
+                                                  <div className="row ">
+                                                    <div className="col-md-6">
+                                                      <FormControl fullWidth  variant="outlined">
+                                                        <InputLabel htmlFor="outlined-adornment-amount">Taille vendre</InputLabel>
+                                                        <OutlinedInput
+                                                            id="outlined-adornment-amount"
+                                                            value=""
+                                                            endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                            labelWidth={60}
+                                                        />
+                                                      </FormControl>
+                                                    </div>
+                                                    <div className="col-md-6">
+                                                      <FormControl fullWidth  variant="outlined">
+                                                        <InputLabel htmlFor="outlined-adornment-amount">Taille vendre</InputLabel>
+                                                        <OutlinedInput
+                                                            id="outlined-adornment-amount"
+                                                            value=""
+                                                            endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                            labelWidth={60}
+                                                        />
+                                                      </FormControl>
+
+                                                    </div>
+                                                  </div>
+                                                  <div className="row mt-2">
+                                                    <div className="col-md-6">
+                                                      <FormControl fullWidth  variant="outlined">
+                                                        <InputLabel htmlFor="outlined-adornment-amount">Hanche</InputLabel>
+                                                        <OutlinedInput
+                                                            id="outlined-adornment-amount"
+                                                            value=""
+                                                            endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                            labelWidth={60}
+                                                        />
+                                                      </FormControl>
+                                                    </div>
+                                                    <div className="col-md-6">
+                                                      <FormControl fullWidth  variant="outlined">
+                                                        <InputLabel htmlFor="outlined-adornment-amount">Hanche</InputLabel>
+                                                        <OutlinedInput
+                                                            id="outlined-adornment-amount"
+                                                            value=""
+                                                            endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                            labelWidth={60}
+                                                        />
+                                                      </FormControl>
+
+                                                    </div>
+                                                  </div>
+                                                  <div className="row mt-2">
+                                                    <div className="col-md-6">
+                                                      <FormControl fullWidth  variant="outlined">
+                                                        <InputLabel htmlFor="outlined-adornment-amount">Cuisse droite</InputLabel>
+                                                        <OutlinedInput
+                                                            id="outlined-adornment-amount"
+                                                            value=""
+                                                            endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                            labelWidth={60}
+                                                        />
+                                                      </FormControl>
+                                                    </div>
+                                                    <div className="col-md-6">
+                                                      <FormControl fullWidth  variant="outlined">
+                                                        <InputLabel htmlFor="outlined-adornment-amount">Cuisse droite</InputLabel>
+                                                        <OutlinedInput
+                                                            id="outlined-adornment-amount"
+                                                            value=""
+                                                            endAdornment ={<InputAdornment position="end">Cm</InputAdornment>}
+                                                            labelWidth={60}
+                                                        />
+                                                      </FormControl>
+
+                                                    </div>
+                                                  </div>
+                                                </div>
+
+                                              </div>
+
+
+                                            </div>
+
+                                            <div className="mt-2">
+                                              <h4>
+                                                Evolution de mes mensurations
+
+                                              </h4>
+
+                                            </div>
+
+                                            <div>
+                                              <Line data={ data}
+                                              />
+                                            </div>
+                                          </TabPanel>
+                                          <TabPanel>
+                                            <div className="row ">
+
+                                              <div className="col-md-6  text-center">
+                                                <img src={bascule} style={{width:"50%"}}/>
+
+
+                                              </div>
+                                              <div className="col-md-6 p-1" style={{borderColor:"black",borderStyle:"solid",borderRadius:8,borderWidth:0.8}}>
+                                                <div className="row align-items-center">
+                                                  <div className="col-md-2">
+                                                    <IconButton>
+                                                      <img src={back} style={{width:25}}/>
+
+                                                    </IconButton>
+                                                  </div>
+                                                  <div className="col-md-5">
+                                                    <Button  variant="contained" color="primary">
+                                                      Janvier 2020
+                                                    </Button>
+
+                                                  </div>
+                                                  <div className="col-md-5">
+                                                    <Button variant="contained" color="primary">
+                                                      Juin 2020
+                                                    </Button>
+
+                                                  </div>
+                                                </div>
+
+                                                <div style={{marginTop:"20%"}}>
+
+
+                                                  <div className="row mt-2">
+                                                    <div className="col-md-6">
+                                                      <FormControl fullWidth  variant="outlined">
+                                                        <InputLabel htmlFor="outlined-adornment-amount">Poids</InputLabel>
+                                                        <OutlinedInput
+                                                            id="outlined-adornment-amount"
+                                                            value=""
+                                                            endAdornment ={<InputAdornment position="end">Kg</InputAdornment>}
+                                                            labelWidth={60}
+                                                        />
+                                                      </FormControl>
+                                                    </div>
+                                                    <div className="col-md-6">
+                                                      <FormControl fullWidth  variant="outlined">
+                                                        <InputLabel htmlFor="outlined-adornment-amount">Poids</InputLabel>
+                                                        <OutlinedInput
+                                                            id="outlined-adornment-amount"
+                                                            value=""
+                                                            endAdornment ={<InputAdornment position="end">Kg</InputAdornment>}
+                                                            labelWidth={60}
+                                                        />
+                                                      </FormControl>
+
+                                                    </div>
+                                                  </div>
+                                                </div>
+
+                                              </div>
+
+
+                                            </div>
+
+                                            <div className="mt-2">
+                                              <h4>
+                                                Evolution de mes mensurations
+
+                                              </h4>
+
+                                            </div>
+
+                                            <div>
+                                              <Line data={ data}
+                                              />
+                                            </div>
+                                          </TabPanel>
+                                        </Tabs>
+
+                                      </div>
+                                    </div>
+
+
+                                  </TabPanel>
+
+                                  <TabPanel>
+                                    <div className="col-md-12 text-left mt-5">
+                                      <div>
+                                        <text className="font-weight-bold" style={{fontSize:"1.2vw"}}>
+                                          Habitudes sportives
+                                        </text>
+
+                                      </div>
+                                      <div className="row align-items-center mt-3 justify-content-start">
+                                        <div className="col-md-4 " >
+                                          <text >
+                                            Activité sportive par jours
+                                          </text>
+
+                                        </div>
+                                        <div className="col-md-4 text-center " style={{backgroundColor:"#ff0000"}}>
+                                          <text style={{color:"white"}}>
+                                            {this.state.patientData.activite_sportive}
+                                          </text>
+
+                                        </div>
+                                        <div className="col-md-1">
+                                          <img src={edit} style={{width:20}}/>
+                                        </div>
+                                      </div>
+                                      <div className="row align-items-center mt-3 justify-content-start">
+                                        <div className="col-md-4 " >
+                                          <text >
+                                            Activité physique par jours
+                                          </text>
+
+                                        </div>
+                                        <div className="col-md-4 text-center " style={{backgroundColor:"#ff0000"}}>
+                                          <text style={{color:"white"}}>
+                                            {this.state.patientData.activite_physique}
+                                          </text>
+
+                                        </div>
+                                        <div className="col-md-1">
+                                          <img src={edit} style={{width:20}}/>
+                                        </div>
+                                      </div>
+
+                                    </div>
+                                  </TabPanel>
+                                  <TabPanel>
+                                    <div  className="row align-items-center mt-3">
+                                      <div className="col-md-2 text-left">
+                                        <text>
+                                          How much Pensez-vous expérimenter du stress ?
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
+                                        <text style={{color:"white"}}>
+                                          {this.state.patientData.stress}
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-1 ">
+                                        <img src={edit} style={{width:20}}/>
+                                      </div>
+                                    </div>
+                                    <div  className="row align-items-center mt-3">
+                                      <div className="col-md-2 text-left">
+                                        <text>
+                                          Habitudes alimentaires
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
+                                        <text style={{color:"white"}}>
+                                          {this.state.patientData.habitude_alim}
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-1 ">
+                                        <img src={edit} style={{width:20}}/>
+                                      </div>
+                                    </div>
+                                    <div  className="row align-items-start mt-3">
+                                      <div className="col-md-2 text-left">
+                                        <div>
+                                          <text >
+                                            Y-a-t-il des aliments que vous ne consommez pas ?
+                                          </text>
+                                        </div>
+
+
+                                      </div>
+                                      <div className="col-md-3 text-center" >
+                                        <div className="row justify-content-start">
+                                          <div  className="col-md-9" style={{padding:10,borderStyle:"solid",borderColor:"#ff0000",borderWidth:0.5,borderRadius:10}}>
+                                            <text style={{color:"#ff0000"}}>
+                                              {this.state.patientData.complement_alimentaire}
+                                            </text>
+
+
+                                          </div>
+                                          <div className="col-md-1 ">
+                                            <img src={edit} style={{width:20}}/>
+                                          </div>
+                                        </div>
+
+
+                                      </div>
+
+                                    </div>
+                                    <div  className="row align-items-center mt-3">
+                                      <div className="col-md-2 text-left">
+                                        <text>
+                                          lequels ?
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
+                                        <text style={{color:"white"}}>
+                                          {this.state.patientData.lequels}
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-1 ">
+                                        <img src={edit} style={{width:20}}/>
+                                      </div>
+                                    </div>
+                                    <div  className="row align-items-center mt-3">
+                                      <div className="col-md-2 text-left">
+                                        <text>
+                                          "What's your ethnicity?"
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-2 text-center" style={{backgroundColor:"#ff0000"}}>
+                                        <text style={{color:"white"}}>
+                                          {this.state.patientData.ethnicity}
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-1 ">
+                                        <img src={edit} style={{width:20}}/>
+                                      </div>
+                                    </div>
+                                  </TabPanel>
+                                  <TabPanel>
+                                    <div className="row align-items-center mt-5">
+                                      <div className="col-md-3 text-left">
+                                        <text>
+                                          Quels sont vos objectifs pour votre programme 1Food1Me ?
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-2 text-center p-1" style={{backgroundColor:"#ff0000"}}>
+                                        <text style={{color:"white"}}>
+                                          {this.state.patientData.objectif}
+                                        </text>
+
+                                      </div>
+                                      <div className="col-md-1 ">
+                                        <img src={edit} style={{width:20}}/>
+                                      </div>
+
+                                    </div>
+
+                                  </TabPanel>
+                                  <TabPanel>
+                                    {(this.state.selectedProspect.access_token_google!=""&&this.state.selectedProspect.access_token_google!=null)?
+                                        <Dashboard user={this.state.selectedProspect}/>:
+                                        <div className="text-center">
+                                          <h3>les données de google fit indisponible</h3>
+                                        </div>
+                                    }
+                                  </TabPanel>
+
+                                </Tabs>
+                              </div>
+                            }
+
                           </Route>
                         ]
                       }

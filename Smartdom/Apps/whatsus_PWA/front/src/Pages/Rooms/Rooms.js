@@ -1,11 +1,10 @@
 import React from "react";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import SmartService from "../../provider/SmartService";
-import main_functions from "../../controller/main_functions";
 import rethink from "../../controller/rethink";
 import TopBar from "../../Components/TopBar/TopBar";
 
-const db_name = process.env.REACT_APP_RETHINKDB_BEGIN_NAME;
+const db_name = "c116081d-3145-4dc3-b2df-5ac2bde13e9d";
 
 export default class Rooms extends React.Component{
 

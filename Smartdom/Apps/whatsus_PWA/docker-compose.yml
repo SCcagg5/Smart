@@ -1,0 +1,42 @@
+version: '3.8'
+
+networks:
+  proxy:
+    external:
+      name: docker-compose_proxy
+
+services:
+    what-build:
+       build:
+         context: .
+         dockerfile: Dockerfile
+         target: builder
+       container_name: what-build
+       volumes:
+         - ./front/:/app
+
+    what:
+       build:
+         context: .
+         dockerfile: Dockerfile
+         target: prod
+       container_name: what
+       restart: always
+       tty: true
+       stdin_open: true
+       expose:
+        - 80
+       volumes:
+         - ./front/prod/:/app
+       networks:
+         - proxy
+       environment:
+         VIRTUAL_HOST: what.1.smartdom.ch
+         VIRTUAL_PORT: 80
+         LETSENCRYPT_HOST: what.1.smartdom.ch
+         LETSENCRYPT_EMAIL: eliot.courtel@gmail.com
+       healthcheck:
+         test: "curl -Ls -o /dev/null -w \"%{http_code}\n%{url_effective}\n\" http://localhost:$$VIRTUAL_PORT"
+         interval: 30s
+         timeout: 3s
+         retries: 2

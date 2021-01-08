@@ -849,7 +849,7 @@ export default function LeftMenuV3(props) {
                     {/*Marketplace*/}
                     {
                         active_modules.includes("MARKETPLACE") === true &&
-                        <div>
+                        <div style={{marginBottom:40}}>
                             <div style={{
                                 cursor: "pointer",
                                 backgroundColor: props.focusedItem === "marketplace" ? "aliceblue" : ""

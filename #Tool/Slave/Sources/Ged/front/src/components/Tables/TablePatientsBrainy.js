@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import deleteIcon from '../../assets/icons/delete.svg'
+import roomIcon from "../../assets/icons/room_icon.jpg"
 import TableCell from '@material-ui/core/TableCell';
 import IconButton from '@material-ui/core/IconButton';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -13,6 +14,10 @@ import LastPageIcon from '@material-ui/icons/LastPage';
 import { Collapse } from 'antd';
 import mailSend from "../../assets/icons/mail-send.svg"
 import loope from "../../assets/icons/loupe.svg"
+import addIcon from "../../assets/icons/add_icon.png"
+
+
+
 const { Panel } = Collapse;
 const useStyles1 = makeStyles((theme) => ({
     root: {
@@ -102,7 +107,7 @@ export default function TablePatientsBrainy(props) {
                                     <div
                                         className="col-md-2 bg-danger text-center "
                                         style={{width: "10%"}}>
-                                        <h4 style={{color: "white",marginTop:5}}>1Food1Me</h4>
+                                        <h4 style={{color: "white",marginTop:5}}>Prospect</h4>
                                     </div>
                                     <hr style={{
                                         backgroundColor: "#a6a6a6",
@@ -181,15 +186,29 @@ export default function TablePatientsBrainy(props) {
                                         </td>
                                         <td className="text-center" style={{ width: "5%" }} >
 
-                                            <Checkbox
+                                            {
+                                                item.access_token_google===""|| item.access_token_google===null ?
+                                                    <Checkbox
 
-                                                onChange={(e)=>{console.log(e.target.checked)}}
-                                                style={{color:"black"}}
 
-                                                size="medium"
+                                                        onChange={(e)=>{props.mailCapteurs(item.email,item.id_user)}}
+                                                        style={{color:"black"}}
 
-                                            />
+                                                        size="medium"
 
+                                                    />
+                                                    :
+                                                    <Checkbox
+                                                        checked={true}
+                                                        onChange={(e)=>{console.log(item.access_token_google)}}
+                                                        style={{color:"#07b550"}}
+
+                                                        size="medium"
+
+                                                    />
+
+
+                                            }
 
 
                                         </td>
@@ -247,20 +266,44 @@ export default function TablePatientsBrainy(props) {
                                         <td className="text-center" style={{ width: "10%" }} >
                                             <img src={mailSend} style={{width:35,cursor:"pointer"}}/>
                                         </td>
-                                        <td style={{ width: "10%"}}>
+                                        <td style={{ width: "15%"}}>
 
-                                            <div className="row justify-content-center">
-                                                <div className="col-md-auto">
-                                                    <img src={loope}  onClick={()=>{props.onEditClick(item,key)
-                                                     props.getDataDashboard(item.email)
-                                                        props.bodycheckNl(item.email)}}
-                                                             style={{width:30,height:30,cursor:"pointer"}} >
-
+                                            <div style={{display:"flex"}}>
+                                                <div style={{margin:3}}>
+                                                    <img src={addIcon}  onClick={()=>{
+                                                        const r = window.confirm(
+                                                            'Voulez-vous vraiment ajouter ce "Prospect" à la liste des clients mandat ?'
+                                                        );
+                                                        if (r === true) {
+                                                            props.moveProspectToClients(item)
+                                                        }else{
+                                                        }
+                                                    }}
+                                                         style={{width:45,height:45,cursor:"pointer",marginTop:-8}}
+                                                    >
                                                     </img>
                                                 </div>
-                                                <div className="col-md-4">
-
-                                                    <img src={deleteIcon} style={{width:"100%",cursor:"pointer"}} onClick={()=>props.onDelecteClick(item,key)}/>
+                                                <div style={{margin:3}}>
+                                                    <img src={loope}  onClick={()=>{
+                                                        props.onEditClick(item,key)
+                                                        props.getDataDashboard(item.email)
+                                                        props.bodycheckNl(item.email)}}
+                                                         style={{width:30,height:30,cursor:"pointer"}}
+                                                    >
+                                                    </img>
+                                                </div>
+                                                <div style={{margin:3}}>
+                                                    <img src={roomIcon} style={{width:30,height:30,cursor:"pointer"}}
+                                                         onClick={()=> {
+                                                             const r = window.confirm(
+                                                                 'Voulez-vous vraiment créer un espace Room avec ce client ?'
+                                                             );
+                                                             if (r === true) {
+                                                                 props.createProspectRoom(item)
+                                                             }else{
+                                                             }
+                                                         }}
+                                                    />
                                                 </div>
 
                                             </div>
