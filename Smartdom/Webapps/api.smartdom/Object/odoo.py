@@ -577,6 +577,19 @@ class odoo:
             return [False, str(inst), 500]
         return [True, {"id": ret}, None]
 
+    def validate_fac(self, data):
+        models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
+        try:
+            ret = models.execute_kw(self.opt['db'],
+                                self.uid,
+                                self.opt['password'],
+                                'account.invoice', 'action_invoice_open',
+                                data, {}
+                                )
+        except Exception as inst:
+            return [False, str(inst), 500]
+        return [True, {"id": ret}, None]
+
     def return_bill(self, id, access_token):
         url = f"{self.opt['url']}/my/invoices/{id}?access_token={access_token}&report_type=pdf"
         response = requests.request("GET", url, headers={}, data={})
