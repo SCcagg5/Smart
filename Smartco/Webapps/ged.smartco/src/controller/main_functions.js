@@ -203,6 +203,12 @@ const getClientID_ByName = (name, clients) => {
   return id;
 };
 
+const getTaxNameById = (taxs,id) => {
+  let find = taxs.find(x => x.id === id);
+  if(find) return find.display_name
+  else return ""
+}
+
 const getOAContactByEmail2 = (contacts, email) => {
   let OAcontact = '';
   contacts.map((contact, key) => {
@@ -633,5 +639,5 @@ const generateGed = () => {
 
 
  export default {renderSearchOption,getTimeSuggestions,icon,getLabel,checkedIcon,getPath,generateGed,buildIndex,
-   changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,getClientID_ByName,
+   changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,getClientID_ByName,getTaxNameById,
    getBreadcumpsPath,getFolderNameById,getFolderTypeById,findClientMondatById,findContactByEmail,findContactByUid,getOAContactByEmail2,getOAContactByUid};

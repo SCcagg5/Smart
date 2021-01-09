@@ -2529,8 +2529,8 @@ export default class Main extends React.Component {
                                            clients_tempo={this.state.clients_cases}
                                            annuaire_clients_mandat={this.state.annuaire_clients_mandat}
                                            sharedFolders={this.state.sharedReelFolders || []}
-                                           validateFacture={(row,key,template,client) => {
-                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client);
+                                           validateFacture={(row,key,template,client,paymTerm,deadline_date) => {
+                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date);
                                            }}
                                            openFacture={(id) => {
                                              this.openPdfModal(id)
@@ -2597,7 +2597,7 @@ export default class Main extends React.Component {
     this.reloadGed()
   }
 
-  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client){
+  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date){
     this.setState({loading:true})
 
     let odoo_companies = this.state.odoo_companies || [];
@@ -2606,7 +2606,7 @@ export default class Main extends React.Component {
 
     if(findCompany){
       facture_company_id = findCompany.odoo_company_id;
-      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id)
+      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date)
 
     }else{
 
@@ -2623,7 +2623,7 @@ export default class Main extends React.Component {
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
 
-                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id)
+                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date)
 
               }else{
                 this.setState({loading:false})
@@ -2653,7 +2653,7 @@ export default class Main extends React.Component {
     }
   }
 
-  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id) {
+  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date) {
     let id_facture = facture.id
 
     let lignes_factures = lignes_f;
@@ -2661,28 +2661,24 @@ export default class Main extends React.Component {
     lignes_factures.map((ligne, key) => {
       total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
     })
+    let acces_token = utilFunctions.getUID();
+
     let odoo_data = [{
-      'access_token': 'eafd285777ggobfvxyvnx',
+      'access_token': acces_token,
       'type': 'out_invoice',
       /*'invoice_sent': false,*/
-      "move_name":false,"user_id":6,"team_id":1,"comment":false,
+      "move_name":false,  //false
+      "user_id":6,
+      "team_id":1,
+      "comment":false,
       'l10n_ch_isr_sent': false,
       'name': false,   //on peut mettre une petite desc sous le titre de la facture avec ce champs
-      'invoice_date': moment(facture_date).format('YYYY-MM-DD'),
-      'date': moment(facture_date).format('YYYY-MM-DD'),
+      'date_invoice': moment(facture_date).format('YYYY-MM-DD'),
+      'date_due': moment(deadline_date).format('YYYY-MM-DD'),
       'journal_id': 1,
       'currency_id': 5,
       'invoice_user_id': 3,
       'invoice_incoterm_id': false,
-      /*'auto_post': false,
-      'to_check': false,*/
-      'authorized_transaction_ids': [
-        [
-          6,
-          false,
-          []
-        ]
-      ],
       'tax_lock_date_message': false,
       'id': false,
       'invoice_payment_state': 'not_paid',
@@ -2700,7 +2696,7 @@ export default class Main extends React.Component {
       'partner_id': facture_company_id,
       'invoice_vendor_bill_id': false,
       'invoice_payment_term_id': 1,
-      'invoice_date_due': moment(facture_date).format('YYYY-MM-DD'),
+      'invoice_date_due': moment(deadline_date).format('YYYY-MM-DD'),
       'company_id': 1,
       'amount_untaxed': 0,
       'amount_by_group': [],
@@ -2724,48 +2720,21 @@ export default class Main extends React.Component {
       "reference": false,
       "fiscal_position_id": false,
       "origin": false,
-      "model":"account.invoice",
-      "method":"create",
-      "kwargs":{
+      /*"kwargs":{
         "context":{
           "lang":"fr_CH",
           "tz":false,
           "uid":8,
           "type":"out_invoice",
-          "journal_type":"sale"
+          "journal_type":"sale",
+          "model":"account.invoice.confirm"
         }
-      },
+      },*/
       "reference_type":"none",
       "incoterm_id":false,
       "sequence_number_next":false,
       "partner_shipping_id":facture_company_id,
-      "payment_term_id":1,
-      "payment_mode_id":false,
-      "cash_rounding_id":false,
-      "date_invoice":moment(facture_date).format('YYYY-MM-DD'),
-      "date_due":moment(facture_date).format('YYYY-MM-DD'),
-      "partner_bank_id":false,
-      "tax_line_ids":[
-        [
-          0,
-          "virtual_1035",
-          {
-            "analytic_tag_ids":[[6, false, []]],
-            "name":"TVA due à 7.7% (Incl. TN)",
-            "tax_id":14,
-            "account_id":75,
-            "account_analytic_id":false,
-            "amount":(total * 7.7) / 100,
-            "amount_rounding":0,
-            "manual":false,
-            "sequence":0,
-            "currency_id":5
-          }
-        ]
-      ],
-      "no_overdue_reminder":false,
-      "__last_update":false,
-      //'line_ids': []
+      "payment_term_id":paymTerm,
     }];
 
     lignes_factures.map((ligne, key) => {
@@ -2775,9 +2744,12 @@ export default class Main extends React.Component {
             0,
             'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
             {
+              "account_analytic_id":false,
               'account_id': 101,  //103
-              'sequence': 10,
-              'origin': false,
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
               'name':
                   template === '0' ? moment(ligne.newTime.date).format('DD/MM/YYYY') :
                       template === '1' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description :
@@ -2785,39 +2757,23 @@ export default class Main extends React.Component {
                               template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
                                   template === '4' ? ligne.newTime.description :
                                       template === '5' ? OAContact.nom + ' ' + OAContact.prenom :
-                                          template === '6' ? ligne.newTime.duree + ' Heures' :
+                                          template === '6' ? ligne.newTime.duree.toFixed(2) + ' Heures' :
                                               template === '7' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
-                                                  template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree + ' Heures' :
-                                                      template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree + ' Heures' : ligne.newTime.description,
-              'quantity': ligne.newTime.duree,
+                                                  template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree.toFixed(2) + ' Heures' :
+                                                      template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree.toFixed(2) + ' Heures' : ligne.newTime.description,
+              'origin': false,
               'price_unit': parseFloat(ligne.newTime.rateFacturation),
-              'discount': 0,
-              'debit': 0,
-              'credit': ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation),
-              'amount_currency': 0,
-              'date_maturity': false,
-              'partner_id': false,
-              'product_uom_id': false,
               'product_id': 1,  //2
-              'payment_id': false,
+              'quantity': ligne.newTime.duree,
+              'sequence': 10,
+              "uom_id":1,
               'invoice_line_tax_ids': [
                 [
                   6,
                   false,
-                  [14]
+                  ligne.tax && ligne.tax !== "" ? [ligne.tax] : []
                 ]
               ],
-              'tax_base_amount': 0,
-              'tax_exigible': true,
-              'tax_repartition_line_id': false,
-              'tag_ids': [
-                [
-                  6,
-                  false,
-                  []
-                ]
-              ],
-              'analytic_account_id': false,
               'analytic_tag_ids': [
                 [
                   6,
@@ -2825,13 +2781,6 @@ export default class Main extends React.Component {
                   []
                 ]
               ],
-              "uom_id":1,
-              'recompute_tax_line': false,
-              'display_type': false,
-              'is_rounding_line': false,
-              'exclude_from_invoice_tab': false,
-              "account_analytic_id":false,
-              "currency_id":5
             }
           ]
       );
@@ -2840,89 +2789,102 @@ export default class Main extends React.Component {
     SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
       console.log(createFactRes)
       if(createFactRes.succes === true && createFactRes.status === 200){
-        SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,"eafd285777ggobfvxyvnx").then(genFactRes => {
 
-          if(genFactRes.succes === true && genFactRes.status === 200){
+        SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+            { data: [[createFactRes.data.id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
+          console.log(validateRes)
+          if(validateRes.succes === true && validateRes.status === 200){
 
-            SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
-              if(resF.succes === true && resF.status === 200){
-                let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+            SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
 
-                SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
-                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+              if(genFactRes.succes === true && genFactRes.status === 200){
 
-                  if(ok.succes === true && ok.status === 200){
+                SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+                  if(resF.succes === true && resF.status === 200){
+                    let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
 
-                    SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                        ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+                    SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
+                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
 
-                      if(updateRes.succes === true && updateRes.status === 200){
+                      if(ok.succes === true && ok.status === 200){
 
-                        let secretariat_folder = this.state.reelFolders.find(x => x.name === "SECRETARIAT");
-                        console.log(secretariat_folder)
-                        if(secretariat_folder){
-                          let compta_secretariat_folder = secretariat_folder.Content.folders.find(x => x.name === "COMPTABILITE");
-                          if(compta_secretariat_folder){
-                            console.log(compta_secretariat_folder)
-                            SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
-                              if(r.succes === true && r.status === 200){
-                                SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                                    r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
-                                  if(updateRes2.succes === true && updateRes2.status === 200){
-                                    this.justReloadGed()
+                        SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                            ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+
+                          if(updateRes.succes === true && updateRes.status === 200){
+
+                            let secretariat_folder = this.state.reelFolders.find(x => x.name === "SECRETARIAT");
+                            console.log(secretariat_folder)
+                            if(secretariat_folder){
+                              let compta_secretariat_folder = secretariat_folder.Content.folders.find(x => x.name === "COMPTABILITE");
+                              if(compta_secretariat_folder){
+                                console.log(compta_secretariat_folder)
+                                SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
+                                  if(r.succes === true && r.status === 200){
+                                    SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                                        r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
+                                      if(updateRes2.succes === true && updateRes2.status === 200){
+                                        this.justReloadGed()
+                                      }else{
+                                        console.log(updateRes2.error)
+                                      }
+                                    }).catch(err => {console.log(err)})
                                   }else{
-                                    console.log(updateRes2.error)
+                                    console.log(r.error)
                                   }
                                 }).catch(err => {console.log(err)})
-                              }else{
-                                console.log(r.error)
                               }
-                            }).catch(err => {console.log(err)})
+                            }
+
+                            let updatedItem = facture;
+                            updatedItem.statut = "accepted";
+                            updatedItem.file_id = ok.data.file_id;
+                            updatedItem.client_folder = {id:client, name:resF.data.name}
+
+                            rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+                              if (updateRes && updateRes === true) {
+
+                                this.justReloadGed();
+                                this.setState({loading:false})
+                                this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+
+                              } else {
+                                this.setState({loading:false})
+                                this.openSnackbar("error","Une erreur est survenue !")
+                              }
+                            }).catch(err => {
+                              this.setState({loading:false})
+                              this.openSnackbar("error","Une erreur est survenue !")
+                              console.log(err)
+                            })
+
+                          }else{
+                            this.openSnackbar("error",updateRes.error)
                           }
-                        }
-
-                        let updatedItem = facture;
-                        updatedItem.statut = "accepted";
-                        updatedItem.file_id = ok.data.file_id;
-                        updatedItem.client_folder = {id:client, name:resF.data.name}
-
-                        rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
-                          if (updateRes && updateRes === true) {
-
-                            this.justReloadGed();
-                            this.setState({loading:false})
-                            this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
-
-                          } else {
-                            this.setState({loading:false})
-                            this.openSnackbar("error","Une erreur est survenue !")
-                          }
-                        }).catch(err => {
-                          this.setState({loading:false})
-                          this.openSnackbar("error","Une erreur est survenue !")
-                          console.log(err)
-                        })
+                        }).catch(err => {console.log(err)})
 
                       }else{
-                        this.openSnackbar("error",updateRes.error)
+                        this.openSnackbar("error",ok.error)
+                        this.setState({loading:false})
                       }
-                    }).catch(err => {console.log(err)})
-
+                    }).catch(err => console.log(err))
                   }else{
-                    this.openSnackbar("error",ok.error)
+                    this.openSnackbar("error",resF.error)
                     this.setState({loading:false})
                   }
-                }).catch(err => console.log(err))
+                }).catch( err => {console.log(err)})
+
               }else{
-                this.openSnackbar("error",resF.error)
-                this.setState({loading:false})
+                console.log(genFactRes.error)
               }
-            }).catch( err => {console.log(err)})
+            }).catch( err => {
+              console.log(err)
+            })
 
           }else{
-            console.log(genFactRes.error)
+            console.log(validateRes.error)
           }
-        }).catch( err => {
+        }).catch(err => {
           console.log(err)
         })
 
