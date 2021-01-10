@@ -91,6 +91,8 @@ import Popover from '@material-ui/core/Popover';
 import verifForms from "../../tools/verifForms"
 import {Tree} from "antd";
 import Select from 'react-select';
+import qualifSignImage from "../../assets/images/qualifiedSign.png"
+import AttachFileIcon from '@material-ui/icons/AttachFile';
 
 const {DirectoryTree} = Tree;
 
@@ -139,6 +141,7 @@ export default class Main extends React.Component {
 
   imageUpload = {};
   folderupload = {};
+  signatureFileUpload={}
 
   state = {
     loading: false,
@@ -386,6 +389,7 @@ export default class Main extends React.Component {
 
     anchorElDrive:null,
     anchorElDrive2:null,
+    anchorElDrive3:null,
     expandedDrivePopUpKeys:[],
     selectedDrivePopUpKeys:[],
     autoExpandDrivePopUpParent:true,
@@ -396,7 +400,11 @@ export default class Main extends React.Component {
     wip_selected_mandat:{
       label:"",
       value:""
-    }
+    },
+
+    SEQ_file:"",
+    signFile_destinationFolder:"",
+
 
   };
 
@@ -788,6 +796,12 @@ export default class Main extends React.Component {
                 firstLoading: false,
                 loading: false
               });
+            }else if(this.props.location.pathname === "/home/qualified_signature/new"){
+              this.setState({
+                focusedItem: 'SignQualifie',
+                firstLoading: false,
+                loading: false
+              })
             }
             else if (this.props.location.pathname === '/home/meet/new') {
               this.setState({
@@ -1459,6 +1473,16 @@ export default class Main extends React.Component {
 
   };
 
+  uploadSignatureFile = (event) => {
+    let file = event.target.files[0];
+    if(file.type === "application/pdf"){
+      this.setState({SEQ_file:file})
+    }else{
+      this.setState({ loading: false });
+      this.openSnackbar("error","Type de fichier erroné !")
+    }
+  };
+
   reloadGed = () => {
     this.setState({ loading: true });
     setTimeout(() => {
@@ -1689,7 +1713,8 @@ export default class Main extends React.Component {
                     ? this.props.history.push('/home/clients')
                     : item === 'TimeSheet'
                       ? this.props.history.push('/home/timeSheet/activities')
-                      : this.props.history.push('/home/drive');
+                      : item === "SignQualifie"  ? this.props.history.push('/home/qualified_signature/new') :
+                                this.props.history.push('/home/drive');
             this.setState({
               focusedItem: item,
               showContainerSection: item
@@ -3954,6 +3979,10 @@ export default class Main extends React.Component {
     this.setState({selectedDrivePopUpKeys:selectedKeys,wip_selected_folder:info.node})
   }
 
+  onSelectDrivePopUp3 = (selectedKeys, info) => {
+    this.setState({selectedDrivePopUpKeys:selectedKeys,signFile_destinationFolder:info.node})
+  }
+
 
   render() {
 
@@ -3961,6 +3990,9 @@ export default class Main extends React.Component {
 
     const openDrivePopup = Boolean(this.state.anchorElDrive);
     const id = openDrivePopup ? 'drive-popover' : undefined;
+
+    const openDrivePopup3 = Boolean(this.state.anchorElDrive3);
+    const id3 = openDrivePopup3 ? 'drive-popover3' : undefined;
 
 
     return (
@@ -5911,6 +5943,199 @@ export default class Main extends React.Component {
 
                       <Route exact path="/home/timeSheet/activities">
                         {this.renderTimeSheet()}
+                      </Route>
+
+                      <Route exact path="/home/qualified_signature/new">
+                        <div style={{marginTop:25}}>
+                          <h5>Signature électronique qualifié</h5>
+                          <div align="center" style={{marginTop:20}}>
+                            <img alt="sign" src={qualifSignImage} style={{maxWidth:300,border:"2px solid #f0f0f0"}} />
+                          </div>
+                          <div style={{marginTop:20}}>
+                            <div className="row mt-1">
+                              <div className="col-md-6">
+                                <div>
+                                  <h6>Choisissez un document à signer</h6>
+                                  <div style={{display:"flex"}}>
+                                    <IconButton color="primary" onClick={() => this.signatureFileUpload.click()}>
+                                      <AttachFileIcon/>
+                                    </IconButton>
+                                    <h6 style={{marginLeft:5,marginTop:17}}>{this.state.SEQ_file ? this.state.SEQ_file.name :""}</h6>
+                                  </div>
+                                  <input
+                                      style={{ visibility: 'hidden', width: 0, height: 0 }}
+                                      onChange={(event) => this.uploadSignatureFile(event)}
+                                      type="file"
+                                      ref={(ref) => (this.signatureFileUpload = ref)}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="row">
+                              <div className="col-md-6">
+                                <div>
+                                  <h6>Dossier de destination dans le GED</h6>
+                                  <input type="text" readOnly={true}
+                                         className="form-control custom-select"
+                                         style={{ width: 300,cursor:"pointer",height:40 }}
+                                         value={this.state.signFile_destinationFolder.title || ""}
+                                         onClick={(e) => {
+                                           this.setState({anchorElDrive3:e.currentTarget})
+                                         }}
+                                  />
+                                </div>
+                                <Popover
+                                    id={id3}
+                                    open={openDrivePopup3}
+                                    anchorEl={this.state.anchorElDrive3}
+                                    onClose={() => {
+                                      this.setState({anchorElDrive3: null})
+                                    }}
+                                    anchorOrigin={{
+                                      vertical: 'top',
+                                      horizontal: 'center',
+                                    }}
+                                    transformOrigin={{
+                                      vertical: 'top',
+                                      horizontal: 'center',
+                                    }}
+                                >
+                                  <div style={{padding:15,height:600,width:300,paddingBottom:50}}>
+                                    <div align="right">
+                                      <IconButton size="small" onClick={() => {
+                                        this.setState({anchorElDrive3:null,expandedDrivePopUpKeys:[],selectedDrivePopUpKeys:[],signFile_destinationFolder:""})
+                                      }}
+                                      >
+                                        <CloseIcon />
+                                      </IconButton>
+                                    </div>
+
+                                    <h6 style={{color:"darkblue"}}>Veuillez sélectionner un dossier de destination </h6>
+                                    <div style={{marginTop:20,maxHeight:430,overflowY:"auto"}}>
+                                      <DirectoryTree
+                                          draggable={true}
+                                          allowDrop={(options) => {
+                                            return false
+                                          }}
+                                          showIcon={true}
+                                          onExpand={this.onExpandDrivePopUp}
+                                          onSelect={this.onSelectDrivePopUp3}
+                                          treeData={this.state.folders || []}
+                                          expandAction="click"
+                                          expandedKeys={this.state.expandedDrivePopUpKeys}
+                                          selectedKeys={this.state.selectedDrivePopUpKeys}
+                                          autoExpandParent={this.state.autoExpandDrivePopUpParent}
+                                      />
+                                    </div>
+                                    <div style={{position:"absolute",bottom:50}}>
+                                      <span style={{color:"#000",fontWeight:"bold"}}>Dossier sélectionné:&nbsp; <span>{this.state.signFile_destinationFolder.title}</span> </span>
+                                    </div>
+                                    <div align="right" style={{position:"absolute",bottom:10,right:15}}>
+                                      <AtlButton
+                                          isDisabled={this.state.signFile_destinationFolder === ""}
+                                          appearance="primary"
+                                          onClick={() => {
+                                            this.setState({anchorElDrive3:null})
+                                          }}
+                                      >
+                                        Valider
+                                      </AtlButton>
+                                    </div>
+                                  </div>
+                                </Popover>
+                              </div>
+                            </div>
+                            <div align="center" style={{marginTop:30}}>
+                              <AtlButton
+                                  isDisabled={this.state.signFile_destinationFolder === "" || this.state.SEQ_file === ""}
+                                  appearance="primary"
+                                  onClick={() => {
+                                    this.setState({loading:true})
+                                    var formdata = new FormData();
+                                    formdata.append("file", this.state.SEQ_file, this.state.SEQ_file.name);
+                                    formdata.append("name", "test");
+                                    formdata.append("given", "courtel");
+                                    formdata.append("surname", "eliot");
+                                    formdata.append("email", "eliot.courtel@gmail.com");
+                                    formdata.append("phone", "+41795281046");
+
+                                    var requestOptions = {
+                                      method: 'POST',
+                                      body: formdata,
+                                      redirect: 'follow'
+                                    };
+
+                                    fetch("https://sign.1.smartdom.ch/sign", requestOptions)
+                                        .then(response => {
+                                          console.log(response)
+                                          if(response.status === 400){
+                                            this.setState({loading:false})
+                                            this.openSnackbar("error","Des données manquantes !")
+                                          }else if(response.status === 500){
+                                            this.setState({loading:false})
+                                            this.openSnackbar("error","une erreur est survenue !")
+                                          }else if(response.status === 405){
+                                            this.setState({loading:false})
+                                            this.openSnackbar("error","Opération annulée !")
+                                          }else if(response.status === 200){
+                                            response.text()
+                                          }
+                                        })
+                                        .then(result => {
+                                          console.log(result)
+
+                                          if(result === undefined || result === "error"){
+                                            this.setState({loading:false})
+                                          }else{
+
+                                            SmartService.addFileFromBas64({b64file:result,folder_id:this.state.signFile_destinationFolder.key},
+                                                localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+
+                                              if(addFileRes.succes === true && addFileRes.status === 200) {
+                                                let fileName = this.state.SEQ_file.name.slice(0, -4);
+                                                SmartService.updateFileName({name:fileName},
+                                                    addFileRes.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                                                  if(updateNameRes.succes === true && updateNameRes.status === 200){
+                                                    this.justReloadGed()
+                                                    setTimeout(() => {
+                                                      this.setState({loading:false})
+                                                      this.openSnackbar("success","Opération effectué avec succès")
+                                                    },500)
+                                                  }else{
+                                                    console.log(updateNameRes.error)
+                                                    this.openSnackbar("error",updateNameRes.error)
+                                                    this.setState({loading:false})
+                                                  }
+                                                }).catch(err => {
+                                                  console.log(err)
+                                                  this.openSnackbar("error","Une erreur est survenue")
+                                                })
+                                              }else{
+                                                console.log(addFileRes.error)
+                                                this.openSnackbar("error",addFileRes.error)
+                                                this.setState({loading:false})
+                                              }
+                                            }).catch(err => {
+                                              console.log(err)
+                                              this.openSnackbar("error","Une erreur est survenue")
+                                              this.setState({loading:false})
+                                            })
+
+                                          }
+
+                                        })
+                                        .catch(error => {
+                                          console.log(error)
+                                          this.setState({loading:false})
+                                          this.openSnackbar("error","Une erreur est survenue")
+                                        });
+                                  }}
+                              >
+                                Signer le document
+                              </AtlButton>
+                            </div>
+                          </div>
+                        </div>
                       </Route>
 
                     </Switch>
