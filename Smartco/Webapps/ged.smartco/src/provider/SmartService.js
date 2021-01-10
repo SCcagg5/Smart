@@ -376,15 +376,25 @@ let SmartService = {
 
 
 
+    reportClient(data,token,usrtoken){
+        return fetch(endpoint + '/ged/' + OALegalGedId + '/report/client/init', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
 
-
-
-
-
-
-
-
-
+    reportContact(data,token,usrtoken){
+        return fetch(endpoint + '/ged/' + OALegalGedId + '/report/work', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
 
 
 

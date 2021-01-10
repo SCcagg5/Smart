@@ -170,6 +170,18 @@ const getTimeSuggestions = value => {
   }
 };
 
+const getContactById = (contacts,id) => {
+  return contacts.find(x => x.id === id);
+}
+
+const getClientNameById = (clients,id) => {
+  let find = clients.find(x => x.id === id || x.ID === id)
+  if(find){
+    if(find.Type === "0") return find.Nom
+    else return find.Nom + " " + find.Prenom
+  }else return ""
+}
+
 const findContactByEmail = (email, contacts) => {
   let index;
   contacts.map((contact, key) => {
@@ -639,5 +651,5 @@ const generateGed = () => {
 
 
  export default {renderSearchOption,getTimeSuggestions,icon,getLabel,checkedIcon,getPath,generateGed,buildIndex,
-   changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,getClientID_ByName,getTaxNameById,
+   changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,getClientID_ByName,getTaxNameById,getContactById,getClientNameById,
    getBreadcumpsPath,getFolderNameById,getFolderTypeById,findClientMondatById,findContactByEmail,findContactByUid,getOAContactByEmail2,getOAContactByUid};

@@ -87,7 +87,13 @@ import utilFunctions from "../../tools/functions";
 import rethink from "../../controller/rethink";
 import test from "../test";
 import TableGift from "../../components/Tables/TableGift";
+import Popover from '@material-ui/core/Popover';
 import verifForms from "../../tools/verifForms"
+import {Tree} from "antd";
+import Select from 'react-select';
+
+const {DirectoryTree} = Tree;
+
 
 const ged_id = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9";
 const ent_name = "OaLegal";
@@ -376,7 +382,22 @@ export default class Main extends React.Component {
     facturesToValidated:[],
     facturesToValidatedCopy:[],
 
-    openAddContactModal:false
+    openAddContactModal:false,
+
+    anchorElDrive:null,
+    anchorElDrive2:null,
+    expandedDrivePopUpKeys:[],
+    selectedDrivePopUpKeys:[],
+    autoExpandDrivePopUpParent:true,
+    destinationFolder:"",
+
+    wip_selected_contact:"",
+    wip_selected_folder:"",
+    wip_selected_mandat:{
+      label:"",
+      value:""
+    }
+
   };
 
   componentDidMount() {
@@ -871,11 +892,13 @@ export default class Main extends React.Component {
     bouteilles[key].value=e.target.value
     this.setState({bouteilles:bouteilles})
   }
+
   openCadeauModal(societe,bouteilles){
     this.setState({
       showCadeauModal1:true
     })
   }
+
   openCadeauModal2(){
     let nbbouteilles = this.state.nbBouteille
     console.log(nbbouteilles)
@@ -2004,6 +2027,23 @@ export default class Main extends React.Component {
       }
     }
 
+    const openDrivePopup2 = Boolean(this.state.anchorElDrive2);
+    const id2 = openDrivePopup2 ? 'drive-popover2' : undefined;
+
+
+    let grouped_mandats_options = [];
+    (this.state.clients_cases || []).map((item,key) => {
+      grouped_mandats_options.push({
+        label:main_functions.getClientNameById(this.state.annuaire_clients_mandat || [],item.ID_client),
+        options:
+          (item.folders || []).map((folder,key) =>
+              ({
+                value:folder.folder_id,
+                label:folder.name
+              }))
+      })
+    })
+
     return(
           this.state.time_sheets.length === 0 ?
               <div align="center" style={{marginTop:200}}>
@@ -2021,9 +2061,9 @@ export default class Main extends React.Component {
                         }}>
                           <TabList>
                             <Tab>Time Sheet</Tab>
+                            <Tab>Work in progress</Tab>
                             <Tab>Activités </Tab>
-                            <Tab>
-                              Partner
+                            <Tab>Partner
                               {
                                 (this.state.factures || []).filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length > 0 &&
                                 <Badge max={100}>{(this.state.factures || []).filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length}</Badge>
@@ -2493,6 +2533,137 @@ export default class Main extends React.Component {
                             }
                           </TabPanel>
                           <TabPanel>
+                            <div style={{marginTop:25}}>
+                              <div className="row">
+                                <div className="col-md-4">
+                                  <div>
+                                    <h6>Mandats</h6>
+                                  </div>
+                                  <Select
+                                      value={this.state.wip_selected_mandat}
+                                      options={grouped_mandats_options}
+                                      onChange={(newValue, actionMeta) => {
+                                        console.log(newValue)
+                                        this.setState({wip_selected_mandat:newValue})
+                                      }}
+                                  />
+                                </div>
+                                <div className="col-md-6">
+                                  <div>
+                                    <h6>Sélectionner un avocat </h6>
+                                  </div>
+                                  <MuiSelect
+                                      labelId="demo-simple-select-label45845"
+                                      id="demo-simple-select45845"
+                                      style={{ width: 300 }}
+                                      onChange={(e) => {
+                                        this.setState({wip_selected_contact:e.target.value})
+                                      }}
+                                      value={this.state.wip_selected_contact}
+                                  >
+                                    {this.state.contacts.map((contact, key) => (
+                                        <MenuItem
+                                            key={key}
+                                            value={contact.id}>
+                                          <div style={{display:"flex"}}>
+                                            <Avatar style={{marginLeft:10}}
+                                                    alt=""
+                                                    src={contact.imageUrl} />
+                                            <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                          </div>
+                                        </MenuItem>
+                                    ))}
+                                  </MuiSelect>
+                                </div>
+                              </div>
+                              <div className="row mt-2">
+                                <div className="col-md-12">
+                                  <div>
+                                    <h6>Dossier de destination</h6>
+                                    <input type="text" readOnly={true}
+                                           className="form-control custom-select"
+                                           style={{ width: 300,cursor:"pointer",height:40 }}
+                                           value={this.state.wip_selected_folder.title}
+                                           onClick={(e) => {
+                                             this.setState({anchorElDrive2:e.currentTarget})
+                                           }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <div align="center" className="mt-2">
+                                <AtlButton
+                                    isDisabled={this.state.wip_selected_mandat === "" || this.state.wip_selected_folder === ""}
+                                    appearance="primary"
+                                    onClick={() => {
+                                      this.reportContact()
+                                    }}
+                                >
+                                  Générer le rapport
+                                </AtlButton>
+                              </div>
+                              <Popover
+                                  id={id2}
+                                  open={openDrivePopup2}
+                                  anchorEl={this.state.anchorElDrive2}
+                                  onClose={() => {
+                                    this.setState({anchorElDrive2: null})
+                                  }}
+                                  anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'center',
+                                  }}
+                                  transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'center',
+                                  }}
+                              >
+                                <div style={{padding:15,height:600,width:300,paddingBottom:50}}>
+                                  <div align="right">
+                                    <IconButton size="small" onClick={() => {
+                                      this.setState({anchorElDrive2:null,expandedDrivePopUpKeys:[],selectedDrivePopUpKeys:[],wip_selected_folder:""})
+                                    }}
+                                    >
+                                      <CloseIcon />
+                                    </IconButton>
+                                  </div>
+
+                                  <h6 style={{color:"darkblue"}}>Sélectionner un dossier de destination </h6>
+                                  <div style={{marginTop:20,maxHeight:430,overflowY:"auto"}}>
+                                    <DirectoryTree
+                                        draggable={true}
+                                        allowDrop={(options) => {
+                                          return false
+                                        }}
+                                        showIcon={true}
+                                        onExpand={this.onExpandDrivePopUp}
+                                        onSelect={this.onSelectDrivePopUp2}
+                                        treeData={this.state.folders || []}
+                                        expandAction="click"
+                                        expandedKeys={this.state.expandedDrivePopUpKeys}
+                                        selectedKeys={this.state.selectedDrivePopUpKeys}
+                                        autoExpandParent={this.state.autoExpandDrivePopUpParent}
+                                    />
+                                  </div>
+                                  <div style={{position:"absolute",bottom:50}}>
+                                    <span style={{color:"#000",fontWeight:"bold"}}>Dossier sélectionné:&nbsp; <span>{this.state.wip_selected_folder.title}</span> </span>
+                                  </div>
+                                  <div align="right" style={{position:"absolute",bottom:10,right:15}}>
+                                    <AtlButton
+                                        isDisabled={this.state.wip_selected_folder === ""}
+                                        appearance="primary"
+                                        onClick={() => {
+                                          this.setState({anchorElDrive2:null})
+                                        }}
+                                    >
+                                      Valider
+                                    </AtlButton>
+                                  </div>
+                                </div>
+                              </Popover>
+                            </div>
+                          </TabPanel>
+                          <TabPanel>
                             {
                               this.state.time_sheets.length > 0 &&
                               <TableTimeSheet
@@ -2552,6 +2723,73 @@ export default class Main extends React.Component {
               </div>
     )
 
+  }
+
+
+  reportContact(){
+    this.setState({loading:true})
+    let contact_timeSheets = [];
+    contact_timeSheets = (this.state.time_sheets || []).filter(x => x.newTime.dossier_client.folder_id === this.state.wip_selected_mandat.value)
+
+    let contact = main_functions.getContactById(this.state.contacts || [],this.state.wip_selected_contact)
+    if(contact){
+      contact_timeSheets = (contact_timeSheets || []).filter(x => x.newTime.utilisateurOA === contact.email)
+    }
+    let toSend = {
+      avocat:contact,
+      data:contact_timeSheets,
+      folder:this.state.wip_selected_folder.key
+    }
+    console.log(toSend)
+    SmartService.reportContact(toSend,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( reportRes => {
+      if(reportRes.succes === true && reportRes.status === 200){
+        this.setState({loading:false})
+        this.openSnackbar("success","Opération effectué avec succès")
+      }else{
+        this.setState({loading:false})
+        this.openSnackbar("error",reportRes.error)
+      }
+    }).catch(err => {
+      this.setState({loading:false})
+      console.log(err)
+      this.openSnackbar("error","Une erreur est survenue !")
+    })
+  }
+
+  reportClient(){
+    this.setState({loading:true,anchorElDrive:null})
+    let s_client = this.state.selectedSociete;
+    let client_mandats = (this.state.clients_cases || []).find(x => x.ID_client === s_client.ID);
+    let toSend = {
+      folder:this.state.destinationFolder.key,
+      client:{
+        id:this.state.selectedSociete.id,
+        type:this.state.selectedSociete.Type,
+        nom:this.state.selectedSociete.Nom,
+        prenom:this.state.selectedSociete.Prenom,
+        email:this.state.selectedSociete.email,
+        adress:this.state.selectedSociete.adress,
+        phone:this.state.selectedSociete.phone,
+        isActif:this.state.selectedSociete.isActif,
+        created_at:this.state.selectedSociete.created_at,
+        remarques:this.state.selectedSociete.remarque,
+        dossiers:client_mandats ? client_mandats.folders || [] : []
+      }
+    }
+    SmartService.reportClient(toSend,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( reportRes => {
+      if(reportRes.succes === true && reportRes.status === 200){
+        this.setState({loading:false})
+        this.openSnackbar("success","Opération effectué avec succès")
+      }else{
+        this.setState({loading:false})
+        this.openSnackbar("error",reportRes.error)
+      }
+    }).catch(err => {
+      this.setState({loading:false})
+      console.log(err)
+      this.openSnackbar("error","Une erreur est survenue !")
+    })
+    console.log(toSend)
   }
 
 
@@ -3704,9 +3942,26 @@ export default class Main extends React.Component {
   }
 
 
+  onExpandDrivePopUp = (expandedKeys) => {
+    this.setState({expandedDrivePopUpKeys:expandedKeys,autoExpandDrivePopUpParent:false})
+  }
+
+  onSelectDrivePopUp = (selectedKeys, info) => {
+    this.setState({selectedDrivePopUpKeys:selectedKeys,destinationFolder:info.node})
+  }
+
+  onSelectDrivePopUp2 = (selectedKeys, info) => {
+    this.setState({selectedDrivePopUpKeys:selectedKeys,wip_selected_folder:info.node})
+  }
+
+
   render() {
 
     const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts,localStorage.getItem("email"))
+
+    const openDrivePopup = Boolean(this.state.anchorElDrive);
+    const id = openDrivePopup ? 'drive-popover' : undefined;
+
 
     return (
       <div>
@@ -3765,8 +4020,6 @@ export default class Main extends React.Component {
             />
           </div>
 
-       {/* <MuiBackdrop open={this.state.firstLoading} />
-        <MuiBackdrop open={this.state.loading} />*/}
         <MuiBackdrop open={this.state.loading} />
         <div style={{ marginRight: 20, marginTop: 75, marginLeft: 5, top:0,width:"100%",position:"fixed" }}>
           <div>
@@ -4911,6 +5164,16 @@ export default class Main extends React.Component {
                                                     onChange={this.handleChange('selectedSociete', 'remarque')} />
                                               </div>
                                             </div>
+                                            <div align="center" className="mt-2">
+                                              <AtlButton
+                                                  appearance="primary"
+                                                  onClick={(e) => {
+                                                    this.setState({anchorElDrive:e.currentTarget})
+                                                  }}
+                                              >
+                                                Générer le document
+                                              </AtlButton>
+                                            </div>
 
                                           </TabPanel>
                                           <TabPanel>
@@ -5390,6 +5653,65 @@ export default class Main extends React.Component {
                                     </div>
                                   </div>
                                 </div>
+                                <Popover
+                                    id={id}
+                                    open={openDrivePopup}
+                                    anchorEl={this.state.anchorElDrive}
+                                    onClose={() => {
+                                      this.setState({anchorElDrive: null})
+                                    }}
+                                    anchorOrigin={{
+                                      vertical: 'top',
+                                      horizontal: 'center',
+                                    }}
+                                    transformOrigin={{
+                                      vertical: 'top',
+                                      horizontal: 'center',
+                                    }}
+                                >
+                                  <div style={{padding:15,height:600,width:300,paddingBottom:50}}>
+                                    <div align="right">
+                                      <IconButton size="small" onClick={() => {
+                                        this.setState({anchorElDrive:null,expandedDrivePopUpKeys:[],selectedDrivePopUpKeys:[],destinationFolder:""})
+                                      }}
+                                      >
+                                        <CloseIcon />
+                                      </IconButton>
+                                    </div>
+
+                                    <h6 style={{color:"darkblue"}}>Veuillez sélectionner un dossier de destination </h6>
+                                    <div style={{marginTop:20,maxHeight:430,overflowY:"auto"}}>
+                                      <DirectoryTree
+                                          draggable={true}
+                                          allowDrop={(options) => {
+                                            return false
+                                          }}
+                                          showIcon={true}
+                                          onExpand={this.onExpandDrivePopUp}
+                                          onSelect={this.onSelectDrivePopUp}
+                                          treeData={this.state.folders || []}
+                                          expandAction="click"
+                                          expandedKeys={this.state.expandedDrivePopUpKeys}
+                                          selectedKeys={this.state.selectedDrivePopUpKeys}
+                                          autoExpandParent={this.state.autoExpandDrivePopUpParent}
+                                      />
+                                    </div>
+                                    <div style={{position:"absolute",bottom:50}}>
+                                      <span style={{color:"#000",fontWeight:"bold"}}>Dossier sélectionné:&nbsp; <span>{this.state.destinationFolder.title}</span> </span>
+                                    </div>
+                                    <div align="right" style={{position:"absolute",bottom:10,right:15}}>
+                                      <AtlButton
+                                          isDisabled={this.state.destinationFolder === ""}
+                                          appearance="primary"
+                                          onClick={() => {
+                                            this.reportClient()
+                                          }}
+                                      >
+                                        Valider
+                                      </AtlButton>
+                                    </div>
+                                  </div>
+                                </Popover>
                               </div>
                         }
 
