@@ -40,7 +40,9 @@ export default class Chat extends React.Component {
         miniDrive:this.props.miniDrive,
         autoExpandParent:true,
         expandedKeys:[],
-        selectedKeys:[]
+        selectedKeys:[],
+
+        showRecorderForm:false
     }
 
     async verifIsTableExist(table){
@@ -523,7 +525,8 @@ export default class Chat extends React.Component {
                                     </div>
                                     <div className="message-input" style={{flex:"1 1 auto"}}>
                                         <div className="wrap">
-                                        <textarea  placeholder="Tapez votre message ici..."
+                                        <textarea  placeholder="Tapez votre message..."
+                                                   style={{width:this.state.showRecorderForm === true ? "78%" : "100%"}}
                                                    value={this.state.text}
                                                    onChange={(e => {
                                                        this.setState({text: e.target.value})
@@ -537,18 +540,25 @@ export default class Chat extends React.Component {
                                         </div>
                                     </div>
                                     <div style={{alignSelf:"center",flex:"none",margin:10}}>
-                                        <i className="fa fa-microphone attachment" aria-hidden="true"
-                                           style={{
-                                               fontSize: 20,
-                                               cursor: "pointer",
-                                               color:"#919191",
-                                               boxShadow:"#fff 2px 4px 6px",
-                                               margin:5
-                                           }}
-                                           onClick={(event) => {
-                                               //this.setState({anchorElFiles: event.currentTarget})
-                                           }}
-                                        />
+                                        {
+                                            this.state.showRecorderForm === false ?
+                                            <i className="fa fa-microphone attachment" aria-hidden="true"
+                                               style={{
+                                                   fontSize: 20,
+                                                   cursor: "pointer",
+                                                   color:"#919191",
+                                                   boxShadow:"#fff 2px 4px 6px",
+                                                   margin:5
+                                               }}
+                                               onClick={(event) => {
+                                                   this.setState({showRecorderForm:true})
+                                               }}
+                                            /> :
+                                                <div>
+
+                                                </div>
+                                        }
+
                                     </div>
 
                                 </div>
