@@ -6,7 +6,15 @@ import {
     CardCvcElement,
     CardExpiryElement
 } from "@stripe/react-stripe-js";
-
+import {
+    Switch,
+    Route,
+    Redirect,
+    useLocation,
+    useHistory,
+    withRouter
+} from "react-router-dom";
+import CheckoutService from "../../provider/checkoutservice"
 import useResponsiveFontSize from "./useResponsiveFrontSize";
 import axios from "axios";
 
@@ -35,12 +43,16 @@ const useOptions = () => {
     return options;
 };
 
-const SplitForm = () => {
+const SplitForm = (produits) => {
+    const history=useHistory()
     const stripe = useStripe();
     const elements = useElements();
     const options = useOptions();
 
     const handleSubmit = async event => {
+
+        console.log(produits.produits.produits)
+
         event.preventDefault();
 
         if (!stripe || !elements) {
@@ -54,15 +66,50 @@ const SplitForm = () => {
                 card: elements.getElement(CardNumberElement)
             });
             console.log(payload)
-            const token =stripe.createToken(elements.getElement(CardNumberElement))
+           const token =stripe.createToken(elements.getElement(CardNumberElement))
             token.then(async (res) => {
                 console.log(res.token.id)
-                const order = await axios.post('http://localhost:3001/api/Stripe', {
+                  await axios.post('http://localhost:3001/api/Stripe', {
                     amount: 500,
                     source: res.token.id,
                     receipt_email: 'customer@example.com'
+                }).then((result)=>{
+                    console.log(result.status)
+                    if (result.status===200){
+                        let data ={
+                            email_user:localStorage.getItem('email'),
+                            create_at:"25/06/2222"
+                        }
+                        CheckoutService.CreateCheckout(data).then((res)=>{
+                               let idCheckout=""
+                            if (res.error===false){
+                                console.log("temchi")
+                                 idCheckout=res.data
+                                produits.produits.produits.map((item,key)=>{
+                                    item.id_checkout=idCheckout
+                                    CheckoutService.CreateCheckoutProduits(item).then((ress)=>{
+                                        console.log(ress)
+                                    })
+                                })
+
+
+
+
+
+                            }
+                            return idCheckout
+                        }).then((id)=>{
+                            CheckoutService.sendMail(localStorage.getItem('email'),id).then((rr)=>{
+                                console.log(rr)
+                                alert("payment done")
+                                setTimeout(() => {
+                                    history.goBack()
+                                }, 3000);
+                            })
+                        })
+                    }
                 })
-                console.log(order)
+
             })
 
 
@@ -144,4 +191,4 @@ const SplitForm = () => {
     );
 };
 
-export default SplitForm;
+export default withRouter(SplitForm);

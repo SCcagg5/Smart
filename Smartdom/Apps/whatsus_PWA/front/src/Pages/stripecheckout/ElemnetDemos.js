@@ -4,22 +4,23 @@ import {
     Route,
     Redirect,
     useLocation,
-    useHistory
+    useHistory,
+    withRouter
 } from "react-router-dom";
 import SplitForm from "../../Components/stripe/SplitForm";
 
-const ElementDemos = ({ demos }) => {
+const ElementDemos = ({ history , produits }) => {
     const location = useLocation();
-    const history = useHistory();
+
 
     return (
         <div className="DemoWrapper">
 
           <div className="Demo">
-              <SplitForm />
+              <SplitForm produits={produits} history={history} />
           </div>
         </div>
     );
 };
 
-export default ElementDemos;
+export default withRouter( ElementDemos);

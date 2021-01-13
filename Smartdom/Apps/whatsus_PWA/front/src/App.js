@@ -8,6 +8,7 @@ import Signup from "./Pages/auth/signup"
 import Logout from "./Pages/auth/logout"
 import Rooms from "./Pages/Rooms/Rooms";
 import Chat from "./Pages/Chat/Chat";
+import CheckoutInfo from "./Pages/checkout/checkoutInfo";
 
 import 'moment/locale/fr';
 import Checkout from "./Pages/stripecheckout/checkout";
@@ -42,6 +43,8 @@ export default class App extends React.Component{
               <Route exact path="/rooms" component={Rooms}/>
               <Route exact path="/chat" component={Chat}/>
               <Route exact path="/stripe" component={Checkout}/>
+              <Route exact path="/checkoutInfo/:id" component={CheckoutInfo}/>
+
 
               <Route component={Error}/>
             </Switch>

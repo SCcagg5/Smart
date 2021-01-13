@@ -56,7 +56,9 @@ export default class Chat extends React.Component {
         expandedKeys:[],
         selectedKeys:[],
 
-        openBottomPayModal:false
+        openBottomPayModal:false,
+
+        payment:""
     }
 
 
@@ -505,7 +507,10 @@ export default class Chat extends React.Component {
                                                                                         <div align="center" style={{marginTop:15}}>
                                                                                             <button
                                                                                                 onClick={(e) => {
-                                                                                                    this.setState({openBottomPayModal:true})
+                                                                                                    let payment=""
+                                                                                                    payment.produits=msg.pack_products
+
+                                                                                                    this.setState({openBottomPayModal:true,payment:payment})
                                                                                                 }}
                                                                                                 className="btn btn-success waves-effect waves-light">
                                                                                                 Payer
@@ -605,10 +610,10 @@ export default class Chat extends React.Component {
                                                                                                             <img alt="" src={product.image} style={{width:60,height:60,borderRadius:"unset",objectFit:"unset"}}/>
                                                                                                         </div>
                                                                                                         <div style={{marginLeft:10}}>
-                                                                                                            <h6>{product.title}</h6>
-                                                                                                            <p className="truncate-2" style={{marginBottom:"0.0rem",backgroundColor:"#fff",fontSize:"0.6rem"}}>{product.desc}</p>
+                                                                                                            <h6>{product.nomProd}</h6>
+                                                                                                            <p className="truncate-2" style={{marginBottom:"0.0rem",backgroundColor:"#fff",fontSize:"0.6rem"}}>{product.descriptionProd}</p>
                                                                                                             <div align="right">
-                                                                                                                <span style={{fontWeight:"bold",fontSize:"x-small",marginRight:5}}>{product.price +" €"}</span>
+                                                                                                                <span style={{fontWeight:"bold",fontSize:"x-small",marginRight:5}}>{product.prix +" €"}</span>
                                                                                                             </div>
                                                                                                         </div>
                                                                                                     </div>
@@ -623,7 +628,9 @@ export default class Chat extends React.Component {
                                                                                         <div align="center" style={{marginTop:15}}>
                                                                                             <button
                                                                                                 onClick={(e) => {
-                                                                                                    this.setState({openBottomPayModal:true})
+                                                                                                    let payment={}
+                                                                                                    payment.produits=msg.pack_products
+                                                                                                    this.setState({openBottomPayModal:true,payment:payment})
                                                                                                 }}
                                                                                                 className="btn btn-success waves-effect waves-light">
                                                                                                 Payer
@@ -753,7 +760,7 @@ export default class Chat extends React.Component {
                             </div>
                             <div style={{display:"flex",cursor:"pointer",marginBottom:10}}
                                  onClick={() => {
-                                     this.props.history.push('/stripe')
+                                     this.props.history.push('/stripe',{payment:this.state.payment})
 
                                  }}
                             >

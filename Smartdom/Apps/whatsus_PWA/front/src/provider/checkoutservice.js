@@ -1,7 +1,9 @@
+import Checkout from "../Pages/stripecheckout/checkout";
 
 const endpoint = process.env.REACT_APP_JAWHER_API_ENDPOINT
+const url = process.env.siteURL
 
-let QuestionService ={
+let CheckoutService ={
 
     loadHeaders() {
         let headers = new Headers();
@@ -27,7 +29,7 @@ let QuestionService ={
             console.log(error);
         });
     },
-    CreateQuestions(data){
+    CreateCheckoutProduits(data){
         let formBody = [];
         for (let property in data) {
             let encodedKey = encodeURIComponent(property);
@@ -35,7 +37,7 @@ let QuestionService ={
             formBody.push(encodedKey + "=" + encodedValue);
         }
         formBody = formBody.join("&");
-        return fetch(endpoint+'questionsCreate', {
+        return fetch(endpoint+'CheckoutProdCreate', {
             method: 'POST',
             headers:this.loadHeaders(),
             body:formBody
@@ -43,7 +45,7 @@ let QuestionService ={
             console.log(error);
         });
     },
-    CreateMiniceur(data){
+    CreateCheckout(data){
         let formBody = [];
         for (let property in data) {
             let encodedKey = encodeURIComponent(property);
@@ -51,7 +53,7 @@ let QuestionService ={
             formBody.push(encodedKey + "=" + encodedValue);
         }
         formBody = formBody.join("&");
-        return fetch(endpoint+'miniceurCreate', {
+        return fetch(endpoint+'CheckoutCreate', {
             method: 'POST',
             headers:this.loadHeaders(),
             body:formBody
@@ -120,16 +122,16 @@ let QuestionService ={
         });
     },
 
-    sendMail(mail){
+    sendMail(mail,id){
         let dd={
             emailReciver:mail,
-            subject:"bodycheckNL",
-            linkUrl :"clicker ici pour le test bodycheck",
-            url:"http://localhost:3002/questions",
+            subject:"Majorsante",
+            linkUrl :"clicker ici pour voir votre facture",
+            url:url+"/checkoutInfo/"+id,
             msg:" ",
             footerMsg : "merci"
         }
-         fetch('http://localhost:3001/api/sendCustomMailWithUrl', {
+       return  fetch(endpoint+'sendCustomMailWithUrl', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -141,8 +143,8 @@ let QuestionService ={
         })
     },
 
-    getMiniceur(id){
-        return fetch(endpoint+'ingredients/'+id, {
+    getCheckout(id){
+        return fetch(endpoint+'Checkout/'+id, {
             method: 'GET',
         }).then(response => response.json()).catch(error => {
             console.log(error);
@@ -155,4 +157,4 @@ let QuestionService ={
 
 
 
-export default QuestionService;
+export default CheckoutService;
