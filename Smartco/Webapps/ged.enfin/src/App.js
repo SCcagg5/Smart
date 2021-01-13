@@ -8,7 +8,6 @@ import Error from "./pages/Error/Error";
 import Main from "./pages/Main/Main";
 import RedirectCp from "./pages/RedirectCp"
 import signup from "./pages/auth/signup";
-import TestPage from "./pages/test"
 import SmartService from "./provider/SmartService";
 import d_logo from "./assets/logos/logo_enfin.jpg"
 //import SmartService from "./provider/masterNodeService";
@@ -77,7 +76,6 @@ export default class App extends Component {
                 <Router>
                     <Switch>
                         <Route exact path="/" component={RedirectCp}/>
-                        {/*<Route exact path="/test" component={TestPage}/>*/}
                         <Route  path="/home" component={Main}/>
                         <Route exact path="/signDoc/doc/:doc_id" component={SignDocV3}/>
                         <Route exact path="/newRecette" component={NewRecette}/>
