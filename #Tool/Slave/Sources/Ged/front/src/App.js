@@ -84,9 +84,7 @@ export default class App extends Component {
                         <Route exact path="/signup" component={signup}/>
                         <Route exact path="/logout" component={Logout}/>
                         <Route exact path="/bodycheck" component={Questions}/>
-
                         <Route exact path="/getData/:id" component={Index}/>
-
                         <Route component={Error}/>
                     </Switch>
                 </Router>

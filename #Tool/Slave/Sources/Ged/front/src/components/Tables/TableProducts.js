@@ -15,8 +15,17 @@ import { Collapse } from 'antd';
 import mailSend from "../../assets/icons/mail-send.svg"
 import loope from "../../assets/icons/loupe.svg"
 import addIcon from "../../assets/icons/add_icon.png"
-import {Button} from "@material-ui/core";
+import {Button, MenuItem} from "@material-ui/core";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import Typography from "@material-ui/core/Typography";
+import EditIcon from "@material-ui/icons/Edit";
+import DeleteIcon from "@material-ui/icons/Delete";
+import Popover from "@material-ui/core/Popover";
+import TextField from "@material-ui/core/TextField";
+import moment from "moment";
 
+import default_image from "../../assets/images/default_image_01.png"
 
 
 const { Panel } = Collapse;
@@ -93,12 +102,29 @@ const useStyles2 = makeStyles({
 
 export default function TableProducts(props) {
 
-    const clients = props.products;
+    const [updateX, setUpdateX] = React.useState(false);
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [packName, setPackName] = React.useState("");
+
+    const openNewPackPopover = Boolean(anchorEl);
+    const id = openNewPackPopover ? 'new-pack-popover' : undefined;
+
+
+    const products = props.products;
+
+    let selected_products = [];
+    let total = 0;
+    products.map((item,key) => {
+        if(item.checked && item.checked === true){
+            selected_products.push(item)
+            total = total + parseFloat(item.prix);
+        }
+    })
 
 
     return (
         <div>
-            <h4 className="mt-0 mb-1">Products</h4>
+            <h4 className="mt-0 mb-1">Produits</h4>
             <div className="row mt-3">
                 <div className="col-xl-12">
                     <div className="row">
@@ -136,49 +162,48 @@ export default function TableProducts(props) {
 
                                     <TableCell className="text-center" style={{width:"10%",fontWeight:600,minWidth:100}}>
                                         <Checkbox
-                                        checked={true}
+                                        checked={false}
                                         inputProps={{ 'aria-label': 'primary checkbox' }}
                                     />
                                     </TableCell>
                                     <TableCell style={{width:"50%",fontWeight:600,minWidth:100}}> Produit </TableCell>
                                     <TableCell style={{width:"30%",fontWeight:600,minWidth:100}}> Prix unitaire </TableCell>
-                                    <TableCell style={{width:"10%",fontWeight:600,minWidth:100}}> Action</TableCell>
-
-
-
-
-
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {clients.map((item,key)=>(
+                                {products.map((item,key)=>(
                                     <tr key={key} style={{padding:10}}>
                                         <td className="text-center"   style={{width:"10%",minWidth:100}}>
                                             <Checkbox
-                                                checked={true}
+                                                checked={item.checked ||false}
+                                                onChange={() => {
+                                                    item.checked = item.checked ? !item.checked : true
+                                                    setUpdateX(!updateX)
+                                                }}
                                                 inputProps={{ 'aria-label': 'primary checkbox' }}
-                                            />                                        </td>
+                                            />
+                                        </td>
                                         <td style={{ width: "50%",minWidth:100 }} >
                                            <div className="row">
                                                <div className="col-md-2">
-                                                   <img src={item.image}style={{width:"100%"}}/>
+                                                   <img alt="" src={item.image ||default_image } style={{width:"100%"}}/>
                                                </div>
                                                <div className="col-md-auto">
-                                               <h4>
+                                               <h5>
                                                    {item.nomProd}
-                                               </h4>
-                                               <small>
+                                               </h5>
+                                               <p>
                                                    {item.descriptionProd}
-                                               </small>
+                                               </p>
                                                </div>
                                            </div>
                                         </td>
                                         <td style={{ width: "30%" }} >
-                                            <h4> {item.prix+"€"} </h4>
+                                            <h5> {item.prix+"€"} </h5>
                                         </td>
 
 
-                                        <td style={{ width: "10%"}}>
+                                        {/*<td style={{ width: "10%"}}>
 
                                             <div style={{display:"flex"}}>
                                                 <div style={{margin:3}}>
@@ -220,7 +245,7 @@ export default function TableProducts(props) {
 
                                             </div>
 
-                                        </td>
+                                        </td>*/}
 
                                     </tr>
                                 ))}
@@ -228,6 +253,88 @@ export default function TableProducts(props) {
                                 </tbody>
 
                             </table>
+                            {
+                                selected_products.length > 0 &&
+                                <div style={{marginTop:20}}>
+                                    <h5 style={{color:"#f50057"}}>{selected_products.length + " produits sélectionnés"}</h5>
+                                    <div align="right">
+                                        <span style={{fontWeight:"bold",color:"#000"}}>Total:&nbsp;{total + " €"} </span><br/>
+                                        <Button style={{marginTop:15}} onClick={(e)=>{
+                                            setAnchorEl(e.currentTarget)
+                                        }}
+                                                variant="contained" color="primary" size="small">
+                                            Nouveau Pack
+                                        </Button>
+                                    </div>
+                                </div>
+                            }
+
+
+                            <Popover
+                                id={id}
+                                open={openNewPackPopover}
+                                anchorEl={anchorEl}
+                                onClose={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    setAnchorEl(null)
+                                }}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'center',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'center',
+                                }}
+                            >
+                                <div style={{padding:15}}>
+                                    <h5 style={{color:"#000",textDecoration:"underline"}}>Nouveau Pack</h5>
+                                    <div style={{marginTop:20}}>
+                                        <TextField  value={packName}
+                                                    onChange={(e) => {setPackName(e.target.value)}}
+                                                    id="outlined-basic" label="Nom" variant="outlined" />
+                                    </div>
+                                    <div style={{marginTop:20}}>
+                                        <h6 style={{color:"#f50057"}}>{selected_products.length + " produits sélectionnés"}</h6>
+                                    </div>
+                                    <div align="right">
+                                        <span style={{fontWeight:"bold",color:"#000"}}>Total:&nbsp;{total + " €"} </span><br/>
+                                        <Button style={{marginTop:15}} onClick={()=>{
+                                            let products = [];
+                                            selected_products.map((item,key) => {
+                                                products.push({
+                                                    id_prod:item.id_prod,
+                                                    image:item.image,
+                                                    nomProd:item.nomProd,
+                                                    descriptionProd:item.descriptionProd,
+                                                    prix:item.prix
+                                                })
+                                            })
+                                            let newpack = {
+                                                name:packName,
+                                                products:products,
+                                                created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                                                created_by:localStorage.getItem("email")
+                                            }
+                                            props.addNewPack(newpack)
+                                            setTimeout(() => {
+                                                setAnchorEl(null)
+                                                setPackName("");
+                                                (products || [] ).map((item,key) => {
+                                                    item.checked = false
+                                                })
+                                                selected_products = [];
+                                                setUpdateX(!updateX)
+                                            },500);
+                                        }}
+                                                variant="contained" color="primary" size="small">
+                                            Ajouter
+                                        </Button>
+                                    </div>
+                                </div>
+                            </Popover>
+
                         </div>
                     </div>
                 </div>

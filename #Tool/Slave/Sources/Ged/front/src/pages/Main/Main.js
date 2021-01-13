@@ -725,6 +725,9 @@ export default class Main extends React.Component {
             if(tablesRes.includes("rooms") === false){
               this.setState({rooms:[]})
             }
+            if(tablesRes.includes("p_packs") === false){
+              this.setState({p_packs:[]})
+            }
             this.setState({tableList:tablesRes || []})
 
             tablesRes.map((item,key) => {
@@ -1060,6 +1063,17 @@ export default class Main extends React.Component {
                 }
 
               }
+            else if(this.props.location.pathname === "/home/marketplace/produits"){
+
+              this.setState({
+                showContainerSection: 'marketplace',
+                focusedItem: 'marketplace',
+                selectedMarketplaceMenuItem: ['produits'],
+                openMarketplaceMenuItem: true,
+                firstLoading: false,
+                loading: false
+              });
+            }
               else if (this.props.location.pathname === '/home/search') {
                 if (this.props.match.params.section_id) {
                   let textToSearch = this.props.match.params.section_id;
@@ -1217,7 +1231,7 @@ export default class Main extends React.Component {
     let produit = this.state.nvproduit
     PatientService.createProduit(produit).then((res)=>{
       if(res.error==="false"){
-        this.openSnackbar("success","produit ahjouter avec success")
+        this.openSnackbar("success","Produit ajouté avec succès")
       }
     }).then(()=>{
       this.setState({openModalProduit:false})
@@ -2194,6 +2208,7 @@ export default class Main extends React.Component {
     return (
       <div>
         <LeftMenuV3
+            p_packs={this.state.p_packs || [] }
             loadingGed={this.state.loadingGed}
             showFileInGed={this.state.showFileInGed}
             setShowFileInGed={(value) => {
@@ -3358,6 +3373,28 @@ export default class Main extends React.Component {
             });
           }, 250);
 
+        } else {
+          this.setState({loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+        console.log(err)
+      })
+
+    }).catch(err => {console.log(err)})
+  }
+
+  addNewProductsPack(pack) {
+    this.setState({loading: true});
+
+    this.verifIsTableExist("p_packs").then( v => {
+
+      rethink.insert("test",'table("p_packs").insert('+ JSON.stringify(pack) + ')',db_name,false).then( resAdd => {
+        if (resAdd && resAdd === true) {
+          this.openSnackbar('success', "Pack: " + pack.name + ' est ajouté avec succès ');
+          this.setState({loading: false});
         } else {
           this.setState({loading:false})
           this.openSnackbar("error","Une erreur est survenue !")
@@ -5163,7 +5200,7 @@ export default class Main extends React.Component {
                                         <div className="row mt-3" style={{maxWidth:1000}}>
                                           {
                                             (this.state.rooms || []).map((room,key) => (
-                                                <div className="col-lg-3 mb-2">
+                                                <div className="col-lg-3 mb-2" key={key}>
                                                   <div className="card-container" style={{backgroundColor:room.color}} onClick={() => {
                                                     this.setState({
                                                       selectedRoom: room,
@@ -6289,7 +6326,7 @@ export default class Main extends React.Component {
                                                       {
                                                         this.state.newClientFolder.team.map((item, key) =>
                                                             item.type === "lead" &&
-                                                            <div style={{
+                                                            <div key={key} style={{
                                                               display: 'flex',
                                                               justifyContent: 'flex-start',
                                                               marginTop: 15
@@ -6386,7 +6423,7 @@ export default class Main extends React.Component {
                                                       {
                                                         this.state.newClientFolder.team.map((item, key) =>
                                                             item.type === "team" &&
-                                                            <div style={{
+                                                            <div key={key} style={{
                                                               display: 'flex',
                                                               justifyContent: 'flex-start',
                                                               marginTop: 15
@@ -8750,7 +8787,9 @@ export default class Main extends React.Component {
                                         this.props.history.push('produits/'+item.id_prod)
 
                                       }}
-                                                     products={this.state.produits}/>
+                                          products={this.state.produits}
+                                          addNewPack={(pack) => {this.addNewProductsPack(pack)}}
+                                      />
 
                                     </div>
                                   }
@@ -10634,31 +10673,23 @@ export default class Main extends React.Component {
             </ModalHeader>
             <ModalBody>
               <div className="row">
-                <div className="col-md-4 text-center p-2 " style={{borderStyle:"solid",borderWidth:1}}>
+                <div className="col-md-4 text-center p-2 " style={{border:"2px solod #f0f0f0"}}>
 
-
-
-                  <Button    style={{width:"80%",backgroundColor:`rgba(117, 190, 218, 0.0)`}}>
-
+                  <Button style={{width:"80%",backgroundColor:`rgba(117, 190, 218, 0.0)`}}>
+                    {
+                      this.state.nvproduit.image === "" ?
+                        <img alt="" onClick={(e) => {
+                          this.handleClick(e)
+                        }} src={photo} style={{width: "100%"}}/>
+                        :
+                        <img alt="" onClick={(e) => {
+                          this.handleClick(e)
+                        }} src={this.state.nvproduit.image} style={{width: "100%"}}/>
+                    }
                     <input onChange={(e)=>{
                       this.uploadImageProduit(e)
                     }} ref="fileUploader" type="file"accept="image/x-png,image/gif,image/jpeg"  style={{display:"none"}} />
-
-                    {this.state.nvproduit.image===""?
-                        <img onClick={(e) => {
-                          this.handleClick(e)
-                        }} src={photo} style={{width: "100%"}}>
-                        </img>:
-                        <img onClick={(e) => {
-                          this.handleClick(e)
-                        }} src={this.state.nvproduit.image} style={{width: "100%"}}>
-                        </img>
-
-                    }
-
                   </Button>
-
-
 
 
 
@@ -10666,20 +10697,19 @@ export default class Main extends React.Component {
                 <div className="col-md-7 ml-3">
 
                   <div>
-                    <TextField  value={this.state.nvproduit.nomProd} onChange={(e)=>{this. handleChangeText("nomProd",e)}} id="outlined-basic" label="Nom de produit" variant="outlined" style={{width:"50%"}} />
-
+                    <TextField  value={this.state.nvproduit.nomProd}
+                                onChange={(e)=>{ this. handleChangeText("nomProd",e)}}
+                                id="outlined-basic" label="Nom de produit" variant="outlined" style={{width:"80%"}} />
                   </div>
-
-
-
                   <div className="mt-2  ">
-
                     <hr style={{height:1,backgroundColor:"black" ,width:"30%",marginRight:"100%" }}/>
                   </div>
-
                   <div>
-                    <TextField  value={this.state.nvproduit.descriptionProd} onChange={(e)=>{this.handleChangeText("descriptionProd",e)}} id="outlined-basic" label="Description  produit" variant="outlined" style={{width:"50%"}} />
-
+                    <TextField  value={this.state.nvproduit.descriptionProd}
+                                multiline
+                                rows={3}
+                                onChange={(e)=>{this.handleChangeText("descriptionProd",e)}}
+                                id="outlined-basic" label="Description" variant="outlined" style={{width:"80%"}} />
                   </div>
 
 
@@ -10691,21 +10721,19 @@ export default class Main extends React.Component {
                   <div className="mt-3">
                     <div className="row align-items-center">
                       <div className="col-md-6">
-                        <Button onClick={()=>this.ajouterProduit()} style={{borderRadius:100,borderWidth:1,borderStyle:"solid" ,width:"100%",backgroundColor:"#fa8282"}} variant="contained"><h5 style={{color:"white"}}>Ajouter produit</h5></Button>
+                        <Button onClick={() => this.ajouterProduit() }
+                                style={{borderRadius:100,width:"100%",backgroundColor:"#3f51b5"}}
+                                variant="contained"
 
-
+                        >
+                          Ajouter produit
+                        </Button>
                       </div>
                       <div className="col-md-4">
-                        <Button  style={{width:"100%",borderRadius:100}} variant="outlined">Annuler</Button>
-
+                        <Button  style={{width:"100%",borderRadius:100,backgroundColor:"#c0c0c0"}} variant="contained">Annuler</Button>
                       </div>
-
-
                     </div>
                   </div>
-
-
-
                 </div>
 
 

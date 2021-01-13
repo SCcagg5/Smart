@@ -14,6 +14,7 @@ import SmartService from "../../provider/SmartService";
 import {IconButton} from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
 import { Anchorme } from 'react-anchorme'
+import ArrowRightIcon from "@material-ui/icons/ArrowRight";
 
 const {DirectoryTree} = Tree;
 const db_name = process.env.REACT_APP_RETHINKDB_BEGIN_NAME;
@@ -199,6 +200,30 @@ export default class Chat extends React.Component {
         }).catch(err => {console.log(err)})
     }
 
+    addProductPack(pack){
+        let newItem = {
+            created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+            room_id: this.props.room_id,
+            sender: {
+                email: localStorage.getItem("email")
+            },
+            type: "product_pack",
+            pack_name:pack.name,
+            pack_products:pack.products
+        }
+        this.verifIsTableExist("chat").then( v => {
+            rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+                if (resAdd && resAdd === true) {
+
+                } else {
+                    console.log("Erreur add msg chat !")
+                }
+            }).catch(err => {
+                console.log(err)
+            })
+        }).catch(err => {console.log(err)})
+    }
+
     uploadImage = (image) => {
 
         let imgToUpload = image.target.files[0];
@@ -294,13 +319,27 @@ export default class Chat extends React.Component {
 
     onDrop_container(e){
         e.preventDefault();e.stopPropagation();
-        let recievedItem = JSON.parse(e.dataTransfer.getData("file"));
-        if(recievedItem.typeF === "file"){
-            this.addGedFile(recievedItem)
-        }else{
-            this.props.openSnackbar("warning","Seuls les fichiers peuvent être glissés ici")
+        if(e.dataTransfer.getData("file")){
+            let recievedItem = JSON.parse(e.dataTransfer.getData("file"));
+            if(recievedItem.typeF === "file"){
+                this.addGedFile(recievedItem)
+            }else{
+                this.props.openSnackbar("warning","Seuls les fichiers peuvent être glissés ici")
+            }
+        }else if(e.dataTransfer.getData("pack")){
+            let recievedItem = JSON.parse(e.dataTransfer.getData("pack"));
+            console.log(recievedItem)
+            this.addProductPack(recievedItem)
         }
         e.dataTransfer.clearData();
+    }
+
+    returnTotal(products){
+        let total = 0;
+        products.map((product,key) => {
+            total = total + parseFloat(product.prix);
+        })
+        return total;
     }
 
     render() {
@@ -396,7 +435,49 @@ export default class Chat extends React.Component {
 
                                                                         </div>
                                                                         :
-
+                                                                        msg.type === "product_pack" ?
+                                                                            <div style={{backgroundColor:"#dcf8c6",padding:"3px",borderRadius:7.5,
+                                                                                display:"inline-block",marginBottom:15,float:"right",boxShadow: "0 1px 0.5px rgba(0,0,0,.13)"}}>
+                                                                                <div style={{margin:5,border:"2px solid #f0f0f0",borderRadius:7.5,padding:8,backgroundColor:"#fff"}}>
+                                                                                    <div style={{display:"flex"}}>
+                                                                                        <h6 style={{marginTop:7}}>{msg.pack_name}</h6>
+                                                                                    </div>
+                                                                                    {
+                                                                                        (msg.pack_products || []).map((product,key) => (
+                                                                                            <div key={key} style={{marginTop:5,marginLeft:5,marginRight:5}}>
+                                                                                                <div style={{border:"2px solid cornflowerblue",padding:2.5,borderRadius:7.5}}>
+                                                                                                    <div style={{display:"flex"}}>
+                                                                                                        <div style={{alignSelf:"center"}}>
+                                                                                                            <img alt="" src={product.image} style={{width:60,height:60,borderRadius:"unset",objectFit:"unset"}}/>
+                                                                                                        </div>
+                                                                                                        <div style={{marginLeft:10}}>
+                                                                                                            <h6>{product.nomProd}</h6>
+                                                                                                            <p className="truncate-2" style={{marginBottom:"0.0rem",backgroundColor:"#fff"}}>{product.descriptionProd}</p>
+                                                                                                            <div align="right">
+                                                                                                                <span style={{fontWeight:"bold",fontSize:"x-small",marginRight:5}}>{product.prix +" €"}</span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        ))
+                                                                                    }
+                                                                                    <div style={{marginTop:10}}>
+                                                                                        <div align="right">
+                                                                                            <span style={{fontWeight:"bold"}}>Total: <span>{this.returnTotal(msg.pack_products)} €</span></span>
+                                                                                        </div>
+                                                                                        <div align="center" style={{marginTop:15}}>
+                                                                                            <button
+                                                                                                onClick={(e) => {}}
+                                                                                                className="btn btn-success waves-effect waves-light">
+                                                                                                Payer
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <h6 style={{color:"gray",marginTop:14,marginBottom:2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            :
                                                                             <p>
                                                                                 <Anchorme  target="_blank" style={{color:"#039be5"}}>
                                                                                 {msg.text}
@@ -465,6 +546,51 @@ export default class Chat extends React.Component {
                                                                             <h6 style={{color:"gray",marginTop:4,marginBottom:2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
                                                                         </div>
                                                                         :
+                                                                        msg.type === "product_pack" ?
+                                                                            <div style={{backgroundColor:"#fff",padding:"3px",borderRadius:7.5,
+                                                                                display:"inline-block",marginBottom:15,boxShadow: "0 1px 0.5px rgba(0,0,0,.13)"}}>
+                                                                                <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:2,marginBottom:4,marginLeft:5}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
+                                                                                <div style={{marginTop:5,border:"2px solid #f0f0f0",borderRadius:7.5,padding:8}}>
+                                                                                    <div style={{display:"flex"}}>
+                                                                                        <ArrowRightIcon/>
+                                                                                        <h6 style={{marginTop:7}}>{msg.pack_name}</h6>
+                                                                                    </div>
+                                                                                    {
+                                                                                        (msg.pack_products || []).map((product,key) => (
+                                                                                            <div key={key} style={{marginTop:5,marginLeft:5,marginRight:5}}>
+                                                                                                <div style={{border:"2px solid cornflowerblue",padding:2.5,borderRadius:7.5}}>
+                                                                                                    <div style={{display:"flex"}}>
+                                                                                                        <div style={{alignSelf:"center"}}>
+                                                                                                            <img alt="" src={product.image} style={{width:60,height:60,borderRadius:"unset",objectFit:"unset"}}/>
+                                                                                                        </div>
+                                                                                                        <div style={{marginLeft:10}}>
+                                                                                                            <h6>{product.nomProd}</h6>
+                                                                                                            <p className="truncate-2" style={{marginBottom:"0.0rem",backgroundColor:"#fff"}}>{product.descriptionProd}</p>
+                                                                                                            <div align="right">
+                                                                                                                <span style={{fontWeight:"bold",fontSize:"x-small",marginRight:5}}>{product.prix +" €"}</span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        ))
+                                                                                    }
+                                                                                    <div style={{marginTop:10}}>
+                                                                                        <div align="right">
+                                                                                            <span style={{fontWeight:"bold"}}>Total: <span>{this.returnTotal(msg.pack_products)} €</span></span>
+                                                                                        </div>
+                                                                                        <div align="center" style={{marginTop:15}}>
+                                                                                            <button
+                                                                                                onClick={(e) => {}}
+                                                                                                className="btn btn-success waves-effect waves-light">
+                                                                                                Payer
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <h6 style={{color:"gray",marginTop:14,marginBottom:2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            :
 
                                                                             <p>
                                                                                 <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>

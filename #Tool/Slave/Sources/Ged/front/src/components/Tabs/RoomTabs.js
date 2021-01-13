@@ -343,7 +343,7 @@ export default function RoomTabs(props) {
                                 }
                                 {
                                     (props.room.files || []).map((file, key) => (
-                                        <div style={{border:"1px solid #f0f0f0",borderRadius:7.5,width:"100%",display:"flex",marginBottom:10,boxShadow:"0 1px 3px rgba(0,0,0,.25)",cursor:"pointer"}}
+                                        <div key={key} style={{border:"1px solid #f0f0f0",borderRadius:7.5,width:"100%",display:"flex",marginBottom:10,boxShadow:"0 1px 3px rgba(0,0,0,.25)",cursor:"pointer"}}
                                              onClick={() => props.openPdfModal(file.id_in_ged)}
                                         >
                                             <div style={{display:"flex",minWidth:"30%",alignItems:"center"}}>
@@ -379,7 +379,7 @@ export default function RoomTabs(props) {
                     <div style={{marginTop:20,marginLeft:15,marginRight:15}}>
                         {
                             (tasks || []).map((task,key) => (
-                                <div className="task_container" style={{backgroundColor:"#fff",minWidth:800}}>
+                                <div key={key} className="task_container" style={{backgroundColor:"#fff",minWidth:800}}>
                                     <div style={{display:"flex",justifyContent:"space-between"}}>
                                         <div>
                                             <div style={{display:"flex"}}>
@@ -478,7 +478,7 @@ export default function RoomTabs(props) {
                                             }
                                             {
                                                 (task.files || []).map((file, key) => (
-                                                    <div style={{border:"1px solid #f0f0f0",borderRadius:7.5,width:"100%",display:"flex",marginBottom:10,boxShadow:"0 1px 3px rgba(0,0,0,.25)"}}>
+                                                    <div key={key} style={{border:"1px solid #f0f0f0",borderRadius:7.5,width:"100%",display:"flex",marginBottom:10,boxShadow:"0 1px 3px rgba(0,0,0,.25)"}}>
                                                         <div style={{display:"flex",minWidth:"20%",alignItems:"center"}}>
                                                             <IconButton size="small"
                                                                         onClick={() => props.openPdfModal(file.id_in_ged)}
@@ -519,7 +519,7 @@ export default function RoomTabs(props) {
                                                             <div style={{display:"flex",flexWrap:"wrap"}}>
                                                                 {
                                                                     (file.team_validation || []).map((item,key) => (
-                                                                        <div style={{display:"flex"}}>
+                                                                        <div key={key} style={{display:"flex"}}>
                                                                             <GreenCheckbox
                                                                                 checked={item.validation ? item.validation === "true" : false}
                                                                                 onChange={(e) => {
@@ -561,7 +561,7 @@ export default function RoomTabs(props) {
                                         <div>
                                             {
                                                 (task.tags || []).map((tag,key) => (
-                                                    <span className="badge badge-light p-1" style={{color:"cadetblue",marginRight:2}}>{tag}</span>
+                                                    <span key={key} className="badge badge-light p-1" style={{color:"cadetblue",marginRight:2}}>{tag}</span>
                                                 ))
                                             }
                                         </div>

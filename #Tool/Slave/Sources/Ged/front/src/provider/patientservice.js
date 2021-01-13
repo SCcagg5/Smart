@@ -119,11 +119,7 @@ let  PatientService = {
 
     uploadImage(input){
         const formData  = new FormData();
-        console.log(input.target.files[0])
         formData.append('file', input.target.files[0])
-
-
-
         return fetch(endpoint+'uploadImageProduct', {
             method: 'POST',
             headers:this.loadHeadersImage(),
