@@ -487,10 +487,10 @@ export default class Chat extends React.Component {
                                                                                                             <img alt="" src={product.image} style={{width:60,height:60,borderRadius:"unset",objectFit:"unset"}}/>
                                                                                                         </div>
                                                                                                         <div style={{marginLeft:10}}>
-                                                                                                            <h6>{product.title}</h6>
+                                                                                                            <h6>{product.nomProd}</h6>
                                                                                                             <p className="truncate-2" style={{marginBottom:"0.0rem",backgroundColor:"#fff",fontSize:"0.6rem"}}>{product.desc}</p>
                                                                                                             <div align="right">
-                                                                                                                <span style={{fontWeight:"bold",fontSize:"x-small",marginRight:5}}>{product.price +" €"}</span>
+                                                                                                                <span style={{fontWeight:"bold",fontSize:"x-small",marginRight:5}}>{product.prix +" €"}</span>
                                                                                                             </div>
                                                                                                         </div>
                                                                                                     </div>
@@ -500,7 +500,7 @@ export default class Chat extends React.Component {
                                                                                     }
                                                                                     <div style={{marginTop:10}}>
                                                                                         <div align="right">
-                                                                                            <span style={{fontWeight:"bold"}}>Total: <span>{this.returnTotal(msg.pack_products)} €</span></span>
+                                                                                            <span style={{fontWeight:"bold"}}>Total: <span> €</span></span>
                                                                                         </div>
                                                                                         <div align="center" style={{marginTop:15}}>
                                                                                             <button
@@ -753,6 +753,7 @@ export default class Chat extends React.Component {
                             </div>
                             <div style={{display:"flex",cursor:"pointer",marginBottom:10}}
                                  onClick={() => {
+                                     this.props.history.push('/stripe')
 
                                  }}
                             >
