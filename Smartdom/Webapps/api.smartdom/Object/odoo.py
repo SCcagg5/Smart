@@ -632,7 +632,6 @@ class odoo:
         param['parent_id'] = False if int(param['parent_id']) == 0 else int(param['parent_id'])
         param['title'] = False if int(param['title']) == 0 else int(param['title'])
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
-        print(param)
         ret = models.execute_kw(self.opt['db'],
                                 self.uid,
                                 self.opt['password'],
@@ -648,7 +647,7 @@ class odoo:
                                     "image_1920":param['base64'],
                                     "__last_update":False,
                                     "company_type":"person",
-                                    "name":param['name'],
+                                    "name":param['name'].encode('utf-8'),
                                     "parent_id": param['parent_id'],
                                     "company_name":False,
                                     "function": param['function'],
