@@ -7,16 +7,15 @@ import {
     CardExpiryElement
 } from "@stripe/react-stripe-js";
 import {
-    Switch,
-    Route,
-    Redirect,
-    useLocation,
     useHistory,
     withRouter
 } from "react-router-dom";
 import CheckoutService from "../../provider/checkoutservice"
 import useResponsiveFontSize from "./useResponsiveFrontSize";
 import axios from "axios";
+
+
+const endpoint = "http://localhost:3001"
 
 const useOptions = () => {
     const fontSize = useResponsiveFontSize();
@@ -69,7 +68,7 @@ const SplitForm = (produits) => {
            const token =stripe.createToken(elements.getElement(CardNumberElement))
             token.then(async (res) => {
                 console.log(res.token.id)
-                  await axios.post('http://localhost:3001/api/Stripe', {
+                  await axios.post(endpoint + '/api/Stripe', {
                     amount: 500,
                     source: res.token.id,
                     receipt_email: 'customer@example.com'
@@ -83,7 +82,6 @@ const SplitForm = (produits) => {
                         CheckoutService.CreateCheckout(data).then((res)=>{
                                let idCheckout=""
                             if (res.error===false){
-                                console.log("temchi")
                                  idCheckout=res.data
                                 produits.produits.produits.map((item,key)=>{
                                     item.id_checkout=idCheckout
@@ -91,17 +89,12 @@ const SplitForm = (produits) => {
                                         console.log(ress)
                                     })
                                 })
-
-
-
-
-
                             }
                             return idCheckout
                         }).then((id)=>{
                             CheckoutService.sendMail(localStorage.getItem('email'),id).then((rr)=>{
                                 console.log(rr)
-                                alert("payment done")
+                                alert("Paiement effectué avec succès")
                                 setTimeout(() => {
                                     history.goBack()
                                 }, 3000);
@@ -126,7 +119,7 @@ const SplitForm = (produits) => {
         <form  onSubmit={handleSubmit}>
             <div className="form-row">
             <label className="w-75">
-                Card number
+                Numéro de carte
                 <CardNumberElement
                     options={options}
                     onReady={() => {
@@ -146,7 +139,7 @@ const SplitForm = (produits) => {
             </div>
            <div>
             <label className="w-75" >
-                Expiration date
+                Date d'éxpiration
                 <CardExpiryElement
                     options={options}
                     onReady={() => {
@@ -184,9 +177,12 @@ const SplitForm = (produits) => {
                 />
             </label>
             </div>
-            <button className="stripe" type="submit" disabled={!stripe}>
-                Pay
-            </button>
+            <div align="center">
+                <button className="stripe" type="submit" disabled={!stripe}>
+                    Payer
+                </button>
+            </div>
+
         </form>
     );
 };

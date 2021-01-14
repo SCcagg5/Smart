@@ -8,6 +8,10 @@ import {
 } from 'react-stripe-elements'
 import axios from 'axios'
 import './CheckoutForm.scss'
+
+
+const endpoint = "http://localhost:3001"
+
 const CheckoutForm = ({ selectedProduct, stripe, history }) => {
     if (selectedProduct === null) history.push('/')
 
@@ -18,7 +22,7 @@ const CheckoutForm = ({ selectedProduct, stripe, history }) => {
 
         const { token } = await stripe.createToken()
 
-        const order = await axios.post('http://localhost:3001/api/Stripe', {
+        const order = await axios.post(endpoint + '/api/Stripe', {
             amount: 500,
             source: token.id,
             receipt_email: 'customer@example.com'
@@ -29,22 +33,22 @@ const CheckoutForm = ({ selectedProduct, stripe, history }) => {
     if (receiptUrl) {
         return (
             <div className="success">
-                <h2>Payment Successful!</h2>
-                <a href={receiptUrl}>View Receipt</a>
-                <Link to="/">Home</Link>
+                <h2>Paiement effectué avec succès !</h2>
+                <a href={receiptUrl}>Voir le reçu</a>
+                <Link to="/">Accueil</Link>
             </div>
         )
     }
     return (
         <div className="checkout-form">
-            <p>Amount: ${selectedProduct.price}</p>
+            <p>Montant: ${selectedProduct.price}</p>
             <form onSubmit={handleSubmit}>
                 <label>
-                    Card details
+                    Numéro de carte
                     <CardNumberElement />
                 </label>
                 <label>
-                    Expiration date
+                    Date d'éxpiration
                     <CardExpiryElement />
                 </label>
                 <label>
@@ -52,7 +56,7 @@ const CheckoutForm = ({ selectedProduct, stripe, history }) => {
                     <CardCVCElement />
                 </label>
                 <button type="submit" className="order-button">
-                    Pay
+                    Payer
                 </button>
             </form>
         </div>

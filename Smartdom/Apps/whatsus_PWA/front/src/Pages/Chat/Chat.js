@@ -507,9 +507,8 @@ export default class Chat extends React.Component {
                                                                                         <div align="center" style={{marginTop:15}}>
                                                                                             <button
                                                                                                 onClick={(e) => {
-                                                                                                    let payment=""
-                                                                                                    payment.produits=msg.pack_products
-
+                                                                                                    let payment = { };
+                                                                                                    payment.produits = msg.pack_products
                                                                                                     this.setState({openBottomPayModal:true,payment:payment})
                                                                                                 }}
                                                                                                 className="btn btn-success waves-effect waves-light">

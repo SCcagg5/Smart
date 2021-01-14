@@ -1,10 +1,6 @@
 import React from "react";
 import {
-    Switch,
-    Route,
-    Redirect,
     useLocation,
-    useHistory,
     withRouter
 } from "react-router-dom";
 import SplitForm from "../../Components/stripe/SplitForm";
