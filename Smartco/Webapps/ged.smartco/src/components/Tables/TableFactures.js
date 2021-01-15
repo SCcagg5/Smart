@@ -306,11 +306,12 @@ function Row(props) {
   const [template, setTemplate] = React.useState("0");
   const [client, setClient] = React.useState("");
   const [paymTerm, setPaymTerm] = React.useState(props.paymTerms.length > 0 ? props.paymTerms[0].id : "");
+  const [tax, setTax] = React.useState(props.taxs.length > 0 ? props.taxs[0].display_name : "");
   const [deadline_date, setDeadline_date] = React.useState(new Date());
 
   const { row } = props;
   const [open, setOpen] = React.useState(false);
-  const [updateX, setUpdateX] = React.useState(false);
+  /*const [updateX, setUpdateX] = React.useState(false);*/
 
 
   const classes = useRowStyles();
@@ -412,7 +413,7 @@ function Row(props) {
                       <TableCell align="center" style={{fontWeight:"bold"}} >Actions</TableCell>
                     }*/}
                         <TableCell align="center" style={{fontWeight:"bold"}} >Total</TableCell>
-                        <TableCell align="center" style={{fontWeight:"bold"}} >Taxe</TableCell>
+                        {/*<TableCell align="center" style={{fontWeight:"bold"}} >Taxe</TableCell>*/}
 
                       </TableRow>
                     </TableHead>
@@ -431,7 +432,7 @@ function Row(props) {
                             <TableCell align="center">
                               {(lf.newTime.duree * parseInt(lf.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF
                             </TableCell>
-                            <TableCell align="center">
+                            {/*<TableCell align="center">
                               {
                                 row.statut === "wait"  ?
                                 <select
@@ -450,7 +451,7 @@ function Row(props) {
                                 </select> : lf.tax ? main_functions.getTaxNameById(props.taxs || [],parseInt(lf.tax)) : "Non attribué"
 
                               }
-                            </TableCell>
+                            </TableCell>*/}
                           </TableRow>
                       ))}
                     </TableBody>
@@ -511,6 +512,23 @@ function Row(props) {
                           </select>
                         </div>
                         <div className="col-md-4">
+                          <h6>Taxe</h6>
+                          <select
+                              className="form-control custom-select"
+                              value={tax}
+                              onChange={(e) => {
+                                setTax(e.target.value)
+                              }}>
+                            <option value={""}/>
+                            {
+                              (props.taxs || []).map((item,key) =>
+                                  <option key={key} value={item.id}>{item.display_name}</option>
+                              )
+                            }
+
+                          </select>
+                        </div>
+                        <div className="col-md-4">
                           <h6>Date d'échéance</h6>
                           <DatePicker
                               calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
@@ -529,7 +547,7 @@ function Row(props) {
                       <div align="right" style={{marginTop:20}}>
                         <AtlButton onClick={() => {
                           if(verif_access === true){
-                            props.validateFacture(row,props.index,template,client,paymTerm,deadline_date)
+                            props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax)
                           }else{
                             alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
                           }

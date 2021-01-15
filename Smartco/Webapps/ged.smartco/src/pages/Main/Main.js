@@ -405,6 +405,12 @@ export default class Main extends React.Component {
     SEQ_file:"",
     signFile_destinationFolder:"",
 
+    openUserDetailModal:false,
+    userFname:localStorage.getItem("firstname") || "",
+    userLname:localStorage.getItem("lastname") || "",
+    userEmail:localStorage.getItem("email") || "",
+    userPhone:localStorage.getItem("phone") || "",
+
 
   };
 
@@ -2234,22 +2240,21 @@ export default class Main extends React.Component {
                                                 onChange={ (e) => {
                                                   let obj = this.state.TimeSheet;
                                                   let findClientTempo = this.state.clients_cases.find(x => x.ID_client === e)
+                                                  //console.log(findClientTempo)
                                                   let findClientFname = this.state.annuaire_clients_mandat.find(x => x.ID === e)
+                                                  //console.log(findClientFname)
                                                   obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
                                                   obj.newTime.client_id = e;
+                                                  obj.newTime.dossier_client =  {
+                                                    name:'',
+                                                    facturation: {
+                                                      language:''
+                                                    }}
                                                   if(findClientTempo){
                                                     this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
                                                   }else{
-                                                    obj.newTime.dossier_client =  {
-                                                      name:'',
-                                                      facturation: {
-                                                        language:''
-                                                      }}
                                                     this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: e})
                                                   }
-                                                  setTimeout(() => {
-                                                    console.log(this.state.selectedClientFolders)
-                                                  },400)
                                                 }}
                                             />
                                             <IconButton
@@ -2421,9 +2426,10 @@ export default class Main extends React.Component {
                                         <AtlButton
                                             onClick={() => {
                                               this.createLignefacture(false)
+                                              //console.log(this.state.TimeSheet.newTime.dossier_client)
                                             }}
                                             appearance="primary"
-                                            isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' ||
+                                            isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id ||
                                             this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
                                             style={{ margin: 20 }}> Enregistrer </AtlButton>
                                         <AtlButton
@@ -2431,7 +2437,7 @@ export default class Main extends React.Component {
                                               this.createLignefacture(true)
                                             }}
                                             appearance="primary"
-                                            isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' ||
+                                            isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id ||
                                             this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
                                             style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
                                         <AtlButton
@@ -2725,8 +2731,8 @@ export default class Main extends React.Component {
                                            clients_tempo={this.state.clients_cases}
                                            annuaire_clients_mandat={this.state.annuaire_clients_mandat}
                                            sharedFolders={this.state.sharedReelFolders || []}
-                                           validateFacture={(row,key,template,client,paymTerm,deadline_date) => {
-                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date);
+                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax) => {
+                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax);
                                            }}
                                            openFacture={(id) => {
                                              this.openPdfModal(id)
@@ -2860,7 +2866,7 @@ export default class Main extends React.Component {
     this.reloadGed()
   }
 
-  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date){
+  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax){
     this.setState({loading:true})
 
     let odoo_companies = this.state.odoo_companies || [];
@@ -2869,7 +2875,7 @@ export default class Main extends React.Component {
 
     if(findCompany){
       facture_company_id = findCompany.odoo_company_id;
-      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date)
+      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax)
 
     }else{
 
@@ -2886,7 +2892,7 @@ export default class Main extends React.Component {
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
 
-                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date)
+                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax)
 
               }else{
                 this.setState({loading:false})
@@ -2916,7 +2922,7 @@ export default class Main extends React.Component {
     }
   }
 
-  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date) {
+  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax) {
     let id_facture = facture.id
 
     let lignes_factures = lignes_f;
@@ -2929,8 +2935,7 @@ export default class Main extends React.Component {
     let odoo_data = [{
       'access_token': acces_token,
       'type': 'out_invoice',
-      /*'invoice_sent': false,*/
-      "move_name":false,  //false
+      "move_name":false,
       "user_id":6,
       "team_id":1,
       "comment":false,
@@ -2967,7 +2972,6 @@ export default class Main extends React.Component {
       'invoice_payments_widget': 'False',
       'amount_residual': 0,
       'invoice_outstanding_credits_debits_widget': false,
-      /*'narration': false,*/
       'invoice_origin': false,
       'invoice_cash_rounding_id': false,
       'invoice_source_email': false,
@@ -2983,16 +2987,6 @@ export default class Main extends React.Component {
       "reference": false,
       "fiscal_position_id": false,
       "origin": false,
-      /*"kwargs":{
-        "context":{
-          "lang":"fr_CH",
-          "tz":false,
-          "uid":8,
-          "type":"out_invoice",
-          "journal_type":"sale",
-          "model":"account.invoice.confirm"
-        }
-      },*/
       "reference_type":"none",
       "incoterm_id":false,
       "sequence_number_next":false,
@@ -3034,7 +3028,7 @@ export default class Main extends React.Component {
                 [
                   6,
                   false,
-                  ligne.tax && ligne.tax !== "" ? [ligne.tax] : []
+                  tax && tax !== "" ? [tax] : []
                 ]
               ],
               'analytic_tag_ids': [
@@ -3983,6 +3977,125 @@ export default class Main extends React.Component {
     this.setState({selectedDrivePopUpKeys:selectedKeys,signFile_destinationFolder:info.node})
   }
 
+  updateUserInfo(fname,lname,phone){
+    this.setState({loading:true,openUserDetailModal:false})
+    SmartService.updateUserInfo({firstname:fname,lastname:lname,phone:phone},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+      if (updateRes.succes === true && updateRes.status === 200) {
+        localStorage.setItem("phone", phone)
+        localStorage.setItem("firstname", fname)
+        localStorage.setItem("lastname", lname)
+        this.setState({loading:false})
+        this.openSnackbar("success","Modification effectuée avec succès")
+      }else{
+        this.setState({loading:false,userLname:localStorage.getItem("lastname") || "",
+          userFname:localStorage.getItem("firstname") || "",userPhone:localStorage.getItem("phone") || ""})
+        this.openSnackbar("error",updateRes.error)
+        console.log(updateRes.error)
+      }
+    }).catch(err => {
+      this.setState({loading:false,userLname:localStorage.getItem("lastname") || "",
+        userFname:localStorage.getItem("firstname") || "",userPhone:localStorage.getItem("phone") || ""})
+      this.openSnackbar("error","Une erreur est survenue !")
+      console.log(err)
+    })
+  }
+
+
+  SEQ_file(){
+    if(localStorage.getItem("phone") === undefined || localStorage.getItem("phone") === null || localStorage.getItem("phone") === "" ){
+      this.openSnackbar("warning","Vous devez ajouter votre numéro de téléphone pour signer !")
+      setTimeout(() => {
+        this.setState({openUserDetailModal:true})
+      },500)
+    }else{
+      if(localStorage.getItem("phone").startsWith("+41") === false){
+        this.openSnackbar("warning","Il faut avoir un numéro Suisse pour signer le document")
+        setTimeout(() => {
+          this.setState({openUserDetailModal:true})
+        },500)
+
+      }else{
+        this.setState({loading:true})
+        var formdata = new FormData();
+        formdata.append("file", this.state.SEQ_file, this.state.SEQ_file.name);
+        formdata.append("name", this.state.SEQ_file.name.slice(0, -4));
+        /*formdata.append("given", "courtel");
+        formdata.append("surname", "eliot");
+        formdata.append("email", "eliot.courtel@gmail.com");*/
+        formdata.append("phone", localStorage.getItem("phone"));  //+41795281046
+
+        var requestOptions = {
+          method: 'POST',
+          body: formdata,
+          redirect: 'follow'
+        };
+
+        fetch("https://sign.1.smartdom.ch/sign", requestOptions)
+            .then(response => {
+              console.log(response)
+              if(response.status === 400){
+                this.setState({loading:false})
+                this.openSnackbar("error","Des données manquantes !")
+              }else if(response.status === 500){
+                this.setState({loading:false})
+                this.openSnackbar("error","une erreur est survenue !")
+              }else if(response.status === 405){
+                this.setState({loading:false})
+                this.openSnackbar("error","Opération annulée !")
+              }else if(response.status === 200){
+                response.json()
+              }
+            })
+            .then(result => {
+              console.log(result)
+              if(result.succes === true && result.status === 200){
+
+                SmartService.addFileFromBas64({b64file:result.data,folder_id:this.state.signFile_destinationFolder.key},
+                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+
+                  if(addFileRes.succes === true && addFileRes.status === 200) {
+                    let fileName = this.state.SEQ_file.name.slice(0, -4);
+                    SmartService.updateFileName({name:fileName},
+                        addFileRes.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                      if(updateNameRes.succes === true && updateNameRes.status === 200){
+                        this.justReloadGed()
+                        setTimeout(() => {
+                          this.setState({loading:false})
+                          this.openSnackbar("success","La signature électronique est bien effectué avec succès")
+                        },500)
+                      }else{
+                        console.log(updateNameRes.error)
+                        this.openSnackbar("error",updateNameRes.error)
+                        this.setState({loading:false})
+                      }
+                    }).catch(err => {
+                      console.log(err)
+                      this.openSnackbar("error","Une erreur est survenue")
+                    })
+                  }else{
+                    console.log(addFileRes.error)
+                    this.openSnackbar("error",addFileRes.error)
+                    this.setState({loading:false})
+                  }
+                }).catch(err => {
+                  console.log(err)
+                  this.openSnackbar("error","Une erreur est survenue")
+                  this.setState({loading:false})
+                })
+
+              }else{
+                this.openSnackbar("error",result.error)
+              }
+
+            })
+            .catch(error => {
+              console.log(error)
+              this.setState({loading:false})
+              this.openSnackbar("error","Une erreur est survenue")
+            });
+      }
+    }
+  }
 
   render() {
 
@@ -4003,6 +4116,9 @@ export default class Main extends React.Component {
               logo={logo}
               height={70}
               onClickMenuIcon={() => this.setState({ openSideMenu: true })}
+              openUserDetailModal={() => {
+                this.setState({openUserDetailModal:true})
+              }}
               onLogoutClick={() => {
                 let emailCp = localStorage.getItem("email")
                 localStorage.clear();
@@ -6049,87 +6165,7 @@ export default class Main extends React.Component {
                               <AtlButton
                                   isDisabled={this.state.signFile_destinationFolder === "" || this.state.SEQ_file === ""}
                                   appearance="primary"
-                                  onClick={() => {
-                                    this.setState({loading:true})
-                                    var formdata = new FormData();
-                                    formdata.append("file", this.state.SEQ_file, this.state.SEQ_file.name);
-                                    formdata.append("name", "test");
-                                    formdata.append("given", "courtel");
-                                    formdata.append("surname", "eliot");
-                                    formdata.append("email", "eliot.courtel@gmail.com");
-                                    formdata.append("phone", "+41795281046");
-
-                                    var requestOptions = {
-                                      method: 'POST',
-                                      body: formdata,
-                                      redirect: 'follow'
-                                    };
-
-                                    fetch("https://sign.1.smartdom.ch/sign", requestOptions)
-                                        .then(response => {
-                                          console.log(response)
-                                          if(response.status === 400){
-                                            this.setState({loading:false})
-                                            this.openSnackbar("error","Des données manquantes !")
-                                          }else if(response.status === 500){
-                                            this.setState({loading:false})
-                                            this.openSnackbar("error","une erreur est survenue !")
-                                          }else if(response.status === 405){
-                                            this.setState({loading:false})
-                                            this.openSnackbar("error","Opération annulée !")
-                                          }else if(response.status === 200){
-                                            response.text()
-                                          }
-                                        })
-                                        .then(result => {
-                                          console.log(result)
-
-                                          if(result === undefined || result === "error"){
-                                            this.setState({loading:false})
-                                          }else{
-
-                                            SmartService.addFileFromBas64({b64file:result,folder_id:this.state.signFile_destinationFolder.key},
-                                                localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
-
-                                              if(addFileRes.succes === true && addFileRes.status === 200) {
-                                                let fileName = this.state.SEQ_file.name.slice(0, -4);
-                                                SmartService.updateFileName({name:fileName},
-                                                    addFileRes.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
-                                                  if(updateNameRes.succes === true && updateNameRes.status === 200){
-                                                    this.justReloadGed()
-                                                    setTimeout(() => {
-                                                      this.setState({loading:false})
-                                                      this.openSnackbar("success","Opération effectué avec succès")
-                                                    },500)
-                                                  }else{
-                                                    console.log(updateNameRes.error)
-                                                    this.openSnackbar("error",updateNameRes.error)
-                                                    this.setState({loading:false})
-                                                  }
-                                                }).catch(err => {
-                                                  console.log(err)
-                                                  this.openSnackbar("error","Une erreur est survenue")
-                                                })
-                                              }else{
-                                                console.log(addFileRes.error)
-                                                this.openSnackbar("error",addFileRes.error)
-                                                this.setState({loading:false})
-                                              }
-                                            }).catch(err => {
-                                              console.log(err)
-                                              this.openSnackbar("error","Une erreur est survenue")
-                                              this.setState({loading:false})
-                                            })
-
-                                          }
-
-                                        })
-                                        .catch(error => {
-                                          console.log(error)
-                                          this.setState({loading:false})
-                                          this.openSnackbar("error","Une erreur est survenue")
-                                        });
-                                  }}
+                                  onClick={() => {this.SEQ_file()}}
                               >
                                 Signer le document
                               </AtlButton>
@@ -6851,6 +6887,117 @@ export default class Main extends React.Component {
               </MuiButton>
             </DialogActions>
           </Dialog>
+
+
+          <Dialog
+              open={this.state.openUserDetailModal}
+              onClose={() => {
+                this.setState({ openUserDetailModal: !this.state.openUserDetailModal });
+              }}
+              aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle disableTypography id="form-dialog-title">
+              <Typography variant="h6">Mes informations personnelles</Typography>
+              <IconButton
+                  aria-label="close"
+                  style={{
+                    position: 'absolute',
+                    right: 5,
+                    top: 5,
+                    color: '#c0c0c0'
+                  }}
+                  onClick={() => {
+                    this.setState({
+                      openUserDetailModal: !this.state.openUserDetailModal
+                    });
+                  }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent>
+              <div className="row mt-1">
+                <div className="col-md-6">
+                  <TextField
+                      id="room-name"
+                      label="Nom"
+                      variant="outlined"
+                      value={this.state.userFname}
+                      onChange={(event) =>
+                          this.setState({ userFname: event.target.value })
+                      }
+                      size="small"
+                  />
+                </div>
+                <div className="col-md-6">
+                  <TextField
+                      id="room-name"
+                      label="Nom"
+                      variant="outlined"
+                      value={this.state.userLname}
+                      onChange={(event) =>
+                          this.setState({ userLname: event.target.value })
+                      }
+                      size="small"
+                  />
+                </div>
+              </div>
+              <div className="row mt-3">
+                <div className="col-md-12">
+                  <TextField
+                      id="room-name"
+                      label="Email"
+                      variant="outlined"
+                      value={this.state.userEmail}
+                      onChange={(event) =>
+                          this.setState({ userEmail: event.target.value })
+                      }
+                      size="small"
+                      aria-readonly="true"
+                      inputProps={{readOnly:true}}
+                      inputMode="email"
+                  />
+                </div>
+              </div>
+              <div className="row mt-3">
+                <div className="col-md-12">
+                  <TextField
+                      id="room-name"
+                      label="Téléphone"
+                      variant="outlined"
+                      value={this.state.userPhone}
+                      onChange={(event) =>
+                          this.setState({ userPhone: event.target.value })
+                      }
+                      size="small"
+                      inputMode="tel"
+                  />
+                </div>
+              </div>
+            </DialogContent>
+            <DialogActions style={{ padding: 20,justifyContent:"center" }}>
+              <MuiButton
+                  onClick={() => {
+                    this.setState({ openUserDetailModal: false });
+                  }}
+                  color="primary"
+                  style={{ textTransform: 'capitalize',marginRight:10 }}
+              >
+                Annuler
+              </MuiButton>
+              <MuiButton
+                  onClick={() => {this.updateUserInfo(this.state.userFname,this.state.userLname,this.state.userPhone)}}
+                  color="secondary"
+                  variant="contained"
+                  style={{ textTransform: 'capitalize',marginLeft:10 }}
+              >
+                Enregistrer
+              </MuiButton>
+            </DialogActions>
+          </Dialog>
+
+
+
 
 
           <Dialog maxWidth="md"
