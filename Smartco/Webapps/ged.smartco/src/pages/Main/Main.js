@@ -2976,7 +2976,7 @@ export default class Main extends React.Component {
       'invoice_cash_rounding_id': false,
       'invoice_source_email': false,
       'invoice_payment_ref': false,
-      'invoice_partner_bank_id': false,
+      'invoice_partner_bank_id': 1,
       'reversed_entry_id': false,
       'message_follower_ids': [],
       'activity_ids': [],
@@ -2992,6 +2992,7 @@ export default class Main extends React.Component {
       "sequence_number_next":false,
       "partner_shipping_id":facture_company_id,
       "payment_term_id":paymTerm,
+      "partner_bank_id":1
     }];
 
     lignes_factures.map((ligne, key) => {
