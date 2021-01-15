@@ -130,22 +130,22 @@ class login extends Component {
             <React.Fragment>
 
 
-                <div style={{justifyContent:"center",marginTop:110}}>
+                <div style={{justifyContent:"center",marginTop:"5%"}}>
                     <Container>
                         <Row className="justify-content-center">
                             <Col md={8} lg={6} xl={5}>
                                 <Card>
-                                    <CardBody className="p-4 position-relative">
+                                    <CardBody className="p-4 position-relative" style={{border:"2px solid #f0f0f0"}}>
                                         { /* preloader */}
                                         {this.state.loading && <Loader/>}
 
                                         <div align="center" className="mb-2">
-                                            <img style={{width:250,objectFit:"cover"}} src={this.state.logo} alt=""/>
+                                            <img style={{width:"60%",objectFit:"cover"}} src={this.state.logo} alt=""/>
                                         </div>
 
                                         <AvForm onValidSubmit={this.login}>
 
-                                            <AvGroup className="mb-3 mt-5">
+                                            <AvGroup className="mb-3 mt-4">
                                                 <Label for="password">Email</Label>
                                                 <AvInput type="email" name="email" id="email"
                                                          style={{height:45}}
@@ -154,7 +154,7 @@ class login extends Component {
                                                 <AvFeedback>Email invalide</AvFeedback>
                                             </AvGroup>
 
-                                            <AvGroup className="mb-3">
+                                            <AvGroup className="mb-2">
                                                 <Label for="password">Mot de passe</Label>
                                                 <AvInput type="password" name="password" id="password"
                                                          placeholder="Entrer votre mot de passe"
@@ -164,62 +164,32 @@ class login extends Component {
                                             </AvGroup>
 
                                             <FormGroup>
-                                                <button className="btn-block btn" style={{backgroundColor:login_btn_color || "#c0c0c0",marginTop:65}}>Se connecter</button>
+                                                <button className="btn-block btn" style={{backgroundColor:login_btn_color || "#c0c0c0",marginTop:35}}>Se connecter</button>
                                             </FormGroup>
-                                            <div align="center">
+                                            <div align="center" style={{marginTop:25}}>
                                             <span>Vous n'avez pas encore un compte ?
                                                 <span style={{fontWeight:"bold",cursor:"pointer",color:"#000",textDecoration:"underline"}} onClick={() => this.props.history.push("/signup")}>
                                                     &nbsp;&nbsp;S'inscrire</span>
                                             </span>
                                             </div>
                                         </AvForm>
-                                        {/*<h4 className="mt-2"
-                                            style={{backgroundColor: "#A00015", marginTop: 65, cursor: "pointer"}}
-
-                                            onClick={() => {
-                                                let clients_formated = [];
-                                                json_enfin_clients.map((item, key) => {
-                                                    let formatedEnfinEmail = item.email ? item.email.indexOf("<") > -1 ? item.email.substring(item.email.lastIndexOf("<") + 1, item.email.lastIndexOf(">")) : item.email.trim() : ""
-                                                    if(item.email && item.email.trim() !== "" && !verfiForms.verif_Email(formatedEnfinEmail.trim())){
-                                                        let street = item.street || ""
-                                                        let city = item.city || ""
-                                                        let zip = item.zip || ""
-                                                        clients_formated.push({
-                                                            email:formatedEnfinEmail.trim(),
-                                                            created_at:moment().format("YYYY-MM-DD hh:mm:ss"),
-                                                            type:item.name ? "0" : "1",
-                                                            adress:street + ", " + city + " " + zip,
-                                                            contactName:item.contactName || "",
-                                                            societyName:item.name || "",
-                                                            code:item.Code || ""
-                                                        })
-                                                    }
-                                                })
-                                                rethink.insert("test", 'table("annuaire_clients_mandat").insert(' + JSON.stringify(clients_formated) + ')', "RocketBonds_894ca0ed8b4e42fdaeff8de26ee1bcf9", false).then(resAdd => {
-                                                    if (resAdd && resAdd === true) {
-                                                        console.log(" CLIENTS ADDED")
-                                                    } else {
-                                                        console.log("NOT INSERTED: ")
-                                                    }
-                                                }).catch(err => {
-                                                    console.log(err)
-                                                })
-                                            }}
-                                        >
-                                            Insert into
-                                        </h4>*/}
                                     </CardBody>
                                 </Card>
                             </Col>
                         </Row>
 
 
+                        <footer className="footer footer-alt" style={{textTransform:"capitalize"}}>
+                            2020 - 2021 &copy; {ent_name}
+                        </footer>
+
 
                     </Container>
+
                 </div>
-                <footer className="footer footer-alt" style={{textTransform:"capitalize"}}>
-                    2020 - 2021 &copy; {ent_name}
-                </footer>
+
+
+
 
                 <Snackbar
                     open={this.state.openAlert}

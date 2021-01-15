@@ -125,15 +125,15 @@ export default function TableProducts(props) {
     return (
         <div>
             <h4 className="mt-0 mb-1">Produits</h4>
-            <div className="row mt-3">
+            <div className="row mt-3" style={{minWidth:800}}>
                 <div className="col-xl-12">
                     <div className="row">
                         <div className="col">
                             <div className="page-title-box">
-                                <div className="row ">
+                                <div className="row">
                                     <div
-                                        className="col-md-2 bg-danger text-center "
-                                        style={{width: "10%"}}>
+                                        className="col-lg-2 bg-danger text-center "
+                                        style={{width: "10%",alignSelf:"center"}}>
                                         <h4 style={{color: "white",marginTop:5}}>Produits</h4>
                                     </div>
                                     <hr style={{
@@ -141,10 +141,13 @@ export default function TableProducts(props) {
                                         height: "2px",
                                         borderStyle: "solid",
                                         color: "red",
-                                        width: "60%"
+                                        width: "60%",
+                                        alignSelf:"center"
                                     }}/>
-                                    <div className="col-md-2">
-                                        <Button onClick={()=>{props.ajouterProduit()}} variant="contained" color="primary">
+                                    <div className="col-lg-2" style={{alignSelf:"center"}}>
+                                        <Button onClick={()=>{props.ajouterProduit()}} variant="contained" color="primary"
+                                                size="small"
+                                        >
                                             Ajouter un produit
                                         </Button>
                                     </div>
