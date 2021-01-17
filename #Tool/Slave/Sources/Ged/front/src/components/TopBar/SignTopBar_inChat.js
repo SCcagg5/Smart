@@ -13,9 +13,10 @@ import MenuList from "@material-ui/core/MenuList";
 import Popper from "@material-ui/core/Popper";
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import CloseIcon from '@material-ui/icons/Close';
 
 
-export default function SignTopBar(props) {
+export default function SignTopBar_inChat(props) {
 
     const [open, setOpen] = React.useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -37,7 +38,7 @@ export default function SignTopBar(props) {
         <AppBar position="fixed" color="default" className="fe-ai" >
             <Toolbar style={{height:props.height}}>
                 <IconButton edge="start" aria-label="menu" onClick={() => props.onBackBtnClick()}>
-                    <ArrowBackIcon style={{fontSize:26}} />
+                    <CloseIcon style={{fontSize:26}} />
                 </IconButton>
                 <div style={{cursor:"pointer",marginLeft:30,display:"flex"}} onClick={handleToggle} ref={anchorRef}
                      aria-controls={open ? 'menu-list-grow' : undefined}

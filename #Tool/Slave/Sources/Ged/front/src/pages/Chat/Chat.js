@@ -9,15 +9,43 @@ import 'emoji-mart/css/emoji-mart.css'
 import {Picker} from 'emoji-mart'
 import * as ReactDOM from 'react-dom';
 import {Tree} from "antd";
-import main_functions from "../../controller/main_functions";
 import SmartService from "../../provider/SmartService";
 import {IconButton} from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
 import { Anchorme } from 'react-anchorme'
 import ArrowRightIcon from "@material-ui/icons/ArrowRight";
+import AttachFileIcon from '@material-ui/icons/AttachFile';
+import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied';
+import SpeedDial from '@material-ui/lab/SpeedDial';
+import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
+import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
+import ImageOutlinedIcon from '@material-ui/icons/ImageOutlined';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
+import GestureIcon from '@material-ui/icons/Gesture';
+import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
+import Slide from '@material-ui/core/Slide';
+import Dialog from '@material-ui/core/Dialog';
+import SignModal from "../../components/SignModal/SignModal";
+import AtlButton  from '@atlaskit/button';
+import DuoIcon from '@material-ui/icons/Duo';
+import ChildCareIcon from '@material-ui/icons/ChildCare';
 
 const {DirectoryTree} = Tree;
 const db_name = process.env.REACT_APP_RETHINKDB_BEGIN_NAME;
+
+
+const speedDialActions= [
+    { icon: <ImageOutlinedIcon color="primary" />, name: 'Images' },
+    { icon: <FileCopyIcon color="primary" />, name: 'Documents' },
+    { icon: <GestureIcon color="primary" />, name: 'Signer' },
+    { icon: <ChildCareIcon color="primary" />, name: 'ChatBot' },
+    { icon: <DuoIcon color="primary" />, name: 'Salon' },
+]
+
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default class Chat extends React.Component {
 
@@ -33,6 +61,7 @@ export default class Chat extends React.Component {
         imageModal: "",
         anchorElEmoji: null,
         anchorElFiles:null,
+        anchorElToSignFile:null,
         limit: 10,
         skipCount: 0,
         loadingScroll: false,
@@ -43,7 +72,10 @@ export default class Chat extends React.Component {
         expandedKeys:[],
         selectedKeys:[],
 
-        showRecorderForm:false
+        showRecorderForm:false,
+        openSpeedDial:false,
+        openSignDocModal:false,
+        toSignDoc:""
     }
 
     async verifIsTableExist(table){
@@ -317,6 +349,10 @@ export default class Chat extends React.Component {
         this.setState({selectedKeys:selectedKeys})
     }
 
+    onSelectToSignFile = (selectedKeys, info) => {
+        this.setState({selectedKeys:selectedKeys,toSignDoc:info.node.typeF === "file" ? info.node : ""})
+    }
+
     onDrop_container(e){
         e.preventDefault();e.stopPropagation();
         if(e.dataTransfer.getData("file")){
@@ -342,6 +378,18 @@ export default class Chat extends React.Component {
         return total;
     }
 
+    onClickAction(event,action){
+        console.log(action)
+        this.setState({openSpeedDial:false})
+        if(action.name === "Images"){
+            this.imageUpload.click()
+        }else if(action.name === "Documents"){
+            this.setState({anchorElFiles: event.currentTarget})
+        }else if(action.name === "Signer"){
+            this.setState({anchorElToSignFile:event.currentTarget})
+        }
+    }
+
     render() {
 
         const msgs = this.state.messages.sort((a, b) => {
@@ -355,6 +403,9 @@ export default class Chat extends React.Component {
 
         const openFilesPopup = Boolean(this.state.anchorElFiles);
         const id2 = openFilesPopup ? 'files-popover' : undefined;
+
+        const openToSignFilePopup = Boolean(this.state.anchorElToSignFile);
+        const id3 = openFilesPopup ? 'file-To-Sign-popover' : undefined;
 
         return (
             <div>
@@ -611,8 +662,43 @@ export default class Chat extends React.Component {
                                     </ul>
                                 </div>
                                 <div style={{backgroundColor:"#f0f0f0",position:"absolute",bottom:0,height:60,width:"100%",display:"flex"}}>
-                                    <div style={{alignSelf:"center",margin:10,flex:"none"}}>
-                                        <i className="fa fa-laugh attachment" aria-hidden="true"
+                                    <div style={{alignSelf:"center",margin:10,flex:"none",display:"flex"}}>
+                                        <IconButton size="small"
+                                                    onClick={(event) => {
+                                                        this.setState({anchorElEmoji: event.currentTarget})
+                                                    }}
+                                        >
+                                            <SentimentVerySatisfiedIcon/>
+                                        </IconButton>
+
+                                        <SpeedDial
+                                            style={{marginTop:-295}}
+                                            ariaLabel="SpeedDial Chat"
+                                            //className={classes.speedDial}
+                                            hidden={false}
+                                            icon={<AttachFileIcon fontSize="small"/>}
+                                            onClose={() => { this.setState({openSpeedDial:false})}}
+                                            onOpen={() => { this.setState({openSpeedDial:true})}}
+                                            open={this.state.openSpeedDial}
+                                            direction="up"
+                                            onClick={() => {this.setState({openSpeedDial:!this.state.openSpeedDial})}}
+                                            FabProps={{size:"small",color:"primary",variant:"extended"}}
+                                        >
+                                            {speedDialActions.map((action) => (
+                                                <SpeedDialAction
+                                                    title={action.name}
+                                                    key={action.name}
+                                                    icon={action.icon}
+                                                    tooltipTitle={action.name}
+                                                    onClick={(event) => {
+                                                        this.onClickAction(event,action)
+                                                    }}
+                                                    FabProps={{color:"primary"}}
+
+                                                />
+                                            ))}
+                                        </SpeedDial>
+                                        {/*<i className="fa fa-laugh attachment" aria-hidden="true"
                                            style={{
                                                fontSize: 20,
                                                cursor: "pointer",
@@ -647,7 +733,7 @@ export default class Chat extends React.Component {
                                            onClick={(event) => {
                                                this.setState({anchorElFiles: event.currentTarget})
                                            }}
-                                        />
+                                        />*/}
                                     </div>
                                     <div className="message-input" style={{flex:"1 1 auto"}}>
                                         <div className="wrap">
@@ -774,6 +860,63 @@ export default class Chat extends React.Component {
                     </div>
                 </Popover>
 
+                <Popover
+                    id={id3}
+                    open={openToSignFilePopup}
+                    anchorEl={this.state.anchorElToSignFile}
+                    onClose={() => {
+                        this.setState({anchorElToSignFile: null})
+                    }}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                >
+                    <div style={{padding:15,height:600,width:300,paddingBottom:50}}>
+                        <div align="right">
+                            <IconButton size="small" onClick={() => {this.setState({anchorElToSignFile:null})}}>
+                                <CloseIcon />
+                            </IconButton>
+                        </div>
+
+                        <h6 style={{color:"darkblue"}}>Choissisez votre document à signer</h6>
+                        <div style={{marginTop:20,maxHeight:430,overflowY:"auto"}}>
+                            <DirectoryTree
+                                draggable={true}
+                                allowDrop={(options) => {
+                                    return false
+                                }}
+                                showIcon={true}
+                                onExpand={this.onExpand}
+                                onSelect={this.onSelectToSignFile}
+                                treeData={this.state.miniDrive}
+                                expandAction="click"
+                                expandedKeys={this.state.expandedKeys}
+                                selectedKeys={this.state.selectedKeys}
+                                autoExpandParent={this.state.autoExpandParent}
+                            />
+                        </div>
+                        <div style={{position:"absolute",bottom:50,marginRight:5}}>
+                            <span style={{color:"#000",fontWeight:"bold"}}>Dossier sélectionné:&nbsp; <span style={{color:"blue"}}>{this.state.toSignDoc.title}</span> </span>
+                        </div>
+                        <div align="right" style={{position:"absolute",bottom:10,right:15}}>
+                            <AtlButton
+                                isDisabled={this.state.toSignDoc === ""}
+                                appearance="primary"
+                                onClick={() => {
+                                    this.setState({anchorElToSignFile:null,openSignDocModal:true})
+                                }}
+                            >
+                                Suivant
+                            </AtlButton>
+                        </div>
+                    </div>
+                </Popover>
+
                 {
                     this.state.showImageModal === true &&
                     <Lightbox
@@ -785,6 +928,17 @@ export default class Chat extends React.Component {
                         }}
                     />
                 }
+
+
+                <Dialog fullScreen open={this.state.openSignDocModal} onClose={() => this.setState({openSignDocModal:false})}
+                        TransitionComponent={Transition}>
+
+                    <SignModal doc_id={this.state.toSignDoc.key}
+                               closeModal={() => { this.setState({openSignDocModal:false})}}
+                               sendFile={() => this.addGedFile({id:this.state.toSignDoc.key,name:this.state.toSignDoc.title})}
+                    />
+
+                </Dialog>
 
             </div>
         )

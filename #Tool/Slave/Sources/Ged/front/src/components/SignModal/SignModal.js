@@ -2,7 +2,7 @@ import React from 'react';
 import SmartService from '../../provider/SmartService';
 import { Document, Page } from 'react-pdf';
 import MuiBackdrop from '../../components/Loading/MuiBackdrop';
-import SignTopBar from '../../components/TopBar/SignTopBar';
+import SignTopBar from '../../components/TopBar/SignTopBar_inChat';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -29,6 +29,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import SaveIcon from '@material-ui/icons/Save';
 import AtlButton from '@atlaskit/button';
 import GestureIcon from '@material-ui/icons/Gesture';
+import ChatOutlinedIcon from '@material-ui/icons/ChatOutlined';
 
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -41,7 +42,7 @@ const pageHeight = 850;
 const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
 const checkedIcon = <CheckBoxIcon fontSize="small"/>;
 
-export default class SignDocV3 extends React.Component {
+export default class SignModal extends React.Component {
 
     sigCanvas = {}
     sigParapheCanvas = {}
@@ -93,7 +94,7 @@ export default class SignDocV3 extends React.Component {
         if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
             this.props.history.push('/login')
         } else {
-            SmartService.getFile(this.props.match.params.doc_id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(fileRes => {
+            SmartService.getFile(this.props.doc_id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(fileRes => {
                 if (fileRes.succes === true && fileRes.status === 200) {
 
                     SmartService.getUserSignatures(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( signaturesRes => {
@@ -476,7 +477,6 @@ export default class SignDocV3 extends React.Component {
     saveDoc(){
         this.setState({loading:true})
         let signatures = this.state.signatures;
-        console.log(signatures)
         let signToAdd = [];
         signatures.map((sign,key) => {
             signToAdd.push({
@@ -488,7 +488,8 @@ export default class SignDocV3 extends React.Component {
                 id_sign:sign.id
             })
         })
-        SmartService.signDoc({placement:signToAdd},this.props.match.params.doc_id,signToAdd[0].id_sign,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( saveRes => {
+        SmartService.signDoc({placement:signToAdd},this.props.doc_id,signToAdd[0].id_sign,localStorage.getItem("token"),
+            localStorage.getItem("usrtoken")).then( saveRes => {
             console.log(saveRes)
             if (saveRes.succes === true && saveRes.status === 200) {
 
@@ -504,8 +505,9 @@ export default class SignDocV3 extends React.Component {
                 if(isOk === true){
                     this.setState({loading:false})
                     this.openSnackbar("success","Enregistrement effectué avec succès")
+                    this.props.sendFile()
                     setTimeout(() => {
-                        this.props.history.goBack()
+                        this.props.closeModal()
                     },1000);
                 }else{
                     console.log(error)
@@ -549,7 +551,7 @@ export default class SignDocV3 extends React.Component {
                 <MuiBackdrop open={this.state.loading}/>
                 <MuiBackdrop open={this.state.firstLoading}/>
                 <SignTopBar height={70} title={this.state.docName}
-                            onBackBtnClick={() => this.props.history.goBack()}
+                            onBackBtnClick={this.props.closeModal}
                             showSignModal={() => {
                                 this.setState({openSignModal: true})
                             }}
@@ -599,7 +601,7 @@ export default class SignDocV3 extends React.Component {
                             }}
                                        disabled={this.state.signatures.length === 0}
                                        size="large"
-                                       startIcon={<SaveIcon />}
+                                       startIcon={<ChatOutlinedIcon />}
                                        style={{
                                            textTransform: "Capitalize",
                                            fontWeight: "bold",
@@ -608,7 +610,7 @@ export default class SignDocV3 extends React.Component {
                                        }}
                                        variant="contained"
                             >
-                                Enregistrer
+                                Envoyer
                             </MuiButton>
                         </div>
                     </div>
