@@ -2077,16 +2077,16 @@ export default class Main extends React.Component {
 
     return(
           this.state.time_sheets.length === 0 ?
-              <div align="center" style={{marginTop:200}}>
+              <div  align="center" style={{overflowY:'scroll',marginTop:200}}>
                 <CircularProgress color="primary" />
                 <h6>Chargement...</h6>
               </div> :
-              <div>
-                <div className="row">
-                  <div className="col-lg-12">
+              <div  style={{overflowY:'auto',height:650}} >
+                <div className="row" style={{overflowY:'scroll'}} >
+                  <div className="col-lg-12 " style={{overflowY:'scroll'}}>
                     <h5 className="mt-0 mb-1">TimeSheet / Activités</h5>
-                    <div className="card-box text-center" style={{ marginTop: 1 }}>
-                      <div style={{ marginTop: 30 }} className="text-left">
+                    <div className="card-box text-center" style={{ marginTop: 1 ,overflowY:'scroll'}}>
+                      <div style={{ marginTop: 20 }} className="text-left">
                         <Tabs selectedIndex={this.state.selectedTimeSheetIndex} onSelect={index => {
                           this.setState({selectedTimeSheetIndex:index})
                         }}>
@@ -4110,7 +4110,7 @@ export default class Main extends React.Component {
 
 
     return (
-      <div>
+      <div style={{overflowY:'scroll'}}>
 
         <div>
             <TopBar
@@ -4171,7 +4171,7 @@ export default class Main extends React.Component {
 
         <MuiBackdrop open={this.state.loading} />
         <div style={{ marginRight: 20, marginTop: 75, marginLeft: 5, top:0,width:"100%",position:"fixed" }}>
-          <div>
+          <div style={{overflowY:"scroll"}}>
 
             <div style={{ display: 'flex' }}>
               <div
@@ -4191,7 +4191,7 @@ export default class Main extends React.Component {
 
               <div style={{ flexWrap: 'wrap', flex: '1 1 auto',overflow:"auto",height:900 }}>
                 <div className="card">
-                  <div className="card-body" style={{ minHeight: 750 }}>
+                  <div className="card-body" style={{ minHeight: 750 ,overflowY:'scroll'}}>
 
                     <Switch>
 
@@ -6059,6 +6059,7 @@ export default class Main extends React.Component {
                       </Route>
 
                       <Route exact path="/home/timeSheet/activities">
+
                         {this.renderTimeSheet()}
                       </Route>
 
