@@ -1,6 +1,7 @@
 import React from "react";
 import RoomTabs from "../../components/Tabs/RoomTabs";
 import AvatarGroup from '@atlaskit/avatar-group';
+import "./room.css"
 
 export default function Rooms(props) {
 
@@ -18,13 +19,20 @@ export default function Rooms(props) {
                 <p>{(props.selectedRoom.members || []).length} membres</p>
                 {/*<AvatarGroup appearance="stack" data={data} />*/}
                 <RoomTabs contacts={props.contacts}
-                          annuaire_clients={props.annuaire_clients}
+                          annuaire_clients_mandat={props.annuaire_clients_mandat}
                           room={props.selectedRoom}
-                          addNewTask={(title,selectedClient, assignedTo,teamEmails,selectedDateTime) => {
-                              props.addNewtask(title,selectedClient, assignedTo, teamEmails, selectedDateTime )
+                          addNewTask={(title, desc, assignedTo, client, teamEmails, priority, tags, date_deadline) => {
+                              props.addNewtask(title, desc, assignedTo, client, teamEmails, priority, tags, date_deadline)
                           }}
-                          onDeleteTask={(key) => props.onDeleteTask(key) }
+                          onDeleteTask={(key) => props.onDeleteTask(key)}
                           onDropFile={(node) => props.onDropFile(node)}
+                          history={props.history}
+                          selectedRoomTab={props.selectedRoomTab}
+                          handleRoomTabsChange={props.handleRoomTabsChange}
+                          miniDrive={props.miniDrive}
+                          openPdfModal={props.openPdfModal}
+                          setSelectedRoom={props.setSelectedRoom}
+                          openSnackbar={props.openSnackbar}
                 />
             </div>
         </div>

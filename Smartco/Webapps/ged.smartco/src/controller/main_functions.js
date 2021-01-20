@@ -647,9 +647,12 @@ const generateGed = () => {
   });
 }
 
-
+const getContactIdByEmail = (contacts,email) => {
+  let find = contacts.find(x => x.email === email);
+  return find ? find.id : "";
+}
 
 
  export default {renderSearchOption,getTimeSuggestions,icon,getLabel,checkedIcon,getPath,generateGed,buildIndex,
-   changeStructure,getFolderById,getFolderFilesById,getFolderFoldersById,getClientID_ByName,getTaxNameById,getContactById,getClientNameById,
+   changeStructure,getContactIdByEmail,getFolderById,getFolderFilesById,getFolderFoldersById,getClientID_ByName,getTaxNameById,getContactById,getClientNameById,
    getBreadcumpsPath,getFolderNameById,getFolderTypeById,findClientMondatById,findContactByEmail,findContactByUid,getOAContactByEmail2,getOAContactByUid};

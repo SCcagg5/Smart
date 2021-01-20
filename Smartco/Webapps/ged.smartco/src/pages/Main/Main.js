@@ -907,6 +907,22 @@ export default class Main extends React.Component {
     }
   }
 
+
+  handleRoomTabsChange = (event, newValue) => {
+    console.log(this.state.annuaire_clients_mandat)
+    this.setState({selectedRoomTab:newValue})
+    /*if(newValue === 1){
+      setloadingFiles(true)
+      SmartService.getRoomFiles(localStorage.getItem("token"),localStorage.getItem("usrtoken"),props.room.id).then( res => {
+        console.log(res)
+        setRoomDocs(res.data)
+        setloadingFiles(false)
+      }).catch(err => {
+        console.log(err)
+      })
+    }*/
+  };
+
   handleChangeBouteille(e,key){
     let bouteilles = this.state.bouteilles
     bouteilles[key].value=e.target.value
@@ -3864,11 +3880,50 @@ export default class Main extends React.Component {
       console.log(err)
     })
   }
-
-  addNewRoomTask(title, selectedClient, assignedTo, team, selectedDateTime){
+  addNewRoomTask(title,desc, assignedTo,client,teamEmails,priority,tags,date_deadline){
     let room = this.state.selectedRoom;
     let tasks = room.tasks || [];
     let teamCp = [];
+    teamEmails.map((email,key) => {
+      teamCp.push({
+        id:main_functions.getContactIdByEmail(this.state.contacts || [],email),
+        email:email
+      })
+    })
+    tasks.push({
+      uid:utilFunctions.getUID(),
+      title: title,
+      desc:desc,
+      leader: {
+        id:assignedTo.id,
+        email:assignedTo.email
+      },
+      team: teamCp,
+      date_deadline: date_deadline,
+      client: client,
+      priority:priority,
+      tags:tags,
+      created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+      created_by:localStorage.getItem("email")
+    });
+    room.tasks = tasks;
+    console.log(room)
+
+    rethink.update("test",'table("rooms").get('+JSON.stringify(room.id)+').update('+ JSON.stringify(room) + ')',db_name,false).then( updateRes => {
+      if(updateRes && updateRes === true){
+        this.setState({ selectedRoom: room });
+        this.openSnackbar("success","La nouvelle tache est ajoutée avec succès")
+      }else{
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
+    })
+  }
+
+  addNewRoomTask1(title, selectedClient, assignedTo, team, selectedDateTime){
+    let room = this.state.selectedRoom;
+    let tasks = room.tasks || [];
+    let teamCp = [];
+    console.log(team)
     team.map((t,key) => {
       teamCp.push({
         avatar:t.avatar || "",
@@ -4802,20 +4857,30 @@ export default class Main extends React.Component {
                       </Route>
 
                       <Route exact path="/home/rooms/:room_id">
-
-                            <Rooms
-                                rooms={this.state.rooms}
-                                selectedRoom={this.state.selectedRoom}
-                                contacts={this.state.contacts || []}
-                                annuaire_clients={this.state.annuaire_clients_mandat}
-                                //annuaire_clients={this.state.patients}
-                                addNewtask={(title, selectedClient, assignedTo, team, selectedDateTime) => {
-                                  this.addNewRoomTask(title, selectedClient, assignedTo, team, selectedDateTime)
-                                }}
-                                onDeleteTask={(key) => {
-                                  //this.deleteRoomTask(key)
-                                }}
-                            />
+                        <div style={{maxHeight:700,overflowY:'scroll'}}>
+                        <Rooms
+                            rooms={this.state.rooms || []}
+                            selectedRoom={this.state.selectedRoom}
+                            setSelectedRoom={(room) => {this.setState({selectedRoom:room})}}
+                            contacts={this.state.contacts || []}
+                            annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
+                            //annuaire_clients={this.state.patients}
+                            addNewtask={(title,desc, assignedTo,client,teamEmails,priority,tags,date_deadline) => {
+                              this.addNewRoomTask(title,desc, assignedTo,client,teamEmails,priority,tags,date_deadline)
+                            }}
+                            onDeleteTask={(key) => {
+                              //this.deleteRoomTask(key)
+                            }}
+                            history={this.props.history}
+                            selectedRoomTab={this.state.selectedRoomTab}
+                            handleRoomTabsChange={(event,newValue) => {
+                              this.handleRoomTabsChange(event,newValue)
+                            }}
+                            miniDrive={this.state.folders || []}
+                            openPdfModal={(id) => {this.openPdfModal(id)}}
+                            openSnackbar={(type,msg) => {this.openSnackbar(type,msg)}}
+                        />
+                        </div>
                       </Route>
 
                       <Route exact path="/home/meet/new">

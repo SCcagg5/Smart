@@ -9,6 +9,8 @@ import Main from "./pages/Main/Main";
 import RedirectCp from "./pages/RedirectCp"
 import TestPage from "./pages/test"
 import ScanBouteille from "./pages/ScanQrCode/ScanBouteille";
+import 'semantic-ui-css/semantic.min.css'
+
 import 'video-react/dist/video-react.css'; // import css
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
