@@ -305,8 +305,8 @@ function Row(props) {
 
   const [template, setTemplate] = React.useState("0");
   const [client, setClient] = React.useState("");
-  const [paymTerm, setPaymTerm] = React.useState(props.paymTerms.length > 0 ? props.paymTerms[0].id : "");
-  const [tax, setTax] = React.useState(props.taxs.length > 0 ? props.taxs[0].display_name : "");
+  const [paymTerm, setPaymTerm] = React.useState( "3");
+  const [tax, setTax] = React.useState("13");
   const [deadline_date, setDeadline_date] = React.useState(new Date());
 
   const { row } = props;
@@ -483,6 +483,7 @@ function Row(props) {
                               value={template}
                               onChange={(e) => {
                                 setTemplate(e.target.value)
+
                               }}>
                             {
                               data.lf_templates.map((item,key) =>
@@ -501,8 +502,10 @@ function Row(props) {
                               value={paymTerm}
                               onChange={(e) => {
                                 setPaymTerm(e.target.value)
-                              }}>
-                            <option value={""}/>
+                                console.log(e.target.value)
+                              }}
+                          defaultValue={"3"}>
+
                             {
                               (props.paymTerms || []).map((item,key) =>
                                   <option key={key} value={item.id}>{item.display_name}</option>
@@ -518,8 +521,12 @@ function Row(props) {
                               value={tax}
                               onChange={(e) => {
                                 setTax(e.target.value)
-                              }}>
-                            <option value={""}/>
+                                console.log(e.target.value)
+
+                              }}
+                         defaultValue={"13"} >
+
+
                             {
                               (props.taxs || []).map((item,key) =>
                                   <option key={key} value={item.id}>{item.display_name}</option>
@@ -529,19 +536,20 @@ function Row(props) {
                           </select>
                         </div>
                         <div className="col-md-4">
-                          <h6>Date d'échéance</h6>
-                          <DatePicker
-                              calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
-                              onChange={(e) => {
-                                setDeadline_date(e)
-                              }}
-                              value={deadline_date}
-                              dayPlaceholder="dd"
-                              monthPlaceholder="mm"
-                              yearPlaceholder="yyyy"
-                              clearIcon={null}
-                              minDate={new Date()}
-                          />
+                          {/*<h6>Date d'échéance</h6>
+                          < DatePicker
+                            calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
+                            onChange={(e) => {
+                            setDeadline_date(e)
+                          }}
+                            value={deadline_date}
+                            dayPlaceholder="dd"
+                            monthPlaceholder="mm"
+                            yearPlaceholder="yyyy"
+                            clearIcon={null}
+                            minDate={new Date()}
+                            />
+                          */}
                         </div>
                       </div>
                       <div align="right" style={{marginTop:20}}>

@@ -22,7 +22,7 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import DateRangeOutlinedIcon from '@material-ui/icons/DateRangeOutlined';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import defaultAvatar from '../../assets/images/users/default_avatar.jpg';
-import { Modal, ModalBody, ModalHeader } from 'reactstrap';
+import { Modal, ModalBody, ModalHeader,ModalFooter } from 'reactstrap';
 import PDFViewer from '../../customComponents/pdf-viewer-reactjs';
 import { isEmail, ReactMultiEmail } from 'react-multi-email';
 import '../../assets/css/multiEmail.css';
@@ -158,6 +158,21 @@ export default class Main extends React.Component {
       prenom:"",
       email:"",
       id:""
+    },
+
+    openModalVF:false,
+
+    beforeCreateFacture:{
+      createAt:"",
+      ligneFactures:[],
+      clientFolderID:"",
+      row:"",
+      template:"",
+      client:"",
+      paymTerm:"",
+      deadline_date:"",
+      taxe:""
+
     },
 
     openAlert: false,
@@ -2050,6 +2065,24 @@ export default class Main extends React.Component {
     );
   };
 
+  OpenModalVF(created_at,lignes_facture,client_folderId,row,template,client,paymTerm,deadline_date,tax){
+    let beforeCF = this.state.beforeCreateFacture
+     beforeCF.createAt=created_at
+    beforeCF.ligneFactures=lignes_facture
+        beforeCF.clientFolderID=client_folderId
+    beforeCF.row=row
+    beforeCF.template=template
+    beforeCF.client=client
+    beforeCF.paymTerm=paymTerm
+    beforeCF.deadline_date=deadline_date
+    beforeCF.taxe=tax
+        this.setState({
+          beforeCreateFacture:beforeCF,
+          openModalVF:true
+        })
+
+  }
+
 
   renderTimeSheet = () => {
 
@@ -2597,7 +2630,7 @@ export default class Main extends React.Component {
                                 </div>
                                 <div className="col-md-6">
                                   <div>
-                                    <h6>Sélectionner un avocat </h6>
+                                    <h6>Sélectionner un client </h6>
                                   </div>
                                   <MuiSelect
                                       labelId="demo-simple-select-label45845"
@@ -2606,17 +2639,17 @@ export default class Main extends React.Component {
                                       onChange={(e) => {
                                         this.setState({wip_selected_contact:e.target.value})
                                       }}
-                                      value={this.state.wip_selected_contact}
+                                      value={this.state.selectedClientTimeEntree}
                                   >
-                                    {this.state.contacts.map((contact, key) => (
+                                    {this.state.annuaire_clients_mandat.map((contact, key) => (
                                         <MenuItem
                                             key={key}
-                                            value={contact.id}>
+                                            value={contact.ID}>
                                           <div style={{display:"flex"}}>
                                             <Avatar style={{marginLeft:10}}
                                                     alt=""
-                                                    src={contact.imageUrl} />
-                                            <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                    src={contact.ContactType === '1' ? contact.imageUrl ? contact.imageUrl : userAvatar : entIcon} />
+                                            <div style={{marginTop:10,marginLeft:8}}>{contact.Nom + ' ' + contact.Prenom}</div>
                                           </div>
                                         </MenuItem>
                                     ))}
@@ -2748,7 +2781,8 @@ export default class Main extends React.Component {
                                            annuaire_clients_mandat={this.state.annuaire_clients_mandat}
                                            sharedFolders={this.state.sharedReelFolders || []}
                                            validateFacture={(row,key,template,client,paymTerm,deadline_date,tax) => {
-                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax);
+                                            // this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax);
+                                             this.OpenModalVF(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax)
                                            }}
                                            openFacture={(id) => {
                                              this.openPdfModal(id)
@@ -3706,6 +3740,65 @@ export default class Main extends React.Component {
         console.log(err);
       });
     }
+
+  }
+
+  addFA( choice){
+
+    if (choice===1) {
+
+
+      let facture = this.state.beforeCreateFacture;
+      let lignes_facture = facture.ligneFactures;
+      let total = 0;
+
+      (lignes_facture || []).map((ligne, key) => {
+        total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
+
+      });
+
+      let FA = (total * 2) / 100
+
+      console.log(facture)
+
+
+      let newItem = {
+        newTime: {
+          date: moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD HH:mm:ss'),
+          duree: "1",
+          client: facture.row.client,
+          client_id: facture.client,
+          dossier_client: facture.row.client_folder,
+          categoriesActivite: this.state.TimeSheet.newTime.categoriesActivite,
+          description: "des frais administratifs",
+          utilisateurOA: facture.row.partner,
+          rateFacturation: FA,
+          langue: ''
+        },
+        uid: utilFunctions.getUID(),
+        user_email: localStorage.getItem('email'),
+        created_at: moment().format('YYYY-MM-DD HH:mm:ss')
+      }
+
+      facture.ligneFactures.push(newItem)
+
+      this.setState({openModalVF:false})
+
+
+      this.before_create_facture(facture.createAt, facture.ligneFactures, facture.clientFolderID, facture.row, facture.template, facture.client, facture.paymTerm, facture.deadline_date, facture.taxe);
+
+    }else{
+      let facture = this.state.beforeCreateFacture;
+
+      this.setState({openModalVF:false})
+
+
+
+      this.before_create_facture(facture.createAt, facture.ligneFactures, facture.clientFolderID, facture.row, facture.template, facture.client, facture.paymTerm, facture.deadline_date, facture.taxe);
+
+
+    }
+
 
   }
 
@@ -4857,7 +4950,7 @@ export default class Main extends React.Component {
                       </Route>
 
                       <Route exact path="/home/rooms/:room_id">
-                        <div style={{maxHeight:700,overflowY:'scroll'}}>
+                        <div style={{maxHeight:600,overflowY:'scroll'}}>
                         <Rooms
                             rooms={this.state.rooms || []}
                             selectedRoom={this.state.selectedRoom}
@@ -6126,6 +6219,40 @@ export default class Main extends React.Component {
                       <Route exact path="/home/timeSheet/activities">
 
                         {this.renderTimeSheet()}
+
+                        <Modal
+                            isOpen={this.state.openModalVF}
+                            size="lg"
+                            zIndex={1500}
+                            toggle={() => this.setState({ openModalVF: false })}
+
+                        >
+
+                          <ModalHeader style={{display:"block",paddingLeft:"0.9rem",paddingRight:"0.9rem",paddingBottom:"0.3rem"}}>
+                            <div style={{display:"flex",justifyContent:"space-between"}}>
+                              <h5>
+                                Valider facture
+                              </h5>
+
+                            </div>
+
+                          </ModalHeader>
+                          <ModalBody>
+                           <div className="text-center">
+                             <h4>
+                               Voulez-vous ajouter des frais administratifs ?
+                             </h4>
+                           </div>
+
+
+                          </ModalBody>
+
+                            <ModalFooter>
+                              <Button color="primary" onClick={()=>this.addFA(1)} >Oui </Button>{' '}
+                              <Button color="secondary" onClick={()=>this.addFA(2)} >Non </Button>
+                            </ModalFooter>
+
+                        </Modal>
                       </Route>
 
                       <Route exact path="/home/qualified_signature/new">
