@@ -7,9 +7,7 @@ import SignDocV3 from "./pages/Drive/SignDocV3";
 import Error from "./pages/Error/Error";
 import Main from "./pages/Main/Main";
 import RedirectCp from "./pages/RedirectCp"
-import TestPage from "./pages/test"
 import ScanBouteille from "./pages/ScanQrCode/ScanBouteille";
-import 'semantic-ui-css/semantic.min.css'
 
 import 'video-react/dist/video-react.css'; // import css
 
@@ -29,7 +27,6 @@ export default class App extends Component {
                 <Switch>
                     <Route exact path="/" component={RedirectCp}/>
                     <Route exact path="/ScanBouteille" component={ScanBouteille}/>
-                    {/*<Route exact path="/test" component={TestPage}/>*/}
                     <Route  path="/home" component={Main}/>
                     <Route exact path="/signDoc/doc/:doc_id" component={SignDocV3}/>
                     <Route exact path="/login" component={Login}/>

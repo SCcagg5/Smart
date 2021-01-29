@@ -7,6 +7,8 @@ import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import ArrowRightIcon from "@material-ui/icons/ArrowRight";
 import TreeView from "@material-ui/lab/TreeView";
 import FireplaceIcon from "@material-ui/icons/Fireplace";
+import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
+
 const useTreeItemStyles = makeStyles((theme) => ({
     root: {
         color: theme.palette.text.secondary,
@@ -90,7 +92,7 @@ function StyledTreeItem(props) {
                     group: classes.group,
                     label: classes.label,
                 }}
-                onClick={() => props.setSelectedRoom(props.room,props.roomId)}
+                onClick={() => props.setSelectedRoom(props.room,props.room.id)}
             />
         </div>
 
@@ -128,10 +130,10 @@ export default function RoomsMenuItems(props) {
         >
             {
                 props.items.map((item,key) =>
-                    <StyledTreeItem key={key} nodeId={key.toString()} labelText={item.title}
-                                    labelIcon={FireplaceIcon} room={item} roomId={key}
-                                    color="#1a73e8"
-                                    bgColor="#e8f0fe"
+                    <StyledTreeItem key={key} nodeId={item.id} labelText={item.title}
+                                    labelIcon={MeetingRoomIcon} room={item} roomId={key}
+                                    color={"#fff"}
+                                    bgColor={item.color}
                                     setSelectedRoom={(room,roomId) => {props.setSelectedRoom(room,roomId)}}
                     />
                 )

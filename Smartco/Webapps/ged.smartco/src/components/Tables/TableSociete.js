@@ -28,6 +28,7 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
 import SmartService from '../../provider/SmartService';
 import { Checkbox } from '@atlaskit/checkbox';
+import main_functions from "../../controller/main_functions";
 
 
 const { Panel } = Collapse;
@@ -103,6 +104,8 @@ const useStyles2 = makeStyles({
     },
 });
 
+
+
 export default function TableSociete(props) {
 
     const classes = useStyles2();
@@ -112,9 +115,8 @@ export default function TableSociete(props) {
     const [textSearch, setTextSearch] = React.useState("");
     const [searchByState, setSearchByState] = React.useState("");
     const [searchByType, setSearchByType] = React.useState("");
-    const [searchBySector, setSearchBySector] = React.useState("");
-    const [searchByPays, setSearchByPays] = React.useState("");
-    const [searchByLead, setSearchByLead] = React.useState("");
+    const [search_contrepartie, setSearch_contrepartie] = React.useState("");
+    const [search_autrepartie, setSearch_autrepartie] = React.useState("");
     const [selectedSearchLettre, setSelectedSearchLettre] = React.useState("");
     const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
     const [toRemoveClient, setToRemoveClient] = React.useState("");
@@ -123,12 +125,18 @@ export default function TableSociete(props) {
     const searchFilter= props.societes.filter((annuaire) => (  (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().indexOf(textSearch.toLowerCase()) !== -1 &&
         (annuaire.Nom+" "+annuaire.Prenom).toLowerCase().startsWith(selectedSearchLettre.toLowerCase()) &&
         (annuaire.Type === searchByType || searchByType === "") &&
-        ((annuaire.isActif && annuaire.isActif  === searchByState) || searchByState === "") &&
-        ((annuaire.secteur && annuaire.secteur === searchBySector)  || searchBySector === "" ) &&
-        ((annuaire.PrimaryAddressCountry && annuaire.PrimaryAddressCountry === searchByPays)  || searchByPays === "" ) &&
-        ((annuaire.facturation && annuaire.facturation.collaborateur_lead === searchByLead)  || searchByLead === "" )
-
+        ((annuaire.isActif && annuaire.isActif  === searchByState) || searchByState === "")
     ))
+
+    const clients_cases = props.clients_tempo || [];
+    let all_cases_folders = [];
+    clients_cases.map((c,key) => {
+        all_cases_folders = all_cases_folders.concat(c.folders || [])
+    });
+
+    const search_contreparties = all_cases_folders.filter(x => x.contrepartie.toLowerCase().indexOf(search_contrepartie.toLowerCase()) !== -1 && search_contrepartie !== "" )
+    const search_autreparties = all_cases_folders.filter(x => x.autrepartie.toLowerCase().indexOf(search_autrepartie.toLowerCase()) !== -1 && search_autrepartie !== "" )
+
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, searchFilter - page * rowsPerPage);
 
@@ -152,6 +160,27 @@ export default function TableSociete(props) {
                 </div>
         })
     })
+
+    const renderClient = (folder_id) => {
+        let client_id = "";
+        let client = "";
+        (props.clients_tempo || []).map((c,key) => {
+            let find = (c.folders || []).find(x => x.folder_id === folder_id)
+            if(find){
+                client_id = c;
+                client = (props.societes || []).find(x => x.id === c.ID_client || x.ID === c.ID_client);
+            }
+        })
+
+        return(
+            <span style={{fontWeight:"bold",textDecoration:"underline",cursor:"pointer"}}
+                  onClick={() => {
+                      props.onEditClick(client,client.id)
+                  }}
+            >
+                &nbsp;&nbsp;{client.Nom + " " + client.Prenom}</span>
+        )
+    }
 
 
 
@@ -292,7 +321,7 @@ export default function TableSociete(props) {
                                     </div>
                                 </div>
                                 <div className="row mt-2">
-                                    <div className="col-md-12">
+                                    <div className="col-md-6">
                                         <h6>Par statut</h6>
                                         <select className="form-control custom-select" style={{width:350}}
                                                 value={searchByState} onChange={(e) => {
@@ -310,8 +339,6 @@ export default function TableSociete(props) {
                                             <option  value="false">Non actif</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div className="row mt-1">
                                     <div className="col-md-6">
                                         <h6>Par type</h6>
                                         <select className="form-control custom-select" style={{width:350}}
@@ -327,55 +354,32 @@ export default function TableSociete(props) {
                                             }
                                         </select>
                                     </div>
-                                    <div className="col-md-6">
-                                        <h6>Par secteur</h6>
-                                        <select className="form-control custom-select" style={{width:350}}
-                                                value={searchBySector} onChange={(e) => setSearchBySector(e.target.value) }
-                                        >
-                                            {
-                                                Data.secteurs.map((secteur,key) =>
-                                                    <option key={key} value={secteur}>{secteur}</option>
-                                                )
-                                            }
-                                        </select>
-                                    </div>
                                 </div>
-
-                                <div className="row mt-1">
+                                <div className="row mt-2">
                                     <div className="col-md-6">
-                                        <h6>Par pays</h6>
-                                        <select className="form-control custom-select" style={{width:350}}
-                                                value={searchByPays} onChange={(e) => setSearchByPays(e.target.value) }
-                                        >
-                                            {
-                                                countryList.map((pay,key) =>
-                                                    <option key={key} value={pay.Name}>{pay.Name}</option>
-                                                )
-                                            }
-                                        </select>
+                                        <h6>Contrepartie</h6>
+                                        <input
+                                            className="form-control"
+                                            style={{width:350,border:0}}
+                                            id="search"
+                                            name="search"
+                                            type="text"
+                                            placeholder="Contrepartie"
+                                            value={search_contrepartie}
+                                            onChange={(e)=>  setSearch_contrepartie(e.target.value) }/>
                                     </div>
-                                    <div className="col-md-6">
-                                        <h6>Par collaborateur lead sur le dossier</h6>
-                                        <Select
-                                            defaultValue={searchByLead}
-                                            options={contactSelectOptions}
-                                            closeMenuOnSelect={true}
-                                            isMulti={false}
-                                            hideSelectedOptions={true}
-                                            styles={{
-                                                container: (provided, state) => ({
-                                                    ...provided,
-                                                    width:350
-                                                }),
-                                                menuPortal: styles => ({ ...styles, zIndex: 9999 })
-                                            }}
-                                            menuPortalTarget={document.body}
-                                            onChange={(e) => {
-                                                console.log(e.value)
-                                                setSearchByLead(e.value)
-                                            }}
-                                        />
 
+                                    <div className="col-md-6">
+                                        <h6>Autrepartie</h6>
+                                        <input
+                                            className="form-control"
+                                            style={{width:350,border:0}}
+                                            id="search"
+                                            name="search"
+                                            type="text"
+                                            placeholder="Autrepartie"
+                                            value={search_autrepartie}
+                                            onChange={(e)=>  setSearch_autrepartie(e.target.value) }/>
                                     </div>
                                 </div>
                             </Panel>
@@ -383,6 +387,45 @@ export default function TableSociete(props) {
                     </div>
                     <div className="card">
                         <div className="card-body">
+                            {
+                                search_contreparties.length > 0 &&
+                                <div style={{marginTop:10}}>
+                                    <ul style={{backgroundColor:"#f0f0f0",paddingTop:15,paddingBottom:15}}>
+                                        {
+                                            search_contreparties.map((item,key) => (
+                                                <li style={{lineHeight:"1.7rem"}}>
+                                                  <span style={{color:"#000"}}>
+                                                  <span style={{fontWeight:"bold"}}>{item.contrepartie}</span> est une contrepartie dans le dossier
+                                                  <span style={{fontWeight:"bold",textDecoration:"underline"}}>&nbsp;&nbsp;{item.name}</span> du client
+                                                      {renderClient(item.folder_id)}
+                                                  </span>
+                                                </li>
+                                            ))
+                                        }
+
+                                    </ul>
+                                </div>
+                            }
+                            {
+                                search_autreparties.length > 0 &&
+                                <div style={{marginTop:15}}>
+                                    <ul style={{backgroundColor:"#f0f0f0",paddingTop:15,paddingBottom:15}}>
+                                        {
+                                            search_autreparties.map((item,key) => (
+                                                <li style={{lineHeight:"1.7rem"}}>
+                                                  <span style={{color:"#000"}}>
+                                                  <span style={{fontWeight:"bold"}}>{item.autrepartie}</span> est une autrepartie dans le dossier
+                                                  <span style={{fontWeight:"bold",textDecoration:"underline"}}>&nbsp;&nbsp;{item.name}</span> du client
+                                                      {renderClient(item.folder_id)}
+                                                  </span>
+                                                </li>
+                                            ))
+                                        }
+
+                                    </ul>
+                                </div>
+                            }
+
                             <Table className={classes.table} aria-label="custom pagination table">
                                 <TableHead>
                                     <TableRow style={{padding:10}}>

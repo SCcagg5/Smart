@@ -7,8 +7,93 @@ const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 
 let Data = {
-    endpoint : "https://api.smartdom.ch",
-    emailPatern : new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/),
+
+    oa_comptes_bank_factures: [
+        {
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte exploitation CHF",
+            code: "CH95 8080 8001 1709 3913 2"
+        },
+        {
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte exploitation EURO",
+            code: "CH72 8080 8001 7984 2430 1"
+        },
+        {
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte avoirs clients",
+            code: "CH83 8080 8003 4728 9475 1"
+        },
+        {
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte courant Collaborateurs",
+            code: "CH92 8080 8002 1556 2401 6"
+        },
+        {
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte courant Camille",
+            code: "CH76 8080 8007 0616 4364 7"
+        },
+        {
+            title: "UBS Switzerland AG Case postale 1211 Genève 2",
+            swift_bic: "UBSWCHZH80A",
+            clearing: "0240",
+            label: "Compte exploitation David",
+            code: "CH79 0027 9279 3414 1401 V"
+        },
+        {
+            title: "UBS Switzerland AG Case postale 1211 Genève 2",
+            swift_bic: "UBSWCHZH80A",
+            clearing: "0240",
+            label: "Compte avoirs clients David",
+            code: "CH69 0027 9279 3425 9902 J"
+        }
+
+    ],
+
+    oa_comptes_bank_provision: [
+        {
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte provision",
+            code: "CH11 8080 8001 1046 8489 1"
+        },
+        {
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte provisions Collaborateurs",
+            code: "CH76 8080 8005 1626 9511 4"
+        },
+        {
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte provision Camille",
+            code: "CH23 8080 8009 8912 1947 6"
+        },
+        {
+            title: "UBS Switzerland AG Case postale 1211 Genève 2",
+            swift_bic: "UBSWCHZH80A",
+            clearing: "0240",
+            label: "Compte provision David",
+            code: "CH26 0027 9279 3425 9901 K"
+        },
+    ],
+
+    endpoint: "https://api.smartdom.ch",
+    emailPatern: new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/),
 
     sideBarItems: [
         {key: "coffre", title: "Drive", icon: "fe-folder", to: "/drive"},
@@ -18,29 +103,29 @@ let Data = {
         {key: "avocat", title: "Avocats", icon: "fe-users", to: "/avocats"},
     ],
 
-    MeetMenuItem : [
+    MeetMenuItem: [
         {
-            nodeId:"new",
-            title:"Démarrer une réunion",
-            icon:VideoCallIcon
+            nodeId: "new",
+            title: "Démarrer une réunion",
+            icon: VideoCallIcon
         },
         {
-            nodeId:"rejoin",
-            title:"Rejoindre une réunion",
-            icon:MeetingRoomIcon
+            nodeId: "rejoin",
+            title: "Rejoindre une réunion",
+            icon: MeetingRoomIcon
         },
     ],
 
-    SocietyMenuItem : [
+    SocietyMenuItem: [
         {
-            nodeId:"clients",
-            title:"Client (Mandat)",
-            icon:HomeWorkIcon
+            nodeId: "clients",
+            title: "Client (Mandat)",
+            icon: HomeWorkIcon
         },
         {
-            nodeId:"cadeau_Entx",
-            title:"Cadeau Entx",
-            icon:HomeWorkIcon
+            nodeId: "cadeau_Entx",
+            title: "Cadeau Entx",
+            icon: HomeWorkIcon
         }
         /*{
             nodeId:"prospAc",
@@ -54,11 +139,11 @@ let Data = {
         }*/
     ],
 
-    ContactsMenuItem : [
+    ContactsMenuItem: [
         {
-            nodeId:"aia",
-            title:"Détails",
-            icon:PeopleAltIcon
+            nodeId: "aia",
+            title: "Détails",
+            icon: PeopleAltIcon
         }
         /*{
             nodeId:"ae",
@@ -67,11 +152,11 @@ let Data = {
         }*/
     ],
 
-    TimeSheetMenuItem : [
+    TimeSheetMenuItem: [
         {
-            nodeId:"activities",
-            title:"Activités",
-            icon:VideoCallIcon
+            nodeId: "activities",
+            title: "Activités",
+            icon: VideoCallIcon
         }
 
         /*{
@@ -92,150 +177,150 @@ let Data = {
     ],
 
 
-    dashboardTab:{
-        monday:{
-            date:"8 may ",
-            data:[
+    dashboardTab: {
+        monday: {
+            date: "8 may ",
+            data: [
                 {
-                    title:"Internal Office (Descovery Design)",
-                    work:"Emails - Good morning",
-                    value:"0.25"
+                    title: "Internal Office (Descovery Design)",
+                    work: "Emails - Good morning",
+                    value: "0.25"
                 },
                 {
-                    title:"Signage Redesign 2017 (Britsh Musuem)",
-                    work:"Graphic Design - Exhibition Signage",
-                    value:"1.50"
+                    title: "Signage Redesign 2017 (Britsh Musuem)",
+                    work: "Graphic Design - Exhibition Signage",
+                    value: "1.50"
                 },
                 {
-                    title:"Signage Redesign 2017 (Britsh Musuem)",
-                    work:"Project Management - Design Review",
-                    value:"1.50"
+                    title: "Signage Redesign 2017 (Britsh Musuem)",
+                    work: "Project Management - Design Review",
+                    value: "1.50"
                 },
                 {
-                    title:"Autumn 2016 Campaign Launch ",
-                    work:"Emails - Good mornin",
-                    value:"2.00"
+                    title: "Autumn 2016 Campaign Launch ",
+                    work: "Emails - Good mornin",
+                    value: "2.00"
                 }
             ]
         }
 
     },
 
-    dashbordProject:{
-        acme:[
+    dashbordProject: {
+        acme: [
             {
-                title:"Autumn 2016 Campaign Launch",
-                budget:"$15,000.00",
-                spent:"$4,710.00",
-                chart:30,
-                romaining:"$10,290.00",
-                purcent:"69%",
-                costs:"$19,500.00"
+                title: "Autumn 2016 Campaign Launch",
+                budget: "$15,000.00",
+                spent: "$4,710.00",
+                chart: 30,
+                romaining: "$10,290.00",
+                purcent: "69%",
+                costs: "$19,500.00"
 
             },
             {
-                title:"Website Redesign 2017 - Phase 1",
-                budget:"500.00",
-                spent:"268.83",
-                chart:50,
-                romaining:"231.17",
-                purcent:"46%",
-                costs:"$34,190.00"
-
-            },
-
-        ],
-        astorian:[
-            {
-                title:"Penguin Tour Campaign",
-                budget:"$50,000.00",
-                spent:"$61,089.00",
-                chart:90,
-                romaining:"-$11,089.00",
-                purcent:"-22%",
-                costs:"$26,471.90"
-
-            },
-            {
-                title:"Print Campaign",
-                budget:"500.00",
-                spent:"268.83",
-                chart:40,
-                romaining:"231.17",
-                purcent:"46%",
-                costs:"$34,190.00"
-
-            },
-            {
-                title:"Web Design",
-                budget:"500.00",
-                spent:"268.83",
-                chart:70,
-                romaining:"231.17",
-                purcent:"46%",
-                costs:"$34,190.00"
-
-            },
-        ],
-        barrington:[
-            {
-                title:"Magazine Design",
-                budget:"300.00  ",
-                spent:"167.49",
-                chart:60,
-                romaining:"132.51",
-                purcent:"44%",
-                costs:"$21,190.00"
-
-            },
-            {
-                title:"Spring 2017 Product Launch ",
-                budget:"500.00",
-                spent:"268.83",
-                chart:50,
-                romaining:"231.17",
-                purcent:"46%",
-                costs:"$34,190.00"
+                title: "Website Redesign 2017 - Phase 1",
+                budget: "500.00",
+                spent: "268.83",
+                chart: 50,
+                romaining: "231.17",
+                purcent: "46%",
+                costs: "$34,190.00"
 
             },
 
         ],
-        british:[
+        astorian: [
             {
-                title:"Signage Redsign 2017",
-                budget:"500.00",
-                spent:"268.83",
-                chart:50,
-                romaining:"231.17",
-                purcent:"46%",
-                costs:"$34,190.00"
+                title: "Penguin Tour Campaign",
+                budget: "$50,000.00",
+                spent: "$61,089.00",
+                chart: 90,
+                romaining: "-$11,089.00",
+                purcent: "-22%",
+                costs: "$26,471.90"
+
+            },
+            {
+                title: "Print Campaign",
+                budget: "500.00",
+                spent: "268.83",
+                chart: 40,
+                romaining: "231.17",
+                purcent: "46%",
+                costs: "$34,190.00"
+
+            },
+            {
+                title: "Web Design",
+                budget: "500.00",
+                spent: "268.83",
+                chart: 70,
+                romaining: "231.17",
+                purcent: "46%",
+                costs: "$34,190.00"
 
             },
         ],
-        broadstreet:[
+        barrington: [
             {
-                title:"Product launch",
-                budget:"500.00",
-                spent:"268.83",
-                chart:10,
-                romaining:"231.17",
-                purcent:"46%",
-                costs:"$34,190.00"
+                title: "Magazine Design",
+                budget: "300.00  ",
+                spent: "167.49",
+                chart: 60,
+                romaining: "132.51",
+                purcent: "44%",
+                costs: "$21,190.00"
+
+            },
+            {
+                title: "Spring 2017 Product Launch ",
+                budget: "500.00",
+                spent: "268.83",
+                chart: 50,
+                romaining: "231.17",
+                purcent: "46%",
+                costs: "$34,190.00"
+
+            },
+
+        ],
+        british: [
+            {
+                title: "Signage Redsign 2017",
+                budget: "500.00",
+                spent: "268.83",
+                chart: 50,
+                romaining: "231.17",
+                purcent: "46%",
+                costs: "$34,190.00"
+
+            },
+        ],
+        broadstreet: [
+            {
+                title: "Product launch",
+                budget: "500.00",
+                spent: "268.83",
+                chart: 10,
+                romaining: "231.17",
+                purcent: "46%",
+                costs: "$34,190.00"
 
             },
         ]
     },
 
 
-    titres : [
-        {value:"",label:""},
-        {value:"associe",label:"Associés"},
-        {value:"conseil",label:"Conseil"},
-        {value:"ollaborateur",label:"Collaborateurs"},
-        {value:"avocats-stagiaire",label:"Avocats-stagiaires"},
-        {value:"personnel-administratif",label:"Personnel Administratif"}
+    titres: [
+        {value: "", label: ""},
+        {value: "associe", label: "Associés"},
+        {value: "conseil", label: "Conseil"},
+        {value: "ollaborateur", label: "Collaborateurs"},
+        {value: "avocats-stagiaire", label: "Avocats-stagiaires"},
+        {value: "personnel-administratif", label: "Personnel Administratif"}
     ],
-    comptabilite : [
+    comptabilite: [
         'Tenue de la comptabilité financiére',
         'Bouclement des comptes',
         'Tenue de la comptabilité des debiteurs',
@@ -251,7 +336,7 @@ let Data = {
         'IFRS'
     ],
 
-    salaire : [
+    salaire: [
         'Fiche de salaires',
         'Souscription assurances sociales',
         'Entrées / sorties employées',
@@ -263,13 +348,13 @@ let Data = {
         'Décomptes TVA'
     ],
 
-    domainesAct : [
-        "Droits des sociétés et contrats commerciaux" , "Droit bancaire et financier", "Négoce de valeurs mobilières" ,
-        "Matières premières et transport maritime" , "Contentieux" ,"Permis de séjour et de travail","Naturalisation suisse",
-        "Droit pénal / Criminalité économique" , "Expatriés et relocalisation" , "Droit immobilier",
+    domainesAct: [
+        "Droits des sociétés et contrats commerciaux", "Droit bancaire et financier", "Négoce de valeurs mobilières",
+        "Matières premières et transport maritime", "Contentieux", "Permis de séjour et de travail", "Naturalisation suisse",
+        "Droit pénal / Criminalité économique", "Expatriés et relocalisation", "Droit immobilier",
         "Toutes questions légales en relation avec les expatriés en Suisse",
     ],
-    affiliations : [
+    affiliations: [
         "Membre de l’Ordre des Avocats de Genève",
         "Membre de l’Association Genevoise des Droits des Affaires",
         "Membre de l’Association des avocats d’affaires internationaux (AIBL)",
@@ -277,11 +362,11 @@ let Data = {
         "Membre de l’Association du Barreau de New York",
         "Membre de l’Association du Barreau Américain (ABA)"
     ],
-    langues : [
-        "Anglais","Français","Allemand","Espagnol"
+    langues: [
+        "Anglais", "Français", "Allemand", "Espagnol"
     ],
 
-    impot : [
+    impot: [
         'Déclaration impôt entreprise',
         'Déclaration impôt privé (pas sur que ça doit faire)',
         'Implémentation régimes fiscal ',
@@ -290,10 +375,10 @@ let Data = {
     ],
 
     Acces: [
-        {label:"Lire",value:"read"},
-        {label:"Editer",value:"edit"},
-        {label:"Administrateur",value:"administrate"},
-        {label:"Partager",value:"share"}
+        {label: "Lire", value: "read"},
+        {label: "Editer", value: "edit"},
+        {label: "Administrateur", value: "administrate"},
+        {label: "Partager", value: "share"}
     ],
 
     times: [
@@ -318,7 +403,7 @@ let Data = {
         {text: "17:00", showConfirm: false, show: true},
     ],
 
-    datas : {
+    datas: {
         labels: ['January'],
         datasets: [
             {
@@ -347,7 +432,7 @@ let Data = {
                         r: 15
                     }
                 ]
-            },{
+            }, {
                 label: 'My First dataset',
                 fill: false,
                 lineTension: 0.1,
@@ -376,7 +461,7 @@ let Data = {
             }
         ]
     },
-    MenuProps : {
+    MenuProps: {
         PaperProps: {
             style: {
                 maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
@@ -384,37 +469,37 @@ let Data = {
             },
         },
     },
-    secteurs:[
-        "","bancaire","Corporate","FinTech","Litige","Droit de bail","Droit du travail"
+    secteurs: [
+        "", "bancaire", "Corporate", "FinTech", "Litige", "Droit de bail", "Droit du travail"
     ],
-    secteurs2:[
-        "corporate","litige"
+    secteurs2: [
+        "corporate", "litige"
     ],
-    contactTypes:[
-        {value:"",label:""},
-        {value:"0",label:"Corporate"},
-        {value:"1",label:"Litige"}
+    contactTypes: [
+        {value: "", label: ""},
+        {value: "0", label: "Corporate"},
+        {value: "1", label: "Litige"}
     ],
 
     timeSuggestions: [
-        "00h05","00h10","00h15","00h30","00h45","01h00","01h15","01h30","01h45","02h00","02h15","02h30","02h45","03h00","03h15","03h30","03h45","04h00","04h15","04h30",
-        "04h45","05h00","06h00","07h00","08h00","09h00","10h00"
+        "00h05", "00h10", "00h15", "00h30", "00h45", "01h00", "01h15", "01h30", "01h45", "02h00", "02h15", "02h30", "02h45", "03h00", "03h15", "03h30", "03h45", "04h00", "04h15", "04h30",
+        "04h45", "05h00", "06h00", "07h00", "08h00", "09h00", "10h00"
     ],
 
-    lf_templates:[
-        {value:"0",label:"Date seulement"},
-        {value:"1",label:"Date + Description"},
-        {value:"2",label:"Date + Nom avocat"},
-        {value:"3",label:"Date + Description + Nom avocat"},
-        {value:"4",label:"Description seulemnt"},
-        {value:"5",label:"Nom avocat seulemnt"},
-        {value:"6",label:"Nombre d'heures seulemnt"},
-        {value:"7",label:"Description + Nom avocat"},
-        {value:"8",label:"Description + Nombre d'heures"},
-        {value:"9",label:"Description + Nom avocat + Nombre d'heures"},
+    lf_templates: [
+        {value: "0", label: "Date seulement"},
+        {value: "1", label: "Date + Description"},
+        {value: "2", label: "Date + Nom avocat"},
+        {value: "3", label: "Date + Description + Nom avocat"},
+        {value: "4", label: "Description seulemnt"},
+        {value: "5", label: "Nom avocat seulemnt"},
+        {value: "6", label: "Nombre d'heures seulemnt"},
+        {value: "7", label: "Description + Nom avocat"},
+        {value: "8", label: "Description + Nombre d'heures"},
+        {value: "9", label: "Description + Nom avocat + Nombre d'heures"},
     ],
 
-    oa_litige_folders:["ADMIN (Lettre d'engagement)","MÉMOIRE","CHARGE DE PIECES","CONVOCATIONS","COMPTABILITE","CORRESPONDANCE","INTERNE ****","NOTES","PV RENDEZ-VOUS","PROCEDURES","RECHERCHES JURIDIQUES"],
-    oa_corporate_folders:["ADMIN (Lettre d'engagement)","ASSEMBLEE GENERALE EXTRAORDINAIRE","ASSEMBLEE GENERALE ORDINAIRE","DECISION DU CONSEIL D'ADMINISTRATION","CONVENTIONS D'ACTIONNAIRES","COMPTABILITE","CONTRATS","CORRESPONDANCE","INTERNE ****","CREATION DE SOCIETE","PV RENDEZ-VOUS","DOCUMENTS","NOTES","RECHERCHES JURIDIQUES"]
+    oa_litige_folders: ["ADMIN (Lettre d'engagement)", "MÉMOIRE", "CHARGE DE PIECES", "CONVOCATIONS", "COMPTABILITE", "CORRESPONDANCE", "INTERNE ****", "NOTES", "PV RENDEZ-VOUS", "PROCEDURES", "RECHERCHES JURIDIQUES"],
+    oa_corporate_folders: ["ADMIN (Lettre d'engagement)", "ASSEMBLEE GENERALE EXTRAORDINAIRE", "ASSEMBLEE GENERALE ORDINAIRE", "DECISION DU CONSEIL D'ADMINISTRATION", "CONVENTIONS D'ACTIONNAIRES", "COMPTABILITE", "CONTRATS", "CORRESPONDANCE", "INTERNE ****", "CREATION DE SOCIETE", "PV RENDEZ-VOUS", "DOCUMENTS", "NOTES", "RECHERCHES JURIDIQUES"]
 }
 export default Data;

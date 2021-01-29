@@ -3,7 +3,7 @@ import "./index.css"
 import rethink from "../../controller/rethink";
 import moment from "moment";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import {Lightbox} from 'react-modal-image';
+import {Lightbox} from "react-modal-image";
 import Popover from '@material-ui/core/Popover';
 import 'emoji-mart/css/emoji-mart.css'
 import {Picker} from 'emoji-mart'
@@ -531,7 +531,7 @@ export default class Chat extends React.Component {
                                                                             :
                                                                             <p>
                                                                                 <Anchorme  target="_blank" style={{color:"#039be5"}}>
-                                                                                {msg.text}
+                                                                                    {msg.text}
                                                                                 </Anchorme>
                                                                                 <h6 style={{color:"gray",marginBottom:-2,fontSize:"0.6rem",float:"right",marginTop:20}}>{moment(msg.created_at).fromNow(false)}</h6>
                                                                             </p>
@@ -646,7 +646,7 @@ export default class Chat extends React.Component {
                                                                             <p>
                                                                                 <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
                                                                                 <Anchorme  target="_blank" style={{color:"#039be5"}}>
-                                                                                {msg.text}
+                                                                                    {msg.text}
                                                                                 </Anchorme>
                                                                                 <h6 style={{color:"gray",marginTop:20,marginBottom:-2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
                                                                             </p>
@@ -754,18 +754,18 @@ export default class Chat extends React.Component {
                                     <div style={{alignSelf:"center",flex:"none",margin:10}}>
                                         {
                                             this.state.showRecorderForm === false ?
-                                            <i className="fa fa-microphone attachment" aria-hidden="true"
-                                               style={{
-                                                   fontSize: 20,
-                                                   cursor: "pointer",
-                                                   color:"#919191",
-                                                   boxShadow:"#fff 2px 4px 6px",
-                                                   margin:5
-                                               }}
-                                               onClick={(event) => {
-                                                   this.setState({showRecorderForm:true})
-                                               }}
-                                            /> :
+                                                <i className="fa fa-microphone attachment" aria-hidden="true"
+                                                   style={{
+                                                       fontSize: 20,
+                                                       cursor: "pointer",
+                                                       color:"#919191",
+                                                       boxShadow:"#fff 2px 4px 6px",
+                                                       margin:5
+                                                   }}
+                                                   onClick={(event) => {
+                                                       this.setState({showRecorderForm:true})
+                                                   }}
+                                                /> :
                                                 <div>
 
                                                 </div>

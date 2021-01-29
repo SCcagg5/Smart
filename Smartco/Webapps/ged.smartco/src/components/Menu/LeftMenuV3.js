@@ -367,45 +367,48 @@ export default function LeftMenuV3(props) {
 
 
                 <div>
-                            <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Rooms" ? "aliceblue" : ""}}
-                                 /*onDoubleClick={() => {
-                                     props.setShowRoomsMenuItems()
-                                 }}*/
-                                 onClick={() => {
-                                     props.setFocusedItem("Rooms")
-                                     props.setShowRoomsMenuItems()
-                                 }}
-                            >
-                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                                <div style={{display: "flex"}}>
-                                    {
-                                        props.rooms.length > 0 ?
-                                            props.showRoomsMenuItems === true  ?
-                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/> : <div style={{marginLeft:20}}/>
-                                    }
-                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Rooms</Typography>
+                    <div>
+                        <div style={{
+                            cursor: "pointer",
+                            backgroundColor: props.focusedItem === "Rooms" ? "aliceblue" : ""
+                        }}
+                             onClick={() => {
+                                 props.setFocusedItem("Rooms")
+                                 props.setShowRoomsMenuItems()
+                             }}
+                        >
+                            <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                            <div style={{display: "flex"}}>
+                                {
+                                    (props.rooms || []).length > 0 ?
+                                        props.showRoomsMenuItems === true ?
+                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/> :
+                                        <div style={{marginLeft: 20}}/>
+                                }
+                                <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Rooms</Typography>
 
-                                    <IconButton style={{marginLeft: 160, marginTop: -10}} onClick={(event) => {
-                                        event.stopPropagation()
-                                        props.onClickAddRoomBtn()
-                                    }}>
-                                        <AddIcon/>
-                                    </IconButton>
+                                <IconButton style={{marginLeft: 160, marginTop: -10,visibility:"hidden"}} onClick={(event) => {
+                                    event.stopPropagation()
+                                    props.onClickAddRoomBtn()
+                                }}>
+                                    <AddIcon/>
+                                </IconButton>
 
-                                </div>
-                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginBottom: 10}}/>
                             </div>
-                            {
-                                props.showRoomsMenuItems === true &&
-                                <div>
-                                    <RoomsMenuItems items={props.rooms} selectedRoomItems={props.selectedRoomItems}
-                                                    expandedRoomItems={props.expandedRoomItems}
-                                                    handleToggleRoomsMenu={props.handleToggleRoomsMenu}
-                                                    handleSelectRoomsMenu={props.handleSelectRoomsMenu}
-                                                    setSelectedRoom={(room, roomId) => props.setSelectedRoom(room, roomId)}
-                                    />
-                                </div>
-                            }
+                            <div style={{height: 1, backgroundColor: "#f0f0f0", marginBottom: 10}}/>
+                        </div>
+                        {
+                            props.showRoomsMenuItems === true &&
+                            <div>
+                                <RoomsMenuItems items={props.rooms || []} selectedRoomItems={props.selectedRoomItems}
+                                                expandedRoomItems={props.expandedRoomItems}
+                                                handleToggleRoomsMenu={props.handleToggleRoomsMenu}
+                                                handleSelectRoomsMenu={props.handleSelectRoomsMenu}
+                                                setSelectedRoom={(room, roomId) => props.setSelectedRoom(room, roomId)}
+                                />
+                            </div>
+                        }
+                    </div>
 
 
                             <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Meet" ? "aliceblue" : ""}}

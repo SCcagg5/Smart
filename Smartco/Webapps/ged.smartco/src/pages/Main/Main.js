@@ -93,6 +93,12 @@ import {Tree} from "antd";
 import Select from 'react-select';
 import qualifSignImage from "../../assets/images/qualifiedSign.png"
 import AttachFileIcon from '@material-ui/icons/AttachFile';
+import DocGenerationService from "../../provider/DocGenerationService";
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import {BlockPicker} from 'react-color'
+import TableTimeSheetsNonFact from "../../components/Tables/TableTimeSheetsNonFact";
 
 const {DirectoryTree} = Tree;
 
@@ -167,12 +173,11 @@ export default class Main extends React.Component {
       ligneFactures:[],
       clientFolderID:"",
       row:"",
-      template:"",
+      template:"10",
       client:"",
       paymTerm:"",
       deadline_date:"",
       taxe:""
-
     },
 
     openAlert: false,
@@ -197,6 +202,7 @@ export default class Main extends React.Component {
 
     selectedDoc: '',
     folders: [],
+    miniDrive:[],
     reelFolders: [],
     sharedFolders: [],
     sharedReelFolders: [],
@@ -308,6 +314,7 @@ export default class Main extends React.Component {
 
     selectedRoomItems: ['0'],
     openNewRoomModal: false,
+    newRoomColor:"#f0f0f0",
     newRoomTitle: '',
     newRoomCheck1: false,
     newRoomCheck2: true,
@@ -426,6 +433,14 @@ export default class Main extends React.Component {
     userEmail:localStorage.getItem("email") || "",
     userPhone:localStorage.getItem("phone") || "",
 
+    loading_provision_preview:false,
+    loading_provision_save:false,
+    provision_bank:"",
+    provision_amount:"",
+
+    anchorEl_colorPicker: null,
+    settRoomAnchorEl:null,
+    selectedRoomTab:0
 
   };
 
@@ -584,6 +599,7 @@ export default class Main extends React.Component {
 
               this.setState({
                 folders:main_functions.changeStructure(gedRes.data.Proprietary.Content.folders || []),
+                miniDrive:main_functions.changeStructureWithFiles(gedRes.data.Proprietary.Content.folders || []),
                 reelFolders: gedRes.data.Proprietary.Content.folders || [],
                 sharedReelFolders: gedRes.data.Shared.Content.folders || [],
                 rootFiles: gedRes.data.Proprietary.Content.files || [],
@@ -756,6 +772,55 @@ export default class Main extends React.Component {
                     })})
                 }
               }
+              else if(item === "rooms"){
+                let user_rooms = [];
+                rr.map((room,key) => {
+                  if(room.members.find(x => x.email === localStorage.getItem("email"))){
+                    user_rooms.push(room)
+                  }
+                })
+                this.setState({[item]:user_rooms})
+                if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
+                  if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
+                    if (rr.length > 0) {
+                      let room_id = this.props.location.pathname.replace('/home/rooms/', '');
+                      this.setState({
+                        showContainerSection: 'Rooms',
+                        focusedItem: 'Rooms',
+                        selectedRoomItems: [room_id],
+                        expandedRoomItems: [room_id],
+                        openRoomMenuItem: true,
+                        selectedRoom: user_rooms.find(x => x.id === room_id),
+                        firstLoading: false,
+                        loading: false
+                      });
+                    } else {
+                      this.props.history.push('/home/rooms');
+                      this.setState({
+                        showContainerSection: 'Rooms',
+                        focusedItem: 'Rooms',
+                        selectedRoomItems: [],
+                        expandedRoomItems: [],
+                        openRoomMenuItem: true,
+                        selectedRoom: '',
+                        firstLoading: false,
+                        loading: false
+                      });
+                    }
+                  }else{
+                    this.setState({
+                      showContainerSection: 'Rooms',
+                      focusedItem: 'Rooms',
+                      selectedRoomItems:[],
+                      expandedRoomItems: [],
+                      openRoomMenuItem: true,
+                      selectedRoom: "",
+                      firstLoading: false,
+                      loading: false
+                    });
+                  }
+                }
+              }
               else{
                 this.setState({[item]:rr})
               }
@@ -765,49 +830,7 @@ export default class Main extends React.Component {
 
           });
 
-
-
-            if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
-              if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
-                if (this.state.rooms.length > 0) {
-                  let room_id = this.props.location.pathname.replace('/home/rooms/', '');
-                  this.setState({
-                    showContainerSection: 'Rooms',
-                    focusedItem: 'Rooms',
-                    selectedRoomItems: [room_id],
-                    expandedRoomItems: [room_id],
-                    openRoomMenuItem: true,
-                    selectedRoom: this.state.rooms[room_id],
-                    firstLoading: false,
-                    loading: false
-                  });
-                } else {
-                  this.props.history.push('/home/rooms');
-                  this.setState({
-                    showContainerSection: 'Rooms',
-                    focusedItem: 'Rooms',
-                    selectedRoomItems: [],
-                    expandedRoomItems: [],
-                    openRoomMenuItem: true,
-                    selectedRoom: '',
-                    firstLoading: false,
-                    loading: false
-                  });
-                }
-              }else{
-                this.setState({
-                  showContainerSection: 'Rooms',
-                  focusedItem: 'Rooms',
-                  selectedRoomItems: [],
-                  expandedRoomItems: [],
-                  openRoomMenuItem: true,
-                  selectedRoom: '',
-                  firstLoading: false,
-                  loading: false
-                });
-              }
-            }
-            else if (this.props.location.pathname === '/home/cadeau_Entx') {
+          if (this.props.location.pathname === '/home/cadeau_Entx') {
               console.log("gift")
               this.setState({
                 showContainerSection: 'Societe',
@@ -908,7 +931,7 @@ export default class Main extends React.Component {
             else {
               if(this.props.location.pathname.indexOf('/home/drive/') === -1 && this.props.location.pathname.indexOf('/home/drive') === -1 &&
                   this.props.location.pathname !== '/home/shared/parent' && this.props.location.pathname.indexOf('/home/contacts') === -1 &&
-                  this.props.location.pathname.indexOf('/home/clients') === -1){
+                  this.props.location.pathname.indexOf('/home/clients') === -1 && this.props.location.pathname.indexOf('/home/rooms') === -1){
                 console.log('URL ERROR');
                 this.props.history.push('/home/drive');
                 this.componentDidMount();
@@ -924,7 +947,7 @@ export default class Main extends React.Component {
 
 
   handleRoomTabsChange = (event, newValue) => {
-    console.log(this.state.annuaire_clients_mandat)
+    //console.log(this.state.annuaire_clients_mandat)
     this.setState({selectedRoomTab:newValue})
     /*if(newValue === 1){
       setloadingFiles(true)
@@ -1649,13 +1672,16 @@ export default class Main extends React.Component {
           localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addRoomRes => {
         if (addRoomRes.status === 200 && addRoomRes.succes === true) {
           let members = [];
-          //console.log(room.members)
+          if((room.members || []).filter(x => x.email === localStorage.getItem("email")).length === 0){
+            members.push({email:localStorage.getItem("email"),id:main_functions.getContactIdByEmail(this.state.contacts,localStorage.getItem("email"))})
+          }
           (room.members || []).map((m,key) => {
-            members.push({email:m.email})
+            members.push({email:m.email,id:main_functions.getContactIdByEmail(this.state.contacts,m.email)})
           })
           let newRoom={
             uid : addRoomRes.data.id,
             title:room.title,
+            color:room.color,
             created_by:room.created_by,
             created_at:room.created_at,
             members:members
@@ -1663,17 +1689,19 @@ export default class Main extends React.Component {
           rethink.insert("test",'table("rooms").insert('+ JSON.stringify(newRoom) + ')',db_name,false).then( resAdd => {
             if (resAdd && resAdd === true) {
               setTimeout(() => {
+                let findNew = this.state.rooms.find(x => x.uid === newRoom.uid)
                 this.setState({
                   loading: false,
                   newRoomTitle: '',
+                  newRoomColor:"#f0f0f0",
                   NewRoomEmails: [],
-                  selectedRoom: room,
+                  selectedRoom: findNew,
                   selectedRoomKey: (this.state.rooms.length - 1),
-                  selectedRoomItems: [(this.state.rooms.length - 1).toString()]
+                  selectedRoomItems: [findNew.id]
                 });
-                this.props.history.push('/home/rooms/' + (this.state.rooms.length - 1));
+                this.props.history.push('/home/rooms/' + findNew.id);
                 this.openSnackbar('success', 'Room ajouté avec succès');
-              },1000);
+              },500)
             } else {
               this.setState({ loading: false });
               this.openSnackbar('error', "Une erreur est survenue");
@@ -1682,19 +1710,13 @@ export default class Main extends React.Component {
             console.log(err)
           })
 
-        }
-        else if(addRoomRes.succes === false && addRoomRes.status === 400){
-          this.setState({ loading: false });
-          localStorage.clear();
-          this.props.history.push('/login');
-        }
-        else {
+        } else {
           this.setState({ loading: false });
           this.openSnackbar('error', addRoomRes.error);
         }
       }).catch(err => {
         this.setState({ loading: false });
-        this.openSnackbar('error', err);
+        this.openSnackbar('error', "Service temporairement indisponible ou en maintenance");
       });
 
     }).catch(err => {console.log(err)})
@@ -1738,10 +1760,8 @@ export default class Main extends React.Component {
           setFocusedItem={(item) => {
             item === 'Drive'
               ? this.props.history.push('/home/drive')
-              : item === 'Rooms'
-              ? this.state.rooms.length > 0
-                ? this.props.history.push('/home/rooms/0')
-                : this.props.history.push('/home/rooms')
+                : item === 'Rooms'
+                ? this.props.history.push('/home/rooms')
               : item === 'Meet'
                 ? this.props.history.push('/home/meet/new')
                 : item === 'Contacts'
@@ -1766,19 +1786,12 @@ export default class Main extends React.Component {
           }}
           showRoomsMenuItems={this.state.openRoomMenuItem}
           setShowRoomsMenuItems={() => {
-            if(this.state.rooms.length > 0 ){
-              this.setState({
-                selectedRoom: this.state.rooms[0],
-                selectedRoomKey: 0,
-                showContainerSection: 'Rooms',
-                focusedItem: 'Rooms',
-                openRoomMenuItem: !this.state.openRoomMenuItem
-              });
-            }else{
-              this.setState({
-                openRoomMenuItem: !this.state.openRoomMenuItem
-              })
-            }
+            this.setState({
+              selectedRoom:"",
+              selectedRoomKey:"",
+              selectedRoomItems:[],
+              openRoomMenuItem: !this.state.openRoomMenuItem
+            })
           }}
           showMeetMenuItems={this.state.openMeetMenuItem}
           setShowMeetMenuItems={() =>
@@ -2065,22 +2078,18 @@ export default class Main extends React.Component {
     );
   };
 
-  OpenModalVF(created_at,lignes_facture,client_folderId,row,template,client,paymTerm,deadline_date,tax){
+  OpenModalVF(created_at,lignes_facture,client_folderId,row,template,client,paymTerm,deadline_date,tax,fraisAdmin){
     let beforeCF = this.state.beforeCreateFacture
-     beforeCF.createAt=created_at
+    beforeCF.createAt=created_at
     beforeCF.ligneFactures=lignes_facture
-        beforeCF.clientFolderID=client_folderId
+    beforeCF.clientFolderID=client_folderId
     beforeCF.row=row
     beforeCF.template=template
     beforeCF.client=client
     beforeCF.paymTerm=paymTerm
     beforeCF.deadline_date=deadline_date
     beforeCF.taxe=tax
-        this.setState({
-          beforeCreateFacture:beforeCF,
-          openModalVF:true
-        })
-
+    this.addFA(fraisAdmin === "2%" ? 1 : 2, beforeCF)
   }
 
 
@@ -2126,22 +2135,22 @@ export default class Main extends React.Component {
 
     return(
           this.state.time_sheets.length === 0 ?
-              <div  align="center" style={{overflowY:'scroll',marginTop:200}}>
+              <div  align="center" style={{marginTop:200}}>
                 <CircularProgress color="primary" />
                 <h6>Chargement...</h6>
               </div> :
-              <div  style={{overflowY:'auto',height:650}} >
-                <div className="row" style={{overflowY:'scroll'}} >
-                  <div className="col-lg-12 " style={{overflowY:'scroll'}}>
+              <div  style={{height:"90%"}} >
+                <div className="row">
+                  <div className="col-lg-12 ">
                     <h5 className="mt-0 mb-1">TimeSheet / Activités</h5>
-                    <div className="card-box text-center" style={{ marginTop: 1 ,overflowY:'scroll'}}>
+                    <div className="card-box text-center">
                       <div style={{ marginTop: 20 }} className="text-left">
                         <Tabs selectedIndex={this.state.selectedTimeSheetIndex} onSelect={index => {
                           this.setState({selectedTimeSheetIndex:index})
                         }}>
                           <TabList>
                             <Tab>Time Sheet</Tab>
-                            <Tab>Work in progress</Tab>
+
                             <Tab>Activités </Tab>
                             <Tab>Partner
                               {
@@ -2149,6 +2158,8 @@ export default class Main extends React.Component {
                                 <Badge max={100}>{(this.state.factures || []).filter(x => x.statut === "wait" && x.partner === localStorage.getItem("email")).length}</Badge>
                               }
                             </Tab>
+                            <Tab>Report</Tab>
+                            <Tab>Work in progress</Tab>
                           </TabList>
 
                           <TabPanel>
@@ -2362,7 +2373,7 @@ export default class Main extends React.Component {
                                             <MenuItem
                                                 value={'Temps facturé'}>Temps facturé</MenuItem>
                                             <MenuItem
-                                                value={'Paiement avancée'}>Provision</MenuItem>
+                                                value={'Provision'}>Provision</MenuItem>
                                           </MuiSelect>
                                         </div>
                                       </div>
@@ -2389,23 +2400,87 @@ export default class Main extends React.Component {
                                     </div>
                                     <div className="row mt-3">
                                       <div className="col-md-6">
-                                        <div>
-                                          <div>
-                                            <h5>{new_timeSheet_desc}</h5>
-                                          </div>
-                                          <textarea
-                                              className="form-control "
-                                              id="duree"
-                                              style={{ width: '100%' }}
-                                              name="duree"
-                                              rows={5}
-                                              value={this.state.TimeSheet.newTime.description}
-                                              onChange={(e) => {
-                                                let d = this.state.TimeSheet;
-                                                d.newTime.description = e.target.value;
-                                                this.setState({ TimeSheet: d });
-                                              }} />
-                                        </div>
+                                        {
+                                          this.state.TimeSheet.newTime.categoriesActivite === "Temps facturé" ?
+                                              <div>
+                                                <div>
+                                                  <h5>{new_timeSheet_desc}</h5>
+                                                </div>
+                                                <textarea
+                                                    className="form-control "
+                                                    id="duree"
+                                                    style={{ width: '100%' }}
+                                                    name="duree"
+                                                    rows={5}
+                                                    value={this.state.TimeSheet.newTime.description}
+                                                    onChange={(e) => {
+                                                      let d = this.state.TimeSheet;
+                                                      d.newTime.description = e.target.value;
+                                                      this.setState({ TimeSheet: d });
+                                                    }} />
+                                              </div> :
+
+                                              <div>
+                                                <div>
+                                                  <h5>Montant(CHF)</h5>
+                                                  <input
+                                                      type="text"
+                                                      className="form-control"
+                                                      id="email"
+                                                      name="email"
+                                                      value={this.state.provision_amount}
+                                                      style={{width:350}}
+                                                      onChange={(e) => {this.setState({provision_amount:e.target.value})}}
+                                                  />
+                                                </div>
+                                                <div className="mt-3">
+                                                  <h5>Compte bancaire</h5>
+                                                  <select
+                                                      className="form-control custom-select"
+                                                      value={this.state.provision_bank}
+                                                      onChange={(e) => {
+                                                        this.setState({provision_bank:e.target.value})
+                                                      }}
+                                                      style={{width:350}}
+                                                  >
+                                                    <option key={-1} value={""}/>
+                                                    {
+                                                      (data.oa_comptes_bank_provision || []).map((item,key) =>
+                                                          <option key={key} value={JSON.stringify(item)}>{item.label}</option>
+                                                      )
+                                                    }
+                                                  </select>
+                                                </div>
+                                                <div className="mt-5" align="center">
+                                                  <AltButtonGroup>
+                                                    <AtlButton
+                                                        isLoading={this.state.loading_provision_preview}
+                                                        appearance="warning"
+                                                        isDisabled={this.state.TimeSheet.newTime.duree === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
+                                                        this.state.provision_bank === "" || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
+                                                        onClick={() => {
+                                                          this.generateProvisionDoc(new_timeSheet_desc)
+                                                        }}
+                                                    >
+                                                      Preview
+                                                    </AtlButton>
+                                                    <AtlButton
+                                                        isLoading={this.state.loading_provision_save}
+                                                        appearance="primary"
+                                                        isDisabled={this.state.TimeSheet.newTime.duree === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
+                                                        this.state.provision_bank === "" || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
+                                                        onClick={() => {
+                                                          this.saveProvisionDoc(new_timeSheet_desc)
+                                                        }}
+                                                    >
+                                                      Enregistrer le document de provision
+                                                    </AtlButton>
+                                                  </AltButtonGroup>
+
+                                                </div>
+                                              </div>
+                                        }
+
                                       </div>
                                       <div className="col-md-6">
                                         <div>
@@ -2471,61 +2546,70 @@ export default class Main extends React.Component {
                                       </div>
                                     </div>
                                     <div align="center" className=" mt-4">
-                                      <AltButtonGroup>
-                                        <AtlButton
-                                            onClick={() => {
-                                              this.createLignefacture(false)
-                                              //console.log(this.state.TimeSheet.newTime.dossier_client)
-                                            }}
-                                            appearance="primary"
-                                            isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id ||
-                                            this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
-                                            style={{ margin: 20 }}> Enregistrer </AtlButton>
-                                        <AtlButton
-                                            onClick={() => {
-                                              this.createLignefacture(true)
-                                            }}
-                                            appearance="primary"
-                                            isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id ||
-                                            this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
-                                            style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
-                                        <AtlButton
-                                            appearance=""
-                                            style={{ margin: 20 }}
-                                            onClick={() => {
-                                              this.setState({
-                                                TimeSheet: {
-                                                  newTime: {
-                                                    duree: '',
-                                                    client: '',
-                                                    dossier_client: {
-                                                      name:'',
-                                                      facturation: {
-                                                        language:''
-                                                      }},
-                                                    categoriesActivite: 'Temps facturé',
-                                                    description: '',
-                                                    date: new Date(),
-                                                    utilisateurOA: '',
-                                                    rateFacturation: '',
-                                                    selectedClientTimeEntree:''
-                                                  }
-                                                }
-                                              });
-                                            }}>Réinitialiser</AtlButton>
-                                      </AltButtonGroup>
-                                      <div>
-                                        <AltButtonGroup
-                                            style={{ marginTop: 10 }}>
-                                          <AtlButton
-                                              isSelected
-                                              appearance="default"
-                                              onClick={() => this.setState({selectedTimeSheetIndex:1})}
-                                          >
-                                            Etablir facture
-                                          </AtlButton>
-                                        </AltButtonGroup>
-                                      </div>
+                                      {
+                                        this.state.TimeSheet.newTime.categoriesActivite === "Temps facturé" &&
+                                        <div>
+
+                                          <AltButtonGroup>
+                                            <AtlButton
+                                                onClick={() => {
+                                                  this.createLignefacture(false)
+                                                  //console.log(this.state.TimeSheet.newTime.dossier_client)
+                                                }}
+                                                appearance="primary"
+                                                isDisabled={this.state.TimeSheet.newTime.duree === '' ||  this.state.TimeSheet.newTime.description === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id ||
+                                                this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
+                                                style={{ margin: 20 }}> Enregistrer </AtlButton>
+                                            <AtlButton
+                                                onClick={() => {
+                                                  this.createLignefacture(true)
+                                                }}
+                                                appearance="primary"
+                                                isDisabled={this.state.TimeSheet.newTime.duree === '' || this.state.TimeSheet.newTime.description === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id ||
+                                                this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
+                                                style={{ margin: 20 }}>Enregistrer & dupliquer</AtlButton>
+                                            <AtlButton
+                                                appearance=""
+                                                style={{ margin: 20 }}
+                                                onClick={() => {
+                                                  this.setState({
+                                                    TimeSheet: {
+                                                      newTime: {
+                                                        duree: '',
+                                                        client: '',
+                                                        dossier_client: {
+                                                          name:'',
+                                                          facturation: {
+                                                            language:''
+                                                          }},
+                                                        categoriesActivite: 'Temps facturé',
+                                                        description: '',
+                                                        date: new Date(),
+                                                        utilisateurOA: '',
+                                                        rateFacturation: '',
+                                                        selectedClientTimeEntree:''
+                                                      }
+                                                    }
+                                                  });
+                                                }}>Réinitialiser</AtlButton>
+                                          </AltButtonGroup>
+                                          <div>
+                                            <AltButtonGroup
+                                                style={{ marginTop: 10,marginBottom:20 }}>
+                                              <AtlButton
+                                                  isSelected
+                                                  appearance="default"
+                                                  onClick={() => this.setState({selectedTimeSheetIndex:2})}
+                                              >
+                                                Etablir facture
+                                              </AtlButton>
+                                            </AltButtonGroup>
+                                          </div>
+
+                                        </div>
+                                      }
+
+
                                     </div>
                                   </div> :
 
@@ -2613,6 +2697,59 @@ export default class Main extends React.Component {
                             }
                           </TabPanel>
                           <TabPanel>
+                            {
+                              this.state.time_sheets.length > 0 &&
+                              <TableTimeSheet
+                                  lignesFactures={this.state.time_sheets || []}
+                                  lignesFacturesCopy={this.state.time_sheets || []}
+                                  deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
+                                  setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
+                                  OA_contacts={this.state.contacts}
+                                  annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                  onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
+                                    this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
+                                        partner,lignes_facture)
+                                  }}
+                                  client_folders={this.state.client_folders}
+                                  updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
+                                  openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                  clientsTempo={this.state.clients_cases}
+                                  updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
+                              />
+                            } {
+                            this.state.time_sheets.length === 0 &&
+                            <div style={{
+                              marginTop: 30,
+                              marginLeft: 10
+                            }}>Aucune ligne facture encore ajoutée !</div>
+
+                          }
+                          </TabPanel>
+                          <TabPanel>
+                            <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
+                            <TableFactures factures={this.state.factures}
+                                           facturesCp={this.state.factures}
+                                           client_folders={this.state.client_folders}
+                                           clients_tempo={this.state.clients_cases}
+                                           annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                           sharedFolders={this.state.sharedReelFolders || []}
+                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin) => {
+                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin);
+                                             //this.OpenModalVF(row.created_at, row.lignes_facture,row.client_folder.id,row,"10",client,paymTerm,deadline_date,tax,fraisAdmin)
+                                           }}
+                                           openFacture={(id) => {
+                                             this.openPdfModal(id)
+                                           }}
+                                           openFactureFolder={(id) => {
+                                             this.redirectToFolder(id)
+                                           }}
+                                           delete_facture={(id) => {
+                                             this.delete_facture(id)
+                                           }}
+                                           openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                            />
+                          </TabPanel>
+                          <TabPanel>
                             <div style={{marginTop:25}}>
                               <div className="row">
                                 <div className="col-md-4">
@@ -2639,7 +2776,7 @@ export default class Main extends React.Component {
                                       onChange={(e) => {
                                         this.setState({wip_selected_contact:e.target.value})
                                       }}
-                                      value={this.state.selectedClientTimeEntree}
+                                      value={this.state.wip_selected_contact}
                                   >
                                     {this.state.annuaire_clients_mandat.map((contact, key) => (
                                         <MenuItem
@@ -2648,7 +2785,7 @@ export default class Main extends React.Component {
                                           <div style={{display:"flex"}}>
                                             <Avatar style={{marginLeft:10}}
                                                     alt=""
-                                                    src={contact.ContactType === '1' ? contact.imageUrl ? contact.imageUrl : userAvatar : entIcon} />
+                                                    src={contact.Type === '1' ? contact.imageUrl ? contact.imageUrl : userAvatar : entIcon} />
                                             <div style={{marginTop:10,marginLeft:8}}>{contact.Nom + ' ' + contact.Prenom}</div>
                                           </div>
                                         </MenuItem>
@@ -2744,56 +2881,14 @@ export default class Main extends React.Component {
                             </div>
                           </TabPanel>
                           <TabPanel>
-                            {
-                              this.state.time_sheets.length > 0 &&
-                              <TableTimeSheet
-                                  lignesFactures={this.state.time_sheets || []}
-                                  lignesFacturesCopy={this.state.time_sheets || []}
-                                  deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
-                                  setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
-                                  OA_contacts={this.state.contacts}
-                                  annuaire_clients_mandat={this.state.annuaire_clients_mandat}
-                                  onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
-                                    this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
-                                        partner,lignes_facture)
-                                  }}
-                                  client_folders={this.state.client_folders}
-                                  updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
-                                  openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                                  clientsTempo={this.state.clients_cases}
-                                  updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
-                              />
-                            } {
-                            this.state.time_sheets.length === 0 &&
-                            <div style={{
-                              marginTop: 30,
-                              marginLeft: 10
-                            }}>Aucune ligne facture encore ajoutée !</div>
-
-                          }
-                          </TabPanel>
-                          <TabPanel>
-                            <h4 style={{marginTop:20,marginBottom:15}}>Factures à valider</h4>
-                            <TableFactures factures={this.state.factures}
-                                           facturesCp={this.state.factures}
-                                           client_folders={this.state.client_folders}
-                                           clients_tempo={this.state.clients_cases}
-                                           annuaire_clients_mandat={this.state.annuaire_clients_mandat}
-                                           sharedFolders={this.state.sharedReelFolders || []}
-                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax) => {
-                                            // this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax);
-                                             this.OpenModalVF(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax)
-                                           }}
-                                           openFacture={(id) => {
-                                             this.openPdfModal(id)
-                                           }}
-                                           openFactureFolder={(id) => {
-                                             this.redirectToFolder(id)
-                                           }}
-                                           delete_facture={(id) => {
-                                             this.delete_facture(id)
-                                           }}
-                                           openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                            <TableTimeSheetsNonFact
+                                lignesFactures={this.state.time_sheets || []}
+                                OA_contacts={this.state.contacts}
+                                annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                client_folders={this.state.client_folders}
+                                openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                clientsTempo={this.state.clients_cases}
+                                factures={this.state.factures || []}
                             />
                           </TabPanel>
                         </Tabs>
@@ -2804,6 +2899,107 @@ export default class Main extends React.Component {
               </div>
     )
 
+  }
+
+  generateProvisionDoc(new_timeSheet_desc){
+    this.setState({loading_provision_preview:true})
+    let lang = new_timeSheet_desc === "Description (anglais)" ? "en" : "fr";
+    let bank = JSON.parse(this.state.provision_bank)
+    DocGenerationService.generateProvision({
+      lang:lang,
+      data:{
+        client:this.state.TimeSheet.newTime.client,
+        date:moment().format("DD/MM/YYYY"),
+        price:this.state.provision_amount,
+        bank:bank.title,
+        iban:bank.code,
+        swift:bank.swift_bic,
+        clearing:bank.clearing,
+        ref:this.state.TimeSheet.newTime.client + " - " + this.state.TimeSheet.newTime.dossier_client.name
+      }}).then( res => {
+      console.log(res)
+      this.setState({loading_provision_preview:false})
+      this.showDocInPdfModal(res.data,"Provision_" + moment().format("DD-MM-YYYY HH:mm"),"pdf")
+    }).catch(err => {
+      this.setState({loading_provision_preview:false})
+      this.openSnackbar("error","Une erreur est survenue !")
+      console.log(err)
+    })
+  }
+
+  saveProvisionDoc(new_timeSheet_desc){
+
+    this.setState({loading_provision_save:true})
+    let lang = new_timeSheet_desc === "Description (anglais)" ? "en" : "fr";
+    let bank = JSON.parse(this.state.provision_bank)
+    DocGenerationService.generateProvision({
+      lang:lang,
+      data:{
+        client:this.state.TimeSheet.newTime.client,
+        date:moment().format("DD/MM/YYYY"),
+        price:this.state.provision_amount,
+        bank:bank.title,
+        iban:bank.code,
+        swift:bank.swift_bic,
+        clearing:bank.clearing,
+        ref:this.state.TimeSheet.newTime.client + " - " + this.state.TimeSheet.newTime.dossier_client.name
+      }}).then( res => {
+      console.log(res)
+
+      SmartService.getFile(this.state.TimeSheet.newTime.dossier_client.folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+        if (resF.succes === true && resF.status === 200) {
+          let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+          if(comptaFolder){
+
+            SmartService.addFileFromBas64({b64file:res.data,folder_id:comptaFolder.id},
+                localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+
+              if(addFileRes.succes === true && addFileRes.status === 200) {
+                let fileName = "Provision_" + moment().format("DD-MM-YYYY HH:mm");
+                SmartService.updateFileName({name:fileName},
+                    addFileRes.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                  if(updateNameRes.succes === true && updateNameRes.status === 200){
+                    this.justReloadGed()
+                    setTimeout(() => {
+                      this.setState({loading_provision_save:false})
+                      this.openSnackbar("success","Le document de provision est bien enregistré dans le dossier Comptabilité du client " + this.state.TimeSheet.newTime.client)
+                    },500)
+                  }else{
+                    console.log(updateNameRes.error)
+                    this.openSnackbar("error",updateNameRes.error)
+                    this.setState({loading_provision_save:false})
+                  }
+                }).catch(err => {
+                  console.log(err)
+                  this.setState({loading_provision_save:false})
+                  this.openSnackbar("error","Une erreur est survenue")
+                })
+              }else{
+                console.log(addFileRes.error)
+                this.openSnackbar("error",addFileRes.error)
+                this.setState({loading_provision_save:false})
+              }
+            }).catch(err => {
+              console.log(err)
+              this.openSnackbar("error","Une erreur est survenue")
+              this.setState({loading_provision_save:false})
+            })
+
+          }else{
+            this.setState({loading_provision_save:false})
+            this.openSnackbar("error","Dossier COMPTABILITE non trouvé dans le dossier de client !")
+          }
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+
+
+    }).catch(err => {
+      this.setState({loading_provision_save:false})
+      this.openSnackbar("error","Une erreur est survenue !")
+      console.log(err)
+    })
   }
 
 
@@ -2916,7 +3112,7 @@ export default class Main extends React.Component {
     this.reloadGed()
   }
 
-  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax){
+  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin){
     this.setState({loading:true})
 
     let odoo_companies = this.state.odoo_companies || [];
@@ -2925,7 +3121,7 @@ export default class Main extends React.Component {
 
     if(findCompany){
       facture_company_id = findCompany.odoo_company_id;
-      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax)
+      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin)
 
     }else{
 
@@ -2942,7 +3138,7 @@ export default class Main extends React.Component {
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
 
-                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax)
+                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin)
 
               }else{
                 this.setState({loading:false})
@@ -2972,7 +3168,7 @@ export default class Main extends React.Component {
     }
   }
 
-  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax) {
+  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin) {
     let id_facture = facture.id
 
     let lignes_factures = lignes_f;
@@ -3068,7 +3264,9 @@ export default class Main extends React.Component {
                                           template === '6' ? ligne.newTime.duree.toFixed(2) + ' Heures' :
                                               template === '7' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
                                                   template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree.toFixed(2) + ' Heures' :
-                                                      template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree.toFixed(2) + ' Heures' : ligne.newTime.description,
+                                                      template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree.toFixed(2) + ' Heures' :
+                                                          template === '10' ? ligne.newTime.description :
+                                                          ligne.newTime.description,
               'origin': false,
               'price_unit': parseFloat(ligne.newTime.rateFacturation),
               'product_id': 1,  //2
@@ -3093,6 +3291,44 @@ export default class Main extends React.Component {
           ]
       );
     });
+
+    if(fraisAdmin === "2%"){
+      odoo_data[0].invoice_line_ids.push(
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              "account_analytic_id":false,
+              'account_id': 101,  //103
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
+              'name':"Frais administratifs(2%)",
+              'origin': false,
+              'price_unit': (total * 2) / 100,
+              'product_id': 1,  //2
+              'quantity': 1,
+              'sequence': 10,
+              "uom_id":1,
+              /*'invoice_line_tax_ids': [
+                [
+                  6,
+                  false,
+                  tax && tax !== "" ? [tax] : []
+                ]
+              ],*/
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+            }
+          ]
+      )
+    }
 
     SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
       console.log(createFactRes)
@@ -3211,7 +3447,6 @@ export default class Main extends React.Component {
       console.log(err);
     });
   }
-
 
   deleteLigneFact(lf) {
     const r = window.confirm('Voulez-vous vraiment supprimer cette ligne facture ?');
@@ -3743,12 +3978,11 @@ export default class Main extends React.Component {
 
   }
 
-  addFA( choice){
+  addFA(choice, beforeCreateFacture){
 
-    if (choice===1) {
+    if (choice === 1) {
 
-
-      let facture = this.state.beforeCreateFacture;
+      let facture = beforeCreateFacture;
       let lignes_facture = facture.ligneFactures;
       let total = 0;
 
@@ -3756,12 +3990,7 @@ export default class Main extends React.Component {
         total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
 
       });
-
       let FA = (total * 2) / 100
-
-      console.log(facture)
-
-
       let newItem = {
         newTime: {
           date: moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD HH:mm:ss'),
@@ -3770,7 +3999,7 @@ export default class Main extends React.Component {
           client_id: facture.client,
           dossier_client: facture.row.client_folder,
           categoriesActivite: this.state.TimeSheet.newTime.categoriesActivite,
-          description: "des frais administratifs",
+          description: "Frais administratifs(2%)",
           utilisateurOA: facture.row.partner,
           rateFacturation: FA,
           langue: ''
@@ -3779,24 +4008,13 @@ export default class Main extends React.Component {
         user_email: localStorage.getItem('email'),
         created_at: moment().format('YYYY-MM-DD HH:mm:ss')
       }
-
       facture.ligneFactures.push(newItem)
-
-      this.setState({openModalVF:false})
-
-
       this.before_create_facture(facture.createAt, facture.ligneFactures, facture.clientFolderID, facture.row, facture.template, facture.client, facture.paymTerm, facture.deadline_date, facture.taxe);
 
     }else{
       let facture = this.state.beforeCreateFacture;
-
       this.setState({openModalVF:false})
-
-
-
       this.before_create_facture(facture.createAt, facture.ligneFactures, facture.clientFolderID, facture.row, facture.template, facture.client, facture.paymTerm, facture.deadline_date, facture.taxe);
-
-
     }
 
 
@@ -3973,6 +4191,7 @@ export default class Main extends React.Component {
       console.log(err)
     })
   }
+
   addNewRoomTask(title,desc, assignedTo,client,teamEmails,priority,tags,date_deadline){
     let room = this.state.selectedRoom;
     let tasks = room.tasks || [];
@@ -4012,73 +4231,6 @@ export default class Main extends React.Component {
     })
   }
 
-  addNewRoomTask1(title, selectedClient, assignedTo, team, selectedDateTime){
-    let room = this.state.selectedRoom;
-    let tasks = room.tasks || [];
-    let teamCp = [];
-    console.log(team)
-    team.map((t,key) => {
-      teamCp.push({
-        avatar:t.avatar || "",
-        email:t.email,
-        fname:t.fname || ""
-      })
-    })
-    tasks.push({
-      uid:utilFunctions.getUID(),
-      title: title,
-      assignedTo: assignedTo,
-      team: teamCp,
-      dateTime: selectedDateTime,
-      clientAttribution: selectedClient,
-      created_at:moment().format("YYYY-MM-DD HH:mm:ss")
-    });
-    room.tasks = tasks;
-    console.log(room)
-
-    rethink.update("test",'table("rooms").get('+JSON.stringify(room.id)+').update('+ JSON.stringify(room) + ')',db_name,false).then( updateRes => {
-      if(updateRes && updateRes === true){
-
-        this.setState({ selectedRoom: room });
-        let emails = [];
-        let teamNames = [];
-        team.map((t, key) => {
-          emails.push(t.email);
-          teamNames.push(t.fname);
-        });
-        emails.push(assignedTo.email);
-        /*maillingService.sendCustomMailsWithUrl({
-          recipients: emails,
-          subject: 'Nouvelle tâche ajoutée ',
-          msg:
-              'Bonjour, <br> Une tâche avec le nom \'' +
-              title +
-              '\' vous a été attribué pour la date du ' +
-              selectedDateTime +
-              ' .<br><br> <b>Team: </b> ' +
-              teamNames.join(', ') +
-              '<br><b>Lead: </b> ' +
-              assignedTo.prenom +
-              ' ' +
-              assignedTo.nom +
-              '<br><br>' +
-              'Pour plus de détails, merci de consulter votre compte sur OA Legal.<br><br>',
-          footerMsg:
-              '<br><br> Cordialement<br>L\'équipe OA Legal',
-          linkUrl: 'Consulter',
-          url:
-              'https://smartdom.ch:8035/home/rooms/' +
-              this.state.selectedRoomKey
-        })
-            .then((ok) => {}).catch((err) => {
-          this.openSnackbar('error', 'L\'envoi du mail de notification à été échoué ! ');
-        });*/
-        this.openSnackbar('success', 'Une notification par mail à été bien envoyé au Lead et au différents membre du Team');
-      }else{
-        this.openSnackbar("error","Une erreur est survenue !")
-      }
-    })
-  }
 
   deleteContact(id){
     this.setState({loading:true})
@@ -4253,12 +4405,20 @@ export default class Main extends React.Component {
     const openDrivePopup = Boolean(this.state.anchorElDrive);
     const id = openDrivePopup ? 'drive-popover' : undefined;
 
+    const openRoomColorPicker = Boolean(this.state.anchorEl_colorPicker);
+    const id2 = openRoomColorPicker ? 'color-picker-popover' : undefined;
+
     const openDrivePopup3 = Boolean(this.state.anchorElDrive3);
     const id3 = openDrivePopup3 ? 'drive-popover3' : undefined;
 
 
+
+    const openRoomSetting = Boolean(this.state.settRoomAnchorEl);
+    const id_settRoom = openRoomSetting ? 'setting-room-popover' : undefined;
+
+
     return (
-      <div style={{overflowY:'scroll'}}>
+      <div>
 
         <div>
             <TopBar
@@ -4318,15 +4478,15 @@ export default class Main extends React.Component {
           </div>
 
         <MuiBackdrop open={this.state.loading} />
-        <div style={{ marginRight: 20, marginTop: 75, marginLeft: 5, top:0,width:"100%",position:"fixed" }}>
-          <div style={{overflowY:"scroll"}}>
+        <div style={{ marginRight: 20, marginTop: 75, marginLeft: 5, top:0,width:"100%",position:"fixed",height: "100%" }}>
+          <div style={{height: "100%"}}>
 
-            <div style={{ display: 'flex' }}>
+            <div style={{ display: 'flex',height: "100%"}}>
               <div
                 style={{
-                  height: 900,
-                  overflow: 'overlay',
-                  minHeight: 900,
+                  height: "90%",
+                  overflow: 'auto',
+                  minHeight: 650,
                   width: 300,
                   minWidth: 300
                 }}
@@ -4337,9 +4497,9 @@ export default class Main extends React.Component {
 
               </div>
 
-              <div style={{ flexWrap: 'wrap', flex: '1 1 auto',overflow:"auto",height:900 }}>
+              <div style={{ flexWrap: 'wrap', flex: '1 1 auto',overflow:"auto",height:"90%" }}>
                 <div className="card">
-                  <div className="card-body" style={{ minHeight: 750 ,overflowY:'scroll'}}>
+                  <div className="card-body" style={{ minHeight: 750,height:"100%"}}>
 
                     <Switch>
 
@@ -4926,54 +5086,147 @@ export default class Main extends React.Component {
                       </Route>
 
                       <Route exact path="/home/rooms">
+
                         {
-                          this.state.rooms.length === 0 &&
-                          <div>
-                            <h4 className="mt-0 mb-1">Rooms</h4>
-                            <div style={{ marginTop: 25, display: 'flex' }}>
-                              <h5 style={{ fontSize: 16, color: 'gray' }}>
-                                Aucune "Room" encore ajouté !</h5>&nbsp;&nbsp;
-                              <h6 style={{
-                                cursor: 'pointer',
-                                color: '#000',
-                                textDecoration: 'underline', marginTop: 12
-                              }} onClick={() => {
-                                this.setState({
-                                  openNewRoomModal: true
-                                });
-                              }}
-                              >
-                                Ajouter une</h6>
-                            </div>
-                          </div>
+                          !this.state.rooms ?
+                              <div align="center" style={{marginTop: 200}}>
+                                <CircularProgress color="primary"/>
+                                <h6>Chargement...</h6>
+                              </div>
+                              :
+                              <div>
+                                <div style={{marginTop:10}}>
+                                  <h5>Rooms</h5>
+                                </div>
+                                <div className="row mt-3" style={{maxWidth:1000}}>
+                                  {
+                                    (this.state.rooms || []).map((room,key) => (
+                                        <div className="col-lg-3 mb-2" key={key}>
+                                          <div className="card-container" style={{backgroundColor:room.color}} onClick={() => {
+                                            this.setState({
+                                              selectedRoom: room,
+                                              selectedRoomKey: room.id,
+                                              showContainerSection: 'Rooms',
+                                              focusedItem: 'Rooms',
+                                              selectedRoomItems:[room.id]
+                                            });
+                                            this.props.history.push('/home/rooms/' + room.id);
+                                          }}>
+                                            <div style={{display:"flex",justifyContent:"space-between"}}>
+                                              <h6 style={{color:"#fff",fontWeight:600}}>{room.title}</h6>
+                                              <MoreHorizIcon  style={{color:"#fff",marginTop:-5}}
+                                                              onClick={(e) => {
+                                                                e.preventDefault()
+                                                                e.stopPropagation()
+                                                                this.setState({settRoomAnchorEl:e.currentTarget})
+                                                              }}
+                                              />
+                                              <Popover
+                                                  id={id_settRoom}
+                                                  open={openRoomSetting}
+                                                  anchorEl={this.state.settRoomAnchorEl}
+                                                  onClose={(e) => {
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                    this.setState({settRoomAnchorEl:null})
+                                                  }}
+                                                  anchorOrigin={{
+                                                    vertical: 'top',
+                                                    horizontal: 'center',
+                                                  }}
+                                                  transformOrigin={{
+                                                    vertical: 'top',
+                                                    horizontal: 'center',
+                                                  }}
+                                              >
+                                                <MenuItem onClick={(e) => {
+                                                  e.preventDefault();e.stopPropagation()
+                                                }}  >
+                                                  <ListItemIcon>
+                                                    <PersonAddIcon style={{color:"#c0c0c0"}}/>
+                                                  </ListItemIcon>
+                                                  <Typography variant="inherit">
+                                                    Ajouter
+                                                  </Typography>
+                                                </MenuItem>
+                                                <MenuItem onClick={(e) => {
+                                                  e.preventDefault();e.stopPropagation()
+                                                }}  >
+                                                  <ListItemIcon>
+                                                    <EditIcon style={{color:"#c0c0c0"}}/>
+                                                  </ListItemIcon>
+                                                  <Typography variant="inherit">
+                                                    Modifier
+                                                  </Typography>
+                                                </MenuItem>
+                                                <MenuItem onClick={(e) => {
+                                                  e.preventDefault();e.stopPropagation()
+                                                }}  >
+                                                  <ListItemIcon>
+                                                    <DeleteIcon style={{color:"#c0c0c0"}}/>
+                                                  </ListItemIcon>
+                                                  <Typography variant="inherit">
+                                                    Supprimer
+                                                  </Typography>
+                                                </MenuItem>
+                                              </Popover>
+                                            </div>
+
+                                            <div style={{marginTop:60,marginLeft:10}}>
+                                              <div style={{display:"flex"}}>
+                                                <i className="fa fa-users" style={{color:"#fff",fontSize:14}}>&nbsp;{room.members.length}</i>
+                                                <i className="fa fa-tasks" style={{color:"#fff",fontSize:14,marginLeft:10}}>&nbsp;{(room.tasks || []).length}</i>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    ))
+                                  }
+                                  <div className="col-lg-3">
+                                    <div className="card-container" onClick={() => {this.setState({openNewRoomModal:true})}}>
+                                      <div className="card-container-center-item">
+                                        <i className="fa fa-plus" style={{color: "#c0c0c0", fontSize: 22}}/>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
                         }
+
                       </Route>
 
                       <Route exact path="/home/rooms/:room_id">
-                        <div style={{maxHeight:600,overflowY:'scroll'}}>
-                        <Rooms
-                            rooms={this.state.rooms || []}
-                            selectedRoom={this.state.selectedRoom}
-                            setSelectedRoom={(room) => {this.setState({selectedRoom:room})}}
-                            contacts={this.state.contacts || []}
-                            annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
-                            //annuaire_clients={this.state.patients}
-                            addNewtask={(title,desc, assignedTo,client,teamEmails,priority,tags,date_deadline) => {
-                              this.addNewRoomTask(title,desc, assignedTo,client,teamEmails,priority,tags,date_deadline)
-                            }}
-                            onDeleteTask={(key) => {
-                              //this.deleteRoomTask(key)
-                            }}
-                            history={this.props.history}
-                            selectedRoomTab={this.state.selectedRoomTab}
-                            handleRoomTabsChange={(event,newValue) => {
-                              this.handleRoomTabsChange(event,newValue)
-                            }}
-                            miniDrive={this.state.folders || []}
-                            openPdfModal={(id) => {this.openPdfModal(id)}}
-                            openSnackbar={(type,msg) => {this.openSnackbar(type,msg)}}
-                        />
-                        </div>
+                        {
+                          !this.state.rooms ?
+                              <div align="center" style={{marginTop: 200}}>
+                                <CircularProgress color="primary"/>
+                                <h6>Chargement...</h6>
+                              </div>
+                              :
+                              <Rooms
+                                  rooms={this.state.rooms || []}
+                                  selectedRoom={this.state.selectedRoom}
+                                  setSelectedRoom={(room) => {this.setState({selectedRoom:room})}}
+                                  contacts={this.state.contacts || []}
+                                  annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
+                                  //changeStructureannuaire_clients={this.state.patients}
+                                  addNewtask={(title,desc, assignedTo,client,teamEmails,priority,tags,date_deadline) => {
+                                    this.addNewRoomTask(title,desc, assignedTo,client,teamEmails,priority,tags,date_deadline)
+                                  }}
+                                  onDeleteTask={(key) => {
+                                    //this.deleteRoomTask(key)
+                                  }}
+                                  history={this.props.history}
+                                  selectedRoomTab={this.state.selectedRoomTab}
+                                  handleRoomTabsChange={(event,newValue) => {
+                                    this.handleRoomTabsChange(event,newValue)
+                                  }}
+                                  miniDrive={this.state.miniDrive || []}
+                                  openPdfModal={(id) => {this.openPdfModal(id)}}
+                                  openSnackbar={(type,msg) => {this.openSnackbar(type,msg)}}
+                              />
+                        }
                       </Route>
 
                       <Route exact path="/home/meet/new">
@@ -5906,7 +6159,15 @@ export default class Main extends React.Component {
                                                         type: 'lead'
                                                       });
                                                     }
-                                                    this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
+                                                    if(!this.state.selectedSociete.adress || this.state.selectedSociete.adress.trim() === "" ){
+                                                      this.openSnackbar("error","Vous devez ajouter l'adresse postale du client avant la création de dossier !")
+                                                    }else if(!this.state.selectedSociete.email){
+                                                      this.openSnackbar("error","Vous devez ajouter l'adresse mail du client avant la création de dossier !")
+                                                    }else if(verifForms.verif_Email(this.state.selectedSociete.email)){
+                                                      this.openSnackbar("error","L'adresse mail du client est invalide !")
+                                                    }else{
+                                                      this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
+                                                    }
                                                   }}
                                                   className="btn btn-blue waves-effect mb-2 waves-light m-1">
                                                 <i className="fe-folder-plus" />&nbsp;&nbsp;Créer Dossier Client
@@ -6258,111 +6519,113 @@ export default class Main extends React.Component {
                       <Route exact path="/home/qualified_signature/new">
                         <div style={{marginTop:25}}>
                           <h5>Signature électronique qualifié</h5>
-                          <div align="center" style={{marginTop:20}}>
-                            <img alt="sign" src={qualifSignImage} style={{maxWidth:300,border:"2px solid #f0f0f0"}} />
-                          </div>
-                          <div style={{marginTop:20}}>
-                            <div className="row mt-1">
-                              <div className="col-md-6">
-                                <div>
-                                  <h6>Choisissez un document à signer</h6>
-                                  <div style={{display:"flex"}}>
-                                    <IconButton color="primary" onClick={() => this.signatureFileUpload.click()}>
-                                      <AttachFileIcon/>
-                                    </IconButton>
-                                    <h6 style={{marginLeft:5,marginTop:17}}>{this.state.SEQ_file ? this.state.SEQ_file.name :""}</h6>
-                                  </div>
-                                  <input
-                                      style={{ visibility: 'hidden', width: 0, height: 0 }}
-                                      onChange={(event) => this.uploadSignatureFile(event)}
-                                      type="file"
-                                      ref={(ref) => (this.signatureFileUpload = ref)}
-                                  />
-                                </div>
-                              </div>
+                          <div style={{marginLeft:15}}>
+                            <div align="left" style={{marginTop:30}}>
+                              <img alt="sign" src={qualifSignImage} style={{maxWidth:300,border:"2px solid #f0f0f0"}} />
                             </div>
-                            <div className="row">
-                              <div className="col-md-6">
-                                <div>
-                                  <h6>Dossier de destination dans le GED</h6>
-                                  <input type="text" readOnly={true}
-                                         className="form-control custom-select"
-                                         style={{ width: 300,cursor:"pointer",height:40 }}
-                                         value={this.state.signFile_destinationFolder.title || ""}
-                                         onClick={(e) => {
-                                           this.setState({anchorElDrive3:e.currentTarget})
-                                         }}
-                                  />
-                                </div>
-                                <Popover
-                                    id={id3}
-                                    open={openDrivePopup3}
-                                    anchorEl={this.state.anchorElDrive3}
-                                    onClose={() => {
-                                      this.setState({anchorElDrive3: null})
-                                    }}
-                                    anchorOrigin={{
-                                      vertical: 'top',
-                                      horizontal: 'center',
-                                    }}
-                                    transformOrigin={{
-                                      vertical: 'top',
-                                      horizontal: 'center',
-                                    }}
-                                >
-                                  <div style={{padding:15,height:600,width:300,paddingBottom:50}}>
-                                    <div align="right">
-                                      <IconButton size="small" onClick={() => {
-                                        this.setState({anchorElDrive3:null,expandedDrivePopUpKeys:[],selectedDrivePopUpKeys:[],signFile_destinationFolder:""})
-                                      }}
-                                      >
-                                        <CloseIcon />
+                            <div style={{marginTop:20}}>
+                              <div className="row mt-1">
+                                <div className="col-md-6">
+                                  <div>
+                                    <h6>Choisissez un document à signer</h6>
+                                    <div style={{display:"flex"}}>
+                                      <IconButton color="primary" onClick={() => this.signatureFileUpload.click()}>
+                                        <AttachFileIcon/>
                                       </IconButton>
+                                      <h6 style={{marginLeft:5,marginTop:17}}>{this.state.SEQ_file ? this.state.SEQ_file.name :""}</h6>
                                     </div>
-
-                                    <h6 style={{color:"darkblue"}}>Veuillez sélectionner un dossier de destination </h6>
-                                    <div style={{marginTop:20,maxHeight:430,overflowY:"auto"}}>
-                                      <DirectoryTree
-                                          draggable={true}
-                                          allowDrop={(options) => {
-                                            return false
-                                          }}
-                                          showIcon={true}
-                                          onExpand={this.onExpandDrivePopUp}
-                                          onSelect={this.onSelectDrivePopUp3}
-                                          treeData={this.state.folders || []}
-                                          expandAction="click"
-                                          expandedKeys={this.state.expandedDrivePopUpKeys}
-                                          selectedKeys={this.state.selectedDrivePopUpKeys}
-                                          autoExpandParent={this.state.autoExpandDrivePopUpParent}
-                                      />
-                                    </div>
-                                    <div style={{position:"absolute",bottom:50}}>
-                                      <span style={{color:"#000",fontWeight:"bold"}}>Dossier sélectionné:&nbsp; <span>{this.state.signFile_destinationFolder.title}</span> </span>
-                                    </div>
-                                    <div align="right" style={{position:"absolute",bottom:10,right:15}}>
-                                      <AtlButton
-                                          isDisabled={this.state.signFile_destinationFolder === ""}
-                                          appearance="primary"
-                                          onClick={() => {
-                                            this.setState({anchorElDrive3:null})
-                                          }}
-                                      >
-                                        Valider
-                                      </AtlButton>
-                                    </div>
+                                    <input
+                                        style={{ visibility: 'hidden', width: 0, height: 0 }}
+                                        onChange={(event) => this.uploadSignatureFile(event)}
+                                        type="file"
+                                        ref={(ref) => (this.signatureFileUpload = ref)}
+                                    />
                                   </div>
-                                </Popover>
+                                </div>
                               </div>
-                            </div>
-                            <div align="center" style={{marginTop:30}}>
-                              <AtlButton
-                                  isDisabled={this.state.signFile_destinationFolder === "" || this.state.SEQ_file === ""}
-                                  appearance="primary"
-                                  onClick={() => {this.SEQ_file()}}
-                              >
-                                Signer le document
-                              </AtlButton>
+                              <div className="row">
+                                <div className="col-md-6">
+                                  <div>
+                                    <h6>Dossier de destination dans le GED</h6>
+                                    <input type="text" readOnly={true}
+                                           className="form-control custom-select"
+                                           style={{ width: 300,cursor:"pointer",height:40 }}
+                                           value={this.state.signFile_destinationFolder.title || ""}
+                                           onClick={(e) => {
+                                             this.setState({anchorElDrive3:e.currentTarget})
+                                           }}
+                                    />
+                                  </div>
+                                  <Popover
+                                      id={id3}
+                                      open={openDrivePopup3}
+                                      anchorEl={this.state.anchorElDrive3}
+                                      onClose={() => {
+                                        this.setState({anchorElDrive3: null})
+                                      }}
+                                      anchorOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'center',
+                                      }}
+                                      transformOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'center',
+                                      }}
+                                  >
+                                    <div style={{padding:15,height:600,width:300,paddingBottom:50}}>
+                                      <div align="right">
+                                        <IconButton size="small" onClick={() => {
+                                          this.setState({anchorElDrive3:null,expandedDrivePopUpKeys:[],selectedDrivePopUpKeys:[],signFile_destinationFolder:""})
+                                        }}
+                                        >
+                                          <CloseIcon />
+                                        </IconButton>
+                                      </div>
+
+                                      <h6 style={{color:"darkblue"}}>Veuillez sélectionner un dossier de destination </h6>
+                                      <div style={{marginTop:20,maxHeight:430,overflowY:"auto"}}>
+                                        <DirectoryTree
+                                            draggable={true}
+                                            allowDrop={(options) => {
+                                              return false
+                                            }}
+                                            showIcon={true}
+                                            onExpand={this.onExpandDrivePopUp}
+                                            onSelect={this.onSelectDrivePopUp3}
+                                            treeData={this.state.folders || []}
+                                            expandAction="click"
+                                            expandedKeys={this.state.expandedDrivePopUpKeys}
+                                            selectedKeys={this.state.selectedDrivePopUpKeys}
+                                            autoExpandParent={this.state.autoExpandDrivePopUpParent}
+                                        />
+                                      </div>
+                                      <div style={{position:"absolute",bottom:50}}>
+                                        <span style={{color:"#000",fontWeight:"bold"}}>Dossier sélectionné:&nbsp; <span>{this.state.signFile_destinationFolder.title}</span> </span>
+                                      </div>
+                                      <div align="right" style={{position:"absolute",bottom:10,right:15}}>
+                                        <AtlButton
+                                            isDisabled={this.state.signFile_destinationFolder === ""}
+                                            appearance="primary"
+                                            onClick={() => {
+                                              this.setState({anchorElDrive3:null})
+                                            }}
+                                        >
+                                          Valider
+                                        </AtlButton>
+                                      </div>
+                                    </div>
+                                  </Popover>
+                                </div>
+                              </div>
+                              <div align="center" style={{marginTop:30}}>
+                                <AtlButton
+                                    isDisabled={this.state.signFile_destinationFolder === "" || this.state.SEQ_file === ""}
+                                    appearance="primary"
+                                    onClick={() => {this.SEQ_file()}}
+                                >
+                                  Signer le document
+                                </AtlButton>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -6909,173 +7172,158 @@ export default class Main extends React.Component {
 
 
           <Dialog
-            open={this.state.openNewRoomModal}
-            onClose={() => {
-              this.setState({ openNewRoomModal: !this.state.openNewRoomModal });
-            }}
-            aria-labelledby="form-dialog-title"
+              open={this.state.openNewRoomModal}
+              onClose={() => {
+                this.setState({ openNewRoomModal: !this.state.openNewRoomModal });
+              }}
+              aria-labelledby="form-dialog-title"
           >
             <DialogTitle disableTypography id="form-dialog-title">
               <Typography variant="h6">Créer Room</Typography>
               <IconButton
-                aria-label="close"
-                style={{
-                  position: 'absolute',
-                  right: 5,
-                  top: 5,
-                  color: '#c0c0c0'
-                }}
-                onClick={() => {
-                  this.setState({
-                    openNewRoomModal: !this.state.openNewRoomModal
-                  });
-                }}
+                  aria-label="close"
+                  style={{
+                    position: 'absolute',
+                    right: 5,
+                    top: 5,
+                    color: '#c0c0c0'
+                  }}
+                  onClick={() => {
+                    this.setState({
+                      openNewRoomModal: !this.state.openNewRoomModal
+                    });
+                  }}
               >
                 <CloseIcon />
               </IconButton>
             </DialogTitle>
             <DialogContent>
-              <div className="row">
-                <div className="col-md-2">
-                  <div style={{
-                    backgroundColor: '#f0f0f0',
-                    height: 48,
-                    borderRadius: 5,
-                    width: 60
-                  }}
-                  />
-                </div>
-                <div className="col-md-10">
-                  <TextField
+              <div style={{display:"flex"}}>
+                <div style={{
+                  backgroundColor: this.state.newRoomColor,
+                  height: 48,
+                  borderRadius: 5,
+                  width: 60,cursor:"pointer"
+                }}
+                     onClick={(e) => {this.setState({anchorEl_colorPicker:e.currentTarget})}}
+                />
+                <TextField
                     id="room-name"
                     label="Ajouter un titre"
                     variant="filled"
                     value={this.state.newRoomTitle}
                     onChange={(event) =>
-                      this.setState({ newRoomTitle: event.target.value })
+                        this.setState({ newRoomTitle: event.target.value })
                     }
-                    style={{ width: 408, marginLeft: -5 }}
+                    style={{ width: 408, marginLeft: 33 }}
                     size="small"
+                />
+                <Popover
+                    id={id2}
+                    open={openRoomColorPicker}
+                    anchorEl={this.state.anchorEl_colorPicker}
+                    onClose={() => {
+                      this.setState({anchorEl_colorPicker: null})
+                    }}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'center',
+                    }}
+                    transformOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'center',
+                    }}
+                >
+                  <BlockPicker color={this.state.newRoomColor} onChange={(color,event) => {
+                    this.setState({newRoomColor:color.hex})
+                  }}
+                               colors={['#F0F0F0','#FF6900', '#FCB900', '#7BDCB5', '#00D084', '#8ED1FC', '#0693E3', '#ABB8C3', '#EB144C', '#F78DA7',
+                                 '#D9E3F0', '#F47373', '#697689', '#37D67A', '#2CCCE4', '#dce775', '#ff8a65', '#ba68c8']}
                   />
-                </div>
+                </Popover>
+              </div>
+              <div className="row">
                 <div className="col-md-12" style={{ marginTop: 25 }}>
                   <div>
                     <Chips
-                      chips={this.state.NewRoomEmails}
-                      placeholder="Ajouter des personnes"
-                      save={(data) => {
-                        this.setState({ NewRoomEmails: data });
-                      }}
-                      pattern={data.emailPatern}
-                      requiredMessage={'Email incorrect'}
-                      required={true}
-                      limit={20}
-                      limitMessage="Vous avez atteint le nombre maximal d'e-mails"
-                      onInputClick={(event) => {
-                        this.setState({
-                          anchorElContactsMenu: event.currentTarget
-                        });
-                      }}
-                    />{' '}
-                    <Menu
-                      id="add-person-room--menu"
-                      anchorEl={this.state.anchorElContactsMenu}
-                      keepMounted
-                      open={Boolean(this.state.anchorElContactsMenu)}
-                      onClose={() => this.setState({ anchorElContactsMenu: null })}
-                    >
-                      {this.state.contacts
-                        .filter((x) => x.role === 'avocat')
-                        .map((contact, key) => (
-                          <MenuItem
-                            key={key}
-                            onClick={() => {
-                              let emails = this.state.NewRoomEmails;
-                              emails.push({
-                                email: contact.email,
-                                valid: true,
-                                key: parseInt(moment().format('DDMMYYYYHHmmss'))
-                              });
-                              this.setState({
-                                anchorElContactsMenu: null,
-                                NewRoomEmails: emails
-                              });
-                            }}
-                          >
-                            {' '}
-                            <ListItemIcon>
-                              {' '}
-                              <Avatar src={contact.imageUrl} />
-                            </ListItemIcon>{' '}
-                            <Typography variant="inherit">
-                              {contact.prenom + ' ' + contact.nom}
-                            </Typography>
-                          </MenuItem>
-                        ))}
-                    </Menu>
+                        chips={[]}
+                        save={(data) => {
+                          console.log(data)
+                          this.setState({ NewRoomEmails: data });
+                        }}
+                        requiredMessage={'Email incorrect'}
+                        placeholder="Ajouter des personnes"
+                        pattern={data.emailPatern}
+                        limit={100}
+                        limitMessage="Vous avez atteint le nombre maximal d'e-mails"
+                        contacts={this.state.contacts || []}
+                        openContactsMenuOnInputClick={true}
+                    />
+
+
                   </div>
                 </div>
                 <div className="col-md-12" style={{ marginTop: 20 }}>
                   <FormControlLabel
-                    control={
-                      <MuiCheckbox
-                        checked={this.state.newRoomCheck1}
-                        onChange={() =>
-                          this.setState({
-                            newRoomCheck1: !this.state.newRoomCheck1
-                          })
-                        }
-                        name="checkedNewRoom1"
-                      />
-                    }
-                    label="Autoriser les personnes extérieures à votre organisation à rejoindre"
+                      control={
+                        <MuiCheckbox
+                            checked={this.state.newRoomCheck1}
+                            onChange={() =>
+                                this.setState({
+                                  newRoomCheck1: !this.state.newRoomCheck1
+                                })
+                            }
+                            name="checkedNewRoom1"
+                        />
+                      }
+                      label="Autoriser les personnes extérieures à votre organisation à rejoindre"
                   />
                 </div>
                 <div className="col-md-12">
                   <FormControlLabel
-                    control={
-                      <MuiCheckbox
-                        checked={this.state.newRoomCheck2}
-                        onChange={() =>
-                          this.setState({
-                            newRoomCheck2: !this.state.newRoomCheck2
-                          })
-                        }
-                        name="checkedNewRoom2"
-                      />
-                    }
-                    label="Notifier par e-mail"
+                      control={
+                        <MuiCheckbox
+                            checked={this.state.newRoomCheck2}
+                            onChange={() =>
+                                this.setState({
+                                  newRoomCheck2: !this.state.newRoomCheck2
+                                })
+                            }
+                            name="checkedNewRoom2"
+                        />
+                      }
+                      label="Notifier par e-mail"
                   />
                 </div>
               </div>
             </DialogContent>
             <DialogActions style={{ padding: 20 }}>
               <MuiButton
-                onClick={() => {
-                  this.setState({ openNewRoomModal: false });
-                }}
-                color="primary"
-                style={{ textTransform: 'capitalize' }}
+                  onClick={() => {
+                    this.setState({ openNewRoomModal: false });
+                  }}
+                  color="primary"
+                  style={{ textTransform: 'capitalize' }}
               >
                 Annuler
               </MuiButton>
               <MuiButton
-                disabled={
-                  this.state.newRoomTitle === '' ||
-                  this.state.NewRoomEmails.length === 0
-                }
-                onClick={() => {
-                  this.addNewRoom({
-                    title: this.state.newRoomTitle,
-                    members: this.state.NewRoomEmails,
-                    created_at: new Date().getTime(),
-                    created_by:localStorage.getItem("email"),
-                    ged_id:"896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
-                  });
-                }}
-                color="primary"
-                variant="contained"
-                style={{ textTransform: 'capitalize' }}
+                  disabled={
+                    this.state.newRoomTitle === '' ||
+                    this.state.NewRoomEmails.length === 0
+                  }
+                  onClick={() => {
+                    this.addNewRoom({
+                      title: this.state.newRoomTitle,
+                      color:this.state.newRoomColor,
+                      members: this.state.NewRoomEmails,
+                      created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                      created_by:localStorage.getItem("email")
+                    });
+                  }}
+                  color="primary"
+                  variant="contained"
+                  style={{ textTransform: 'capitalize' }}
               >
                 Créer
               </MuiButton>

@@ -307,6 +307,7 @@ function Row(props) {
   const [client, setClient] = React.useState("");
   const [paymTerm, setPaymTerm] = React.useState( "3");
   const [tax, setTax] = React.useState("13");
+  const [fraisAdmin, setFraisAdmin] = React.useState("");
   const [deadline_date, setDeadline_date] = React.useState(new Date());
 
   const { row } = props;
@@ -524,38 +525,35 @@ function Row(props) {
                                 console.log(e.target.value)
 
                               }}
-                         defaultValue={"13"} >
-
-
+                              defaultValue={"13"}
+                          >
                             {
                               (props.taxs || []).map((item,key) =>
                                   <option key={key} value={item.id}>{item.display_name}</option>
                               )
                             }
-
                           </select>
                         </div>
                         <div className="col-md-4">
-                          {/*<h6>Date d'échéance</h6>
-                          < DatePicker
-                            calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
-                            onChange={(e) => {
-                            setDeadline_date(e)
-                          }}
-                            value={deadline_date}
-                            dayPlaceholder="dd"
-                            monthPlaceholder="mm"
-                            yearPlaceholder="yyyy"
-                            clearIcon={null}
-                            minDate={new Date()}
-                            />
-                          */}
+                          <h6>Frais administratifs</h6>
+                          <select
+                              className="form-control custom-select"
+                              value={fraisAdmin}
+                              onChange={(e) => {
+                                setFraisAdmin(e.target.value)
+                                console.log(e.target.value)
+
+                              }}
+                          >
+                            <option value="">Aucun</option>
+                            <option value="2%">2%</option>
+                          </select>
                         </div>
                       </div>
                       <div align="right" style={{marginTop:20}}>
                         <AtlButton onClick={() => {
                           if(verif_access === true){
-                            props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax)
+                            props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin)
                           }else{
                             alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
                           }

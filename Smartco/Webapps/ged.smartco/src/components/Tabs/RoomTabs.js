@@ -51,8 +51,8 @@ import ChatOutlinedIcon from '@material-ui/icons/ChatOutlined';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import Board from 'react-trello'
 import VoiceRecorder from "../Recorder/VoiceRecorder";
-import 'react-h5-audio-player/lib/styles.css';
 import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
 
 const {DirectoryTree} = Tree;
 
@@ -353,7 +353,7 @@ export default function RoomTabs(props) {
                                         <h6 style={{fontSize:"smaller",maxWidth:160}}>{file.name_in_ged}</h6>
                                     </div>
                                     <div style={{minWidth:"25%",alignSelf:"center"}}>
-                                        <h6>{file.added_by.id === "" ? file.added_by.email : main_functions.getContactById(props.contacts,file.added_by.id)}</h6>
+                                        <h6>{file.added_by.id === "" ? file.added_by.email : main_functions.getContactFnameById(props.contacts,file.added_by.id)}</h6>
                                     </div>
                                     <div style={{minWidth:"25%",width:"100%",alignSelf:"center"}}>
                                         <h6>{file.added_at}</h6>
@@ -369,8 +369,7 @@ export default function RoomTabs(props) {
                 <div style={{backgroundColor:"#f0f0f0",height:2,marginTop:-2}}/>
                 <div style={{marginTop:45}}>
                     <Button
-                        variant="text" onClick={() => {setOpenNewTaskModal(true)
-                        console.log(tasks)}}
+                        variant="text" onClick={() => setOpenNewTaskModal(true)}
                         style={{textTransform:"none",backgroundColor:"transparent",color:"#1a73e8",fontWeight:600}}
                         startIcon={<LibraryAddCheckIcon style={{color:"#1a73e8"}} />}
                     >
@@ -384,11 +383,11 @@ export default function RoomTabs(props) {
                                     <div style={{display:"flex",justifyContent:"space-between"}}>
                                         <div>
                                             <div style={{display:"flex"}}>
-                                                <Checkbox style={{marginTop:-8}}
+                                                {/*<Checkbox style={{marginTop:-8}}
                                                     //checked={}
                                                           color="primary"
                                                           size="small"
-                                                />
+                                                />*/}
                                                 <h5>{task.title}</h5>
                                             </div>
                                         </div>
@@ -405,15 +404,14 @@ export default function RoomTabs(props) {
                                         <div style={{display:"flex",justifyContent:"space-around"}}>
                                             <div>
                                                 <h6>Leader</h6>
-                                                  <div  style={{display:"flex"}}>
-                                                      {/*   <AltAvatar src={main_functions.getContactById(props.contacts,task.leader.id)}
+                                                <div  style={{display:"flex"}}>
+                                                    <AltAvatar src={main_functions.getContactImageById(props.contacts,task.leader.id)}
                                                                size="small" appearance="circle" borderColor="#c0c0c0"/>
-                                                          <p style={{marginLeft: 3}}>
-                                                              {
-                                                                  task.leader.id === undefined ? task.leader.email : main_functions.getContactById(props.contacts, task.leader.id)
-                                                              }
-                                                          </p>
-                                                      */}
+                                                    <p style={{marginLeft:3}}>
+                                                        {
+                                                            task.leader.id === "" ? task.leader.email : main_functions.getContactFnameById(props.contacts,task.leader.id)
+                                                        }
+                                                    </p>
                                                 </div>
 
                                             </div>
@@ -422,8 +420,8 @@ export default function RoomTabs(props) {
                                                 <AltAvatarGroup appearance="stack" maxCount={5} borderColor="#c0c0c0" isTooltipDisabled={false}
                                                                 size="small"
                                                                 data={(task.team || []).map((item,key) => ({
-                                                                    name:item.id === "" ? item.email : main_functions.getContactById(props.contacts,item.id),
-                                                                    src:main_functions.getContactById(props.contacts,item.id),
+                                                                    name:item.id === "" ? item.email : main_functions.getContactFnameById(props.contacts,item.id),
+                                                                    src:main_functions.getContactImageById(props.contacts,item.id),
                                                                     appearance:"circle"
                                                                 }))}
                                                 />
@@ -490,7 +488,7 @@ export default function RoomTabs(props) {
                                                             <h6 style={{fontSize:"smaller",maxWidth:130}}>{file.name_in_ged}</h6>
                                                         </div>
                                                         <div style={{minWidth:"15%",alignSelf:"center"}}>
-                                                            <h6>{file.added_by.id === "" ? file.added_by.email : main_functions.getContactById(props.contacts,file.added_by.id)}</h6>
+                                                            <h6>{file.added_by.id === "" ? file.added_by.email : main_functions.getContactFnameById(props.contacts,file.added_by.id)}</h6>
                                                         </div>
                                                         <div style={{minWidth:"10%",alignSelf:"center"}}>
 
@@ -544,7 +542,7 @@ export default function RoomTabs(props) {
                                                                                 }}
                                                                                 size="small"
                                                                             />
-                                                                            <h6 style={{marginTop:12}}>{item.id === "" ? item.email : main_functions.getContactById(props.contacts,item.id)}</h6>
+                                                                            <h6 style={{marginTop:12}}>{item.id === "" ? item.email : main_functions.getContactFnameById(props.contacts,item.id)}</h6>
                                                                         </div>
                                                                     ))
                                                                 }
@@ -726,8 +724,8 @@ export default function RoomTabs(props) {
                                                   variant="outlined" onClick={(event) => setAnchorEl(event.currentTarget)}
                                             /> :
                                             <Chip style={{backgroundColor:"#fff",maxWidth:180}}
-                                                  avatar={<Avatar src={main_functions.getContactById(props.contacts,selectedAssign.id)} />}
-                                                  label={selectedAssign.id === undefined ? selectedAssign.email : main_functions.getContactById(props.contacts,selectedAssign.id)}
+                                                  avatar={<Avatar src={main_functions.getContactImageById(props.contacts,selectedAssign.id)} />}
+                                                  label={selectedAssign.id === "" ? selectedAssign.email : main_functions.getContactFnameById(props.contacts,selectedAssign.id)}
                                                   variant="outlined" onClick={(event) => setAnchorEl(event.currentTarget)}
                                             />
                                     }
@@ -746,10 +744,10 @@ export default function RoomTabs(props) {
                                                     setSelectedAssign(membre)
                                                 }}  >
                                                     <ListItemIcon>
-                                                        <Avatar src={main_functions.getContactById(props.contacts,membre.id)} />
+                                                        <Avatar src={main_functions.getContactImageById(props.contacts,membre.id)} />
                                                     </ListItemIcon>
                                                     <Typography variant="inherit">
-                                                        {main_functions.getContactById(props.contacts,membre.id) === "" ? membre.email : main_functions.getContactById(props.contacts,membre.id)}
+                                                        {main_functions.getContactFnameById(props.contacts,membre.id) === "" ? membre.email : main_functions.getContactFnameById(props.contacts,membre.id)}
                                                     </Typography>
                                                 </MenuItem>
                                             )
@@ -767,13 +765,12 @@ export default function RoomTabs(props) {
                                     search
                                     selection
                                     options={
-                                        (props.annuaire_clients_mandat || []).map(({ Nom,Prenom, type, imageUrl, ID,id }) =>
-
+                                        (props.annuaire_clients_mandat || []).map(({ Nom,Prenom, Type,id, imageUrl }) =>
                                             ({
-                                                key: ID,
-                                                text: Nom + (Prenom !== "" ? (" - " + Prenom) : ""),
+                                                key: id,
+                                                text: Type === "0" ? Nom : Nom + " " + Prenom ,
                                                 value: id,
-                                                image: {avatar:true,src:imageUrl ? imageUrl : type === "0" ? entIcon : userAvatar}
+                                                image: {avatar:true,src:imageUrl ? imageUrl : Type === "0" ? entIcon : userAvatar}
                                             }))
                                     }
                                     onChange={ (e,{value}) => {
@@ -801,16 +798,14 @@ export default function RoomTabs(props) {
                                             (props.room.members || []).map((item,key) =>
                                                 ({
                                                     key: key,
-                                                    text: item.id === undefined ? item.email : main_functions.getContactById(props.contacts,item.id),
+                                                    text: item.id === "" ? item.email : main_functions.getContactFnameById(props.contacts,item.id),
                                                     value:item.email,
-                                                    image: {avatar:true,src: item.id === undefined ? userAvatar : main_functions.getContactById(props.contacts,item.id)}
+                                                    image: {avatar:true,src: item.id === "" ? userAvatar : main_functions.getContactImageById(props.contacts,item.id)}
                                                 }))
                                         }
                                         onChange={(e,{value}) => {
-
-                                            setTeamEmails(value)
-
                                             console.log(value)
+                                            setTeamEmails(value)
                                         }}
                                     />
                                 </div>

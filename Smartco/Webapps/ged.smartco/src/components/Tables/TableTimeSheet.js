@@ -247,11 +247,25 @@ export default function TableTimeSheet(props) {
         );
     }
 
+    const renderTotalHours_CHF = () => {
+        let totalCHF = 0;
+        let totalHours = 0;
+        searchFilter.map((item,key) => {
+            let value = parseFloat(item.newTime.rateFacturation) * parseFloat(item.newTime.duree);
+            totalCHF = totalCHF + value;
+            totalHours = totalHours + parseFloat(item.newTime.duree);
+        })
+
+        return(
+            [
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{utilFunctions.formatDuration(totalHours.toString())}</TableCell>,
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{totalCHF.toFixed(2) + " CHF"}</TableCell>
+            ]
+        )
+    }
+
     function onInputTimeSuggChange(event, {newValue})  {
         setDuration(newValue)
-        /*let d = lf_toUpdated
-        d.newTime.duree = newValue
-        setLf_toUpdated(d)*/
     }
 
     function onTimeSuggestionsFetchRequested({value}){
@@ -303,6 +317,8 @@ export default function TableTimeSheet(props) {
             })
         })
     }
+
+    let searchFilter_pagination = rowsPerPage > 0 ? searchFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : searchFilter;
 
     return (
 
@@ -533,15 +549,15 @@ export default function TableTimeSheet(props) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {(rowsPerPage > 0 ? searchFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : searchFilter).map((row,key) => (
+                    {(searchFilter_pagination || []).map((row,key) => (
                         <TableRow key={key} style={{padding:10}}>
-                            <TableCell align="left"   style={{width:"5%",backgroundColor:searchFilter[key].checked && searchFilter[key].checked === true ? "rgba(220, 0, 78, 0.08)" : "transparent"}}>
+                            <TableCell align="left"   style={{width:"5%",backgroundColor:searchFilter_pagination[key].checked && searchFilter_pagination[key].checked === true ? "rgba(220, 0, 78, 0.08)" : "transparent"}}>
                                 <div className="media align-items-center">
-                                    <Checkbox  checked={(searchFilter[key].checked === true || searchFilter[key].checked === false)  ? searchFilter[key].checked : false}
+                                    <Checkbox  checked={(searchFilter_pagination[key].checked === true || searchFilter_pagination[key].checked === false)  ? searchFilter_pagination[key].checked : false}
                                                onChange={(event) => {
                                                    setX_update(!x_update)
-                                                   searchFilter[key].checked = event.target.checked
-                                                   if(searchFilter[key].checked === false) setCheck_all(false)
+                                                   searchFilter_pagination[key].checked = event.target.checked
+                                                   if(searchFilter_pagination[key].checked === false) setCheck_all(false)
                                                }}  />
                                 </div>
                             </TableCell>
@@ -618,6 +634,17 @@ export default function TableTimeSheet(props) {
                             </TableCell>
                         </TableRow>
                     ))}
+                    <TableRow style={{padding:7}}>
+                        <TableCell align="left" style={{width:"5%"}}/>
+                        <TableCell align="center" style={{width:"10%",fontWeight:600}}/>
+                        {/*<TableCell align="center" style={{width:"8%",fontWeight:600}}>Date de création</TableCell>*/}
+                        <TableCell align="center" style={{width:"8%",fontWeight:600}}/>
+                        <TableCell align="center" style={{width:"17%",fontWeight:600}}/>
+                        <TableCell align="center" style={{width:"25%",fontWeight:600}}/>
+                        <TableCell  style={{width:"20%",fontWeight:600}}/>
+                        <TableCell align="center" style={{width:"10%",fontWeight:600}}/>
+                        {renderTotalHours_CHF()}
+                    </TableRow>
 
                     {emptyRows > 0 && (
                         <TableRow style={{ height: 20 * emptyRows }}>
@@ -678,7 +705,7 @@ export default function TableTimeSheet(props) {
                                     ))}
                                 </MuiSelect>
                             </div>
-                            <div className="col-md-4">
+                            {/*<div className="col-md-4">
                                 <h5>Dossier client</h5>
                                 <MuiSelect
                                     labelId="demo-simple-select-label68798"
@@ -696,7 +723,7 @@ export default function TableTimeSheet(props) {
                                         ))
                                     }
                                 </MuiSelect>
-                            </div>
+                            </div>*/}
                             <div className="col-md-4">
                                 <h5>Date de la facture</h5>
                                 <DatePicker
