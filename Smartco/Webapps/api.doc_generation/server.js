@@ -24,9 +24,9 @@ function start() {
     routes(app);
 
     var httpServer = http.createServer(app);
-    httpServer.listen(3000); //port
+    httpServer.listen(3005); //port
 
-    console.log("API started on port: 3000");
+    console.log("API started on port: 3005");
 }
 
 console.log("API is starting...");
