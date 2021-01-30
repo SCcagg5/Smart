@@ -9,14 +9,43 @@ import 'emoji-mart/css/emoji-mart.css'
 import {Picker} from 'emoji-mart'
 import * as ReactDOM from 'react-dom';
 import {Tree} from "antd";
-import main_functions from "../../controller/main_functions";
 import SmartService from "../../provider/SmartService";
 import {IconButton} from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
 import { Anchorme } from 'react-anchorme'
+import ArrowRightIcon from "@material-ui/icons/ArrowRight";
+import AttachFileIcon from '@material-ui/icons/AttachFile';
+import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied';
+import SpeedDial from '@material-ui/lab/SpeedDial';
+import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
+import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
+import ImageOutlinedIcon from '@material-ui/icons/ImageOutlined';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
+import GestureIcon from '@material-ui/icons/Gesture';
+import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
+import Slide from '@material-ui/core/Slide';
+import Dialog from '@material-ui/core/Dialog';
+import SignModal from "../../components/SignModal/SignModal";
+import AtlButton  from '@atlaskit/button';
+import DuoIcon from '@material-ui/icons/Duo';
+import ChildCareIcon from '@material-ui/icons/ChildCare';
 
 const {DirectoryTree} = Tree;
 const db_name = process.env.REACT_APP_RETHINKDB_BEGIN_NAME;
+
+
+const speedDialActions= [
+    { icon: <ImageOutlinedIcon color="primary" />, name: 'Images' },
+    { icon: <FileCopyIcon color="primary" />, name: 'Documents' },
+    { icon: <GestureIcon color="primary" />, name: 'Signer' },
+    { icon: <ChildCareIcon color="primary" />, name: 'ChatBot' },
+    { icon: <DuoIcon color="primary" />, name: 'Salon' },
+]
+
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default class Chat extends React.Component {
 
@@ -32,6 +61,7 @@ export default class Chat extends React.Component {
         imageModal: "",
         anchorElEmoji: null,
         anchorElFiles:null,
+        anchorElToSignFile:null,
         limit: 10,
         skipCount: 0,
         loadingScroll: false,
@@ -40,7 +70,12 @@ export default class Chat extends React.Component {
         miniDrive:this.props.miniDrive,
         autoExpandParent:true,
         expandedKeys:[],
-        selectedKeys:[]
+        selectedKeys:[],
+
+        showRecorderForm:false,
+        openSpeedDial:false,
+        openSignDocModal:false,
+        toSignDoc:""
     }
 
     async verifIsTableExist(table){
@@ -197,6 +232,30 @@ export default class Chat extends React.Component {
         }).catch(err => {console.log(err)})
     }
 
+    addProductPack(pack){
+        let newItem = {
+            created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+            room_id: this.props.room_id,
+            sender: {
+                email: localStorage.getItem("email")
+            },
+            type: "product_pack",
+            pack_name:pack.name,
+            pack_products:pack.products
+        }
+        this.verifIsTableExist("chat").then( v => {
+            rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+                if (resAdd && resAdd === true) {
+
+                } else {
+                    console.log("Erreur add msg chat !")
+                }
+            }).catch(err => {
+                console.log(err)
+            })
+        }).catch(err => {console.log(err)})
+    }
+
     uploadImage = (image) => {
 
         let imgToUpload = image.target.files[0];
@@ -290,15 +349,45 @@ export default class Chat extends React.Component {
         this.setState({selectedKeys:selectedKeys})
     }
 
+    onSelectToSignFile = (selectedKeys, info) => {
+        this.setState({selectedKeys:selectedKeys,toSignDoc:info.node.typeF === "file" ? info.node : ""})
+    }
+
     onDrop_container(e){
         e.preventDefault();e.stopPropagation();
-        let recievedItem = JSON.parse(e.dataTransfer.getData("file"));
-        if(recievedItem.typeF === "file"){
-            this.addGedFile(recievedItem)
-        }else{
-            this.props.openSnackbar("warning","Seuls les fichiers peuvent être glissés ici")
+        if(e.dataTransfer.getData("file")){
+            let recievedItem = JSON.parse(e.dataTransfer.getData("file"));
+            if(recievedItem.typeF === "file"){
+                this.addGedFile(recievedItem)
+            }else{
+                this.props.openSnackbar("warning","Seuls les fichiers peuvent être glissés ici")
+            }
+        }else if(e.dataTransfer.getData("pack")){
+            let recievedItem = JSON.parse(e.dataTransfer.getData("pack"));
+            console.log(recievedItem)
+            this.addProductPack(recievedItem)
         }
         e.dataTransfer.clearData();
+    }
+
+    returnTotal(products){
+        let total = 0;
+        products.map((product,key) => {
+            total = total + parseFloat(product.prix);
+        })
+        return total;
+    }
+
+    onClickAction(event,action){
+        console.log(action)
+        this.setState({openSpeedDial:false})
+        if(action.name === "Images"){
+            this.imageUpload.click()
+        }else if(action.name === "Documents"){
+            this.setState({anchorElFiles: event.currentTarget})
+        }else if(action.name === "Signer"){
+            this.setState({anchorElToSignFile:event.currentTarget})
+        }
     }
 
     render() {
@@ -314,6 +403,9 @@ export default class Chat extends React.Component {
 
         const openFilesPopup = Boolean(this.state.anchorElFiles);
         const id2 = openFilesPopup ? 'files-popover' : undefined;
+
+        const openToSignFilePopup = Boolean(this.state.anchorElToSignFile);
+        const id3 = openFilesPopup ? 'file-To-Sign-popover' : undefined;
 
         return (
             <div>
@@ -394,7 +486,49 @@ export default class Chat extends React.Component {
 
                                                                         </div>
                                                                         :
-
+                                                                        msg.type === "product_pack" ?
+                                                                            <div style={{backgroundColor:"#dcf8c6",padding:"3px",borderRadius:7.5,
+                                                                                display:"inline-block",marginBottom:15,float:"right",boxShadow: "0 1px 0.5px rgba(0,0,0,.13)"}}>
+                                                                                <div style={{margin:5,border:"2px solid #f0f0f0",borderRadius:7.5,padding:8,backgroundColor:"#fff"}}>
+                                                                                    <div style={{display:"flex"}}>
+                                                                                        <h6 style={{marginTop:7}}>{msg.pack_name}</h6>
+                                                                                    </div>
+                                                                                    {
+                                                                                        (msg.pack_products || []).map((product,key) => (
+                                                                                            <div key={key} style={{marginTop:5,marginLeft:5,marginRight:5}}>
+                                                                                                <div style={{border:"2px solid cornflowerblue",padding:2.5,borderRadius:7.5}}>
+                                                                                                    <div style={{display:"flex"}}>
+                                                                                                        <div style={{alignSelf:"center"}}>
+                                                                                                            <img alt="" src={product.image} style={{width:60,height:60,borderRadius:"unset",objectFit:"unset"}}/>
+                                                                                                        </div>
+                                                                                                        <div style={{marginLeft:10}}>
+                                                                                                            <h6>{product.nomProd}</h6>
+                                                                                                            <p className="truncate-2" style={{marginBottom:"0.0rem",backgroundColor:"#fff"}}>{product.descriptionProd}</p>
+                                                                                                            <div align="right">
+                                                                                                                <span style={{fontWeight:"bold",fontSize:"x-small",marginRight:5}}>{product.prix +" €"}</span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        ))
+                                                                                    }
+                                                                                    <div style={{marginTop:10}}>
+                                                                                        <div align="right">
+                                                                                            <span style={{fontWeight:"bold"}}>Total: <span>{this.returnTotal(msg.pack_products)} €</span></span>
+                                                                                        </div>
+                                                                                        <div align="center" style={{marginTop:15}}>
+                                                                                            <button
+                                                                                                onClick={(e) => {}}
+                                                                                                className="btn btn-success waves-effect waves-light">
+                                                                                                Payer
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <h6 style={{color:"gray",marginTop:14,marginBottom:2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            :
                                                                             <p>
                                                                                 <Anchorme  target="_blank" style={{color:"#039be5"}}>
                                                                                 {msg.text}
@@ -463,6 +597,51 @@ export default class Chat extends React.Component {
                                                                             <h6 style={{color:"gray",marginTop:4,marginBottom:2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
                                                                         </div>
                                                                         :
+                                                                        msg.type === "product_pack" ?
+                                                                            <div style={{backgroundColor:"#fff",padding:"3px",borderRadius:7.5,
+                                                                                display:"inline-block",marginBottom:15,boxShadow: "0 1px 0.5px rgba(0,0,0,.13)"}}>
+                                                                                <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:2,marginBottom:4,marginLeft:5}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
+                                                                                <div style={{marginTop:5,border:"2px solid #f0f0f0",borderRadius:7.5,padding:8}}>
+                                                                                    <div style={{display:"flex"}}>
+                                                                                        <ArrowRightIcon/>
+                                                                                        <h6 style={{marginTop:7}}>{msg.pack_name}</h6>
+                                                                                    </div>
+                                                                                    {
+                                                                                        (msg.pack_products || []).map((product,key) => (
+                                                                                            <div key={key} style={{marginTop:5,marginLeft:5,marginRight:5}}>
+                                                                                                <div style={{border:"2px solid cornflowerblue",padding:2.5,borderRadius:7.5}}>
+                                                                                                    <div style={{display:"flex"}}>
+                                                                                                        <div style={{alignSelf:"center"}}>
+                                                                                                            <img alt="" src={product.image} style={{width:60,height:60,borderRadius:"unset",objectFit:"unset"}}/>
+                                                                                                        </div>
+                                                                                                        <div style={{marginLeft:10}}>
+                                                                                                            <h6>{product.nomProd}</h6>
+                                                                                                            <p className="truncate-2" style={{marginBottom:"0.0rem",backgroundColor:"#fff"}}>{product.descriptionProd}</p>
+                                                                                                            <div align="right">
+                                                                                                                <span style={{fontWeight:"bold",fontSize:"x-small",marginRight:5}}>{product.prix +" €"}</span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        ))
+                                                                                    }
+                                                                                    <div style={{marginTop:10}}>
+                                                                                        <div align="right">
+                                                                                            <span style={{fontWeight:"bold"}}>Total: <span>{this.returnTotal(msg.pack_products)} €</span></span>
+                                                                                        </div>
+                                                                                        <div align="center" style={{marginTop:15}}>
+                                                                                            <button
+                                                                                                onClick={(e) => {}}
+                                                                                                className="btn btn-success waves-effect waves-light">
+                                                                                                Payer
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <h6 style={{color:"gray",marginTop:14,marginBottom:2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            :
 
                                                                             <p>
                                                                                 <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1}}>{this.getUserFname(this.props.contacts,msg.sender.email)}</h6>
@@ -483,8 +662,43 @@ export default class Chat extends React.Component {
                                     </ul>
                                 </div>
                                 <div style={{backgroundColor:"#f0f0f0",position:"absolute",bottom:0,height:60,width:"100%",display:"flex"}}>
-                                    <div style={{alignSelf:"center",margin:10,flex:"none"}}>
-                                        <i className="fa fa-laugh attachment" aria-hidden="true"
+                                    <div style={{alignSelf:"center",margin:10,flex:"none",display:"flex"}}>
+                                        <IconButton size="small"
+                                                    onClick={(event) => {
+                                                        this.setState({anchorElEmoji: event.currentTarget})
+                                                    }}
+                                        >
+                                            <SentimentVerySatisfiedIcon/>
+                                        </IconButton>
+
+                                        <SpeedDial
+                                            style={{marginTop:-295}}
+                                            ariaLabel="SpeedDial Chat"
+                                            //className={classes.speedDial}
+                                            hidden={false}
+                                            icon={<AttachFileIcon fontSize="small"/>}
+                                            onClose={() => { this.setState({openSpeedDial:false})}}
+                                            onOpen={() => { this.setState({openSpeedDial:true})}}
+                                            open={this.state.openSpeedDial}
+                                            direction="up"
+                                            onClick={() => {this.setState({openSpeedDial:!this.state.openSpeedDial})}}
+                                            FabProps={{size:"small",color:"primary",variant:"extended"}}
+                                        >
+                                            {speedDialActions.map((action) => (
+                                                <SpeedDialAction
+                                                    title={action.name}
+                                                    key={action.name}
+                                                    icon={action.icon}
+                                                    tooltipTitle={action.name}
+                                                    onClick={(event) => {
+                                                        this.onClickAction(event,action)
+                                                    }}
+                                                    FabProps={{color:"primary"}}
+
+                                                />
+                                            ))}
+                                        </SpeedDial>
+                                        {/*<i className="fa fa-laugh attachment" aria-hidden="true"
                                            style={{
                                                fontSize: 20,
                                                cursor: "pointer",
@@ -519,11 +733,12 @@ export default class Chat extends React.Component {
                                            onClick={(event) => {
                                                this.setState({anchorElFiles: event.currentTarget})
                                            }}
-                                        />
+                                        />*/}
                                     </div>
                                     <div className="message-input" style={{flex:"1 1 auto"}}>
                                         <div className="wrap">
-                                        <textarea  placeholder="Tapez votre message ici..."
+                                        <textarea  placeholder="Tapez votre message..."
+                                                   style={{width:this.state.showRecorderForm === true ? "78%" : "100%"}}
                                                    value={this.state.text}
                                                    onChange={(e => {
                                                        this.setState({text: e.target.value})
@@ -537,18 +752,25 @@ export default class Chat extends React.Component {
                                         </div>
                                     </div>
                                     <div style={{alignSelf:"center",flex:"none",margin:10}}>
-                                        <i className="fa fa-microphone attachment" aria-hidden="true"
-                                           style={{
-                                               fontSize: 20,
-                                               cursor: "pointer",
-                                               color:"#919191",
-                                               boxShadow:"#fff 2px 4px 6px",
-                                               margin:5
-                                           }}
-                                           onClick={(event) => {
-                                               //this.setState({anchorElFiles: event.currentTarget})
-                                           }}
-                                        />
+                                        {
+                                            this.state.showRecorderForm === false ?
+                                            <i className="fa fa-microphone attachment" aria-hidden="true"
+                                               style={{
+                                                   fontSize: 20,
+                                                   cursor: "pointer",
+                                                   color:"#919191",
+                                                   boxShadow:"#fff 2px 4px 6px",
+                                                   margin:5
+                                               }}
+                                               onClick={(event) => {
+                                                   this.setState({showRecorderForm:true})
+                                               }}
+                                            /> :
+                                                <div>
+
+                                                </div>
+                                        }
+
                                     </div>
 
                                 </div>
@@ -638,6 +860,63 @@ export default class Chat extends React.Component {
                     </div>
                 </Popover>
 
+                <Popover
+                    id={id3}
+                    open={openToSignFilePopup}
+                    anchorEl={this.state.anchorElToSignFile}
+                    onClose={() => {
+                        this.setState({anchorElToSignFile: null})
+                    }}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                >
+                    <div style={{padding:15,height:600,width:300,paddingBottom:50}}>
+                        <div align="right">
+                            <IconButton size="small" onClick={() => {this.setState({anchorElToSignFile:null})}}>
+                                <CloseIcon />
+                            </IconButton>
+                        </div>
+
+                        <h6 style={{color:"darkblue"}}>Choissisez votre document à signer</h6>
+                        <div style={{marginTop:20,maxHeight:430,overflowY:"auto"}}>
+                            <DirectoryTree
+                                draggable={true}
+                                allowDrop={(options) => {
+                                    return false
+                                }}
+                                showIcon={true}
+                                onExpand={this.onExpand}
+                                onSelect={this.onSelectToSignFile}
+                                treeData={this.state.miniDrive}
+                                expandAction="click"
+                                expandedKeys={this.state.expandedKeys}
+                                selectedKeys={this.state.selectedKeys}
+                                autoExpandParent={this.state.autoExpandParent}
+                            />
+                        </div>
+                        <div style={{position:"absolute",bottom:50,marginRight:5}}>
+                            <span style={{color:"#000",fontWeight:"bold"}}>Dossier sélectionné:&nbsp; <span style={{color:"blue"}}>{this.state.toSignDoc.title}</span> </span>
+                        </div>
+                        <div align="right" style={{position:"absolute",bottom:10,right:15}}>
+                            <AtlButton
+                                isDisabled={this.state.toSignDoc === ""}
+                                appearance="primary"
+                                onClick={() => {
+                                    this.setState({anchorElToSignFile:null,openSignDocModal:true})
+                                }}
+                            >
+                                Suivant
+                            </AtlButton>
+                        </div>
+                    </div>
+                </Popover>
+
                 {
                     this.state.showImageModal === true &&
                     <Lightbox
@@ -649,6 +928,17 @@ export default class Chat extends React.Component {
                         }}
                     />
                 }
+
+
+                <Dialog fullScreen open={this.state.openSignDocModal} onClose={() => this.setState({openSignDocModal:false})}
+                        TransitionComponent={Transition}>
+
+                    <SignModal doc_id={this.state.toSignDoc.key}
+                               closeModal={() => { this.setState({openSignDocModal:false})}}
+                               sendFile={() => this.addGedFile({id:this.state.toSignDoc.key,name:this.state.toSignDoc.title})}
+                    />
+
+                </Dialog>
 
             </div>
         )

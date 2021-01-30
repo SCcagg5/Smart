@@ -44,7 +44,7 @@ export default class Rooms extends React.Component{
                         this.setState({contacts:[]})
                     }
                     if(tablesRes.includes("rooms") === false){
-                        this.setState({rooms:[]})
+                        this.setState({ rooms:[]})
                     }
                     this.setState({tableList:tablesRes || []})
 

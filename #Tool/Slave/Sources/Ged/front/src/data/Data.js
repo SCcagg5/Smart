@@ -4,6 +4,7 @@ import HomeWorkIcon from '@material-ui/icons/HomeWork';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import FastfoodIcon from '@material-ui/icons/Fastfood';
 import FolderIcon from '@material-ui/icons/Folder';
+import ShoppingBasketIcon from '@material-ui/icons/ShoppingBasket';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -73,6 +74,11 @@ let Data = {
             nodeId:"recettes",
             title:"Editeur de recettes",
             icon:FastfoodIcon
+        },
+        {
+            nodeId:"produits",
+            title:"Editeur de produits",
+            icon:ShoppingBasketIcon
         },
         {
             nodeId:"RH_CUISINE",

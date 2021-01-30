@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ChipsList from './ChipsList';
 import './chips.scss';
+import {Avatar, Checkbox as MuiCheckbox, MenuItem} from "@material-ui/core";
+import Menu from "@material-ui/core/Menu";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 class Chips extends Component {
     constructor(props) {
@@ -13,7 +16,10 @@ class Chips extends Component {
                 tab: 9,
                 enter: 13
             },
-            disableInput: false
+            disableInput: false,
+
+            anchorElContactsMenu:null,
+            newRoomCheck0:false
         };
         this.inputRef = React.createRef();
     }
@@ -135,6 +141,35 @@ class Chips extends Component {
             !this.props.max || this.state.chips.length < this.props.max ? this.props.placeholder : '';
         return (
             <div>
+                {/*<div className="row">
+                    <div className="col-md-12" style={{ marginTop: 5 }}>
+                        <FormControlLabel
+                            control={
+                                <MuiCheckbox
+                                    checked={this.state.newRoomCheck0}
+                                    onChange={() => {
+                                        if(this.state.newRoomCheck0 === false){
+                                            (this.props.contacts || []).map((contact,key) => {
+                                                let e = {target:{value:''}};
+                                                this.clearRequiredValidation();
+                                                e.target.value = contact.email
+                                                this.updateChips(e);
+                                            })
+                                        }else{
+                                            this.setState({chips:[]})
+                                        }
+                                        this.setState({
+                                            newRoomCheck0: !this.state.newRoomCheck0
+                                        })
+                                    }}
+                                    name="checkedNewRoom0"
+                                />
+                            }
+                            label="Ajouter toute l'équipe d'OA Legal ?"
+                        />
+                    </div>
+                </div>*/}
+
                 <div className="chips" onClick={() => this.focusInput()}>
                     <ChipsList chips={this.state.chips} onChipClick={(event, chip) => {event.stopPropagation(); this.deleteChip(chip)}} />
                     { !this.state.disableInput &&
@@ -148,8 +183,35 @@ class Chips extends Component {
                             this.updateChips(e)
                         }}
                         ref={this.inputRef}
-                        onClick={(event) => this.props.onInputClick && this.props.onInputClick(event)}
-                    />}
+                        onClick={(event) => this.props.openContactsMenuOnInputClick && this.props.openContactsMenuOnInputClick === true &&
+                            this.setState({anchorElContactsMenu:event.currentTarget})}
+                    />
+                    }
+                    <Menu id="contacts-menu"
+                          anchorEl={this.state.anchorElContactsMenu}
+                          keepMounted
+                          open={Boolean(this.state.anchorElContactsMenu)}
+                          onClose={() => {this.setState({anchorElContactsMenu:null})}}
+                    >
+                        {(this.props.contacts || []).map((contact, key) => (
+                            <MenuItem
+                                key={key}
+                                value={contact.email}
+                                onClick={(e) => {
+                                    this.clearRequiredValidation();
+                                    e.target.value = contact.email
+                                    this.updateChips(e);
+                                }}
+                            >
+                                <div style={{display:"flex"}}>
+                                    <Avatar style={{marginLeft:10}}
+                                            alt=""
+                                            src={contact.imageUrl} />
+                                    <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                </div>
+                            </MenuItem>
+                        ))}
+                    </Menu>
                 </div>
             </div>
         );

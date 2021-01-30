@@ -1,12 +1,14 @@
 import React from 'react';
 import SmartService from '../../provider/SmartService';
 //import SmartService from '../../provider/masterNodeService';
-
+import Remove from '@material-ui/icons/Remove';
+import Add from '@material-ui/icons/Add';
 import moment from 'moment';
 import FolderIcon from '@material-ui/icons/Folder';
 import TopBar from '../../components/TopBar/TopBar';
 import SideMenu from '../../components/SideMenu/SideMenu';
 import Dashboard from "../dashboardDataWatch/Dashboard/Dashboard";
+import photo from "../../assets/images/photo.svg"
 
 import data from '../../data/Data';
 import Data from '../../data/Data';
@@ -132,6 +134,7 @@ import  bascule from "../../assets/images/bascule.png"
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import { Line } from 'react-chartjs-2';
 import {Button} from 'baseui/button';
+import TableProducts from "../../components/Tables/TableProducts";
 
 const endpoint = process.env.REACT_APP_ENDPOINT;
 const ged_id = process.env.REACT_APP_GED_ID;
@@ -146,7 +149,7 @@ const url=process.env.REACT_APP_JAWHER_API_ENDPOINT
 const question1food1me=process.env.REACT_APP_question1food1me
 const bodycheckQuestion=process.env.REACT_APP_bodycheckQuestion
 const capteurs=process.env.REACT_APP_CAPTEURS
-
+const urlImage=process.env.REACT_APP_JAWHER_API_ENDPOINT+"getImageProduct/"
 export default class Main extends React.Component {
 
 
@@ -415,6 +418,16 @@ export default class Main extends React.Component {
 
     openImportAlertModal:false,
 
+    produits:[],
+    selectedProduct:'',
+    openModalProduit:false,
+    nvproduit:{
+         nomProd:"",
+         descriptionProd:"",
+          prix:"",
+         image:""
+},
+
     recettes:[],
     patients:[],
     percentage:"",
@@ -587,6 +600,7 @@ export default class Main extends React.Component {
 
               if(active_modules.includes("MARKETPLACE") === true){
                 this.getRecettes()
+                this.getProduits()
                 this.getpatient();
               }
 
@@ -710,6 +724,9 @@ export default class Main extends React.Component {
             }
             if(tablesRes.includes("rooms") === false){
               this.setState({rooms:[]})
+            }
+            if(tablesRes.includes("p_packs") === false){
+              this.setState({p_packs:[]})
             }
             this.setState({tableList:tablesRes || []})
 
@@ -1046,6 +1063,17 @@ export default class Main extends React.Component {
                 }
 
               }
+            else if(this.props.location.pathname === "/home/marketplace/produits"){
+
+              this.setState({
+                showContainerSection: 'marketplace',
+                focusedItem: 'marketplace',
+                selectedMarketplaceMenuItem: ['produits'],
+                openMarketplaceMenuItem: true,
+                firstLoading: false,
+                loading: false
+              });
+            }
               else if (this.props.location.pathname === '/home/search') {
                 if (this.props.match.params.section_id) {
                   let textToSearch = this.props.match.params.section_id;
@@ -1163,6 +1191,54 @@ export default class Main extends React.Component {
         this.setState({recettes:res})
       }
     }).catch(err => {console.log(err)})
+  }
+
+  getProduits(){
+    PatientService.getProduits().then(res => {
+      if(res){
+        this.setState({produits:res})
+      }
+    }).catch(err => {console.log(err)})
+  }
+
+
+  handleChangeText(name,event)
+  {
+    let prod = this.state.nvproduit
+    prod[name]=event.target.value
+    this.setState({nvproduit:prod})
+  }
+  uploadImageProduit(e){
+    console.log(e)
+    if (e.target.files[0]!=null){
+      let produit=this.state.nvproduit
+     PatientService.uploadImage(e).then((res)=>{
+        console.log(res)
+        if(res.status===200){
+          produit.image=urlImage+res.data.filename
+          this.setState({nvproduit:produit})
+        }
+      })
+    }
+
+
+  }
+  handleClick(e) {
+    this.refs.fileUploader.click();
+  }
+
+  ajouterProduit(){
+    let produit = this.state.nvproduit
+    PatientService.createProduit(produit).then((res)=>{
+      if(res.error==="false"){
+        this.openSnackbar("success","Produit ajouté avec succès")
+      }
+    }).then(()=>{
+      this.setState({openModalProduit:false})
+
+      this.getProduits()
+    })
+
   }
 
   getTableChanges(ust_token,db,table,table_name){
@@ -2132,6 +2208,7 @@ export default class Main extends React.Component {
     return (
       <div>
         <LeftMenuV3
+            p_packs={this.state.p_packs || [] }
             loadingGed={this.state.loadingGed}
             showFileInGed={this.state.showFileInGed}
             setShowFileInGed={(value) => {
@@ -2376,6 +2453,14 @@ export default class Main extends React.Component {
                 selectedMarketplaceMenuItem: ['recettes']
               });
               this.props.history.push('/home/marketplace/recettes');
+            }
+            if(nodeId === "produits"){
+              this.setState({
+                focusedItem: 'marketplace',
+                showContainerSection: 'marketplace',
+                selectedMarketplaceMenuItem: ['produits']
+              });
+              this.props.history.push('/home/marketplace/produits');
             }else if(nodeId === "RH_Support_ponctuel"){
               this.setState({
                 focusedItem: 'marketplace',
@@ -3288,6 +3373,28 @@ export default class Main extends React.Component {
             });
           }, 250);
 
+        } else {
+          this.setState({loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+        console.log(err)
+      })
+
+    }).catch(err => {console.log(err)})
+  }
+
+  addNewProductsPack(pack) {
+    this.setState({loading: true});
+
+    this.verifIsTableExist("p_packs").then( v => {
+
+      rethink.insert("test",'table("p_packs").insert('+ JSON.stringify(pack) + ')',db_name,false).then( resAdd => {
+        if (resAdd && resAdd === true) {
+          this.openSnackbar('success', "Pack: " + pack.name + ' est ajouté avec succès ');
+          this.setState({loading: false});
         } else {
           this.setState({loading:false})
           this.openSnackbar("error","Une erreur est survenue !")
@@ -5093,7 +5200,7 @@ export default class Main extends React.Component {
                                         <div className="row mt-3" style={{maxWidth:1000}}>
                                           {
                                             (this.state.rooms || []).map((room,key) => (
-                                                <div className="col-lg-3 mb-2">
+                                                <div className="col-lg-3 mb-2" key={key}>
                                                   <div className="card-container" style={{backgroundColor:room.color}} onClick={() => {
                                                     this.setState({
                                                       selectedRoom: room,
@@ -5909,6 +6016,7 @@ export default class Main extends React.Component {
                                   <div>
                                     {
                                       active_modules.includes("MARKETPLACE") === true &&
+
                                       <TablePatientsBrainy
                                           mailCapteurs={this.sendCapteursMail}
 
@@ -6218,7 +6326,7 @@ export default class Main extends React.Component {
                                                       {
                                                         this.state.newClientFolder.team.map((item, key) =>
                                                             item.type === "lead" &&
-                                                            <div style={{
+                                                            <div key={key} style={{
                                                               display: 'flex',
                                                               justifyContent: 'flex-start',
                                                               marginTop: 15
@@ -6315,7 +6423,7 @@ export default class Main extends React.Component {
                                                       {
                                                         this.state.newClientFolder.team.map((item, key) =>
                                                             item.type === "team" &&
-                                                            <div style={{
+                                                            <div key={key} style={{
                                                               display: 'flex',
                                                               justifyContent: 'flex-start',
                                                               marginTop: 15
@@ -8664,6 +8772,133 @@ export default class Main extends React.Component {
                                       </Route>
                                     ],
                               active_modules.includes("MARKETPLACE") === true &&
+                              [
+                                <Route key={0} exact path="/home/marketplace/produits">
+                                  {
+                                    this.state.loading === false && this.state.firstLoading === false &&
+                                    <div className="container-fluid w-100">
+                                      <TableProducts
+                                          ajouterProduit={()=>{
+                                            this.setState({openModalProduit:true})
+                                          }}
+                                          onSelectProduct={(item,key)=>{
+                                        console.log()
+                                        this.setState({selectedProduct:item})
+                                        this.props.history.push('produits/'+item.id_prod)
+
+                                      }}
+                                          products={this.state.produits}
+                                          addNewPack={(pack) => {this.addNewProductsPack(pack)}}
+                                      />
+
+                                    </div>
+                                  }
+                                </Route>,
+                                <Route key={0} exact path="/home/marketplace/produits/:id">
+                                  {
+                                    this.state.loading === false && this.state.firstLoading === false &&
+                                    <div className="container-fluid w-100">
+                                      <div className="row">
+                                        <div className="col-md-4 p-2" style={{borderStyle:"solid",borderWidth:1}}>
+
+
+                                          <img   src={this.state.selectedProduct.image} style={{width:"100%"}}/>
+
+
+
+                                        </div>
+                                        <div className="col-md-7 ml-3">
+                                          <div>
+                                            <h6>LIGHT MEAL</h6>
+                                          </div>
+                                          <div>
+                                            <h1>{this.state.selectedProduct.nomProd}</h1>
+                                          </div>
+
+
+
+                                          <div className="mt-2  ">
+
+                                            <hr style={{height:1,backgroundColor:"black" ,width:"30%",marginRight:"100%" }}/>
+                                          </div>
+                                          <div className="mt-2">
+
+                                            <h4>PV: 64</h4>
+
+                                          </div>
+
+                                          <div className="mt-2 row align-items-center">
+                                            <div className="col-md-2 mr-1" style={{borderStyle:"solid",borderRadius:100,borderWidth:1}}>
+                                              <div className="row align-items-center justify-content-center ">
+                                                <div >
+                                                  <IconButton color="primary" aria-label="upload picture" component="span">
+                                                    <Remove style={{color:"black"}} />
+                                                  </IconButton>
+
+                                                </div>
+
+                                                <div className="col-md-3 text-center">
+                                                  <h3>
+                                                    1
+                                                  </h3>
+                                                </div>
+                                                <div >
+                                                  <IconButton color="primary" aria-label="upload picture" component="span">
+                                                    <Add style={{color:"black"}} />
+                                                  </IconButton>
+
+                                                </div>
+
+                                              </div>
+
+                                            </div>
+                                            <div>
+                                              <h1>
+                                                {this.state.selectedProduct.prix +"$"}
+                                              </h1>
+
+                                            </div>
+
+                                            <div className="ml-3 ">
+                                              <h4>SAVE UP TO 20% AFTER ENROLLMENT</h4>
+                                            </div>
+
+                                          </div>
+                                          <div className="mt-3">
+                                            <div className="row">
+                                              <div className="col-md-4">
+                                                <Button style={{borderRadius:100,borderWidth:1,borderStyle:"solid" ,width:"100%",backgroundColor:"#fa8282"}} variant="contained"><h5 style={{color:"white"}}>ADD TO CART</h5></Button>
+
+
+                                              </div>
+                                              <div className="col-md-4">
+                                                <Button style={{width:"100%",borderRadius:100}} variant="outlined">ADD TO AUTOSHIP</Button>
+
+                                              </div>
+                                              <div className="col-md-4">
+                                                <small>* Earn exclusive point with autoship</small>
+                                              </div>
+
+                                            </div>
+                                          </div>
+                                          <div className="mt-2">
+                                            <h5>
+                                              *Free Shipping After $50 in Purchases
+                                            </h5>
+                                          </div>
+
+
+                                        </div>
+
+
+                                      </div>
+
+                                    </div>
+                                  }
+                                </Route>
+                              ],
+
+                              active_modules.includes("MARKETPLACE") === true &&
                                   [
                                     <Route key={2} exact path="/home/marketplace/RH_Support_ponctuel" >
                                       {
@@ -10417,6 +10652,91 @@ export default class Main extends React.Component {
                 >
                   Valider
                 </button>
+              </div>
+            </ModalBody>
+          </Modal>
+
+          <Modal
+              isOpen={this.state.openModalProduit}
+              size='lg'
+              centered={true}
+              //zIndex={1500}
+              toggle={() => this.setState({ openModalProduit: !this.state.openModalProduit })}
+          >
+            <ModalHeader
+                toggle={() => this.setState({ openModalProduit: !this.state.openModalProduit })}
+
+            >
+             <h3>
+               Ajouter un produit
+             </h3>
+            </ModalHeader>
+            <ModalBody>
+              <div className="row">
+                <div className="col-md-4 text-center p-2 " style={{border:"2px solod #f0f0f0"}}>
+
+                  <Button style={{width:"80%",backgroundColor:`rgba(117, 190, 218, 0.0)`}}>
+                    {
+                      this.state.nvproduit.image === "" ?
+                        <img alt="" onClick={(e) => {
+                          this.handleClick(e)
+                        }} src={photo} style={{width: "100%"}}/>
+                        :
+                        <img alt="" onClick={(e) => {
+                          this.handleClick(e)
+                        }} src={this.state.nvproduit.image} style={{width: "100%"}}/>
+                    }
+                    <input onChange={(e)=>{
+                      this.uploadImageProduit(e)
+                    }} ref="fileUploader" type="file"accept="image/x-png,image/gif,image/jpeg"  style={{display:"none"}} />
+                  </Button>
+
+
+
+                </div>
+                <div className="col-md-7 ml-3">
+
+                  <div>
+                    <TextField  value={this.state.nvproduit.nomProd}
+                                onChange={(e)=>{ this. handleChangeText("nomProd",e)}}
+                                id="outlined-basic" label="Nom de produit" variant="outlined" style={{width:"80%"}} />
+                  </div>
+                  <div className="mt-2  ">
+                    <hr style={{height:1,backgroundColor:"black" ,width:"30%",marginRight:"100%" }}/>
+                  </div>
+                  <div>
+                    <TextField  value={this.state.nvproduit.descriptionProd}
+                                multiline
+                                rows={3}
+                                onChange={(e)=>{this.handleChangeText("descriptionProd",e)}}
+                                id="outlined-basic" label="Description" variant="outlined" style={{width:"80%"}} />
+                  </div>
+
+
+                  <div className="mt-2 ">
+
+                    <TextField type="number" onChange={(e)=>{this.handleChangeText("prix",e)}}  value={this.state.nvproduit.prix} id="outlined-basic" label="Prix " variant="outlined" style={{width:"50%"}} />
+
+                  </div>
+                  <div className="mt-3">
+                    <div className="row align-items-center">
+                      <div className="col-md-6">
+                        <Button onClick={() => this.ajouterProduit() }
+                                style={{borderRadius:100,width:"100%",backgroundColor:"#3f51b5"}}
+                                variant="contained"
+
+                        >
+                          Ajouter produit
+                        </Button>
+                      </div>
+                      <div className="col-md-4">
+                        <Button  style={{width:"100%",borderRadius:100,backgroundColor:"#c0c0c0"}} variant="contained">Annuler</Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
               </div>
             </ModalBody>
           </Modal>

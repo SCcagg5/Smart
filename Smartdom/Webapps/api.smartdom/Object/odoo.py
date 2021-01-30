@@ -665,7 +665,7 @@ class odoo:
                                     "image_1920":param['base64'],
                                     "__last_update":False,
                                     "company_type":"person",
-                                    "name":param['name'],
+                                    "name":param['name'].encode('utf-8'),
                                     "parent_id": param['parent_id'],
                                     "company_name":False,
                                     "function": param['function'],

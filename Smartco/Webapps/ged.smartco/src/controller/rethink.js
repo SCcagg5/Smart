@@ -288,9 +288,39 @@ async function verfiDB(db_name,usr_token){
 
   });
 }
+async function getTableDataByLabel(db_name,usr_token,table,label,value,order,limit,skip){
+  return new Promise(function(resolve, reject) {
+    let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
+
+    socket.onopen = function(e) {
+      console.log("Connection for get Table data established");
+      let payload;
+      payload = {"cmd": "db('"+db_name+"').table('"+table+"').filter({'"+label+"':'"+value+"'}).order_by(r.desc('"+order+"')).limit("+limit+").skip("+skip+")"}
+      socket.send(JSON.stringify(payload));
+    };
+    let data = [];
+    socket.onmessage = function(event) {
+      let recieve = JSON.parse(event.data);
+      if(recieve && recieve.id){
+        data.push(recieve)
+      }
+    }
+    socket.error = function(event) {
+      console.log("ERROR GET TABLE LIST RETHINK");
+      reject(event)
+    };
+
+    socket.onclose = (event) => {
+      console.log("CLOSED");
+      resolve(data)
+    };
+
+  });
+}
 
 
 
 
 
-export default {insert,remove,update,verfiDB,createDB,createTable,getTableChanges,tableList,getTableData};
+
+export default {insert,remove,update,verfiDB,createDB,createTable,getTableChanges,tableList,getTableData,getTableDataByLabel};

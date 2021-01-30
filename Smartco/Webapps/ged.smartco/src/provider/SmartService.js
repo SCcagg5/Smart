@@ -5,9 +5,18 @@ const odoo_id = "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
 //const odoo_id = "test"
 const contractAdr = "0x9520c239bae78a4a672a70370d85051fcd8dd6c9"
 
+const quelifiedSignEndpoint = "https://sign.1.smartdom.ch/sign";
+
 let SmartService = {
 
     loadHeadersWithoutToken() {
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append("Accept", 'application/json');
+        return headers;
+    },
+
+    loadQualifiedSignHeaders(){
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
         headers.append("Accept", 'application/json');
@@ -233,8 +242,54 @@ let SmartService = {
         });
     },
 
+    validate_facture_odoo(token,usrtoken,data){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/bill/validate', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     generate_facture_odoo(token,usrtoken,id,accestoken){
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill/'+id+'?access_token='+accestoken, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    get_tax_odoo(token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/tax_id', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    get_tax_odoo_byID(id,token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/tax?id='+id, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    get_paymentTerm_odoo(token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/payment_term_id', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    get_paymentTerm_odoo_byID(id,token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/payment_term?id='+id, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -330,17 +385,37 @@ let SmartService = {
 
 
 
+    reportClient(data,token,usrtoken){
+        return fetch(endpoint + '/ged/' + OALegalGedId + '/report/client/init', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    reportContact(data,token,usrtoken){
+        return fetch(endpoint + '/ged/' + OALegalGedId + '/report/work', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
 
 
-
-
-
-
-
-
-
-
-
+    signQualifiedDoc(formdata){
+        return fetch(quelifiedSignEndpoint, {
+            method: 'POST',
+            headers:this.loadQualifiedSignHeaders(),
+            body:formdata,
+            redirect: 'follow'
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
 
 
     getItems(token){

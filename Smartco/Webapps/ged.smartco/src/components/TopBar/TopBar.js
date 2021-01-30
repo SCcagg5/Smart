@@ -78,8 +78,8 @@ export default function TopBar(props) {
                                 </div>
                                 <ClickAwayListener onClickAway={handleClose}>
                                     <MenuList autoFocusItem={open} id="menu-list-grow" style={{marginTop:-15}}>
-                                        {/*<MenuItem onClick={() => {}}>Mon profil</MenuItem>
-                                        <MenuItem onClick={() => {}}>Paramètres</MenuItem>*/}
+                                        <MenuItem onClick={props.openUserDetailModal}>Mon compte</MenuItem>
+                                        {/*<MenuItem onClick={() => {}}>Paramètres</MenuItem>*/}
                                         <MenuItem onClick={props.onLogoutClick}>Déconnexion</MenuItem>
                                     </MenuList>
                                 </ClickAwayListener>

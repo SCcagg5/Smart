@@ -35,6 +35,9 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import {Picker} from "emoji-mart";
 import Popover from "@material-ui/core/Popover";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import product1 from "../../assets/images/products/product1.jpg"
+import product2 from "../../assets/images/products/product2.jpg"
+import product3 from "../../assets/images/products/priduct3.jpg"
 
 const modules = process.env.REACT_APP_ACTIVE_MODULES;
 const active_modules = (modules || "").split("/")
@@ -45,6 +48,48 @@ const {Search} = Input;
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
+
+
+const packs = [
+    {
+        title:"Pack Santé+",
+        products:[
+            {
+                id:"",
+                title:"mac book pro",
+                desc:"Un laptop de trés haute gamme equipé d'un processeur intel i7 10éme génération",
+                price:1200,
+                image:product2
+            },
+            {
+                id:"",
+                title:"mac air 2020",
+                desc:"Un laptop de trés haute gamme equipé d'un processeur intel i7 10éme génération",
+                price:800,
+                image:product3
+            }
+        ]
+    },
+    {
+        title:"Pack teck pro",
+        products:[
+            {
+                id:"",
+                title:"mac 1",
+                desc:"Un laptop de trés haute gamme equipé d'un processeur intel i7 10éme génération",
+                price:755,
+                image:product1
+            },
+            {
+                id:"",
+                title:"mac 2",
+                desc:"Un laptop de trés haute gamme equipé d'un processeur intel i7 10éme génération",
+                price:600,
+                image:product3
+            }
+        ]
+    }
+]
 
 export default function LeftMenuV3(props) {
 
@@ -59,6 +104,7 @@ export default function LeftMenuV3(props) {
     const [settingAnchorEl, setSettingAnchorEl] = React.useState(null);
     const [checkbox_showicons, setCheckbox_showicons] = React.useState(true);
     const [checkbox_enableDrag, setCheckbox_enableDrag] = React.useState(true);
+    const [showProductPack, setShowProductPack] = React.useState(false);
 
 
 
@@ -647,6 +693,73 @@ export default function LeftMenuV3(props) {
                     </ModalBody>
                 </Modal>
 
+                {
+                    active_modules.includes("MARKETPLACE_EDITEUR_PRODUIT") === true &&
+                    <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "PackProduit" ? "aliceblue" : ""}}
+                         onClick={(e) => {
+                             e.preventDefault()
+                             setShowProductPack(!showProductPack)
+                         }}
+
+                    >
+                        <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                        <div style={{display: "flex"}}>
+                            {
+                                showProductPack === true ?
+                                    <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
+                            }
+                            <Typography unselectable="on" variant="inherit" style={{color: "#000", marginTop: 3}}>Packs Produits</Typography>
+                        </div>
+                        {
+                            showProductPack === true &&
+                            <div>
+                                {
+                                    (props.p_packs ||[]).filter(x => x.created_by === localStorage.getItem("email")).map((pack,key) => (
+                                        <div key={key} style={{marginTop:5,marginLeft:5,marginRight:5}}
+                                             draggable={true}
+                                             onDragStart={(e) => {
+                                                 e.dataTransfer.setData("pack",JSON.stringify(pack))
+                                             }}
+                                        >
+                                            <div style={{marginTop:10,border:"2px solid #f0f0f0",borderRadius:7.5,padding:8}}>
+                                                <div style={{display:"flex"}}>
+                                                    <ArrowRightIcon/>
+                                                    <h6 style={{marginTop:7}}>{pack.name}</h6>
+                                                </div>
+                                                {
+                                                    (pack.products || []).map((product,key) => (
+                                                        <div key={key} style={{marginTop:5,marginLeft:5,marginRight:5}}>
+                                                            <div style={{border:"2px solid cornflowerblue",padding:2.5,borderRadius:7.5}}>
+                                                                <div style={{display:"flex"}}>
+                                                                    <div style={{alignSelf:"center"}}>
+                                                                        <img alt="" src={product.image} style={{width:60,height:60}}/>
+                                                                    </div>
+                                                                    <div style={{marginLeft:10}}>
+                                                                        <h6>{product.nomProd}</h6>
+                                                                        <p className="truncate-2" style={{marginBottom:"0.0rem"}}>{product.descriptionProd}</p>
+                                                                        <div align="right">
+                                                                            <span style={{fontWeight:"bold",fontSize:"x-small",marginRight:5}}>{product.prix +" €"}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                }
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+
+                            </div>
+                        }
+
+                        <div style={{height: 1, backgroundColor: "#f0f0f0", marginBottom: 10,marginTop:10}}/>
+                    </div>
+                }
+
+
+
 
                 <div>
                     {/*Rooms*/}
@@ -670,8 +783,7 @@ export default function LeftMenuV3(props) {
                                                 <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/> :
                                             <div style={{marginLeft: 20}}/>
                                     }
-                                    <Typography variant="inherit"
-                                                style={{color: "#000", marginTop: 3}}>Rooms</Typography>
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Rooms</Typography>
 
                                     <IconButton style={{marginLeft: 160, marginTop: -10,visibility:"hidden"}} onClick={(event) => {
                                         event.stopPropagation()
@@ -713,8 +825,7 @@ export default function LeftMenuV3(props) {
                                         props.showMeetMenuItems === true ?
                                             <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                                     }
-                                    <Typography variant="inherit"
-                                                style={{color: "#000", marginTop: 3}}>Vidéoconférence</Typography>
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Vidéoconférence</Typography>
                                 </div>
                                 <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                             </div>
@@ -872,7 +983,8 @@ export default function LeftMenuV3(props) {
                             {
                                 props.showMarketplaceMenuItems === true &&
                                 <div>
-                                    <MarketplaceMenuItems items={data.marketplaceMenuItem}
+                                    <MarketplaceMenuItems items={active_modules.includes("MARKETPLACE_EDITEUR_PRODUIT") === false ?
+                                        data.marketplaceMenuItem.filter(x => x.nodeId !== "produits") : data.marketplaceMenuItem }
                                                           selectedMarketplaceItem={props.selectedMarketplaceItem}
                                                           onClick={(nodeId) => {
                                                               props.onMarketplaceItemClick(nodeId)

@@ -72,6 +72,9 @@ class login extends Component {
                                         localStorage.setItem("token", tokenRes.data.token)
                                         localStorage.setItem("usrtoken", loginRes.data.usrtoken)
                                         localStorage.setItem("email", infoRes.data.email)
+                                        localStorage.setItem("phone", infoRes.data.phone || "")
+                                        localStorage.setItem("firstname", infoRes.data.firstname || "")
+                                        localStorage.setItem("lastname", infoRes.data.lastname || "")
                                         localStorage.setItem("role", infoGedRes.data.self.role.role)
                                         this.setState({loading: false})
                                         this.props.history.push('/home/drive');

@@ -17,6 +17,12 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import main_functions from "../../controller/main_functions";
+import ArrowRightIcon from "@material-ui/icons/ArrowRight";
+import Drawer from '@material-ui/core/Drawer';
+import stripe_logo from "../../assets/images/payment/stripe_logo.png"
+import paypal_logo from "../../assets/images/payment/paypal_logo.png"
+import gpay_logo from "../../assets/images/payment/GPay_logo.jpg"
+import creditcard_logo from "../../assets/images/payment/credit_card_logo.jpg"
 
 const {DirectoryTree} = Tree;
 const db_name = "c116081d-3145-4dc3-b2df-5ac2bde13e9d";
@@ -48,7 +54,11 @@ export default class Chat extends React.Component {
         room:this.props.location.state.room,
         autoExpandParent:true,
         expandedKeys:[],
-        selectedKeys:[]
+        selectedKeys:[],
+
+        openBottomPayModal:false,
+
+        payment:""
     }
 
 
@@ -463,6 +473,54 @@ export default class Chat extends React.Component {
                                                                         </div>
                                                                         :
 
+                                                                        msg.type === "product_pack" ?
+                                                                            <div style={{backgroundColor:"#dcf8c6",padding:"3px",borderRadius:7.5,
+                                                                                display:"inline-block",marginBottom:15,float:"right",boxShadow: "0 1px 0.5px rgba(0,0,0,.13)"}}>
+                                                                                <div style={{margin:5,border:"2px solid #f0f0f0",borderRadius:7.5,padding:8,backgroundColor:"#fff"}}>
+                                                                                    <div style={{display:"flex"}}>
+                                                                                        <h6 style={{marginTop:7}}>{msg.pack_name}</h6>
+                                                                                    </div>
+                                                                                    {
+                                                                                        (msg.pack_products || []).map((product,key) => (
+                                                                                            <div style={{marginTop:5,marginLeft:5,marginRight:5}}>
+                                                                                                <div style={{border:"2px solid cornflowerblue",padding:2.5,borderRadius:7.5}}>
+                                                                                                    <div style={{display:"flex"}}>
+                                                                                                        <div style={{alignSelf:"center"}}>
+                                                                                                            <img alt="" src={product.image} style={{width:60,height:60,borderRadius:"unset",objectFit:"unset"}}/>
+                                                                                                        </div>
+                                                                                                        <div style={{marginLeft:10}}>
+                                                                                                            <h6>{product.nomProd}</h6>
+                                                                                                            <p className="truncate-2" style={{marginBottom:"0.0rem",backgroundColor:"#fff",fontSize:"0.6rem"}}>{product.desc}</p>
+                                                                                                            <div align="right">
+                                                                                                                <span style={{fontWeight:"bold",fontSize:"x-small",marginRight:5}}>{product.prix +" €"}</span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        ))
+                                                                                    }
+                                                                                    <div style={{marginTop:10}}>
+                                                                                        <div align="right">
+                                                                                            <span style={{fontWeight:"bold"}}>Total: <span> €</span></span>
+                                                                                        </div>
+                                                                                        <div align="center" style={{marginTop:15}}>
+                                                                                            <button
+                                                                                                onClick={(e) => {
+                                                                                                    let payment = { };
+                                                                                                    payment.produits = msg.pack_products
+                                                                                                    this.setState({openBottomPayModal:true,payment:payment})
+                                                                                                }}
+                                                                                                className="btn btn-success waves-effect waves-light">
+                                                                                                Payer
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <h6 style={{color:"gray",marginTop:14,marginBottom:2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            :
+
                                                                             <p>
                                                                                 <Anchorme  target="_blank" style={{color:"#039be5"}}>
                                                                                 {msg.text}
@@ -534,6 +592,55 @@ export default class Chat extends React.Component {
                                                                         </div>
                                                                         :
 
+                                                                        msg.type === "product_pack" ?
+                                                                            <div style={{backgroundColor:"#fff",padding:"3px",borderRadius:7.5,
+                                                                                display:"inline-block",marginBottom:15,boxShadow: "0 1px 0.5px rgba(0,0,0,.13)"}}>
+                                                                                <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:2,marginBottom:4,marginLeft:5}}>{this.getUserFname(this.state.contacts || [],msg.sender.email)}</h6>
+                                                                                <div style={{marginTop:5,border:"2px solid #f0f0f0",borderRadius:7.5,padding:8}}>
+                                                                                    <div style={{display:"flex"}}>
+                                                                                        <h6 style={{marginTop:7}}>{msg.pack_name}</h6>
+                                                                                    </div>
+                                                                                    {
+                                                                                        (msg.pack_products || []).map((product,key) => (
+                                                                                            <div style={{marginTop:5,marginLeft:5,marginRight:5}}>
+                                                                                                <div style={{border:"2px solid cornflowerblue",padding:2.5,borderRadius:7.5}}>
+                                                                                                    <div style={{display:"flex"}}>
+                                                                                                        <div style={{alignSelf:"center"}}>
+                                                                                                            <img alt="" src={product.image} style={{width:60,height:60,borderRadius:"unset",objectFit:"unset"}}/>
+                                                                                                        </div>
+                                                                                                        <div style={{marginLeft:10}}>
+                                                                                                            <h6>{product.nomProd}</h6>
+                                                                                                            <p className="truncate-2" style={{marginBottom:"0.0rem",backgroundColor:"#fff",fontSize:"0.6rem"}}>{product.descriptionProd}</p>
+                                                                                                            <div align="right">
+                                                                                                                <span style={{fontWeight:"bold",fontSize:"x-small",marginRight:5}}>{product.prix +" €"}</span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        ))
+                                                                                    }
+                                                                                    <div style={{marginTop:10}}>
+                                                                                        <div align="right">
+                                                                                            <span style={{fontWeight:"bold"}}>Total: <span>1200 €</span></span>
+                                                                                        </div>
+                                                                                        <div align="center" style={{marginTop:15}}>
+                                                                                            <button
+                                                                                                onClick={(e) => {
+                                                                                                    let payment={}
+                                                                                                    payment.produits=msg.pack_products
+                                                                                                    this.setState({openBottomPayModal:true,payment:payment})
+                                                                                                }}
+                                                                                                className="btn btn-success waves-effect waves-light">
+                                                                                                Payer
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        <h6 style={{color:"gray",marginTop:14,marginBottom:2,float:"right",fontSize:"0.6rem"}}>{moment(msg.created_at).fromNow(false)}</h6>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            :
+
                                                                             <p>
                                                                                 <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1}}>{this.getUserFname(this.state.contacts || [],msg.sender.email)}</h6>
                                                                                 <Anchorme  target="_blank" style={{color:"#039be5"}}>
@@ -593,7 +700,7 @@ export default class Chat extends React.Component {
                                     </div>
                                     <div className="message-input" style={{flex:"1 1 auto"}}>
                                         <div className="wrap">
-                                        <textarea  placeholder="Tapez votre message ici..."
+                                        <textarea  placeholder="Tapez votre message..."
                                                    value={this.state.text}
                                                    onChange={(e => {
                                                        this.setState({text: e.target.value})
@@ -631,6 +738,37 @@ export default class Chat extends React.Component {
                             </div>
                         </div>
                 }
+
+                <Drawer anchor="bottom" open={this.state.openBottomPayModal} onClose={() => this.setState({openBottomPayModal:false})}
+                        style={{borderRadius:20}}
+                >
+                    <div style={{padding:15}}>
+                        <h5 style={{color:"green",marginTop:5}}>Méthodes de paiement</h5>
+                        <div style={{marginTop:20,marginBottom:20}}>
+                            <div style={{display:"flex",cursor:"pointer",marginBottom:10}}>
+                                <img alt="" style={{width:30,height:30,objectFit:"contain"}} src={gpay_logo} />
+                                <h5 style={{marginTop:8,marginLeft:15}}>Google Pay</h5>
+                            </div>
+                            <div style={{display:"flex",cursor:"pointer",marginBottom:10}}>
+                                <img alt="" style={{width:30,height:30,objectFit:"contain"}} src={creditcard_logo} />
+                                <h5 style={{marginTop:8,marginLeft:15}}>Carte bancaire</h5>
+                            </div>
+                            <div style={{display:"flex",cursor:"pointer",marginBottom:10}}>
+                                <img alt="" style={{width:30,height:30,objectFit:"contain"}} src={paypal_logo} />
+                                <h5 style={{marginTop:8,marginLeft:15}}>Paypal</h5>
+                            </div>
+                            <div style={{display:"flex",cursor:"pointer",marginBottom:10}}
+                                 onClick={() => {
+                                     this.props.history.push('/stripe',{payment:this.state.payment})
+
+                                 }}
+                            >
+                                <img alt="" style={{width:30,height:30,objectFit:"contain"}} src={stripe_logo} />
+                                <h5 style={{marginTop:8,marginLeft:15}}>Stripe</h5>
+                            </div>
+                        </div>
+                    </div>
+                </Drawer>
 
                 <Popover
                     id={id1}

@@ -161,6 +161,53 @@ let SmartService = {
         });
     },
 
+    getUserSignatures(token,usrtoken){
+        return fetch(endpoint + '/ged/' + ged_id + '/sign', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    getSignatureById(id,token,usrtoken){
+        return fetch(endpoint + '/ged/' + ged_id + '/sign/'+ id, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    deleteSignatureById(id,token,usrtoken){
+        return fetch(endpoint + '/ged/' + ged_id + '/sign/'+ id, {
+            method: 'DELETE',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    addSignature(data,token,usrtoken){
+        return fetch(endpoint + '/ged/' + ged_id + '/sign', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    signDoc(data, doc_id, sign_id,token,usrtoken){
+        return fetch(endpoint + '/ged/' + ged_id + '/doc/' + doc_id + '/sign/' + sign_id, {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     /*Rooms*/
 
     addRoom(data,token,usrtoken){

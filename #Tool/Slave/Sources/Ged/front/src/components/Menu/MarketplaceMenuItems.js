@@ -132,6 +132,7 @@ export default function MarketplacemenuItems(props) {
             {
                 props.items.map((item,key) =>
                     (item.nodeId === "recettes" && active_modules.includes("MARKETPLACE_EDITEUR_RECETTE") === false )  ||
+                    (item.nodeId === "produits" && active_modules.includes("MARKETPLACE_EDITEUR_RECETTE") === false )  ||
                     (item.nodeId === "RH_Support_ponctuel" && active_modules.includes("MARKETPLACE_RH_SP") === false )  ?
                         null :
                     <StyledTreeItem key={key} nodeId={item.nodeId} labelText={item.title}

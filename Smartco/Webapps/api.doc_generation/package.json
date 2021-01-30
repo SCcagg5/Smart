@@ -1,0 +1,28 @@
+{
+  "name": "doc_generation_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"ERR: 00x0001: No test specified.\" && exit 1"
+  },
+  "author": "Babba Amine",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "html2canvas": "^1.0.0-rc.1",
+    "nodemon": "^1.17.4"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "docxtemplater": "^3.10.1",
+    "docxtemplater-image-module": "^3.1.0",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "fs": "^0.0.1-security",
+    "jszip": "^2.6.1",
+    "jszip-utils": "0.0.2",
+    "moment": "^2.24.0",
+    "office-converter": "^1.0.2"
+  }
+}

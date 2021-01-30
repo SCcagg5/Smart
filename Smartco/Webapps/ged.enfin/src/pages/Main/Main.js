@@ -1,7 +1,5 @@
 import React from 'react';
 import SmartService from '../../provider/SmartService';
-//import SmartService from '../../provider/masterNodeService';
-
 import moment from 'moment';
 import FolderIcon from '@material-ui/icons/Folder';
 import TopBar from '../../components/TopBar/TopBar';
@@ -120,12 +118,11 @@ import Popover from '@material-ui/core/Popover';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import test from "../test";
 
 const endpoint = "https://api.smartdom.ch";
 const ged_id = "896ca0ed-8b4a-41fd-aeff-8de26ee1bcf9";
 const meet_url = "https://meet.smartdom.ch/enfin";
-const ENV_CLIENTS_FOLDER_ID = "da1f85a4-b3e0-42f1-b2be-0b35a9cd9f40"
+const ENV_CLIENTS_FOLDER_ID = "cf9c41bb-de34-4009-b52d-d13dcb021499"
 const db_name = "ENFIN";
 const modules = "ROOMS/MEET/TIMESHEET";
 const active_modules = (modules || "").split("/")
@@ -572,6 +569,7 @@ export default class Main extends React.Component {
               sharedFolders = main_functions.changeStructure(parentSharedFolder,false)
 
               let client_folder = gedRes.data.Proprietary.Content.folders.find((x) => x.id === ENV_CLIENTS_FOLDER_ID);
+              console.log(client_folder);
               let client_shared_folder = gedRes.data.Shared.Content.folders.find((x) => x.id === ENV_CLIENTS_FOLDER_ID);
               if (client_folder) {
                 localStorage.setItem('client_folder_id', ENV_CLIENTS_FOLDER_ID);
@@ -3171,13 +3169,11 @@ export default class Main extends React.Component {
         }).catch(err => {console.log(err)})
       }
 
-    }else{
+    }
+    else{
       this.setState({ loading: false });
       alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
     }
-
-
-
 
   }
 
