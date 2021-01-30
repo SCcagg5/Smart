@@ -85,6 +85,9 @@ class odoo:
                                          "opt": {'offset': int(offset), 'limit': int(limit)},
                                          "model": "search"
                                         },
+                    "city_zip": { "index": "res.city.zip", "arg": [], "opt": {}, "model": "search_name"},
+                    "country": { "index": "res.country", "arg": [], "opt": {}, "model": "search_name"},
+                    "country_state": { "index": "res.country.state", "arg": [], "opt": {}, "model": "search_name"},
                     "tax": {"index": "account.tax",
                                          "arg": [[int(id)]],
                                          "opt": {},
@@ -616,6 +619,21 @@ class odoo:
             'res.partner', 'read', [[int(id)]])
         return [True,ret, None]
 
+    def edit_client(self, id, data):
+        models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
+        ret = models.execute_kw(self.opt['db'],
+                                self.uid,
+                                self.opt['password'],
+            'res.partner', 'write', [[int(id)], data])
+        k = ["street1", "street2", "zip_id", "zip", "city", "country_id", "property_product_pricelist", "city_id", "phone" ,"mobile", "vat"]
+        for i in data.keys():
+            if i not in k:
+                del k[i]
+        for i in k:
+            if i not in data:
+                data[i] = None
+        return [True, {"ret": ret, "input": data}, None]
+
     def create_client(self, param):
         """
         75 && 43 -> france & suisse
@@ -632,7 +650,6 @@ class odoo:
         param['parent_id'] = False if int(param['parent_id']) == 0 else int(param['parent_id'])
         param['title'] = False if int(param['title']) == 0 else int(param['title'])
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
-        print(param)
         ret = models.execute_kw(self.opt['db'],
                                 self.uid,
                                 self.opt['password'],

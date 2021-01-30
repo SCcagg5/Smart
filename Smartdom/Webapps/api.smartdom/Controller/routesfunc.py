@@ -441,6 +441,15 @@ def odoo_add_user(cn, nextc):
     err = cn.private["odoo"].create_client(cn.pr["param"])
     return cn.call_next(nextc, err)
 
+def odoo_edit_contact(cn, nextc):
+    ged_id = cn.rt["contact"] if "contact" in cn.rt else None
+    err = check.contain(cn.pr, ["param"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = cn.private["odoo"].edit_client(cn.pr["param"])
+    return cn.call_next(nextc, err)
+
 def odoo_companies(cn, nextc):
     err = cn.private["odoo"].list_contact(True, cn.get["offset"], cn.get["limit"])
     return cn.call_next(nextc, err)
