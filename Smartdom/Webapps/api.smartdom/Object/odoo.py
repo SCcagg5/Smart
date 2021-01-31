@@ -85,9 +85,9 @@ class odoo:
                                          "opt": {'offset': int(offset), 'limit': int(limit)},
                                          "model": "search"
                                         },
-                    "city_zip": { "index": "res.city.zip", "arg": [], "opt": {}, "model": "search_name"},
-                    "country": { "index": "res.country", "arg": [], "opt": {}, "model": "search_name"},
-                    "country_state": { "index": "res.country.state", "arg": [], "opt": {}, "model": "search_name"},
+                    "city_zip": { "index": "res.city.zip", "arg": [], "opt": {}, "model": "search"},
+                    "country": { "index": "res.country", "arg": [], "opt": {}, "model": "search"},
+                    "country_state": { "index": "res.country.state", "arg": [], "opt": {}, "model": "search"},
                     "tax": {"index": "account.tax",
                                          "arg": [[int(id)]],
                                          "opt": {},
