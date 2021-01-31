@@ -14,7 +14,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import moment from 'moment';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import AtlButton from '@atlaskit/button';
+import AtlButton, {ButtonGroup as AltButtonGroup} from '@atlaskit/button';
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import FolderIcon from '@material-ui/icons/Folder';
 import SmartService from '../../provider/SmartService';
@@ -241,7 +241,10 @@ export default function CollapsibleTable(props) {
                         <TableBody>
                           {
                             searchFilter.map((row,key) => (
-                                <Row key={key} row={row} index={key} validateFacture={props.validateFacture} openFacture={props.openFacture}
+                                <Row key={key} row={row} index={key}
+                                     validateFacture={props.validateFacture}
+                                     previewFacture={props.previewFacture}
+                                     openFacture={props.openFacture}
                                      openFactureFolder={props.openFactureFolder} client_folders={props.client_folders} clients_tempo={props.clients_tempo}
                                      annuaire_clients_mandat={props.annuaire_clients_mandat}
                                      sharedFolders={props.sharedFolders}
@@ -307,7 +310,7 @@ function Row(props) {
   const [client, setClient] = React.useState("");
   const [paymTerm, setPaymTerm] = React.useState( "3");
   const [tax, setTax] = React.useState("13");
-  const [fraisAdmin, setFraisAdmin] = React.useState("");
+  const [fraisAdmin, setFraisAdmin] = React.useState("2%");
   const [deadline_date, setDeadline_date] = React.useState(new Date());
 
   const { row } = props;
@@ -551,17 +554,33 @@ function Row(props) {
                         </div>
                       </div>
                       <div align="right" style={{marginTop:20}}>
-                        <AtlButton onClick={() => {
-                          if(verif_access === true){
-                            props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin)
-                          }else{
-                            alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
-                          }
-                        }}
-                                   isDisabled={client === ""}
-                                   appearance="primary">
-                          Valider la facture
-                        </AtlButton>
+                        <AltButtonGroup>
+                          <AtlButton onClick={() => {
+                            if(verif_access === true){
+                              let client_folder_name = (selected_client_folders.find(x => x.folder_id === client)).name
+                              props.previewFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
+                            }else{
+                              alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
+                            }
+                          }}
+                                     isDisabled={client === ""}
+                                     appearance="warning">
+                            Preview
+                          </AtlButton>
+                          <AtlButton onClick={() => {
+                            if(verif_access === true){
+                              let client_folder_name = (selected_client_folders.find(x => x.folder_id === client)).name
+                              props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
+                            }else{
+                              alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
+                            }
+                          }}
+                                     isDisabled={client === ""}
+                                     appearance="primary">
+                            Valider la facture
+                          </AtlButton>
+                        </AltButtonGroup>
+
                       </div>
                     </div>
                   }

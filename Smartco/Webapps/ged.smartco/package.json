@@ -16,7 +16,7 @@
     "@pathofdev/react-tag-input": "^1.0.7",
     "@react-pdf/renderer": "^1.6.10",
     "@types/nw.gui": "^0.0.20",
-    "antd": "^4.6.0",
+    "antd": "^4.11.2",
     "availity-reactstrap-validation": "^2.5.1",
     "axios": "^0.19.2",
     "baseui": "^9.78.0",

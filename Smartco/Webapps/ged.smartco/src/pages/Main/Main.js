@@ -295,7 +295,7 @@ export default class Main extends React.Component {
     clients_cases:[],
     annuaire_clients_mandat: [],
     time_sheets:[],
-    rooms: [],
+    /*rooms: [],*/
     selectedContact: '',
     selectedContactKey: '',
     editContactForm: false,
@@ -437,6 +437,7 @@ export default class Main extends React.Component {
     loading_provision_save:false,
     provision_bank:"",
     provision_amount:"",
+    provision_tax:"TVA 7.7 % incluse",
 
     anchorEl_colorPicker: null,
     settRoomAnchorEl:null,
@@ -2163,120 +2164,256 @@ export default class Main extends React.Component {
                           </TabList>
 
                           <TabPanel>
-                            {
-                              this.state.showLignesFactureClient === false ?
-                                  <div style={{marginTop:25,padding:10,paddingBottom:50,paddingLeft:20,border:"2px solid #f0f0f0"}}>
+
+                                  <div style={{marginTop:35,padding:10,paddingBottom:50,paddingLeft:35,border:"2px solid #f0f0f0"}}>
                                     <div className="row mt-2">
                                       <div className="col-md-6">
-                                        <h5>Durée</h5>
-                                        <div className="row">
-                                          <div className="col-md-5">
-                                            <Autosuggest
-                                                suggestions={this.state.timeSuggestions}
-                                                onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
-                                                onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
-                                                onSuggestionSelected={(event, { suggestion }) => {/*console.log(suggestion)*/}}
-                                                getSuggestionValue={suggestion => suggestion}
-                                                renderSuggestion={suggestion => (
-                                                    <div>{suggestion}</div>)}
-                                                inputProps={inputSuggProps}
-                                            />
-                                          </div>
-                                          <div className="col-md-7">
-                                            <div style={{ display: 'flex' }}>
-                                              <Timer
-                                                  initialTime={0}
-                                                  startImmediately={false}
-                                              >
-                                                {({ start, resume, pause, stop, reset, getTimerState, getTime }) => (
-                                                    <React.Fragment>
-                                                      <div
-                                                          align="center"
-                                                          style={{
-                                                            backgroundColor: '#c0c0c0',
-                                                            padding: 8,
-                                                            color: '#000',
-                                                            height: 36,
-                                                            fontWeight: 700,
-                                                            fontSize: 16,
-                                                            letterSpacing: '0.1rem'
-                                                          }}>
-                                                        <Timer.Hours
-                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`} />
-                                                        <Timer.Minutes
-                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`} />
-                                                        <Timer.Seconds
-                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`} />
-                                                      </div>
-                                                      <div
-                                                          style={{ marginLeft: 10 }}>
-                                                        <div
-                                                            align="center"
-                                                            style={{
-                                                              backgroundColor: (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'green' : 'red',
-                                                              padding: 5,
-                                                              borderRadius: 10,
-                                                              width: 50,
-                                                              color: '#fff',
-                                                              fontWeight: 700,
-                                                              cursor: 'pointer'
-                                                            }}
-                                                            onClick={() => {
-                                                              if (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') {
-                                                                start();
-                                                              } else {
-                                                                let timeEtablished = getTime();
-                                                                console.log(timeEtablished);
-                                                                let timeH = ((timeEtablished / 1000) / 60) / 60;
-                                                                console.log(timeH);
-                                                                let obj = this.state.TimeSheet;
-                                                                obj.newTime.duree = timeH.toFixed(3).replace('.', ':');
-                                                                this.setState({ TimeSheet: obj });
-                                                                stop();
-                                                              }
-                                                            }}
-                                                        >
-                                                          {(getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'Start' : 'Stop'}
-                                                        </div>
-                                                        <div
-                                                            align="center"
-                                                            style={{
-                                                              backgroundColor: '#c0c0c0',
-                                                              padding: 5,
-                                                              borderRadius: 10,
-                                                              width: 50,
-                                                              color: '#fff',
-                                                              fontWeight: 700,
-                                                              cursor: 'pointer',
-                                                              marginTop: 3
-                                                            }}
-                                                            onClick={() => {
-                                                              let obj = this.state.TimeSheet;
-                                                              obj.newTime.duree = '';
-                                                              this.setState({ TimeSheet: obj });
-                                                              reset();
-                                                            }}
-                                                        >
-                                                          Reset
-                                                        </div>
-                                                      </div>
-                                                    </React.Fragment>
-                                                )}
-                                              </Timer>
-                                            </div>
-                                          </div>
-                                          <div className="col-md-12">
-                                            {
-                                              this.state.TimeSheet.newTime.duree !== "" && DurationFormatError !== "" ?
-                                              <h6 style={{color:"red"}}>{DurationFormatError}</h6> :
-                                                  this.state.TimeSheet.newTime.rateFacturation !== "" &&
-                                                  <span style={{color:"#000",fontWeight:"bold"}}>Total:&nbsp;&nbsp;
-                                                    <span>{(parseFloat(this.state.TimeSheet.newTime.rateFacturation) * utilFunctions.durationToNumber(this.state.TimeSheet.newTime.duree)).toFixed(2) + " CHF"}</span>
-                                                  </span>
-                                            }
-                                          </div>
-
+                                        <div>
+                                          <h5>Catégorie d’activités </h5>
+                                          <MuiSelect
+                                              labelId="demo-simple-select-label"
+                                              id="demo-simple-select"
+                                              style={{ width: 270 }}
+                                              value={this.state.TimeSheet.newTime.categoriesActivite}
+                                              onChange={(e) => {
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.categoriesActivite = e.target.value;
+                                                this.setState({ TimeSheet: d });
+                                              }}
+                                          >
+                                            <MenuItem
+                                                value={'Temps facturé'}>Temps facturé</MenuItem>
+                                            <MenuItem
+                                                value={'Provision'}>Provision</MenuItem>
+                                          </MuiSelect>
                                         </div>
+                                      </div>
+                                      <div className="col-md-6">
+                                        <div style={{ width: '100%' }}>
+                                          <h5>Date</h5>
+                                          <DatePicker
+                                              calendarIcon={
+                                                <img
+                                                    alt=""
+                                                    src={calendar}
+                                                    style={{ width: 20 }} />}
+                                              onChange={(e) => {
+                                                console.log(e);
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.date = e;
+                                                this.setState({ TimeSheet: d });
+                                              }}
+                                              value={this.state.TimeSheet.newTime.date}
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="row mt-2">
+                                      <div className="col-md-6">
+                                        {
+                                          this.state.TimeSheet.newTime.categoriesActivite === "Temps facturé" ?
+                                              <div>
+                                                <h5>Durée</h5>
+                                                <div style={{display:"flex"}}>
+                                                  <Autosuggest
+                                                      suggestions={this.state.timeSuggestions}
+                                                      onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
+                                                      onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
+                                                      onSuggestionSelected={(event, { suggestion }) => {/*console.log(suggestion)*/}}
+                                                      getSuggestionValue={suggestion => suggestion}
+                                                      renderSuggestion={suggestion => (
+                                                          <div>{suggestion}</div>)}
+                                                      inputProps={inputSuggProps}
+                                                  />
+                                                  <div style={{ display: 'flex',marginLeft:15,marginTop:2 }}>
+                                                    <Timer
+                                                        initialTime={0}
+                                                        startImmediately={false}
+                                                    >
+                                                      {({ start, resume, pause, stop, reset, getTimerState, getTime }) => (
+                                                          <React.Fragment>
+                                                            <div
+                                                                align="center"
+                                                                style={{
+                                                                  backgroundColor: '#c0c0c0',
+                                                                  padding: 8,
+                                                                  color: '#000',
+                                                                  height: 36,
+                                                                  fontWeight: 700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing: '0.1rem'
+                                                                }}>
+                                                              <Timer.Hours
+                                                                  formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`} />
+                                                              <Timer.Minutes
+                                                                  formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`} />
+                                                              <Timer.Seconds
+                                                                  formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`} />
+                                                            </div>
+                                                            <div
+                                                                style={{ marginLeft: 10 }}>
+                                                              <div
+                                                                  align="center"
+                                                                  style={{
+                                                                    backgroundColor: (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'green' : 'red',
+                                                                    padding: 5,
+                                                                    borderRadius: 10,
+                                                                    width: 50,
+                                                                    color: '#fff',
+                                                                    fontWeight: 700,
+                                                                    cursor: 'pointer'
+                                                                  }}
+                                                                  onClick={() => {
+                                                                    if (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') {
+                                                                      start();
+                                                                    } else {
+                                                                      let timeEtablished = getTime();
+                                                                      console.log(timeEtablished);
+                                                                      let timeH = ((timeEtablished / 1000) / 60) / 60;
+                                                                      console.log(timeH);
+                                                                      let obj = this.state.TimeSheet;
+                                                                      obj.newTime.duree = timeH.toFixed(3).replace('.', ':');
+                                                                      this.setState({ TimeSheet: obj });
+                                                                      stop();
+                                                                    }
+                                                                  }}
+                                                              >
+                                                                {(getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'Start' : 'Stop'}
+                                                              </div>
+                                                              <div
+                                                                  align="center"
+                                                                  style={{
+                                                                    backgroundColor: '#c0c0c0',
+                                                                    padding: 5,
+                                                                    borderRadius: 10,
+                                                                    width: 50,
+                                                                    color: '#fff',
+                                                                    fontWeight: 700,
+                                                                    cursor: 'pointer',
+                                                                    marginTop: 3
+                                                                  }}
+                                                                  onClick={() => {
+                                                                    let obj = this.state.TimeSheet;
+                                                                    obj.newTime.duree = '';
+                                                                    this.setState({ TimeSheet: obj });
+                                                                    reset();
+                                                                  }}
+                                                              >
+                                                                Reset
+                                                              </div>
+                                                            </div>
+                                                          </React.Fragment>
+                                                      )}
+                                                    </Timer>
+                                                  </div>
+                                                </div>
+                                                {
+                                                  this.state.TimeSheet.newTime.duree !== "" && DurationFormatError !== "" ?
+                                                      <h6 style={{color:"red"}}>{DurationFormatError}</h6> :
+                                                      this.state.TimeSheet.newTime.rateFacturation !== "" &&
+                                                      <span style={{color:"#000",fontWeight:"bold"}}>Total:&nbsp;&nbsp;
+                                                        <span>{(parseFloat(this.state.TimeSheet.newTime.rateFacturation) * utilFunctions.durationToNumber(this.state.TimeSheet.newTime.duree)).toFixed(2) + " CHF"}</span>
+                                                  </span>
+                                                }
+                                                <div style={{marginTop:25}}>
+                                                  <div>
+                                                    <h5>{new_timeSheet_desc}</h5>
+                                                  </div>
+                                                  <textarea
+                                                      className="form-control "
+                                                      id="duree"
+                                                      style={{ width: '90%',border:"2px solid #f0f0f0",borderRadius:7.5 }}
+                                                      name="duree"
+                                                      rows={5}
+                                                      value={this.state.TimeSheet.newTime.description}
+                                                      onChange={(e) => {
+                                                        let d = this.state.TimeSheet;
+                                                        d.newTime.description = e.target.value;
+                                                        this.setState({ TimeSheet: d });
+                                                      }} />
+                                                </div>
+                                              </div> :
+
+                                              <div>
+                                                <div>
+                                                  <div>
+                                                    <h5>Montant(CHF)</h5>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        id="email"
+                                                        name="email"
+                                                        value={this.state.provision_amount}
+                                                        style={{width:350,border:"2px solid #f0f0f0",borderRadius:7.5}}
+                                                        onChange={(e) => {this.setState({provision_amount:e.target.value})}}
+                                                    />
+                                                  </div>
+                                                  <div className="mt-3">
+                                                    <h5>Compte bancaire</h5>
+                                                    <select
+                                                        className="form-control custom-select"
+                                                        value={this.state.provision_bank}
+                                                        onChange={(e) => {
+                                                          this.setState({provision_bank:e.target.value})
+                                                        }}
+                                                        style={{width:350,border:"2px solid #f0f0f0",borderRadius:7.5}}
+                                                    >
+                                                      <option key={-1} value={""}/>
+                                                      {
+                                                        (data.oa_comptes_bank_provision || []).map((item,key) =>
+                                                            <option key={key} value={JSON.stringify(item)}>{item.label}</option>
+                                                        )
+                                                      }
+                                                    </select>
+                                                  </div>
+                                                  <div className="mt-3">
+                                                    <h5>Taxe</h5>
+                                                    <select
+                                                        className="form-control custom-select"
+                                                        value={this.state.provision_tax}
+                                                        onChange={(e) => {
+                                                          this.setState({provision_tax:e.target.value})
+                                                        }}
+                                                        style={{width:350,border:"2px solid #f0f0f0",borderRadius:7.5}}
+                                                    >
+                                                      {
+                                                        (data.oa_provision_taxs || []).map((item,key) =>
+                                                            <option key={key} value={item.value}>{item.label}</option>
+                                                        )
+                                                      }
+                                                    </select>
+                                                  </div>
+                                                  <div className="mt-5" align="center">
+                                                    <AltButtonGroup>
+                                                      <AtlButton
+                                                          isLoading={this.state.loading_provision_preview}
+                                                          appearance="warning"
+                                                          isDisabled={!this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
+                                                          this.state.provision_bank === "" || this.state.selectedClientTimeEntree === ''}
+                                                          onClick={() => {
+                                                            this.generateProvisionDoc(new_timeSheet_desc)
+                                                          }}
+                                                      >
+                                                        Preview
+                                                      </AtlButton>
+                                                      <AtlButton
+                                                          isLoading={this.state.loading_provision_save}
+                                                          appearance="primary"
+                                                          isDisabled={!this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
+                                                          this.state.provision_bank === "" || this.state.selectedClientTimeEntree === ''}
+                                                          onClick={() => {
+                                                            this.saveProvisionDoc(new_timeSheet_desc)
+                                                          }}
+                                                      >
+                                                        Enregistrer le document de provision
+                                                      </AtlButton>
+                                                    </AltButtonGroup>
+
+                                                  </div>
+                                                </div>
+                                              </div>
+
+                                        }
                                       </div>
                                       <div className="col-md-6">
                                         <div>
@@ -2323,7 +2460,7 @@ export default class Main extends React.Component {
                                               <SearchIcon />
                                             </IconButton>
                                           </div>
-                                          <h5 style={{marginTop:10}}>Dossier du client </h5>
+                                          <h5 style={{marginTop:25}}>Dossier du client </h5>
                                           <MuiSelect
                                               labelId="demo-simple-select-label"
                                               id="demo-simple-select"
@@ -2353,199 +2490,74 @@ export default class Main extends React.Component {
                                             }
                                           </MuiSelect>
                                         </div>
-                                      </div>
-                                    </div>
-                                    <div className="row mt-3">
-                                      <div className="col-md-6">
-                                        <div>
-                                          <h5>Catégorie d’activités </h5>
-                                          <MuiSelect
-                                              labelId="demo-simple-select-label"
-                                              id="demo-simple-select"
-                                              style={{ width: 220 }}
-                                              value={this.state.TimeSheet.newTime.categoriesActivite}
-                                              onChange={(e) => {
-                                                let d = this.state.TimeSheet;
-                                                d.newTime.categoriesActivite = e.target.value;
-                                                this.setState({ TimeSheet: d });
-                                              }}
-                                          >
-                                            <MenuItem
-                                                value={'Temps facturé'}>Temps facturé</MenuItem>
-                                            <MenuItem
-                                                value={'Provision'}>Provision</MenuItem>
-                                          </MuiSelect>
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div
-                                            style={{ width: '100%' }}>
-                                          <h5>Date</h5>
-                                          <DatePicker
-                                              calendarIcon={
-                                                <img
-                                                    alt=""
-                                                    src={calendar}
-                                                    style={{ width: 20 }} />}
-                                              onChange={(e) => {
-                                                console.log(e);
-                                                let d = this.state.TimeSheet;
-                                                d.newTime.date = e;
-                                                this.setState({ TimeSheet: d });
-                                              }}
-                                              value={this.state.TimeSheet.newTime.date}
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div className="row mt-3">
-                                      <div className="col-md-6">
                                         {
-                                          this.state.TimeSheet.newTime.categoriesActivite === "Temps facturé" ?
-                                              <div>
-                                                <div>
-                                                  <h5>{new_timeSheet_desc}</h5>
-                                                </div>
-                                                <textarea
-                                                    className="form-control "
-                                                    id="duree"
-                                                    style={{ width: '100%' }}
-                                                    name="duree"
-                                                    rows={5}
-                                                    value={this.state.TimeSheet.newTime.description}
-                                                    onChange={(e) => {
-                                                      let d = this.state.TimeSheet;
-                                                      d.newTime.description = e.target.value;
-                                                      this.setState({ TimeSheet: d });
-                                                    }} />
-                                              </div> :
-
-                                              <div>
-                                                <div>
-                                                  <h5>Montant(CHF)</h5>
-                                                  <input
-                                                      type="text"
-                                                      className="form-control"
-                                                      id="email"
-                                                      name="email"
-                                                      value={this.state.provision_amount}
-                                                      style={{width:350}}
-                                                      onChange={(e) => {this.setState({provision_amount:e.target.value})}}
-                                                  />
-                                                </div>
-                                                <div className="mt-3">
-                                                  <h5>Compte bancaire</h5>
-                                                  <select
-                                                      className="form-control custom-select"
-                                                      value={this.state.provision_bank}
-                                                      onChange={(e) => {
-                                                        this.setState({provision_bank:e.target.value})
-                                                      }}
-                                                      style={{width:350}}
-                                                  >
-                                                    <option key={-1} value={""}/>
-                                                    {
-                                                      (data.oa_comptes_bank_provision || []).map((item,key) =>
-                                                          <option key={key} value={JSON.stringify(item)}>{item.label}</option>
-                                                      )
+                                          this.state.TimeSheet.newTime.categoriesActivite === "Temps facturé" &&
+                                          <div style={{marginTop:20}}>
+                                            <div>
+                                              <h6>Utilisateur </h6>
+                                            </div>
+                                            <MuiSelect
+                                                labelId="demo-simple-select-label4545"
+                                                id="demo-simple-select4545"
+                                                style={{ width: 300 }}
+                                                onChange={(e) => {
+                                                  let ts = this.state.TimeSheet;
+                                                  let dossier = this.state.TimeSheet.newTime.dossier_client;
+                                                  if(dossier && dossier.team && dossier.team.length > 0){
+                                                    let team = dossier.team;
+                                                    let find = team.find(x => x.email === e.target.value);
+                                                    if(find){
+                                                      ts.newTime.rateFacturation = find.tarif || "";
                                                     }
-                                                  </select>
-                                                </div>
-                                                <div className="mt-5" align="center">
-                                                  <AltButtonGroup>
-                                                    <AtlButton
-                                                        isLoading={this.state.loading_provision_preview}
-                                                        appearance="warning"
-                                                        isDisabled={this.state.TimeSheet.newTime.duree === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
-                                                        this.state.provision_bank === "" || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
-                                                        onClick={() => {
-                                                          this.generateProvisionDoc(new_timeSheet_desc)
-                                                        }}
-                                                    >
-                                                      Preview
-                                                    </AtlButton>
-                                                    <AtlButton
-                                                        isLoading={this.state.loading_provision_save}
-                                                        appearance="primary"
-                                                        isDisabled={this.state.TimeSheet.newTime.duree === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
-                                                        this.state.provision_bank === "" || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
-                                                        onClick={() => {
-                                                          this.saveProvisionDoc(new_timeSheet_desc)
-                                                        }}
-                                                    >
-                                                      Enregistrer le document de provision
-                                                    </AtlButton>
-                                                  </AltButtonGroup>
-
-                                                </div>
-                                              </div>
+                                                  }else{
+                                                    let OA_contacts = this.state.contacts;
+                                                    let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,e.target.value);
+                                                    ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
+                                                  }
+                                                  ts.newTime.utilisateurOA = e.target.value;
+                                                  this.setState({ TimeSheet: ts });
+                                                }}
+                                                value={this.state.TimeSheet.newTime.utilisateurOA}
+                                            >
+                                              {this.state.contacts.map((contact, key) => (
+                                                  <MenuItem
+                                                      key={key}
+                                                      value={contact.email}>
+                                                    <div style={{display:"flex"}}>
+                                                      <Avatar style={{marginLeft:10}}
+                                                              alt=""
+                                                              src={contact.imageUrl} />
+                                                      <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                    </div>
+                                                  </MenuItem>
+                                              ))}
+                                            </MuiSelect>
+                                            <div className="mt-3">
+                                              <h6>
+                                                Taux horaire
+                                              </h6>
+                                              <Input
+                                                  className="form-control "
+                                                  id="duree"
+                                                  style={{ width: 300 }}
+                                                  name="duree"
+                                                  type="text"
+                                                  endAdornment={
+                                                    <InputAdornment
+                                                        position="end">CHF:Hr</InputAdornment>}
+                                                  value={this.state.TimeSheet.newTime.rateFacturation + ''}
+                                                  onChange={(e) => {
+                                                    let d = this.state.TimeSheet;
+                                                    d.newTime.rateFacturation = e.target.value;
+                                                    this.setState({ TimeSheet: d });
+                                                  }} />
+                                            </div>
+                                          </div>
                                         }
 
                                       </div>
-                                      <div className="col-md-6">
-                                        <div>
-                                          <h6>Utilisateur </h6>
-                                        </div>
-                                        <MuiSelect
-                                            labelId="demo-simple-select-label4545"
-                                            id="demo-simple-select4545"
-                                            style={{ width: 250 }}
-                                            onChange={(e) => {
-                                              let ts = this.state.TimeSheet;
-                                              let dossier = this.state.TimeSheet.newTime.dossier_client;
-                                              if(dossier && dossier.team && dossier.team.length > 0){
-                                                let team = dossier.team;
-                                                let find = team.find(x => x.email === e.target.value);
-                                                if(find){
-                                                  ts.newTime.rateFacturation = find.tarif || "";
-                                                }
-                                              }else{
-                                                let OA_contacts = this.state.contacts;
-                                                let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,e.target.value);
-                                                ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
-                                              }
-                                              ts.newTime.utilisateurOA = e.target.value;
-                                              this.setState({ TimeSheet: ts });
-                                            }}
-                                            value={this.state.TimeSheet.newTime.utilisateurOA}
-                                        >
-                                          {this.state.contacts.map((contact, key) => (
-                                              <MenuItem
-                                                  key={key}
-                                                  value={contact.email}>
-                                                <div style={{display:"flex"}}>
-                                                  <Avatar style={{marginLeft:10}}
-                                                          alt=""
-                                                          src={contact.imageUrl} />
-                                                  <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                </div>
-                                              </MenuItem>
-                                          ))}
-                                        </MuiSelect>
-                                        <div
-                                            className="mt-3">
-                                          <h6>
-                                            Taux horaire
-                                          </h6>
-                                          <Input
-                                              className="form-control "
-                                              id="duree"
-                                              style={{ width: 250 }}
-                                              name="duree"
-                                              type="text"
-                                              endAdornment={
-                                                <InputAdornment
-                                                    position="end">CHF:Hr</InputAdornment>}
-                                              value={this.state.TimeSheet.newTime.rateFacturation + ''}
-                                              onChange={(e) => {
-                                                let d = this.state.TimeSheet;
-                                                d.newTime.rateFacturation = e.target.value;
-                                                this.setState({ TimeSheet: d });
-                                              }} />
-                                        </div>
-                                      </div>
                                     </div>
-                                    <div align="center" className=" mt-4">
+                                    <div align="center" className="mt-4">
                                       {
                                         this.state.TimeSheet.newTime.categoriesActivite === "Temps facturé" &&
                                         <div>
@@ -2607,94 +2619,12 @@ export default class Main extends React.Component {
                                           </div>
 
                                         </div>
+
                                       }
-
-
                                     </div>
-                                  </div> :
 
-                                  <div>
-                                    <div className="mt-1">
-                                      <div>
-                                        <div style={{
-                                          textAlign: 'right',
-                                          marginTop: 15
-                                        }}>
-                                          <button
-                                              onClick={() => this.setState({
-                                                showLignesFactureClient: false
-                                              })}
-                                              className="btn btn-sm btn-outline-info">Retour
-                                          </button>
-                                        </div>
-
-                                        <div className="row mt-3">
-                                          <div
-                                              className="col-md-6">
-                                            <h5>Nom du client</h5>
-                                            <div
-                                                style={{ display: 'flex' }}>
-                                              <SelectSearch
-                                                  options={
-                                                    this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl }) =>
-                                                        ({
-                                                          value: Nom + ' ' + (Prenom || ''),
-                                                          name: Nom + ' ' + (Prenom || ''),
-                                                          ContactType: Type,
-                                                          ContactName: Nom + ' ' + (Prenom || ''),
-                                                          imageUrl: imageUrl
-                                                        }))
-                                                  }
-                                                  value={this.state.selectedClientTimeEntree}
-                                                  renderOption={main_functions.renderSearchOption}
-                                                  search
-                                                  placeholder="Chercher votre client"
-                                                  onChange={e => {
-                                                    console.log(e);
-                                                    let obj = this.state.TimeSheet;
-                                                    obj.newTime.client = e;
-
-                                                    let find_annuaire_fact_lead = this.state.annuaire_clients_mandat.find(x => (x.Nom + ' ' + x.Prenom) === e);
-                                                    console.log(find_annuaire_fact_lead);
-                                                    let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
-                                                    console.log(partner_email);
-                                                    this.setState({
-                                                      partnerFacture: partner_email,
-                                                      selectedClientTimeEntree: e,
-                                                      TimeSheet: obj
-                                                    });
-                                                  }}
-                                              />
-                                              <IconButton
-                                                  style={{ marginTop: -5 }}
-                                                  onClick={() => this.setState({ openAdvancedSearchModal: true })}>
-                                                <SearchIcon />
-                                              </IconButton>
-                                            </div>
-                                          </div>
-                                          <div
-                                              className="col-md-4">
-                                            <div
-                                                style={{ width: '100%' }}>
-                                              <h5>Date de la facture</h5>
-                                              <DatePicker
-                                                  calendarIcon={
-                                                    <img
-                                                        alt=""
-                                                        src={calendar}
-                                                        style={{ width: 20 }} />}
-                                                  onChange={(e) => {
-                                                    this.setState({ dateFacture: e });
-                                                  }}
-                                                  value={this.state.dateFacture}
-                                              />
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
                                   </div>
-                            }
+
                           </TabPanel>
                           <TabPanel>
                             {
@@ -2733,9 +2663,12 @@ export default class Main extends React.Component {
                                            clients_tempo={this.state.clients_cases}
                                            annuaire_clients_mandat={this.state.annuaire_clients_mandat}
                                            sharedFolders={this.state.sharedReelFolders || []}
-                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin) => {
-                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin);
+                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name) => {
+                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name);
                                              //this.OpenModalVF(row.created_at, row.lignes_facture,row.client_folder.id,row,"10",client,paymTerm,deadline_date,tax,fraisAdmin)
+                                           }}
+                                           previewFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name) => {
+                                             this.before_preview_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
                                            }}
                                            openFacture={(id) => {
                                              this.openPdfModal(id)
@@ -2909,13 +2842,16 @@ export default class Main extends React.Component {
       lang:lang,
       data:{
         client:this.state.TimeSheet.newTime.client,
+        client_adress:main_functions.getClientAdressById(this.state.annuaire_clients_mandat || [],this.state.TimeSheet.newTime.client_id),
         date:moment().format("DD/MM/YYYY"),
         price:this.state.provision_amount,
         bank:bank.title,
         iban:bank.code,
         swift:bank.swift_bic,
         clearing:bank.clearing,
-        ref:this.state.TimeSheet.newTime.client + " - " + this.state.TimeSheet.newTime.dossier_client.name
+        ref:this.state.TimeSheet.newTime.client + " - " + this.state.TimeSheet.newTime.dossier_client.name,
+        oa_contact:main_functions.getContactFnameByEmail(this.state.contacts || [],localStorage.getItem("email")),
+        TVA:this.state.provision_tax
       }}).then( res => {
       console.log(res)
       this.setState({loading_provision_preview:false})
@@ -3112,7 +3048,8 @@ export default class Main extends React.Component {
     this.reloadGed()
   }
 
-  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin){
+
+  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name){
     this.setState({loading:true})
 
     let odoo_companies = this.state.odoo_companies || [];
@@ -3121,7 +3058,7 @@ export default class Main extends React.Component {
 
     if(findCompany){
       facture_company_id = findCompany.odoo_company_id;
-      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin)
+      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
 
     }else{
 
@@ -3138,7 +3075,7 @@ export default class Main extends React.Component {
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
 
-                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin)
+                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
 
               }else{
                 this.setState({loading:false})
@@ -3168,7 +3105,69 @@ export default class Main extends React.Component {
     }
   }
 
-  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin) {
+  before_preview_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name){
+
+    this.setState({loading:true})
+
+    let odoo_companies = this.state.odoo_companies || [];
+    let facture_company_id;
+    let findCompany = odoo_companies.find(x => x.client_id === facture.client_id );
+
+    if(findCompany){
+      console.log("COMPANY FOUND")
+      facture_company_id = findCompany.odoo_company_id;
+      this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
+
+    }else{
+      console.log("COMPANY NOT FOUND")
+      SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: facture.client } }).then(newCompRes => {
+        if(newCompRes.succes === true && newCompRes.status === 200){
+          facture_company_id = newCompRes.data.id;
+          this.verifIsTableExist("odoo_companies").then( v => {
+            let newItem = {
+              odoo_company_id:facture_company_id,
+              client_name:facture.client,
+              client_id:facture.client_id,
+              created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+            }
+            rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+              if (resAdd && resAdd === true) {
+
+                this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
+
+              }else{
+                this.setState({loading:false})
+                this.openSnackbar("error","Une erreur est survenue !")
+                console.log(newCompRes.error)
+              }
+            }).catch(err => {console.log(err)})
+          }).catch(err => console.log(err))
+
+        }
+        else if(newCompRes.succes === false && newCompRes.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else{
+          this.setState({loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+          console.log(newCompRes.error)
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+        console.log(err)
+      })
+
+    }
+
+  }
+
+  previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name){
+
+    console.log(facture.client_folder.name)
+    this.setState({loading:true})
     let id_facture = facture.id
 
     let lignes_factures = lignes_f;
@@ -3230,7 +3229,222 @@ export default class Main extends React.Component {
       'message_attachment_count': 0,
       'invoice_line_ids': [],
       "account_id": 6,
-      "reference": false,
+      "reference": facture.client + " - " + client_folder_name,
+      "fiscal_position_id": false,
+      "origin": false,
+      "reference_type":"none",
+      "incoterm_id":false,
+      "sequence_number_next":false,
+      "partner_shipping_id":facture_company_id,
+      "payment_term_id":paymTerm,
+      "partner_bank_id":1
+    }];
+
+    lignes_factures.map((ligne, key) => {
+      let OAContact = main_functions.getOAContactByEmail2(this.state.contacts,ligne.newTime.utilisateurOA);
+      odoo_data[0].invoice_line_ids.push(
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              "account_analytic_id":false,
+              'account_id': 101,  //103
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
+              'name':
+                  template === '0' ? moment(ligne.newTime.date).format('DD/MM/YYYY') :
+                      template === '1' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description :
+                          template === '2' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                              template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                                  template === '4' ? ligne.newTime.description :
+                                      template === '5' ? OAContact.nom + ' ' + OAContact.prenom :
+                                          template === '6' ? ligne.newTime.duree.toFixed(2) + ' Heures' :
+                                              template === '7' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                                                  template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree.toFixed(2) + ' Heures' :
+                                                      template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree.toFixed(2) + ' Heures' :
+                                                          template === '10' ? ligne.newTime.description :
+                                                              ligne.newTime.description,
+              'origin': false,
+              'price_unit': parseFloat(ligne.newTime.rateFacturation),
+              'product_id': 1,  //2
+              'quantity': ligne.newTime.duree,
+              'sequence': 10,
+              "uom_id":1,
+              'invoice_line_tax_ids': [
+                [
+                  6,
+                  false,
+                  tax && tax !== "" ? [tax] : []
+                ]
+              ],
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+            }
+          ]
+      );
+    });
+
+    if(fraisAdmin === "2%"){
+      odoo_data[0].invoice_line_ids.push(
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              "account_analytic_id":false,
+              'account_id': 101,  //103
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
+              'name':"Frais administratifs(2%)",
+              'origin': false,
+              'price_unit': (total * 2) / 100,
+              'product_id': 1,  //2
+              'quantity': 1,
+              'sequence': 10,
+              "uom_id":1,
+              /*'invoice_line_tax_ids': [
+                [
+                  6,
+                  false,
+                  tax && tax !== "" ? [tax] : []
+                ]
+              ],*/
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+            }
+          ]
+      )
+    }
+
+    SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+      console.log(createFactRes)
+      if (createFactRes.succes === true && createFactRes.status === 200) {
+
+        SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+
+          if(genFactRes.succes === true && genFactRes.status === 200){
+
+            let updatedItem = facture;
+            updatedItem.facture_draft_id = createFactRes.data.id
+            updatedItem.draft_acces_token = acces_token
+
+            rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+              if (updateRes && updateRes === true) {
+                this.setState({loading:false})
+                let b64 = genFactRes.data.pdf;
+                this.showDocInPdfModal(b64,"Facture_" + moment().format("DD-MM-YYYY HH:mm"),"pdf")
+
+              } else {
+                this.setState({loading:false})
+                this.openSnackbar("error","Une erreur est survenue !")
+              }
+            }).catch(err => {
+              this.setState({loading:false})
+              this.openSnackbar("error","Une erreur est survenue !")
+              console.log(err)
+            })
+
+          }else{
+            this.setState({loading:false})
+            console.log(genFactRes.error)
+          }
+        }).catch( err => {
+          this.setState({loading:false})
+          console.log(err)
+        })
+
+      }
+      else if(createFactRes.succes === false && createFactRes.status === 400){
+        this.setState({ loading: false });
+        localStorage.clear();
+        this.props.history.push('/login');
+      }
+      else{
+        this.setState({loading:false})
+        this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+
+  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name) {
+
+    let id_facture = facture.id
+
+    let lignes_factures = lignes_f;
+    let total = 0;
+    lignes_factures.map((ligne, key) => {
+      total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
+    })
+    let acces_token = utilFunctions.getUID();
+
+    let odoo_data = [{
+      'access_token': acces_token,
+      'type': 'out_invoice',
+      "move_name":false,
+      "user_id":6,
+      "team_id":1,
+      "comment":false,
+      'l10n_ch_isr_sent': false,
+      'name': false,   //on peut mettre une petite desc sous le titre de la facture avec ce champs
+      'date_invoice': moment(facture_date).format('YYYY-MM-DD'),
+      'date_due': moment(deadline_date).format('YYYY-MM-DD'),
+      'journal_id': 1,
+      'currency_id': 5,
+      'invoice_user_id': 3,
+      'invoice_incoterm_id': false,
+      'tax_lock_date_message': false,
+      'id': false,
+      'invoice_payment_state': 'not_paid',
+      'invoice_filter_type_domain': 'sale',
+      'company_currency_id': 5,
+      'commercial_partner_id': '',
+      'bank_partner_id': 1,
+      'invoice_has_outstanding': false,
+      'l10n_ch_currency_name': 'CHF',
+      'invoice_sequence_number_next_prefix': false,
+      'invoice_sequence_number_next': false,
+      'invoice_has_matching_suspense_amount': false,
+      'has_reconciled_entries': false,
+      'restrict_mode_hash_table': false,
+      'partner_id': facture_company_id,
+      'invoice_vendor_bill_id': false,
+      'invoice_payment_term_id': 1,
+      'invoice_date_due': moment(deadline_date).format('YYYY-MM-DD'),
+      'company_id': 1,
+      'amount_untaxed': 0,
+      'amount_by_group': [],
+      'amount_total': 0,
+      'invoice_payments_widget': 'False',
+      'amount_residual': 0,
+      'invoice_outstanding_credits_debits_widget': false,
+      'invoice_origin': false,
+      'invoice_cash_rounding_id': false,
+      'invoice_source_email': false,
+      'invoice_payment_ref': false,
+      'invoice_partner_bank_id': 1,
+      'reversed_entry_id': false,
+      'message_follower_ids': [],
+      'activity_ids': [],
+      'message_ids': [],
+      'message_attachment_count': 0,
+      'invoice_line_ids': [],
+      "account_id": 6,
+      "reference": facture.client + " - " + client_folder_name,
       "fiscal_position_id": false,
       "origin": false,
       "reference_type":"none",
@@ -3330,122 +3544,228 @@ export default class Main extends React.Component {
       )
     }
 
-    SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
-      console.log(createFactRes)
-      if(createFactRes.succes === true && createFactRes.status === 200){
+    if(facture.facture_draft_id){
 
-        SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
-            { data: [[createFactRes.data.id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
-          console.log(validateRes)
-          if(validateRes.succes === true && validateRes.status === 200){
+      SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+          { data: [[facture.facture_draft_id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
+        console.log(validateRes)
+        if(validateRes.succes === true && validateRes.status === 200){
 
-            SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+          SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_draft_id,facture.draft_acces_token).then(genFactRes => {
 
-              if(genFactRes.succes === true && genFactRes.status === 200){
+            if(genFactRes.succes === true && genFactRes.status === 200){
 
-                SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
-                  if(resF.succes === true && resF.status === 200){
-                    let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+              SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+                if(resF.succes === true && resF.status === 200){
+                  let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
 
-                    SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
-                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+                  SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
+                      localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
 
-                      if(ok.succes === true && ok.status === 200){
+                    if(ok.succes === true && ok.status === 200){
 
-                        SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                            ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+                      SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                          ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
 
-                          if(updateRes.succes === true && updateRes.status === 200){
+                        if(updateRes.succes === true && updateRes.status === 200){
 
-                            let secretariat_folder = this.state.reelFolders.find(x => x.name === "SECRETARIAT");
-                            console.log(secretariat_folder)
-                            if(secretariat_folder){
-                              let compta_secretariat_folder = secretariat_folder.Content.folders.find(x => x.name === "COMPTABILITE");
-                              if(compta_secretariat_folder){
-                                console.log(compta_secretariat_folder)
-                                SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
-                                  if(r.succes === true && r.status === 200){
-                                    SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                                        r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
-                                      if(updateRes2.succes === true && updateRes2.status === 200){
-                                        this.justReloadGed()
-                                      }else{
-                                        console.log(updateRes2.error)
-                                      }
-                                    }).catch(err => {console.log(err)})
-                                  }else{
-                                    console.log(r.error)
-                                  }
-                                }).catch(err => {console.log(err)})
-                              }
+                          let secretariat_folder = this.state.reelFolders.find(x => x.name === "SECRETARIAT");
+                          console.log(secretariat_folder)
+                          if(secretariat_folder){
+                            let compta_secretariat_folder = secretariat_folder.Content.folders.find(x => x.name === "COMPTABILITE");
+                            if(compta_secretariat_folder){
+                              console.log(compta_secretariat_folder)
+                              SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
+                                if(r.succes === true && r.status === 200){
+                                  SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                                      r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
+                                    if(updateRes2.succes === true && updateRes2.status === 200){
+                                      this.justReloadGed()
+                                    }else{
+                                      console.log(updateRes2.error)
+                                    }
+                                  }).catch(err => {console.log(err)})
+                                }else{
+                                  console.log(r.error)
+                                }
+                              }).catch(err => {console.log(err)})
                             }
+                          }
 
-                            let updatedItem = facture;
-                            updatedItem.statut = "accepted";
-                            updatedItem.file_id = ok.data.file_id;
-                            updatedItem.client_folder = {id:client, name:resF.data.name}
+                          let updatedItem = facture;
+                          updatedItem.statut = "accepted";
+                          updatedItem.file_id = ok.data.file_id;
+                          updatedItem.client_folder = {id:client, name:resF.data.name}
 
-                            rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
-                              if (updateRes && updateRes === true) {
+                          rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+                            if (updateRes && updateRes === true) {
 
-                                this.justReloadGed();
-                                this.setState({loading:false})
-                                this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+                              this.justReloadGed();
+                              this.setState({loading:false})
+                              this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
 
-                              } else {
-                                this.setState({loading:false})
-                                this.openSnackbar("error","Une erreur est survenue !")
-                              }
-                            }).catch(err => {
+                            } else {
                               this.setState({loading:false})
                               this.openSnackbar("error","Une erreur est survenue !")
-                              console.log(err)
-                            })
+                            }
+                          }).catch(err => {
+                            this.setState({loading:false})
+                            this.openSnackbar("error","Une erreur est survenue !")
+                            console.log(err)
+                          })
 
-                          }else{
-                            this.openSnackbar("error",updateRes.error)
-                          }
-                        }).catch(err => {console.log(err)})
+                        }else{
+                          this.openSnackbar("error",updateRes.error)
+                        }
+                      }).catch(err => {console.log(err)})
 
-                      }else{
-                        this.openSnackbar("error",ok.error)
-                        this.setState({loading:false})
-                      }
-                    }).catch(err => console.log(err))
-                  }else{
-                    this.openSnackbar("error",resF.error)
-                    this.setState({loading:false})
-                  }
-                }).catch( err => {console.log(err)})
+                    }else{
+                      this.openSnackbar("error",ok.error)
+                      this.setState({loading:false})
+                    }
+                  }).catch(err => console.log(err))
+                }else{
+                  this.openSnackbar("error",resF.error)
+                  this.setState({loading:false})
+                }
+              }).catch( err => {console.log(err)})
 
-              }else{
-                console.log(genFactRes.error)
-              }
-            }).catch( err => {
-              console.log(err)
-            })
+            }else{
+              console.log(genFactRes.error)
+            }
+          }).catch( err => {
+            console.log(err)
+          })
 
-          }else{
-            console.log(validateRes.error)
-          }
-        }).catch(err => {
-          console.log(err)
-        })
+        }else{
+          console.log(validateRes.error)
+        }
+      }).catch(err => {
+        console.log(err)
+      })
 
-      }
-      else if(createFactRes.succes === false && createFactRes.status === 400){
-        this.setState({ loading: false });
-        localStorage.clear();
-        this.props.history.push('/login');
-      }
-      else{
-        this.setState({loading:false})
-        this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
-      }
+    }else{
 
-    }).catch(err => {
-      console.log(err);
-    });
+      SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+        console.log(createFactRes)
+        if(createFactRes.succes === true && createFactRes.status === 200){
+
+          SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+              { data: [[createFactRes.data.id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
+            console.log(validateRes)
+            if(validateRes.succes === true && validateRes.status === 200){
+
+              SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+
+                if(genFactRes.succes === true && genFactRes.status === 200){
+
+                  SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+                    if(resF.succes === true && resF.status === 200){
+                      let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+
+                      SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
+                          localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+
+                        if(ok.succes === true && ok.status === 200){
+
+                          SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                              ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+
+                            if(updateRes.succes === true && updateRes.status === 200){
+
+                              let secretariat_folder = this.state.reelFolders.find(x => x.name === "SECRETARIAT");
+                              console.log(secretariat_folder)
+                              if(secretariat_folder){
+                                let compta_secretariat_folder = secretariat_folder.Content.folders.find(x => x.name === "COMPTABILITE");
+                                if(compta_secretariat_folder){
+                                  console.log(compta_secretariat_folder)
+                                  SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
+                                    if(r.succes === true && r.status === 200){
+                                      SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                                          r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
+                                        if(updateRes2.succes === true && updateRes2.status === 200){
+                                          this.justReloadGed()
+                                        }else{
+                                          console.log(updateRes2.error)
+                                        }
+                                      }).catch(err => {console.log(err)})
+                                    }else{
+                                      console.log(r.error)
+                                    }
+                                  }).catch(err => {console.log(err)})
+                                }
+                              }
+
+                              let updatedItem = facture;
+                              updatedItem.statut = "accepted";
+                              updatedItem.file_id = ok.data.file_id;
+                              updatedItem.client_folder = {id:client, name:resF.data.name}
+
+                              rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+                                if (updateRes && updateRes === true) {
+
+                                  this.justReloadGed();
+                                  this.setState({loading:false})
+                                  this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+
+                                } else {
+                                  this.setState({loading:false})
+                                  this.openSnackbar("error","Une erreur est survenue !")
+                                }
+                              }).catch(err => {
+                                this.setState({loading:false})
+                                this.openSnackbar("error","Une erreur est survenue !")
+                                console.log(err)
+                              })
+
+                            }else{
+                              this.openSnackbar("error",updateRes.error)
+                            }
+                          }).catch(err => {console.log(err)})
+
+                        }else{
+                          this.openSnackbar("error",ok.error)
+                          this.setState({loading:false})
+                        }
+                      }).catch(err => console.log(err))
+                    }else{
+                      this.openSnackbar("error",resF.error)
+                      this.setState({loading:false})
+                    }
+                  }).catch( err => {console.log(err)})
+
+                }else{
+                  console.log(genFactRes.error)
+                }
+              }).catch( err => {
+                console.log(err)
+              })
+
+            }else{
+              console.log(validateRes.error)
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+
+        }
+        else if(createFactRes.succes === false && createFactRes.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else{
+          this.setState({loading:false})
+          this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
+        }
+
+      }).catch(err => {
+        console.log(err);
+      });
+
+    }
+
+
   }
 
   deleteLigneFact(lf) {

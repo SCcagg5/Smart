@@ -1,4 +1,4 @@
-const endpoint = "http://localhost:3005/api";
+const endpoint = "https://docgen.smartdom.ch/api";
 
 let DocGenerationService = {
 

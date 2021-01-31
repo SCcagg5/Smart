@@ -315,6 +315,7 @@ export default function LeftMenuV3(props) {
                                                     e.event.dataTransfer.setData("node", JSON.stringify(node))
                                                 }}
                                                 autoExpandParent={props.autoExpandParent}
+                                                height={500}
                                             />
                                             <DirectoryTree
                                                 loadData={props.onLoadSharedData}

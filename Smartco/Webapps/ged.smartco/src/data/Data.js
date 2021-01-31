@@ -92,6 +92,18 @@ let Data = {
         },
     ],
 
+    oa_provision_taxs : [
+        {
+            label:"TVA 7.7 % incluse",
+            value:"TVA 7.7 % incluse"
+        },
+        {
+            label:"Hors TVA",
+            value:"Hors TVA"
+        },
+
+    ],
+
     endpoint: "https://api.smartdom.ch",
     emailPatern: new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/),
 

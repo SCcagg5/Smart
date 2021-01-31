@@ -182,10 +182,10 @@ const changeStructureWithFiles = (drive) => {
         };
 
         if (drive[i].Content && (drive[i].Content.folders.length > 0)) {
-            treeNode.children = changeStructure(drive[i].Content.folders || []);
+            treeNode.children = changeStructureWithFiles(drive[i].Content.folders || []);
         }
         if (drive[i].Content && (drive[i].Content.files.length > 0)) {
-            treeNode.children = (treeNode.children || []).concat(changeStructure(drive[i].Content.files) || []);
+            treeNode.children = (treeNode.children || []).concat(changeStructureWithFiles(drive[i].Content.files) || []);
         }
 
         list.push(treeNode);
@@ -703,6 +703,12 @@ const getContactFnameById = (contacts, id) => {
     else return ""
 }
 
+const getContactFnameByEmail = (contacts, email) => {
+    let find = contacts.find(x => x.email === email);
+    if (find) return find.nom + " " + find.prenom
+    else return ""
+}
+
 const getContactImageById = (contacts, id) => {
     let find = contacts.find(x => x.id === id);
     return find ? find.imageUrl : "";
@@ -751,5 +757,6 @@ export default {
     findContactByEmail,
     findContactByUid,
     getOAContactByEmail2,
-    getOAContactByUid
+    getOAContactByUid,
+    getContactFnameByEmail
 };
