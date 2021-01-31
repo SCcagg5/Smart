@@ -99,6 +99,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {BlockPicker} from 'react-color'
 import TableTimeSheetsNonFact from "../../components/Tables/TableTimeSheetsNonFact";
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
 
 const {DirectoryTree} = Tree;
 
@@ -412,6 +414,7 @@ export default class Main extends React.Component {
     anchorElDrive:null,
     anchorElDrive2:null,
     anchorElDrive3:null,
+    anchorElDrive4:null,
     expandedDrivePopUpKeys:[],
     selectedDrivePopUpKeys:[],
     autoExpandDrivePopUpParent:true,
@@ -426,6 +429,8 @@ export default class Main extends React.Component {
 
     SEQ_file:"",
     signFile_destinationFolder:"",
+    signFile_type:true,
+    signFile_Ged:"",
 
     openUserDetailModal:false,
     userFname:localStorage.getItem("firstname") || "",
@@ -637,7 +642,7 @@ export default class Main extends React.Component {
                 this.setState({
                   selectedDriveItem: [],
                   expandedDriveItems: [],
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                  //selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   firstLoading: false,
                   loading: false
                 });
@@ -2663,12 +2668,12 @@ export default class Main extends React.Component {
                                            clients_tempo={this.state.clients_cases}
                                            annuaire_clients_mandat={this.state.annuaire_clients_mandat}
                                            sharedFolders={this.state.sharedReelFolders || []}
-                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name) => {
-                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name);
+                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc) => {
+                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc);
                                              //this.OpenModalVF(row.created_at, row.lignes_facture,row.client_folder.id,row,"10",client,paymTerm,deadline_date,tax,fraisAdmin)
                                            }}
-                                           previewFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name) => {
-                                             this.before_preview_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
+                                           previewFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc) => {
+                                             this.before_preview_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
                                            }}
                                            openFacture={(id) => {
                                              this.openPdfModal(id)
@@ -2843,6 +2848,7 @@ export default class Main extends React.Component {
       data:{
         client:this.state.TimeSheet.newTime.client,
         client_adress:main_functions.getClientAdressById(this.state.annuaire_clients_mandat || [],this.state.TimeSheet.newTime.client_id),
+        gender:main_functions.getClientTypeById(this.state.annuaire_clients_mandat || [],this.state.TimeSheet.newTime.client_id) === "0" ? "" :"Mr/Ms",
         date:moment().format("DD/MM/YYYY"),
         price:this.state.provision_amount,
         bank:bank.title,
@@ -3049,7 +3055,7 @@ export default class Main extends React.Component {
   }
 
 
-  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name){
+  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc){
     this.setState({loading:true})
 
     let odoo_companies = this.state.odoo_companies || [];
@@ -3058,7 +3064,7 @@ export default class Main extends React.Component {
 
     if(findCompany){
       facture_company_id = findCompany.odoo_company_id;
-      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
+      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
 
     }else{
 
@@ -3075,7 +3081,7 @@ export default class Main extends React.Component {
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
 
-                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
+                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
 
               }else{
                 this.setState({loading:false})
@@ -3105,7 +3111,7 @@ export default class Main extends React.Component {
     }
   }
 
-  before_preview_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name){
+  before_preview_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc){
 
     this.setState({loading:true})
 
@@ -3116,7 +3122,7 @@ export default class Main extends React.Component {
     if(findCompany){
       console.log("COMPANY FOUND")
       facture_company_id = findCompany.odoo_company_id;
-      this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
+      this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
 
     }else{
       console.log("COMPANY NOT FOUND")
@@ -3133,7 +3139,7 @@ export default class Main extends React.Component {
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
 
-                this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
+                this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
 
               }else{
                 this.setState({loading:false})
@@ -3164,9 +3170,9 @@ export default class Main extends React.Component {
 
   }
 
-  previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name){
+  previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc){
 
-    console.log(facture.client_folder.name)
+    console.log(compte_banc)
     this.setState({loading:true})
     let id_facture = facture.id
 
@@ -3198,7 +3204,6 @@ export default class Main extends React.Component {
       'invoice_filter_type_domain': 'sale',
       'company_currency_id': 5,
       'commercial_partner_id': '',
-      'bank_partner_id': 1,
       'invoice_has_outstanding': false,
       'l10n_ch_currency_name': 'CHF',
       'invoice_sequence_number_next_prefix': false,
@@ -3221,7 +3226,6 @@ export default class Main extends React.Component {
       'invoice_cash_rounding_id': false,
       'invoice_source_email': false,
       'invoice_payment_ref': false,
-      'invoice_partner_bank_id': 1,
       'reversed_entry_id': false,
       'message_follower_ids': [],
       'activity_ids': [],
@@ -3229,7 +3233,7 @@ export default class Main extends React.Component {
       'message_attachment_count': 0,
       'invoice_line_ids': [],
       "account_id": 6,
-      "reference": facture.client + " - " + client_folder_name,
+      "reference": client_folder_name,
       "fiscal_position_id": false,
       "origin": false,
       "reference_type":"none",
@@ -3237,7 +3241,9 @@ export default class Main extends React.Component {
       "sequence_number_next":false,
       "partner_shipping_id":facture_company_id,
       "payment_term_id":paymTerm,
-      "partner_bank_id":1
+      "partner_bank_id":compte_banc,
+      'bank_partner_id': compte_banc,
+      'invoice_partner_bank_id': compte_banc,
     }];
 
     lignes_factures.map((ligne, key) => {
@@ -3381,8 +3387,9 @@ export default class Main extends React.Component {
     })
   }
 
-  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name) {
+  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc) {
 
+    console.log(compte_banc)
     let id_facture = facture.id
 
     let lignes_factures = lignes_f;
@@ -3413,7 +3420,6 @@ export default class Main extends React.Component {
       'invoice_filter_type_domain': 'sale',
       'company_currency_id': 5,
       'commercial_partner_id': '',
-      'bank_partner_id': 1,
       'invoice_has_outstanding': false,
       'l10n_ch_currency_name': 'CHF',
       'invoice_sequence_number_next_prefix': false,
@@ -3436,7 +3442,6 @@ export default class Main extends React.Component {
       'invoice_cash_rounding_id': false,
       'invoice_source_email': false,
       'invoice_payment_ref': false,
-      'invoice_partner_bank_id': 1,
       'reversed_entry_id': false,
       'message_follower_ids': [],
       'activity_ids': [],
@@ -3444,7 +3449,7 @@ export default class Main extends React.Component {
       'message_attachment_count': 0,
       'invoice_line_ids': [],
       "account_id": 6,
-      "reference": facture.client + " - " + client_folder_name,
+      "reference": client_folder_name,
       "fiscal_position_id": false,
       "origin": false,
       "reference_type":"none",
@@ -3452,7 +3457,9 @@ export default class Main extends React.Component {
       "sequence_number_next":false,
       "partner_shipping_id":facture_company_id,
       "payment_term_id":paymTerm,
-      "partner_bank_id":1
+      "partner_bank_id":compte_banc,
+      'bank_partner_id': compte_banc,
+      'invoice_partner_bank_id': compte_banc,
     }];
 
     lignes_factures.map((ligne, key) => {
@@ -4598,6 +4605,10 @@ export default class Main extends React.Component {
     this.setState({selectedDrivePopUpKeys:selectedKeys,signFile_destinationFolder:info.node})
   }
 
+  onSelectDrivePopUp4 = (selectedKeys, info) => {
+    this.setState({selectedDrivePopUpKeys:selectedKeys,signFile_Ged:info.node})
+  }
+
   updateUserInfo(fname,lname,phone){
     this.setState({loading:true,openUserDetailModal:false})
     SmartService.updateUserInfo({firstname:fname,lastname:lname,phone:phone},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
@@ -4622,7 +4633,7 @@ export default class Main extends React.Component {
   }
 
 
-  SEQ_file(){
+  async SEQ_file(){
     if(localStorage.getItem("phone") === undefined || localStorage.getItem("phone") === null || localStorage.getItem("phone") === "" ){
       this.openSnackbar("warning","Vous devez ajouter votre numéro de téléphone pour signer !")
       setTimeout(() => {
@@ -4637,12 +4648,71 @@ export default class Main extends React.Component {
 
       }else{
         this.setState({loading:true})
-        var formdata = new FormData();
-        formdata.append("file", this.state.SEQ_file, this.state.SEQ_file.name);
-        formdata.append("name", this.state.SEQ_file.name.slice(0, -4));
-        /*formdata.append("given", "courtel");
-        formdata.append("surname", "eliot");
-        formdata.append("email", "eliot.courtel@gmail.com");*/
+        let b64 = "";
+        let fileName = this.state.SEQ_file !== "" ? this.state.SEQ_file.name.slice(0, -4) : this.state.signFile_Ged.title.slice(0,-4);
+        if(this.state.SEQ_file !== ""){
+          b64 = await main_functions.toBase64(this.state.SEQ_file)
+        }
+        if(this.state.signFile_Ged !== ""){
+          b64 = await this.getB64GedFile(this.state.signFile_Ged.key)
+        }
+
+        SmartService.signQualifiedDoc({
+          b64file:b64,
+          name:fileName,
+          phone:localStorage.getItem("phone")
+        },localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( signRes => {
+          console.log(signRes)
+          if (signRes.succes === true && signRes.status === 200) {
+
+            SmartService.addFileFromBas64({b64file:signRes.data,folder_id:this.state.signFile_destinationFolder.key},
+                localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+
+              if(addFileRes.succes === true && addFileRes.status === 200) {
+
+                SmartService.updateFileName({name:fileName},
+                    addFileRes.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                  if(updateNameRes.succes === true && updateNameRes.status === 200){
+                    this.justReloadGed()
+                    setTimeout(() => {
+                      this.setState({loading:false})
+                      this.openSnackbar("success","La signature électronique est bien effectué avec succès")
+                    },500)
+                  }else{
+                    console.log(updateNameRes.error)
+                    this.openSnackbar("error",updateNameRes.error)
+                    this.setState({loading:false})
+                  }
+                }).catch(err => {
+                  console.log(err)
+                  this.openSnackbar("error","Une erreur est survenue")
+                })
+              }else{
+                console.log(addFileRes.error)
+                this.openSnackbar("error",addFileRes.error)
+                this.setState({loading:false})
+              }
+            }).catch(err => {
+              console.log(err)
+              this.openSnackbar("error","Une erreur est survenue")
+              this.setState({loading:false})
+            })
+
+          }else{
+            console.log(signRes.error)
+            this.openSnackbar("error","Annulation ou une erreur est servenue !")
+            this.setState({loading:false})
+          }
+        }).catch(err => {
+          console.log(err)
+          this.openSnackbar("error","Une erreur est servenue !")
+          this.setState({loading:false})
+        })
+
+
+        /*var formdata = new FormData();
+        formdata.append("b64file", b64);
+        formdata.append("name", fileName);
         formdata.append("phone", localStorage.getItem("phone"));  //+41795281046
 
         var requestOptions = {
@@ -4651,7 +4721,7 @@ export default class Main extends React.Component {
           redirect: 'follow'
         };
 
-        fetch("https://sign.1.smartdom.ch/sign", requestOptions)
+        fetch("https://sign.1.smartdom.ch/sign/qualified", requestOptions)
             .then(response => {
               console.log(response)
               if(response.status === 400){
@@ -4713,10 +4783,23 @@ export default class Main extends React.Component {
               console.log(error)
               this.setState({loading:false})
               this.openSnackbar("error","Une erreur est survenue")
-            });
+            });*/
       }
     }
   }
+
+   getB64GedFile = id => new Promise((resolve, reject) => {
+     SmartService.getFile(id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(fileRes => {
+       if (fileRes.succes === true && fileRes.status === 200) {
+         resolve(fileRes.data.Content.Data)
+       }else{
+         reject(fileRes.error)
+       }
+     }).catch(err => {
+       console.log(err)
+       reject(err)
+     })
+  });
 
   render() {
 
@@ -4731,6 +4814,8 @@ export default class Main extends React.Component {
     const openDrivePopup3 = Boolean(this.state.anchorElDrive3);
     const id3 = openDrivePopup3 ? 'drive-popover3' : undefined;
 
+    const openDrivePopup4 = Boolean(this.state.anchorElDrive4);
+    const id4 = openDrivePopup3 ? 'drive-popover4' : undefined;
 
 
     const openRoomSetting = Boolean(this.state.settRoomAnchorEl);
@@ -6838,7 +6923,7 @@ export default class Main extends React.Component {
 
                       <Route exact path="/home/qualified_signature/new">
                         <div style={{marginTop:25}}>
-                          <h5>Signature électronique qualifié</h5>
+                          <h5>Signature électronique qualifiée</h5>
                           <div style={{marginLeft:15}}>
                             <div align="left" style={{marginTop:30}}>
                               <img alt="sign" src={qualifSignImage} style={{maxWidth:300,border:"2px solid #f0f0f0"}} />
@@ -6847,12 +6932,118 @@ export default class Main extends React.Component {
                               <div className="row mt-1">
                                 <div className="col-md-6">
                                   <div>
-                                    <h6>Choisissez un document à signer</h6>
+                                    <h5>Choisissez un document à signer</h5>
+                                    <div style={{marginTop:20}} className="row">
+                                      <div className="col-md-12">
+                                        <FormControlLabel style={{fontSize:"0.8rem",color:"#000"}}
+                                            control={
+                                              <MuiCheckbox size="small"
+                                                  checked={this.state.signFile_type}
+                                                  onChange={() =>
+                                                      this.setState({
+                                                        signFile_type: !this.state.signFile_type,
+                                                        signFile_Ged:'',
+                                                        SEQ_file:''
+                                                      })
+                                                  }
+                                                  name="checkedNewRoom1"
+                                              />
+                                            }
+                                            label="Document de la ged"
+                                        />
+                                      </div>
+                                      <div className="col-md-12">
+                                        <FormControlLabel style={{fontSize:"0.8rem",color:"#000"}}
+                                            control={
+                                              <MuiCheckbox
+                                                  size="small"
+                                                  checked={!this.state.signFile_type}
+                                                  onChange={() =>
+                                                      this.setState({
+                                                        signFile_type: !this.state.signFile_type,
+                                                        signFile_Ged:'',
+                                                        SEQ_file:''
+                                                      })
+                                                  }
+                                                  name="checkedNewRoom2"
+                                              />
+                                            }
+                                            label="Document externe"
+                                        />
+                                      </div>
+                                    </div>
                                     <div style={{display:"flex"}}>
-                                      <IconButton color="primary" onClick={() => this.signatureFileUpload.click()}>
+                                      <IconButton color="primary"
+                                                  onClick={(e) => {
+                                                    if(this.state.signFile_type === true){
+                                                      this.setState({anchorElDrive4:e.currentTarget})
+                                                    }else{
+                                                      this.signatureFileUpload.click()
+                                                    }
+                                                  }}
+                                      >
                                         <AttachFileIcon/>
                                       </IconButton>
-                                      <h6 style={{marginLeft:5,marginTop:17}}>{this.state.SEQ_file ? this.state.SEQ_file.name :""}</h6>
+                                      <h6 style={{marginLeft:5,marginTop:17}}>{this.state.SEQ_file ? this.state.SEQ_file.name : this.state.signFile_Ged !== "" ? this.state.signFile_Ged.title : ""}</h6>
+                                      <Popover
+                                          id={id4}
+                                          open={openDrivePopup4}
+                                          anchorEl={this.state.anchorElDrive4}
+                                          onClose={() => {
+                                            this.setState({anchorElDrive4: null})
+                                          }}
+                                          anchorOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'center',
+                                          }}
+                                          transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'center',
+                                          }}
+                                      >
+                                        <div style={{padding:15,height:600,width:300,paddingBottom:50}}>
+                                          <div align="right">
+                                            <IconButton size="small" onClick={() => {
+                                              this.setState({anchorElDrive4:null,expandedDrivePopUpKeys:[],selectedDrivePopUpKeys:[],signFile_Ged:""})
+                                            }}
+                                            >
+                                              <CloseIcon />
+                                            </IconButton>
+                                          </div>
+
+                                          <h6 style={{color:"darkblue"}}>Veuillez sélectionner un document à signer </h6>
+                                          <div style={{marginTop:20,maxHeight:430,overflowY:"auto"}}>
+                                            <DirectoryTree
+                                                draggable={true}
+                                                allowDrop={(options) => {
+                                                  return false
+                                                }}
+                                                showIcon={true}
+                                                onExpand={this.onExpandDrivePopUp}
+                                                onSelect={this.onSelectDrivePopUp4}
+                                                treeData={this.state.miniDrive || []}
+                                                expandAction="click"
+                                                expandedKeys={this.state.expandedDrivePopUpKeys}
+                                                selectedKeys={this.state.selectedDrivePopUpKeys}
+                                                autoExpandParent={this.state.autoExpandDrivePopUpParent}
+                                            />
+                                          </div>
+                                          <div style={{position:"absolute",bottom:50}}>
+                                            <span style={{color:"#000",fontWeight:"bold"}}>Document sélectionné:&nbsp; <span>{this.state.signFile_Ged.title}</span> </span>
+                                          </div>
+                                          <div align="right" style={{position:"absolute",bottom:10,right:15}}>
+                                            <AtlButton
+                                                isDisabled={this.state.signFile_Ged === ""}
+                                                appearance="primary"
+                                                onClick={() => {
+                                                  this.setState({anchorElDrive4:null})
+                                                }}
+                                            >
+                                              Valider
+                                            </AtlButton>
+                                          </div>
+                                        </div>
+                                      </Popover>
                                     </div>
                                     <input
                                         style={{ visibility: 'hidden', width: 0, height: 0 }}
@@ -6939,7 +7130,9 @@ export default class Main extends React.Component {
                               </div>
                               <div align="center" style={{marginTop:30}}>
                                 <AtlButton
-                                    isDisabled={this.state.signFile_destinationFolder === "" || this.state.SEQ_file === ""}
+                                    isDisabled={this.state.signFile_destinationFolder === "" ||
+                                    (this.state.SEQ_file === "" && this.state.signFile_type === false) ||
+                                    (this.state.signFile_Ged === "" && this.state.signFile_type === true)}
                                     appearance="primary"
                                     onClick={() => {this.SEQ_file()}}
                                 >

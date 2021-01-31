@@ -358,7 +358,7 @@ export default function LeftMenuV3(props) {
                         <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                         <div style={{display: "flex",marginLeft:15}}>
                             <AssignmentTurnedInIcon style={{color: "#4caf50"}} fontSize="small"/>
-                            <Typography variant="inherit" style={{color: "#000", marginTop: 1,marginLeft:3}}>Signature qualifié</Typography>
+                            <Typography variant="inherit" style={{color: "#000", marginTop: 1,marginLeft:3}}>Signature qualifiée</Typography>
                         </div>
                         <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                     </div>

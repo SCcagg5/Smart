@@ -232,6 +232,15 @@ const getClientAdressById = (clients, id) => {
     }
 }
 
+const getClientTypeById = (clients, id) => {
+    let find = clients.find(x => x.id === id || x.ID === id)
+    if (find) {
+        return find.Type
+    } else {
+        return ""
+    }
+}
+
 const findContactByEmail = (email, contacts) => {
     let index;
     contacts.map((contact, key) => {
@@ -726,6 +735,12 @@ const getClientNameByFolderCaseId = (cases, folder_id, clients) => {
     })
 }
 
+const toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.replace("data:application/pdf;base64,",""));
+    reader.onerror = error => reject(error);
+});
 
 export default {
     renderSearchOption,
@@ -758,5 +773,7 @@ export default {
     findContactByUid,
     getOAContactByEmail2,
     getOAContactByUid,
-    getContactFnameByEmail
+    getContactFnameByEmail,
+    getClientTypeById,
+    toBase64
 };

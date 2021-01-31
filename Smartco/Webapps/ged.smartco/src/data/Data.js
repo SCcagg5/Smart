@@ -14,49 +14,56 @@ let Data = {
             swift_bic: "RAIFCH22XXX",
             clearing: "80808",
             label: "Compte exploitation CHF",
-            code: "CH95 8080 8001 1709 3913 2"
+            code: "CH95 8080 8001 1709 3913 2",
+            odoo_id:1
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
             swift_bic: "RAIFCH22XXX",
             clearing: "80808",
             label: "Compte exploitation EURO",
-            code: "CH72 8080 8001 7984 2430 1"
+            code: "CH72 8080 8001 7984 2430 1",
+            odoo_id:6
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
             swift_bic: "RAIFCH22XXX",
             clearing: "80808",
             label: "Compte avoirs clients",
-            code: "CH83 8080 8003 4728 9475 1"
+            code: "CH83 8080 8003 4728 9475 1",
+            odoo_id:4
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
             swift_bic: "RAIFCH22XXX",
             clearing: "80808",
             label: "Compte courant Collaborateurs",
-            code: "CH92 8080 8002 1556 2401 6"
+            code: "CH92 8080 8002 1556 2401 6",
+            odoo_id:1
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
             swift_bic: "RAIFCH22XXX",
             clearing: "80808",
             label: "Compte courant Camille",
-            code: "CH76 8080 8007 0616 4364 7"
+            code: "CH76 8080 8007 0616 4364 7",
+            odoo_id:1
         },
         {
             title: "UBS Switzerland AG Case postale 1211 Genève 2",
             swift_bic: "UBSWCHZH80A",
             clearing: "0240",
             label: "Compte exploitation David",
-            code: "CH79 0027 9279 3414 1401 V"
+            code: "CH79 0027 9279 3414 1401 V",
+            odoo_id:1
         },
         {
             title: "UBS Switzerland AG Case postale 1211 Genève 2",
             swift_bic: "UBSWCHZH80A",
             clearing: "0240",
             label: "Compte avoirs clients David",
-            code: "CH69 0027 9279 3425 9902 J"
+            code: "CH69 0027 9279 3425 9902 J",
+            odoo_id:1
         }
 
     ],

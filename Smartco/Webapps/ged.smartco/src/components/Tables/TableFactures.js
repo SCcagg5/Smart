@@ -311,6 +311,7 @@ function Row(props) {
   const [paymTerm, setPaymTerm] = React.useState( "3");
   const [tax, setTax] = React.useState("13");
   const [fraisAdmin, setFraisAdmin] = React.useState("2%");
+  const [compte_banc, setCompte_banc] = React.useState(1);
   const [deadline_date, setDeadline_date] = React.useState(new Date());
 
   const { row } = props;
@@ -497,6 +498,23 @@ function Row(props) {
 
                           </select>
                         </div>
+                        <div className="col-md-4">
+                          <h6>Compte bancaire</h6>
+                          <select
+                              className="form-control custom-select"
+                              value={compte_banc}
+                              onChange={(e) => {
+                                setCompte_banc(e.target.value)
+                                console.log(e.target.value)
+                              }}>
+                            {
+                              data.oa_comptes_bank_factures.map((item,key) =>
+                                  <option key={key} value={item.odoo_id}>{item.label}</option>
+                              )
+                            }
+
+                          </select>
+                        </div>
                       </div>
                       <div className="row mt-2">
                         <div className="col-md-4">
@@ -558,7 +576,7 @@ function Row(props) {
                           <AtlButton onClick={() => {
                             if(verif_access === true){
                               let client_folder_name = (selected_client_folders.find(x => x.folder_id === client)).name
-                              props.previewFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
+                              props.previewFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
                             }else{
                               alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
                             }
@@ -570,7 +588,7 @@ function Row(props) {
                           <AtlButton onClick={() => {
                             if(verif_access === true){
                               let client_folder_name = (selected_client_folders.find(x => x.folder_id === client)).name
-                              props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name)
+                              props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
                             }else{
                               alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
                             }

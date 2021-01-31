@@ -5,7 +5,7 @@ const odoo_id = "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
 //const odoo_id = "test"
 const contractAdr = "0x9520c239bae78a4a672a70370d85051fcd8dd6c9"
 
-const quelifiedSignEndpoint = "https://sign.1.smartdom.ch/sign";
+const quelifiedSignEndpoint = "https://sign.1.smartdom.ch/sign/qualified";
 
 let SmartService = {
 
@@ -406,12 +406,11 @@ let SmartService = {
     },
 
 
-    signQualifiedDoc(formdata){
+    signQualifiedDoc(data,token,usrtoken){
         return fetch(quelifiedSignEndpoint, {
             method: 'POST',
-            headers:this.loadQualifiedSignHeaders(),
-            body:formdata,
-            redirect: 'follow'
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
         }).then(response => response.json()).catch(error => {
             console.log(error);
         });
