@@ -421,7 +421,7 @@ class odoo:
             ret = models.execute_kw(self.opt['db'],
                                     self.uid,
                                     self.opt['password'],
-                index, model, "" , arg, opt)
+                index, model, "" , arg)
         else:
             ret = models.execute_kw(self.opt['db'],
                                     self.uid,
