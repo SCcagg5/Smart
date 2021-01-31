@@ -85,9 +85,9 @@ class odoo:
                                          "opt": {'offset': int(offset), 'limit': int(limit)},
                                          "model": "search"
                                         },
-                    "city_zip": { "index": "res.city.zip", "arg": [], "opt": {}, "model": "search"},
-                    "country": { "index": "res.country", "arg": [], "opt": {}, "model": "search"},
-                    "country_state": { "index": "res.country.state", "arg": [], "opt": {}, "model": "search"},
+                    "city_zip": { "index": "res.city.zip", "arg": [], "opt": {}, "model": "name_search"},
+                    "country": { "index": "res.country", "arg": [], "opt": {}, "model": "name_search"},
+                    "country_state": { "index": "res.country.state", "arg": [], "opt": {}, "model": "name_search"},
                     "tax": {"index": "account.tax",
                                          "arg": [[int(id)]],
                                          "opt": {},
@@ -417,10 +417,16 @@ class odoo:
 
     def get(self, index, arg, opt, model):
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
-        ret = models.execute_kw(self.opt['db'],
-                                self.uid,
-                                self.opt['password'],
-            index, model , arg, opt)
+        if model == "name_search":
+            ret = models.execute_kw(self.opt['db'],
+                                    self.uid,
+                                    self.opt['password'],
+                index, model, "" , arg, opt)
+        else:
+            ret = models.execute_kw(self.opt['db'],
+                                    self.uid,
+                                    self.opt['password'],
+                index, model , arg, opt)
         return ret
 
     def onchangefact(self, data):
