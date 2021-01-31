@@ -3,6 +3,8 @@ __pycache__
 
 \#Tool/Slave/Slave/db/sql/data
 \#test
+^./\#Tool/Slave/Sources/Ged/\#test
+
 
 Proxy/conf/default.conf
 Proxy/data
@@ -21,6 +23,7 @@ Smartco/Micro/sql/data
 Smartco/Micro/sqlwp/
 Smartco/Webapps/wp.smartco/
 Smartco/Webapps/doc.smartco/
+Smartco/Webapps/api.smartco/#secret
 
 Smartdom/Admin/services/goaccess
 Smartdom/Admin/services/kanboard/data
