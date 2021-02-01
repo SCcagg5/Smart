@@ -4663,7 +4663,7 @@ export default class Main extends React.Component {
           phone:localStorage.getItem("phone")
         },localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( signRes => {
           console.log(signRes)
-          if (signRes.succes === true && signRes.status === 200) {
+          if (signRes.err !== null && signRes.data) {
 
             SmartService.addFileFromBas64({b64file:signRes.data,folder_id:this.state.signFile_destinationFolder.key},
                 localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
