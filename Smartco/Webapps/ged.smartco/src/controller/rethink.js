@@ -5,7 +5,6 @@ async function createDB(db_name,usr_token){
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
 
     socket.onopen = function(e) {
-      console.log("Connection for create DB established");
       let payload;
       payload = {"cmd": "db_create("+JSON.stringify(db_name)+")"}
       socket.send(JSON.stringify(payload));
@@ -37,7 +36,6 @@ async function tableList(db_name,usr_token){
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
 
     socket.onopen = function(e) {
-      console.log("Connection for Table List established");
       let payload;
       payload = {"cmd": "db('"+db_name+"').table_list()"}
       socket.send(JSON.stringify(payload));
@@ -68,7 +66,6 @@ async function createTable(db_name,table_name,usr_token){
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
 
     socket.onopen = function(e) {
-      console.log("Connection for create Table established");
       let payload;
       payload = {"cmd": "db("+JSON.stringify(db_name)+").table_create("+JSON.stringify(table_name)+")"}
       socket.send(JSON.stringify(payload));
@@ -97,7 +94,6 @@ async function getTableData(db_name,usr_token,table){
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
 
     socket.onopen = function(e) {
-      console.log("Connection for get Table data established");
       let payload;
       payload = {"cmd": "db('"+db_name+"').table('"+table+"').filter('true')"}
       socket.send(JSON.stringify(payload));
@@ -129,13 +125,11 @@ async function insert(usr_token, cmd, db , read_change=false){
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
     let ok = true;
     socket.onopen = function(e) {
-      //console.log("Connection for insert established");
       let payload;
       payload = {"cmd": cmd, "db": db, "read_change": read_change}
       socket.send(JSON.stringify(payload));
     };
     socket.onmessage = function(event) {
-      //console.log(event)
       if(event && event.data && event.data === "Invalid cmd")
         ok = false;
     }
@@ -146,7 +140,6 @@ async function insert(usr_token, cmd, db , read_change=false){
     };
     socket.onclose = function(event) {
       resolve(ok)
-      //console.log("CLOSED");
     };
   });
 
@@ -160,7 +153,6 @@ async function remove(usr_token, cmd, db , read_change=false){
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
     let ok = true;
     socket.onopen = function(e) {
-      console.log("Connection for delete established");
       let payload;
       payload = {"cmd": cmd, "db": db, "read_change": read_change}
       socket.send(JSON.stringify(payload));
@@ -189,13 +181,11 @@ async function update(usr_token, cmd, db , read_change=false){
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
     let ok = true;
     socket.onopen = function(e) {
-      console.log("Connection for update established");
       let payload;
       payload = {"cmd": cmd, "db": db, "read_change": read_change}
       socket.send(JSON.stringify(payload));
     };
     socket.onmessage = function(event) {
-      //console.log(event)
       if(event && event.data && event.data === "Invalid cmd")
         ok = false;
     }
@@ -220,7 +210,6 @@ async function getTableChanges(db_name,table,usr_token,read_change=false){
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
 
     socket.onopen = function(e) {
-      console.log("Connection established");
       let payload;
       payload = {"cmd": table, "db": db_name, "read_change": read_change}
       socket.send(JSON.stringify(payload));
@@ -264,7 +253,6 @@ async function verfiDB(db_name,usr_token){
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
 
     socket.onopen = function(e) {
-      console.log("Connection for verfi DB established");
       let payload;
       payload = {"cmd": "db_list()"}
       socket.send(JSON.stringify(payload));
@@ -293,7 +281,6 @@ async function getTableDataByLabel(db_name,usr_token,table,label,value,order,lim
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
 
     socket.onopen = function(e) {
-      console.log("Connection for get Table data established");
       let payload;
       payload = {"cmd": "db('"+db_name+"').table('"+table+"').filter({'"+label+"':'"+value+"'}).order_by(r.desc('"+order+"')).limit("+limit+").skip("+skip+")"}
       socket.send(JSON.stringify(payload));

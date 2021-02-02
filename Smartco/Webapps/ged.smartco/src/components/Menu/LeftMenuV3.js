@@ -596,9 +596,10 @@ export default function LeftMenuV3(props) {
                         <Typography variant="inherit">Partager</Typography>
                     </MenuItem>
                     <MenuItem key={5} onClick={() => {
+                        console.log(props.selectedFolder)
                         setAnchorElMenu(null);
                         setOpenRenameModal(true);
-                        setnewFolderName(props.selectedFolder.title)
+                        setnewFolderName(props.selectedFolder.name)
                     }} //disabled={localStorage.getItem("role") !== "admin"}
                     >
                         <ListItemIcon>

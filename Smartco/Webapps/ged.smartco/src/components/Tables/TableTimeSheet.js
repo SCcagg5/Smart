@@ -130,12 +130,18 @@ export default function TableTimeSheet(props) {
     const [showUpdateModal, setShowUpdateModal] = React.useState(false);
 
     const [lf_toUpdated, setLf_toUpdated] = React.useState("");
+    const [selectedRow, setSelectedRow] = React.useState("");
     const [toUpdated_date, setToUpdated_date] = React.useState(new Date());
     const [toUpdated_rate, setToUpdated_rate] = React.useState("");
     const [toUpdated_OAUser, setToUpdated_OAUser] = React.useState("");
     const [toUpdated_categ, setToUpdated_categ] = React.useState("");
     const [toUpdated_dossier_client, setToUpdated_dossier_client] = React.useState("");
+    const [toUpdated_dossier_client_id, setToUpdated_dossier_client_id] = React.useState("");
     const [toUpdated_desc, setToUpdated_desc] = React.useState("");
+    const [toUpdated_client_id, setToUpdated_client_id] = React.useState("");
+    const [toUpdated_client, setToUpdated_client] = React.useState("");
+
+
     const [toUpdated_template, setToUpdated_template] = React.useState("");
     const [timeSuggestions, setTimeSuggestions] = React.useState([]);
     const [duration, setDuration] = React.useState("");
@@ -563,25 +569,30 @@ export default function TableTimeSheet(props) {
                             </TableCell>
                             <TableCell style={{ width: "10%"}} align="center">
                                 <IconButton size="small" color="default" onClick={() => {
-                                    if(row.user_email === localStorage.getItem("email")){
+                                    console.log(row)
+                                    if(row.user_email === localStorage.getItem("email") || row.newTime.utilisateurOA === localStorage.getItem("email")){
+                                        setSelectedRow(row)
                                         const row_copy = row;
                                         setDuration(utilFunctions.formatDuration(row_copy.newTime.duree.toString()))
                                         setToUpdated_date(new Date(row_copy.newTime.date))
                                         setToUpdated_rate(row_copy.newTime.rateFacturation)
                                         setToUpdated_OAUser(row_copy.newTime.utilisateurOA)
                                         setToUpdated_desc(row_copy.newTime.description)
-                                        setToUpdated_template(row_copy.template)
-                                        setToUpdated_categ(row_copy.newTime.categoriesActivite)
+                                        setToUpdated_client_id(row_copy.newTime.client_id)
+
+                                        let findClientFname = props.annuaire_clients_mandat.find(x => x.ID === row_copy.newTime.client_id)
+                                        setToUpdated_client(findClientFname.Nom + ' ' + (findClientFname.Prenom || ''))
+                                        setToUpdated_dossier_client(row_copy.newTime.dossier_client)
+
+
                                         let findClientTempo = props.clientsTempo.find(x => x.ID_client === row_copy.newTime.client_id);
                                         if(findClientTempo){
                                             console.log(findClientTempo.folders || [])
                                             setSelectedClientFolders(findClientTempo.folders || [])
                                             setTimeout(() => {
-                                                console.log(row.newTime.dossier_client.folder_id)
-                                                setToUpdated_dossier_client(row_copy.newTime.dossier_client.folder_id && row_copy.newTime.dossier_client.folder_id !== "" ? row_copy.newTime.dossier_client.folder_id : "" );
+                                                setToUpdated_dossier_client_id(row_copy.newTime.dossier_client.folder_id && row_copy.newTime.dossier_client.folder_id !== "" ? row_copy.newTime.dossier_client.folder_id : "" );
                                             },200)
                                         }
-                                        setLf_toUpdated(row_copy)
                                         setShowUpdateModal(true)
                                         setX_update(!x_update)
 
@@ -593,7 +604,7 @@ export default function TableTimeSheet(props) {
                                 </IconButton>
                                 <IconButton size="small"
                                             onClick={() => {
-                                                if(row.user_email === localStorage.getItem("email")){
+                                                if(row.user_email === localStorage.getItem("email") || row.newTime.utilisateurOA === localStorage.getItem("email")){
                                                     setLf_TooDeleted(row.id)
                                                     setOpenDeleteModal(true)
                                                 }else{
@@ -802,9 +813,7 @@ export default function TableTimeSheet(props) {
 
                 <DialogContent>
 
-                    {
-                        lf_toUpdated !== "" &&
-                        <div>
+                    <div>
                             <div className="row mt-2">
                                 <div className="col-md-6">
                                     <h5>Durée</h5>
@@ -839,46 +848,35 @@ export default function TableTimeSheet(props) {
                                                             imageUrl: imageUrl
                                                         }))
                                                 }
-                                                value={lf_toUpdated.newTime.client_id}
+                                                value={toUpdated_client_id}
                                                 renderOption={renderSearchOption}
                                                 search
                                                 placeholder="Chercher votre client"
                                                 onChange={e => {
-                                                    let obj = lf_toUpdated;
-                                                    obj.newTime.client_id = e;
+                                                    setToUpdated_client_id(e)
                                                     let findClientFname = props.annuaire_clients_mandat.find(x => x.ID === e)
-                                                    obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                                                    setToUpdated_client(findClientFname.Nom + ' ' + (findClientFname.Prenom || ''))
                                                     let findClientTempo = props.clientsTempo.find(x => x.ID_client === e);
                                                     if(findClientTempo){
                                                         setSelectedClientFolders(findClientTempo.folders || [])
-                                                        setToUpdated_dossier_client("")
-                                                        obj.newTime.dossier_client = {facturation:{language:""},name:""}
+                                                        setToUpdated_dossier_client({facturation:{language:""},name:""})
                                                     }else{
-                                                        obj.newTime.dossier_client =  {
-                                                            name:'',
-                                                            facturation: {
-                                                                language:''
-                                                            }}
                                                         setSelectedClientFolders([])
-                                                        setToUpdated_dossier_client("")
+                                                        setToUpdated_dossier_client({facturation:{language:""},name:""})
                                                     }
-                                                    setLf_toUpdated(obj)
                                                 }}
                                             />
                                         </div>
-                                        <h5 style={{marginTop:10}}>Dossier du client </h5>
+                                        <h5 style={{marginTop:30}}>Dossier du client </h5>
                                         <MuiSelect
                                             labelId="demo-simple-select-label"
                                             id="demo-simple-select"
                                             style={{ width: 300 }}
-                                            value={toUpdated_dossier_client}
+                                            value={toUpdated_dossier_client_id}
                                             onChange={(e) => {
-                                                setToUpdated_dossier_client(e.target.value)
-                                                let obj = lf_toUpdated;
-
-                                                obj.newTime.dossier_client = selectedClientFolders.find(x => x.folder_id === e.target.value) || {facturation:{language:""},name:""}
-                                                setLf_toUpdated(obj)
-                                                setX_update(!x_update)
+                                                setToUpdated_dossier_client_id(e.target.value)
+                                                setToUpdated_dossier_client(selectedClientFolders.find(x => x.folder_id === e.target.value) || {facturation:{language:""},name:""})
+                                                //setX_update(!x_update)
                                             }}
                                         >
                                             {
@@ -895,27 +893,6 @@ export default function TableTimeSheet(props) {
                             </div>
                             <div className="row mt-3">
                                 <div className="col-md-6">
-                                    <div>
-                                        <h5>Catégorie d’activités </h5>
-                                        <MuiSelect
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                            style={{width: "250px"}}
-                                            value={toUpdated_categ}
-                                            onChange={(e) => {
-                                                setToUpdated_categ(e.target.value)
-                                                let d = lf_toUpdated
-                                                d.newTime.categoriesActivite = e.target.value
-                                                setLf_toUpdated(d)
-                                            }}
-                                        >
-                                            <MenuItem value={"Temps facturé"}>Temps facturé</MenuItem>
-                                            <MenuItem value={"Provision"}>Provision</MenuItem>
-                                        </MuiSelect>
-                                    </div>
-
-                                </div>
-                                <div className="col-md-6">
                                     <div style={{width: "100%"}}>
                                         <h5>Date</h5>
                                         <DatePicker
@@ -924,9 +901,6 @@ export default function TableTimeSheet(props) {
                                             onChange={(e) => {
                                                 console.log(e)
                                                 setToUpdated_date(e)
-                                                let d = lf_toUpdated
-                                                d.newTime.date = moment(e).format("YYYY-MM-DD HH:mm:ss")
-                                                setLf_toUpdated(d)
                                             }}
                                             value={toUpdated_date}
                                         />
@@ -945,15 +919,12 @@ export default function TableTimeSheet(props) {
                                         <textarea
                                             className="form-control "
                                             id="duree"
-                                            style={{width: "100%"}}
+                                            style={{width: "85%"}}
                                             name="duree"
                                             rows={5}
                                             value={toUpdated_desc}
                                             onChange={(e) => {
                                                 setToUpdated_desc(e.target.value)
-                                                let d = lf_toUpdated
-                                                d.newTime.description = e.target.value
-                                                setLf_toUpdated(d)
                                             }}/>
                                     </div>
                                 </div>
@@ -965,11 +936,10 @@ export default function TableTimeSheet(props) {
                                     <MuiSelect
                                         labelId="demo-simple-select-label4545"
                                         id="demo-simple-select4545"
-                                        style={{width: "80%"}}
+                                        style={{width: 300}}
                                         onChange={(e) => {
                                             setToUpdated_OAUser(e.target.value)
-                                            let d = lf_toUpdated
-                                            d.newTime.utilisateurOA = e.target.value;
+
                                             let OA_contacts = props.OA_contacts;
                                             let OA_contact = "";
                                             OA_contacts.map((contact, key) => {
@@ -977,9 +947,7 @@ export default function TableTimeSheet(props) {
                                                     OA_contact = contact
                                                 }
                                             })
-                                            d.newTime.rateFacturation = OA_contact.rateFacturation || ""
                                             setToUpdated_rate(OA_contact.rateFacturation || "")
-                                            setLf_toUpdated(d)
                                         }}
                                         value={toUpdated_OAUser}
                                     >
@@ -1006,7 +974,7 @@ export default function TableTimeSheet(props) {
                                         <Input
                                             className="form-control "
                                             id="duree68797"
-                                            style={{width: "250px"}}
+                                            style={{width: "300px"}}
                                             name="duree68797"
                                             type="text"
                                             endAdornment={
@@ -1016,31 +984,35 @@ export default function TableTimeSheet(props) {
                                             value={toUpdated_rate}
                                             onChange={(e) => {
                                                 setToUpdated_rate(e.target.value)
-                                                let d = lf_toUpdated
-                                                d.newTime.rateFacturation = e.target.value
-                                                setLf_toUpdated(d)
                                             }}/>
                                     </div>
                                 </div>
                             </div>
                             <div style={{marginTop:20,textAlign:"right"}}>
                                 <AtlButton
-                                    isDisabled={lf_toUpdated.newTime.client_id === "" || lf_toUpdated.newTime.rateFacturation === "" || lf_toUpdated.newTime.utilisateurOA === ''  }
+                                    isDisabled={toUpdated_client_id === "" || toUpdated_rate === "" || toUpdated_OAUser === '' || toUpdated_dossier_client.name === ""  }
                                     appearance="primary"
                                     onClick={() => {
-                                        lf_toUpdated.newTime.duree = duration;
-                                        let time = lf_toUpdated.newTime.duree;
+                                        let newItem = selectedRow;
+                                        newItem.checked = "false"
+                                        newItem.newTime.utilisateurOA = toUpdated_OAUser
+                                        newItem.newTime.rateFacturation = toUpdated_rate
+                                        newItem.newTime.dossier_client = toUpdated_dossier_client
+                                        newItem.newTime.description = toUpdated_desc
+                                        newItem.newTime.date = moment(toUpdated_date).format("YYYY-MM-DD :HH:mm:ss")
+                                        newItem.newTime.client_id = toUpdated_client_id
+                                        newItem.newTime.client = toUpdated_client
+
+                                        let time = duration;
                                         let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
                                         if(regexFormat.test(time) === true){
-
                                             let duree = utilFunctions.durationToNumber(time);
-
                                             if(duree === 0){
                                                 props.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
                                             }else{
-                                                lf_toUpdated.newTime.duree = utilFunctions.durationToNumber(lf_toUpdated.newTime.duree)
-                                                console.log(lf_toUpdated)
-                                                props.updateLigneFacture(lf_toUpdated.id,lf_toUpdated)
+                                                newItem.newTime.duree = utilFunctions.durationToNumber(duration)
+                                                //console.log(newItem)
+                                                props.updateLigneFacture(newItem.id,newItem)
                                                 setShowUpdateModal(false)
                                             }
                                         }else{
@@ -1050,9 +1022,6 @@ export default function TableTimeSheet(props) {
                                     Modifier</AtlButton>
                             </div>
                         </div>
-                    }
-
-
 
                 </DialogContent>
             </Dialog>

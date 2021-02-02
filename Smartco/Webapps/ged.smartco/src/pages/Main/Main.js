@@ -205,6 +205,7 @@ export default class Main extends React.Component {
     selectedDoc: '',
     folders: [],
     miniDrive:[],
+    sharedMiniDrive:[],
     reelFolders: [],
     sharedFolders: [],
     sharedReelFolders: [],
@@ -246,6 +247,7 @@ export default class Main extends React.Component {
     selectedDriveItem: [],
     expandedDriveItems: [],
     expandedDriveSharedItems:[],
+    selectedDriveSharedItem:[],
     autoExpandParent: true,
     autoExpandSharedParent:true,
     selectedMeetMenuItem: ['new'],
@@ -418,6 +420,10 @@ export default class Main extends React.Component {
     expandedDrivePopUpKeys:[],
     selectedDrivePopUpKeys:[],
     autoExpandDrivePopUpParent:true,
+    expandedSharedPopUpKeys:[],
+    selectedSharedPopUpKeys:[],
+    autoExpandSharedPopUpParent:true,
+
     destinationFolder:"",
 
     wip_selected_contact:"",
@@ -429,7 +435,7 @@ export default class Main extends React.Component {
 
     SEQ_file:"",
     signFile_destinationFolder:"",
-    signFile_type:true,
+    signFile_type:false,
     signFile_Ged:"",
 
     openUserDetailModal:false,
@@ -451,8 +457,6 @@ export default class Main extends React.Component {
   };
 
   componentDidMount() {
-
-    console.log("COMPONENT DID MOUNT")
 
     window.onpopstate = () => {
 
@@ -612,6 +616,7 @@ export default class Main extends React.Component {
                 rootFolders: gedRes.data.Proprietary.Content.folders || [],
                 sharedRootFiles: sharedFiles,
                 sharedFolders: sharedFolders,
+                sharedMiniDrive: sharedFolders,
                 loadingGed:false
               })
 
@@ -626,7 +631,6 @@ export default class Main extends React.Component {
                     selectedFoldername: folder_name,
                     breadcrumbs: main_functions.getBreadcumpsPath(folder_id, folders),
                     selectedFolderId: folder_id,
-                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                     selectedFolderFiles: main_functions.getFolderFilesById(folder_id, folders),
                     selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, folders),
                     firstLoading: false,
@@ -642,7 +646,6 @@ export default class Main extends React.Component {
                 this.setState({
                   selectedDriveItem: [],
                   expandedDriveItems: [],
-                  //selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   firstLoading: false,
                   loading: false
                 });
@@ -653,7 +656,6 @@ export default class Main extends React.Component {
                   expandedDriveItems: [],
                   selectedDriveSharedItem:['parent'],
                   expandedDriveSharedItems:['parent'],
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   breadcrumbs: 'Mon drive / Partagés avec moi',
                   firstLoading: false,
                   loading: false
@@ -699,7 +701,6 @@ export default class Main extends React.Component {
                         focusedItem: 'Societe',
                         selectedSocietyMenuItem: ['clients'],
                         openSocietyMenuItem: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                         firstLoading: false,
                         loading: false
                       });
@@ -712,7 +713,6 @@ export default class Main extends React.Component {
                       focusedItem: 'Societe',
                       selectedSocietyMenuItem: ['clients'],
                       openSocietyMenuItem: true,
-                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                       firstLoading: false,
                       loading: false
                     });
@@ -739,7 +739,6 @@ export default class Main extends React.Component {
                         showContainerSection: 'Contacts',
                         focusedItem: 'Contacts',
                         openContactsMenu: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                         firstLoading: false,
                         loading: false
                       });
@@ -752,7 +751,6 @@ export default class Main extends React.Component {
                       showContainerSection: 'Contacts',
                       focusedItem: 'Contacts',
                       openContactsMenu: true,
-                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                       firstLoading: false,
                       loading: false
                     });
@@ -1076,7 +1074,6 @@ export default class Main extends React.Component {
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + ust_token);
 
     socket.onopen = (e) => {
-      console.log("Connection established");
       let payload;
       payload = {"cmd": table, "db": db, "read_change": true}
       socket.send(JSON.stringify(payload));
@@ -1144,7 +1141,7 @@ export default class Main extends React.Component {
         return;
       }
       let origin = this.state.sharedFolders;
-      //this.setState({loading:true})
+
       SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
         if(Res.succes === true && Res.status === 200){
 
@@ -1194,6 +1191,66 @@ export default class Main extends React.Component {
         this.setState({loading:false})
           resolve();
           console.log(err)})
+
+    });
+  }
+
+  onLoadSharedMiniDriveData = ({ key, children }) => {
+    console.log(key)
+    return new Promise((resolve) => {
+      console.log(key)
+      if (children) {
+        resolve();
+        return;
+      }
+      let origin = this.state.sharedMiniDrive;
+
+      SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+        if(Res.succes === true && Res.status === 200){
+
+          let sub_folders = (Res.data.Content.folders || []).concat(Res.data.Content.files || []);
+          let sub_files = Res.data.Content.files || [];
+          let childrens = [];
+          for(let i =0 ; i < sub_folders.length ; i++){
+            console.log(sub_folders[i])
+            let treeNode = {
+              title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
+              key:sub_folders[i].id,
+              icon: sub_folders[i].type ? (
+                  <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+              ) : (
+                  ({ selected }) =>
+                      selected ? (
+                          <FolderIcon style={{ color: '#1a73e8' }} />
+                      ) : (
+                          <FolderIcon style={{ color: 'grey' }} />
+                      )
+              ),
+              files: [] ,
+              folders: [] ,
+              typeF: sub_folders[i].type ? 'file' : 'folder',
+              rights:sub_folders[i].rights,
+              proprietary:sub_folders[i].proprietary || undefined,
+              isLeaf:sub_folders[i].type ? true : false
+            };
+            childrens.push(treeNode)
+          }
+          let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
+          this.setState({sharedMiniDrive:update})
+          resolve();
+
+        }else if(Res.succes === false && Res.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }else{
+          this.setState({loading:false})
+          resolve();
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        resolve();
+        console.log(err)})
 
     });
   }
@@ -1364,7 +1421,7 @@ export default class Main extends React.Component {
       })
       .catch((err) => {
         this.setState({ loading: false });
-        this.openSnackbar('error', err);
+        this.openSnackbar('error', "Une erreur est survenue !");
       });
   };
 
@@ -2667,6 +2724,7 @@ export default class Main extends React.Component {
                                            client_folders={this.state.client_folders}
                                            clients_tempo={this.state.clients_cases}
                                            annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                           contacts={this.state.contacts || []}
                                            sharedFolders={this.state.sharedReelFolders || []}
                                            validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc) => {
                                              this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc);
@@ -2683,6 +2741,9 @@ export default class Main extends React.Component {
                                            }}
                                            delete_facture={(id) => {
                                              this.delete_facture(id)
+                                           }}
+                                           updateFacture={(id,item) => {
+                                             this.updateFacture(id,item)
                                            }}
                                            openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
                             />
@@ -3054,6 +3115,22 @@ export default class Main extends React.Component {
     this.reloadGed()
   }
 
+  updateFacture(id_facture,updatedItem){
+    this.setState({loading:true})
+    rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+      if (updateRes && updateRes === true) {
+        this.setState({loading:false})
+        this.openSnackbar("success","Modification efectuée avec succès")
+      } else {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
+    }).catch(err => {
+      this.setState({loading:false})
+      this.openSnackbar("error","Une erreur est survenue !")
+      console.log(err)
+    })
+  }
 
   before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc){
     this.setState({loading:true})
@@ -3172,7 +3249,7 @@ export default class Main extends React.Component {
 
   previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc){
 
-    console.log(compte_banc)
+    console.log(facture)
     this.setState({loading:true})
     let id_facture = facture.id
 
@@ -3181,9 +3258,10 @@ export default class Main extends React.Component {
     lignes_factures.map((ligne, key) => {
       total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
     })
-    let acces_token = utilFunctions.getUID();
+    let acces_token = facture.draft_acces_token ? facture.draft_acces_token : utilFunctions.getUID();
 
-    let odoo_data = [{
+    let odoo_data = [];
+    odoo_data.push({
       'access_token': acces_token,
       'type': 'out_invoice',
       "move_name":false,
@@ -3199,7 +3277,7 @@ export default class Main extends React.Component {
       'invoice_user_id': 3,
       'invoice_incoterm_id': false,
       'tax_lock_date_message': false,
-      'id': false,
+      'id': facture.facture_draft_id ? facture.facture_draft_id : false,
       'invoice_payment_state': 'not_paid',
       'invoice_filter_type_domain': 'sale',
       'company_currency_id': 5,
@@ -3244,7 +3322,7 @@ export default class Main extends React.Component {
       "partner_bank_id":compte_banc,
       'bank_partner_id': compte_banc,
       'invoice_partner_bank_id': compte_banc,
-    }];
+    })
 
     lignes_factures.map((ligne, key) => {
       let OAContact = main_functions.getOAContactByEmail2(this.state.contacts,ligne.newTime.utilisateurOA);
@@ -3316,13 +3394,6 @@ export default class Main extends React.Component {
               'quantity': 1,
               'sequence': 10,
               "uom_id":1,
-              /*'invoice_line_tax_ids': [
-                [
-                  6,
-                  false,
-                  tax && tax !== "" ? [tax] : []
-                ]
-              ],*/
               'analytic_tag_ids': [
                 [
                   6,
@@ -3334,6 +3405,8 @@ export default class Main extends React.Component {
           ]
       )
     }
+
+    console.log(odoo_data)
 
     SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
       console.log(createFactRes)
@@ -4489,6 +4562,23 @@ export default class Main extends React.Component {
     })
   }
 
+  delete_contact(id){
+    this.setState({loading:true})
+    rethink.remove("test",'table("contacts").get('+JSON.stringify(id)+').delete()',db_name,false).then(delRes => {
+      if(delRes && delRes === true){
+        this.setState({loading:false})
+        this.openSnackbar("success","Suppression effectuée  avec succès")
+      }else{
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
+    }).catch(err => {
+      this.setState({loading:false})
+      this.openSnackbar("error","Une erreur est survenue !")
+      console.log(err)
+    })
+  }
+
   delete_client_case(id){
     rethink.remove("test",'table("clients_cases").get('+JSON.stringify(id)+').delete()',db_name,false).then(delRes => {
       if(delRes && delRes === true){
@@ -4576,16 +4666,47 @@ export default class Main extends React.Component {
     })
   }
 
-  update_client_case(id,data){
-    rethink.update("test",'table("clients_cases").get('+JSON.stringify(id)+').update('+ JSON.stringify(data) + ')',db_name,false).then( updateRes => {
-      if (updateRes && updateRes === true) {
-        this.openSnackbar("success","Modification effectuée avec succès")
-      } else {
+  update_client_case(id,data,mandatNameChanged,mandat){
+    if(mandatNameChanged === true){
+      this.setState({loading:true})
+      SmartService.updateFileName({ name: mandat.name }, mandat.folder_id , localStorage.getItem('token'), localStorage.getItem('usrtoken')).then((updateNameRes) => {
+            if (updateNameRes.succes === true && updateNameRes.status === 200) {
+              this.justReloadGed()
+              rethink.update("test",'table("clients_cases").get('+JSON.stringify(id)+').update('+ JSON.stringify(data) + ')',db_name,false).then( updateRes => {
+                if (updateRes && updateRes === true) {
+                  this.setState({loading:false})
+                  this.openSnackbar("success","Modification effectuée avec succès")
+                } else {
+                  this.setState({loading:false})
+                  this.openSnackbar("error","Une erreur est survenue !")
+                }
+              }).catch(err => {
+                this.setState({loading:false})
+                this.openSnackbar("error","Une erreur est survenue !")
+              })
+
+            }else{
+              console.log(updateNameRes.error)
+              this.setState({loading:false})
+              this.openSnackbar("error",updateNameRes.error)
+            }
+          }).catch(err => {
+        this.setState({loading:false})
+        console.log(err)
         this.openSnackbar("error","Une erreur est survenue !")
-      }
-    }).catch(err => {
-      this.openSnackbar("error","Une erreur est survenue !")
-    })
+      })
+    }else{
+      rethink.update("test",'table("clients_cases").get('+JSON.stringify(id)+').update('+ JSON.stringify(data) + ')',db_name,false).then( updateRes => {
+        if (updateRes && updateRes === true) {
+          this.openSnackbar("success","Modification effectuée avec succès")
+        } else {
+          this.openSnackbar("error","Une erreur est survenue !")
+        }
+      }).catch(err => {
+        this.openSnackbar("error","Une erreur est survenue !")
+      })
+    }
+
   }
 
 
@@ -4606,7 +4727,7 @@ export default class Main extends React.Component {
   }
 
   onSelectDrivePopUp4 = (selectedKeys, info) => {
-    this.setState({selectedDrivePopUpKeys:selectedKeys,signFile_Ged:info.node})
+    this.setState({selectedDrivePopUpKeys:selectedKeys,selectedSharedPopUpKeys:[],signFile_Ged:info.node.typeF === "folder" ? "" : info.node})
   }
 
   updateUserInfo(fname,lname,phone){
@@ -4708,82 +4829,6 @@ export default class Main extends React.Component {
           this.openSnackbar("error","Une erreur est servenue !")
           this.setState({loading:false})
         })
-
-
-        /*var formdata = new FormData();
-        formdata.append("b64file", b64);
-        formdata.append("name", fileName);
-        formdata.append("phone", localStorage.getItem("phone"));  //+41795281046
-
-        var requestOptions = {
-          method: 'POST',
-          body: formdata,
-          redirect: 'follow'
-        };
-
-        fetch("https://sign.1.smartdom.ch/sign/qualified", requestOptions)
-            .then(response => {
-              console.log(response)
-              if(response.status === 400){
-                this.setState({loading:false})
-                this.openSnackbar("error","Des données manquantes !")
-              }else if(response.status === 500){
-                this.setState({loading:false})
-                this.openSnackbar("error","une erreur est survenue !")
-              }else if(response.status === 405){
-                this.setState({loading:false})
-                this.openSnackbar("error","Opération annulée !")
-              }else if(response.status === 200){
-                response.json()
-              }
-            })
-            .then(result => {
-              console.log(result)
-              if(result.succes === true && result.status === 200){
-
-                SmartService.addFileFromBas64({b64file:result.data,folder_id:this.state.signFile_destinationFolder.key},
-                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
-
-                  if(addFileRes.succes === true && addFileRes.status === 200) {
-                    let fileName = this.state.SEQ_file.name.slice(0, -4);
-                    SmartService.updateFileName({name:fileName},
-                        addFileRes.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
-                      if(updateNameRes.succes === true && updateNameRes.status === 200){
-                        this.justReloadGed()
-                        setTimeout(() => {
-                          this.setState({loading:false})
-                          this.openSnackbar("success","La signature électronique est bien effectué avec succès")
-                        },500)
-                      }else{
-                        console.log(updateNameRes.error)
-                        this.openSnackbar("error",updateNameRes.error)
-                        this.setState({loading:false})
-                      }
-                    }).catch(err => {
-                      console.log(err)
-                      this.openSnackbar("error","Une erreur est survenue")
-                    })
-                  }else{
-                    console.log(addFileRes.error)
-                    this.openSnackbar("error",addFileRes.error)
-                    this.setState({loading:false})
-                  }
-                }).catch(err => {
-                  console.log(err)
-                  this.openSnackbar("error","Une erreur est survenue")
-                  this.setState({loading:false})
-                })
-
-              }else{
-                this.openSnackbar("error",result.error)
-              }
-
-            })
-            .catch(error => {
-              console.log(error)
-              this.setState({loading:false})
-              this.openSnackbar("error","Une erreur est survenue")
-            });*/
       }
     }
   }
@@ -4800,6 +4845,15 @@ export default class Main extends React.Component {
        reject(err)
      })
   });
+
+   onExpand_shared = (expandedKeys) => {
+     this.setState({expandedSharedPopUpKeys:expandedKeys,autoExpandSharedPopUpParent:false,selectedDrivePopUpKeys:[]})
+  }
+
+   onSelect_shared = (selectedKeys, info) => {
+     console.log(info.node)
+     this.setState({selectedSharedPopUpKeys:selectedKeys,selectedDrivePopUpKeys:[],signFile_Ged:info.node.key === "parent" ? "" : info.node.typeF === "folder" ? "" : info.node})
+  }
 
   render() {
 
@@ -5749,6 +5803,9 @@ export default class Main extends React.Component {
                                     });
                                     this.props.history.push('/home/contacts/' + contact.id);
                                   }}
+                                  removeContact={(id) => {
+                                    this.delete_contact(id)
+                                  }}
                               />
                         }
                       </Route>
@@ -6614,8 +6671,8 @@ export default class Main extends React.Component {
                                                          this.props.history.push("/home/shared/" + ENV_CLIENTS_FOLDER_ID)
                                                        }
                                                      }}
-                                                     update_client_case={(id,data) => {
-                                                       this.update_client_case(id,data)
+                                                     update_client_case={(id,data,mandatNameChanged,mandat) => {
+                                                       this.update_client_case(id,data,mandatNameChanged,mandat)
                                                      }}
                                                      reloadGed={() => this.justReloadGed()}
                                                      openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
@@ -6947,6 +7004,7 @@ export default class Main extends React.Component {
                                                       })
                                                   }
                                                   name="checkedNewRoom1"
+                                                           disabled={true}
                                               />
                                             }
                                             label="Document de la ged"
@@ -7027,6 +7085,18 @@ export default class Main extends React.Component {
                                                 selectedKeys={this.state.selectedDrivePopUpKeys}
                                                 autoExpandParent={this.state.autoExpandDrivePopUpParent}
                                             />
+                                            <DirectoryTree
+                                                loadData={this.onLoadSharedMiniDriveData}
+                                                draggable={true}
+                                                showIcon={true}
+                                                onExpand={this.onExpand_shared}
+                                                onSelect={this.onSelect_shared}
+                                                treeData={this.state.sharedMiniDrive || []}
+                                                expandAction="click"
+                                                expandedKeys={this.state.expandedSharedPopUpKeys}
+                                                selectedKeys={this.state.selectedSharedPopUpKeys}
+                                                autoExpandParent={this.state.autoExpandSharedPopUpParent}
+                                            />
                                           </div>
                                           <div style={{position:"absolute",bottom:50}}>
                                             <span style={{color:"#000",fontWeight:"bold"}}>Document sélectionné:&nbsp; <span>{this.state.signFile_Ged.title}</span> </span>
@@ -7058,7 +7128,7 @@ export default class Main extends React.Component {
                                 <div className="col-md-6">
                                   <div>
                                     <h6>Dossier de destination dans le GED</h6>
-                                    <input type="text" readOnly={true}
+                                    <input type="text" readOnly={true} disabled={this.state.signFile_type === true}
                                            className="form-control custom-select"
                                            style={{ width: 300,cursor:"pointer",height:40 }}
                                            value={this.state.signFile_destinationFolder.title || ""}
@@ -7761,7 +7831,6 @@ export default class Main extends React.Component {
                     <Chips
                         chips={[]}
                         save={(data) => {
-                          console.log(data)
                           this.setState({ NewRoomEmails: data });
                         }}
                         requiredMessage={'Email incorrect'}
