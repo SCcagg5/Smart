@@ -37,6 +37,7 @@ import Autosuggest from "react-autosuggest";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Dialog from "@material-ui/core/Dialog";
 import Data from "../../data/Data";
+import { Dropdown, Input as Sinput } from 'semantic-ui-react'
 
 const useRowStyles = makeStyles({
   root: {
@@ -325,6 +326,10 @@ function Row(props) {
   const [fraisAdmin, setFraisAdmin] = React.useState("2%");
   const [compte_banc, setCompte_banc] = React.useState(1);
   const [deadline_date, setDeadline_date] = React.useState(new Date());
+  const [addReduction, setAddReduction] = React.useState(false);
+  const [reductionType, setReductionType] = React.useState("%");
+  const [reductionAmount, setReductionAmount] = React.useState("");
+
 
 
   const [showUpdateModal, setShowUpdateModal] = React.useState(false);
@@ -477,30 +482,34 @@ function Row(props) {
                     <TableBody>
                       {(row.lignes_facture || []).map((lf,key) => (
                           <TableRow key={key}>
-                            <TableCell component="th" scope="row" align="center" >
-                              <IconButton size="small" color="default" onClick={() => {
-                                setSelectedFacture(row)
-                                setSelectedRow(lf)
-                                const row_copy = lf;
-                                setDuration(utilFunctions.formatDuration(row_copy.newTime.duree.toString()))
-                                setToUpdated_date(new Date(row_copy.newTime.date))
-                                setToUpdated_rate(row_copy.newTime.rateFacturation)
-                                setToUpdated_OAUser(row_copy.newTime.utilisateurOA)
-                                setToUpdated_desc(row_copy.newTime.description)
-                                setShowUpdateModal(true)
-                              }}
-                              >
-                                <EditIcon fontSize="small"/>
-                              </IconButton>
-                              <IconButton size="small" onClick={() => {
-                                setSelectedFacture(row)
-                                setSelectedRow(lf)
-                                setOpenDeleteLfModal(true)
-                              }}
-                              >
-                                <DeleteOutlineIcon color="error" fontSize="small"/>
-                              </IconButton>
-                            </TableCell>
+                            {
+                              row.statut === "wait" &&
+                              <TableCell component="th" scope="row" align="center" >
+                                <IconButton size="small" color="default" onClick={() => {
+                                  setSelectedFacture(row)
+                                  setSelectedRow(lf)
+                                  const row_copy = lf;
+                                  setDuration(utilFunctions.formatDuration(row_copy.newTime.duree.toString()))
+                                  setToUpdated_date(new Date(row_copy.newTime.date))
+                                  setToUpdated_rate(row_copy.newTime.rateFacturation)
+                                  setToUpdated_OAUser(row_copy.newTime.utilisateurOA)
+                                  setToUpdated_desc(row_copy.newTime.description)
+                                  setShowUpdateModal(true)
+                                }}
+                                >
+                                  <EditIcon fontSize="small"/>
+                                </IconButton>
+                                <IconButton size="small" onClick={() => {
+                                  setSelectedFacture(row)
+                                  setSelectedRow(lf)
+                                  setOpenDeleteLfModal(true)
+                                }}
+                                >
+                                  <DeleteOutlineIcon color="error" fontSize="small"/>
+                                </IconButton>
+                              </TableCell>
+                            }
+
                             <TableCell component="th" scope="row" align="center" >
                               {moment(lf.newTime.date).format("DD-MM-YYYY")}
                             </TableCell>
@@ -627,12 +636,36 @@ function Row(props) {
                           </select>
                         </div>
                       </div>
+                      <div className="row mt-2">
+                        <div className="col-md-5">
+                          <h6>Réduction</h6>
+                          <Sinput
+                              label={
+                                <Dropdown defaultValue='%' options={[{key:"0",text:"%",value:"%"},{key:"1",text:"CHF",value:"CHF"}]}
+                                          value={reductionType}
+                                          onChange={(e,{value}) => {
+                                            console.log(value)
+                                            setReductionType(value)
+                                          }}
+                                />
+                              }
+                              labelPosition='right'
+                              placeholder='Réduction'
+                              value={reductionAmount}
+                              onChange={(event, data1) => {
+                                console.log(event.target.value)
+                                setReductionAmount(event.target.value)
+                              }}
+                              size="mini"
+                          />
+                        </div>
+                      </div>
                       <div align="right" style={{marginTop:20}}>
                         <AltButtonGroup>
                           <AtlButton onClick={() => {
                             if(verif_access === true){
                               let client_folder_name = (selected_client_folders.find(x => x.folder_id === client)).name
-                              props.previewFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
+                              props.previewFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
                             }else{
                               alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
                             }
@@ -644,7 +677,7 @@ function Row(props) {
                           <AtlButton onClick={() => {
                             if(verif_access === true){
                               let client_folder_name = (selected_client_folders.find(x => x.folder_id === client)).name
-                              props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
+                              props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
                             }else{
                               alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
                             }

@@ -150,6 +150,7 @@ export default class Main extends React.Component {
   imageUpload = {};
   folderupload = {};
   signatureFileUpload={}
+  avance_frais_upload={}
 
   state = {
     loading: false,
@@ -167,8 +168,6 @@ export default class Main extends React.Component {
       email:"",
       id:""
     },
-
-    openModalVF:false,
 
     beforeCreateFacture:{
       createAt:"",
@@ -446,9 +445,13 @@ export default class Main extends React.Component {
 
     loading_provision_preview:false,
     loading_provision_save:false,
+    loading_avance_frais:false,
     provision_bank:"",
     provision_amount:"",
     provision_tax:"TVA 7.7 % incluse",
+
+    avance_frais_desc:"",
+    avance_frais_facture_file:"",
 
     anchorEl_colorPicker: null,
     settRoomAnchorEl:null,
@@ -1606,6 +1609,16 @@ export default class Main extends React.Component {
     }
   };
 
+  uploadAvanceFraisFile = (event) => {
+    let file = event.target.files[0];
+    if(file.type === "application/pdf"){
+      this.setState({avance_frais_facture_file:file})
+    }else{
+      this.setState({ loading: false });
+      this.openSnackbar("error","Type de fichier erroné !")
+    }
+  };
+
   reloadGed = () => {
     this.setState({ loading: true });
     setTimeout(() => {
@@ -2141,20 +2154,6 @@ export default class Main extends React.Component {
     );
   };
 
-  OpenModalVF(created_at,lignes_facture,client_folderId,row,template,client,paymTerm,deadline_date,tax,fraisAdmin){
-    let beforeCF = this.state.beforeCreateFacture
-    beforeCF.createAt=created_at
-    beforeCF.ligneFactures=lignes_facture
-    beforeCF.clientFolderID=client_folderId
-    beforeCF.row=row
-    beforeCF.template=template
-    beforeCF.client=client
-    beforeCF.paymTerm=paymTerm
-    beforeCF.deadline_date=deadline_date
-    beforeCF.taxe=tax
-    this.addFA(fraisAdmin === "2%" ? 1 : 2, beforeCF)
-  }
-
 
   renderTimeSheet = () => {
 
@@ -2227,7 +2226,7 @@ export default class Main extends React.Component {
 
                           <TabPanel>
 
-                                  <div style={{marginTop:35,padding:10,paddingBottom:50,paddingLeft:35,border:"2px solid #f0f0f0"}}>
+                                  <div style={{marginTop:35,padding:10,paddingBottom:50,paddingLeft:35,border:"2px solid #f0f0f0",minWidth:1000}}>
                                     <div className="row mt-2">
                                       <div className="col-md-6">
                                         <div>
@@ -2247,6 +2246,8 @@ export default class Main extends React.Component {
                                                 value={'Temps facturé'}>Temps facturé</MenuItem>
                                             <MenuItem
                                                 value={'Provision'}>Provision</MenuItem>
+                                            <MenuItem
+                                                value={'Avance_frais'}>Avance de frais</MenuItem>
                                           </MuiSelect>
                                         </div>
                                       </div>
@@ -2410,68 +2411,122 @@ export default class Main extends React.Component {
                                                         onChange={(e) => {this.setState({provision_amount:e.target.value})}}
                                                     />
                                                   </div>
-                                                  <div className="mt-3">
-                                                    <h5>Compte bancaire</h5>
-                                                    <select
-                                                        className="form-control custom-select"
-                                                        value={this.state.provision_bank}
-                                                        onChange={(e) => {
-                                                          this.setState({provision_bank:e.target.value})
-                                                        }}
-                                                        style={{width:350,border:"2px solid #f0f0f0",borderRadius:7.5}}
-                                                    >
-                                                      <option key={-1} value={""}/>
-                                                      {
-                                                        (data.oa_comptes_bank_provision || []).map((item,key) =>
-                                                            <option key={key} value={JSON.stringify(item)}>{item.label}</option>
-                                                        )
-                                                      }
-                                                    </select>
-                                                  </div>
-                                                  <div className="mt-3">
-                                                    <h5>Taxe</h5>
-                                                    <select
-                                                        className="form-control custom-select"
-                                                        value={this.state.provision_tax}
-                                                        onChange={(e) => {
-                                                          this.setState({provision_tax:e.target.value})
-                                                        }}
-                                                        style={{width:350,border:"2px solid #f0f0f0",borderRadius:7.5}}
-                                                    >
-                                                      {
-                                                        (data.oa_provision_taxs || []).map((item,key) =>
-                                                            <option key={key} value={item.value}>{item.label}</option>
-                                                        )
-                                                      }
-                                                    </select>
-                                                  </div>
-                                                  <div className="mt-5" align="center">
-                                                    <AltButtonGroup>
-                                                      <AtlButton
-                                                          isLoading={this.state.loading_provision_preview}
-                                                          appearance="warning"
-                                                          isDisabled={!this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
-                                                          this.state.provision_bank === "" || this.state.selectedClientTimeEntree === ''}
-                                                          onClick={() => {
-                                                            this.generateProvisionDoc(new_timeSheet_desc)
-                                                          }}
-                                                      >
-                                                        Preview
-                                                      </AtlButton>
-                                                      <AtlButton
-                                                          isLoading={this.state.loading_provision_save}
-                                                          appearance="primary"
-                                                          isDisabled={!this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
-                                                          this.state.provision_bank === "" || this.state.selectedClientTimeEntree === ''}
-                                                          onClick={() => {
-                                                            this.saveProvisionDoc(new_timeSheet_desc)
-                                                          }}
-                                                      >
-                                                        Enregistrer le document de provision
-                                                      </AtlButton>
-                                                    </AltButtonGroup>
+                                                  {
+                                                    this.state.TimeSheet.newTime.categoriesActivite === "Provision" ?
+                                                        <div>
+                                                          <div className="mt-3">
+                                                            <h5>Compte bancaire</h5>
+                                                            <select
+                                                                className="form-control custom-select"
+                                                                value={this.state.provision_bank}
+                                                                onChange={(e) => {
+                                                                  this.setState({provision_bank:e.target.value})
+                                                                }}
+                                                                style={{width:350,border:"2px solid #f0f0f0",borderRadius:7.5}}
+                                                            >
+                                                              <option key={-1} value={""}/>
+                                                              {
+                                                                (data.oa_comptes_bank_provision || []).map((item,key) =>
+                                                                    <option key={key} value={JSON.stringify(item)}>{item.label}</option>
+                                                                )
+                                                              }
+                                                            </select>
+                                                          </div>
+                                                          <div className="mt-3">
+                                                            <h5>Taxe</h5>
+                                                            <select
+                                                                className="form-control custom-select"
+                                                                value={this.state.provision_tax}
+                                                                onChange={(e) => {
+                                                                  this.setState({provision_tax:e.target.value})
+                                                                }}
+                                                                style={{width:350,border:"2px solid #f0f0f0",borderRadius:7.5}}
+                                                            >
+                                                              {
+                                                                (data.oa_provision_taxs || []).map((item,key) =>
+                                                                    <option key={key} value={item.value}>{item.label}</option>
+                                                                )
+                                                              }
+                                                            </select>
+                                                          </div>
+                                                          <div className="mt-5" align="center">
+                                                            <AltButtonGroup>
+                                                              <AtlButton
+                                                                  isLoading={this.state.loading_provision_preview}
+                                                                  appearance="warning"
+                                                                  isDisabled={!this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
+                                                                  this.state.provision_bank === "" || this.state.selectedClientTimeEntree === ''}
+                                                                  onClick={() => {
+                                                                    this.generateProvisionDoc(new_timeSheet_desc)
+                                                                  }}
+                                                              >
+                                                                Preview
+                                                              </AtlButton>
+                                                              <AtlButton
+                                                                  isLoading={this.state.loading_provision_save}
+                                                                  appearance="primary"
+                                                                  isDisabled={!this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
+                                                                  this.state.provision_bank === "" || this.state.selectedClientTimeEntree === ''}
+                                                                  onClick={() => {
+                                                                    this.saveProvisionDoc(new_timeSheet_desc)
+                                                                  }}
+                                                              >
+                                                                Enregistrer le document de provision
+                                                              </AtlButton>
+                                                            </AltButtonGroup>
 
-                                                  </div>
+                                                          </div>
+                                                        </div>  :
+
+                                                        <div>
+                                                          <div style={{marginTop:25}}>
+                                                            <div>
+                                                              <h5>Description</h5>
+                                                            </div>
+                                                            <textarea
+                                                                className="form-control "
+                                                                id="duree"
+                                                                style={{ width: '90%',border:"2px solid #f0f0f0",borderRadius:7.5 }}
+                                                                name="duree"
+                                                                rows={5}
+                                                                value={this.state.avance_frais_desc}
+                                                                onChange={(e) => {
+                                                                  this.setState({ avance_frais_desc: e.target.value });
+                                                                }} />
+                                                          </div>
+                                                          <div style={{marginTop:25}}>
+                                                            <div>
+                                                              <h5>Ajouter la facture à payer</h5>
+                                                            </div>
+                                                            <div style={{display:"flex"}}>
+                                                              <IconButton onClick={() => {this.avance_frais_upload.click()}}>
+                                                                <AttachFileIcon/>
+                                                              </IconButton>
+                                                              <h6 style={{marginLeft:5,marginTop:17}}>{this.state.avance_frais_facture_file.name}</h6>
+                                                            </div>
+                                                            <input
+                                                                style={{ visibility: 'hidden', width: 0, height: 0 }}
+                                                                onChange={(event) => this.uploadAvanceFraisFile(event)}
+                                                                type="file"
+                                                                ref={(ref) => (this.avance_frais_upload = ref)}
+                                                            />
+                                                          </div>
+                                                          <div align="center" style={{marginTop:15}}>
+                                                            <AtlButton
+                                                                isLoading={this.state.loading_avance_frais}
+                                                                appearance="primary"
+                                                                isDisabled={this.state.avance_frais_facture_file === "" || this.state.avance_frais_desc === "" ||
+                                                                this.state.provision_amount === "" || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client.name === ""}
+                                                                onClick={() => {
+                                                                  this.save_avanceFrais(this.state.avance_frais_facture_file,this.state.TimeSheet.newTime.dossier_client.folder_id)
+                                                                }}
+                                                            >
+                                                              Enregistrer
+                                                            </AtlButton>
+                                                          </div>
+                                                        </div>
+                                                  }
+
                                                 </div>
                                               </div>
 
@@ -2696,7 +2751,7 @@ export default class Main extends React.Component {
                                   lignesFacturesCopy={this.state.time_sheets || []}
                                   deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
                                   setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
-                                  OA_contacts={this.state.contacts}
+                                  OA_contacts={this.state.contacts || []}
                                   annuaire_clients_mandat={this.state.annuaire_clients_mandat}
                                   onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
                                     this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
@@ -2726,12 +2781,11 @@ export default class Main extends React.Component {
                                            annuaire_clients_mandat={this.state.annuaire_clients_mandat}
                                            contacts={this.state.contacts || []}
                                            sharedFolders={this.state.sharedReelFolders || []}
-                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc) => {
-                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc);
-                                             //this.OpenModalVF(row.created_at, row.lignes_facture,row.client_folder.id,row,"10",client,paymTerm,deadline_date,tax,fraisAdmin)
+                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount) => {
+                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount);
                                            }}
-                                           previewFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc) => {
-                                             this.before_preview_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
+                                           previewFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount) => {
+                                             this.before_preview_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
                                            }}
                                            openFacture={(id) => {
                                              this.openPdfModal(id)
@@ -2900,6 +2954,121 @@ export default class Main extends React.Component {
 
   }
 
+
+  async save_avanceFrais(file,folder_id){
+    this.setState({loading_avance_frais:true})
+    let b64 = await main_functions.toBase64(file)
+
+    SmartService.getFile(folder_id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+      if (Res.succes === true && Res.status === 200) {
+        let folders = Res.data.Content.folders || [];
+        let findCompta_folder = folders.find(x => x.name === "COMPTABILITE");
+        if(findCompta_folder){
+
+          SmartService.getFile(findCompta_folder.id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res2 => {
+            if (Res2.succes === true && Res2.status === 200) {
+
+              let find_avanceFrais_folder = (Res2.data.Content.folders || []).find(x => x.name === "AVANCE DE FRAIS");
+              if(find_avanceFrais_folder){
+
+                SmartService.addFileFromBas64({b64file:b64,folder_id:find_avanceFrais_folder.id},
+                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+                  if (addFileRes.succes === true && addFileRes.status === 200) {
+
+                    SmartService.updateFileName({name:file.name.slice(0, -4)}, addFileRes.data.file_id,
+                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                      if(updateNameRes.succes === true && updateNameRes.status === 200){
+                        this.setState({loading_avance_frais:false})
+                        this.openSnackbar("success","Votre document est bien enregistré dans le dossier 'Avance de frais' dans le dossier Comptabilite de client ")
+                        this.justReloadGed()
+                      }else{
+                        console.log(updateNameRes.error)
+                        this.openSnackbar("error",updateNameRes.error)
+                        this.setState({loading:false})
+                      }
+                    }).catch(err => {
+                      console.log(err)
+                      this.openSnackbar("error","Une erreur est survenue")
+                    })
+
+
+                  } else {
+                    console.log(addFileRes.error)
+                    this.setState({loading_avance_frais:false})
+                  }
+                }).catch(err => {
+                  console.log(err)
+                  this.setState({loading_avance_frais:false})
+                })
+
+              }else{
+
+                SmartService.addFolder({name: "AVANCE DE FRAIS", folder_id:findCompta_folder.id},
+                    localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
+                  if (addFolderRes.succes === true && addFolderRes.status === 200) {
+
+                    SmartService.addFileFromBas64({b64file:b64,folder_id:addFolderRes.data.id},
+                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+                      if (addFileRes.succes === true && addFileRes.status === 200) {
+
+                        SmartService.updateFileName({name:file.name.slice(0, -4)}, addFileRes.data.file_id,
+                            localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                          if(updateNameRes.succes === true && updateNameRes.status === 200){
+                            this.setState({loading_avance_frais:false})
+                            this.openSnackbar("success","Votre document est bien enregistré dans le dossier 'Avance de frais' dans le dossier Comptabilite de client ")
+                            this.justReloadGed()
+                          }else{
+                            console.log(updateNameRes.error)
+                            this.openSnackbar("error",updateNameRes.error)
+                            this.setState({loading:false})
+                          }
+                        }).catch(err => {
+                          console.log(err)
+                          this.openSnackbar("error","Une erreur est survenue")
+                        })
+
+                      } else {
+                        console.log(addFileRes.error)
+                        this.setState({loading_avance_frais:false})
+                      }
+                    }).catch(err => {
+                      console.log(err)
+                      this.setState({loading_avance_frais:false})
+                    })
+
+                  }else{
+                    console.log(addFolderRes.error)
+                    this.setState({loading_avance_frais:false})
+                  }
+                }).catch(err => {
+                  console.log(err)
+                  this.setState({loading_avance_frais:false})
+                })
+
+              }
+
+            }else{
+              console.log(Res2.error)
+              this.setState({loading_avance_frais:false})
+            }
+          }).catch(err => {
+            console.log(err)
+            this.setState({loading_avance_frais:false})
+          })
+        }else{
+          this.openSnackbar("error","Dossier 'COMPTABILITE' inexistant dans le dossier de client ! ")
+          this.setState({loading_avance_frais:false})
+        }
+      }else{
+        console.log(Res.error)
+        this.setState({loading_avance_frais:false})
+      }
+    }).catch(err => {
+      console.log(err)
+      this.setState({loading_avance_frais:false})
+    })
+  }
+
   generateProvisionDoc(new_timeSheet_desc){
     this.setState({loading_provision_preview:true})
     let lang = new_timeSheet_desc === "Description (anglais)" ? "en" : "fr";
@@ -3005,7 +3174,6 @@ export default class Main extends React.Component {
     })
   }
 
-
   reportContact(){
     this.setState({loading:true})
     let contact_timeSheets = [];
@@ -3072,7 +3240,6 @@ export default class Main extends React.Component {
     console.log(toSend)
   }
 
-
   addFactureToValidated(client,client_folder,date,createdBy,partnerEmail,lignes_facture){
     this.setState({loading:true})
 
@@ -3132,7 +3299,7 @@ export default class Main extends React.Component {
     })
   }
 
-  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc){
+  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount){
     this.setState({loading:true})
 
     let odoo_companies = this.state.odoo_companies || [];
@@ -3141,7 +3308,7 @@ export default class Main extends React.Component {
 
     if(findCompany){
       facture_company_id = findCompany.odoo_company_id;
-      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
+      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
 
     }else{
 
@@ -3158,7 +3325,7 @@ export default class Main extends React.Component {
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
 
-                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
+                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
 
               }else{
                 this.setState({loading:false})
@@ -3188,7 +3355,7 @@ export default class Main extends React.Component {
     }
   }
 
-  before_preview_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc){
+  before_preview_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount){
 
     this.setState({loading:true})
 
@@ -3199,7 +3366,7 @@ export default class Main extends React.Component {
     if(findCompany){
       console.log("COMPANY FOUND")
       facture_company_id = findCompany.odoo_company_id;
-      this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
+      this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
 
     }else{
       console.log("COMPANY NOT FOUND")
@@ -3216,7 +3383,7 @@ export default class Main extends React.Component {
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
 
-                this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc)
+                this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
 
               }else{
                 this.setState({loading:false})
@@ -3247,9 +3414,11 @@ export default class Main extends React.Component {
 
   }
 
-  previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc){
+  previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount){
 
-    console.log(facture)
+    console.log(reductionType)
+    console.log(reductionAmount)
+
     this.setState({loading:true})
     let id_facture = facture.id
 
@@ -3375,7 +3544,8 @@ export default class Main extends React.Component {
       );
     });
 
-    if(fraisAdmin === "2%"){
+
+    if(reductionAmount !== ""){
       odoo_data[0].invoice_line_ids.push(
           [
             0,
@@ -3387,9 +3557,9 @@ export default class Main extends React.Component {
               'discount': 0,
               'display_type': false,
               'is_rounding_line': false,
-              'name':"Frais administratifs(2%)",
+              'name':reductionType === "%" ? "Réduction("+reductionAmount+"%)" : "Réduction",
               'origin': false,
-              'price_unit': (total * 2) / 100,
+              'price_unit': reductionType === "%" ?  -  ((total * parseInt(reductionAmount)) / 100)  : - parseFloat(reductionAmount),
               'product_id': 1,  //2
               'quantity': 1,
               'sequence': 10,
@@ -3406,7 +3576,37 @@ export default class Main extends React.Component {
       )
     }
 
-    console.log(odoo_data)
+    if(fraisAdmin === "2%"){
+      odoo_data[0].invoice_line_ids.push(
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              "account_analytic_id":false,
+              'account_id': 101,  //103
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
+              'name':"Frais administratifs(2%)",
+              'origin': false,
+              'price_unit':  (total * 2) / 100,
+              'product_id': 1,  //2
+              'quantity': 1,
+              'sequence': 10,
+              "uom_id":1,
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+            }
+          ]
+      )
+    }
+
 
     SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
       console.log(createFactRes)
@@ -3460,7 +3660,7 @@ export default class Main extends React.Component {
     })
   }
 
-  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc) {
+  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount) {
 
     console.log(compte_banc)
     let id_facture = facture.id
@@ -3585,6 +3785,37 @@ export default class Main extends React.Component {
           ]
       );
     });
+
+    if(reductionAmount !== ""){
+      odoo_data[0].invoice_line_ids.push(
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              "account_analytic_id":false,
+              'account_id': 101,  //103
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
+              'name':reductionType === "%" ? "Réduction("+reductionAmount+"%)" : "Réduction",
+              'origin': false,
+              'price_unit': reductionType === "%" ?  -  ((total * parseInt(reductionAmount)) / 100)  : - parseFloat(reductionAmount),
+              'product_id': 1,  //2
+              'quantity': 1,
+              'sequence': 10,
+              "uom_id":1,
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+            }
+          ]
+      )
+    }
 
     if(fraisAdmin === "2%"){
       odoo_data[0].invoice_line_ids.push(
@@ -3724,8 +3955,9 @@ export default class Main extends React.Component {
         console.log(err)
       })
 
-    }else{
+    }
 
+    else{
       SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
         console.log(createFactRes)
         if(createFactRes.succes === true && createFactRes.status === 200){
@@ -4375,48 +4607,6 @@ export default class Main extends React.Component {
         console.log(err);
       });
     }
-
-  }
-
-  addFA(choice, beforeCreateFacture){
-
-    if (choice === 1) {
-
-      let facture = beforeCreateFacture;
-      let lignes_facture = facture.ligneFactures;
-      let total = 0;
-
-      (lignes_facture || []).map((ligne, key) => {
-        total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
-
-      });
-      let FA = (total * 2) / 100
-      let newItem = {
-        newTime: {
-          date: moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD HH:mm:ss'),
-          duree: "1",
-          client: facture.row.client,
-          client_id: facture.client,
-          dossier_client: facture.row.client_folder,
-          categoriesActivite: this.state.TimeSheet.newTime.categoriesActivite,
-          description: "Frais administratifs(2%)",
-          utilisateurOA: facture.row.partner,
-          rateFacturation: FA,
-          langue: ''
-        },
-        uid: utilFunctions.getUID(),
-        user_email: localStorage.getItem('email'),
-        created_at: moment().format('YYYY-MM-DD HH:mm:ss')
-      }
-      facture.ligneFactures.push(newItem)
-      this.before_create_facture(facture.createAt, facture.ligneFactures, facture.clientFolderID, facture.row, facture.template, facture.client, facture.paymTerm, facture.deadline_date, facture.taxe);
-
-    }else{
-      let facture = this.state.beforeCreateFacture;
-      this.setState({openModalVF:false})
-      this.before_create_facture(facture.createAt, facture.ligneFactures, facture.clientFolderID, facture.row, facture.template, facture.client, facture.paymTerm, facture.deadline_date, facture.taxe);
-    }
-
 
   }
 
@@ -6943,39 +7133,6 @@ export default class Main extends React.Component {
 
                         {this.renderTimeSheet()}
 
-                        <Modal
-                            isOpen={this.state.openModalVF}
-                            size="lg"
-                            zIndex={1500}
-                            toggle={() => this.setState({ openModalVF: false })}
-
-                        >
-
-                          <ModalHeader style={{display:"block",paddingLeft:"0.9rem",paddingRight:"0.9rem",paddingBottom:"0.3rem"}}>
-                            <div style={{display:"flex",justifyContent:"space-between"}}>
-                              <h5>
-                                Valider facture
-                              </h5>
-
-                            </div>
-
-                          </ModalHeader>
-                          <ModalBody>
-                           <div className="text-center">
-                             <h4>
-                               Voulez-vous ajouter des frais administratifs ?
-                             </h4>
-                           </div>
-
-
-                          </ModalBody>
-
-                            <ModalFooter>
-                              <Button color="primary" onClick={()=>this.addFA(1)} >Oui </Button>{' '}
-                              <Button color="secondary" onClick={()=>this.addFA(2)} >Non </Button>
-                            </ModalFooter>
-
-                        </Modal>
                       </Route>
 
                       <Route exact path="/home/qualified_signature/new">
