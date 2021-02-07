@@ -32,10 +32,8 @@ import userAvatar from '../../assets/images/users/user4.jpg';
 import entIcon from '../../assets/images/entreprise-icon.png';
 import moment from 'moment';
 import main_functions from '../../controller/main_functions';
-import { DeleteOutline } from '@material-ui/icons';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
-import SmartService from '../../provider/SmartService';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import utilFunctions from "../../tools/functions";
@@ -45,11 +43,8 @@ import Select from '@atlaskit/select';
 import groupBy from 'lodash/groupBy'
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
-import PictureAsPdfIcon from "@material-ui/icons/PictureAsPdf";
-import FolderIcon from "@material-ui/icons/Folder";
 import Collapse from "@material-ui/core/Collapse";
 import Box from "@material-ui/core/Box";
-import data from "../../data/Data";
 import AltAvatarGroup from "@atlaskit/avatar-group";
 
 const getTimeSuggestions = value => {
@@ -141,20 +136,16 @@ export default function TableTimeSheet(props) {
     const classes = useStyles2();
     const [showUpdateModal, setShowUpdateModal] = React.useState(false);
 
-    const [lf_toUpdated, setLf_toUpdated] = React.useState("");
     const [selectedRow, setSelectedRow] = React.useState("");
     const [toUpdated_date, setToUpdated_date] = React.useState(new Date());
     const [toUpdated_rate, setToUpdated_rate] = React.useState("");
     const [toUpdated_OAUser, setToUpdated_OAUser] = React.useState("");
-    const [toUpdated_categ, setToUpdated_categ] = React.useState("");
     const [toUpdated_dossier_client, setToUpdated_dossier_client] = React.useState("");
     const [toUpdated_dossier_client_id, setToUpdated_dossier_client_id] = React.useState("");
     const [toUpdated_desc, setToUpdated_desc] = React.useState("");
     const [toUpdated_client_id, setToUpdated_client_id] = React.useState("");
     const [toUpdated_client, setToUpdated_client] = React.useState("");
 
-
-    const [toUpdated_template, setToUpdated_template] = React.useState("");
     const [timeSuggestions, setTimeSuggestions] = React.useState([]);
     const [duration, setDuration] = React.useState("");
 
@@ -169,7 +160,6 @@ export default function TableTimeSheet(props) {
     const [lf_sdate_search, setLf_sdate_search] = React.useState(null);
     const [lf_edate_search, setLf_edate_search] = React.useState(null);
 
-    const [client_folder, setClient_folder] = React.useState("");
     const [selectedClientFolders, setSelectedClientFolders] = React.useState([]);
 
     const [partner_facture, setPartner_facture] = React.useState("");
@@ -197,7 +187,7 @@ export default function TableTimeSheet(props) {
 
 
     const searchFilter = props.lignesFactures.filter((lf) => ( ( (lf.newTime.client_id.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
-        ( lf.newTime.dossier_client && (lf.newTime.dossier_client.name === lf_dossier_search ) || lf_dossier_search === "") &&
+        ( lf.newTime.dossier_client && lf.newTime.dossier_client.folder_id && (lf.newTime.dossier_client.folder_id === lf_dossier_search ) || lf_dossier_search === "") &&
         ( lf.newTime && lf.newTime.utilisateurOA && (lf.newTime.utilisateurOA === lf_oaUser_search ) || lf_oaUser_search === "") &&
         ( lf.newTime && lf.newTime.dossier_client.team && (lf.newTime.dossier_client.team.find(x => x.uid === lf_assoc_dossier_search && x.type === "lead")  ) || lf_assoc_dossier_search === "") &&
         ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
@@ -211,7 +201,15 @@ export default function TableTimeSheet(props) {
         return sort === "asc" ?  d-c : c-d;
     });
 
-    let filtredArray = searchFilter.filter(x => x.newTime.dossier_client.folder_id !== undefined )
+    const factures = (props.factures || [])
+    let factures_ts = []
+    factures.map((fact) => {
+        (fact.lignes_facture || []).map((lf) => {
+            fact.statut === "accepted" && lf.id && factures_ts.push(lf.id)
+        })
+    })
+
+    let filtredArray = searchFilter.filter(x => !factures_ts.includes(x.id) && x.newTime.dossier_client.folder_id !== undefined)
 
     const groupedArray = groupBy(filtredArray, function(n) {
         return n.newTime.dossier_client.folder_id
@@ -222,7 +220,7 @@ export default function TableTimeSheet(props) {
     const selected = searchFilter.filter((lf) => ( lf.checked === true ));
     let total = 0;
     let nb_heures = 0;
-    selected.map((item,key) => {
+    selected.map((item) => {
         let value = parseFloat(item.newTime.rateFacturation) * parseFloat(item.newTime.duree);
         total = total + value;
         nb_heures = nb_heures + parseFloat(item.newTime.duree);
@@ -239,13 +237,6 @@ export default function TableTimeSheet(props) {
         setPage(0);
     };
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
 
     const renderOA_user = (email) => {
         let Oa_user = ""
@@ -315,6 +306,27 @@ export default function TableTimeSheet(props) {
         )
     }
 
+    const renderClientCases = (client_id) => {
+        let cases = [];
+        let clientsTempo = props.clientsTempo || [];
+        clientsTempo.map((tmp,key) => {
+            (tmp.folders || []).map((f,i) => {
+                if(tmp.ID_client === client_id){
+                    cases.push({
+                        value:f.folder_id,
+                        label:f.name
+                    })
+                }
+            })
+        })
+
+        return(
+            cases.map((item,key) => (
+                <option key={key} value={item.value}>{item.label}</option>
+            ))
+        )
+    }
+
     function onInputTimeSuggChange(event, {newValue})  {
         setDuration(newValue)
     }
@@ -333,41 +345,6 @@ export default function TableTimeSheet(props) {
         onChange: onInputTimeSuggChange
     };
 
-
-
-    let selected_client_folders = [];
-    selected.map((item,key) => {
-        if(item.newTime.dossier_client && item.newTime.dossier_client.name && item.newTime.dossier_client.name !== "" &&
-            !selected_client_folders.includes(item.newTime.dossier_client.name) ){
-            selected_client_folders.push(item.newTime.dossier_client.name)
-        }
-    })
-
-
-    let clientsTempo = props.clientsTempo || [];
-    let all_opened_mandats = [];
-    all_opened_mandats.push({value:"",label:""})
-    if(lf_client_search === ""){
-        clientsTempo.map((tmp,key) => {
-            (tmp.folders || []).map((f,i) => {
-                all_opened_mandats.push({
-                    value:f.name,
-                    label:f.name
-                })
-            })
-        })
-    }else{
-        clientsTempo.map((tmp,key) => {
-            (tmp.folders || []).map((f,i) => {
-                if(tmp.ID_client === lf_client_search_ID){
-                    all_opened_mandats.push({
-                        value:f.name,
-                        label:f.name
-                    })
-                }
-            })
-        })
-    }
 
     let searchFilter_pagination = rowsPerPage > 0 ? searchFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : searchFilter;
 
@@ -527,6 +504,21 @@ export default function TableTimeSheet(props) {
                                 setExapndedRowKey("")
                                 setLf_client_search(e)
                                 setLf_client_search_ID(e)
+
+                                let cases = [];
+                                let clientsTempo = props.clientsTempo || [];
+                                clientsTempo.map((tmp,key) => {
+                                    (tmp.folders || []).map((f,i) => {
+                                        if(tmp.ID_client === e){
+                                            cases.push({
+                                                value:f.folder_id,
+                                                label:f.name
+                                            })
+                                        }
+                                    })
+                                })
+                                setLf_dossier_search(cases.length > 0 ? cases[0].value : "")
+
                                 let ch_rows = props.lignesFactures;
                                 ch_rows.map((item,key) => {
                                     item.checked = false
@@ -550,9 +542,7 @@ export default function TableTimeSheet(props) {
                                 value={lf_dossier_search}
                         >
                             {
-                                all_opened_mandats.map((item,key) =>
-                                    <option key={key} value={item.value}>{item.label}</option>
-                                )
+                                renderClientCases(lf_client_search_ID)
                             }
 
 
@@ -649,18 +639,21 @@ export default function TableTimeSheet(props) {
                     <Table className={classes.table} aria-label="custom pagination table" style={{marginTop:20}}>
                         <TableHead>
                             <TableRow style={{padding:10}}>
-                                <TableCell align="left" style={{width:"5%"}}>
-                                    <Checkbox checked={check_all}
-                                              onChange={(event) => {
-                                                  setCheck_all(event.target.checked)
-                                                  searchFilter.map((item,key) => {
-                                                      searchFilter[key].checked = event.target.checked
-                                                  })
-                                              }}
-                                    />
-                                </TableCell>
+                                {
+                                    lf_client_search_ID !== "" &&
+                                    <TableCell align="left" style={{width:"5%"}}>
+                                        <Checkbox checked={check_all}
+                                                  onChange={(event) => {
+                                                      setCheck_all(event.target.checked)
+                                                      searchFilter.map((item,key) => {
+                                                          searchFilter[key].checked = event.target.checked
+                                                      })
+                                                  }}
+                                        />
+                                    </TableCell>
+                                }
+
                                 <TableCell align="center" style={{width:"6%",fontWeight:600}}>Actions</TableCell>
-                                {/*<TableCell align="center" style={{width:"7%",fontWeight:600}}>Date de création</TableCell>*/}
                                 <TableCell align="center" style={{width:"9%",fontWeight:600}}>
                                     <div style={{display:"flex"}}>
                                         <IconButton size="small" onClick={() => {
@@ -687,16 +680,20 @@ export default function TableTimeSheet(props) {
                         <TableBody>
                             {(searchFilter_pagination || []).map((row,key) => (
                                 <TableRow key={key} style={{padding:10}}>
-                                    <TableCell align="left"   style={{width:"5%",backgroundColor:searchFilter_pagination[key].checked && searchFilter_pagination[key].checked === true ? "rgba(220, 0, 78, 0.08)" : "transparent"}}>
-                                        <div className="media align-items-center">
-                                            <Checkbox  checked={(searchFilter_pagination[key].checked === true || searchFilter_pagination[key].checked === false)  ? searchFilter_pagination[key].checked : false}
-                                                       onChange={(event) => {
-                                                           setX_update(!x_update)
-                                                           searchFilter_pagination[key].checked = event.target.checked
-                                                           if(searchFilter_pagination[key].checked === false) setCheck_all(false)
-                                                       }}  />
-                                        </div>
-                                    </TableCell>
+                                    {
+                                        lf_client_search_ID !== "" &&
+                                        <TableCell align="left"   style={{width:"5%",backgroundColor:searchFilter_pagination[key].checked && searchFilter_pagination[key].checked === true ? "rgba(220, 0, 78, 0.08)" : "transparent"}}>
+                                            <div className="media align-items-center">
+                                                <Checkbox  checked={(searchFilter_pagination[key].checked === true || searchFilter_pagination[key].checked === false)  ? searchFilter_pagination[key].checked : false}
+                                                           onChange={(event) => {
+                                                               setX_update(!x_update)
+                                                               searchFilter_pagination[key].checked = event.target.checked
+                                                               if(searchFilter_pagination[key].checked === false) setCheck_all(false)
+                                                           }}  />
+                                            </div>
+                                        </TableCell>
+                                    }
+
                                     <TableCell style={{ width: "6%"}} align="center">
                                         <IconButton size="small" color="default" onClick={() => {
                                             console.log(row)
@@ -776,7 +773,10 @@ export default function TableTimeSheet(props) {
                                 </TableRow>
                             ))}
                             <TableRow style={{padding:7}}>
-                                <TableCell align="left" style={{width:"5%"}}/>
+                                {
+                                    lf_client_search_ID !== "" &&
+                                    <TableCell align="left" style={{width:"5%"}}/>
+                                }
                                 <TableCell align="center" style={{width:"6%",fontWeight:600}}/>
                                 <TableCell align="center" style={{width:"9%",fontWeight:600}}/>
                                 <TableCell align="center" style={{width:"20%",fontWeight:600}}/>
@@ -817,13 +817,14 @@ export default function TableTimeSheet(props) {
                         <TableHead>
                             <TableRow>
                                 <TableCell />
-                                <TableCell  style={{fontWeight:"bold"}} >Dossier</TableCell>
                                 <TableCell  style={{fontWeight:"bold"}} >Client</TableCell>
+                                <TableCell  style={{fontWeight:"bold"}} >Dossier</TableCell>
                                 <TableCell  style={{fontWeight:"bold"}} >Associes</TableCell>
                                 <TableCell  style={{fontWeight:"bold"}} >Equipe</TableCell>
-                                <TableCell  style={{fontWeight:"bold"}} >Autrepartie</TableCell>
-                                <TableCell  style={{fontWeight:"bold"}} >Contrepartie</TableCell>
                                 <TableCell align="center" style={{fontWeight:"bold"}} >Ajouté par </TableCell>
+                                <TableCell align="center"  style={{fontWeight:"bold"}} >Total(h)</TableCell>
+                                <TableCell align="center"  style={{fontWeight:"bold"}} >Total(CHF)</TableCell>
+
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -839,8 +840,8 @@ export default function TableTimeSheet(props) {
                                                     {open && key === exapndedRowKey ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                                                 </IconButton>
                                             </TableCell>
-                                            <TableCell style={{width:"18%"}} >{dossier[0].newTime.dossier_client.name}</TableCell>
                                             <TableCell style={{width:"18%"}} >{dossier[0].newTime.client}</TableCell>
+                                            <TableCell style={{width:"18%"}} >{dossier[0].newTime.dossier_client.name}</TableCell>
                                             <TableCell style={{width:"12%"}} >
                                                 <AltAvatarGroup appearance="stack" maxCount={4} borderColor="#C0C0C0" isTooltipDisabled={false} size="small"
                                                                 data={(dossier[0].newTime.dossier_client.team || []).filter(x => x.type === "lead").map((item,key) => ({
@@ -863,9 +864,11 @@ export default function TableTimeSheet(props) {
                                                                 }))}
                                                 />
                                             </TableCell>
-                                            <TableCell style={{width:"10%"}}>{dossier[0].newTime.dossier_client.autrepartie}</TableCell>
-                                            <TableCell style={{width:"10%"}}>{dossier[0].newTime.dossier_client.contrepartie}</TableCell>
                                             <TableCell style={{width:"20%"}}>{renderOA_user(dossier[0].user_email)}</TableCell>
+                                            {
+                                                renderTotalHours_CHF_byFolder(dossier)
+                                            }
+
                                         </TableRow>
 
                                         <TableRow>
@@ -873,7 +876,7 @@ export default function TableTimeSheet(props) {
                                                 <Collapse in={open && key === exapndedRowKey} timeout="auto" unmountOnExit>
                                                     <Box margin={1}>
                                                         <div style={{marginLeft:30,border:"2px solid dodgerblue",padding:20,borderRadius:7.5,maxHeight:600,overflow:"overlay"}}>
-                                                            <h5 style={{textDecoration:"underline"}}>{dossier.length === 0 ? "Aucun timesheet pour ce dossier" : dossier.length + " TimeSheet"}</h5>
+                                                            <h5 style={{textDecoration:"underline"}}>{dossier.length === 0 ? "Aucun timesheet pour ce dossier" : dossier.length + " TimeSheet non encore facturés"}</h5>
                                                             <Table size="small" aria-label="purchases">
                                                                 <TableHead>
                                                                     <TableRow>
@@ -992,6 +995,7 @@ export default function TableTimeSheet(props) {
                                                                                     newTime:item.newTime
                                                                                 })
                                                                             })
+                                                                            let client_folder={id:lf_dossier_search,name:sheets_to_add[0].newTime.dossier_client.name}
                                                                             props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD HH:mm:ss"),partner_facture,sheets_to_add);
                                                                             setTimeout(() => {
                                                                                 selected.map((item,key) => {
@@ -1000,7 +1004,6 @@ export default function TableTimeSheet(props) {
                                                                                     }
                                                                                 })
                                                                                 setPartner_facture("")
-                                                                                setClient_folder("")
                                                                                 setFacture_date(new Date())
                                                                             },250);
                                                                         }
@@ -1026,13 +1029,18 @@ export default function TableTimeSheet(props) {
                 selected.length > 0 &&
                 <div>
                     <div>
-                        <div className="row mt-1">
-                            <div className="col-md-4">
+                        <div className="mt-1" style={{justifyContent:"flex-end",display:"flex"}}>
+                            <span className="badge badge-blue text-white p-2 font-14">Total heures: {utilFunctions.formatDuration(nb_heures.toString())}</span>
+                            <span className="badge badge-blue text-white p-2 font-14 ml-2">Total: {total.toFixed(2)+ " CHF"}</span>
+                        </div>
+
+                        <div className="row mt-1 ml-2">
+                            <div className="col-md-6">
                                 <h5>Partner validant cette facture</h5>
                                 <MuiSelect
                                     labelId="demo-mutiple-chip-label14545"
                                     id="demo-mutiple-chip34688"
-                                    style={{ width: 250 }}
+                                    style={{ width: 300 }}
                                     value={partner_facture}
                                     onChange={(e) => {
                                         console.log(e.target.value);
@@ -1055,27 +1063,10 @@ export default function TableTimeSheet(props) {
                                     ))}
                                 </MuiSelect>
                             </div>
-                            <div className="col-md-4">
-                                <h5>Date de la facture</h5>
-                                <DatePicker
-                                    calendarIcon={
-                                        <img
-                                            alt=""
-                                            src={calendar}
-                                            style={{ width: 20 }} />}
-                                    onChange={(e) => {
-                                        setFacture_date(e)
-                                    }}
-                                    value={facture_date}
-                                />
-                            </div>
                         </div>
                     </div>
-                    <div className="mt-3" style={{textAlign:"right"}}>
-                        <span className="badge badge-blue text-white p-2 font-16">Total heures: {utilFunctions.formatDuration(nb_heures.toString())}</span><br/>
-                        <span className="badge badge-blue text-white p-2 font-16" style={{marginTop:7}}>Total: {total.toFixed(2)+ " CHF"}</span>
-                    </div>
-                    <div className="mt-3" style={{textAlign:"right"}}>
+
+                    <div className="mt-2" style={{textAlign:"right"}}>
                         <AtlButton
                             appearance="primary"
                             isDisabled={partner_facture === ""}
@@ -1083,8 +1074,9 @@ export default function TableTimeSheet(props) {
                                 if(partner_facture === ""){
                                     alert("Vous devez sélectionner un partner pour la validation !")
                                 }else{
-                                    setCheck_all(false)
+
                                     let sheets_to_add = [];
+                                    setCheck_all(false)
                                     selected.map((item,key) => {
                                         sheets_to_add.push({
                                             id:item.id,
@@ -1094,6 +1086,8 @@ export default function TableTimeSheet(props) {
                                             newTime:item.newTime
                                         })
                                     })
+                                    let client_folder={id:lf_dossier_search,name:sheets_to_add[0].newTime.dossier_client.name}
+                                    console.log(client_folder)
                                     props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD HH:mm:ss"),partner_facture,sheets_to_add);
                                     setTimeout(() => {
                                         selected.map((item,key) => {
@@ -1102,9 +1096,8 @@ export default function TableTimeSheet(props) {
                                             }
                                         })
                                         setPartner_facture("")
-                                        setClient_folder("")
-                                        setFacture_date(new Date())
                                     },250);
+
                                 }
 
                             }}>

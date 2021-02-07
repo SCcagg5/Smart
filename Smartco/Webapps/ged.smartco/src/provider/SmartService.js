@@ -252,6 +252,26 @@ let SmartService = {
         });
     },
 
+    update_facture_odoo(token,usrtoken,data){
+        console.log(JSON.stringify(data))
+        return fetch(endpoint + '/odoo/'+odoo_id+'/bill/edit', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    details_facture_odoo(token,usrtoken,id){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/bill/'+id+'/details', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     generate_facture_odoo(token,usrtoken,id,accestoken){
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill/'+id+'?access_token='+accestoken, {
             method: 'GET',
