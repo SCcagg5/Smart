@@ -1155,6 +1155,6 @@ select{
 }
 .ui.mini.input{
     height: 35px!important;
-    width: 300px!important;
+    width: 100%!important;
     font-size: 1em!important;
 }

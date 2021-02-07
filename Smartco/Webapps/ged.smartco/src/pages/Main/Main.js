@@ -2554,9 +2554,7 @@ export default class Main extends React.Component {
                                                 onChange={ (e) => {
                                                   let obj = this.state.TimeSheet;
                                                   let findClientTempo = this.state.clients_cases.find(x => x.ID_client === e)
-                                                  //console.log(findClientTempo)
                                                   let findClientFname = this.state.annuaire_clients_mandat.find(x => x.ID === e)
-                                                  //console.log(findClientFname)
                                                   obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
                                                   obj.newTime.client_id = e;
                                                   obj.newTime.dossier_client =  {
@@ -2565,6 +2563,7 @@ export default class Main extends React.Component {
                                                       language:''
                                                     }}
                                                   if(findClientTempo){
+                                                    obj.newTime.dossier_client = findClientTempo.folders && findClientTempo.folders.length > 0 ? findClientTempo.folders[0] : {name:'', facturation: {language:''}}
                                                     this.setState({selectedClientFolders:findClientTempo.folders || [],selectedClientTimeEntree: e,TimeSheet: obj})
                                                   }else{
                                                     this.setState({selectedClientFolders:[],TimeSheet:obj,selectedClientTimeEntree: e})
@@ -2762,6 +2761,7 @@ export default class Main extends React.Component {
                                   openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
                                   clientsTempo={this.state.clients_cases}
                                   updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
+                                  factures={this.state.factures || []}
                               />
                             } {
                             this.state.time_sheets.length === 0 &&
@@ -2781,11 +2781,11 @@ export default class Main extends React.Component {
                                            annuaire_clients_mandat={this.state.annuaire_clients_mandat}
                                            contacts={this.state.contacts || []}
                                            sharedFolders={this.state.sharedReelFolders || []}
-                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount) => {
-                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount);
+                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount) => {
+                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount);
                                            }}
-                                           previewFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount) => {
-                                             this.before_preview_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
+                                           previewFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount) => {
+                                             this.before_preview_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount)
                                            }}
                                            openFacture={(id) => {
                                              this.openPdfModal(id)
@@ -3255,10 +3255,7 @@ export default class Main extends React.Component {
         partner:partnerEmail,
         lignes_facture:lignes_facture,
         statut:"wait",
-        client_folder:{
-          id:"",
-          name:client_folder
-        }
+        client_folder:client_folder
       }
 
       rethink.insert("test",'table("factures").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
@@ -3299,7 +3296,7 @@ export default class Main extends React.Component {
     })
   }
 
-  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount){
+  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount){
     this.setState({loading:true})
 
     let odoo_companies = this.state.odoo_companies || [];
@@ -3308,7 +3305,7 @@ export default class Main extends React.Component {
 
     if(findCompany){
       facture_company_id = findCompany.odoo_company_id;
-      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
+      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount)
 
     }else{
 
@@ -3325,7 +3322,7 @@ export default class Main extends React.Component {
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
 
-                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
+                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount)
 
               }else{
                 this.setState({loading:false})
@@ -3355,7 +3352,7 @@ export default class Main extends React.Component {
     }
   }
 
-  before_preview_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount){
+  before_preview_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount){
 
     this.setState({loading:true})
 
@@ -3366,7 +3363,7 @@ export default class Main extends React.Component {
     if(findCompany){
       console.log("COMPANY FOUND")
       facture_company_id = findCompany.odoo_company_id;
-      this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
+      this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount)
 
     }else{
       console.log("COMPANY NOT FOUND")
@@ -3383,7 +3380,7 @@ export default class Main extends React.Component {
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
 
-                this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
+                this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount)
 
               }else{
                 this.setState({loading:false})
@@ -3414,10 +3411,7 @@ export default class Main extends React.Component {
 
   }
 
-  previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount){
-
-    console.log(reductionType)
-    console.log(reductionAmount)
+  previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount){
 
     this.setState({loading:true})
     let id_facture = facture.id
@@ -3427,7 +3421,7 @@ export default class Main extends React.Component {
     lignes_factures.map((ligne, key) => {
       total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
     })
-    let acces_token = facture.draft_acces_token ? facture.draft_acces_token : utilFunctions.getUID();
+    let acces_token = facture.facture_acces_token ? facture.facture_acces_token : utilFunctions.getUID();
 
     let odoo_data = [];
     odoo_data.push({
@@ -3446,7 +3440,7 @@ export default class Main extends React.Component {
       'invoice_user_id': 3,
       'invoice_incoterm_id': false,
       'tax_lock_date_message': false,
-      'id': facture.facture_draft_id ? facture.facture_draft_id : false,
+      'id': false,
       'invoice_payment_state': 'not_paid',
       'invoice_filter_type_domain': 'sale',
       'company_currency_id': 5,
@@ -3480,7 +3474,7 @@ export default class Main extends React.Component {
       'message_attachment_count': 0,
       'invoice_line_ids': [],
       "account_id": 6,
-      "reference": client_folder_name,
+      "reference": facture.client_folder.name,
       "fiscal_position_id": false,
       "origin": false,
       "reference_type":"none",
@@ -3608,61 +3602,97 @@ export default class Main extends React.Component {
     }
 
 
-    SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
-      console.log(createFactRes)
-      if (createFactRes.succes === true && createFactRes.status === 200) {
+    /*if(facture.facture_odoo_id){
 
-        SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+      SmartService.update_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+          { data: [[facture.facture_odoo_id],odoo_data[0]] }).then( updateFacRes => {
 
-          if(genFactRes.succes === true && genFactRes.status === 200){
+        if(updateFacRes.succes === true && updateFacRes.status === 200){
 
-            let updatedItem = facture;
-            updatedItem.facture_draft_id = createFactRes.data.id
-            updatedItem.draft_acces_token = acces_token
+          SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id,facture.facture_acces_token).then(genFactRes => {
 
-            rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
-              if (updateRes && updateRes === true) {
-                this.setState({loading:false})
-                let b64 = genFactRes.data.pdf;
-                this.showDocInPdfModal(b64,"Facture_" + moment().format("DD-MM-YYYY HH:mm"),"pdf")
+            if(genFactRes.succes === true && genFactRes.status === 200){
 
-              } else {
+              this.setState({loading:false})
+              let b64 = genFactRes.data.pdf;
+              this.showDocInPdfModal(b64,"Facture_" + moment().format("DD-MM-YYYY HH:mm"),"pdf")
+
+            }else{
+              this.setState({loading:false})
+              console.log(genFactRes.error)
+            }
+          }).catch( err => {
+            this.setState({loading:false})
+            console.log(err)
+          })
+
+        }else{
+          console.log(updateFacRes.error)
+        }
+
+      }).catch(err => {
+        console.log(err)
+      })
+
+    }*/
+
+      SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+        console.log(createFactRes)
+        if (createFactRes.succes === true && createFactRes.status === 200) {
+
+          SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+
+            if(genFactRes.succes === true && genFactRes.status === 200){
+
+              let updatedItem = facture;
+              updatedItem.facture_odoo_id = createFactRes.data.id
+              updatedItem.facture_acces_token = acces_token
+
+              rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+                if (updateRes && updateRes === true) {
+                  this.setState({loading:false})
+                  let b64 = genFactRes.data.pdf;
+                  this.showDocInPdfModal(b64,"Facture_" + moment().format("DD-MM-YYYY HH:mm"),"pdf")
+
+                } else {
+                  this.setState({loading:false})
+                  this.openSnackbar("error","Une erreur est survenue !")
+                }
+              }).catch(err => {
                 this.setState({loading:false})
                 this.openSnackbar("error","Une erreur est survenue !")
-              }
-            }).catch(err => {
+                console.log(err)
+              })
+
+            }else{
               this.setState({loading:false})
-              this.openSnackbar("error","Une erreur est survenue !")
-              console.log(err)
-            })
-
-          }else{
+              console.log(genFactRes.error)
+            }
+          }).catch( err => {
             this.setState({loading:false})
-            console.log(genFactRes.error)
-          }
-        }).catch( err => {
-          this.setState({loading:false})
-          console.log(err)
-        })
+            console.log(err)
+          })
 
-      }
-      else if(createFactRes.succes === false && createFactRes.status === 400){
-        this.setState({ loading: false });
-        localStorage.clear();
-        this.props.history.push('/login');
-      }
-      else{
-        this.setState({loading:false})
-        this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
-      }
-    }).catch(err => {
-      console.log(err)
-    })
+        }
+        else if(createFactRes.succes === false && createFactRes.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else{
+          this.setState({loading:false})
+          this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+
+
+
   }
 
-  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount) {
+  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount) {
 
-    console.log(compte_banc)
     let id_facture = facture.id
 
     let lignes_factures = lignes_f;
@@ -3722,7 +3752,7 @@ export default class Main extends React.Component {
       'message_attachment_count': 0,
       'invoice_line_ids': [],
       "account_id": 6,
-      "reference": client_folder_name,
+      "reference": facture.client_folder.name,
       "fiscal_position_id": false,
       "origin": false,
       "reference_type":"none",
@@ -3855,18 +3885,18 @@ export default class Main extends React.Component {
       )
     }
 
-    if(facture.facture_draft_id){
+    if(facture.facture_odoo_id){
 
       SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
-          { data: [[facture.facture_draft_id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
+          { data: [[facture.facture_odoo_id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
         console.log(validateRes)
         if(validateRes.succes === true && validateRes.status === 200){
 
-          SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_draft_id,facture.draft_acces_token).then(genFactRes => {
+          SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id,facture.facture_acces_token).then(genFactRes => {
 
             if(genFactRes.succes === true && genFactRes.status === 200){
 
-              SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+              SmartService.getFile(facture.client_folder.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
                 if(resF.succes === true && resF.status === 200){
                   let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
 
@@ -3906,7 +3936,7 @@ export default class Main extends React.Component {
                           let updatedItem = facture;
                           updatedItem.statut = "accepted";
                           updatedItem.file_id = ok.data.file_id;
-                          updatedItem.client_folder = {id:client, name:resF.data.name}
+                          //updatedItem.client_folder = {id:client, name:resF.data.name}
 
                           rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
                             if (updateRes && updateRes === true) {
@@ -3971,7 +4001,7 @@ export default class Main extends React.Component {
 
                 if(genFactRes.succes === true && genFactRes.status === 200){
 
-                  SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+                  SmartService.getFile(facture.client_folder.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
                     if(resF.succes === true && resF.status === 200){
                       let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
 
@@ -4011,7 +4041,8 @@ export default class Main extends React.Component {
                               let updatedItem = facture;
                               updatedItem.statut = "accepted";
                               updatedItem.file_id = ok.data.file_id;
-                              updatedItem.client_folder = {id:client, name:resF.data.name}
+                              updatedItem.facture_odoo_id = createFactRes.data.id
+                              updatedItem.facture_acces_token = acces_token
 
                               rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
                                 if (updateRes && updateRes === true) {
@@ -4076,7 +4107,6 @@ export default class Main extends React.Component {
       });
 
     }
-
 
   }
 
@@ -6376,16 +6406,6 @@ export default class Main extends React.Component {
                                                     onChange={this.handleChange('selectedSociete', 'remarque')} />
                                               </div>
                                             </div>
-                                            <div align="center" className="mt-2">
-                                              <AtlButton
-                                                  appearance="primary"
-                                                  onClick={(e) => {
-                                                    this.setState({anchorElDrive:e.currentTarget})
-                                                  }}
-                                              >
-                                                Générer le document
-                                              </AtlButton>
-                                            </div>
 
                                           </TabPanel>
                                           <TabPanel>
@@ -6866,6 +6886,7 @@ export default class Main extends React.Component {
                                                      }}
                                                      reloadGed={() => this.justReloadGed()}
                                                      openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                                     folders={this.state.folders || []}
                                             />
                                           </TabPanel>
                                         </Tabs>

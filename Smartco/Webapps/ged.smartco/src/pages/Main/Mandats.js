@@ -17,6 +17,12 @@ import CB from '@material-ui/core/Checkbox';
 import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
 import { Checkbox } from '@atlaskit/checkbox';
 import SmartService from '../../provider/SmartService';
+import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
+import CloseIcon from "@material-ui/icons/Close";
+import Popover from "@material-ui/core/Popover";
+import {Tree} from "antd";
+
+const {DirectoryTree} = Tree;
 
 
 export default class Mandats extends React.Component{
@@ -28,7 +34,13 @@ export default class Mandats extends React.Component{
     toRemoveFolderKey:"",
     toRemoveFolder_id:"",
     delete_folder_ged:false,
-      mandatFolderNameChanged:false
+      mandatFolderNameChanged:false,
+      anchorElDrive:null,
+      expandedDrivePopUpKeys:[],
+      selectedDrivePopUpKeys:[],
+      autoExpandDrivePopUpParent:true,
+      destinationFolder:"",
+      reportDoss:""
   }
 
 
@@ -36,18 +48,141 @@ export default class Mandats extends React.Component{
     let s_client = this.props.selectedClient;
     let client_mandat = this.props.clients_tempo.find(x => x.ID_client === s_client.ID);
     this.setState({client_mandat:client_mandat})
-    console.log(client_mandat)
   }
 
 
-  render() {
+    onExpandDrivePopUp = (expandedKeys) => {
+        this.setState({expandedDrivePopUpKeys:expandedKeys,autoExpandDrivePopUpParent:false})
+    }
+
+    onSelectDrivePopUp = (selectedKeys, info) => {
+        this.setState({selectedDrivePopUpKeys:selectedKeys,destinationFolder:info.node})
+    }
+
+    reportClient(dossier){
+        this.setState({loading:true,anchorElDrive:null})
+        let toSend = {
+            folder:this.state.destinationFolder.key,
+            client:{
+                id:this.props.selectedClient.id,
+                type:this.props.selectedClient.Type,
+                nom:this.props.selectedClient.Nom,
+                prenom:this.props.selectedClient.Prenom,
+                email:this.props.selectedClient.email,
+                adress:this.props.selectedClient.adress,
+                phone:this.props.selectedClient.phone,
+                isActif:this.props.selectedClient.isActif,
+                created_at:this.props.selectedClient.created_at,
+                remarques:this.props.selectedClient.remarque,
+            },
+            dossier_client:dossier
+        }
+        SmartService.reportClient(toSend,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( reportRes => {
+            if(reportRes.succes === true && reportRes.status === 200){
+                this.setState({loading:false,reportDoss:"",destinationFolder:""})
+                this.props.openSnackbar("success","Opération effectué avec succès")
+            }else{
+                this.setState({loading:false,reportDoss:"",destinationFolder:""})
+                this.props.openSnackbar("error",reportRes.error)
+            }
+        }).catch(err => {
+            this.setState({loading:false,reportDoss:"",destinationFolder:""})
+            console.log(err)
+            this.props.openSnackbar("error","Une erreur est survenue !")
+        })
+        console.log(JSON.stringify(toSend))
+    }
+
+
+    render() {
+
+      const openDrivePopup = Boolean(this.state.anchorElDrive);
+      const id = openDrivePopup ? 'drive-popover' : undefined;
 
     return(
         <div style={{ marginTop: 30 }}>
           <Collapse>
             {
               this.state.client_mandat && this.state.client_mandat.folders && (this.state.client_mandat.folders || []).map((doss,key) =>
-                  <Panel header={doss.name}  key={key} headerClass="mandat_collapse_header">
+                  <Panel key={key} headerClass="mandat_collapse_header"
+                         header={
+                             <div style={{display:"flex",justifyContent:"space-around",alignItems:"center"}}>
+                                 <h5>{doss.name}</h5>
+                                 <div style={{position:"absolute",right:45}}>
+                                     <AtlButton
+                                         spacing="compact"
+                                         appearance="default"
+                                         iconBefore={<PictureAsPdfIcon size="small" />}
+                                         onClick={(e) => {
+                                             this.setState({anchorElDrive:e.currentTarget,reportDoss:doss})
+                                         }}
+                                     >
+                                         Générer le document
+                                     </AtlButton>
+                                 </div>
+
+                             </div>
+                         }
+                  >
+                      <Popover
+                          id={id}
+                          open={openDrivePopup}
+                          anchorEl={this.state.anchorElDrive}
+                          onClose={() => {
+                              this.setState({anchorElDrive: null})
+                          }}
+                          anchorOrigin={{
+                              vertical: 'top',
+                              horizontal: 'center',
+                          }}
+                          transformOrigin={{
+                              vertical: 'top',
+                              horizontal: 'center',
+                          }}
+                      >
+                          <div style={{padding:15,height:600,width:300,paddingBottom:50}}>
+                              <div align="right">
+                                  <IconButton size="small" onClick={() => {
+                                      this.setState({anchorElDrive:null,expandedDrivePopUpKeys:[],selectedDrivePopUpKeys:[],destinationFolder:""})
+                                  }}
+                                  >
+                                      <CloseIcon />
+                                  </IconButton>
+                              </div>
+
+                              <h6 style={{color:"darkblue"}}>Veuillez sélectionner un dossier de destination </h6>
+                              <div style={{marginTop:20,maxHeight:430,overflowY:"auto"}}>
+                                  <DirectoryTree
+                                      draggable={true}
+                                      allowDrop={(options) => {
+                                          return false
+                                      }}
+                                      showIcon={true}
+                                      onExpand={this.onExpandDrivePopUp}
+                                      onSelect={this.onSelectDrivePopUp}
+                                      treeData={this.props.folders || []}
+                                      expandAction="click"
+                                      expandedKeys={this.state.expandedDrivePopUpKeys}
+                                      selectedKeys={this.state.selectedDrivePopUpKeys}
+                                      autoExpandParent={this.state.autoExpandDrivePopUpParent}
+                                  />
+                              </div>
+                              <div style={{position:"absolute",bottom:50}}>
+                                  <span style={{color:"#000",fontWeight:"bold"}}>Dossier sélectionné:&nbsp; <span>{this.state.destinationFolder.title}</span> </span>
+                              </div>
+                              <div align="right" style={{position:"absolute",bottom:10,right:15}}>
+                                  <AtlButton
+                                      isDisabled={this.state.destinationFolder === ""}
+                                      appearance="primary"
+                                      onClick={() => {
+                                          this.reportClient(this.state.reportDoss)
+                                      }}
+                                  >
+                                      Valider
+                                  </AtlButton>
+                              </div>
+                          </div>
+                      </Popover>
                     <div className="row">
                       <div className="col-md-12">
                         <h5>Crée par: {localStorage.getItem("email") === doss.created_by ? "Vous" : doss.created_by }</h5>

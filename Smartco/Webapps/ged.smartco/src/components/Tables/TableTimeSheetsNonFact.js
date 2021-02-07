@@ -119,7 +119,7 @@ export default function TableTimeSheetsNonFact(props) {
     })
     timeSheetsNonFact = timeSheets.filter(x => !factures_ts.includes(x.id))
     const searchFilter = (timeSheetsNonFact || []).filter((lf) => ( ( (lf.newTime.client_id.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
-        ( lf.newTime.dossier_client && (lf.newTime.dossier_client.name === lf_dossier_search ) || lf_dossier_search === "")
+        ( lf.newTime.dossier_client && lf.newTime.dossier_client.folder_id && (lf.newTime.dossier_client.folder_id === lf_dossier_search ) || lf_dossier_search === "")
     ))
 
     searchFilter.sort( (a,b) => {
@@ -179,6 +179,27 @@ export default function TableTimeSheetsNonFact(props) {
                 </span>
             </button>
         );
+    }
+
+    const renderClientCases = (client_id) => {
+        let cases = [];
+        let clientsTempo = props.clientsTempo || [];
+        clientsTempo.map((tmp,key) => {
+            (tmp.folders || []).map((f,i) => {
+                if(tmp.ID_client === client_id){
+                    cases.push({
+                        value:f.folder_id,
+                        label:f.name
+                    })
+                }
+            })
+        })
+
+        return(
+            cases.map((item,key) => (
+                <option key={key} value={item.value}>{item.label}</option>
+            ))
+        )
     }
 
     const renderTotalHours_CHF = () => {
@@ -243,9 +264,20 @@ export default function TableTimeSheetsNonFact(props) {
                                 setPage(0);
                                 setLf_client_search(e)
                                 setLf_client_search_ID(e)
-                                /*setTimeout(() => {
-                                    setLf_dossier_search(all_opened_mandats.length > 0 ? all_opened_mandats[0].value : "")
-                                },250)*/
+
+                                let cases = [];
+                                let clientsTempo = props.clientsTempo || [];
+                                clientsTempo.map((tmp,key) => {
+                                    (tmp.folders || []).map((f,i) => {
+                                        if(tmp.ID_client === e){
+                                            cases.push({
+                                                value:f.folder_id,
+                                                label:f.name
+                                            })
+                                        }
+                                    })
+                                })
+                                setLf_dossier_search(cases.length > 0 ? cases[0].value : "")
 
                             }}
                         />
@@ -262,9 +294,7 @@ export default function TableTimeSheetsNonFact(props) {
                                 value={lf_dossier_search}
                         >
                             {
-                                all_opened_mandats.map((item,key) =>
-                                    <option key={key} value={item.value}>{item.label}</option>
-                                )
+                                renderClientCases(lf_client_search_ID)
                             }
 
 

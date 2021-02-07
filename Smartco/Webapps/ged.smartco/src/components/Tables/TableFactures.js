@@ -38,6 +38,7 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import Dialog from "@material-ui/core/Dialog";
 import Data from "../../data/Data";
 import { Dropdown, Input as Sinput } from 'semantic-ui-react'
+import SearchIcon from '@material-ui/icons/Search';
 
 const useRowStyles = makeStyles({
   root: {
@@ -245,6 +246,7 @@ export default function CollapsibleTable(props) {
                             <TableCell align="center" style={{fontWeight:"bold"}} >Total(nb heures)</TableCell>
                             <TableCell align="center" style={{fontWeight:"bold"}} >Total (CHF)</TableCell>
                             <TableCell align="center" style={{fontWeight:"bold"}} >Statut</TableCell>
+                            <TableCell align="center" style={{fontWeight:"bold"}} >Paiement</TableCell>
                             <TableCell align="center" style={{fontWeight:"bold"}} >Actions</TableCell>
                           </TableRow>
                         </TableHead>
@@ -329,6 +331,9 @@ function Row(props) {
   const [addReduction, setAddReduction] = React.useState(false);
   const [reductionType, setReductionType] = React.useState("%");
   const [reductionAmount, setReductionAmount] = React.useState("");
+
+
+  const [loading_paiment_state, setLoading_paiment_state] = React.useState(false);
 
 
 
@@ -417,6 +422,44 @@ function Row(props) {
           <span className={row.statut === "wait" ? "badge badge-warning text-white p-1" : "badge badge-success text-white p-1"}>
             {row.statut === "wait" ? "En attente" : "Validée"}</span>
           </TableCell>
+
+          {
+            row.statut === "accepted" ?
+            <TableCell align="center">
+              {
+                loading_paiment_state === true ?
+                    <CircularProgress color="secondary" size={20} /> :
+                    <IconButton size="small" color="secondary"
+                                onClick={() => {
+                                  setLoading_paiment_state(true)
+                                  SmartService.details_facture_odoo(localStorage.getItem("token"),localStorage.getItem("usrtoken"),row.facture_odoo_id).then( detailsRes => {
+                                    if(detailsRes.succes === true && detailsRes.status === 200){
+                                      console.log(detailsRes.data)
+                                      if(detailsRes.data.state === "paid"){
+                                        props.openSnackbar("success","Cette facture est bien payée !")
+                                      }else{
+                                        props.openSnackbar("warning","Cette facture n'est pas encore payée !")
+                                      }
+                                      setLoading_paiment_state(false)
+                                    }else{
+                                      console.log(detailsRes.error)
+                                      setLoading_paiment_state(false)
+                                      props.openSnackbar("error","Une erreur est survenue !")
+                                    }
+                                  }).catch(err => {
+                                    console.log(err)
+                                    setLoading_paiment_state(false)
+                                    props.openSnackbar("error","Une erreur est survenue !")
+                                  })
+                                }}
+                    >
+                      <SearchIcon fontSize="small"/>
+                    </IconButton>
+              }
+
+            </TableCell> :
+                <TableCell align="center"/>
+          }
           <TableCell align="center" style={{minWidth:120}}>
             {
               row.statut === "accepted" &&
@@ -530,7 +573,7 @@ function Row(props) {
                     row.statut === "wait" &&
                     <div>
                       <div className="row mt-2">
-                        <div className="col-md-4">
+                        {/*<div className="col-md-4">
                           <h6>Dossier client</h6>
                           <select className="form-control custom-select"
                               value={client}
@@ -545,7 +588,7 @@ function Row(props) {
                             }
 
                           </select>
-                        </div>
+                        </div>*/}
                         <div className="col-md-4">
                           <h6>Choix du template(description) </h6>
                           <select
@@ -580,8 +623,6 @@ function Row(props) {
 
                           </select>
                         </div>
-                      </div>
-                      <div className="row mt-2">
                         <div className="col-md-4">
                           <h6>Conditions de paiement</h6>
                           <select
@@ -591,7 +632,7 @@ function Row(props) {
                                 setPaymTerm(e.target.value)
                                 console.log(e.target.value)
                               }}
-                          defaultValue={"3"}>
+                              defaultValue={"3"}>
 
                             {
                               (props.paymTerms || []).map((item,key) =>
@@ -601,6 +642,9 @@ function Row(props) {
 
                           </select>
                         </div>
+                      </div>
+                      <div className="row mt-2">
+
                         <div className="col-md-4">
                           <h6>Taxe</h6>
                           <select
@@ -635,9 +679,7 @@ function Row(props) {
                             <option value="2%">2%</option>
                           </select>
                         </div>
-                      </div>
-                      <div className="row mt-2">
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <h6>Réduction</h6>
                           <Sinput
                               label={
@@ -660,29 +702,26 @@ function Row(props) {
                           />
                         </div>
                       </div>
+
                       <div align="right" style={{marginTop:20}}>
                         <AltButtonGroup>
                           <AtlButton onClick={() => {
                             if(verif_access === true){
-                              let client_folder_name = (selected_client_folders.find(x => x.folder_id === client)).name
-                              props.previewFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
+                              props.previewFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount)
                             }else{
                               alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
                             }
                           }}
-                                     isDisabled={client === ""}
                                      appearance="warning">
                             Preview
                           </AtlButton>
                           <AtlButton onClick={() => {
                             if(verif_access === true){
-                              let client_folder_name = (selected_client_folders.find(x => x.folder_id === client)).name
-                              props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
+                              props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount)
                             }else{
                               alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
                             }
                           }}
-                                     isDisabled={client === ""}
                                      appearance="primary">
                             Valider la facture
                           </AtlButton>

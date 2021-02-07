@@ -742,6 +742,19 @@ const toBase64 = file => new Promise((resolve, reject) => {
     reader.onerror = error => reject(error);
 });
 
+const isTimeSheetFactured = (factures,id) => {
+    let factures_ts = []
+    factures.map((fact,key) => {
+        (fact.lignes_facture || []).map((lf,k) => {
+            fact.statut === "accepted" && lf.id && factures_ts.push(lf.id)
+        })
+    })
+    let find = factures_ts.find(x => x === id)
+    if(find){
+        return true
+    }else return false
+}
+
 export default {
     renderSearchOption,
     getTimeSuggestions,
