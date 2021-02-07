@@ -625,7 +625,9 @@ class odoo:
             'res.partner', 'read', [[int(id)]])
         return [True,ret, None]
 
-    def edit_invoice(self, data):
+    def edit_invoice(self, data, method):
+        if method not in ["onchange", "write"]:
+            return [False, "Invalid method", 400]
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
         try:
             ret = models.execute_kw(self.opt['db'],

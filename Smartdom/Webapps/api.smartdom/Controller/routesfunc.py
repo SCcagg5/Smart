@@ -497,11 +497,11 @@ def odoo_add_bill(cn, nextc):
     return cn.call_next(nextc, err)
 
 def odoo_edit_bill(cn, nextc):
-    err = check.contain(cn.pr, ["data"])
+    err = check.contain(cn.pr, ["data", "method"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
-    err = cn.private["odoo"].edit_invoice(cn.pr["data"])
+    err = cn.private["odoo"].edit_invoice(cn.pr["data"], cn.pr["method"])
     return cn.call_next(nextc, err)
 
 def odoo_valid_bill(cn, nextc):
