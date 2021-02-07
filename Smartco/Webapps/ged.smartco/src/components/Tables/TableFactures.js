@@ -321,7 +321,7 @@ export default function CollapsibleTable(props) {
 
 function Row(props) {
 
-  const [template, setTemplate] = React.useState("0");
+  const [template, setTemplate] = React.useState("1");
   const [client, setClient] = React.useState("");
   const [paymTerm, setPaymTerm] = React.useState( "3");
   const [tax, setTax] = React.useState("13");

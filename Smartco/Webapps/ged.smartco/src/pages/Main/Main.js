@@ -3432,7 +3432,7 @@ export default class Main extends React.Component {
       "team_id":1,
       "comment":false,
       'l10n_ch_isr_sent': false,
-      'name': false,   //on peut mettre une petite desc sous le titre de la facture avec ce champs
+      'name': "17 rue de liberté",   //on peut mettre une petite desc sous le titre de la facture avec ce champs
       'date_invoice': moment(facture_date).format('YYYY-MM-DD'),
       'date_due': moment(deadline_date).format('YYYY-MM-DD'),
       'journal_id': 1,
