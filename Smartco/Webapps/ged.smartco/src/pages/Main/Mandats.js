@@ -27,7 +27,8 @@ export default class Mandats extends React.Component{
     openDeleteModal:false,
     toRemoveFolderKey:"",
     toRemoveFolder_id:"",
-    delete_folder_ged:false
+    delete_folder_ged:false,
+      mandatFolderNameChanged:false
   }
 
 
@@ -96,8 +97,13 @@ export default class Mandats extends React.Component{
                           <input
                               style={{ color: '#000' }}
                               className="form-control"
-                              defaultValue={doss.name}
-                              readOnly={true}
+                              value={doss.name}
+                              onChange={(e) => {
+                                  let obj = this.state.client_mandat;
+                                  obj.folders[key].name = e.target.value;
+                                  this.setState({client_mandat:obj,mandatFolderNameChanged:true})
+                              }}
+
                           />
                         </div>
                       </div>
@@ -540,7 +546,7 @@ export default class Mandats extends React.Component{
                         <div align="right">
                           <AtlButton
                               onClick={() => {
-                                this.props.update_client_case(this.state.client_mandat.id, this.state.client_mandat)
+                                this.props.update_client_case(this.state.client_mandat.id, this.state.client_mandat, this.state.mandatFolderNameChanged, doss)
                               }}
                               appearance="primary"
                               style={{ margin: 20 }}> Enregistrer vos modifications </AtlButton>

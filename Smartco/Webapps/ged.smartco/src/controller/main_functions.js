@@ -182,10 +182,10 @@ const changeStructureWithFiles = (drive) => {
         };
 
         if (drive[i].Content && (drive[i].Content.folders.length > 0)) {
-            treeNode.children = changeStructure(drive[i].Content.folders || []);
+            treeNode.children = changeStructureWithFiles(drive[i].Content.folders || []);
         }
         if (drive[i].Content && (drive[i].Content.files.length > 0)) {
-            treeNode.children = (treeNode.children || []).concat(changeStructure(drive[i].Content.files) || []);
+            treeNode.children = (treeNode.children || []).concat(changeStructureWithFiles(drive[i].Content.files) || []);
         }
 
         list.push(treeNode);
@@ -227,6 +227,15 @@ const getClientAdressById = (clients, id) => {
     let find = clients.find(x => x.id === id || x.ID === id)
     if (find) {
         return find.adress || ""
+    } else {
+        return ""
+    }
+}
+
+const getClientTypeById = (clients, id) => {
+    let find = clients.find(x => x.id === id || x.ID === id)
+    if (find) {
+        return find.Type
     } else {
         return ""
     }
@@ -703,6 +712,12 @@ const getContactFnameById = (contacts, id) => {
     else return ""
 }
 
+const getContactFnameByEmail = (contacts, email) => {
+    let find = contacts.find(x => x.email === email);
+    if (find) return find.nom + " " + find.prenom
+    else return ""
+}
+
 const getContactImageById = (contacts, id) => {
     let find = contacts.find(x => x.id === id);
     return find ? find.imageUrl : "";
@@ -720,6 +735,12 @@ const getClientNameByFolderCaseId = (cases, folder_id, clients) => {
     })
 }
 
+const toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.replace("data:application/pdf;base64,",""));
+    reader.onerror = error => reject(error);
+});
 
 export default {
     renderSearchOption,
@@ -751,5 +772,8 @@ export default {
     findContactByEmail,
     findContactByUid,
     getOAContactByEmail2,
-    getOAContactByUid
+    getOAContactByUid,
+    getContactFnameByEmail,
+    getClientTypeById,
+    toBase64
 };

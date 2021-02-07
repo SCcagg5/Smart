@@ -291,8 +291,11 @@ export default function RoomTabs(props) {
 
     return (
         <div>
-            <Tabs value={props.selectedRoomTab} onChange={props.handleRoomTabsChange} aria-label="room tabs " indicatorColor="primary" textColor="primary"
-
+            <Tabs value={props.selectedRoomTab} onChange={(event,newValue) => {
+                setAnchorElFiles(null)
+                props.handleRoomTabsChange(event,newValue)
+            }}
+                  aria-label="room tabs " indicatorColor="primary" textColor="primary"
             >
                 <Tab label="Tâches" icon={<ListAltIcon/>} {...a11yProps(0)} style={{fontWeight:600,textTransform:"capitalize"}} />
                 <Tab label="Fichiers" icon={<PostAddIcon/>} {...a11yProps(1)} style={{fontWeight:600,textTransform:"capitalize"}} disabled={false} />
@@ -659,27 +662,36 @@ export default function RoomTabs(props) {
                     </div>
 
                     <h6 style={{color:"darkblue"}}>Glisser et affecter des fichiers à cette tache</h6>
-                    <div style={{marginTop:30}}>
-                        <DirectoryTree
-                            draggable={true}
-                            allowDrop={(options) => {
-                                return false
-                            }}
-                            showIcon={true}
-                            onExpand={onExpand}
-                            onSelect={onSelect}
-                            treeData={props.miniDrive}
-                            expandAction="click"
-                            expandedKeys={expandedKeys}
-                            selectedKeys={selectedKeys}
-                            onDragStart={e => {
-                                let file = {id:e.node.key,name:e.node.title,typeF:e.node.typeF}
-                                console.log(file)
-                                e.event.dataTransfer.setData("file", JSON.stringify(file))
-                            }}
-                            autoExpandParent={autoExpandParent}
-                        />
-                    </div>
+
+                    {
+                        props.miniDrive.length === 0 ?
+                            <div align="center"  style={{marginTop:30}} >
+                                <CircularProgress color="secondary" size={20} />
+                            </div>
+                             :
+                            <div style={{marginTop:30}}>
+                                <DirectoryTree
+                                    draggable={true}
+                                    allowDrop={(options) => {
+                                        return false
+                                    }}
+                                    showIcon={true}
+                                    onExpand={onExpand}
+                                    onSelect={onSelect}
+                                    treeData={props.miniDrive}
+                                    expandAction="click"
+                                    expandedKeys={expandedKeys}
+                                    selectedKeys={selectedKeys}
+                                    onDragStart={e => {
+                                        let file = {id:e.node.key,name:e.node.title,typeF:e.node.typeF}
+                                        console.log(file)
+                                        e.event.dataTransfer.setData("file", JSON.stringify(file))
+                                    }}
+                                    autoExpandParent={autoExpandParent}
+                                />
+                            </div>
+                    }
+
                 </div>
             </Popover>
 

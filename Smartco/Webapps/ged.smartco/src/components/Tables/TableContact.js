@@ -16,6 +16,9 @@ import defaultAvatar from "../../assets/images/users/default_avatar.jpg";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
 import TableHead from '@material-ui/core/TableHead';
+import Modal, {ModalTransition} from "@atlaskit/modal-dialog";
+import SmartService from "../../provider/SmartService";
+import {Checkbox} from "@atlaskit/checkbox";
 
 const useStyles1 = makeStyles((theme) => ({
     root: {
@@ -94,6 +97,8 @@ export default function TableContact(props) {
     const classes = useStyles2();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
+    const [selectedContact, setSelectedContact] = React.useState("");
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, props.contacts.length - page * rowsPerPage);
 
@@ -186,9 +191,14 @@ export default function TableContact(props) {
                           <IconButton aria-label="Modifier" title="Modifier" color="default" size="small" onClick={() => props.onEditClick(row,key)}>
                             <EditIcon fontSize="small" style={{color:"blue"}}/>
                           </IconButton>
-                          {/*<IconButton aria-label="Supprimer" title="Supprimer" color="secondary" size="small">
+                          <IconButton aria-label="Supprimer" title="Supprimer" color="secondary" size="small"
+                                      onClick={() => {
+                                          setSelectedContact(row)
+                                          setOpenDeleteModal(true)
+                                      }}
+                          >
                             <DeleteOutlineIcon fontSize="small"/>
-                          </IconButton>*/}
+                          </IconButton>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -223,6 +233,29 @@ export default function TableContact(props) {
             </div>
           </div>
         </div>
+
+
+          <ModalTransition>
+              {openDeleteModal === true && (
+                  <Modal
+                      actions={[
+                          { text: 'Supprimer', onClick: () => {
+                              props.removeContact(selectedContact.id)
+                                  setOpenDeleteModal(false)
+                              } },
+                          { text: 'Annuler', onClick: () => {
+                                  setOpenDeleteModal(false)
+                              }},
+                      ]}
+                      onClose={() => {
+                          setOpenDeleteModal(false)
+                      }}
+                      heading={"Vous êtes sur le point de supprimer " + selectedContact.nom + " " + selectedContact.prenom + " de la liste des contacts"}
+                      appearance="danger"
+                  >
+                  </Modal>
+              )}
+          </ModalTransition>
 
       </div>
 

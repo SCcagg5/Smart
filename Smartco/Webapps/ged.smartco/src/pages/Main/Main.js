@@ -99,6 +99,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {BlockPicker} from 'react-color'
 import TableTimeSheetsNonFact from "../../components/Tables/TableTimeSheetsNonFact";
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
 
 const {DirectoryTree} = Tree;
 
@@ -148,6 +150,7 @@ export default class Main extends React.Component {
   imageUpload = {};
   folderupload = {};
   signatureFileUpload={}
+  avance_frais_upload={}
 
   state = {
     loading: false,
@@ -165,8 +168,6 @@ export default class Main extends React.Component {
       email:"",
       id:""
     },
-
-    openModalVF:false,
 
     beforeCreateFacture:{
       createAt:"",
@@ -203,6 +204,7 @@ export default class Main extends React.Component {
     selectedDoc: '',
     folders: [],
     miniDrive:[],
+    sharedMiniDrive:[],
     reelFolders: [],
     sharedFolders: [],
     sharedReelFolders: [],
@@ -244,6 +246,7 @@ export default class Main extends React.Component {
     selectedDriveItem: [],
     expandedDriveItems: [],
     expandedDriveSharedItems:[],
+    selectedDriveSharedItem:[],
     autoExpandParent: true,
     autoExpandSharedParent:true,
     selectedMeetMenuItem: ['new'],
@@ -295,7 +298,7 @@ export default class Main extends React.Component {
     clients_cases:[],
     annuaire_clients_mandat: [],
     time_sheets:[],
-    rooms: [],
+    /*rooms: [],*/
     selectedContact: '',
     selectedContactKey: '',
     editContactForm: false,
@@ -412,9 +415,14 @@ export default class Main extends React.Component {
     anchorElDrive:null,
     anchorElDrive2:null,
     anchorElDrive3:null,
+    anchorElDrive4:null,
     expandedDrivePopUpKeys:[],
     selectedDrivePopUpKeys:[],
     autoExpandDrivePopUpParent:true,
+    expandedSharedPopUpKeys:[],
+    selectedSharedPopUpKeys:[],
+    autoExpandSharedPopUpParent:true,
+
     destinationFolder:"",
 
     wip_selected_contact:"",
@@ -426,6 +434,8 @@ export default class Main extends React.Component {
 
     SEQ_file:"",
     signFile_destinationFolder:"",
+    signFile_type:false,
+    signFile_Ged:"",
 
     openUserDetailModal:false,
     userFname:localStorage.getItem("firstname") || "",
@@ -435,8 +445,13 @@ export default class Main extends React.Component {
 
     loading_provision_preview:false,
     loading_provision_save:false,
+    loading_avance_frais:false,
     provision_bank:"",
     provision_amount:"",
+    provision_tax:"TVA 7.7 % incluse",
+
+    avance_frais_desc:"",
+    avance_frais_facture_file:"",
 
     anchorEl_colorPicker: null,
     settRoomAnchorEl:null,
@@ -445,8 +460,6 @@ export default class Main extends React.Component {
   };
 
   componentDidMount() {
-
-    console.log("COMPONENT DID MOUNT")
 
     window.onpopstate = () => {
 
@@ -606,6 +619,7 @@ export default class Main extends React.Component {
                 rootFolders: gedRes.data.Proprietary.Content.folders || [],
                 sharedRootFiles: sharedFiles,
                 sharedFolders: sharedFolders,
+                sharedMiniDrive: sharedFolders,
                 loadingGed:false
               })
 
@@ -620,7 +634,6 @@ export default class Main extends React.Component {
                     selectedFoldername: folder_name,
                     breadcrumbs: main_functions.getBreadcumpsPath(folder_id, folders),
                     selectedFolderId: folder_id,
-                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                     selectedFolderFiles: main_functions.getFolderFilesById(folder_id, folders),
                     selectedFolderFolders: main_functions.getFolderFoldersById(folder_id, folders),
                     firstLoading: false,
@@ -636,7 +649,6 @@ export default class Main extends React.Component {
                 this.setState({
                   selectedDriveItem: [],
                   expandedDriveItems: [],
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   firstLoading: false,
                   loading: false
                 });
@@ -647,7 +659,6 @@ export default class Main extends React.Component {
                   expandedDriveItems: [],
                   selectedDriveSharedItem:['parent'],
                   expandedDriveSharedItems:['parent'],
-                  selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                   breadcrumbs: 'Mon drive / Partagés avec moi',
                   firstLoading: false,
                   loading: false
@@ -693,7 +704,6 @@ export default class Main extends React.Component {
                         focusedItem: 'Societe',
                         selectedSocietyMenuItem: ['clients'],
                         openSocietyMenuItem: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                         firstLoading: false,
                         loading: false
                       });
@@ -706,7 +716,6 @@ export default class Main extends React.Component {
                       focusedItem: 'Societe',
                       selectedSocietyMenuItem: ['clients'],
                       openSocietyMenuItem: true,
-                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                       firstLoading: false,
                       loading: false
                     });
@@ -733,7 +742,6 @@ export default class Main extends React.Component {
                         showContainerSection: 'Contacts',
                         focusedItem: 'Contacts',
                         openContactsMenu: true,
-                        selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                         firstLoading: false,
                         loading: false
                       });
@@ -746,7 +754,6 @@ export default class Main extends React.Component {
                       showContainerSection: 'Contacts',
                       focusedItem: 'Contacts',
                       openContactsMenu: true,
-                      selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
                       firstLoading: false,
                       loading: false
                     });
@@ -1070,7 +1077,6 @@ export default class Main extends React.Component {
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + ust_token);
 
     socket.onopen = (e) => {
-      console.log("Connection established");
       let payload;
       payload = {"cmd": table, "db": db, "read_change": true}
       socket.send(JSON.stringify(payload));
@@ -1138,7 +1144,7 @@ export default class Main extends React.Component {
         return;
       }
       let origin = this.state.sharedFolders;
-      //this.setState({loading:true})
+
       SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
         if(Res.succes === true && Res.status === 200){
 
@@ -1188,6 +1194,66 @@ export default class Main extends React.Component {
         this.setState({loading:false})
           resolve();
           console.log(err)})
+
+    });
+  }
+
+  onLoadSharedMiniDriveData = ({ key, children }) => {
+    console.log(key)
+    return new Promise((resolve) => {
+      console.log(key)
+      if (children) {
+        resolve();
+        return;
+      }
+      let origin = this.state.sharedMiniDrive;
+
+      SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+        if(Res.succes === true && Res.status === 200){
+
+          let sub_folders = (Res.data.Content.folders || []).concat(Res.data.Content.files || []);
+          let sub_files = Res.data.Content.files || [];
+          let childrens = [];
+          for(let i =0 ; i < sub_folders.length ; i++){
+            console.log(sub_folders[i])
+            let treeNode = {
+              title: sub_folders[i].type ? sub_folders[i].name + '.pdf' : sub_folders[i].name,
+              key:sub_folders[i].id,
+              icon: sub_folders[i].type ? (
+                  <DescriptionIcon style={{ color: 'red', backgroundColor: '#fff' }} />
+              ) : (
+                  ({ selected }) =>
+                      selected ? (
+                          <FolderIcon style={{ color: '#1a73e8' }} />
+                      ) : (
+                          <FolderIcon style={{ color: 'grey' }} />
+                      )
+              ),
+              files: [] ,
+              folders: [] ,
+              typeF: sub_folders[i].type ? 'file' : 'folder',
+              rights:sub_folders[i].rights,
+              proprietary:sub_folders[i].proprietary || undefined,
+              isLeaf:sub_folders[i].type ? true : false
+            };
+            childrens.push(treeNode)
+          }
+          let update = this.updateTreeData(origin, key, childrens, Res.data.Content.files || [] );
+          this.setState({sharedMiniDrive:update})
+          resolve();
+
+        }else if(Res.succes === false && Res.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }else{
+          this.setState({loading:false})
+          resolve();
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        resolve();
+        console.log(err)})
 
     });
   }
@@ -1358,7 +1424,7 @@ export default class Main extends React.Component {
       })
       .catch((err) => {
         this.setState({ loading: false });
-        this.openSnackbar('error', err);
+        this.openSnackbar('error', "Une erreur est survenue !");
       });
   };
 
@@ -1537,6 +1603,16 @@ export default class Main extends React.Component {
     let file = event.target.files[0];
     if(file.type === "application/pdf"){
       this.setState({SEQ_file:file})
+    }else{
+      this.setState({ loading: false });
+      this.openSnackbar("error","Type de fichier erroné !")
+    }
+  };
+
+  uploadAvanceFraisFile = (event) => {
+    let file = event.target.files[0];
+    if(file.type === "application/pdf"){
+      this.setState({avance_frais_facture_file:file})
     }else{
       this.setState({ loading: false });
       this.openSnackbar("error","Type de fichier erroné !")
@@ -2078,20 +2154,6 @@ export default class Main extends React.Component {
     );
   };
 
-  OpenModalVF(created_at,lignes_facture,client_folderId,row,template,client,paymTerm,deadline_date,tax,fraisAdmin){
-    let beforeCF = this.state.beforeCreateFacture
-    beforeCF.createAt=created_at
-    beforeCF.ligneFactures=lignes_facture
-    beforeCF.clientFolderID=client_folderId
-    beforeCF.row=row
-    beforeCF.template=template
-    beforeCF.client=client
-    beforeCF.paymTerm=paymTerm
-    beforeCF.deadline_date=deadline_date
-    beforeCF.taxe=tax
-    this.addFA(fraisAdmin === "2%" ? 1 : 2, beforeCF)
-  }
-
 
   renderTimeSheet = () => {
 
@@ -2163,120 +2225,312 @@ export default class Main extends React.Component {
                           </TabList>
 
                           <TabPanel>
-                            {
-                              this.state.showLignesFactureClient === false ?
-                                  <div style={{marginTop:25,padding:10,paddingBottom:50,paddingLeft:20,border:"2px solid #f0f0f0"}}>
+
+                                  <div style={{marginTop:35,padding:10,paddingBottom:50,paddingLeft:35,border:"2px solid #f0f0f0",minWidth:1000}}>
                                     <div className="row mt-2">
                                       <div className="col-md-6">
-                                        <h5>Durée</h5>
-                                        <div className="row">
-                                          <div className="col-md-5">
-                                            <Autosuggest
-                                                suggestions={this.state.timeSuggestions}
-                                                onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
-                                                onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
-                                                onSuggestionSelected={(event, { suggestion }) => {/*console.log(suggestion)*/}}
-                                                getSuggestionValue={suggestion => suggestion}
-                                                renderSuggestion={suggestion => (
-                                                    <div>{suggestion}</div>)}
-                                                inputProps={inputSuggProps}
-                                            />
-                                          </div>
-                                          <div className="col-md-7">
-                                            <div style={{ display: 'flex' }}>
-                                              <Timer
-                                                  initialTime={0}
-                                                  startImmediately={false}
-                                              >
-                                                {({ start, resume, pause, stop, reset, getTimerState, getTime }) => (
-                                                    <React.Fragment>
-                                                      <div
-                                                          align="center"
-                                                          style={{
-                                                            backgroundColor: '#c0c0c0',
-                                                            padding: 8,
-                                                            color: '#000',
-                                                            height: 36,
-                                                            fontWeight: 700,
-                                                            fontSize: 16,
-                                                            letterSpacing: '0.1rem'
-                                                          }}>
-                                                        <Timer.Hours
-                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`} />
-                                                        <Timer.Minutes
-                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`} />
-                                                        <Timer.Seconds
-                                                            formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`} />
-                                                      </div>
-                                                      <div
-                                                          style={{ marginLeft: 10 }}>
-                                                        <div
-                                                            align="center"
-                                                            style={{
-                                                              backgroundColor: (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'green' : 'red',
-                                                              padding: 5,
-                                                              borderRadius: 10,
-                                                              width: 50,
-                                                              color: '#fff',
-                                                              fontWeight: 700,
-                                                              cursor: 'pointer'
-                                                            }}
-                                                            onClick={() => {
-                                                              if (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') {
-                                                                start();
-                                                              } else {
-                                                                let timeEtablished = getTime();
-                                                                console.log(timeEtablished);
-                                                                let timeH = ((timeEtablished / 1000) / 60) / 60;
-                                                                console.log(timeH);
-                                                                let obj = this.state.TimeSheet;
-                                                                obj.newTime.duree = timeH.toFixed(3).replace('.', ':');
-                                                                this.setState({ TimeSheet: obj });
-                                                                stop();
-                                                              }
-                                                            }}
-                                                        >
-                                                          {(getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'Start' : 'Stop'}
-                                                        </div>
-                                                        <div
-                                                            align="center"
-                                                            style={{
-                                                              backgroundColor: '#c0c0c0',
-                                                              padding: 5,
-                                                              borderRadius: 10,
-                                                              width: 50,
-                                                              color: '#fff',
-                                                              fontWeight: 700,
-                                                              cursor: 'pointer',
-                                                              marginTop: 3
-                                                            }}
-                                                            onClick={() => {
-                                                              let obj = this.state.TimeSheet;
-                                                              obj.newTime.duree = '';
-                                                              this.setState({ TimeSheet: obj });
-                                                              reset();
-                                                            }}
-                                                        >
-                                                          Reset
-                                                        </div>
-                                                      </div>
-                                                    </React.Fragment>
-                                                )}
-                                              </Timer>
-                                            </div>
-                                          </div>
-                                          <div className="col-md-12">
-                                            {
-                                              this.state.TimeSheet.newTime.duree !== "" && DurationFormatError !== "" ?
-                                              <h6 style={{color:"red"}}>{DurationFormatError}</h6> :
-                                                  this.state.TimeSheet.newTime.rateFacturation !== "" &&
-                                                  <span style={{color:"#000",fontWeight:"bold"}}>Total:&nbsp;&nbsp;
-                                                    <span>{(parseFloat(this.state.TimeSheet.newTime.rateFacturation) * utilFunctions.durationToNumber(this.state.TimeSheet.newTime.duree)).toFixed(2) + " CHF"}</span>
-                                                  </span>
-                                            }
-                                          </div>
-
+                                        <div>
+                                          <h5>Catégorie d’activités </h5>
+                                          <MuiSelect
+                                              labelId="demo-simple-select-label"
+                                              id="demo-simple-select"
+                                              style={{ width: 270 }}
+                                              value={this.state.TimeSheet.newTime.categoriesActivite}
+                                              onChange={(e) => {
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.categoriesActivite = e.target.value;
+                                                this.setState({ TimeSheet: d });
+                                              }}
+                                          >
+                                            <MenuItem
+                                                value={'Temps facturé'}>Temps facturé</MenuItem>
+                                            <MenuItem
+                                                value={'Provision'}>Provision</MenuItem>
+                                            <MenuItem
+                                                value={'Avance_frais'}>Avance de frais</MenuItem>
+                                          </MuiSelect>
                                         </div>
+                                      </div>
+                                      <div className="col-md-6">
+                                        <div style={{ width: '100%' }}>
+                                          <h5>Date</h5>
+                                          <DatePicker
+                                              calendarIcon={
+                                                <img
+                                                    alt=""
+                                                    src={calendar}
+                                                    style={{ width: 20 }} />}
+                                              onChange={(e) => {
+                                                console.log(e);
+                                                let d = this.state.TimeSheet;
+                                                d.newTime.date = e;
+                                                this.setState({ TimeSheet: d });
+                                              }}
+                                              value={this.state.TimeSheet.newTime.date}
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="row mt-2">
+                                      <div className="col-md-6">
+                                        {
+                                          this.state.TimeSheet.newTime.categoriesActivite === "Temps facturé" ?
+                                              <div>
+                                                <h5>Durée</h5>
+                                                <div style={{display:"flex"}}>
+                                                  <Autosuggest
+                                                      suggestions={this.state.timeSuggestions}
+                                                      onSuggestionsFetchRequested={this.onTimeSuggestionsFetchRequested}
+                                                      onSuggestionsClearRequested={this.onTimeSuggestionsClearRequested}
+                                                      onSuggestionSelected={(event, { suggestion }) => {/*console.log(suggestion)*/}}
+                                                      getSuggestionValue={suggestion => suggestion}
+                                                      renderSuggestion={suggestion => (
+                                                          <div>{suggestion}</div>)}
+                                                      inputProps={inputSuggProps}
+                                                  />
+                                                  <div style={{ display: 'flex',marginLeft:15,marginTop:2 }}>
+                                                    <Timer
+                                                        initialTime={0}
+                                                        startImmediately={false}
+                                                    >
+                                                      {({ start, resume, pause, stop, reset, getTimerState, getTime }) => (
+                                                          <React.Fragment>
+                                                            <div
+                                                                align="center"
+                                                                style={{
+                                                                  backgroundColor: '#c0c0c0',
+                                                                  padding: 8,
+                                                                  color: '#000',
+                                                                  height: 36,
+                                                                  fontWeight: 700,
+                                                                  fontSize: 16,
+                                                                  letterSpacing: '0.1rem'
+                                                                }}>
+                                                              <Timer.Hours
+                                                                  formatValue={(value) => `${(value < 10 ? `0${value}` : value)}h:`} />
+                                                              <Timer.Minutes
+                                                                  formatValue={(value) => `${(value < 10 ? `0${value}` : value)}m:`} />
+                                                              <Timer.Seconds
+                                                                  formatValue={(value) => `${(value < 10 ? `0${value}` : value)}s`} />
+                                                            </div>
+                                                            <div
+                                                                style={{ marginLeft: 10 }}>
+                                                              <div
+                                                                  align="center"
+                                                                  style={{
+                                                                    backgroundColor: (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'green' : 'red',
+                                                                    padding: 5,
+                                                                    borderRadius: 10,
+                                                                    width: 50,
+                                                                    color: '#fff',
+                                                                    fontWeight: 700,
+                                                                    cursor: 'pointer'
+                                                                  }}
+                                                                  onClick={() => {
+                                                                    if (getTimerState() === 'STOPPED' || getTimerState() === 'INITED') {
+                                                                      start();
+                                                                    } else {
+                                                                      let timeEtablished = getTime();
+                                                                      console.log(timeEtablished);
+                                                                      let timeH = ((timeEtablished / 1000) / 60) / 60;
+                                                                      console.log(timeH);
+                                                                      let obj = this.state.TimeSheet;
+                                                                      obj.newTime.duree = timeH.toFixed(3).replace('.', ':');
+                                                                      this.setState({ TimeSheet: obj });
+                                                                      stop();
+                                                                    }
+                                                                  }}
+                                                              >
+                                                                {(getTimerState() === 'STOPPED' || getTimerState() === 'INITED') ? 'Start' : 'Stop'}
+                                                              </div>
+                                                              <div
+                                                                  align="center"
+                                                                  style={{
+                                                                    backgroundColor: '#c0c0c0',
+                                                                    padding: 5,
+                                                                    borderRadius: 10,
+                                                                    width: 50,
+                                                                    color: '#fff',
+                                                                    fontWeight: 700,
+                                                                    cursor: 'pointer',
+                                                                    marginTop: 3
+                                                                  }}
+                                                                  onClick={() => {
+                                                                    let obj = this.state.TimeSheet;
+                                                                    obj.newTime.duree = '';
+                                                                    this.setState({ TimeSheet: obj });
+                                                                    reset();
+                                                                  }}
+                                                              >
+                                                                Reset
+                                                              </div>
+                                                            </div>
+                                                          </React.Fragment>
+                                                      )}
+                                                    </Timer>
+                                                  </div>
+                                                </div>
+                                                {
+                                                  this.state.TimeSheet.newTime.duree !== "" && DurationFormatError !== "" ?
+                                                      <h6 style={{color:"red"}}>{DurationFormatError}</h6> :
+                                                      this.state.TimeSheet.newTime.rateFacturation !== "" &&
+                                                      <span style={{color:"#000",fontWeight:"bold"}}>Total:&nbsp;&nbsp;
+                                                        <span>{(parseFloat(this.state.TimeSheet.newTime.rateFacturation) * utilFunctions.durationToNumber(this.state.TimeSheet.newTime.duree)).toFixed(2) + " CHF"}</span>
+                                                  </span>
+                                                }
+                                                <div style={{marginTop:25}}>
+                                                  <div>
+                                                    <h5>{new_timeSheet_desc}</h5>
+                                                  </div>
+                                                  <textarea
+                                                      className="form-control "
+                                                      id="duree"
+                                                      style={{ width: '90%',border:"2px solid #f0f0f0",borderRadius:7.5 }}
+                                                      name="duree"
+                                                      rows={5}
+                                                      value={this.state.TimeSheet.newTime.description}
+                                                      onChange={(e) => {
+                                                        let d = this.state.TimeSheet;
+                                                        d.newTime.description = e.target.value;
+                                                        this.setState({ TimeSheet: d });
+                                                      }} />
+                                                </div>
+                                              </div> :
+
+                                              <div>
+                                                <div>
+                                                  <div>
+                                                    <h5>Montant(CHF)</h5>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        id="email"
+                                                        name="email"
+                                                        value={this.state.provision_amount}
+                                                        style={{width:350,border:"2px solid #f0f0f0",borderRadius:7.5}}
+                                                        onChange={(e) => {this.setState({provision_amount:e.target.value})}}
+                                                    />
+                                                  </div>
+                                                  {
+                                                    this.state.TimeSheet.newTime.categoriesActivite === "Provision" ?
+                                                        <div>
+                                                          <div className="mt-3">
+                                                            <h5>Compte bancaire</h5>
+                                                            <select
+                                                                className="form-control custom-select"
+                                                                value={this.state.provision_bank}
+                                                                onChange={(e) => {
+                                                                  this.setState({provision_bank:e.target.value})
+                                                                }}
+                                                                style={{width:350,border:"2px solid #f0f0f0",borderRadius:7.5}}
+                                                            >
+                                                              <option key={-1} value={""}/>
+                                                              {
+                                                                (data.oa_comptes_bank_provision || []).map((item,key) =>
+                                                                    <option key={key} value={JSON.stringify(item)}>{item.label}</option>
+                                                                )
+                                                              }
+                                                            </select>
+                                                          </div>
+                                                          <div className="mt-3">
+                                                            <h5>Taxe</h5>
+                                                            <select
+                                                                className="form-control custom-select"
+                                                                value={this.state.provision_tax}
+                                                                onChange={(e) => {
+                                                                  this.setState({provision_tax:e.target.value})
+                                                                }}
+                                                                style={{width:350,border:"2px solid #f0f0f0",borderRadius:7.5}}
+                                                            >
+                                                              {
+                                                                (data.oa_provision_taxs || []).map((item,key) =>
+                                                                    <option key={key} value={item.value}>{item.label}</option>
+                                                                )
+                                                              }
+                                                            </select>
+                                                          </div>
+                                                          <div className="mt-5" align="center">
+                                                            <AltButtonGroup>
+                                                              <AtlButton
+                                                                  isLoading={this.state.loading_provision_preview}
+                                                                  appearance="warning"
+                                                                  isDisabled={!this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
+                                                                  this.state.provision_bank === "" || this.state.selectedClientTimeEntree === ''}
+                                                                  onClick={() => {
+                                                                    this.generateProvisionDoc(new_timeSheet_desc)
+                                                                  }}
+                                                              >
+                                                                Preview
+                                                              </AtlButton>
+                                                              <AtlButton
+                                                                  isLoading={this.state.loading_provision_save}
+                                                                  appearance="primary"
+                                                                  isDisabled={!this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
+                                                                  this.state.provision_bank === "" || this.state.selectedClientTimeEntree === ''}
+                                                                  onClick={() => {
+                                                                    this.saveProvisionDoc(new_timeSheet_desc)
+                                                                  }}
+                                                              >
+                                                                Enregistrer le document de provision
+                                                              </AtlButton>
+                                                            </AltButtonGroup>
+
+                                                          </div>
+                                                        </div>  :
+
+                                                        <div>
+                                                          <div style={{marginTop:25}}>
+                                                            <div>
+                                                              <h5>Description</h5>
+                                                            </div>
+                                                            <textarea
+                                                                className="form-control "
+                                                                id="duree"
+                                                                style={{ width: '90%',border:"2px solid #f0f0f0",borderRadius:7.5 }}
+                                                                name="duree"
+                                                                rows={5}
+                                                                value={this.state.avance_frais_desc}
+                                                                onChange={(e) => {
+                                                                  this.setState({ avance_frais_desc: e.target.value });
+                                                                }} />
+                                                          </div>
+                                                          <div style={{marginTop:25}}>
+                                                            <div>
+                                                              <h5>Ajouter la facture à payer</h5>
+                                                            </div>
+                                                            <div style={{display:"flex"}}>
+                                                              <IconButton onClick={() => {this.avance_frais_upload.click()}}>
+                                                                <AttachFileIcon/>
+                                                              </IconButton>
+                                                              <h6 style={{marginLeft:5,marginTop:17}}>{this.state.avance_frais_facture_file.name}</h6>
+                                                            </div>
+                                                            <input
+                                                                style={{ visibility: 'hidden', width: 0, height: 0 }}
+                                                                onChange={(event) => this.uploadAvanceFraisFile(event)}
+                                                                type="file"
+                                                                ref={(ref) => (this.avance_frais_upload = ref)}
+                                                            />
+                                                          </div>
+                                                          <div align="center" style={{marginTop:15}}>
+                                                            <AtlButton
+                                                                isLoading={this.state.loading_avance_frais}
+                                                                appearance="primary"
+                                                                isDisabled={this.state.avance_frais_facture_file === "" || this.state.avance_frais_desc === "" ||
+                                                                this.state.provision_amount === "" || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client.name === ""}
+                                                                onClick={() => {
+                                                                  this.save_avanceFrais(this.state.avance_frais_facture_file,this.state.TimeSheet.newTime.dossier_client.folder_id)
+                                                                }}
+                                                            >
+                                                              Enregistrer
+                                                            </AtlButton>
+                                                          </div>
+                                                        </div>
+                                                  }
+
+                                                </div>
+                                              </div>
+
+                                        }
                                       </div>
                                       <div className="col-md-6">
                                         <div>
@@ -2323,7 +2577,7 @@ export default class Main extends React.Component {
                                               <SearchIcon />
                                             </IconButton>
                                           </div>
-                                          <h5 style={{marginTop:10}}>Dossier du client </h5>
+                                          <h5 style={{marginTop:25}}>Dossier du client </h5>
                                           <MuiSelect
                                               labelId="demo-simple-select-label"
                                               id="demo-simple-select"
@@ -2353,199 +2607,74 @@ export default class Main extends React.Component {
                                             }
                                           </MuiSelect>
                                         </div>
-                                      </div>
-                                    </div>
-                                    <div className="row mt-3">
-                                      <div className="col-md-6">
-                                        <div>
-                                          <h5>Catégorie d’activités </h5>
-                                          <MuiSelect
-                                              labelId="demo-simple-select-label"
-                                              id="demo-simple-select"
-                                              style={{ width: 220 }}
-                                              value={this.state.TimeSheet.newTime.categoriesActivite}
-                                              onChange={(e) => {
-                                                let d = this.state.TimeSheet;
-                                                d.newTime.categoriesActivite = e.target.value;
-                                                this.setState({ TimeSheet: d });
-                                              }}
-                                          >
-                                            <MenuItem
-                                                value={'Temps facturé'}>Temps facturé</MenuItem>
-                                            <MenuItem
-                                                value={'Provision'}>Provision</MenuItem>
-                                          </MuiSelect>
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div
-                                            style={{ width: '100%' }}>
-                                          <h5>Date</h5>
-                                          <DatePicker
-                                              calendarIcon={
-                                                <img
-                                                    alt=""
-                                                    src={calendar}
-                                                    style={{ width: 20 }} />}
-                                              onChange={(e) => {
-                                                console.log(e);
-                                                let d = this.state.TimeSheet;
-                                                d.newTime.date = e;
-                                                this.setState({ TimeSheet: d });
-                                              }}
-                                              value={this.state.TimeSheet.newTime.date}
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div className="row mt-3">
-                                      <div className="col-md-6">
                                         {
-                                          this.state.TimeSheet.newTime.categoriesActivite === "Temps facturé" ?
-                                              <div>
-                                                <div>
-                                                  <h5>{new_timeSheet_desc}</h5>
-                                                </div>
-                                                <textarea
-                                                    className="form-control "
-                                                    id="duree"
-                                                    style={{ width: '100%' }}
-                                                    name="duree"
-                                                    rows={5}
-                                                    value={this.state.TimeSheet.newTime.description}
-                                                    onChange={(e) => {
-                                                      let d = this.state.TimeSheet;
-                                                      d.newTime.description = e.target.value;
-                                                      this.setState({ TimeSheet: d });
-                                                    }} />
-                                              </div> :
-
-                                              <div>
-                                                <div>
-                                                  <h5>Montant(CHF)</h5>
-                                                  <input
-                                                      type="text"
-                                                      className="form-control"
-                                                      id="email"
-                                                      name="email"
-                                                      value={this.state.provision_amount}
-                                                      style={{width:350}}
-                                                      onChange={(e) => {this.setState({provision_amount:e.target.value})}}
-                                                  />
-                                                </div>
-                                                <div className="mt-3">
-                                                  <h5>Compte bancaire</h5>
-                                                  <select
-                                                      className="form-control custom-select"
-                                                      value={this.state.provision_bank}
-                                                      onChange={(e) => {
-                                                        this.setState({provision_bank:e.target.value})
-                                                      }}
-                                                      style={{width:350}}
-                                                  >
-                                                    <option key={-1} value={""}/>
-                                                    {
-                                                      (data.oa_comptes_bank_provision || []).map((item,key) =>
-                                                          <option key={key} value={JSON.stringify(item)}>{item.label}</option>
-                                                      )
+                                          this.state.TimeSheet.newTime.categoriesActivite === "Temps facturé" &&
+                                          <div style={{marginTop:20}}>
+                                            <div>
+                                              <h6>Utilisateur </h6>
+                                            </div>
+                                            <MuiSelect
+                                                labelId="demo-simple-select-label4545"
+                                                id="demo-simple-select4545"
+                                                style={{ width: 300 }}
+                                                onChange={(e) => {
+                                                  let ts = this.state.TimeSheet;
+                                                  let dossier = this.state.TimeSheet.newTime.dossier_client;
+                                                  if(dossier && dossier.team && dossier.team.length > 0){
+                                                    let team = dossier.team;
+                                                    let find = team.find(x => x.email === e.target.value);
+                                                    if(find){
+                                                      ts.newTime.rateFacturation = find.tarif || "";
                                                     }
-                                                  </select>
-                                                </div>
-                                                <div className="mt-5" align="center">
-                                                  <AltButtonGroup>
-                                                    <AtlButton
-                                                        isLoading={this.state.loading_provision_preview}
-                                                        appearance="warning"
-                                                        isDisabled={this.state.TimeSheet.newTime.duree === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
-                                                        this.state.provision_bank === "" || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
-                                                        onClick={() => {
-                                                          this.generateProvisionDoc(new_timeSheet_desc)
-                                                        }}
-                                                    >
-                                                      Preview
-                                                    </AtlButton>
-                                                    <AtlButton
-                                                        isLoading={this.state.loading_provision_save}
-                                                        appearance="primary"
-                                                        isDisabled={this.state.TimeSheet.newTime.duree === '' || !this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
-                                                        this.state.provision_bank === "" || this.state.TimeSheet.newTime.rateFacturation === '' || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.utilisateurOA === '' }
-                                                        onClick={() => {
-                                                          this.saveProvisionDoc(new_timeSheet_desc)
-                                                        }}
-                                                    >
-                                                      Enregistrer le document de provision
-                                                    </AtlButton>
-                                                  </AltButtonGroup>
-
-                                                </div>
-                                              </div>
+                                                  }else{
+                                                    let OA_contacts = this.state.contacts;
+                                                    let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,e.target.value);
+                                                    ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
+                                                  }
+                                                  ts.newTime.utilisateurOA = e.target.value;
+                                                  this.setState({ TimeSheet: ts });
+                                                }}
+                                                value={this.state.TimeSheet.newTime.utilisateurOA}
+                                            >
+                                              {this.state.contacts.map((contact, key) => (
+                                                  <MenuItem
+                                                      key={key}
+                                                      value={contact.email}>
+                                                    <div style={{display:"flex"}}>
+                                                      <Avatar style={{marginLeft:10}}
+                                                              alt=""
+                                                              src={contact.imageUrl} />
+                                                      <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                                                    </div>
+                                                  </MenuItem>
+                                              ))}
+                                            </MuiSelect>
+                                            <div className="mt-3">
+                                              <h6>
+                                                Taux horaire
+                                              </h6>
+                                              <Input
+                                                  className="form-control "
+                                                  id="duree"
+                                                  style={{ width: 300 }}
+                                                  name="duree"
+                                                  type="text"
+                                                  endAdornment={
+                                                    <InputAdornment
+                                                        position="end">CHF:Hr</InputAdornment>}
+                                                  value={this.state.TimeSheet.newTime.rateFacturation + ''}
+                                                  onChange={(e) => {
+                                                    let d = this.state.TimeSheet;
+                                                    d.newTime.rateFacturation = e.target.value;
+                                                    this.setState({ TimeSheet: d });
+                                                  }} />
+                                            </div>
+                                          </div>
                                         }
 
                                       </div>
-                                      <div className="col-md-6">
-                                        <div>
-                                          <h6>Utilisateur </h6>
-                                        </div>
-                                        <MuiSelect
-                                            labelId="demo-simple-select-label4545"
-                                            id="demo-simple-select4545"
-                                            style={{ width: 250 }}
-                                            onChange={(e) => {
-                                              let ts = this.state.TimeSheet;
-                                              let dossier = this.state.TimeSheet.newTime.dossier_client;
-                                              if(dossier && dossier.team && dossier.team.length > 0){
-                                                let team = dossier.team;
-                                                let find = team.find(x => x.email === e.target.value);
-                                                if(find){
-                                                  ts.newTime.rateFacturation = find.tarif || "";
-                                                }
-                                              }else{
-                                                let OA_contacts = this.state.contacts;
-                                                let OA_contact = main_functions.getOAContactByEmail2(OA_contacts,e.target.value);
-                                                ts.newTime.rateFacturation = OA_contact.rateFacturation || '';
-                                              }
-                                              ts.newTime.utilisateurOA = e.target.value;
-                                              this.setState({ TimeSheet: ts });
-                                            }}
-                                            value={this.state.TimeSheet.newTime.utilisateurOA}
-                                        >
-                                          {this.state.contacts.map((contact, key) => (
-                                              <MenuItem
-                                                  key={key}
-                                                  value={contact.email}>
-                                                <div style={{display:"flex"}}>
-                                                  <Avatar style={{marginLeft:10}}
-                                                          alt=""
-                                                          src={contact.imageUrl} />
-                                                  <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
-                                                </div>
-                                              </MenuItem>
-                                          ))}
-                                        </MuiSelect>
-                                        <div
-                                            className="mt-3">
-                                          <h6>
-                                            Taux horaire
-                                          </h6>
-                                          <Input
-                                              className="form-control "
-                                              id="duree"
-                                              style={{ width: 250 }}
-                                              name="duree"
-                                              type="text"
-                                              endAdornment={
-                                                <InputAdornment
-                                                    position="end">CHF:Hr</InputAdornment>}
-                                              value={this.state.TimeSheet.newTime.rateFacturation + ''}
-                                              onChange={(e) => {
-                                                let d = this.state.TimeSheet;
-                                                d.newTime.rateFacturation = e.target.value;
-                                                this.setState({ TimeSheet: d });
-                                              }} />
-                                        </div>
-                                      </div>
                                     </div>
-                                    <div align="center" className=" mt-4">
+                                    <div align="center" className="mt-4">
                                       {
                                         this.state.TimeSheet.newTime.categoriesActivite === "Temps facturé" &&
                                         <div>
@@ -2607,94 +2736,12 @@ export default class Main extends React.Component {
                                           </div>
 
                                         </div>
+
                                       }
-
-
                                     </div>
-                                  </div> :
 
-                                  <div>
-                                    <div className="mt-1">
-                                      <div>
-                                        <div style={{
-                                          textAlign: 'right',
-                                          marginTop: 15
-                                        }}>
-                                          <button
-                                              onClick={() => this.setState({
-                                                showLignesFactureClient: false
-                                              })}
-                                              className="btn btn-sm btn-outline-info">Retour
-                                          </button>
-                                        </div>
-
-                                        <div className="row mt-3">
-                                          <div
-                                              className="col-md-6">
-                                            <h5>Nom du client</h5>
-                                            <div
-                                                style={{ display: 'flex' }}>
-                                              <SelectSearch
-                                                  options={
-                                                    this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl }) =>
-                                                        ({
-                                                          value: Nom + ' ' + (Prenom || ''),
-                                                          name: Nom + ' ' + (Prenom || ''),
-                                                          ContactType: Type,
-                                                          ContactName: Nom + ' ' + (Prenom || ''),
-                                                          imageUrl: imageUrl
-                                                        }))
-                                                  }
-                                                  value={this.state.selectedClientTimeEntree}
-                                                  renderOption={main_functions.renderSearchOption}
-                                                  search
-                                                  placeholder="Chercher votre client"
-                                                  onChange={e => {
-                                                    console.log(e);
-                                                    let obj = this.state.TimeSheet;
-                                                    obj.newTime.client = e;
-
-                                                    let find_annuaire_fact_lead = this.state.annuaire_clients_mandat.find(x => (x.Nom + ' ' + x.Prenom) === e);
-                                                    console.log(find_annuaire_fact_lead);
-                                                    let partner_email = find_annuaire_fact_lead ? find_annuaire_fact_lead.facturation ? find_annuaire_fact_lead.facturation.collaborateur_lead : '' : '';
-                                                    console.log(partner_email);
-                                                    this.setState({
-                                                      partnerFacture: partner_email,
-                                                      selectedClientTimeEntree: e,
-                                                      TimeSheet: obj
-                                                    });
-                                                  }}
-                                              />
-                                              <IconButton
-                                                  style={{ marginTop: -5 }}
-                                                  onClick={() => this.setState({ openAdvancedSearchModal: true })}>
-                                                <SearchIcon />
-                                              </IconButton>
-                                            </div>
-                                          </div>
-                                          <div
-                                              className="col-md-4">
-                                            <div
-                                                style={{ width: '100%' }}>
-                                              <h5>Date de la facture</h5>
-                                              <DatePicker
-                                                  calendarIcon={
-                                                    <img
-                                                        alt=""
-                                                        src={calendar}
-                                                        style={{ width: 20 }} />}
-                                                  onChange={(e) => {
-                                                    this.setState({ dateFacture: e });
-                                                  }}
-                                                  value={this.state.dateFacture}
-                                              />
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
                                   </div>
-                            }
+
                           </TabPanel>
                           <TabPanel>
                             {
@@ -2704,7 +2751,7 @@ export default class Main extends React.Component {
                                   lignesFacturesCopy={this.state.time_sheets || []}
                                   deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
                                   setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
-                                  OA_contacts={this.state.contacts}
+                                  OA_contacts={this.state.contacts || []}
                                   annuaire_clients_mandat={this.state.annuaire_clients_mandat}
                                   onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
                                     this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
@@ -2732,10 +2779,13 @@ export default class Main extends React.Component {
                                            client_folders={this.state.client_folders}
                                            clients_tempo={this.state.clients_cases}
                                            annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                           contacts={this.state.contacts || []}
                                            sharedFolders={this.state.sharedReelFolders || []}
-                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin) => {
-                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin);
-                                             //this.OpenModalVF(row.created_at, row.lignes_facture,row.client_folder.id,row,"10",client,paymTerm,deadline_date,tax,fraisAdmin)
+                                           validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount) => {
+                                             this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount);
+                                           }}
+                                           previewFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount) => {
+                                             this.before_preview_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
                                            }}
                                            openFacture={(id) => {
                                              this.openPdfModal(id)
@@ -2745,6 +2795,9 @@ export default class Main extends React.Component {
                                            }}
                                            delete_facture={(id) => {
                                              this.delete_facture(id)
+                                           }}
+                                           updateFacture={(id,item) => {
+                                             this.updateFacture(id,item)
                                            }}
                                            openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
                             />
@@ -2901,6 +2954,121 @@ export default class Main extends React.Component {
 
   }
 
+
+  async save_avanceFrais(file,folder_id){
+    this.setState({loading_avance_frais:true})
+    let b64 = await main_functions.toBase64(file)
+
+    SmartService.getFile(folder_id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+      if (Res.succes === true && Res.status === 200) {
+        let folders = Res.data.Content.folders || [];
+        let findCompta_folder = folders.find(x => x.name === "COMPTABILITE");
+        if(findCompta_folder){
+
+          SmartService.getFile(findCompta_folder.id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res2 => {
+            if (Res2.succes === true && Res2.status === 200) {
+
+              let find_avanceFrais_folder = (Res2.data.Content.folders || []).find(x => x.name === "AVANCE DE FRAIS");
+              if(find_avanceFrais_folder){
+
+                SmartService.addFileFromBas64({b64file:b64,folder_id:find_avanceFrais_folder.id},
+                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+                  if (addFileRes.succes === true && addFileRes.status === 200) {
+
+                    SmartService.updateFileName({name:file.name.slice(0, -4)}, addFileRes.data.file_id,
+                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                      if(updateNameRes.succes === true && updateNameRes.status === 200){
+                        this.setState({loading_avance_frais:false})
+                        this.openSnackbar("success","Votre document est bien enregistré dans le dossier 'Avance de frais' dans le dossier Comptabilite de client ")
+                        this.justReloadGed()
+                      }else{
+                        console.log(updateNameRes.error)
+                        this.openSnackbar("error",updateNameRes.error)
+                        this.setState({loading:false})
+                      }
+                    }).catch(err => {
+                      console.log(err)
+                      this.openSnackbar("error","Une erreur est survenue")
+                    })
+
+
+                  } else {
+                    console.log(addFileRes.error)
+                    this.setState({loading_avance_frais:false})
+                  }
+                }).catch(err => {
+                  console.log(err)
+                  this.setState({loading_avance_frais:false})
+                })
+
+              }else{
+
+                SmartService.addFolder({name: "AVANCE DE FRAIS", folder_id:findCompta_folder.id},
+                    localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
+                  if (addFolderRes.succes === true && addFolderRes.status === 200) {
+
+                    SmartService.addFileFromBas64({b64file:b64,folder_id:addFolderRes.data.id},
+                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+                      if (addFileRes.succes === true && addFileRes.status === 200) {
+
+                        SmartService.updateFileName({name:file.name.slice(0, -4)}, addFileRes.data.file_id,
+                            localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                          if(updateNameRes.succes === true && updateNameRes.status === 200){
+                            this.setState({loading_avance_frais:false})
+                            this.openSnackbar("success","Votre document est bien enregistré dans le dossier 'Avance de frais' dans le dossier Comptabilite de client ")
+                            this.justReloadGed()
+                          }else{
+                            console.log(updateNameRes.error)
+                            this.openSnackbar("error",updateNameRes.error)
+                            this.setState({loading:false})
+                          }
+                        }).catch(err => {
+                          console.log(err)
+                          this.openSnackbar("error","Une erreur est survenue")
+                        })
+
+                      } else {
+                        console.log(addFileRes.error)
+                        this.setState({loading_avance_frais:false})
+                      }
+                    }).catch(err => {
+                      console.log(err)
+                      this.setState({loading_avance_frais:false})
+                    })
+
+                  }else{
+                    console.log(addFolderRes.error)
+                    this.setState({loading_avance_frais:false})
+                  }
+                }).catch(err => {
+                  console.log(err)
+                  this.setState({loading_avance_frais:false})
+                })
+
+              }
+
+            }else{
+              console.log(Res2.error)
+              this.setState({loading_avance_frais:false})
+            }
+          }).catch(err => {
+            console.log(err)
+            this.setState({loading_avance_frais:false})
+          })
+        }else{
+          this.openSnackbar("error","Dossier 'COMPTABILITE' inexistant dans le dossier de client ! ")
+          this.setState({loading_avance_frais:false})
+        }
+      }else{
+        console.log(Res.error)
+        this.setState({loading_avance_frais:false})
+      }
+    }).catch(err => {
+      console.log(err)
+      this.setState({loading_avance_frais:false})
+    })
+  }
+
   generateProvisionDoc(new_timeSheet_desc){
     this.setState({loading_provision_preview:true})
     let lang = new_timeSheet_desc === "Description (anglais)" ? "en" : "fr";
@@ -2909,13 +3077,17 @@ export default class Main extends React.Component {
       lang:lang,
       data:{
         client:this.state.TimeSheet.newTime.client,
+        client_adress:main_functions.getClientAdressById(this.state.annuaire_clients_mandat || [],this.state.TimeSheet.newTime.client_id),
+        gender:main_functions.getClientTypeById(this.state.annuaire_clients_mandat || [],this.state.TimeSheet.newTime.client_id) === "0" ? "" :"Mr/Ms",
         date:moment().format("DD/MM/YYYY"),
         price:this.state.provision_amount,
         bank:bank.title,
         iban:bank.code,
         swift:bank.swift_bic,
         clearing:bank.clearing,
-        ref:this.state.TimeSheet.newTime.client + " - " + this.state.TimeSheet.newTime.dossier_client.name
+        ref:this.state.TimeSheet.newTime.client + " - " + this.state.TimeSheet.newTime.dossier_client.name,
+        oa_contact:main_functions.getContactFnameByEmail(this.state.contacts || [],localStorage.getItem("email")),
+        TVA:this.state.provision_tax
       }}).then( res => {
       console.log(res)
       this.setState({loading_provision_preview:false})
@@ -3002,7 +3174,6 @@ export default class Main extends React.Component {
     })
   }
 
-
   reportContact(){
     this.setState({loading:true})
     let contact_timeSheets = [];
@@ -3069,7 +3240,6 @@ export default class Main extends React.Component {
     console.log(toSend)
   }
 
-
   addFactureToValidated(client,client_folder,date,createdBy,partnerEmail,lignes_facture){
     this.setState({loading:true})
 
@@ -3112,7 +3282,24 @@ export default class Main extends React.Component {
     this.reloadGed()
   }
 
-  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin){
+  updateFacture(id_facture,updatedItem){
+    this.setState({loading:true})
+    rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+      if (updateRes && updateRes === true) {
+        this.setState({loading:false})
+        this.openSnackbar("success","Modification efectuée avec succès")
+      } else {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
+    }).catch(err => {
+      this.setState({loading:false})
+      this.openSnackbar("error","Une erreur est survenue !")
+      console.log(err)
+    })
+  }
+
+  before_create_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount){
     this.setState({loading:true})
 
     let odoo_companies = this.state.odoo_companies || [];
@@ -3121,7 +3308,7 @@ export default class Main extends React.Component {
 
     if(findCompany){
       facture_company_id = findCompany.odoo_company_id;
-      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin)
+      this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
 
     }else{
 
@@ -3138,7 +3325,7 @@ export default class Main extends React.Component {
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
 
-                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin)
+                this.createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
 
               }else{
                 this.setState({loading:false})
@@ -3168,7 +3355,314 @@ export default class Main extends React.Component {
     }
   }
 
-  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin) {
+  before_preview_facture(facture_date,lignes_f,folder_id,facture,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount){
+
+    this.setState({loading:true})
+
+    let odoo_companies = this.state.odoo_companies || [];
+    let facture_company_id;
+    let findCompany = odoo_companies.find(x => x.client_id === facture.client_id );
+
+    if(findCompany){
+      console.log("COMPANY FOUND")
+      facture_company_id = findCompany.odoo_company_id;
+      this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
+
+    }else{
+      console.log("COMPANY NOT FOUND")
+      SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: facture.client } }).then(newCompRes => {
+        if(newCompRes.succes === true && newCompRes.status === 200){
+          facture_company_id = newCompRes.data.id;
+          this.verifIsTableExist("odoo_companies").then( v => {
+            let newItem = {
+              odoo_company_id:facture_company_id,
+              client_name:facture.client,
+              client_id:facture.client_id,
+              created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+            }
+            rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+              if (resAdd && resAdd === true) {
+
+                this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
+
+              }else{
+                this.setState({loading:false})
+                this.openSnackbar("error","Une erreur est survenue !")
+                console.log(newCompRes.error)
+              }
+            }).catch(err => {console.log(err)})
+          }).catch(err => console.log(err))
+
+        }
+        else if(newCompRes.succes === false && newCompRes.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else{
+          this.setState({loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+          console.log(newCompRes.error)
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+        console.log(err)
+      })
+
+    }
+
+  }
+
+  previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount){
+
+    console.log(reductionType)
+    console.log(reductionAmount)
+
+    this.setState({loading:true})
+    let id_facture = facture.id
+
+    let lignes_factures = lignes_f;
+    let total = 0;
+    lignes_factures.map((ligne, key) => {
+      total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
+    })
+    let acces_token = facture.draft_acces_token ? facture.draft_acces_token : utilFunctions.getUID();
+
+    let odoo_data = [];
+    odoo_data.push({
+      'access_token': acces_token,
+      'type': 'out_invoice',
+      "move_name":false,
+      "user_id":6,
+      "team_id":1,
+      "comment":false,
+      'l10n_ch_isr_sent': false,
+      'name': false,   //on peut mettre une petite desc sous le titre de la facture avec ce champs
+      'date_invoice': moment(facture_date).format('YYYY-MM-DD'),
+      'date_due': moment(deadline_date).format('YYYY-MM-DD'),
+      'journal_id': 1,
+      'currency_id': 5,
+      'invoice_user_id': 3,
+      'invoice_incoterm_id': false,
+      'tax_lock_date_message': false,
+      'id': facture.facture_draft_id ? facture.facture_draft_id : false,
+      'invoice_payment_state': 'not_paid',
+      'invoice_filter_type_domain': 'sale',
+      'company_currency_id': 5,
+      'commercial_partner_id': '',
+      'invoice_has_outstanding': false,
+      'l10n_ch_currency_name': 'CHF',
+      'invoice_sequence_number_next_prefix': false,
+      'invoice_sequence_number_next': false,
+      'invoice_has_matching_suspense_amount': false,
+      'has_reconciled_entries': false,
+      'restrict_mode_hash_table': false,
+      'partner_id': facture_company_id,
+      'invoice_vendor_bill_id': false,
+      'invoice_payment_term_id': 1,
+      'invoice_date_due': moment(deadline_date).format('YYYY-MM-DD'),
+      'company_id': 1,
+      'amount_untaxed': 0,
+      'amount_by_group': [],
+      'amount_total': 0,
+      'invoice_payments_widget': 'False',
+      'amount_residual': 0,
+      'invoice_outstanding_credits_debits_widget': false,
+      'invoice_origin': false,
+      'invoice_cash_rounding_id': false,
+      'invoice_source_email': false,
+      'invoice_payment_ref': false,
+      'reversed_entry_id': false,
+      'message_follower_ids': [],
+      'activity_ids': [],
+      'message_ids': [],
+      'message_attachment_count': 0,
+      'invoice_line_ids': [],
+      "account_id": 6,
+      "reference": client_folder_name,
+      "fiscal_position_id": false,
+      "origin": false,
+      "reference_type":"none",
+      "incoterm_id":false,
+      "sequence_number_next":false,
+      "partner_shipping_id":facture_company_id,
+      "payment_term_id":paymTerm,
+      "partner_bank_id":compte_banc,
+      'bank_partner_id': compte_banc,
+      'invoice_partner_bank_id': compte_banc,
+    })
+
+    lignes_factures.map((ligne, key) => {
+      let OAContact = main_functions.getOAContactByEmail2(this.state.contacts,ligne.newTime.utilisateurOA);
+      odoo_data[0].invoice_line_ids.push(
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              "account_analytic_id":false,
+              'account_id': 101,  //103
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
+              'name':
+                  template === '0' ? moment(ligne.newTime.date).format('DD/MM/YYYY') :
+                      template === '1' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description :
+                          template === '2' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                              template === '3' ? moment(ligne.newTime.date).format('DD/MM/YYYY') + '; ' + ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                                  template === '4' ? ligne.newTime.description :
+                                      template === '5' ? OAContact.nom + ' ' + OAContact.prenom :
+                                          template === '6' ? ligne.newTime.duree.toFixed(2) + ' Heures' :
+                                              template === '7' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom :
+                                                  template === '8' ? ligne.newTime.description + ' ; ' + ligne.newTime.duree.toFixed(2) + ' Heures' :
+                                                      template === '9' ? ligne.newTime.description + ' ; ' + OAContact.nom + ' ' + OAContact.prenom + ' ; ' + ligne.newTime.duree.toFixed(2) + ' Heures' :
+                                                          template === '10' ? ligne.newTime.description :
+                                                              ligne.newTime.description,
+              'origin': false,
+              'price_unit': parseFloat(ligne.newTime.rateFacturation),
+              'product_id': 1,  //2
+              'quantity': ligne.newTime.duree,
+              'sequence': 10,
+              "uom_id":1,
+              'invoice_line_tax_ids': [
+                [
+                  6,
+                  false,
+                  tax && tax !== "" ? [tax] : []
+                ]
+              ],
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+            }
+          ]
+      );
+    });
+
+
+    if(reductionAmount !== ""){
+      odoo_data[0].invoice_line_ids.push(
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              "account_analytic_id":false,
+              'account_id': 101,  //103
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
+              'name':reductionType === "%" ? "Réduction("+reductionAmount+"%)" : "Réduction",
+              'origin': false,
+              'price_unit': reductionType === "%" ?  -  ((total * parseInt(reductionAmount)) / 100)  : - parseFloat(reductionAmount),
+              'product_id': 1,  //2
+              'quantity': 1,
+              'sequence': 10,
+              "uom_id":1,
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+            }
+          ]
+      )
+    }
+
+    if(fraisAdmin === "2%"){
+      odoo_data[0].invoice_line_ids.push(
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              "account_analytic_id":false,
+              'account_id': 101,  //103
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
+              'name':"Frais administratifs(2%)",
+              'origin': false,
+              'price_unit':  (total * 2) / 100,
+              'product_id': 1,  //2
+              'quantity': 1,
+              'sequence': 10,
+              "uom_id":1,
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+            }
+          ]
+      )
+    }
+
+
+    SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+      console.log(createFactRes)
+      if (createFactRes.succes === true && createFactRes.status === 200) {
+
+        SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+
+          if(genFactRes.succes === true && genFactRes.status === 200){
+
+            let updatedItem = facture;
+            updatedItem.facture_draft_id = createFactRes.data.id
+            updatedItem.draft_acces_token = acces_token
+
+            rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+              if (updateRes && updateRes === true) {
+                this.setState({loading:false})
+                let b64 = genFactRes.data.pdf;
+                this.showDocInPdfModal(b64,"Facture_" + moment().format("DD-MM-YYYY HH:mm"),"pdf")
+
+              } else {
+                this.setState({loading:false})
+                this.openSnackbar("error","Une erreur est survenue !")
+              }
+            }).catch(err => {
+              this.setState({loading:false})
+              this.openSnackbar("error","Une erreur est survenue !")
+              console.log(err)
+            })
+
+          }else{
+            this.setState({loading:false})
+            console.log(genFactRes.error)
+          }
+        }).catch( err => {
+          this.setState({loading:false})
+          console.log(err)
+        })
+
+      }
+      else if(createFactRes.succes === false && createFactRes.status === 400){
+        this.setState({ loading: false });
+        localStorage.clear();
+        this.props.history.push('/login');
+      }
+      else{
+        this.setState({loading:false})
+        this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+
+  createFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount) {
+
+    console.log(compte_banc)
     let id_facture = facture.id
 
     let lignes_factures = lignes_f;
@@ -3199,7 +3693,6 @@ export default class Main extends React.Component {
       'invoice_filter_type_domain': 'sale',
       'company_currency_id': 5,
       'commercial_partner_id': '',
-      'bank_partner_id': 1,
       'invoice_has_outstanding': false,
       'l10n_ch_currency_name': 'CHF',
       'invoice_sequence_number_next_prefix': false,
@@ -3222,7 +3715,6 @@ export default class Main extends React.Component {
       'invoice_cash_rounding_id': false,
       'invoice_source_email': false,
       'invoice_payment_ref': false,
-      'invoice_partner_bank_id': 1,
       'reversed_entry_id': false,
       'message_follower_ids': [],
       'activity_ids': [],
@@ -3230,7 +3722,7 @@ export default class Main extends React.Component {
       'message_attachment_count': 0,
       'invoice_line_ids': [],
       "account_id": 6,
-      "reference": false,
+      "reference": client_folder_name,
       "fiscal_position_id": false,
       "origin": false,
       "reference_type":"none",
@@ -3238,7 +3730,9 @@ export default class Main extends React.Component {
       "sequence_number_next":false,
       "partner_shipping_id":facture_company_id,
       "payment_term_id":paymTerm,
-      "partner_bank_id":1
+      "partner_bank_id":compte_banc,
+      'bank_partner_id': compte_banc,
+      'invoice_partner_bank_id': compte_banc,
     }];
 
     lignes_factures.map((ligne, key) => {
@@ -3292,6 +3786,37 @@ export default class Main extends React.Component {
       );
     });
 
+    if(reductionAmount !== ""){
+      odoo_data[0].invoice_line_ids.push(
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              "account_analytic_id":false,
+              'account_id': 101,  //103
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
+              'name':reductionType === "%" ? "Réduction("+reductionAmount+"%)" : "Réduction",
+              'origin': false,
+              'price_unit': reductionType === "%" ?  -  ((total * parseInt(reductionAmount)) / 100)  : - parseFloat(reductionAmount),
+              'product_id': 1,  //2
+              'quantity': 1,
+              'sequence': 10,
+              "uom_id":1,
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+            }
+          ]
+      )
+    }
+
     if(fraisAdmin === "2%"){
       odoo_data[0].invoice_line_ids.push(
           [
@@ -3330,122 +3855,229 @@ export default class Main extends React.Component {
       )
     }
 
-    SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
-      console.log(createFactRes)
-      if(createFactRes.succes === true && createFactRes.status === 200){
+    if(facture.facture_draft_id){
 
-        SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
-            { data: [[createFactRes.data.id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
-          console.log(validateRes)
-          if(validateRes.succes === true && validateRes.status === 200){
+      SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+          { data: [[facture.facture_draft_id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
+        console.log(validateRes)
+        if(validateRes.succes === true && validateRes.status === 200){
 
-            SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+          SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_draft_id,facture.draft_acces_token).then(genFactRes => {
 
-              if(genFactRes.succes === true && genFactRes.status === 200){
+            if(genFactRes.succes === true && genFactRes.status === 200){
 
-                SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
-                  if(resF.succes === true && resF.status === 200){
-                    let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+              SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+                if(resF.succes === true && resF.status === 200){
+                  let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
 
-                    SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
-                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+                  SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
+                      localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
 
-                      if(ok.succes === true && ok.status === 200){
+                    if(ok.succes === true && ok.status === 200){
 
-                        SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                            ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+                      SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                          ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
 
-                          if(updateRes.succes === true && updateRes.status === 200){
+                        if(updateRes.succes === true && updateRes.status === 200){
 
-                            let secretariat_folder = this.state.reelFolders.find(x => x.name === "SECRETARIAT");
-                            console.log(secretariat_folder)
-                            if(secretariat_folder){
-                              let compta_secretariat_folder = secretariat_folder.Content.folders.find(x => x.name === "COMPTABILITE");
-                              if(compta_secretariat_folder){
-                                console.log(compta_secretariat_folder)
-                                SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
-                                  if(r.succes === true && r.status === 200){
-                                    SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                                        r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
-                                      if(updateRes2.succes === true && updateRes2.status === 200){
-                                        this.justReloadGed()
-                                      }else{
-                                        console.log(updateRes2.error)
-                                      }
-                                    }).catch(err => {console.log(err)})
-                                  }else{
-                                    console.log(r.error)
-                                  }
-                                }).catch(err => {console.log(err)})
-                              }
+                          let secretariat_folder = this.state.reelFolders.find(x => x.name === "SECRETARIAT");
+                          console.log(secretariat_folder)
+                          if(secretariat_folder){
+                            let compta_secretariat_folder = secretariat_folder.Content.folders.find(x => x.name === "COMPTABILITE");
+                            if(compta_secretariat_folder){
+                              console.log(compta_secretariat_folder)
+                              SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
+                                if(r.succes === true && r.status === 200){
+                                  SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                                      r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
+                                    if(updateRes2.succes === true && updateRes2.status === 200){
+                                      this.justReloadGed()
+                                    }else{
+                                      console.log(updateRes2.error)
+                                    }
+                                  }).catch(err => {console.log(err)})
+                                }else{
+                                  console.log(r.error)
+                                }
+                              }).catch(err => {console.log(err)})
                             }
+                          }
 
-                            let updatedItem = facture;
-                            updatedItem.statut = "accepted";
-                            updatedItem.file_id = ok.data.file_id;
-                            updatedItem.client_folder = {id:client, name:resF.data.name}
+                          let updatedItem = facture;
+                          updatedItem.statut = "accepted";
+                          updatedItem.file_id = ok.data.file_id;
+                          updatedItem.client_folder = {id:client, name:resF.data.name}
 
-                            rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
-                              if (updateRes && updateRes === true) {
+                          rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+                            if (updateRes && updateRes === true) {
 
-                                this.justReloadGed();
-                                this.setState({loading:false})
-                                this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+                              this.justReloadGed();
+                              this.setState({loading:false})
+                              this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
 
-                              } else {
-                                this.setState({loading:false})
-                                this.openSnackbar("error","Une erreur est survenue !")
-                              }
-                            }).catch(err => {
+                            } else {
                               this.setState({loading:false})
                               this.openSnackbar("error","Une erreur est survenue !")
-                              console.log(err)
-                            })
+                            }
+                          }).catch(err => {
+                            this.setState({loading:false})
+                            this.openSnackbar("error","Une erreur est survenue !")
+                            console.log(err)
+                          })
 
-                          }else{
-                            this.openSnackbar("error",updateRes.error)
-                          }
-                        }).catch(err => {console.log(err)})
+                        }else{
+                          this.openSnackbar("error",updateRes.error)
+                        }
+                      }).catch(err => {console.log(err)})
 
-                      }else{
-                        this.openSnackbar("error",ok.error)
-                        this.setState({loading:false})
-                      }
-                    }).catch(err => console.log(err))
-                  }else{
-                    this.openSnackbar("error",resF.error)
-                    this.setState({loading:false})
-                  }
-                }).catch( err => {console.log(err)})
+                    }else{
+                      this.openSnackbar("error",ok.error)
+                      this.setState({loading:false})
+                    }
+                  }).catch(err => console.log(err))
+                }else{
+                  this.openSnackbar("error",resF.error)
+                  this.setState({loading:false})
+                }
+              }).catch( err => {console.log(err)})
 
-              }else{
-                console.log(genFactRes.error)
-              }
-            }).catch( err => {
-              console.log(err)
-            })
+            }else{
+              console.log(genFactRes.error)
+            }
+          }).catch( err => {
+            console.log(err)
+          })
 
-          }else{
-            console.log(validateRes.error)
-          }
-        }).catch(err => {
-          console.log(err)
-        })
+        }else{
+          console.log(validateRes.error)
+        }
+      }).catch(err => {
+        console.log(err)
+      })
 
-      }
-      else if(createFactRes.succes === false && createFactRes.status === 400){
-        this.setState({ loading: false });
-        localStorage.clear();
-        this.props.history.push('/login');
-      }
-      else{
-        this.setState({loading:false})
-        this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
-      }
+    }
 
-    }).catch(err => {
-      console.log(err);
-    });
+    else{
+      SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+        console.log(createFactRes)
+        if(createFactRes.succes === true && createFactRes.status === 200){
+
+          SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+              { data: [[createFactRes.data.id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
+            console.log(validateRes)
+            if(validateRes.succes === true && validateRes.status === 200){
+
+              SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+
+                if(genFactRes.succes === true && genFactRes.status === 200){
+
+                  SmartService.getFile(client,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+                    if(resF.succes === true && resF.status === 200){
+                      let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+
+                      SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
+                          localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+
+                        if(ok.succes === true && ok.status === 200){
+
+                          SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                              ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+
+                            if(updateRes.succes === true && updateRes.status === 200){
+
+                              let secretariat_folder = this.state.reelFolders.find(x => x.name === "SECRETARIAT");
+                              console.log(secretariat_folder)
+                              if(secretariat_folder){
+                                let compta_secretariat_folder = secretariat_folder.Content.folders.find(x => x.name === "COMPTABILITE");
+                                if(compta_secretariat_folder){
+                                  console.log(compta_secretariat_folder)
+                                  SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
+                                    if(r.succes === true && r.status === 200){
+                                      SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                                          r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
+                                        if(updateRes2.succes === true && updateRes2.status === 200){
+                                          this.justReloadGed()
+                                        }else{
+                                          console.log(updateRes2.error)
+                                        }
+                                      }).catch(err => {console.log(err)})
+                                    }else{
+                                      console.log(r.error)
+                                    }
+                                  }).catch(err => {console.log(err)})
+                                }
+                              }
+
+                              let updatedItem = facture;
+                              updatedItem.statut = "accepted";
+                              updatedItem.file_id = ok.data.file_id;
+                              updatedItem.client_folder = {id:client, name:resF.data.name}
+
+                              rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+                                if (updateRes && updateRes === true) {
+
+                                  this.justReloadGed();
+                                  this.setState({loading:false})
+                                  this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+
+                                } else {
+                                  this.setState({loading:false})
+                                  this.openSnackbar("error","Une erreur est survenue !")
+                                }
+                              }).catch(err => {
+                                this.setState({loading:false})
+                                this.openSnackbar("error","Une erreur est survenue !")
+                                console.log(err)
+                              })
+
+                            }else{
+                              this.openSnackbar("error",updateRes.error)
+                            }
+                          }).catch(err => {console.log(err)})
+
+                        }else{
+                          this.openSnackbar("error",ok.error)
+                          this.setState({loading:false})
+                        }
+                      }).catch(err => console.log(err))
+                    }else{
+                      this.openSnackbar("error",resF.error)
+                      this.setState({loading:false})
+                    }
+                  }).catch( err => {console.log(err)})
+
+                }else{
+                  console.log(genFactRes.error)
+                }
+              }).catch( err => {
+                console.log(err)
+              })
+
+            }else{
+              console.log(validateRes.error)
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+
+        }
+        else if(createFactRes.succes === false && createFactRes.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else{
+          this.setState({loading:false})
+          this.openSnackbar("error","Erreur odoo à la création de la facture ! ")
+        }
+
+      }).catch(err => {
+        console.log(err);
+      });
+
+    }
+
+
   }
 
   deleteLigneFact(lf) {
@@ -3978,48 +4610,6 @@ export default class Main extends React.Component {
 
   }
 
-  addFA(choice, beforeCreateFacture){
-
-    if (choice === 1) {
-
-      let facture = beforeCreateFacture;
-      let lignes_facture = facture.ligneFactures;
-      let total = 0;
-
-      (lignes_facture || []).map((ligne, key) => {
-        total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
-
-      });
-      let FA = (total * 2) / 100
-      let newItem = {
-        newTime: {
-          date: moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD HH:mm:ss'),
-          duree: "1",
-          client: facture.row.client,
-          client_id: facture.client,
-          dossier_client: facture.row.client_folder,
-          categoriesActivite: this.state.TimeSheet.newTime.categoriesActivite,
-          description: "Frais administratifs(2%)",
-          utilisateurOA: facture.row.partner,
-          rateFacturation: FA,
-          langue: ''
-        },
-        uid: utilFunctions.getUID(),
-        user_email: localStorage.getItem('email'),
-        created_at: moment().format('YYYY-MM-DD HH:mm:ss')
-      }
-      facture.ligneFactures.push(newItem)
-      this.before_create_facture(facture.createAt, facture.ligneFactures, facture.clientFolderID, facture.row, facture.template, facture.client, facture.paymTerm, facture.deadline_date, facture.taxe);
-
-    }else{
-      let facture = this.state.beforeCreateFacture;
-      this.setState({openModalVF:false})
-      this.before_create_facture(facture.createAt, facture.ligneFactures, facture.clientFolderID, facture.row, facture.template, facture.client, facture.paymTerm, facture.deadline_date, facture.taxe);
-    }
-
-
-  }
-
   createLignefacture(duplicate){
     let objCopy = this.state.TimeSheet;
     let time = this.state.TimeSheet.newTime.duree;
@@ -4162,6 +4752,23 @@ export default class Main extends React.Component {
     })
   }
 
+  delete_contact(id){
+    this.setState({loading:true})
+    rethink.remove("test",'table("contacts").get('+JSON.stringify(id)+').delete()',db_name,false).then(delRes => {
+      if(delRes && delRes === true){
+        this.setState({loading:false})
+        this.openSnackbar("success","Suppression effectuée  avec succès")
+      }else{
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+      }
+    }).catch(err => {
+      this.setState({loading:false})
+      this.openSnackbar("error","Une erreur est survenue !")
+      console.log(err)
+    })
+  }
+
   delete_client_case(id){
     rethink.remove("test",'table("clients_cases").get('+JSON.stringify(id)+').delete()',db_name,false).then(delRes => {
       if(delRes && delRes === true){
@@ -4249,16 +4856,47 @@ export default class Main extends React.Component {
     })
   }
 
-  update_client_case(id,data){
-    rethink.update("test",'table("clients_cases").get('+JSON.stringify(id)+').update('+ JSON.stringify(data) + ')',db_name,false).then( updateRes => {
-      if (updateRes && updateRes === true) {
-        this.openSnackbar("success","Modification effectuée avec succès")
-      } else {
+  update_client_case(id,data,mandatNameChanged,mandat){
+    if(mandatNameChanged === true){
+      this.setState({loading:true})
+      SmartService.updateFileName({ name: mandat.name }, mandat.folder_id , localStorage.getItem('token'), localStorage.getItem('usrtoken')).then((updateNameRes) => {
+            if (updateNameRes.succes === true && updateNameRes.status === 200) {
+              this.justReloadGed()
+              rethink.update("test",'table("clients_cases").get('+JSON.stringify(id)+').update('+ JSON.stringify(data) + ')',db_name,false).then( updateRes => {
+                if (updateRes && updateRes === true) {
+                  this.setState({loading:false})
+                  this.openSnackbar("success","Modification effectuée avec succès")
+                } else {
+                  this.setState({loading:false})
+                  this.openSnackbar("error","Une erreur est survenue !")
+                }
+              }).catch(err => {
+                this.setState({loading:false})
+                this.openSnackbar("error","Une erreur est survenue !")
+              })
+
+            }else{
+              console.log(updateNameRes.error)
+              this.setState({loading:false})
+              this.openSnackbar("error",updateNameRes.error)
+            }
+          }).catch(err => {
+        this.setState({loading:false})
+        console.log(err)
         this.openSnackbar("error","Une erreur est survenue !")
-      }
-    }).catch(err => {
-      this.openSnackbar("error","Une erreur est survenue !")
-    })
+      })
+    }else{
+      rethink.update("test",'table("clients_cases").get('+JSON.stringify(id)+').update('+ JSON.stringify(data) + ')',db_name,false).then( updateRes => {
+        if (updateRes && updateRes === true) {
+          this.openSnackbar("success","Modification effectuée avec succès")
+        } else {
+          this.openSnackbar("error","Une erreur est survenue !")
+        }
+      }).catch(err => {
+        this.openSnackbar("error","Une erreur est survenue !")
+      })
+    }
+
   }
 
 
@@ -4276,6 +4914,10 @@ export default class Main extends React.Component {
 
   onSelectDrivePopUp3 = (selectedKeys, info) => {
     this.setState({selectedDrivePopUpKeys:selectedKeys,signFile_destinationFolder:info.node})
+  }
+
+  onSelectDrivePopUp4 = (selectedKeys, info) => {
+    this.setState({selectedDrivePopUpKeys:selectedKeys,selectedSharedPopUpKeys:[],signFile_Ged:info.node.typeF === "folder" ? "" : info.node})
   }
 
   updateUserInfo(fname,lname,phone){
@@ -4302,7 +4944,7 @@ export default class Main extends React.Component {
   }
 
 
-  SEQ_file(){
+  async SEQ_file(){
     if(localStorage.getItem("phone") === undefined || localStorage.getItem("phone") === null || localStorage.getItem("phone") === "" ){
       this.openSnackbar("warning","Vous devez ajouter votre numéro de téléphone pour signer !")
       setTimeout(() => {
@@ -4317,85 +4959,90 @@ export default class Main extends React.Component {
 
       }else{
         this.setState({loading:true})
-        var formdata = new FormData();
-        formdata.append("file", this.state.SEQ_file, this.state.SEQ_file.name);
-        formdata.append("name", this.state.SEQ_file.name.slice(0, -4));
-        /*formdata.append("given", "courtel");
-        formdata.append("surname", "eliot");
-        formdata.append("email", "eliot.courtel@gmail.com");*/
-        formdata.append("phone", localStorage.getItem("phone"));  //+41795281046
+        let b64 = "";
+        let fileName = this.state.SEQ_file !== "" ? this.state.SEQ_file.name.slice(0, -4) : this.state.signFile_Ged.title.slice(0,-4);
+        if(this.state.SEQ_file !== ""){
+          b64 = await main_functions.toBase64(this.state.SEQ_file)
+        }
+        if(this.state.signFile_Ged !== ""){
+          b64 = await this.getB64GedFile(this.state.signFile_Ged.key)
+        }
 
-        var requestOptions = {
-          method: 'POST',
-          body: formdata,
-          redirect: 'follow'
-        };
+        SmartService.signQualifiedDoc({
+          b64file:b64,
+          name:fileName,
+          phone:localStorage.getItem("phone")
+        },localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( signRes => {
+          console.log(signRes)
+          if (signRes.err !== null && signRes.data) {
 
-        fetch("https://sign.1.smartdom.ch/sign", requestOptions)
-            .then(response => {
-              console.log(response)
-              if(response.status === 400){
-                this.setState({loading:false})
-                this.openSnackbar("error","Des données manquantes !")
-              }else if(response.status === 500){
-                this.setState({loading:false})
-                this.openSnackbar("error","une erreur est survenue !")
-              }else if(response.status === 405){
-                this.setState({loading:false})
-                this.openSnackbar("error","Opération annulée !")
-              }else if(response.status === 200){
-                response.json()
-              }
-            })
-            .then(result => {
-              console.log(result)
-              if(result.succes === true && result.status === 200){
+            SmartService.addFileFromBas64({b64file:signRes.data,folder_id:this.state.signFile_destinationFolder.key},
+                localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
 
-                SmartService.addFileFromBas64({b64file:result.data,folder_id:this.state.signFile_destinationFolder.key},
-                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+              if(addFileRes.succes === true && addFileRes.status === 200) {
 
-                  if(addFileRes.succes === true && addFileRes.status === 200) {
-                    let fileName = this.state.SEQ_file.name.slice(0, -4);
-                    SmartService.updateFileName({name:fileName},
-                        addFileRes.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
-                      if(updateNameRes.succes === true && updateNameRes.status === 200){
-                        this.justReloadGed()
-                        setTimeout(() => {
-                          this.setState({loading:false})
-                          this.openSnackbar("success","La signature électronique est bien effectué avec succès")
-                        },500)
-                      }else{
-                        console.log(updateNameRes.error)
-                        this.openSnackbar("error",updateNameRes.error)
-                        this.setState({loading:false})
-                      }
-                    }).catch(err => {
-                      console.log(err)
-                      this.openSnackbar("error","Une erreur est survenue")
-                    })
+                SmartService.updateFileName({name:fileName},
+                    addFileRes.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                  if(updateNameRes.succes === true && updateNameRes.status === 200){
+                    this.justReloadGed()
+                    setTimeout(() => {
+                      this.setState({loading:false})
+                      this.openSnackbar("success","La signature électronique est bien effectué avec succès")
+                    },500)
                   }else{
-                    console.log(addFileRes.error)
-                    this.openSnackbar("error",addFileRes.error)
+                    console.log(updateNameRes.error)
+                    this.openSnackbar("error",updateNameRes.error)
                     this.setState({loading:false})
                   }
                 }).catch(err => {
                   console.log(err)
                   this.openSnackbar("error","Une erreur est survenue")
-                  this.setState({loading:false})
                 })
-
               }else{
-                this.openSnackbar("error",result.error)
+                console.log(addFileRes.error)
+                this.openSnackbar("error",addFileRes.error)
+                this.setState({loading:false})
               }
-
-            })
-            .catch(error => {
-              console.log(error)
-              this.setState({loading:false})
+            }).catch(err => {
+              console.log(err)
               this.openSnackbar("error","Une erreur est survenue")
-            });
+              this.setState({loading:false})
+            })
+
+          }else{
+            console.log(signRes.error)
+            this.openSnackbar("error","Annulation ou une erreur est servenue !")
+            this.setState({loading:false})
+          }
+        }).catch(err => {
+          console.log(err)
+          this.openSnackbar("error","Une erreur est servenue !")
+          this.setState({loading:false})
+        })
       }
     }
+  }
+
+   getB64GedFile = id => new Promise((resolve, reject) => {
+     SmartService.getFile(id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(fileRes => {
+       if (fileRes.succes === true && fileRes.status === 200) {
+         resolve(fileRes.data.Content.Data)
+       }else{
+         reject(fileRes.error)
+       }
+     }).catch(err => {
+       console.log(err)
+       reject(err)
+     })
+  });
+
+   onExpand_shared = (expandedKeys) => {
+     this.setState({expandedSharedPopUpKeys:expandedKeys,autoExpandSharedPopUpParent:false,selectedDrivePopUpKeys:[]})
+  }
+
+   onSelect_shared = (selectedKeys, info) => {
+     console.log(info.node)
+     this.setState({selectedSharedPopUpKeys:selectedKeys,selectedDrivePopUpKeys:[],signFile_Ged:info.node.key === "parent" ? "" : info.node.typeF === "folder" ? "" : info.node})
   }
 
   render() {
@@ -4411,6 +5058,8 @@ export default class Main extends React.Component {
     const openDrivePopup3 = Boolean(this.state.anchorElDrive3);
     const id3 = openDrivePopup3 ? 'drive-popover3' : undefined;
 
+    const openDrivePopup4 = Boolean(this.state.anchorElDrive4);
+    const id4 = openDrivePopup3 ? 'drive-popover4' : undefined;
 
 
     const openRoomSetting = Boolean(this.state.settRoomAnchorEl);
@@ -5344,6 +5993,9 @@ export default class Main extends React.Component {
                                     });
                                     this.props.history.push('/home/contacts/' + contact.id);
                                   }}
+                                  removeContact={(id) => {
+                                    this.delete_contact(id)
+                                  }}
                               />
                         }
                       </Route>
@@ -6209,8 +6861,8 @@ export default class Main extends React.Component {
                                                          this.props.history.push("/home/shared/" + ENV_CLIENTS_FOLDER_ID)
                                                        }
                                                      }}
-                                                     update_client_case={(id,data) => {
-                                                       this.update_client_case(id,data)
+                                                     update_client_case={(id,data,mandatNameChanged,mandat) => {
+                                                       this.update_client_case(id,data,mandatNameChanged,mandat)
                                                      }}
                                                      reloadGed={() => this.justReloadGed()}
                                                      openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
@@ -6481,44 +7133,11 @@ export default class Main extends React.Component {
 
                         {this.renderTimeSheet()}
 
-                        <Modal
-                            isOpen={this.state.openModalVF}
-                            size="lg"
-                            zIndex={1500}
-                            toggle={() => this.setState({ openModalVF: false })}
-
-                        >
-
-                          <ModalHeader style={{display:"block",paddingLeft:"0.9rem",paddingRight:"0.9rem",paddingBottom:"0.3rem"}}>
-                            <div style={{display:"flex",justifyContent:"space-between"}}>
-                              <h5>
-                                Valider facture
-                              </h5>
-
-                            </div>
-
-                          </ModalHeader>
-                          <ModalBody>
-                           <div className="text-center">
-                             <h4>
-                               Voulez-vous ajouter des frais administratifs ?
-                             </h4>
-                           </div>
-
-
-                          </ModalBody>
-
-                            <ModalFooter>
-                              <Button color="primary" onClick={()=>this.addFA(1)} >Oui </Button>{' '}
-                              <Button color="secondary" onClick={()=>this.addFA(2)} >Non </Button>
-                            </ModalFooter>
-
-                        </Modal>
                       </Route>
 
                       <Route exact path="/home/qualified_signature/new">
                         <div style={{marginTop:25}}>
-                          <h5>Signature électronique qualifié</h5>
+                          <h5>Signature électronique qualifiée</h5>
                           <div style={{marginLeft:15}}>
                             <div align="left" style={{marginTop:30}}>
                               <img alt="sign" src={qualifSignImage} style={{maxWidth:300,border:"2px solid #f0f0f0"}} />
@@ -6527,12 +7146,131 @@ export default class Main extends React.Component {
                               <div className="row mt-1">
                                 <div className="col-md-6">
                                   <div>
-                                    <h6>Choisissez un document à signer</h6>
+                                    <h5>Choisissez un document à signer</h5>
+                                    <div style={{marginTop:20}} className="row">
+                                      <div className="col-md-12">
+                                        <FormControlLabel style={{fontSize:"0.8rem",color:"#000"}}
+                                            control={
+                                              <MuiCheckbox size="small"
+                                                  checked={this.state.signFile_type}
+                                                  onChange={() =>
+                                                      this.setState({
+                                                        signFile_type: !this.state.signFile_type,
+                                                        signFile_Ged:'',
+                                                        SEQ_file:''
+                                                      })
+                                                  }
+                                                  name="checkedNewRoom1"
+                                                           disabled={true}
+                                              />
+                                            }
+                                            label="Document de la ged"
+                                        />
+                                      </div>
+                                      <div className="col-md-12">
+                                        <FormControlLabel style={{fontSize:"0.8rem",color:"#000"}}
+                                            control={
+                                              <MuiCheckbox
+                                                  size="small"
+                                                  checked={!this.state.signFile_type}
+                                                  onChange={() =>
+                                                      this.setState({
+                                                        signFile_type: !this.state.signFile_type,
+                                                        signFile_Ged:'',
+                                                        SEQ_file:''
+                                                      })
+                                                  }
+                                                  name="checkedNewRoom2"
+                                              />
+                                            }
+                                            label="Document externe"
+                                        />
+                                      </div>
+                                    </div>
                                     <div style={{display:"flex"}}>
-                                      <IconButton color="primary" onClick={() => this.signatureFileUpload.click()}>
+                                      <IconButton color="primary"
+                                                  onClick={(e) => {
+                                                    if(this.state.signFile_type === true){
+                                                      this.setState({anchorElDrive4:e.currentTarget})
+                                                    }else{
+                                                      this.signatureFileUpload.click()
+                                                    }
+                                                  }}
+                                      >
                                         <AttachFileIcon/>
                                       </IconButton>
-                                      <h6 style={{marginLeft:5,marginTop:17}}>{this.state.SEQ_file ? this.state.SEQ_file.name :""}</h6>
+                                      <h6 style={{marginLeft:5,marginTop:17}}>{this.state.SEQ_file ? this.state.SEQ_file.name : this.state.signFile_Ged !== "" ? this.state.signFile_Ged.title : ""}</h6>
+                                      <Popover
+                                          id={id4}
+                                          open={openDrivePopup4}
+                                          anchorEl={this.state.anchorElDrive4}
+                                          onClose={() => {
+                                            this.setState({anchorElDrive4: null})
+                                          }}
+                                          anchorOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'center',
+                                          }}
+                                          transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'center',
+                                          }}
+                                      >
+                                        <div style={{padding:15,height:600,width:300,paddingBottom:50}}>
+                                          <div align="right">
+                                            <IconButton size="small" onClick={() => {
+                                              this.setState({anchorElDrive4:null,expandedDrivePopUpKeys:[],selectedDrivePopUpKeys:[],signFile_Ged:""})
+                                            }}
+                                            >
+                                              <CloseIcon />
+                                            </IconButton>
+                                          </div>
+
+                                          <h6 style={{color:"darkblue"}}>Veuillez sélectionner un document à signer </h6>
+                                          <div style={{marginTop:20,maxHeight:430,overflowY:"auto"}}>
+                                            <DirectoryTree
+                                                draggable={true}
+                                                allowDrop={(options) => {
+                                                  return false
+                                                }}
+                                                showIcon={true}
+                                                onExpand={this.onExpandDrivePopUp}
+                                                onSelect={this.onSelectDrivePopUp4}
+                                                treeData={this.state.miniDrive || []}
+                                                expandAction="click"
+                                                expandedKeys={this.state.expandedDrivePopUpKeys}
+                                                selectedKeys={this.state.selectedDrivePopUpKeys}
+                                                autoExpandParent={this.state.autoExpandDrivePopUpParent}
+                                            />
+                                            <DirectoryTree
+                                                loadData={this.onLoadSharedMiniDriveData}
+                                                draggable={true}
+                                                showIcon={true}
+                                                onExpand={this.onExpand_shared}
+                                                onSelect={this.onSelect_shared}
+                                                treeData={this.state.sharedMiniDrive || []}
+                                                expandAction="click"
+                                                expandedKeys={this.state.expandedSharedPopUpKeys}
+                                                selectedKeys={this.state.selectedSharedPopUpKeys}
+                                                autoExpandParent={this.state.autoExpandSharedPopUpParent}
+                                            />
+                                          </div>
+                                          <div style={{position:"absolute",bottom:50}}>
+                                            <span style={{color:"#000",fontWeight:"bold"}}>Document sélectionné:&nbsp; <span>{this.state.signFile_Ged.title}</span> </span>
+                                          </div>
+                                          <div align="right" style={{position:"absolute",bottom:10,right:15}}>
+                                            <AtlButton
+                                                isDisabled={this.state.signFile_Ged === ""}
+                                                appearance="primary"
+                                                onClick={() => {
+                                                  this.setState({anchorElDrive4:null})
+                                                }}
+                                            >
+                                              Valider
+                                            </AtlButton>
+                                          </div>
+                                        </div>
+                                      </Popover>
                                     </div>
                                     <input
                                         style={{ visibility: 'hidden', width: 0, height: 0 }}
@@ -6547,7 +7285,7 @@ export default class Main extends React.Component {
                                 <div className="col-md-6">
                                   <div>
                                     <h6>Dossier de destination dans le GED</h6>
-                                    <input type="text" readOnly={true}
+                                    <input type="text" readOnly={true} disabled={this.state.signFile_type === true}
                                            className="form-control custom-select"
                                            style={{ width: 300,cursor:"pointer",height:40 }}
                                            value={this.state.signFile_destinationFolder.title || ""}
@@ -6619,7 +7357,9 @@ export default class Main extends React.Component {
                               </div>
                               <div align="center" style={{marginTop:30}}>
                                 <AtlButton
-                                    isDisabled={this.state.signFile_destinationFolder === "" || this.state.SEQ_file === ""}
+                                    isDisabled={this.state.signFile_destinationFolder === "" ||
+                                    (this.state.SEQ_file === "" && this.state.signFile_type === false) ||
+                                    (this.state.signFile_Ged === "" && this.state.signFile_type === true)}
                                     appearance="primary"
                                     onClick={() => {this.SEQ_file()}}
                                 >
@@ -7248,7 +7988,6 @@ export default class Main extends React.Component {
                     <Chips
                         chips={[]}
                         save={(data) => {
-                          console.log(data)
                           this.setState({ NewRoomEmails: data });
                         }}
                         requiredMessage={'Email incorrect'}

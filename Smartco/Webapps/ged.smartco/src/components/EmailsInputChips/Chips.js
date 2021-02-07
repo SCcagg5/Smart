@@ -53,6 +53,7 @@ class Chips extends Component {
             }
         }else{
             const validChips = this.getValidChips(chips);
+            console.log(validChips)
             this.setState({chips})
             this.props.save(validChips);
         }
@@ -141,19 +142,21 @@ class Chips extends Component {
             !this.props.max || this.state.chips.length < this.props.max ? this.props.placeholder : '';
         return (
             <div>
-                {/*<div className="row">
+                <div className="row">
                     <div className="col-md-12" style={{ marginTop: 5 }}>
                         <FormControlLabel
                             control={
                                 <MuiCheckbox
                                     checked={this.state.newRoomCheck0}
-                                    onChange={() => {
+                                    onChange={(event, checked) => {
                                         if(this.state.newRoomCheck0 === false){
                                             (this.props.contacts || []).map((contact,key) => {
-                                                let e = {target:{value:''}};
-                                                this.clearRequiredValidation();
-                                                e.target.value = contact.email
-                                                this.updateChips(e);
+                                                event.persist()
+                                                setTimeout(() => {
+                                                    this.clearRequiredValidation();
+                                                    event.target.value = contact.email
+                                                    this.updateChips(event);
+                                                },30)
                                             })
                                         }else{
                                             this.setState({chips:[]})
@@ -168,7 +171,7 @@ class Chips extends Component {
                             label="Ajouter toute l'équipe d'OA Legal ?"
                         />
                     </div>
-                </div>*/}
+                </div>
 
                 <div className="chips" onClick={() => this.focusInput()}>
                     <ChipsList chips={this.state.chips} onChipClick={(event, chip) => {event.stopPropagation(); this.deleteChip(chip)}} />

@@ -14,11 +14,11 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import moment from 'moment';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import AtlButton from '@atlaskit/button';
+import AtlButton, {ButtonGroup as AltButtonGroup} from '@atlaskit/button';
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import FolderIcon from '@material-ui/icons/Folder';
 import SmartService from '../../provider/SmartService';
-import { Select as MuiSelect } from '@material-ui/core';
+import {Avatar, Input, Select as MuiSelect} from '@material-ui/core';
 import MenuItem from '@material-ui/core/MenuItem';
 import data from "../../data/Data"
 import DatePicker from 'react-date-picker';
@@ -28,6 +28,16 @@ import main_functions from '../../controller/main_functions';
 import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
 import utilFunctions from "../../tools/functions";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import EditIcon from "@material-ui/icons/Edit";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Typography from "@material-ui/core/Typography";
+import CloseIcon from "@material-ui/icons/Close";
+import DialogContent from "@material-ui/core/DialogContent";
+import Autosuggest from "react-autosuggest";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Dialog from "@material-ui/core/Dialog";
+import Data from "../../data/Data";
+import { Dropdown, Input as Sinput } from 'semantic-ui-react'
 
 const useRowStyles = makeStyles({
   root: {
@@ -241,7 +251,11 @@ export default function CollapsibleTable(props) {
                         <TableBody>
                           {
                             searchFilter.map((row,key) => (
-                                <Row key={key} row={row} index={key} validateFacture={props.validateFacture} openFacture={props.openFacture}
+                                <Row key={key} row={row} index={key}
+                                     updateFacture={props.updateFacture}
+                                     validateFacture={props.validateFacture}
+                                     previewFacture={props.previewFacture}
+                                     openFacture={props.openFacture}
                                      openFactureFolder={props.openFactureFolder} client_folders={props.client_folders} clients_tempo={props.clients_tempo}
                                      annuaire_clients_mandat={props.annuaire_clients_mandat}
                                      sharedFolders={props.sharedFolders}
@@ -256,6 +270,8 @@ export default function CollapsibleTable(props) {
                                      }}
                                      taxs={taxs}
                                      paymTerms={paymTerms || []}
+                                     contacts={props.contacts || []}
+                                     openSnackbar={props.openSnackbar}
                                 />
                             ))
                           }
@@ -307,12 +323,57 @@ function Row(props) {
   const [client, setClient] = React.useState("");
   const [paymTerm, setPaymTerm] = React.useState( "3");
   const [tax, setTax] = React.useState("13");
-  const [fraisAdmin, setFraisAdmin] = React.useState("");
+  const [fraisAdmin, setFraisAdmin] = React.useState("2%");
+  const [compte_banc, setCompte_banc] = React.useState(1);
   const [deadline_date, setDeadline_date] = React.useState(new Date());
+  const [addReduction, setAddReduction] = React.useState(false);
+  const [reductionType, setReductionType] = React.useState("%");
+  const [reductionAmount, setReductionAmount] = React.useState("");
+
+
+
+  const [showUpdateModal, setShowUpdateModal] = React.useState(false);
+  const [selectedFacture, setSelectedFacture] = React.useState("");
+  const [selectedRow, setSelectedRow] = React.useState("");
+  const [toUpdated_date, setToUpdated_date] = React.useState(new Date());
+  const [toUpdated_rate, setToUpdated_rate] = React.useState("");
+  const [toUpdated_OAUser, setToUpdated_OAUser] = React.useState("");
+  const [toUpdated_desc, setToUpdated_desc] = React.useState("");
+  const [timeSuggestions, setTimeSuggestions] = React.useState([]);
+  const [duration, setDuration] = React.useState("");
+
+  const [openDeleteLfModal, setOpenDeleteLfModal] = React.useState(false);
 
   const { row } = props;
   const [open, setOpen] = React.useState(false);
   /*const [updateX, setUpdateX] = React.useState(false);*/
+
+  const getTimeSuggestions = value => {
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+
+    return inputLength === 0 ? [] : Data.timeSuggestions.filter(x =>
+        x.toLowerCase().slice(0, inputLength) === inputValue
+    );
+  };
+
+  function onInputTimeSuggChange(event, {newValue})  {
+    setDuration(newValue)
+  }
+
+  function onTimeSuggestionsFetchRequested({value}){
+    setTimeSuggestions(getTimeSuggestions(value))
+  }
+
+  function onTimeSuggestionsClearRequested(){
+    setTimeSuggestions([])
+  }
+
+  const inputSuggProps = {
+    placeholder: 'Format: --h--',
+    value: duration,
+    onChange: onInputTimeSuggChange
+  };
 
 
   const classes = useRowStyles();
@@ -404,23 +465,51 @@ function Row(props) {
                   <Table size="small" aria-label="purchases">
                     <TableHead>
                       <TableRow>
+                        {
+                          row.statut === "wait" &&
+                          <TableCell align="center" style={{fontWeight:"bold"}} >Actions</TableCell>
+                        }
                         <TableCell align="center" style={{fontWeight:"bold"}} >Date</TableCell>
                         <TableCell align="center" style={{fontWeight:"bold"}} >Description</TableCell>
                         <TableCell align="center" style={{fontWeight:"bold"}} >Utilisateur OA</TableCell>
                         <TableCell align="center" style={{fontWeight:"bold"}} >Taux horaire</TableCell>
                         <TableCell align="center" style={{fontWeight:"bold"}} >Durée</TableCell>
-                        {/*{
-                      row.statut === "wait" &&
-                      <TableCell align="center" style={{fontWeight:"bold"}} >Actions</TableCell>
-                    }*/}
                         <TableCell align="center" style={{fontWeight:"bold"}} >Total</TableCell>
-                        {/*<TableCell align="center" style={{fontWeight:"bold"}} >Taxe</TableCell>*/}
+
 
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {(row.lignes_facture || []).map((lf,key) => (
                           <TableRow key={key}>
+                            {
+                              row.statut === "wait" &&
+                              <TableCell component="th" scope="row" align="center" >
+                                <IconButton size="small" color="default" onClick={() => {
+                                  setSelectedFacture(row)
+                                  setSelectedRow(lf)
+                                  const row_copy = lf;
+                                  setDuration(utilFunctions.formatDuration(row_copy.newTime.duree.toString()))
+                                  setToUpdated_date(new Date(row_copy.newTime.date))
+                                  setToUpdated_rate(row_copy.newTime.rateFacturation)
+                                  setToUpdated_OAUser(row_copy.newTime.utilisateurOA)
+                                  setToUpdated_desc(row_copy.newTime.description)
+                                  setShowUpdateModal(true)
+                                }}
+                                >
+                                  <EditIcon fontSize="small"/>
+                                </IconButton>
+                                <IconButton size="small" onClick={() => {
+                                  setSelectedFacture(row)
+                                  setSelectedRow(lf)
+                                  setOpenDeleteLfModal(true)
+                                }}
+                                >
+                                  <DeleteOutlineIcon color="error" fontSize="small"/>
+                                </IconButton>
+                              </TableCell>
+                            }
+
                             <TableCell component="th" scope="row" align="center" >
                               {moment(lf.newTime.date).format("DD-MM-YYYY")}
                             </TableCell>
@@ -433,26 +522,6 @@ function Row(props) {
                             <TableCell align="center">
                               {(lf.newTime.duree * parseInt(lf.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF
                             </TableCell>
-                            {/*<TableCell align="center">
-                              {
-                                row.statut === "wait"  ?
-                                <select
-                                    className="form-control custom-select"
-                                    value={lf.tax || ""}
-                                    onChange={(e) => {
-                                      lf.tax = e.target.value;
-                                      setUpdateX(!updateX)
-                                    }}>
-                                  <option key={key} value=""/>
-                                  {
-                                    (props.taxs || []).map((item,key) =>
-                                        <option key={key} value={item.id}>{item.display_name}</option>
-                                    )
-                                  }
-                                </select> : lf.tax ? main_functions.getTaxNameById(props.taxs || [],parseInt(lf.tax)) : "Non attribué"
-
-                              }
-                            </TableCell>*/}
                           </TableRow>
                       ))}
                     </TableBody>
@@ -489,6 +558,23 @@ function Row(props) {
                             {
                               data.lf_templates.map((item,key) =>
                                   <option key={key} value={item.value}>{item.label}</option>
+                              )
+                            }
+
+                          </select>
+                        </div>
+                        <div className="col-md-4">
+                          <h6>Compte bancaire</h6>
+                          <select
+                              className="form-control custom-select"
+                              value={compte_banc}
+                              onChange={(e) => {
+                                setCompte_banc(e.target.value)
+                                console.log(e.target.value)
+                              }}>
+                            {
+                              data.oa_comptes_bank_factures.map((item,key) =>
+                                  <option key={key} value={item.odoo_id}>{item.label}</option>
                               )
                             }
 
@@ -550,18 +636,58 @@ function Row(props) {
                           </select>
                         </div>
                       </div>
+                      <div className="row mt-2">
+                        <div className="col-md-5">
+                          <h6>Réduction</h6>
+                          <Sinput
+                              label={
+                                <Dropdown defaultValue='%' options={[{key:"0",text:"%",value:"%"},{key:"1",text:"CHF",value:"CHF"}]}
+                                          value={reductionType}
+                                          onChange={(e,{value}) => {
+                                            console.log(value)
+                                            setReductionType(value)
+                                          }}
+                                />
+                              }
+                              labelPosition='right'
+                              placeholder='Réduction'
+                              value={reductionAmount}
+                              onChange={(event, data1) => {
+                                console.log(event.target.value)
+                                setReductionAmount(event.target.value)
+                              }}
+                              size="mini"
+                          />
+                        </div>
+                      </div>
                       <div align="right" style={{marginTop:20}}>
-                        <AtlButton onClick={() => {
-                          if(verif_access === true){
-                            props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin)
-                          }else{
-                            alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
-                          }
-                        }}
-                                   isDisabled={client === ""}
-                                   appearance="primary">
-                          Valider la facture
-                        </AtlButton>
+                        <AltButtonGroup>
+                          <AtlButton onClick={() => {
+                            if(verif_access === true){
+                              let client_folder_name = (selected_client_folders.find(x => x.folder_id === client)).name
+                              props.previewFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
+                            }else{
+                              alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
+                            }
+                          }}
+                                     isDisabled={client === ""}
+                                     appearance="warning">
+                            Preview
+                          </AtlButton>
+                          <AtlButton onClick={() => {
+                            if(verif_access === true){
+                              let client_folder_name = (selected_client_folders.find(x => x.folder_id === client)).name
+                              props.validateFacture(row,props.index,template,client,paymTerm,deadline_date,tax,fraisAdmin,client_folder_name,compte_banc,reductionType,reductionAmount)
+                            }else{
+                              alert("Vous n'avez pas les droits et l'accès au dossier CLIENTS pour effectuer cette opération !")
+                            }
+                          }}
+                                     isDisabled={client === ""}
+                                     appearance="primary">
+                            Valider la facture
+                          </AtlButton>
+                        </AltButtonGroup>
+
                       </div>
                     </div>
                   }
@@ -571,6 +697,220 @@ function Row(props) {
             </Collapse>
           </TableCell>
         </TableRow>
+
+
+        <Dialog open={showUpdateModal} maxWidth="md" fullWidth={true}    onClose={() => {
+          setShowUpdateModal(false)
+        }}
+                aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle disableTypography id="form-dialog-title">
+            <Typography variant="h6">Modifier</Typography>
+            <IconButton aria-label="close"
+                        style={{position: 'absolute', right: 5, top: 5, color: "#c0c0c0"}}
+                        onClick={() => {
+
+                          setShowUpdateModal(false)
+                        }}>
+              <CloseIcon/>
+            </IconButton>
+          </DialogTitle>
+
+          <DialogContent>
+
+            <div>
+              <div className="row mt-2">
+                <div className="col-md-6">
+                  <h5>Durée</h5>
+                  <div className="row">
+                    <div className="col-md-5">
+                      <Autosuggest
+                          suggestions={timeSuggestions}
+                          onSuggestionsFetchRequested={onTimeSuggestionsFetchRequested}
+                          onSuggestionsClearRequested={onTimeSuggestionsClearRequested}
+                          onSuggestionSelected={(event, {suggestion}) => console.log(suggestion)}
+                          getSuggestionValue={suggestion => suggestion}
+                          renderSuggestion={suggestion => (
+                              <div>{suggestion}</div>)}
+                          inputProps={inputSuggProps}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div style={{width: "100%"}}>
+                    <h5>Date</h5>
+                    <DatePicker
+                        calendarIcon={
+                          <img alt="" src={calendar} style={{width: 20}}/>}
+                        onChange={(e) => {
+                          console.log(e)
+                          setToUpdated_date(e)
+                        }}
+                        value={toUpdated_date}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="row mt-3" style={{marginBottom:80}}>
+                <div className="col-md-6">
+                  <div>
+                    <div>
+                      <h5>Description</h5>
+                    </div>
+                    <textarea
+                        className="form-control "
+                        id="duree"
+                        style={{width: "85%"}}
+                        name="duree"
+                        rows={5}
+                        value={toUpdated_desc}
+                        onChange={(e) => {
+                          setToUpdated_desc(e.target.value)
+                        }}/>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div>
+                    <h6>Utilisateur OA </h6>
+                  </div>
+
+                  <MuiSelect
+                      labelId="demo-simple-select-label4545"
+                      id="demo-simple-select4545"
+                      style={{width: 300}}
+                      onChange={(e) => {
+                        setToUpdated_OAUser(e.target.value)
+
+                        let OA_contacts = props.contacts;
+                        let OA_contact = "";
+                        OA_contacts.map((contact, key) => {
+                          if (contact && contact.email && contact.email === e.target.value) {
+                            OA_contact = contact
+                          }
+                        })
+                        setToUpdated_rate(OA_contact.rateFacturation || "")
+                      }}
+                      value={toUpdated_OAUser}
+                  >
+                    {props.contacts.map((contact, key) => (
+                        <MenuItem
+                            key={key}
+                            value={contact.email}>
+                          <div style={{display:"flex"}}>
+                            <Avatar style={{marginLeft:10}}
+                                    alt=""
+                                    src={contact.imageUrl} />
+                            <div style={{marginTop:10,marginLeft:8}}>{contact.nom + ' ' + contact.prenom}</div>
+                          </div>
+                        </MenuItem>
+                    ))}
+                  </MuiSelect>
+
+
+
+                  <div className="mt-3">
+                    <h6>
+                      Taux horaire
+                    </h6>
+                    <Input
+                        className="form-control "
+                        id="duree68797"
+                        style={{width: "300px"}}
+                        name="duree68797"
+                        type="text"
+                        endAdornment={
+                          <InputAdornment
+                              position="end">CHF:Hr</InputAdornment>}
+
+                        value={toUpdated_rate}
+                        onChange={(e) => {
+                          setToUpdated_rate(e.target.value)
+                        }}/>
+                  </div>
+                </div>
+              </div>
+              <div style={{marginTop:20,textAlign:"right"}}>
+                <AtlButton
+                    isDisabled={ toUpdated_rate === "" || toUpdated_OAUser === ''}
+                    appearance="primary"
+                    onClick={() => {
+                      let newItem = selectedRow;
+                      newItem.checked = "false"
+                      newItem.newTime.utilisateurOA = toUpdated_OAUser
+                      newItem.newTime.rateFacturation = toUpdated_rate
+                      newItem.newTime.description = toUpdated_desc
+                      newItem.newTime.date = moment(toUpdated_date).format("YYYY-MM-DD :HH:mm:ss")
+
+                      let time = duration;
+                      let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+                      if(regexFormat.test(time) === true){
+                        let duree = utilFunctions.durationToNumber(time);
+                        if(duree === 0){
+                          props.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
+                        }else{
+                          newItem.newTime.duree = utilFunctions.durationToNumber(duration)
+                          let facture = selectedFacture
+                          let findLigneIndex = (facture.lignes_facture || []).findIndex(x => x.id === newItem.id);
+                          if(findLigneIndex > -1){
+                            facture.lignes_facture[findLigneIndex] = newItem;
+                            console.log(facture)
+                            props.updateFacture(facture.id,facture)
+                            setShowUpdateModal(false)
+                          }else{
+                            props.openSnackbar('error', 'Une erreur est survenue !');
+                          }
+                        }
+                      }else{
+                        props.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
+                      }
+                    }}>
+                  Modifier</AtlButton>
+              </div>
+            </div>
+
+          </DialogContent>
+        </Dialog>
+
+        <ModalTransition>
+          {openDeleteLfModal === true && (
+              <Modal
+                  actions={[
+                    { text: 'Supprimer', onClick: () => {
+
+                        let facture = selectedFacture;
+                        if(facture.lignes_facture.length > 1){
+
+                          let findLigneIndex = (facture.lignes_facture || []).findIndex(x => x.id === selectedRow.id);
+                          if(findLigneIndex > -1){
+                            (facture.lignes_facture || []).splice(findLigneIndex,1);
+                            props.updateFacture(facture.id,facture)
+                            setOpenDeleteLfModal(false)
+                          }else{
+                            setOpenDeleteLfModal(false)
+                            props.openSnackbar('error', 'Une erreur est survenue !');
+                          }
+                        }else{
+                          setOpenDeleteLfModal(false)
+                          props.openSnackbar('warning', 'Une facture doit comporter au moins une ligne facture !');
+                        }
+
+                      } },
+                    { text: 'Annuler', onClick: () => {
+
+                        setOpenDeleteLfModal(false)
+                      }},
+                  ]}
+                  onClose={() => {
+                    setOpenDeleteLfModal(false)
+                  }}
+                  heading="Vous êtes sur le point de supprimer cette ligne facture !"
+                  appearance="danger"
+              >
+              </Modal>
+          )}
+        </ModalTransition>
+
       </React.Fragment>
   );
 }

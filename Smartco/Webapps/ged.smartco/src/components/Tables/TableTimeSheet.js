@@ -39,6 +39,18 @@ import SmartService from '../../provider/SmartService';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import utilFunctions from "../../tools/functions";
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
+import Select from '@atlaskit/select';
+import groupBy from 'lodash/groupBy'
+import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
+import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
+import PictureAsPdfIcon from "@material-ui/icons/PictureAsPdf";
+import FolderIcon from "@material-ui/icons/Folder";
+import Collapse from "@material-ui/core/Collapse";
+import Box from "@material-ui/core/Box";
+import data from "../../data/Data";
+import AltAvatarGroup from "@atlaskit/avatar-group";
 
 const getTimeSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
@@ -130,12 +142,18 @@ export default function TableTimeSheet(props) {
     const [showUpdateModal, setShowUpdateModal] = React.useState(false);
 
     const [lf_toUpdated, setLf_toUpdated] = React.useState("");
+    const [selectedRow, setSelectedRow] = React.useState("");
     const [toUpdated_date, setToUpdated_date] = React.useState(new Date());
     const [toUpdated_rate, setToUpdated_rate] = React.useState("");
     const [toUpdated_OAUser, setToUpdated_OAUser] = React.useState("");
     const [toUpdated_categ, setToUpdated_categ] = React.useState("");
     const [toUpdated_dossier_client, setToUpdated_dossier_client] = React.useState("");
+    const [toUpdated_dossier_client_id, setToUpdated_dossier_client_id] = React.useState("");
     const [toUpdated_desc, setToUpdated_desc] = React.useState("");
+    const [toUpdated_client_id, setToUpdated_client_id] = React.useState("");
+    const [toUpdated_client, setToUpdated_client] = React.useState("");
+
+
     const [toUpdated_template, setToUpdated_template] = React.useState("");
     const [timeSuggestions, setTimeSuggestions] = React.useState([]);
     const [duration, setDuration] = React.useState("");
@@ -147,6 +165,7 @@ export default function TableTimeSheet(props) {
     const [lf_oaUser_search, setLf_oaUser_search] = React.useState(
         main_functions.getOAContactByEmail2(props.OA_contacts,localStorage.getItem("email")) !== '' ? localStorage.getItem("email") : ""
     );
+    const [lf_assoc_dossier_search, setLf_assoc_dossier_search] = React.useState("");
     const [lf_sdate_search, setLf_sdate_search] = React.useState(null);
     const [lf_edate_search, setLf_edate_search] = React.useState(null);
 
@@ -168,12 +187,19 @@ export default function TableTimeSheet(props) {
 
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(15);
+    const [sort, setSort] = React.useState("asc");
+    const [sort_in_folder_form, setSort_in_folder_form] = React.useState("asc");
+
+    const [showBy, setShowBy] = React.useState({ label: 'Par TimeSheet', value: 'timesheet' });
+    const [open, setOpen] = React.useState(false);
+    const [exapndedRowKey, setExapndedRowKey] = React.useState("");
 
 
 
     const searchFilter = props.lignesFactures.filter((lf) => ( ( (lf.newTime.client_id.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
         ( lf.newTime.dossier_client && (lf.newTime.dossier_client.name === lf_dossier_search ) || lf_dossier_search === "") &&
         ( lf.newTime && lf.newTime.utilisateurOA && (lf.newTime.utilisateurOA === lf_oaUser_search ) || lf_oaUser_search === "") &&
+        ( lf.newTime && lf.newTime.dossier_client.team && (lf.newTime.dossier_client.team.find(x => x.uid === lf_assoc_dossier_search && x.type === "lead")  ) || lf_assoc_dossier_search === "") &&
         ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
         ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  ) &&
         ( (selectedDate !== "" && (moment(selectedDate.format("YYYY-MM-DD")).isSame(moment(lf.newTime.date).format("YYYY-MM-DD")))) || selectedDate === "" )
@@ -182,8 +208,16 @@ export default function TableTimeSheet(props) {
     searchFilter.sort( (a,b) => {
         var c = new Date(a.newTime.date);
         var d = new Date(b.newTime.date);
-        return d-c;
+        return sort === "asc" ?  d-c : c-d;
     });
+
+    let filtredArray = searchFilter.filter(x => x.newTime.dossier_client.folder_id !== undefined )
+
+    const groupedArray = groupBy(filtredArray, function(n) {
+        return n.newTime.dossier_client.folder_id
+    });
+
+    const groupedFormatedArray = Object.values(groupedArray);
 
     const selected = searchFilter.filter((lf) => ( lf.checked === true ));
     let total = 0;
@@ -221,7 +255,7 @@ export default function TableTimeSheet(props) {
             }
         })
         return(
-            <div style={{display:"flex"}}>
+            <div style={{display:"flex",justifyContent:"center"}}>
                 <img alt="" src={Oa_user.imageUrl || userAvatar} style={{width:40,height:40,objectFit:"contain"}}/>
                 <div style={{marginTop:12,marginLeft:3}}>{Oa_user.nom+" "+Oa_user.prenom}</div>
             </div>
@@ -251,6 +285,23 @@ export default function TableTimeSheet(props) {
         let totalCHF = 0;
         let totalHours = 0;
         searchFilter.map((item,key) => {
+            let value = parseFloat(item.newTime.rateFacturation) * parseFloat(item.newTime.duree);
+            totalCHF = totalCHF + value;
+            totalHours = totalHours + parseFloat(item.newTime.duree);
+        })
+
+        return(
+            [
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{utilFunctions.formatDuration(totalHours.toString())}</TableCell>,
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{totalCHF.toFixed(2) + " CHF"}</TableCell>
+            ]
+        )
+    }
+
+    const renderTotalHours_CHF_byFolder = (dossier) => {
+        let totalCHF = 0;
+        let totalHours = 0;
+        dossier.map((item,key) => {
             let value = parseFloat(item.newTime.rateFacturation) * parseFloat(item.newTime.duree);
             totalCHF = totalCHF + value;
             totalHours = totalHours + parseFloat(item.newTime.duree);
@@ -322,8 +373,26 @@ export default function TableTimeSheet(props) {
 
     return (
 
-        <div>
-            <div align="center">
+        <div style={{minWidth:1000}}>
+            <div align="right">
+                <div style={{width:180}}>
+                    <Select
+                        className="single-select"
+                        classNamePrefix="react-select"
+                        options={[
+                            { label: 'Par TimeSheet', value: 'timesheet' },
+                            { label: 'Par dossier', value: 'dossier' }
+                        ]}
+                        value={showBy}
+                        defaultValue={{ label: 'Par TimeSheet', value: 'timesheet' }}
+                        onChange={(value) => {
+                            console.log(value)
+                            setShowBy(value)
+                        }}
+                    />
+                </div>
+            </div>
+            <div style={{marginTop:-25}} align="center">
                 <AltButtonGroup>
                     <AtlButton appearance="default" isDisabled={selectedDate === ""}
                                iconBefore={<ChevronLeftIcon fontSize="small"/>}
@@ -384,6 +453,9 @@ export default function TableTimeSheet(props) {
                                 setLf_oaUser_search("")
                                 setLf_dossier_search("")
                                 setLf_client_search_ID("")
+                                setLf_assoc_dossier_search("")
+                                setOpen(false)
+                                setExapndedRowKey("")
                             }}
                         >Initialiser</AtlButton>
                     </div>
@@ -401,6 +473,8 @@ export default function TableTimeSheet(props) {
                                     calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
                                     onChange={(e) => {
                                         setPage(0);
+                                        setOpen(false)
+                                        setExapndedRowKey("")
                                         setLf_sdate_search(e)
                                     }}
                                     value={lf_sdate_search}
@@ -415,6 +489,8 @@ export default function TableTimeSheet(props) {
                                     calendarIcon={<img alt="" src={calendar} style={{width: 20}}/>}
                                     onChange={(e) => {
                                         setPage(0);
+                                        setOpen(false)
+                                        setExapndedRowKey("")
                                         setLf_edate_search(e)
                                     }}
                                     value={lf_edate_search}
@@ -447,6 +523,8 @@ export default function TableTimeSheet(props) {
                             placeholder="Sélectionner.."
                             onChange={e => {
                                 setPage(0);
+                                setOpen(false)
+                                setExapndedRowKey("")
                                 setLf_client_search(e)
                                 setLf_client_search_ID(e)
                                 let ch_rows = props.lignesFactures;
@@ -465,6 +543,8 @@ export default function TableTimeSheet(props) {
                         <select className="form-control custom-select" style={{width:230,marginLeft:10}}
                                 onChange={(event) => {
                                     setPage(0);
+                                    setOpen(false)
+                                    setExapndedRowKey("")
                                     setLf_dossier_search(event.target.value)
                                 }}
                                 value={lf_dossier_search}
@@ -479,7 +559,7 @@ export default function TableTimeSheet(props) {
                         </select>
                     </div>
                 </div>
-                <div className="col-md-12 mt-2">
+                <div className="col-md-5 mt-2">
                     <div style={{display:"flex"}}>
                         <h5 >Par utilisateur OA</h5>
                         <MuiSelect
@@ -488,8 +568,9 @@ export default function TableTimeSheet(props) {
                             style={{ width: 250,marginLeft:10,marginRight:10 }}
                             value={lf_oaUser_search}
                             onChange={(e) => {
-                                console.log(e.target.value);
                                 setPage(0);
+                                setOpen(false)
+                                setExapndedRowKey("")
                                 setLf_oaUser_search(e.target.value)
                             }}
                             MenuProps={Data.MenuProps}
@@ -517,6 +598,45 @@ export default function TableTimeSheet(props) {
                         </MuiSelect>
                     </div>
                 </div>
+                <div className="col-md-5 mt-2">
+                    <div style={{display:"flex"}}>
+                        <h5 >Par associé en charge de dossier</h5>
+                        <MuiSelect
+                            labelId="demo-mutiple-chip-label14545"
+                            id="demo-mutiple-chip34688"
+                            style={{ width: 250,marginLeft:10,marginRight:10 }}
+                            value={lf_assoc_dossier_search}
+                            onChange={(e) => {
+                                setPage(0);
+                                setOpen(false)
+                                setExapndedRowKey("")
+                                setLf_assoc_dossier_search(e.target.value)
+                            }}
+                            MenuProps={Data.MenuProps}
+                        >
+                            <MenuItem
+                                key={-1}
+                                value={""}>
+                                <div className="row align-items-center justify-content-center">
+                                    <div style={{marginLeft:10}}>{"Aucun"}</div>
+                                </div>
+                            </MenuItem>
+                            {props.OA_contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
+                                <MenuItem
+                                    key={key}
+                                    value={contact.uid}>
+                                    <div
+                                        className="row align-items-center justify-content-center">
+                                        <Avatar
+                                            alt=""
+                                            src={contact.imageUrl} />
+                                        <div>{contact.nom + ' ' + contact.prenom}</div>
+                                    </div>
+                                </MenuItem>
+                            ))}
+                        </MuiSelect>
+                    </div>
+                </div>
             </div>
             {
                 selected.length > 0 &&
@@ -524,154 +644,384 @@ export default function TableTimeSheet(props) {
                     {selected.length === 1 ? "Une ligne facture sélectionnée" : selected.length + " lignes factures sélectionnées"}
                 </h5>
             }
-            <Table className={classes.table} aria-label="custom pagination table" style={{marginTop:20}}>
-                <TableHead>
-                    <TableRow style={{padding:10}}>
-                        <TableCell align="left" style={{width:"5%"}}>
-                            <Checkbox checked={check_all}
-                                      onChange={(event) => {
-                                          setCheck_all(event.target.checked)
-                                          searchFilter.map((item,key) => {
-                                              searchFilter[key].checked = event.target.checked
-                                          })
-                                      }}
-                            />
-                        </TableCell>
-                        <TableCell align="center" style={{width:"10%",fontWeight:600}}>Actions</TableCell>
-                        {/*<TableCell align="center" style={{width:"8%",fontWeight:600}}>Date de création</TableCell>*/}
-                        <TableCell align="center" style={{width:"8%",fontWeight:600}}>Date</TableCell>
-                        <TableCell align="center" style={{width:"17%",fontWeight:600}}>Nom du dossier</TableCell>
-                        <TableCell align="center" style={{width:"25%",fontWeight:600}}>Description</TableCell>
-                        <TableCell  style={{width:"20%",fontWeight:600}}>Utilisateur OA</TableCell>
-                        <TableCell align="center" style={{width:"10%",fontWeight:600}}>Taux horaire</TableCell>
-                        <TableCell align="center" style={{width:"10%",fontWeight:600}}>Durée</TableCell>
-                        <TableCell align="center" style={{width:"10%",fontWeight:600}}>Total</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {(searchFilter_pagination || []).map((row,key) => (
-                        <TableRow key={key} style={{padding:10}}>
-                            <TableCell align="left"   style={{width:"5%",backgroundColor:searchFilter_pagination[key].checked && searchFilter_pagination[key].checked === true ? "rgba(220, 0, 78, 0.08)" : "transparent"}}>
-                                <div className="media align-items-center">
-                                    <Checkbox  checked={(searchFilter_pagination[key].checked === true || searchFilter_pagination[key].checked === false)  ? searchFilter_pagination[key].checked : false}
-                                               onChange={(event) => {
-                                                   setX_update(!x_update)
-                                                   searchFilter_pagination[key].checked = event.target.checked
-                                                   if(searchFilter_pagination[key].checked === false) setCheck_all(false)
-                                               }}  />
-                                </div>
-                            </TableCell>
-                            <TableCell style={{ width: "10%"}} align="center">
-                                <IconButton size="small" color="default" onClick={() => {
-                                    if(row.user_email === localStorage.getItem("email")){
-                                        const row_copy = row;
-                                        setDuration(utilFunctions.formatDuration(row_copy.newTime.duree.toString()))
-                                        setToUpdated_date(new Date(row_copy.newTime.date))
-                                        setToUpdated_rate(row_copy.newTime.rateFacturation)
-                                        setToUpdated_OAUser(row_copy.newTime.utilisateurOA)
-                                        setToUpdated_desc(row_copy.newTime.description)
-                                        setToUpdated_template(row_copy.template)
-                                        setToUpdated_categ(row_copy.newTime.categoriesActivite)
-                                        let findClientTempo = props.clientsTempo.find(x => x.ID_client === row_copy.newTime.client_id);
-                                        if(findClientTempo){
-                                            console.log(findClientTempo.folders || [])
-                                            setSelectedClientFolders(findClientTempo.folders || [])
-                                            setTimeout(() => {
-                                                console.log(row.newTime.dossier_client.folder_id)
-                                                setToUpdated_dossier_client(row_copy.newTime.dossier_client.folder_id && row_copy.newTime.dossier_client.folder_id !== "" ? row_copy.newTime.dossier_client.folder_id : "" );
-                                            },200)
-                                        }
-                                        setLf_toUpdated(row_copy)
-                                        setShowUpdateModal(true)
-                                        setX_update(!x_update)
+            {
+                showBy.value === "timesheet" ?
+                    <Table className={classes.table} aria-label="custom pagination table" style={{marginTop:20}}>
+                        <TableHead>
+                            <TableRow style={{padding:10}}>
+                                <TableCell align="left" style={{width:"5%"}}>
+                                    <Checkbox checked={check_all}
+                                              onChange={(event) => {
+                                                  setCheck_all(event.target.checked)
+                                                  searchFilter.map((item,key) => {
+                                                      searchFilter[key].checked = event.target.checked
+                                                  })
+                                              }}
+                                    />
+                                </TableCell>
+                                <TableCell align="center" style={{width:"6%",fontWeight:600}}>Actions</TableCell>
+                                {/*<TableCell align="center" style={{width:"7%",fontWeight:600}}>Date de création</TableCell>*/}
+                                <TableCell align="center" style={{width:"9%",fontWeight:600}}>
+                                    <div style={{display:"flex"}}>
+                                        <IconButton size="small" onClick={() => {
+                                            sort === "asc" ? setSort("desc") : setSort("asc")
+                                        }}
+                                        >
+                                            {
+                                                sort === "asc" ? <ArrowDropDownIcon fontSize="small"/> : <ArrowDropUpIcon fontSize="small"/>
+                                            }
 
-                                    }else{
-                                        alert("Vous n'êtes pas le proprietaire de ce timeSheet !")
-                                    }
-                                }}>
-                                    <EditIcon fontSize="small"/>
-                                </IconButton>
-                                <IconButton size="small"
-                                            onClick={() => {
-                                                if(row.user_email === localStorage.getItem("email")){
-                                                    setLf_TooDeleted(row.id)
-                                                    setOpenDeleteModal(true)
-                                                }else{
-                                                    alert("Vous n'êtes pas le proprietaire de ce timeSheet !")
+                                        </IconButton>
+                                        <div>Date</div>
+                                    </div>
+
+                                </TableCell>
+                                <TableCell align="center" style={{width:"20%",fontWeight:600}}>Nom du dossier</TableCell>
+                                <TableCell align="center" style={{width:"28%",fontWeight:600}}>Description</TableCell>
+                                <TableCell align="center" style={{width:"15%",fontWeight:600}}>Utilisateur OA</TableCell>
+                                <TableCell align="center" style={{width:"13%",fontWeight:600}}>Taux horaire</TableCell>
+                                <TableCell align="center" style={{width:"10%",fontWeight:600}}>Durée</TableCell>
+                                <TableCell align="center" style={{width:"10%",fontWeight:600}}>Total</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {(searchFilter_pagination || []).map((row,key) => (
+                                <TableRow key={key} style={{padding:10}}>
+                                    <TableCell align="left"   style={{width:"5%",backgroundColor:searchFilter_pagination[key].checked && searchFilter_pagination[key].checked === true ? "rgba(220, 0, 78, 0.08)" : "transparent"}}>
+                                        <div className="media align-items-center">
+                                            <Checkbox  checked={(searchFilter_pagination[key].checked === true || searchFilter_pagination[key].checked === false)  ? searchFilter_pagination[key].checked : false}
+                                                       onChange={(event) => {
+                                                           setX_update(!x_update)
+                                                           searchFilter_pagination[key].checked = event.target.checked
+                                                           if(searchFilter_pagination[key].checked === false) setCheck_all(false)
+                                                       }}  />
+                                        </div>
+                                    </TableCell>
+                                    <TableCell style={{ width: "6%"}} align="center">
+                                        <IconButton size="small" color="default" onClick={() => {
+                                            console.log(row)
+                                            if(row.user_email === localStorage.getItem("email") || row.newTime.utilisateurOA === localStorage.getItem("email")){
+                                                setSelectedRow(row)
+                                                const row_copy = row;
+                                                setDuration(utilFunctions.formatDuration(row_copy.newTime.duree.toString()))
+                                                setToUpdated_date(new Date(row_copy.newTime.date))
+                                                setToUpdated_rate(row_copy.newTime.rateFacturation)
+                                                setToUpdated_OAUser(row_copy.newTime.utilisateurOA)
+                                                setToUpdated_desc(row_copy.newTime.description)
+                                                setToUpdated_client_id(row_copy.newTime.client_id)
+
+                                                let findClientFname = props.annuaire_clients_mandat.find(x => x.ID === row_copy.newTime.client_id)
+                                                setToUpdated_client(findClientFname.Nom + ' ' + (findClientFname.Prenom || ''))
+                                                setToUpdated_dossier_client(row_copy.newTime.dossier_client)
+
+
+                                                let findClientTempo = props.clientsTempo.find(x => x.ID_client === row_copy.newTime.client_id);
+                                                if(findClientTempo){
+                                                    console.log(findClientTempo.folders || [])
+                                                    setSelectedClientFolders(findClientTempo.folders || [])
+                                                    setTimeout(() => {
+                                                        setToUpdated_dossier_client_id(row_copy.newTime.dossier_client.folder_id && row_copy.newTime.dossier_client.folder_id !== "" ? row_copy.newTime.dossier_client.folder_id : "" );
+                                                    },200)
                                                 }
-                                            }}
-                                >
-                                    <DeleteOutlineIcon color="error" fontSize="small"/>
-                                </IconButton>
-                            </TableCell>
-                            {/*<TableCell style={{ width: "8%" }} align="center">
+                                                setShowUpdateModal(true)
+                                                setX_update(!x_update)
+
+                                            }else{
+                                                alert("Vous n'êtes pas le proprietaire de ce timeSheet !")
+                                            }
+                                        }}>
+                                            <EditIcon fontSize="small"/>
+                                        </IconButton>
+                                        <IconButton size="small"
+                                                    onClick={() => {
+                                                        if(row.user_email === localStorage.getItem("email") || row.newTime.utilisateurOA === localStorage.getItem("email")){
+                                                            setLf_TooDeleted(row.id)
+                                                            setOpenDeleteModal(true)
+                                                        }else{
+                                                            alert("Vous n'êtes pas le proprietaire de ce timeSheet !")
+                                                        }
+                                                    }}
+                                        >
+                                            <DeleteOutlineIcon color="error" fontSize="small"/>
+                                        </IconButton>
+                                    </TableCell>
+                                    {/*<TableCell style={{ width: "7%" }} align="center">
                                 {moment(row.created_at).format("DD/MM/YYYY") || ""}
                             </TableCell>*/}
-                            <TableCell style={{ width: "8%" }} align="center">
-                                {moment(row.newTime.date).format("DD/MM/YYYY") || ""}
-                            </TableCell>
-                            <TableCell style={{ width: "17%" }} align="center">
-                                {
-                                    row.newTime.dossier_client ? (row.newTime.dossier_client.name && row.newTime.dossier_client.name !== "") ? (row.newTime.client || "") + " - " + row.newTime.dossier_client.name :
-                                        (row.newTime.client || "" ) : (row.newTime.client || "")
-                                }
-                            </TableCell>
+                                    <TableCell style={{ width: "9%" }} align="center">
+                                        {moment(row.newTime.date).format("DD/MM/YYYY") || ""}
+                                    </TableCell>
+                                    <TableCell style={{ width: "20%" }} align="center">
+                                        {
+                                            row.newTime.dossier_client ? (row.newTime.dossier_client.name && row.newTime.dossier_client.name !== "") ? (row.newTime.client || "") + " - " + row.newTime.dossier_client.name :
+                                                (row.newTime.client || "" ) : (row.newTime.client || "")
+                                        }
+                                    </TableCell>
 
-                            <TableCell style={{ width: "30%" }} align="center">
-                                {row.newTime.description}
-                            </TableCell>
-                            <TableCell style={{ width: "20%" }} align="center">
-                                {renderOA_user(row.newTime.utilisateurOA)}
-                            </TableCell>
-                            <TableCell style={{ width: "10%" }} align="center">
-                                {row.newTime.rateFacturation +" CHF/h"}
-                            </TableCell>
-                            <TableCell style={{ width: "10%" }} align="center">
-                                <div>{utilFunctions.formatDuration(row.newTime.duree.toString())}</div>
-                            </TableCell>
-                            <TableCell style={{ width: "10%" }} align="center">
-                                <div>{(row.newTime.duree * parseInt(row.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF</div>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                    <TableRow style={{padding:7}}>
-                        <TableCell align="left" style={{width:"5%"}}/>
-                        <TableCell align="center" style={{width:"10%",fontWeight:600}}/>
-                        {/*<TableCell align="center" style={{width:"8%",fontWeight:600}}>Date de création</TableCell>*/}
-                        <TableCell align="center" style={{width:"8%",fontWeight:600}}/>
-                        <TableCell align="center" style={{width:"17%",fontWeight:600}}/>
-                        <TableCell align="center" style={{width:"25%",fontWeight:600}}/>
-                        <TableCell  style={{width:"20%",fontWeight:600}}/>
-                        <TableCell align="center" style={{width:"10%",fontWeight:600}}/>
-                        {renderTotalHours_CHF()}
-                    </TableRow>
+                                    <TableCell style={{ width: "28%" }} align="center">
+                                        {row.newTime.description}
+                                    </TableCell>
+                                    <TableCell style={{ width: "15%" }} align="center">
+                                        {renderOA_user(row.newTime.utilisateurOA)}
+                                    </TableCell>
+                                    <TableCell style={{ width: "13%" }} align="center">
+                                        {row.newTime.rateFacturation +" CHF/h"}
+                                    </TableCell>
+                                    <TableCell style={{ width: "10%" }} align="center">
+                                        <div>{utilFunctions.formatDuration(row.newTime.duree.toString())}</div>
+                                    </TableCell>
+                                    <TableCell style={{ width: "10%" }} align="center">
+                                        <div>{(row.newTime.duree * parseInt(row.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF</div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            <TableRow style={{padding:7}}>
+                                <TableCell align="left" style={{width:"5%"}}/>
+                                <TableCell align="center" style={{width:"6%",fontWeight:600}}/>
+                                <TableCell align="center" style={{width:"9%",fontWeight:600}}/>
+                                <TableCell align="center" style={{width:"20%",fontWeight:600}}/>
+                                <TableCell align="center" style={{width:"28%",fontWeight:600}}/>
+                                <TableCell  style={{width:"15%",fontWeight:600}}/>
+                                <TableCell align="center" style={{width:"13%",fontWeight:600}}/>
+                                {renderTotalHours_CHF()}
+                            </TableRow>
 
-                    {emptyRows > 0 && (
-                        <TableRow style={{ height: 20 * emptyRows }}>
-                            <TableCell colSpan={6} />
-                        </TableRow>
-                    )}
-                </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TablePagination
-                            rowsPerPageOptions={[5, 10, 15, 20, { label: 'Tous', value: -1 }]}
-                            //colSpan={3}
-                            count={searchFilter.length}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            SelectProps={{
-                                inputProps: { 'aria-label': 'rows per page' },
-                                native: true,
-                            }}
-                            onChangePage={handleChangePage}
-                            onChangeRowsPerPage={handleChangeRowsPerPage}
-                            ActionsComponent={TablePaginationActions}
-                            labelRowsPerPage="Lignes par page"
-                        />
-                    </TableRow>
-                </TableFooter>
-            </Table>
+                            {emptyRows > 0 && (
+                                <TableRow style={{ height: 20 * emptyRows }}>
+                                    <TableCell colSpan={6} />
+                                </TableRow>
+                            )}
+                        </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TablePagination
+                                    rowsPerPageOptions={[5, 10, 15, 20, { label: 'Tous', value: -1 }]}
+                                    //colSpan={3}
+                                    count={searchFilter.length}
+                                    rowsPerPage={rowsPerPage}
+                                    page={page}
+                                    SelectProps={{
+                                        inputProps: { 'aria-label': 'rows per page' },
+                                        native: true,
+                                    }}
+                                    onChangePage={handleChangePage}
+                                    onChangeRowsPerPage={handleChangeRowsPerPage}
+                                    ActionsComponent={TablePaginationActions}
+                                    labelRowsPerPage="Lignes par page"
+                                />
+                            </TableRow>
+                        </TableFooter>
+                    </Table> :
+
+                    <Table aria-label="collapsible table" style={{marginTop:20}}>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell />
+                                <TableCell  style={{fontWeight:"bold"}} >Dossier</TableCell>
+                                <TableCell  style={{fontWeight:"bold"}} >Client</TableCell>
+                                <TableCell  style={{fontWeight:"bold"}} >Associes</TableCell>
+                                <TableCell  style={{fontWeight:"bold"}} >Equipe</TableCell>
+                                <TableCell  style={{fontWeight:"bold"}} >Autrepartie</TableCell>
+                                <TableCell  style={{fontWeight:"bold"}} >Contrepartie</TableCell>
+                                <TableCell align="center" style={{fontWeight:"bold"}} >Ajouté par </TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {
+                                groupedFormatedArray.map((dossier,key) => (
+                                    <React.Fragment>
+                                        <TableRow className={classes.root}>
+                                            <TableCell>
+                                                <IconButton aria-label="expand row" size="small" onClick={() => {
+                                                    setOpen(!open)
+                                                    setExapndedRowKey(key)
+                                                }}>
+                                                    {open && key === exapndedRowKey ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                                                </IconButton>
+                                            </TableCell>
+                                            <TableCell style={{width:"18%"}} >{dossier[0].newTime.dossier_client.name}</TableCell>
+                                            <TableCell style={{width:"18%"}} >{dossier[0].newTime.client}</TableCell>
+                                            <TableCell style={{width:"12%"}} >
+                                                <AltAvatarGroup appearance="stack" maxCount={4} borderColor="#C0C0C0" isTooltipDisabled={false} size="small"
+                                                                data={(dossier[0].newTime.dossier_client.team || []).filter(x => x.type === "lead").map((item,key) => ({
+                                                                    name:item.email,
+                                                                    src:(props.OA_contacts || []).find(x => x.email === item.email) ? ((props.OA_contacts || []).find(x => x.email === item.email)).imageUrl : "" ,
+                                                                    appearance:"circle",
+                                                                    size:"small",
+                                                                    borderColor:"#C0C0C0"
+                                                                }))}
+                                                />
+                                            </TableCell>
+                                            <TableCell style={{width:"12%"}} >
+                                                <AltAvatarGroup appearance="stack" maxCount={4} borderColor="#C0C0C0" isTooltipDisabled={false} size="small"
+                                                                data={(dossier[0].newTime.dossier_client.team || []).filter(x => x.type === "team").map((item,key) => ({
+                                                                    name:item.email,
+                                                                    src:(props.OA_contacts || []).find(x => x.email === item.email) ? ((props.OA_contacts || []).find(x => x.email === item.email)).imageUrl : "" ,
+                                                                    appearance:"circle",
+                                                                    size:"small",
+                                                                    borderColor:"#C0C0C0"
+                                                                }))}
+                                                />
+                                            </TableCell>
+                                            <TableCell style={{width:"10%"}}>{dossier[0].newTime.dossier_client.autrepartie}</TableCell>
+                                            <TableCell style={{width:"10%"}}>{dossier[0].newTime.dossier_client.contrepartie}</TableCell>
+                                            <TableCell style={{width:"20%"}}>{renderOA_user(dossier[0].user_email)}</TableCell>
+                                        </TableRow>
+
+                                        <TableRow>
+                                            <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+                                                <Collapse in={open && key === exapndedRowKey} timeout="auto" unmountOnExit>
+                                                    <Box margin={1}>
+                                                        <div style={{marginLeft:30,border:"2px solid dodgerblue",padding:20,borderRadius:7.5,maxHeight:600,overflow:"overlay"}}>
+                                                            <h5 style={{textDecoration:"underline"}}>{dossier.length === 0 ? "Aucun timesheet pour ce dossier" : dossier.length + " TimeSheet"}</h5>
+                                                            <Table size="small" aria-label="purchases">
+                                                                <TableHead>
+                                                                    <TableRow>
+                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >
+                                                                            <div style={{display:"flex"}}>
+                                                                                <IconButton size="small" onClick={() => {
+                                                                                    sort_in_folder_form === "asc" ? setSort_in_folder_form("desc") : setSort_in_folder_form("asc")
+                                                                                }}
+                                                                                >
+                                                                                    {
+                                                                                        sort_in_folder_form === "asc" ? <ArrowDropDownIcon fontSize="small"/> : <ArrowDropUpIcon fontSize="small"/>
+                                                                                    }
+
+                                                                                </IconButton>
+                                                                                <div>Date</div>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >Description</TableCell>
+                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >Utilisateur OA</TableCell>
+                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >Taux horaire</TableCell>
+                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >Durée</TableCell>
+                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >Total</TableCell>
+                                                                    </TableRow>
+                                                                </TableHead>
+                                                                <TableBody>
+                                                                    {(dossier || []).sort( (a,b) => {
+                                                                        var c = new Date(a.newTime.date);
+                                                                        var d = new Date(b.newTime.date);
+                                                                        return sort_in_folder_form === "asc" ?  d-c : c-d;})
+                                                                        .map((lf,key) => (
+
+                                                                        <TableRow key={key}>
+                                                                                <TableCell component="th" scope="row" align="center" style={{width:"10%"}} >
+                                                                                    {moment(lf.newTime.date).format("DD-MM-YYYY")}
+                                                                                </TableCell>
+                                                                                <TableCell align="center" style={{width:"30%"}}>{lf.newTime.description}</TableCell>
+                                                                                <TableCell align="center" style={{width:"20%"}}>{renderOA_user(lf.newTime.utilisateurOA)}</TableCell>
+                                                                                <TableCell align="center" style={{width:"10%"}}>{lf.newTime.rateFacturation + " CHF"}</TableCell>
+                                                                                <TableCell align="center" style={{width:"10%"}}>
+                                                                                    {utilFunctions.formatDuration(lf.newTime.duree.toString())}
+                                                                                </TableCell>
+                                                                                <TableCell align="center" style={{width:"10%"}}>
+                                                                                    {(lf.newTime.duree * parseInt(lf.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF
+                                                                                </TableCell>
+                                                                            </TableRow>
+
+                                                                    ))}
+                                                                    <TableRow style={{padding:7}}>
+                                                                        <TableCell align="center" style={{width:"10%"}}/>
+                                                                        <TableCell align="center" style={{width:"30%",fontWeight:600}}/>
+                                                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}/>
+                                                                        <TableCell align="center" style={{width:"10%",fontWeight:600}}/>
+                                                                        {renderTotalHours_CHF_byFolder(dossier)}
+                                                                    </TableRow>
+                                                                </TableBody>
+                                                            </Table>
+                                                            <div className="row mt-3">
+                                                                <div className="col-md-4">
+                                                                    <h5>Partner validant cette facture</h5>
+                                                                    <MuiSelect
+                                                                        labelId="demo-mutiple-chip-label14545"
+                                                                        id="demo-mutiple-chip34688"
+                                                                        style={{ width: 250 }}
+                                                                        value={partner_facture}
+                                                                        onChange={(e) => {
+                                                                            setPartner_facture(e.target.value)
+                                                                        }}
+                                                                        MenuProps={Data.MenuProps}
+                                                                    >
+                                                                        {props.OA_contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
+                                                                            <MenuItem
+                                                                                key={key}
+                                                                                value={contact.email}>
+                                                                                <div
+                                                                                    className="row align-items-center justify-content-center">
+                                                                                    <Avatar
+                                                                                        alt=""
+                                                                                        src={contact.imageUrl} />
+                                                                                    <div>{contact.nom + ' ' + contact.prenom}</div>
+                                                                                </div>
+                                                                            </MenuItem>
+                                                                        ))}
+                                                                    </MuiSelect>
+                                                                </div>
+                                                                <div className="col-md-4">
+                                                                    <h5>Date de la facture</h5>
+                                                                    <DatePicker
+                                                                        calendarIcon={
+                                                                            <img
+                                                                                alt=""
+                                                                                src={calendar}
+                                                                                style={{ width: 20 }} />}
+                                                                        onChange={(e) => {
+                                                                            setFacture_date(e)
+                                                                        }}
+                                                                        value={facture_date}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className="mt-3" style={{textAlign:"right"}}>
+                                                                <AtlButton
+                                                                    appearance="primary"
+                                                                    isDisabled={partner_facture === ""}
+                                                                    onClick={() => {
+                                                                        if(partner_facture === ""){
+                                                                            alert("Vous devez sélectionner un partner pour la validation !")
+                                                                        }else{
+                                                                            setCheck_all(false)
+                                                                            let sheets_to_add = [];
+                                                                            (dossier || []).map((item,key) => {
+                                                                                sheets_to_add.push({
+                                                                                    id:item.id,
+                                                                                    created_at:item.created_at,
+                                                                                    uid:item.uid,
+                                                                                    user_email:item.user_email,
+                                                                                    newTime:item.newTime
+                                                                                })
+                                                                            })
+                                                                            props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD HH:mm:ss"),partner_facture,sheets_to_add);
+                                                                            setTimeout(() => {
+                                                                                selected.map((item,key) => {
+                                                                                    if(typeof item.checked === "boolean"){
+                                                                                        item.checked = false;
+                                                                                    }
+                                                                                })
+                                                                                setPartner_facture("")
+                                                                                setClient_folder("")
+                                                                                setFacture_date(new Date())
+                                                                            },250);
+                                                                        }
+
+                                                                    }}>
+                                                                    Envoyer la facture pour validation</AtlButton>
+                                                            </div>
+                                                        </div>
+                                                    </Box>
+
+                                                </Collapse>
+                                            </TableCell>
+                                        </TableRow>
+
+                                    </React.Fragment>
+                                ))
+                            }
+                        </TableBody>
+                    </Table>
+            }
+
             {
                 selected.length > 0 &&
                 <div>
@@ -705,25 +1055,6 @@ export default function TableTimeSheet(props) {
                                     ))}
                                 </MuiSelect>
                             </div>
-                            {/*<div className="col-md-4">
-                                <h5>Dossier client</h5>
-                                <MuiSelect
-                                    labelId="demo-simple-select-label68798"
-                                    id="demo-simple-select776879"
-                                    style={{ width: '100%' }}
-                                    value={client_folder}
-                                    onChange={(e) => {
-                                        setClient_folder(e.target.value)
-                                    }}
-                                >
-                                    {
-                                        selected_client_folders.map((folder,key) => (
-                                            <MenuItem key={key}
-                                                      value={folder}>{folder}</MenuItem>
-                                        ))
-                                    }
-                                </MuiSelect>
-                            </div>*/}
                             <div className="col-md-4">
                                 <h5>Date de la facture</h5>
                                 <DatePicker
@@ -802,9 +1133,7 @@ export default function TableTimeSheet(props) {
 
                 <DialogContent>
 
-                    {
-                        lf_toUpdated !== "" &&
-                        <div>
+                    <div>
                             <div className="row mt-2">
                                 <div className="col-md-6">
                                     <h5>Durée</h5>
@@ -839,46 +1168,35 @@ export default function TableTimeSheet(props) {
                                                             imageUrl: imageUrl
                                                         }))
                                                 }
-                                                value={lf_toUpdated.newTime.client_id}
+                                                value={toUpdated_client_id}
                                                 renderOption={renderSearchOption}
                                                 search
                                                 placeholder="Chercher votre client"
                                                 onChange={e => {
-                                                    let obj = lf_toUpdated;
-                                                    obj.newTime.client_id = e;
+                                                    setToUpdated_client_id(e)
                                                     let findClientFname = props.annuaire_clients_mandat.find(x => x.ID === e)
-                                                    obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
+                                                    setToUpdated_client(findClientFname.Nom + ' ' + (findClientFname.Prenom || ''))
                                                     let findClientTempo = props.clientsTempo.find(x => x.ID_client === e);
                                                     if(findClientTempo){
                                                         setSelectedClientFolders(findClientTempo.folders || [])
-                                                        setToUpdated_dossier_client("")
-                                                        obj.newTime.dossier_client = {facturation:{language:""},name:""}
+                                                        setToUpdated_dossier_client({facturation:{language:""},name:""})
                                                     }else{
-                                                        obj.newTime.dossier_client =  {
-                                                            name:'',
-                                                            facturation: {
-                                                                language:''
-                                                            }}
                                                         setSelectedClientFolders([])
-                                                        setToUpdated_dossier_client("")
+                                                        setToUpdated_dossier_client({facturation:{language:""},name:""})
                                                     }
-                                                    setLf_toUpdated(obj)
                                                 }}
                                             />
                                         </div>
-                                        <h5 style={{marginTop:10}}>Dossier du client </h5>
+                                        <h5 style={{marginTop:30}}>Dossier du client </h5>
                                         <MuiSelect
                                             labelId="demo-simple-select-label"
                                             id="demo-simple-select"
                                             style={{ width: 300 }}
-                                            value={toUpdated_dossier_client}
+                                            value={toUpdated_dossier_client_id}
                                             onChange={(e) => {
-                                                setToUpdated_dossier_client(e.target.value)
-                                                let obj = lf_toUpdated;
-
-                                                obj.newTime.dossier_client = selectedClientFolders.find(x => x.folder_id === e.target.value) || {facturation:{language:""},name:""}
-                                                setLf_toUpdated(obj)
-                                                setX_update(!x_update)
+                                                setToUpdated_dossier_client_id(e.target.value)
+                                                setToUpdated_dossier_client(selectedClientFolders.find(x => x.folder_id === e.target.value) || {facturation:{language:""},name:""})
+                                                //setX_update(!x_update)
                                             }}
                                         >
                                             {
@@ -895,27 +1213,6 @@ export default function TableTimeSheet(props) {
                             </div>
                             <div className="row mt-3">
                                 <div className="col-md-6">
-                                    <div>
-                                        <h5>Catégorie d’activités </h5>
-                                        <MuiSelect
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                            style={{width: "250px"}}
-                                            value={toUpdated_categ}
-                                            onChange={(e) => {
-                                                setToUpdated_categ(e.target.value)
-                                                let d = lf_toUpdated
-                                                d.newTime.categoriesActivite = e.target.value
-                                                setLf_toUpdated(d)
-                                            }}
-                                        >
-                                            <MenuItem value={"Temps facturé"}>Temps facturé</MenuItem>
-                                            <MenuItem value={"Provision"}>Provision</MenuItem>
-                                        </MuiSelect>
-                                    </div>
-
-                                </div>
-                                <div className="col-md-6">
                                     <div style={{width: "100%"}}>
                                         <h5>Date</h5>
                                         <DatePicker
@@ -924,9 +1221,6 @@ export default function TableTimeSheet(props) {
                                             onChange={(e) => {
                                                 console.log(e)
                                                 setToUpdated_date(e)
-                                                let d = lf_toUpdated
-                                                d.newTime.date = moment(e).format("YYYY-MM-DD HH:mm:ss")
-                                                setLf_toUpdated(d)
                                             }}
                                             value={toUpdated_date}
                                         />
@@ -945,15 +1239,12 @@ export default function TableTimeSheet(props) {
                                         <textarea
                                             className="form-control "
                                             id="duree"
-                                            style={{width: "100%"}}
+                                            style={{width: "85%"}}
                                             name="duree"
                                             rows={5}
                                             value={toUpdated_desc}
                                             onChange={(e) => {
                                                 setToUpdated_desc(e.target.value)
-                                                let d = lf_toUpdated
-                                                d.newTime.description = e.target.value
-                                                setLf_toUpdated(d)
                                             }}/>
                                     </div>
                                 </div>
@@ -965,11 +1256,10 @@ export default function TableTimeSheet(props) {
                                     <MuiSelect
                                         labelId="demo-simple-select-label4545"
                                         id="demo-simple-select4545"
-                                        style={{width: "80%"}}
+                                        style={{width: 300}}
                                         onChange={(e) => {
                                             setToUpdated_OAUser(e.target.value)
-                                            let d = lf_toUpdated
-                                            d.newTime.utilisateurOA = e.target.value;
+
                                             let OA_contacts = props.OA_contacts;
                                             let OA_contact = "";
                                             OA_contacts.map((contact, key) => {
@@ -977,9 +1267,7 @@ export default function TableTimeSheet(props) {
                                                     OA_contact = contact
                                                 }
                                             })
-                                            d.newTime.rateFacturation = OA_contact.rateFacturation || ""
                                             setToUpdated_rate(OA_contact.rateFacturation || "")
-                                            setLf_toUpdated(d)
                                         }}
                                         value={toUpdated_OAUser}
                                     >
@@ -1006,7 +1294,7 @@ export default function TableTimeSheet(props) {
                                         <Input
                                             className="form-control "
                                             id="duree68797"
-                                            style={{width: "250px"}}
+                                            style={{width: "300px"}}
                                             name="duree68797"
                                             type="text"
                                             endAdornment={
@@ -1016,31 +1304,35 @@ export default function TableTimeSheet(props) {
                                             value={toUpdated_rate}
                                             onChange={(e) => {
                                                 setToUpdated_rate(e.target.value)
-                                                let d = lf_toUpdated
-                                                d.newTime.rateFacturation = e.target.value
-                                                setLf_toUpdated(d)
                                             }}/>
                                     </div>
                                 </div>
                             </div>
                             <div style={{marginTop:20,textAlign:"right"}}>
                                 <AtlButton
-                                    isDisabled={lf_toUpdated.newTime.client_id === "" || lf_toUpdated.newTime.rateFacturation === "" || lf_toUpdated.newTime.utilisateurOA === ''  }
+                                    isDisabled={toUpdated_client_id === "" || toUpdated_rate === "" || toUpdated_OAUser === '' || toUpdated_dossier_client.name === ""  }
                                     appearance="primary"
                                     onClick={() => {
-                                        lf_toUpdated.newTime.duree = duration;
-                                        let time = lf_toUpdated.newTime.duree;
+                                        let newItem = selectedRow;
+                                        newItem.checked = "false"
+                                        newItem.newTime.utilisateurOA = toUpdated_OAUser
+                                        newItem.newTime.rateFacturation = toUpdated_rate
+                                        newItem.newTime.dossier_client = toUpdated_dossier_client
+                                        newItem.newTime.description = toUpdated_desc
+                                        newItem.newTime.date = moment(toUpdated_date).format("YYYY-MM-DD :HH:mm:ss")
+                                        newItem.newTime.client_id = toUpdated_client_id
+                                        newItem.newTime.client = toUpdated_client
+
+                                        let time = duration;
                                         let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
                                         if(regexFormat.test(time) === true){
-
                                             let duree = utilFunctions.durationToNumber(time);
-
                                             if(duree === 0){
                                                 props.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
                                             }else{
-                                                lf_toUpdated.newTime.duree = utilFunctions.durationToNumber(lf_toUpdated.newTime.duree)
-                                                console.log(lf_toUpdated)
-                                                props.updateLigneFacture(lf_toUpdated.id,lf_toUpdated)
+                                                newItem.newTime.duree = utilFunctions.durationToNumber(duration)
+                                                //console.log(newItem)
+                                                props.updateLigneFacture(newItem.id,newItem)
                                                 setShowUpdateModal(false)
                                             }
                                         }else{
@@ -1050,9 +1342,6 @@ export default function TableTimeSheet(props) {
                                     Modifier</AtlButton>
                             </div>
                         </div>
-                    }
-
-
 
                 </DialogContent>
             </Dialog>

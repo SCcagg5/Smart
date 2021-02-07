@@ -314,7 +314,7 @@ body{
 
 input[type="text"]{
     /*height: 40px!important;*/
-    border-radius: 0px!important;
+    /*border-radius: 0px!important;*/
     color: #000!important;
     /*font-weight: bold!important;*/
 }
@@ -344,7 +344,7 @@ input[type="select"]{
 }
 select{
     /*height: 40px!important;*/
-    border-radius: 0px!important;
+    /*border-radius: 0px!important;*/
     color: #000!important;
     /*font-weight: bold!important;*/
 }
@@ -1095,7 +1095,8 @@ select{
     display: flex;
     flex-grow: 1;
     flex-shrink: 0;
-    border: 1px solid darkgray;
+    border: 2px solid #F0F0F0;
+    width: 220px;
 }
 
 .react-date-picker__inputGroup {
@@ -1139,4 +1140,21 @@ select{
 }
 .MuiDialog-paperWidthXl {
     min-width: 800px;
+}
+
+.css-spm1dt-Radio{
+    font-family: Cerebri Sans,sans-serif!important;
+    color: #343a40!important;
+}
+.css-1uqwo42-Label{
+    font-family: Cerebri Sans,sans-serif!important;
+    color: #343a40!important;
+}
+.ui.dropdown{
+    display: flex!important;
+}
+.ui.mini.input{
+    height: 35px!important;
+    width: 300px!important;
+    font-size: 1em!important;
 }

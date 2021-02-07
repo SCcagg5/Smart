@@ -84,7 +84,7 @@ class login extends Component {
                                         this.setState({loading: false})
                                     }
                                 }).catch(err => {
-                                    this.openSnackbar('error', err);
+                                    this.openSnackbar('error', "Une erreur est survenue");
                                     this.setState({loading: false})
                                 })
 
@@ -94,7 +94,7 @@ class login extends Component {
                             }
 
                         }).catch(err => {
-                            this.openSnackbar('error', err);
+                            this.openSnackbar('error', "Une erreur est survenue");
                             this.setState({loading: false})
                         })
 
@@ -103,7 +103,7 @@ class login extends Component {
                         this.setState({loading: false})
                     }
                 }).catch(err => {
-                    this.openSnackbar('error', err);
+                    this.openSnackbar('error', "Une erreur est survenue");
                     this.setState({loading: false})
                 })
 
@@ -113,11 +113,11 @@ class login extends Component {
             }
 
         }).catch(err => {
-            this.openSnackbar('error', err);
+            this.openSnackbar('error', "Une erreur est survenue");
             this.setState({loading: false})
-            setTimeout(() => {
+            /*setTimeout(() => {
                 this.props.history.push("/error")
-            }, 2000)
+            }, 2000)*/
         })
 
     };

@@ -199,18 +199,8 @@ export default function TableTimeSheetsNonFact(props) {
     }
 
     let clientsTempo = props.clientsTempo || [];
-    let all_opened_mandats = [];
-    all_opened_mandats.push({value:"",label:""})
-    if(lf_client_search === ""){
-        clientsTempo.map((tmp,key) => {
-            (tmp.folders || []).map((f,i) => {
-                all_opened_mandats.push({
-                    value:f.name,
-                    label:f.name
-                })
-            })
-        })
-    }else{
+    let all_opened_mandats = [{value:"",label:""}];
+    if(lf_client_search !== ""){
         clientsTempo.map((tmp,key) => {
             (tmp.folders || []).map((f,i) => {
                 if(tmp.ID_client === lf_client_search_ID){
@@ -253,6 +243,10 @@ export default function TableTimeSheetsNonFact(props) {
                                 setPage(0);
                                 setLf_client_search(e)
                                 setLf_client_search_ID(e)
+                                /*setTimeout(() => {
+                                    setLf_dossier_search(all_opened_mandats.length > 0 ? all_opened_mandats[0].value : "")
+                                },250)*/
+
                             }}
                         />
                     </div>
@@ -280,7 +274,7 @@ export default function TableTimeSheetsNonFact(props) {
             </div>
 
             {
-                lf_client_search !== "" && lf_dossier_search !== "" &&
+                lf_client_search !== ""  &&
 
                 <Table className={classes.table} aria-label="custom pagination table" style={{marginTop:35}}>
                     <TableHead>
