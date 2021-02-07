@@ -633,7 +633,7 @@ class odoo:
             ret = models.execute_kw(self.opt['db'],
                                     self.uid,
                                     self.opt['password'],
-                                    'account.invoice', 'onchange',
+                                    'account.invoice', method,
                                     data, {}
                                     )
         except Exception as inst:
