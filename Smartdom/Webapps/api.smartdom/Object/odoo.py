@@ -625,6 +625,27 @@ class odoo:
             'res.partner', 'read', [[int(id)]])
         return [True,ret, None]
 
+    def edit_invoice(self, id):
+        models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
+        try:
+            ret = models.execute_kw(self.opt['db'],
+                                    self.uid,
+                                    self.opt['password'],
+                                    'account.invoice', 'onchange',
+                                    data, {}
+                                    )
+        except Exception as inst:
+            return [False, str(inst), 500]
+        return [True, {"id": ret}, None]
+
+    def read_invoice(self, id):
+        models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
+        ret = models.execute_kw(self.opt['db'],
+                                self.uid,
+                                self.opt['password'],
+            'account.invoice', 'read', [[int(id)]])
+        return [True,ret, None]
+
     def edit_client(self, id, data):
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
         ret = models.execute_kw(self.opt['db'],

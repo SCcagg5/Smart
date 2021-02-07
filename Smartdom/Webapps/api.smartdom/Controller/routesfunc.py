@@ -429,6 +429,11 @@ def odoo_user(cn, nextc):
     err = cn.private["odoo"].read_contact(contact_id)
     return cn.call_next(nextc, err)
 
+def odoo_invoice(cn, nextc):
+    invoice_id = cn.rt["bill"] if "bill" in cn.rt else None
+    err = cn.private["odoo"].read_invoice(invoice_id)
+    return cn.call_next(nextc, err)
+
 def odoo_add_user(cn, nextc):
     err = check.contain(cn.pr, ["param"])
     if not err[0]:
@@ -489,6 +494,14 @@ def odoo_add_bill(cn, nextc):
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
     err = cn.private["odoo"].creatfact(cn.pr["data"])
+    return cn.call_next(nextc, err)
+
+def odoo_edit_bill(cn, nextc):
+    err = check.contain(cn.pr, ["data"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = cn.private["odoo"].edit_invoice(cn.pr["data"])
     return cn.call_next(nextc, err)
 
 def odoo_valid_bill(cn, nextc):

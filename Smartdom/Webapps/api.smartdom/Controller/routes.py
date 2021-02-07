@@ -82,6 +82,8 @@ def setuproute(app, call):
     @app.route('/ged/<>/odoo/<>/case',       ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, ged_check, ged_check_user, odoo_check, odoo_case]) )
     @app.route('/ged/<>/odoo/<>/case',       ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, odoo_check, odoo_add_case]) )
     @app.route('/odoo/<>/bill/<>',           ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_get_bill]) )
+    @app.route('/odoo/<>/bill/<>/details',   ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_invoice]) )
+    @app.route('/odoo/<>/bill/edit',         ['OPTIONS', 'POST'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_edit_bill]) )
     @app.route('/odoo/<>/bill',              ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, odoo_check, odoo_add_bill]) )
     @app.route('/odoo/<>/bill/validate',     ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, odoo_check, odoo_valid_bill]) )
     @app.route('/odoo/<>/get/<>',            ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, odoo_check, odoo_get_data]) )
