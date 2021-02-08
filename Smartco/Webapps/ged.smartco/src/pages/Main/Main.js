@@ -2959,6 +2959,34 @@ export default class Main extends React.Component {
     this.setState({loading_avance_frais:true})
     let b64 = await main_functions.toBase64(file)
 
+
+    this.verifIsTableExist("tmp").then( v => {
+      let newItem = {
+        type:"avance de frais",
+        client:this.state.TimeSheet.newTime.client_id,
+        dossier:this.state.TimeSheet.newTime.dossier_client,
+        montant:this.state.provision_amount,
+        desc:this.state.avance_frais_desc,
+        file:b64,
+        created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+        created_by:localStorage.getItem("email")
+      }
+      rethink.insert("test",'table("tmp").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+        if (resAdd && resAdd === true) {
+          console.log("tmp added")
+        } else {
+          console.log("tmp not added")
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+
+    }).then( ok => {
+
+    }).catch(err => {
+      console.log(err)
+    })
+
     SmartService.getFile(folder_id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
       if (Res.succes === true && Res.status === 200) {
         let folders = Res.data.Content.folders || [];
@@ -2978,7 +3006,7 @@ export default class Main extends React.Component {
                     SmartService.updateFileName({name:file.name.slice(0, -4)}, addFileRes.data.file_id,
                         localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
                       if(updateNameRes.succes === true && updateNameRes.status === 200){
-                        this.setState({loading_avance_frais:false})
+                        this.setState({loading_avance_frais:false,provision_amount:"",avance_frais_desc:"",avance_frais_facture_file:""})
                         this.openSnackbar("success","Votre document est bien enregistré dans le dossier 'Avance de frais' dans le dossier Comptabilite de client ")
                         this.justReloadGed()
                       }else{
@@ -3114,9 +3142,37 @@ export default class Main extends React.Component {
         iban:bank.code,
         swift:bank.swift_bic,
         clearing:bank.clearing,
-        ref:this.state.TimeSheet.newTime.client + " - " + this.state.TimeSheet.newTime.dossier_client.name
+        ref:this.state.TimeSheet.newTime.client + " - " + this.state.TimeSheet.newTime.dossier_client.name,
+        oa_contact:main_functions.getContactFnameByEmail(this.state.contacts || [],localStorage.getItem("email")),
+        TVA:this.state.provision_tax
       }}).then( res => {
-      console.log(res)
+
+      this.verifIsTableExist("tmp").then( v => {
+        let newItem = {
+          type:"provision",
+          client:this.state.TimeSheet.newTime.client_id,
+          dossier:this.state.TimeSheet.newTime.dossier_client,
+          montant:this.state.provision_amount,
+          bank:bank,
+          tax:this.state.provision_tax,
+          created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+          created_by:localStorage.getItem("email")
+        }
+        rethink.insert("test",'table("tmp").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+          if (resAdd && resAdd === true) {
+           console.log("tmp added")
+          } else {
+            console.log("tmp not added")
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+
+      }).then( ok => {
+
+      }).catch(err => {
+        console.log(err)
+      })
 
       SmartService.getFile(this.state.TimeSheet.newTime.dossier_client.folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
         if (resF.succes === true && resF.status === 200) {
@@ -3133,7 +3189,7 @@ export default class Main extends React.Component {
                   if(updateNameRes.succes === true && updateNameRes.status === 200){
                     this.justReloadGed()
                     setTimeout(() => {
-                      this.setState({loading_provision_save:false})
+                      this.setState({loading_provision_save:false,provision_amount:"",provision_tax:"TVA 7.7 % incluse",provision_bank:""})
                       this.openSnackbar("success","Le document de provision est bien enregistré dans le dossier Comptabilité du client " + this.state.TimeSheet.newTime.client)
                     },500)
                   }else{
@@ -3432,7 +3488,7 @@ export default class Main extends React.Component {
       "team_id":1,
       "comment":false,
       'l10n_ch_isr_sent': false,
-      'name': "17 rue de liberté",   //on peut mettre une petite desc sous le titre de la facture avec ce champs
+      'name': false,   //on peut mettre une petite desc sous le titre de la facture avec ce champs
       'date_invoice': moment(facture_date).format('YYYY-MM-DD'),
       'date_due': moment(deadline_date).format('YYYY-MM-DD'),
       'journal_id': 1,
