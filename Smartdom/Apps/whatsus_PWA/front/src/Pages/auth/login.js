@@ -7,7 +7,7 @@ import SmartService from "../../provider/SmartService";
 import Alert from '@material-ui/lab/Alert';
 
 
-const ent_name = "Majorsante";
+const ent_name = "WhosWho Swiss";
 const login_btn_color = "#f1556c"
 
 

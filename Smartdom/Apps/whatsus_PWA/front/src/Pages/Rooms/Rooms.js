@@ -3,8 +3,9 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import SmartService from "../../provider/SmartService";
 import rethink from "../../controller/rethink";
 import TopBar from "../../Components/TopBar/TopBar";
+import AltAvatarGroup from "@atlaskit/avatar-group";
 
-const db_name = "c116081d-3145-4dc3-b2df-5ac2bde13e9d";
+const db_name = "b446081d-3145-4dc3-b3df-5ac2bde13e9d";
 
 export default class Rooms extends React.Component{
 
@@ -159,7 +160,7 @@ export default class Rooms extends React.Component{
                         (this.state.rooms || []).map((room,key) => (
                             <div className="col-lg-3 mb-2">
                                 <div className="card-container" style={{backgroundColor:room.color}} onClick={() => {
-                                    this.props.history.push('/chat',{room:room,miniDrive:this.state.folders || [] })
+                                    this.props.history.push('/chat',{room:room,miniDrive:this.state.folders || [],contacts:this.state.contacts || [] })
                                 }}>
                                     <div style={{display:"flex",justifyContent:"space-between"}}>
                                         <h6 style={{color:"#fff",fontWeight:600}}>{room.title}</h6>

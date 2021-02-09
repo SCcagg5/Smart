@@ -23,15 +23,39 @@ import stripe_logo from "../../assets/images/payment/stripe_logo.png"
 import paypal_logo from "../../assets/images/payment/paypal_logo.png"
 import gpay_logo from "../../assets/images/payment/GPay_logo.jpg"
 import creditcard_logo from "../../assets/images/payment/credit_card_logo.jpg"
+import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied';
+import SpeedDial from '@material-ui/lab/SpeedDial';
+import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
+import ChildCareIcon from '@material-ui/icons/ChildCare';
+import ImageOutlinedIcon from '@material-ui/icons/ImageOutlined';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
+import GestureIcon from '@material-ui/icons/Gesture';
+import AttachFileIcon from '@material-ui/icons/AttachFile';
+import utilFunctions from "../../tools/functions";
+import AtlButton from '@atlaskit/button';
+import CheckIcon from '@material-ui/icons/Check';
+import SignatureCanvas from 'react-signature-canvas';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import DocGenerationService from "../../provider/DocGenerationService";
+import AltAvatarGroup from "@atlaskit/avatar-group";
 
 const {DirectoryTree} = Tree;
-const db_name = "c116081d-3145-4dc3-b2df-5ac2bde13e9d";
+const db_name = "b446081d-3145-4dc3-b3df-5ac2bde13e9d";
+
+
+const speedDialActions= [
+    { icon: <ImageOutlinedIcon color="primary" />, name: 'Images' },
+    { icon: <FileCopyIcon color="primary" />, name: 'Documents' },
+    { icon: <GestureIcon color="primary" />, name: 'Signer' },
+    { icon: <ChildCareIcon color="primary" />, name: 'ChatBot' }
+]
 
 export default class Chat extends React.Component {
 
     imageUpload = React.createRef()
     scrollParentRef={}
     messageList = React.createRef()
+    sigCanvas = {}
     state = {
         openAlert: false,
         alertMessage: '',
@@ -52,13 +76,27 @@ export default class Chat extends React.Component {
 
         miniDrive:main_functions.changeStructure(this.props.location.state.miniDrive || [],true),
         room:this.props.location.state.room,
+        contacts:this.props.location.state.contacts,
         autoExpandParent:true,
         expandedKeys:[],
         selectedKeys:[],
 
         openBottomPayModal:false,
 
-        payment:""
+        payment:"",
+
+        openSpeedDial:false,
+        updateScreen:false,
+
+        waitResponseToBot:false,
+        procuration_responseType:"",
+        procurationData:{
+            client:"",
+            sujet:"",
+            place:"",
+            signature:""
+        },
+        openBottomSignModal:false
     }
 
 
@@ -67,7 +105,6 @@ export default class Chat extends React.Component {
             this.props.history.push("/login")
         }else{
             rethink.getTableDataByLabel(db_name, "test", "chat", "room_id", this.state.room.id, "created_at", this.state.limit, this.state.skipCount).then(res => {
-                console.log(res.length)
                 if (res.length < 10) {
                     this.setState({hasMore: false, loading: false, messages: res})
                 } else {
@@ -178,22 +215,102 @@ export default class Chat extends React.Component {
                 sender: {
                     email: localStorage.getItem("email")
                 },
-                type: "text"
+                type: "text",
+                tmp:true
             }
-            this.verifIsTableExist("chat").then( v => {
-                rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
-                    if (resAdd && resAdd === true) {
-                        this.setState({text: ""})
-                        //this.scrollToBottom()
-                    } else {
-                        console.log("Erreur add msg chat !")
-                    }
-                }).catch(err => {
-                    console.log(err)
-                })
-            }).catch(err => {console.log(err)})
+            if(this.state.waitResponseToBot === true){
 
+                let msgs = this.state.messages || [];
+                msgs.push(newItem);
+                this.setState({messages:msgs,text: ""})
+                setTimeout(() => {
+                    this.scrollToBottom()
+                },250)
+
+                setTimeout(() => {
+
+                    let proc_data = this.state.procurationData;
+                    proc_data[this.state.procuration_responseType] = newItem.text;
+
+                    msgs.push({
+                        created_at: moment().format("YYYY-MM-DD HH:mm:ss") ,
+                        id: utilFunctions.getUID() ,
+                        room_id: this.state.room.id  ,
+                        text: this.state.procuration_responseType ===  "client" ?  "Quel est le sujet de la procuration ?" :
+                            this.state.procuration_responseType ===  "sujet" ? "Cette procuration est faite à quelle ville ?" :
+                                "Maintenant, il vous reste que d'ajouter votre signature"
+                        ,
+                        type: "text",
+                        sender:{
+                            email:"ChatBot"
+                        }
+                    })
+                    this.setState({
+                        procuration_responseType: this.state.procuration_responseType === "client" ? "sujet" :
+                            this.state.procuration_responseType === "sujet" ? "place" : ""
+                        ,
+                        procurationData:proc_data,messages:msgs,
+                        waitResponseToBot:this.state.procuration_responseType !== "place"
+                    })
+
+                    this.setState({messages:msgs,text: ""})
+                    setTimeout(() => {
+                        this.scrollToBottom()
+                        if(this.state.procuration_responseType === ""){
+                            setTimeout(() => {
+                                this.setState({openBottomSignModal:true})
+                            },1000);
+
+                        }
+                    },300)
+
+                },500)
+
+
+            }
+            else{
+                this.verifIsTableExist("chat").then( v => {
+                    rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+                        if (resAdd && resAdd === true) {
+                            this.setState({text: ""})
+                            setTimeout(() => {
+                                this.scrollToBottom()
+                            },250)
+                        } else {
+                            console.log("Erreur add msg chat !")
+                        }
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                }).catch(err => {console.log(err)})
+            }
         }
+    }
+
+    addFile(b64,name){
+        let newItem = {
+            created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+            room_id: this.state.room.id,
+            sender: {
+                email: localStorage.getItem("email")
+            },
+            type: "ged_file",
+            b64:b64,
+            name:name
+        }
+        this.verifIsTableExist("chat").then( v => {
+            rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+                if (resAdd && resAdd === true) {
+                    setTimeout(() => {
+                        this.scrollToBottom()
+                    },250)
+                } else {
+                    console.log("Erreur add file in chat !")
+                }
+            }).catch(err => {
+                console.log(err)
+            })
+        }).catch(err => {console.log(err)})
     }
 
     addGedFile(file){
@@ -362,6 +479,96 @@ export default class Chat extends React.Component {
         });
     }
 
+    downloadB64File(b64){
+        let a = document.createElement('a');
+        a.href = 'data:application/pdf;base64,' + b64;
+        a.download = "Procuration_" + moment().format("DD-MM-YYYY HH:mm");
+        a.click();
+    }
+
+    onClickAction(event,action){
+        console.log(action)
+        this.setState({openSpeedDial:false})
+        if(action.name === "Images"){
+            this.imageUpload.click()
+        }else if(action.name === "Documents"){
+            this.setState({anchorElFiles: event.currentTarget})
+        }else if(action.name === "Signer"){
+            this.setState({anchorElToSignFile:event.currentTarget})
+        }else if(action.name === "ChatBot"){
+            if(this.state.procurationData.client !== ""){
+                this.setState({
+                    waitResponseToBot:false,
+                    procuration_responseType:"",
+                    procurationData:{
+                        client:"",
+                        sujet:"",
+                        place:"",
+                        signature:""
+                    }
+                })
+                let msgs = this.state.messages.filter(x => x.sender.email !== "ChatBot" && !x.tmp)
+                this.setState({messages:msgs})
+                setTimeout(() => {
+                    this.beginBot()
+                },500)
+            }else{
+                setTimeout(() => {
+                    this.beginBot()
+                },500)
+            }
+        }
+    }
+
+    beginBot(){
+        let msgs = this.state.messages || [];
+
+            msgs.push({
+                created_at: moment().format("YYYY-MM-DD HH:mm:ss") ,
+                id: utilFunctions.getUID() ,
+                room_id: this.state.room.id  ,
+                text: "Bonjour, que voulez-vous faire ?" ,
+                type: "text",
+                sender:{
+                    email:"ChatBot"
+                }
+            })
+
+        msgs.push({
+                    created_at: moment().format("YYYY-MM-DD HH:mm:ss") ,
+                    id: utilFunctions.getUID() ,
+                    room_id: this.state.room.id  ,
+                    type: "responses",
+                    responses:[
+                        {
+                            id:"generate_proc",
+                            text:"Générer un document de procuration",
+                            clicked:false,
+                            disabled:false
+                        },
+                        {
+                            id:"generate_prov",
+                            text:"Générer un document de provision",
+                            clicked:false,
+                            disabled:true
+                        },
+                        {
+                            id:"generate_AGE",
+                            text:"Générer un document d'augmentation de capital",
+                            clicked:false,
+                            disabled:true
+                        },
+                    ],
+                    sender:{
+                        email:"ChatBot"
+                    }
+                })
+        this.setState({messages:msgs})
+        setTimeout(()=> {
+            this.scrollToBottom();
+        },250)
+    }
+
 
     render() {
 
@@ -406,8 +613,18 @@ export default class Chat extends React.Component {
                                         <h6 style={{marginLeft:5,marginTop:7}}>
                                             {this.state.room.title}
                                         </h6>
+                                        <div style={{position:"absolute",right:15}}>
+                                            <AltAvatarGroup appearance="stack" maxCount={4} borderColor="#C0C0C0" isTooltipDisabled={false} size="small"
+                                                            data={(this.state.room.members || []).map((item,key) => ({
+                                                                name:item.email,
+                                                                src:(this.state.contacts || []).find(x => x.email === item.email) ? ((this.state.contacts || []).find(x => x.email === item.email)).imageUrl : "" ,
+                                                                appearance:"circle",
+                                                                size:"small",
+                                                                borderColor:"#f0f0f0"
+                                                            }))}
+                                            />
+                                        </div>
                                     </div>
-
                                 </div>
                                 {
                                     this.state.loadingScroll === true &&
@@ -447,10 +664,10 @@ export default class Chat extends React.Component {
                                                                                     <div className="msg_file_icon"/>
                                                                                     <div className="msg_file_text"
                                                                                          onClick={() => {
-                                                                                            this.downloadFile(msg.id_in_ged)
+                                                                                             msg.id_in_ged ? this.downloadFile(msg.id_in_ged) : this.downloadB64File(msg.b64)
                                                                                          }}
                                                                                     >
-                                                                                        <span>{msg.name_in_ged}</span>
+                                                                                        <span>{msg.name_in_ged || msg.name}</span>
                                                                                     </div>
                                                                                     <div className="msg_file_download_icon">
                                                                                         <div style={{color:"rgba(51,51,51,.5"}}>
@@ -567,10 +784,10 @@ export default class Chat extends React.Component {
                                                                                     <div className="msg_file_icon"/>
                                                                                     <div className="msg_file_text"
                                                                                          onClick={() => {
-                                                                                             this.downloadFile(msg.id_in_ged)
+                                                                                             msg.id_in_ged ? this.downloadFile(msg.id_in_ged) : this.downloadB64File(msg.b64)
                                                                                          }}
                                                                                     >
-                                                                                        <span>{msg.name_in_ged}</span>
+                                                                                        <span>{msg.name_in_ged || msg.name}</span>
                                                                                     </div>
                                                                                     <div className="msg_file_download_icon">
                                                                                         <div style={{color:"rgba(51,51,51,.5"}}>
@@ -594,7 +811,8 @@ export default class Chat extends React.Component {
 
                                                                         msg.type === "product_pack" ?
                                                                             <div style={{backgroundColor:"#fff",padding:"3px",borderRadius:7.5,
-                                                                                display:"inline-block",marginBottom:15,boxShadow: "0 1px 0.5px rgba(0,0,0,.13)"}}>
+                                                                                display:"inline-block",marginBottom:15,boxShadow: "0 1px 0.5px rgba(0,0,0,.13)"}}
+                                                                            >
                                                                                 <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:2,marginBottom:4,marginLeft:5}}>{this.getUserFname(this.state.contacts || [],msg.sender.email)}</h6>
                                                                                 <div style={{marginTop:5,border:"2px solid #f0f0f0",borderRadius:7.5,padding:8}}>
                                                                                     <div style={{display:"flex"}}>
@@ -639,7 +857,77 @@ export default class Chat extends React.Component {
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
+
                                                                             :
+
+                                                                            msg.type === "responses" ?
+                                                                            <div style={{
+                                                                                backgroundColor: "#f5f5f5",
+                                                                                padding: "3px",
+                                                                                borderRadius: 7.5,
+                                                                                display: "inline-block",
+                                                                                marginBottom:15
+                                                                            }}>
+                                                                                {
+                                                                                    (msg.responses || []).map((resp,key) => (
+                                                                                        <div style={{margin:10}}>
+                                                                                            <AtlButton
+                                                                                                onClick={() => {
+                                                                                                    if(resp.id === "download" || resp.id === "share"){
+                                                                                                        let b64Sign = this.state.proc_user_signature;
+                                                                                                        resp.selected = true;
+                                                                                                        this.setState({updateScreen:!this.state.updateScreen})
+                                                                                                        setTimeout(() => {
+                                                                                                            if(resp.id === "download"){
+                                                                                                                this.downloadB64File(b64Sign)
+                                                                                                            }else{
+                                                                                                                this.addFile(b64Sign,"Procuration_" + moment().format("DD-MM-YYYY HH:mm"))
+                                                                                                            }
+                                                                                                        },400)
+
+                                                                                                    }else{
+                                                                                                        let test =false;
+                                                                                                        msg.responses.map((item) => {
+                                                                                                            if(item.selected && item.selected === true) test =true
+                                                                                                        })
+                                                                                                        if(test === false){
+                                                                                                            resp.selected = true;
+                                                                                                            this.setState({updateScreen:!this.state.updateScreen})
+
+
+                                                                                                            setTimeout(() => {
+                                                                                                                let msgs = this.state.messages || [];
+                                                                                                                msgs.push({
+                                                                                                                    created_at: moment().format("YYYY-MM-DD HH:mm:ss") ,
+                                                                                                                    id: utilFunctions.getUID() ,
+                                                                                                                    room_id: this.state.room.id  ,
+                                                                                                                    text: "Quel est le nom et prénom du client ?" ,
+                                                                                                                    type: "text",
+                                                                                                                    sender:{
+                                                                                                                        email:"ChatBot"
+                                                                                                                    }
+                                                                                                                })
+                                                                                                                this.setState({messages:msgs,procuration_responseType:"client",waitResponseToBot:true})
+                                                                                                                setTimeout(()=> {
+                                                                                                                    this.scrollToBottom();
+                                                                                                                },250)
+                                                                                                            },750)
+
+                                                                                                        }
+                                                                                                    }
+                                                                                                }}
+                                                                                                appearance="default"
+                                                                                                isSelected={resp.selected && resp.selected === true }
+                                                                                                iconAfter={resp.selected && resp.selected === true ? <CheckIcon fontSize="small" color="secondary"/> : null}
+                                                                                            >
+                                                                                                {resp.text}
+                                                                                            </AtlButton>
+                                                                                        </div>
+                                                                                    ))
+                                                                                }
+                                                                            </div>
+
+                                                                                :
 
                                                                             <p>
                                                                                 <h6 style={{color:"#35cd96",fontSize:"0.6rem",marginTop:-1}}>{this.getUserFname(this.state.contacts || [],msg.sender.email)}</h6>
@@ -660,43 +948,41 @@ export default class Chat extends React.Component {
                                     </ul>
                                 </div>
                                 <div style={{backgroundColor:"#f0f0f0",position:"absolute",bottom:0,height:60,width:"100%",display:"flex"}}>
-                                    <div style={{alignSelf:"center",margin:10,flex:"none"}}>
-                                        <i className="fa fa-laugh attachment" aria-hidden="true"
-                                           style={{
-                                               fontSize: 20,
-                                               cursor: "pointer",
-                                               color:"#919191",
-                                               boxShadow:"#fff 2px 4px 6px",
-                                               margin:5
-                                           }}
-                                           onClick={(event) => {
-                                               this.setState({anchorElEmoji: event.currentTarget})
-                                           }}
-                                        />
-                                        <i className="fa fa-images attachment" aria-hidden="true"
-                                           style={{
-                                               fontSize: 20,
-                                               cursor: "pointer",
-                                               color:"#919191",
-                                               boxShadow:"#fff 2px 4px 6px",
-                                               margin:5
-                                           }}
-                                           onClick={() => {
-                                               this.imageUpload.click()
-                                           }}
-                                        />
-                                        <i className="fa fa-file-alt attachment" aria-hidden="true"
-                                           style={{
-                                               fontSize: 20,
-                                               cursor: "pointer",
-                                               color:"dodgerblue",
-                                               boxShadow:"2px 4px 6px lightblue",
-                                               margin:5
-                                           }}
-                                           onClick={(event) => {
-                                               this.setState({anchorElFiles: event.currentTarget})
-                                           }}
-                                        />
+                                    <div  style={{alignSelf:"center",margin:10,flex:"none",display:"flex"}}>
+                                        <IconButton size="small"
+                                                    onClick={(event) => {
+                                                        this.setState({anchorElEmoji: event.currentTarget})
+                                                    }}
+                                        >
+                                            <SentimentVerySatisfiedIcon/>
+                                        </IconButton>
+                                        <SpeedDial
+                                            style={{marginTop:-295}}
+                                            ariaLabel="SpeedDial Chat"
+                                            //className={classes.speedDial}
+                                            hidden={false}
+                                            icon={<AttachFileIcon fontSize="small"/>}
+                                            onClose={() => { this.setState({openSpeedDial:false})}}
+                                            onOpen={() => { this.setState({openSpeedDial:true})}}
+                                            open={this.state.openSpeedDial}
+                                            direction="up"
+                                            onClick={() => {this.setState({openSpeedDial:!this.state.openSpeedDial})}}
+                                            FabProps={{size:"small",color:"default",variant:"extended"}}
+                                        >
+                                            {speedDialActions.map((action) => (
+                                                <SpeedDialAction
+                                                    title={action.name}
+                                                    key={action.name}
+                                                    icon={action.icon}
+                                                    tooltipTitle={action.name}
+                                                    onClick={(event) => {
+                                                        this.onClickAction(event,action)
+                                                    }}
+                                                    FabProps={{color:"default"}}
+
+                                                />
+                                            ))}
+                                        </SpeedDial>
                                     </div>
                                     <div className="message-input" style={{flex:"1 1 auto"}}>
                                         <div className="wrap">
@@ -738,6 +1024,118 @@ export default class Chat extends React.Component {
                             </div>
                         </div>
                 }
+
+                <Drawer anchor="bottom" open={this.state.openBottomSignModal} onClose={() => this.setState({openBottomSignModal:false})}
+                        style={{borderRadius:20}}
+                >
+                    <div style={{padding:15}}>
+                        <h5 style={{color:"green",marginTop:5}}>Dessinez votre signature</h5>
+                        <div style={{marginTop:20,textAlign:"center"}}>
+                            <div style={{height: 300, border: '3px solid #f0f0f0'}}>
+                                <SignatureCanvas ref={(ref) => {
+                                    this.sigCanvas = ref
+                                }} penColor={"#000"} canvasProps={{
+                                    width: 320,
+                                    height: 300,
+                                    className: 'sigCanvas'
+                                }}
+                                />
+                                <div style={{position: "absolute", bottom: 65, right: 30}}>
+                                    <HighlightOffIcon onClick={() => {
+                                        this.sigCanvas.clear()
+                                    }}/>
+                                </div>
+                            </div>
+                        </div>
+                        <div align="right" style={{marginTop:15}}>
+                            <AtlButton
+                                onClick={() => {
+                                    let msgs = this.state.messages || [];
+
+                                    msgs.push({
+                                        created_at: moment().format("YYYY-MM-DD HH:mm:ss") ,
+                                        id: utilFunctions.getUID() ,
+                                        room_id: this.state.room.id  ,
+                                        text: "Votre document est en cours de traitement..." ,
+                                        type: "text",
+                                        sender:{
+                                            email:"ChatBot"
+                                        }
+                                    })
+                                    this.setState({messages:msgs})
+                                    setTimeout(()=> {
+                                        this.scrollToBottom();
+                                        let signature = this.sigCanvas.getTrimmedCanvas().toDataURL('image/png');
+                                        let data = {
+                                            date:moment().format("DD/MM/YYYY"),
+                                            client:this.state.procurationData.client,
+                                            desc:this.state.procurationData.sujet,
+                                            pays:this.state.procurationData.place,
+                                            signature:signature
+                                        }
+                                        this.setState({openBottomSignModal:false})
+                                        DocGenerationService.generateProcuration({data:data}).then( res => {
+                                            console.log(res)
+                                            let msgs = this.state.messages || [];
+                                            msgs.push({
+                                                created_at: moment().format("YYYY-MM-DD HH:mm:ss") ,
+                                                id: utilFunctions.getUID() ,
+                                                room_id: this.state.room.id  ,
+                                                text: "Le document de procuration est bien généré avec succès \r Voulez vous le : " ,
+                                                type: "text",
+                                                sender:{
+                                                    email:"ChatBot"
+                                                }
+                                            })
+                                            this.setState({messages:msgs,proc_user_signature:res.data})
+                                            setTimeout(()=> {
+                                                this.scrollToBottom();
+
+                                                setTimeout(() => {
+                                                    let msgs = this.state.messages || [];
+                                                    msgs.push({
+                                                        created_at: moment().format("YYYY-MM-DD HH:mm:ss") ,
+                                                        id: utilFunctions.getUID() ,
+                                                        room_id: this.state.room.id  ,
+                                                        type: "responses",
+                                                        responses:[
+                                                            {
+                                                                id:"download",
+                                                                text:"Télécharger",
+                                                                clicked:false,
+                                                                disabled:false
+                                                            },
+                                                            {
+                                                                id:"share",
+                                                                text:"Partager dans cette discussion",
+                                                                clicked:false,
+                                                                disabled:true
+                                                            }
+                                                        ],
+                                                        sender:{
+                                                            email:"ChatBot"
+                                                        }
+                                                    })
+                                                    this.setState({messages:msgs})
+                                                    setTimeout(()=> {
+                                                        this.scrollToBottom();
+                                                    },250)
+
+                                                },400)
+
+                                            },250);
+                                        }).catch(err => {
+                                            console.log(err)
+                                        })
+                                    },250)
+                                }}
+                                appearance="primary"
+                            >
+                                Valider
+                            </AtlButton>
+                        </div>
+                    </div>
+                </Drawer>
 
                 <Drawer anchor="bottom" open={this.state.openBottomPayModal} onClose={() => this.setState({openBottomPayModal:false})}
                         style={{borderRadius:20}}
