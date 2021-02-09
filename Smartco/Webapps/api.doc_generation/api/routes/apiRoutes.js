@@ -5,4 +5,7 @@ module.exports = function (app) {
     app.route('/api/generate_oa_provision_doc')
         .post(api.generate_OA_provison_doc);
 
+    app.route('/api/generate_oa_procuration_doc')
+        .post(api.generate_OA_procuration);
+
 };

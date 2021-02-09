@@ -13,6 +13,12 @@ exports.generate_OA_provison_doc = async function (req, res) {
     generate_OA_provison_doc(req, res, lang, data, "oa_provision");
 };
 
+exports.generate_OA_procuration = async function (req, res) {
+    console.log("Begin generate doc");
+    var data = req.body.data;
+    generate_OA_procuration_doc(req, res, data, "oa_procuration");
+};
+
 
 async function generate_OA_provison_doc(req, res, lang, data, code) {
 
@@ -20,7 +26,33 @@ async function generate_OA_provison_doc(req, res, lang, data, code) {
 
     var template = lang === "fr" ? "DOC/Provision OA LEGAL - FR.docx" : "DOC/Provision OA LEGAL - ANG.docx"
 
-    var dataDOC = await GenerateWordwithImg(template, data, 150, 50);
+    var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
+
+    var dataPdf = await ConvertDOcVerPdf(dataDOC, code);
+    //delete file
+    const path1 = '/tmp/' + code + '.docx';
+    const path2 = '/tmp/' + code + '.pdf';
+    try {
+        fs.unlinkSync(path1);
+        fs.unlinkSync(path2);
+    } catch (err) {
+        console.error(err)
+    }
+    ret.data = dataPdf.toString('base64');
+    ret.status = 200;
+    res.status(ret.status);
+    console.log("****End Generate Doc ****");
+    res.json(ret);
+
+}
+
+async function generate_OA_procuration_doc(req, res, data, code) {
+
+    var ret = {'status' : 500, 'data': null, 'error': null};
+
+    var template = "DOC/Procuration_OA.docx"
+
+    var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
 
     var dataPdf = await ConvertDOcVerPdf(dataDOC, code);
     //delete file
@@ -44,19 +76,14 @@ async function generate_OA_provison_doc(req, res, lang, data, code) {
 function GenerateWordwithImg(template, DataInput, longueur, largeur) {
     //Load the docx file as a binary
     var content = fs.readFileSync(path.resolve(__dirname, template), 'binary');
-    var ImageModule = require('docxtemplater-image-module');
+    var ImageModule = require('docxtemplater-image-module-free');
 
     const imageOpts = {
         getImage(tag) {
             return base64DataURLToArrayBuffer(tag);
         },
         getSize(img, tagValue, tagName) {
-            if (tagName === "signatureUrl")
-                return [120, 50];
-            else if (tagName === "qrcode")
-                return [125, 125];
-            else
-                return [longueur, largeur]
+            return [longueur, largeur]
         }
     };
 
@@ -129,5 +156,6 @@ function base64DataURLToArrayBuffer(dataURL) {
         const ascii = binaryString.charCodeAt(i);
         bytes[i] = ascii;
     }
+    console.log("OK")
     return bytes.buffer;
 }
