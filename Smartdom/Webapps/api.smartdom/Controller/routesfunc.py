@@ -523,7 +523,7 @@ def odoo_get_data(cn, nextc):
     id = cn.get["id"] if "id" in cn.get else 0
     offset = cn.get["offset"] if "offset" in cn.get else 0
     limit = cn.get["limit"] if "limit" in cn.get else 10
-    arg = cn.get["arg"] if arg in cn.get else None
+    arg = cn.get["arg"] if "arg" in cn.get else None
     err = cn.private["odoo"].list_index(data_name, offset, limit, id, arg)
     return cn.call_next(nextc, err)
 
