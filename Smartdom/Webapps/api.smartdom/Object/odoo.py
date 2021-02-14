@@ -87,7 +87,6 @@ class odoo:
                                         },
                     "city_zip_id": { "index": "res.city.zip", "arg": [[]], "opt": {}, "model": "search"},
                     "country_id": { "index": "res.country", "arg": [[]], "opt": {}, "model": "search"},
-                    "country": { "index": "res.country", "arg": [[]], "opt": {"name": "", "args": [], "operator": "ilike", "limit": 8, "context": {"lang": "fr_CH", "tz": False, "uid": 8}}, "model": "name_search"},
                     "country_state_id": { "index": "res.country.state", "arg": [[]], "opt": {}, "model": "search"},
                     "tax": {"index": "account.tax",
                                          "arg": [[int(id)]],
@@ -422,7 +421,7 @@ class odoo:
             ret = models.execute_kw(self.opt['db'],
                                     self.uid,
                                     self.opt['password'],
-                index, model, "" , arg)
+                index, model, arg, opt)
         else:
             ret = models.execute_kw(self.opt['db'],
                                     self.uid,
