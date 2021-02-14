@@ -87,6 +87,7 @@ class odoo:
                                         },
                     "city_zip_id": { "index": "res.city.zip", "arg": [[]], "opt": {}, "model": "search"},
                     "country_id": { "index": "res.country", "arg": [[]], "opt": {}, "model": "search"},
+                    "country": { "index": "res.country", "arg": [], "opt": {"name": "", "args": [], "operator": "ilike", "limit": 8, "context": {"lang": "fr_CH", "tz": False, "uid": 8}}, "model": "name_search"},
                     "country_state_id": { "index": "res.country.state", "arg": [[]], "opt": {}, "model": "search"},
                     "tax": {"index": "account.tax",
                                          "arg": [[int(id)]],
