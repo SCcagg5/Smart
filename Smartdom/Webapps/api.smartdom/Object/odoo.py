@@ -68,7 +68,7 @@ class odoo:
             return [False, "Error during the connection to odoo instance", 500]
         return [True, {}, None]
 
-    def list_index(self, name, offset = 0, limit = 10, id = 0):
+    def list_index(self, name, offset = 0, limit = 10, id = 0, arg = None):
             data = {
                     "product_id" : {"index": "product.product",
                                          "arg": [["|", ["company_id", "=", False], ["company_id", "=", 1]]],
@@ -87,7 +87,7 @@ class odoo:
                                         },
                     "city_zip_id": { "index": "res.city.zip", "arg": [[]], "opt": {}, "model": "search"},
                     "country_id": { "index": "res.country", "arg": [[]], "opt": {}, "model": "search"},
-                    "country": { "index": "res.country", "arg": [[]], "opt": {'offset': int(offset), 'limit': int(limit)}, "model": "name_search"},
+                    "country": { "index": "res.country", "arg": [[]], "opt": {"name": "", "args": [], "operator": "ilike", "limit": 8, "context": {"lang": "fr_CH", "tz": False, "uid": 8}}, "model": "name_search"},
                     "country_state_id": { "index": "res.country.state", "arg": [[]], "opt": {}, "model": "search"},
                     "tax": {"index": "account.tax",
                                          "arg": [[int(id)]],
