@@ -86,7 +86,7 @@ class odoo:
                                          "model": "search"
                                         },
                     "city_zip_id": { "index": "res.city.zip", "arg": [[]], "opt": {}, "model": "search"},
-                    "city_zip": { "index": "res.city", "arg": [["city_id.country_id", "=", int(id)]], "opt": {"name": str(arg), "args": [], "operator": "ilike", 'limit': int(limit)}, "model": "name_search"},
+                    "city_zip": { "index": "res.city.zip", "arg": [["city_id.country_id", "=", int(id)]], "opt": {"name": str(arg), "args": [], "operator": "ilike", 'limit': int(limit)}, "model": "name_search"},
                     "country_id": { "index": "res.country", "arg": [[]], "opt": {}, "model": "search"},
                     "country": { "index": "res.country", "arg": [], "opt": {"name": str(arg), "args": [], "operator": "ilike", 'limit': int(limit)}, "model": "name_search"},
                     "country_state_id": { "index": "res.country.state", "arg": [[]], "opt": {}, "model": "search"},
