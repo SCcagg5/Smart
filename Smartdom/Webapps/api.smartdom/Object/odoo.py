@@ -653,10 +653,13 @@ class odoo:
 
     def edit_client(self, id, data):
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
-        ret = models.execute_kw(self.opt['db'],
-                                self.uid,
-                                self.opt['password'],
-            'res.partner', 'write', [[int(id)], data])
+        try:
+            ret = models.execute_kw(self.opt['db'],
+                                    self.uid,
+                                    self.opt['password'],
+                'res.partner', 'write', [[int(id)], data])
+        except:
+            ret = "Error"
         k = ["street1", "street2", "zip_id", "zip", "city", "country_id", "property_product_pricelist", "city_id", "phone" ,"mobile", "vat"]
         for i in data.keys():
             if i not in k:
