@@ -142,8 +142,6 @@ async function insert(usr_token, cmd, db , read_change=false){
       resolve(ok)
     };
   });
-
-
 }
 
 async function remove(usr_token, cmd, db , read_change=false){

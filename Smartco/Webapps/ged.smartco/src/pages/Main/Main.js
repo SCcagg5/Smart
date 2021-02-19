@@ -99,8 +99,10 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {BlockPicker} from 'react-color'
 import TableTimeSheetsNonFact from "../../components/Tables/TableTimeSheetsNonFact";
+import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
+import {Dropdown} from 'semantic-ui-react'
 
 const {DirectoryTree} = Tree;
 
@@ -448,14 +450,16 @@ export default class Main extends React.Component {
     loading_avance_frais:false,
     provision_bank:"",
     provision_amount:"",
-    provision_tax:"TVA 7.7 % incluse",
+    provision_tax:"",
 
     avance_frais_desc:"",
     avance_frais_facture_file:"",
 
     anchorEl_colorPicker: null,
     settRoomAnchorEl:null,
-    selectedRoomTab:0
+    selectedRoomTab:0,
+
+    updateX:false
 
   };
 
@@ -582,6 +586,69 @@ export default class Main extends React.Component {
       let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
       this.setState({meeturl: meeturl})
 
+      //Get List Country ODOO
+      SmartService.get_odoo_countries(localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(countriesRes => {
+        if (countriesRes.succes === true && countriesRes.status === 200) {
+          let data = [["",""]]
+          this.setState({odoo_countries:data.concat(countriesRes.data || [])})
+        }
+      }).catch(err => {console.log(err)})
+      //END
+
+      //Get List Country_states ODOO
+      //43 = Suisse
+      SmartService.get_odoo_country_states(43,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(countryStatesRes => {
+        if (countryStatesRes.succes === true && countryStatesRes.status === 200) {
+          let data = [["",""]]
+          this.setState({odoo_country_states:data.concat(countryStatesRes.data || [])})
+        }
+      }).catch(err => {console.log(err)})
+      //END
+
+      //Get List TAX ODOO
+      SmartService.get_tax_odoo(localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( taxRes => {
+        if (taxRes.succes === true && taxRes.status === 200) {
+          let taxs_id = taxRes.data || [];
+          let tax_calls = [];
+          let taxs = []
+          taxs_id.map((id, key) => {
+            tax_calls.push(
+                SmartService.get_tax_odoo_byID(id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(taxResData => {
+                  taxs.push({key:taxResData.data[0].id,value: taxResData.data[0].id, text: taxResData.data[0].display_name})
+                }).catch(err => console.log(err))
+            )
+          })
+          Promise.all(tax_calls).then(response => {
+            taxs.push({key:-1,value: "Hors TVA", text: "Hors TVA"})
+            this.setState({odoo_taxs:taxs,provision_tax:taxs.length > 0 ? taxs[0].value : ""})
+          }).catch(err => console.log(err))
+
+        }
+      }).catch(err => {console.log(err)})
+      //END
+
+      //GET List PayTerms ODOO
+      SmartService.get_paymentTerm_odoo(localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(paymTermRes => {
+        if(paymTermRes.succes === true && paymTermRes.status === 200){
+          let payTerms_id = paymTermRes.data || [];
+          let payTerm_calls = [];
+          let paymTerms = [];
+          payTerms_id.map((id,key) => {
+            payTerm_calls.push(
+                SmartService.get_paymentTerm_odoo_byID(id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(paymTermResData => {
+                  paymTerms.push({key:paymTermResData.data[0].id,value:paymTermResData.data[0].id,text:paymTermResData.data[0].display_name})
+                }).catch(err => console.log(err))
+            )
+          })
+          Promise.all(payTerm_calls).then(response => {
+            this.setState({odoo_payTerms:paymTerms})
+          }).catch(err => console.log(err))
+        }else{
+          console.log(paymTermRes.error)
+        }
+      }).catch(err => {console.log(err)})
+      //END
+
         SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken'))
           .then((gedRes) => {
             if (gedRes.succes === true && gedRes.status === 200) {
@@ -677,7 +744,6 @@ export default class Main extends React.Component {
             console.log(err);
           });
 
-
       //RethinkDB
       rethink.createDB(db_name,"test").then( r1 => {
         if (r1 === true) console.log("NEW DB CREATED");
@@ -733,6 +799,7 @@ export default class Main extends React.Component {
               else if(item === "contacts"){
                if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
                   if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
+
                     let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
                     let contact = rr.find(x => x.id === contact_id)
                     if (contact) {
@@ -765,7 +832,9 @@ export default class Main extends React.Component {
                   let newTimeSheet = this.state.TimeSheet;
                   newTimeSheet.newTime.utilisateurOA = connected_email;
                   newTimeSheet.newTime.rateFacturation = oa_contact.rateFacturation || "";
-                  this.setState({TimeSheet:newTimeSheet,[item]:rr.sort( (a,b) => {
+                  this.setState({
+                    TimeSheet:newTimeSheet,
+                    [item]:rr.sort( (a,b) => {
                       var c = a.sort || -1
                       var d = b.sort || -1
                       return c-d;
@@ -954,18 +1023,7 @@ export default class Main extends React.Component {
 
 
   handleRoomTabsChange = (event, newValue) => {
-    //console.log(this.state.annuaire_clients_mandat)
     this.setState({selectedRoomTab:newValue})
-    /*if(newValue === 1){
-      setloadingFiles(true)
-      SmartService.getRoomFiles(localStorage.getItem("token"),localStorage.getItem("usrtoken"),props.room.id).then( res => {
-        console.log(res)
-        setRoomDocs(res.data)
-        setloadingFiles(false)
-      }).catch(err => {
-        console.log(err)
-      })
-    }*/
   };
 
   handleChangeBouteille(e,key){
@@ -991,17 +1049,12 @@ export default class Main extends React.Component {
         name:"bouteille "+i,
         value:""
       })
-
-
     }
-
-
     this.setState({
       bouteilles:data,
       showCadeauModal2:true,
       showCadeauModal1:false
     })
-
   }
 
   envoyerCadeau(){
@@ -1118,7 +1171,7 @@ export default class Main extends React.Component {
       console.log("ERROR INITIALISIATION TABLE");
     };
     socket.onclose = ( event => {
-      this.props.history.push('/login');
+      //this.props.history.push('/login');
       console.log("CLOSED READ CHANGES");
     })
   }
@@ -1465,21 +1518,94 @@ export default class Main extends React.Component {
     })
   };
 
-  saveSocietyChanges = () => {
+  beforeUpdateSociety(){
+    let odoo_companies = this.state.odoo_companies || [];
+    let client_id = this.state.selectedSociete.ID
+    let clientFname = this.state.selectedSociete.Nom + (this.state.selectedSociete.Prenom && this.state.selectedSociete.Prenom !== "") ? (" " + this.state.selectedSociete.Prenom) : ""
+    let company_id;
+    let findCompany = odoo_companies.find(x => x.client_id === client_id );
+
+    if(findCompany){
+      console.log("COMPANY FOUND")
+      company_id = findCompany.odoo_company_id;
+      this.saveSocietyChanges(company_id)
+    }
+    else{
+      console.log("COMPANY NOT FOUND")
+      SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: clientFname } }).then(newCompRes => {
+        if(newCompRes.succes === true && newCompRes.status === 200){
+          company_id = newCompRes.data.id;
+          this.verifIsTableExist("odoo_companies").then( v => {
+            let newItem = {
+              odoo_company_id:company_id,
+              client_name:clientFname,
+              client_id:client_id,
+              client_uid:this.state.selectedSociete.id,
+              created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+            }
+            rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+              if (resAdd && resAdd === true) {
+                this.saveSocietyChanges(company_id)
+              }else{
+                this.setState({loading:false})
+                this.openSnackbar("error","Une erreur est survenue !")
+                console.log(newCompRes.error)
+              }
+            }).catch(err => {console.log(err)})
+          }).catch(err => console.log(err))
+
+        }
+        else if(newCompRes.succes === false && newCompRes.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else{
+          this.setState({loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+          console.log(newCompRes.error)
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+        console.log(err)
+      })
+
+    }
+  }
+
+  saveSocietyChanges = (odoo_company_id) => {
     this.setState({ loading: true });
     let id = this.state.selectedSociete.id || (this.state.annuaire_clients_mandat.find(x => x.ID === this.state.selectedSociete.ID)).id;
     console.log(id)
-    rethink.update("test",'table("annuaire_clients_mandat").get('+JSON.stringify(id)+').update('+ JSON.stringify(this.state.selectedSociete) + ')',db_name,false).then( updateRes => {
-      if (updateRes && updateRes === true) {
-        this.setState({ loading: false });
-        this.openSnackbar('success', 'Modification effectuée avec succès');
-      } else {
+    let data = {
+      param:{
+        street: this.state.selectedSociete.adress_fact_street || "",
+        street2: this.state.selectedSociete.adress_fact_street2 || "" ,
+        zip: this.state.selectedSociete.adress_fact_pc || "" ,
+        city: this.state.selectedSociete.adress_fact_city || "",
+        state_id: this.state.selectedSociete.adress_fact_state || false,
+        country_id: 43,
+        email: !verifForms.verif_Email(this.state.selectedSociete.email || "")  ? this.state.selectedSociete.email : false,
+        phone: this.state.selectedSociete.phone || ""
+      }
+    }
+    SmartService.update_odoo_client(odoo_company_id,data,localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(updateRes => {
+      console.log(updateRes)
+      rethink.update("test",'table("annuaire_clients_mandat").get('+JSON.stringify(id)+').update('+ JSON.stringify(this.state.selectedSociete) + ')',db_name,false).then( updateRes => {
+        if (updateRes && updateRes === true) {
+          this.setState({ loading: false });
+          this.openSnackbar('success', 'Modification effectuée avec succès');
+        } else {
+          this.setState({ loading: true });
+          this.openSnackbar('error', 'Une erreur est survenue !');
+        }
+      }).catch(err => {
         this.setState({ loading: true });
         this.openSnackbar('error', 'Une erreur est survenue !');
-      }
+        console.log(err)
+      })
     }).catch(err => {
-      this.setState({ loading: true });
-      this.openSnackbar('error', 'Une erreur est survenue !');
       console.log(err)
     })
   };
@@ -1504,7 +1630,6 @@ export default class Main extends React.Component {
 
   showDocInPdfModal = (url,name,type) => {
     this.setState({
-      openRightMenu: false,
       showPDFModal: true,
       pdfURL: url,
       pdfName:name + '.' + type
@@ -2434,20 +2559,17 @@ export default class Main extends React.Component {
                                                           </div>
                                                           <div className="mt-3">
                                                             <h5>Taxe</h5>
-                                                            <select
-                                                                className="form-control custom-select"
+                                                            <Dropdown
                                                                 value={this.state.provision_tax}
-                                                                onChange={(e) => {
-                                                                  this.setState({provision_tax:e.target.value})
+                                                                onChange={(e,{value}) => {
+                                                                  this.setState({provision_tax:value})
                                                                 }}
-                                                                style={{width:350,border:"2px solid #f0f0f0",borderRadius:7.5}}
-                                                            >
-                                                              {
-                                                                (data.oa_provision_taxs || []).map((item,key) =>
-                                                                    <option key={key} value={item.value}>{item.label}</option>
-                                                                )
-                                                              }
-                                                            </select>
+                                                                placeholder=''
+                                                                labeled
+                                                                selection
+                                                                options={this.state.odoo_taxs || []}
+                                                                loading={!this.state.odoo_taxs}
+                                                            />
                                                           </div>
                                                           <div className="mt-5" align="center">
                                                             <AltButtonGroup>
@@ -2468,7 +2590,8 @@ export default class Main extends React.Component {
                                                                   isDisabled={!this.state.TimeSheet.newTime.dossier_client.folder_id || this.state.provision_amount === "" ||
                                                                   this.state.provision_bank === "" || this.state.selectedClientTimeEntree === ''}
                                                                   onClick={() => {
-                                                                    this.saveProvisionDoc(new_timeSheet_desc)
+                                                                    this.before_save_provison(this.state.TimeSheet.newTime.client,this.state.TimeSheet.newTime.client_id,new_timeSheet_desc,this.state.TimeSheet.newTime.date,
+                                                                                              this.state.TimeSheet.newTime.dossier_client.name,"","",this.state.provision_amount,this.state.provision_tax)
                                                                   }}
                                                               >
                                                                 Enregistrer le document de provision
@@ -2518,7 +2641,9 @@ export default class Main extends React.Component {
                                                                 isDisabled={this.state.avance_frais_facture_file === "" || this.state.avance_frais_desc === "" ||
                                                                 this.state.provision_amount === "" || this.state.selectedClientTimeEntree === '' || this.state.TimeSheet.newTime.dossier_client.name === ""}
                                                                 onClick={() => {
-                                                                  this.save_avanceFrais(this.state.avance_frais_facture_file,this.state.TimeSheet.newTime.dossier_client.folder_id)
+                                                                  //clientFname,client_id,file,folder_id,date,client_folder_name,amount,desc
+                                                                  this.before_save_AvanceFrais(this.state.TimeSheet.newTime.client,this.state.TimeSheet.newTime.client_id,this.state.avance_frais_facture_file,
+                                                                      this.state.TimeSheet.newTime.dossier_client.folder_id,this.state.TimeSheet.newTime.date,this.state.TimeSheet.newTime.dossier_client.name,this.state.provision_amount, this.state.avance_frais_desc)
                                                                 }}
                                                             >
                                                               Enregistrer
@@ -2572,7 +2697,9 @@ export default class Main extends React.Component {
                                             />
                                             <IconButton
                                                 style={{ marginTop: -5 }}
-                                                onClick={() => this.setState({ openAdvancedSearchModal: true })}>
+                                                onClick={() => {
+                                                  //this.setState({ openAdvancedSearchModal: true })
+                                                }}>
                                               <SearchIcon />
                                             </IconButton>
                                           </div>
@@ -2790,6 +2917,20 @@ export default class Main extends React.Component {
                                            openFacture={(id) => {
                                              this.openPdfModal(id)
                                            }}
+                                           openPdf={(b64,name,type) => {
+                                             this.showDocInPdfModal(b64,name,type)
+                                           }}
+                                           show_odoo_facture={(id,token,name) => {
+                                             this.setState({loading: true})
+                                             SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+                                                 id,token).then(genFactRes => {
+                                               if (genFactRes.succes === true && genFactRes.status === 200) {
+                                                 this.setState({loading: false})
+                                                 let b64 = genFactRes.data.pdf;
+                                                 this.showDocInPdfModal(b64, "Facture_" + name, "pdf")
+                                               }
+                                             }).catch(err => {console.log(err)})
+                                           }}
                                            openFactureFolder={(id) => {
                                              this.redirectToFolder(id)
                                            }}
@@ -2800,6 +2941,9 @@ export default class Main extends React.Component {
                                              this.updateFacture(id,item)
                                            }}
                                            openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
+                                           rerender={() => {this.setState({updateX:!this.state.updateX})}}
+                                           taxs={this.state.odoo_taxs}
+                                           payTerms={this.state.odoo_payTerms}
                             />
                           </TabPanel>
                           <TabPanel>
@@ -2954,109 +3098,305 @@ export default class Main extends React.Component {
 
   }
 
+  before_save_AvanceFrais(clientFname,client_id,file,folder_id,date,client_folder_name,amount,desc){
+    let odoo_companies = this.state.odoo_companies || [];
+    let facture_company_id;
+    let findCompany = odoo_companies.find(x => x.client_id === client_id );
 
-  async save_avanceFrais(file,folder_id){
-    this.setState({loading_avance_frais:true})
-    let b64 = await main_functions.toBase64(file)
+    if(findCompany){
+      console.log("COMPANY FOUND")
+      facture_company_id = findCompany.odoo_company_id;
+      this.save_avanceFrais(file,folder_id,date,facture_company_id,client_folder_name,amount,desc)
+    }
+    else{
+      console.log("COMPANY NOT FOUND")
+      SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: clientFname } }).then(newCompRes => {
+        if(newCompRes.succes === true && newCompRes.status === 200){
+          facture_company_id = newCompRes.data.id;
+          this.verifIsTableExist("odoo_companies").then( v => {
+            let newItem = {
+              odoo_company_id:facture_company_id,
+              client_name:clientFname,
+              client_id:client_id,
+              created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+            }
+            rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+              if (resAdd && resAdd === true) {
+                this.save_avanceFrais(file,folder_id,date,facture_company_id,client_folder_name,amount,desc)
+              }else{
+                this.setState({loading:false})
+                this.openSnackbar("error","Une erreur est survenue !")
+                console.log(newCompRes.error)
+              }
+            }).catch(err => {console.log(err)})
+          }).catch(err => console.log(err))
 
-
-    this.verifIsTableExist("tmp").then( v => {
-      let newItem = {
-        type:"avance de frais",
-        client:this.state.TimeSheet.newTime.client_id,
-        dossier:this.state.TimeSheet.newTime.dossier_client,
-        montant:this.state.provision_amount,
-        desc:this.state.avance_frais_desc,
-        file:b64,
-        created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
-        created_by:localStorage.getItem("email")
-      }
-      rethink.insert("test",'table("tmp").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
-        if (resAdd && resAdd === true) {
-          console.log("tmp added")
-        } else {
-          console.log("tmp not added")
+        }
+        else if(newCompRes.succes === false && newCompRes.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else{
+          this.setState({loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+          console.log(newCompRes.error)
         }
       }).catch(err => {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
         console.log(err)
       })
 
-    }).then( ok => {
+    }
+  }
 
-    }).catch(err => {
-      console.log(err)
-    })
+  async save_avanceFrais(file,folder_id,date,facture_company_id,client_folder_name,amount,desc){
+      this.setState({loading_avance_frais:true})
+      let b64 = await main_functions.toBase64(file)
 
-    SmartService.getFile(folder_id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
-      if (Res.succes === true && Res.status === 200) {
-        let folders = Res.data.Content.folders || [];
-        let findCompta_folder = folders.find(x => x.name === "COMPTABILITE");
-        if(findCompta_folder){
+      let acces_token = utilFunctions.getUID();
+      let odoo_data = [{
+        'access_token': acces_token,
+        'type': 'out_invoice',
+        "move_name":false,
+        "user_id":6,
+        "team_id":1,
+        "comment":false,
+        'l10n_ch_isr_sent': false,
+        'name': false,   //on peut mettre une petite desc sous le titre de la facture avec ce champs
+        'date_invoice': moment(date).format('YYYY-MM-DD'),
+        /*'date_due': moment(date).format('YYYY-MM-DD'),*/
+        'journal_id': 1,
+        'currency_id': 5,
+        'invoice_user_id': 3,
+        'invoice_incoterm_id': false,
+        'tax_lock_date_message': false,
+        'id': false,
+        'invoice_payment_state': 'not_paid',
+        'invoice_filter_type_domain': 'sale',
+        'company_currency_id': 5,
+        'commercial_partner_id': '',
+        'invoice_has_outstanding': false,
+        'l10n_ch_currency_name': 'CHF',
+        'invoice_sequence_number_next_prefix': false,
+        'invoice_sequence_number_next': false,
+        'invoice_has_matching_suspense_amount': false,
+        'has_reconciled_entries': false,
+        'restrict_mode_hash_table': false,
+        'partner_id': facture_company_id,
+        'invoice_vendor_bill_id': false,
+        'invoice_payment_term_id': 1,
+        /*'invoice_date_due': moment(deadline_date).format('YYYY-MM-DD'),*/
+        'company_id': 1,
+        'amount_untaxed': 0,
+        'amount_by_group': [],
+        'amount_total': 0,
+        'invoice_payments_widget': 'False',
+        'amount_residual': 0,
+        'invoice_outstanding_credits_debits_widget': false,
+        'invoice_origin': false,
+        'invoice_cash_rounding_id': false,
+        'invoice_source_email': false,
+        'invoice_payment_ref': false,
+        'reversed_entry_id': false,
+        'message_follower_ids': [],
+        'activity_ids': [],
+        'message_ids': [],
+        'message_attachment_count': 0,
+        'invoice_line_ids': [],
+        "account_id": 6,
+        "reference": client_folder_name,
+        "fiscal_position_id": false,
+        "origin": false,
+        "reference_type":"none",
+        "incoterm_id":false,
+        "sequence_number_next":false,
+        "partner_shipping_id":facture_company_id,
+        "payment_term_id":"",
+        "partner_bank_id":"",
+        'bank_partner_id': "",
+        'invoice_partner_bank_id': "",
+      }];
 
-          SmartService.getFile(findCompta_folder.id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res2 => {
-            if (Res2.succes === true && Res2.status === 200) {
+      odoo_data[0].invoice_line_ids.push(
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              "account_analytic_id":false,
+              'account_id': 101,  //103
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
+              'name':'Avance de frais: '+desc,
+              'origin': false,
+              'price_unit': amount,
+              'product_id': 1,
+              'quantity': 1,
+              'sequence': 10,
+              "uom_id":1,
+              /*'invoice_line_tax_ids': [
+                [
+                  6,
+                  false,
+                  tax && tax !== "" ? [tax] : []
+                ]
+              ]*/
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+            }
+          ]
+      );
+      SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+        console.log(createFactRes)
+        if (createFactRes.succes === true && createFactRes.status === 200) {
+          SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+              {
+                data: [[createFactRes.data.id], {
+                  journal_type: "sale",
+                  lang: "fr_CH",
+                  type: "out_invoice",
+                  tz: false,
+                  uid: 8
+                }]
+              }).then(validateRes => {
+            console.log(validateRes)
+            if (validateRes.succes === true && validateRes.status === 200) {
 
-              let find_avanceFrais_folder = (Res2.data.Content.folders || []).find(x => x.name === "AVANCE DE FRAIS");
-              if(find_avanceFrais_folder){
+              this.verifIsTableExist("factures").then( v => {
+                let newItem = {
+                  ID:utilFunctions.getUID(),
+                  date_facture:moment(this.state.TimeSheet.newTime.date).format("YYYY-MM-DD HH:mm:ss"),
+                  created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                  created_by:localStorage.getItem("email"),
+                  client:this.state.TimeSheet.newTime.client,
+                  client_id:this.state.TimeSheet.newTime.client_id,
+                  partner:localStorage.getItem("email"),
+                  details_avancefrais:{
+                    amount:amount,
+                    desc:desc,
+                    uploadedFile:b64,
+                    uploadedFileName:file.name.slice(0,-4)
+                  },
+                  statut:"confirmed",
+                  client_folder:{
+                    id:this.state.TimeSheet.newTime.dossier_client.folder_id,
+                    name:this.state.TimeSheet.newTime.dossier_client.name
+                  },
+                  type:"avance_frais",
+                  facture_odoo_id:createFactRes.data.id,
+                  facture_acces_token:acces_token
+                }
+                rethink.insert("test",'table("factures").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+                  if (resAdd && resAdd === true) {
 
-                SmartService.addFileFromBas64({b64file:b64,folder_id:find_avanceFrais_folder.id},
-                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
-                  if (addFileRes.succes === true && addFileRes.status === 200) {
+                    SmartService.getFile(folder_id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+                      if (Res.succes === true && Res.status === 200) {
+                        let folders = Res.data.Content.folders || [];
+                        let findCompta_folder = folders.find(x => x.name === "COMPTABILITE");
+                        if(findCompta_folder){
 
-                    SmartService.updateFileName({name:file.name.slice(0, -4)}, addFileRes.data.file_id,
-                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
-                      if(updateNameRes.succes === true && updateNameRes.status === 200){
-                        this.setState({loading_avance_frais:false,provision_amount:"",avance_frais_desc:"",avance_frais_facture_file:""})
-                        this.openSnackbar("success","Votre document est bien enregistré dans le dossier 'Avance de frais' dans le dossier Comptabilite de client ")
-                        this.justReloadGed()
-                      }else{
-                        console.log(updateNameRes.error)
-                        this.openSnackbar("error",updateNameRes.error)
-                        this.setState({loading:false})
-                      }
-                    }).catch(err => {
-                      console.log(err)
-                      this.openSnackbar("error","Une erreur est survenue")
-                    })
+                          SmartService.getFile(findCompta_folder.id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res2 => {
+                            if (Res2.succes === true && Res2.status === 200) {
 
+                              let find_avanceFrais_folder = (Res2.data.Content.folders || []).find(x => x.name === "AVANCE DE FRAIS");
+                              if(find_avanceFrais_folder){
 
-                  } else {
-                    console.log(addFileRes.error)
-                    this.setState({loading_avance_frais:false})
-                  }
-                }).catch(err => {
-                  console.log(err)
-                  this.setState({loading_avance_frais:false})
-                })
+                                SmartService.addFileFromBas64({b64file:b64,folder_id:find_avanceFrais_folder.id},
+                                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+                                  if (addFileRes.succes === true && addFileRes.status === 200) {
 
-              }else{
+                                    SmartService.updateFileName({name:file.name.slice(0, -4)}, addFileRes.data.file_id,
+                                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                                      if(updateNameRes.succes === true && updateNameRes.status === 200){
+                                        this.setState({loading_avance_frais:false,provision_amount:"",avance_frais_desc:"",avance_frais_facture_file:""})
+                                        this.openSnackbar("success","Votre document est bien enregistré dans le dossier 'Avance de frais' dans le dossier Comptabilite de client ")
+                                        this.justReloadGed()
+                                      }else{
+                                        console.log(updateNameRes.error)
+                                        this.openSnackbar("error",updateNameRes.error)
+                                        this.setState({loading:false})
+                                      }
+                                    }).catch(err => {
+                                      console.log(err)
+                                      this.openSnackbar("error","Une erreur est survenue")
+                                    })
+                                  } else {
+                                    console.log(addFileRes.error)
+                                    this.setState({loading_avance_frais:false})
+                                  }
+                                }).catch(err => {
+                                  console.log(err)
+                                  this.setState({loading_avance_frais:false})
+                                })
 
-                SmartService.addFolder({name: "AVANCE DE FRAIS", folder_id:findCompta_folder.id},
-                    localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
-                  if (addFolderRes.succes === true && addFolderRes.status === 200) {
+                              }else{
 
-                    SmartService.addFileFromBas64({b64file:b64,folder_id:addFolderRes.data.id},
-                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
-                      if (addFileRes.succes === true && addFileRes.status === 200) {
+                                SmartService.addFolder({name: "AVANCE DE FRAIS", folder_id:findCompta_folder.id},
+                                    localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
+                                  if (addFolderRes.succes === true && addFolderRes.status === 200) {
 
-                        SmartService.updateFileName({name:file.name.slice(0, -4)}, addFileRes.data.file_id,
-                            localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
-                          if(updateNameRes.succes === true && updateNameRes.status === 200){
+                                    SmartService.addFileFromBas64({b64file:b64,folder_id:addFolderRes.data.id},
+                                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+                                      if (addFileRes.succes === true && addFileRes.status === 200) {
+
+                                        SmartService.updateFileName({name:file.name.slice(0, -4)}, addFileRes.data.file_id,
+                                            localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                                          if(updateNameRes.succes === true && updateNameRes.status === 200){
+                                            this.setState({loading_avance_frais:false,provision_amount:"",avance_frais_desc:"",avance_frais_facture_file:""})
+                                            this.openSnackbar("success","Votre document est bien enregistré dans le dossier 'Avance de frais' dans le dossier Comptabilite de client ")
+                                            this.justReloadGed()
+                                          }else{
+                                            console.log(updateNameRes.error)
+                                            this.openSnackbar("error",updateNameRes.error)
+                                            this.setState({loading:false})
+                                          }
+                                        }).catch(err => {
+                                          console.log(err)
+                                          this.openSnackbar("error","Une erreur est survenue")
+                                        })
+
+                                      } else {
+                                        console.log(addFileRes.error)
+                                        this.setState({loading_avance_frais:false})
+                                      }
+                                    }).catch(err => {
+                                      console.log(err)
+                                      this.setState({loading_avance_frais:false})
+                                    })
+
+                                  }else{
+                                    console.log(addFolderRes.error)
+                                    this.setState({loading_avance_frais:false})
+                                  }
+                                }).catch(err => {
+                                  console.log(err)
+                                  this.setState({loading_avance_frais:false})
+                                })
+
+                              }
+
+                            }else{
+                              console.log(Res2.error)
+                              this.setState({loading_avance_frais:false})
+                            }
+                          }).catch(err => {
+                            console.log(err)
                             this.setState({loading_avance_frais:false})
-                            this.openSnackbar("success","Votre document est bien enregistré dans le dossier 'Avance de frais' dans le dossier Comptabilite de client ")
-                            this.justReloadGed()
-                          }else{
-                            console.log(updateNameRes.error)
-                            this.openSnackbar("error",updateNameRes.error)
-                            this.setState({loading:false})
-                          }
-                        }).catch(err => {
-                          console.log(err)
-                          this.openSnackbar("error","Une erreur est survenue")
-                        })
-
-                      } else {
-                        console.log(addFileRes.error)
+                          })
+                        }else{
+                          this.openSnackbar("error","Dossier 'COMPTABILITE' inexistant dans le dossier de client ! ")
+                          this.setState({loading_avance_frais:false})
+                        }
+                      }else{
+                        console.log(Res.error)
                         this.setState({loading_avance_frais:false})
                       }
                     }).catch(err => {
@@ -3064,43 +3404,31 @@ export default class Main extends React.Component {
                       this.setState({loading_avance_frais:false})
                     })
 
-                  }else{
-                    console.log(addFolderRes.error)
-                    this.setState({loading_avance_frais:false})
+                  } else {
+                    this.setState({partnerFacture:"",loading:false})
+                    this.openSnackbar("error","Une erreur est survenue !")
                   }
                 }).catch(err => {
-                  console.log(err)
-                  this.setState({loading_avance_frais:false})
+                  this.setState({partnerFacture:"",loading:false})
+                  this.openSnackbar("error","Une erreur est survenue !")
                 })
-
-              }
-
+              }).catch(err => {console.log(err)})
             }else{
-              console.log(Res2.error)
-              this.setState({loading_avance_frais:false})
+              console.log(validateRes.error)
             }
           }).catch(err => {
             console.log(err)
-            this.setState({loading_avance_frais:false})
           })
-        }else{
-          this.openSnackbar("error","Dossier 'COMPTABILITE' inexistant dans le dossier de client ! ")
-          this.setState({loading_avance_frais:false})
         }
-      }else{
-        console.log(Res.error)
-        this.setState({loading_avance_frais:false})
-      }
-    }).catch(err => {
-      console.log(err)
-      this.setState({loading_avance_frais:false})
-    })
+      }).catch(err => {console.log(err)})
   }
 
   generateProvisionDoc(new_timeSheet_desc){
     this.setState({loading_provision_preview:true})
     let lang = new_timeSheet_desc === "Description (anglais)" ? "en" : "fr";
     let bank = JSON.parse(this.state.provision_bank)
+    let tax = this.state.odoo_taxs.find(x => x.value === this.state.provision_tax);
+    let tax_label = tax.text;
     DocGenerationService.generateProvision({
       lang:lang,
       data:{
@@ -3115,7 +3443,7 @@ export default class Main extends React.Component {
         clearing:bank.clearing,
         ref:this.state.TimeSheet.newTime.client + " - " + this.state.TimeSheet.newTime.dossier_client.name,
         oa_contact:main_functions.getContactFnameByEmail(this.state.contacts || [],localStorage.getItem("email")),
-        TVA:this.state.provision_tax
+        TVA:tax_label
       }}).then( res => {
       console.log(res)
       this.setState({loading_provision_preview:false})
@@ -3127,11 +3455,68 @@ export default class Main extends React.Component {
     })
   }
 
-  saveProvisionDoc(new_timeSheet_desc){
+  before_save_provison(clientFname,client_id,new_timeSheet_desc,date,client_folder_name,paymTerm,compte_banc,amount,tax){
+
+    let odoo_companies = this.state.odoo_companies || [];
+    let facture_company_id;
+    let findCompany = odoo_companies.find(x => x.client_id === client_id );
+
+    if(findCompany){
+      console.log("COMPANY FOUND")
+      facture_company_id = findCompany.odoo_company_id;
+      this.saveProvisionDoc(new_timeSheet_desc,date,client_folder_name,paymTerm,compte_banc,amount,tax,facture_company_id)
+    }
+    else{
+      console.log("COMPANY NOT FOUND")
+      SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: clientFname } }).then(newCompRes => {
+        if(newCompRes.succes === true && newCompRes.status === 200){
+          facture_company_id = newCompRes.data.id;
+          this.verifIsTableExist("odoo_companies").then( v => {
+            let newItem = {
+              odoo_company_id:facture_company_id,
+              client_name:clientFname,
+              client_id:client_id,
+              created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+            }
+            rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+              if (resAdd && resAdd === true) {
+                this.saveProvisionDoc(new_timeSheet_desc,date,client_folder_name,paymTerm,compte_banc,amount,tax,facture_company_id)
+              }else{
+                this.setState({loading:false})
+                this.openSnackbar("error","Une erreur est survenue !")
+                console.log(newCompRes.error)
+              }
+            }).catch(err => {console.log(err)})
+          }).catch(err => console.log(err))
+
+        }
+        else if(newCompRes.succes === false && newCompRes.status === 400){
+          this.setState({ loading: false });
+          localStorage.clear();
+          this.props.history.push('/login');
+        }
+        else{
+          this.setState({loading:false})
+          this.openSnackbar("error","Une erreur est survenue !")
+          console.log(newCompRes.error)
+        }
+      }).catch(err => {
+        this.setState({loading:false})
+        this.openSnackbar("error","Une erreur est survenue !")
+        console.log(err)
+      })
+
+    }
+
+  }
+
+  saveProvisionDoc(new_timeSheet_desc,date,client_folder_name,paymTerm,compte_banc,amount,tax,facture_company_id){
 
     this.setState({loading_provision_save:true})
     let lang = new_timeSheet_desc === "Description (anglais)" ? "en" : "fr";
     let bank = JSON.parse(this.state.provision_bank)
+    let tax_tmp = this.state.odoo_taxs.find(x => x.value === this.state.provision_tax);
+    let tax_label = tax_tmp.text;
     DocGenerationService.generateProvision({
       lang:lang,
       data:{
@@ -3144,35 +3529,9 @@ export default class Main extends React.Component {
         clearing:bank.clearing,
         ref:this.state.TimeSheet.newTime.client + " - " + this.state.TimeSheet.newTime.dossier_client.name,
         oa_contact:main_functions.getContactFnameByEmail(this.state.contacts || [],localStorage.getItem("email")),
-        TVA:this.state.provision_tax
+        TVA:tax_label
       }}).then( res => {
 
-      this.verifIsTableExist("tmp").then( v => {
-        let newItem = {
-          type:"provision",
-          client:this.state.TimeSheet.newTime.client_id,
-          dossier:this.state.TimeSheet.newTime.dossier_client,
-          montant:this.state.provision_amount,
-          bank:bank,
-          tax:this.state.provision_tax,
-          created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
-          created_by:localStorage.getItem("email")
-        }
-        rethink.insert("test",'table("tmp").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
-          if (resAdd && resAdd === true) {
-           console.log("tmp added")
-          } else {
-            console.log("tmp not added")
-          }
-        }).catch(err => {
-          console.log(err)
-        })
-
-      }).then( ok => {
-
-      }).catch(err => {
-        console.log(err)
-      })
 
       SmartService.getFile(this.state.TimeSheet.newTime.dossier_client.folder_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
         if (resF.succes === true && resF.status === 200) {
@@ -3188,9 +3547,172 @@ export default class Main extends React.Component {
                     addFileRes.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
                   if(updateNameRes.succes === true && updateNameRes.status === 200){
                     this.justReloadGed()
+
                     setTimeout(() => {
-                      this.setState({loading_provision_save:false,provision_amount:"",provision_tax:"TVA 7.7 % incluse",provision_bank:""})
-                      this.openSnackbar("success","Le document de provision est bien enregistré dans le dossier Comptabilité du client " + this.state.TimeSheet.newTime.client)
+
+                      let acces_token = utilFunctions.getUID();
+                      let odoo_data = [{
+                        'access_token': acces_token,
+                        'type': 'out_invoice',
+                        "move_name":false,
+                        "user_id":6,
+                        "team_id":1,
+                        "comment":false,
+                        'l10n_ch_isr_sent': false,
+                        'name': false,   //on peut mettre une petite desc sous le titre de la facture avec ce champs
+                        'date_invoice': moment(date).format('YYYY-MM-DD'),
+                        /*'date_due': moment(date).format('YYYY-MM-DD'),*/
+                        'journal_id': 1,
+                        'currency_id': 5,
+                        'invoice_user_id': 3,
+                        'invoice_incoterm_id': false,
+                        'tax_lock_date_message': false,
+                        'id': false,
+                        'invoice_payment_state': 'not_paid',
+                        'invoice_filter_type_domain': 'sale',
+                        'company_currency_id': 5,
+                        'commercial_partner_id': '',
+                        'invoice_has_outstanding': false,
+                        'l10n_ch_currency_name': 'CHF',
+                        'invoice_sequence_number_next_prefix': false,
+                        'invoice_sequence_number_next': false,
+                        'invoice_has_matching_suspense_amount': false,
+                        'has_reconciled_entries': false,
+                        'restrict_mode_hash_table': false,
+                        'partner_id': facture_company_id,
+                        'invoice_vendor_bill_id': false,
+                        'invoice_payment_term_id': 1,
+                        /*'invoice_date_due': moment(deadline_date).format('YYYY-MM-DD'),*/
+                        'company_id': 1,
+                        'amount_untaxed': 0,
+                        'amount_by_group': [],
+                        'amount_total': 0,
+                        'invoice_payments_widget': 'False',
+                        'amount_residual': 0,
+                        'invoice_outstanding_credits_debits_widget': false,
+                        'invoice_origin': false,
+                        'invoice_cash_rounding_id': false,
+                        'invoice_source_email': false,
+                        'invoice_payment_ref': false,
+                        'reversed_entry_id': false,
+                        'message_follower_ids': [],
+                        'activity_ids': [],
+                        'message_ids': [],
+                        'message_attachment_count': 0,
+                        'invoice_line_ids': [],
+                        "account_id": 6,
+                        "reference": client_folder_name,
+                        "fiscal_position_id": false,
+                        "origin": false,
+                        "reference_type":"none",
+                        "incoterm_id":false,
+                        "sequence_number_next":false,
+                        "partner_shipping_id":facture_company_id,
+                        "payment_term_id":paymTerm,
+                        "partner_bank_id":compte_banc,
+                        'bank_partner_id': compte_banc,
+                        'invoice_partner_bank_id': compte_banc,
+                      }];
+
+                      odoo_data[0].invoice_line_ids.push(
+                          [
+                            0,
+                            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+                            {
+                              "account_analytic_id":false,
+                              'account_id': 101,  //103
+                              "currency_id":5,
+                              'discount': 0,
+                              'display_type': false,
+                              'is_rounding_line': false,
+                              'name':'Prosivion',
+                              'origin': false,
+                              'price_unit': amount,
+                              'product_id': 1,
+                              'quantity': 1,
+                              'sequence': 10,
+                              "uom_id":1,
+                              'invoice_line_tax_ids': [
+                                [
+                                  6,
+                                  false,
+                                  (tax && tax !== "" && tax !== "Hors TVA") ? [tax] : []
+                                ]
+                              ],
+                              'analytic_tag_ids': [
+                                [
+                                  6,
+                                  false,
+                                  []
+                                ]
+                              ],
+                            }
+                          ]
+                      );
+
+                      SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+                        console.log(createFactRes)
+                        if (createFactRes.succes === true && createFactRes.status === 200) {
+                          SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+                              {
+                                data: [[createFactRes.data.id], {
+                                  journal_type: "sale",
+                                  lang: "fr_CH",
+                                  type: "out_invoice",
+                                  tz: false,
+                                  uid: 8
+                                }]
+                              }).then(validateRes => {
+                            console.log(validateRes)
+                            if (validateRes.succes === true && validateRes.status === 200) {
+
+                              this.verifIsTableExist("factures").then( v => {
+                                let newItem = {
+                                  ID:utilFunctions.getUID(),
+                                  date_facture:moment(this.state.TimeSheet.newTime.date).format("YYYY-MM-DD HH:mm:ss"),
+                                  created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                                  created_by:localStorage.getItem("email"),
+                                  client:this.state.TimeSheet.newTime.client,
+                                  client_id:this.state.TimeSheet.newTime.client_id,
+                                  partner:localStorage.getItem("email"),
+                                  details_provision:{
+                                    amount:this.state.provision_amount,
+                                    bank:JSON.parse(this.state.provision_bank),
+                                    tax:this.state.provision_tax,
+                                    b64_pdf_oa:res.data,
+                                    pdf_oa_name:fileName
+                                  },
+                                  statut:"confirmed",
+                                  client_folder:{
+                                    id:this.state.TimeSheet.newTime.dossier_client.folder_id,
+                                    name:this.state.TimeSheet.newTime.dossier_client.name
+                                  },
+                                  type:"provision",
+                                  facture_odoo_id:createFactRes.data.id,
+                                  facture_acces_token:acces_token
+                                }
+                                rethink.insert("test",'table("factures").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+                                  if (resAdd && resAdd === true) {
+                                    this.setState({loading_provision_save:false,provision_amount:"",provision_bank:""})
+                                    this.openSnackbar("success","Le document de provision est bien enregistré dans le dossier Comptabilité du client " + this.state.TimeSheet.newTime.client)
+                                  } else {
+                                    this.setState({partnerFacture:"",loading:false})
+                                    this.openSnackbar("error","Une erreur est survenue !")
+                                  }
+                                }).catch(err => {
+                                  this.setState({partnerFacture:"",loading:false})
+                                  this.openSnackbar("error","Une erreur est survenue !")
+                                })
+                              }).catch(err => {console.log(err)})
+                            }else{
+                              console.log(validateRes.error)
+                            }
+                          }).catch(err => {
+                            console.log(err)
+                          })
+                        }
+                      }).catch(err => {console.log(err)})
+
                     },500)
                   }else{
                     console.log(updateNameRes.error)
@@ -3421,7 +3943,8 @@ export default class Main extends React.Component {
       facture_company_id = findCompany.odoo_company_id;
       this.previewFacture(facture_date,lignes_f,folder_id,facture,template,client,facture_company_id,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount)
 
-    }else{
+    }
+    else{
       console.log("COMPANY NOT FOUND")
       SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: facture.client } }).then(newCompRes => {
         if(newCompRes.succes === true && newCompRes.status === 200){
@@ -6343,29 +6866,20 @@ export default class Main extends React.Component {
                                              onChange={(files) => this.uploadImage(files)}
                                              ref={(ref) => this.imageUpload = ref}
                                       />
-                                      <h4
-                                          className="mb-0">{this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '')}</h4>
-                                      <div style={{ display: 'contents' }}>
-                                        <button type="button"
-                                                onClick={this.saveSocietyChanges}
-                                                className="btn btn-success btn-sm waves-effect mb-2 waves-light m-1">
-                                          <i className="fe-save" />&nbsp;&nbsp;Enregistrer
-                                        </button>
-                                        <button type="button"
-                                                onClick={() => {
+                                      <h4 className="mb-2">{this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '')}</h4>
 
-                                                }}
-                                                className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
-                                          <i className="fe-printer" />&nbsp;&nbsp;Aperçu
-                                        </button>
-                                        <button type="button"
-                                                onClick={() => {
-                                                }}
-                                                className="btn btn-danger btn-sm waves-effect mb-2 waves-light m-1">
-                                          <i className="fe-book-open" />&nbsp;&nbsp;Livre
-                                        </button>
-                                      </div>
-                                      <div style={{ marginTop: 30 }}
+                                        <div className="mt-1" style={{ display: 'contents',visibility:this.state.selectedClientTabIndex === 0 ? "visible" : "hidden" }}>
+                                          <AtlButton
+                                              appearance="primary"
+                                              onClick={() => this.beforeUpdateSociety()}
+                                              iconAfter={<AssignmentTurnedInIcon/>}
+                                          >
+                                            Enregistrer vos changements
+                                          </AtlButton>
+                                        </div>
+
+
+                                      <div style={{ marginTop: 20 }}
                                            className="text-left">
                                         <Tabs selectedIndex={this.state.selectedClientTabIndex} onSelect={index => {
                                           this.setState({selectedClientTabIndex:index})
@@ -6437,7 +6951,7 @@ export default class Main extends React.Component {
                                                 <p style={{ marginBottom: 10 }}>Adresse email</p>
                                                 <input
                                                     className="form-control"
-                                                    type="email"
+                                                    type="text"
                                                     id="email"
                                                     name="email"
                                                     value={this.state.selectedSociete.email}
@@ -6451,8 +6965,91 @@ export default class Main extends React.Component {
                                                     value={this.state.selectedSociete.phone}
                                                     onChange={this.handleChange('selectedSociete', 'phone')} />
                                               </div>
-                                              <div className="col-md-12" style={{marginTop:20}}>
-                                                <p style={{ marginBottom: 10 }}>Remarques</p>
+                                            </div>
+                                            <div className="row" style={{marginTop:20}}>
+                                              <div className="col-md-12">
+                                                <h5 style={{ marginBottom: 10 }}>Adresse de facturation</h5>
+                                                <div className="row mt-2">
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Rue...</p>
+                                                    <input
+                                                        className="form-control"
+                                                        type="text"
+                                                        id="adress_fact_street"
+                                                        name="adress_fact_street"
+                                                        value={this.state.selectedSociete.adress_fact_street}
+                                                        onChange={this.handleChange('selectedSociete', 'adress_fact_street')} />
+                                                  </div>
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10 }}>Rue 2...</p>
+                                                    <input
+                                                        className="form-control"
+                                                        type="text"
+                                                        id="adress_fact_street2"
+                                                        name="adress_fact_street2"
+                                                        value={this.state.selectedSociete.adress_fact_street2}
+                                                        onChange={this.handleChange('selectedSociete', 'adress_fact_street2')} />
+                                                  </div>
+                                                </div>
+                                                <div className="row mt-2">
+                                                  <div className="col-md-4">
+                                                    <p style={{ marginBottom: 10 }}>Ville</p>
+                                                    <input
+                                                        className="form-control"
+                                                        type="text"
+                                                        id="adress_fact_city"
+                                                        name="adress_fact_city"
+                                                        value={this.state.selectedSociete.adress_fact_city}
+                                                        onChange={this.handleChange('selectedSociete', 'adress_fact_city')} />
+                                                  </div>
+                                                  <div className="col-md-4">
+                                                    <p style={{ marginBottom: 10 }}>Etat</p>
+                                                    <select
+                                                        className="form-control custom-select"
+                                                        value={this.state.selectedSociete.adress_fact_state}
+                                                        onChange={this.handleChange('selectedSociete', 'adress_fact_state')}
+                                                    >
+                                                      {
+                                                        (this.state.odoo_country_states || []).map((item, key) =>
+                                                            <option
+                                                                key={key}
+                                                                value={item[0]}>{item[1]}</option>
+                                                        )
+                                                      }
+                                                    </select>
+                                                  </div>
+                                                  <div className="col-md-2">
+                                                    <p style={{ marginBottom: 10 }}>Code postal</p>
+                                                    <input
+                                                        className="form-control"
+                                                        type="text"
+                                                        id="adress_fact_pc"
+                                                        name="adress_fact_pc"
+                                                        value={this.state.selectedSociete.adress_fact_pc}
+                                                        onChange={this.handleChange('selectedSociete', 'adress_fact_pc')} />
+                                                  </div>
+                                                  <div className="col-md-2">
+                                                    <p style={{ marginBottom: 10 }}>Pays</p>
+                                                    <select
+                                                        className="form-control custom-select"
+                                                        value={this.state.selectedSociete.adress_fact_country}
+                                                        onChange={this.handleChange('selectedSociete', 'adress_fact_country')}
+                                                    >
+                                                      {
+                                                        (this.state.odoo_countries.filter(x => x[0] === 43 || x[0] === "" ) || []).map((item, key) =>
+                                                            <option
+                                                                key={key}
+                                                                value={item[0]}>{item[1]}</option>
+                                                        )
+                                                      }
+                                                    </select>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div className="row" style={{marginTop:20}}>
+                                              <div className="col-md-12">
+                                                <h5 style={{ marginBottom: 10 }}>Remarques</h5>
                                                 <textarea
                                                     rows={4}
                                                     className="form-control" style={{color:"#000"}}
