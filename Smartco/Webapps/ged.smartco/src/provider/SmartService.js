@@ -317,6 +317,34 @@ let SmartService = {
         });
     },
 
+    get_odoo_countries(token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/country?arg=&limit=1000', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    get_odoo_country_states(id,token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/country_state?arg=&limit=10000000&id=' + id, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    update_odoo_client(id,data,token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/contact/' + id, {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     getUserInfo(token,usrtoken){
         return fetch(endpoint + '/infos/', {
             method: 'GET',

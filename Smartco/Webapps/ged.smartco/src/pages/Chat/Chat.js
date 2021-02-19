@@ -153,7 +153,7 @@ export default class Chat extends React.Component {
             console.log("ERROR READ TABLE CHANGES");
         };
         socket.onclose = (event => {
-            this.props.history.push('/login');
+            //this.props.history.push('/login');
             console.log("CLOSED READ CHANGES");
         })
     }
