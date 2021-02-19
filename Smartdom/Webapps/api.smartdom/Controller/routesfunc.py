@@ -264,6 +264,14 @@ def ged_infos(cn, nextc):
     err = cn.private["ged"].infos()
     return cn.call_next(nextc, err)
 
+def ged_merge(cn, nextc):
+    err = check.contain(cn.pr, ["b64_1", "b64_2"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    cn.pr = err[1]
+    err = ged.merge(cn.pr["b64_1"], cn.pr["b64_2"])
+    return cn.call_next(nextc, err)
+
 def ged_add_user(cn, nextc):
     err = check.contain(cn.pr, ["email", "role"])
     if not err[0]:

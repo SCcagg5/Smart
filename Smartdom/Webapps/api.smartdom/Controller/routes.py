@@ -57,6 +57,8 @@ def setuproute(app, call):
     @app.route('/ged/<>/sign/<>',           ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_get]))
     @app.route('/ged/<>/sign/<>',           ['OPTIONS', 'DELETE'],       lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_delete]))
     @app.route('/ged/<>/doc/<>/sign/<>',    ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_sign_init, ged_sign_sign]) )
+    @app.route('/ged/<>/merge',           ['OPTIONS', 'POST'],       lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_merge]))
+
 
     @app.route('/ged/<>/room',              ['OPTIONS', 'POST'],         lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_room_new])                                  )
     @app.route('/ged/<>/rooms',             ['OPTIONS', 'GET'],          lambda x = None: call([myauth, authuser, ged_check, ged_check_user, ged_room_all])                                  )
