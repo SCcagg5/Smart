@@ -60,3 +60,4 @@ zipp==3.4.0
 gevent
 gevent-websocket
 rethinkdb
+PyPDF2

@@ -447,12 +447,11 @@ def odoo_add_user(cn, nextc):
     return cn.call_next(nextc, err)
 
 def odoo_edit_contact(cn, nextc):
-    id = cn.rt["contact"] if "contact" in cn.rt else None
-    err = check.contain(cn.pr, ["param"])
+    err = check.contain(cn.pr, ["data", "method"])
     if not err[0]:
         return cn.toret.add_error(err[1], err[2])
     cn.pr = err[1]
-    err = cn.private["odoo"].edit_client(id, cn.pr["param"])
+    err = cn.private["odoo"].edit_client(cn.pr["data"], cn.pr["method"])
     return cn.call_next(nextc, err)
 
 def odoo_companies(cn, nextc):

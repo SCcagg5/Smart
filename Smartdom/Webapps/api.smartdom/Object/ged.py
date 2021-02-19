@@ -1,21 +1,31 @@
 import os
-import uuid 
-import time 
-import base64 
-import re 
-import fitz 
-import tempfile 
-import io 
-from PIL import Image 
-from io import BytesIO 
-from base64 import b64decode 
-from datetime import date 
-from .sql import sql 
-from .users import user 
-from .pdf import pdf 
+import uuid
+import time
+import base64
+import re
+import fitz
+from PyPDF2 import PdfFileMerger, PdfFileReader
+import tempfile
+import io
+from PIL import Image
+from io import BytesIO
+from base64 import b64decode
+from datetime import date
+from .sql import sql
+from .users import user
+from .pdf import pdf
 from .elastic import es, elastic
 
 class sign:
+    def merge(b64_1, b64_2):
+        merger.append(PdfFileReader(io.BytesIO(b64decode(b64_1))))
+        merger.append(PdfFileReader(io.BytesIO((b64decode(b64_1)))))
+        with io.BytesIO() as myio:
+            merger.write(myio)
+            t = base64.b64encode(myio.getvalue()).decode("utf-8")
+        return [True, {"file": t}, None]
+
+
     def __init__(self, usr_id = -1, ged_id = -1):
         self.usr_id = str(usr_id)
         self.ged_id = str(ged_id)

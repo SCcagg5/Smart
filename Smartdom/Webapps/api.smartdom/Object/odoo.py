@@ -651,22 +651,17 @@ class odoo:
             'account.invoice', 'read', [[int(id)]])
         return [True,ret, None]
 
-    def edit_client(self, id, data):
+    def edit_client(self, data, method):
+        if method not in ["onchange", "write"]:
+            return [False, "Invalid method", 400]
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
         try:
             ret = models.execute_kw(self.opt['db'],
                                     self.uid,
                                     self.opt['password'],
-                'res.partner', 'write', [[int(id)], data])
-        except:
-            ret = "Error"
-        k = ["street1", "street2", "zip_id", "zip", "city", "country_id", "property_product_pricelist", "city_id", "phone" ,"mobile", "vat"]
-        for i in data.keys():
-            if i not in k:
-                del k[i]
-        for i in k:
-            if i not in data:
-                data[i] = None
+                'res.partner', method, data)
+        except Exception as inst:
+            return [False, str(inst), 500]
         return [True, {"ret": ret, "input": data}, None]
 
     def create_client(self, param):
