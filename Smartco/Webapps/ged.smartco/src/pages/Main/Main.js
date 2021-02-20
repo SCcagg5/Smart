@@ -1577,36 +1577,50 @@ export default class Main extends React.Component {
   saveSocietyChanges = (odoo_company_id) => {
     this.setState({ loading: true });
     let id = this.state.selectedSociete.id || (this.state.annuaire_clients_mandat.find(x => x.ID === this.state.selectedSociete.ID)).id;
-    console.log(id)
     let data = {
-      param:{
-        street: this.state.selectedSociete.adress_fact_street || "",
-        street2: this.state.selectedSociete.adress_fact_street2 || "" ,
-        zip: this.state.selectedSociete.adress_fact_pc || "" ,
-        city: this.state.selectedSociete.adress_fact_city || "",
-        state_id: this.state.selectedSociete.adress_fact_state || false,
-        country_id: 43,
-        email: !verifForms.verif_Email(this.state.selectedSociete.email || "")  ? this.state.selectedSociete.email : false,
-        phone: this.state.selectedSociete.phone || ""
-      }
-    }
-    SmartService.update_odoo_client(odoo_company_id,data,localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(updateRes => {
-      console.log(updateRes)
-      rethink.update("test",'table("annuaire_clients_mandat").get('+JSON.stringify(id)+').update('+ JSON.stringify(this.state.selectedSociete) + ')',db_name,false).then( updateRes => {
-        if (updateRes && updateRes === true) {
-          this.setState({ loading: false });
-          this.openSnackbar('success', 'Modification effectuée avec succès');
-        } else {
-          this.setState({ loading: true });
-          this.openSnackbar('error', 'Une erreur est survenue !');
+      data:[
+          odoo_company_id,
+        {
+          street: this.state.selectedSociete.adress_fact_street || "",
+          street2: this.state.selectedSociete.adress_fact_street2 || "" ,
+          zip: this.state.selectedSociete.adress_fact_pc || "" ,
+          city: this.state.selectedSociete.adress_fact_city || "",
+          state_id: this.state.selectedSociete.adress_fact_state || false,
+          country_id: 43,
+          email: !verifForms.verif_Email(this.state.selectedSociete.email || "")  ? this.state.selectedSociete.email : false,
+          phone: this.state.selectedSociete.phone || ""
         }
-      }).catch(err => {
-        this.setState({ loading: true });
+      ],
+      method:"write"
+    }
+    SmartService.update_odoo_client(data,localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(updateRes => {
+      console.log(updateRes)
+      if (updateRes.succes === true && updateRes.status === 200) {
+
+        rethink.update("test",'table("annuaire_clients_mandat").get('+JSON.stringify(id)+').update('+ JSON.stringify(this.state.selectedSociete) + ')',db_name,false).then( updateRes => {
+          if (updateRes && updateRes === true) {
+            this.setState({ loading: false });
+            this.openSnackbar('success', 'Modification effectuée avec succès');
+          } else {
+            this.setState({ loading: false });
+            this.openSnackbar('error', 'Une erreur est survenue !');
+          }
+        }).catch(err => {
+          this.setState({ loading: false });
+          this.openSnackbar('error', 'Une erreur est survenue !');
+          console.log(err)
+        })
+
+      }else{
+        this.setState({ loading: false });
         this.openSnackbar('error', 'Une erreur est survenue !');
-        console.log(err)
-      })
+        console.log(updateRes.error)
+      }
+
     }).catch(err => {
       console.log(err)
+      this.setState({ loading: false });
+      this.openSnackbar('error', 'Une erreur est survenue !');
     })
   };
 
@@ -3267,83 +3281,66 @@ export default class Main extends React.Component {
                   uid: 8
                 }]
               }).then(validateRes => {
-            console.log(validateRes)
+
             if (validateRes.succes === true && validateRes.status === 200) {
 
-              this.verifIsTableExist("factures").then( v => {
-                let newItem = {
-                  ID:utilFunctions.getUID(),
-                  date_facture:moment(this.state.TimeSheet.newTime.date).format("YYYY-MM-DD HH:mm:ss"),
-                  created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
-                  created_by:localStorage.getItem("email"),
-                  client:this.state.TimeSheet.newTime.client,
-                  client_id:this.state.TimeSheet.newTime.client_id,
-                  partner:localStorage.getItem("email"),
-                  details_avancefrais:{
-                    amount:amount,
-                    desc:desc,
-                    uploadedFile:b64,
-                    uploadedFileName:file.name.slice(0,-4)
-                  },
-                  statut:"confirmed",
-                  client_folder:{
-                    id:this.state.TimeSheet.newTime.dossier_client.folder_id,
-                    name:this.state.TimeSheet.newTime.dossier_client.name
-                  },
-                  type:"avance_frais",
-                  facture_odoo_id:createFactRes.data.id,
-                  facture_acces_token:acces_token
-                }
-                rethink.insert("test",'table("factures").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
-                  if (resAdd && resAdd === true) {
+              SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+                if (genFactRes.succes === true && genFactRes.status === 200) {
 
-                    SmartService.getFile(folder_id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
-                      if (Res.succes === true && Res.status === 200) {
-                        let folders = Res.data.Content.folders || [];
-                        let findCompta_folder = folders.find(x => x.name === "COMPTABILITE");
-                        if(findCompta_folder){
+                  let b64_fact = genFactRes.data.pdf;
 
-                          SmartService.getFile(findCompta_folder.id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res2 => {
-                            if (Res2.succes === true && Res2.status === 200) {
+                  /*SmartService.mergePdf(localStorage.getItem('token'),localStorage.getItem('usrtoken'),{b64_1:b64,b64_2:b64_fact}).then(mergeRes => {
+                    console.log(mergeRes)
+                    if (mergeRes.succes === true && mergeRes.status === 200) {
 
-                              let find_avanceFrais_folder = (Res2.data.Content.folders || []).find(x => x.name === "AVANCE DE FRAIS");
-                              if(find_avanceFrais_folder){
+                    }else{
 
-                                SmartService.addFileFromBas64({b64file:b64,folder_id:find_avanceFrais_folder.id},
-                                    localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
-                                  if (addFileRes.succes === true && addFileRes.status === 200) {
+                    }
+                  }).catch(err => {
+                    console.log(err)
+                  })*/
 
-                                    SmartService.updateFileName({name:file.name.slice(0, -4)}, addFileRes.data.file_id,
-                                        localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
-                                      if(updateNameRes.succes === true && updateNameRes.status === 200){
-                                        this.setState({loading_avance_frais:false,provision_amount:"",avance_frais_desc:"",avance_frais_facture_file:""})
-                                        this.openSnackbar("success","Votre document est bien enregistré dans le dossier 'Avance de frais' dans le dossier Comptabilite de client ")
-                                        this.justReloadGed()
-                                      }else{
-                                        console.log(updateNameRes.error)
-                                        this.openSnackbar("error",updateNameRes.error)
-                                        this.setState({loading:false})
-                                      }
-                                    }).catch(err => {
-                                      console.log(err)
-                                      this.openSnackbar("error","Une erreur est survenue")
-                                    })
-                                  } else {
-                                    console.log(addFileRes.error)
-                                    this.setState({loading_avance_frais:false})
-                                  }
-                                }).catch(err => {
-                                  console.log(err)
-                                  this.setState({loading_avance_frais:false})
-                                })
+                  //
+                  this.verifIsTableExist("factures").then( v => {
+                    let newItem = {
+                      ID:utilFunctions.getUID(),
+                      date_facture:moment(this.state.TimeSheet.newTime.date).format("YYYY-MM-DD HH:mm:ss"),
+                      created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                      created_by:localStorage.getItem("email"),
+                      client:this.state.TimeSheet.newTime.client,
+                      client_id:this.state.TimeSheet.newTime.client_id,
+                      partner:localStorage.getItem("email"),
+                      details_avancefrais:{
+                        amount:amount,
+                        desc:desc,
+                        file:b64,
+                        fileName:file.name.slice(0,-4)
+                      },
+                      statut:"confirmed",
+                      client_folder:{
+                        id:this.state.TimeSheet.newTime.dossier_client.folder_id,
+                        name:this.state.TimeSheet.newTime.dossier_client.name
+                      },
+                      type:"avance_frais",
+                      facture_odoo_id:createFactRes.data.id,
+                      facture_acces_token:acces_token
+                    }
+                    rethink.insert("test",'table("factures").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+                      if (resAdd && resAdd === true) {
 
-                              }else{
+                        SmartService.getFile(folder_id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
+                          if (Res.succes === true && Res.status === 200) {
+                            let folders = Res.data.Content.folders || [];
+                            let findCompta_folder = folders.find(x => x.name === "COMPTABILITE");
+                            if(findCompta_folder){
 
-                                SmartService.addFolder({name: "AVANCE DE FRAIS", folder_id:findCompta_folder.id},
-                                    localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
-                                  if (addFolderRes.succes === true && addFolderRes.status === 200) {
+                              SmartService.getFile(findCompta_folder.id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res2 => {
+                                if (Res2.succes === true && Res2.status === 200) {
 
-                                    SmartService.addFileFromBas64({b64file:b64,folder_id:addFolderRes.data.id},
+                                  let find_avanceFrais_folder = (Res2.data.Content.folders || []).find(x => x.name === "AVANCE DE FRAIS");
+                                  if(find_avanceFrais_folder){
+
+                                    SmartService.addFileFromBas64({b64file:b64,folder_id:find_avanceFrais_folder.id},
                                         localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
                                       if (addFileRes.succes === true && addFileRes.status === 200) {
 
@@ -3362,7 +3359,6 @@ export default class Main extends React.Component {
                                           console.log(err)
                                           this.openSnackbar("error","Une erreur est survenue")
                                         })
-
                                       } else {
                                         console.log(addFileRes.error)
                                         this.setState({loading_avance_frais:false})
@@ -3373,46 +3369,91 @@ export default class Main extends React.Component {
                                     })
 
                                   }else{
-                                    console.log(addFolderRes.error)
-                                    this.setState({loading_avance_frais:false})
+
+                                    SmartService.addFolder({name: "AVANCE DE FRAIS", folder_id:findCompta_folder.id},
+                                        localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderRes => {
+                                      if (addFolderRes.succes === true && addFolderRes.status === 200) {
+
+                                        SmartService.addFileFromBas64({b64file:b64,folder_id:addFolderRes.data.id},
+                                            localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+                                          if (addFileRes.succes === true && addFileRes.status === 200) {
+
+                                            SmartService.updateFileName({name:file.name.slice(0, -4)}, addFileRes.data.file_id,
+                                                localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateNameRes => {
+                                              if(updateNameRes.succes === true && updateNameRes.status === 200){
+                                                this.setState({loading_avance_frais:false,provision_amount:"",avance_frais_desc:"",avance_frais_facture_file:""})
+                                                this.openSnackbar("success","Votre document est bien enregistré dans le dossier 'Avance de frais' dans le dossier Comptabilite de client ")
+                                                this.justReloadGed()
+                                              }else{
+                                                console.log(updateNameRes.error)
+                                                this.openSnackbar("error",updateNameRes.error)
+                                                this.setState({loading:false})
+                                              }
+                                            }).catch(err => {
+                                              console.log(err)
+                                              this.openSnackbar("error","Une erreur est survenue")
+                                            })
+
+                                          } else {
+                                            console.log(addFileRes.error)
+                                            this.setState({loading_avance_frais:false})
+                                          }
+                                        }).catch(err => {
+                                          console.log(err)
+                                          this.setState({loading_avance_frais:false})
+                                        })
+
+                                      }else{
+                                        console.log(addFolderRes.error)
+                                        this.setState({loading_avance_frais:false})
+                                      }
+                                    }).catch(err => {
+                                      console.log(err)
+                                      this.setState({loading_avance_frais:false})
+                                    })
+
                                   }
-                                }).catch(err => {
-                                  console.log(err)
+
+                                }else{
+                                  console.log(Res2.error)
                                   this.setState({loading_avance_frais:false})
-                                })
-
-                              }
-
+                                }
+                              }).catch(err => {
+                                console.log(err)
+                                this.setState({loading_avance_frais:false})
+                              })
                             }else{
-                              console.log(Res2.error)
+                              this.openSnackbar("error","Dossier 'COMPTABILITE' inexistant dans le dossier de client ! ")
                               this.setState({loading_avance_frais:false})
                             }
-                          }).catch(err => {
-                            console.log(err)
+                          }else{
+                            console.log(Res.error)
                             this.setState({loading_avance_frais:false})
-                          })
-                        }else{
-                          this.openSnackbar("error","Dossier 'COMPTABILITE' inexistant dans le dossier de client ! ")
+                          }
+                        }).catch(err => {
+                          console.log(err)
                           this.setState({loading_avance_frais:false})
-                        }
-                      }else{
-                        console.log(Res.error)
-                        this.setState({loading_avance_frais:false})
+                        })
+
+                      } else {
+                        this.setState({partnerFacture:"",loading:false})
+                        this.openSnackbar("error","Une erreur est survenue !")
                       }
                     }).catch(err => {
-                      console.log(err)
-                      this.setState({loading_avance_frais:false})
+                      this.setState({partnerFacture:"",loading:false})
+                      this.openSnackbar("error","Une erreur est survenue !")
                     })
+                  }).catch(err => {console.log(err)})
 
-                  } else {
-                    this.setState({partnerFacture:"",loading:false})
-                    this.openSnackbar("error","Une erreur est survenue !")
-                  }
-                }).catch(err => {
-                  this.setState({partnerFacture:"",loading:false})
-                  this.openSnackbar("error","Une erreur est survenue !")
-                })
+
+
+                } else {
+                  console.log(genFactRes.error)
+                }
               }).catch(err => {console.log(err)})
+
+
+
             }else{
               console.log(validateRes.error)
             }
@@ -3521,6 +3562,8 @@ export default class Main extends React.Component {
       lang:lang,
       data:{
         client:this.state.TimeSheet.newTime.client,
+        client_adress:main_functions.getClientAdressById(this.state.annuaire_clients_mandat || [],this.state.TimeSheet.newTime.client_id),
+        gender:main_functions.getClientTypeById(this.state.annuaire_clients_mandat || [],this.state.TimeSheet.newTime.client_id) === "0" ? "" :"Mr/Ms",
         date:moment().format("DD/MM/YYYY"),
         price:this.state.provision_amount,
         bank:bank.title,
@@ -4181,39 +4224,57 @@ export default class Main extends React.Component {
     }
 
 
-    /*if(facture.facture_odoo_id){
+    if(facture.facture_odoo_id){
 
-      SmartService.update_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
-          { data: [[facture.facture_odoo_id],odoo_data[0]] }).then( updateFacRes => {
+      SmartService.details_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id).then( detailsRes => {
+        if(detailsRes.succes === true && detailsRes.status === 200){
+          console.log(detailsRes.data[0])
+          let invoice_line_ids = detailsRes.data[0].invoice_line_ids || [];
+          console.log(invoice_line_ids)
+          invoice_line_ids.map( id => {
+            odoo_data[0].invoice_line_ids.push([2,id,{}])
+          })
 
-        if(updateFacRes.succes === true && updateFacRes.status === 200){
+          SmartService.update_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+              { data: [[facture.facture_odoo_id],odoo_data[0]],method:"write" }).then( updateFacRes => {
+            if(updateFacRes.succes === true && updateFacRes.status === 200){
 
-          SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id,facture.facture_acces_token).then(genFactRes => {
+              SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id,facture.facture_acces_token).then(genFactRes => {
 
-            if(genFactRes.succes === true && genFactRes.status === 200){
+                if(genFactRes.succes === true && genFactRes.status === 200){
 
-              this.setState({loading:false})
-              let b64 = genFactRes.data.pdf;
-              this.showDocInPdfModal(b64,"Facture_" + moment().format("DD-MM-YYYY HH:mm"),"pdf")
+                  this.setState({loading:false})
+                  let b64 = genFactRes.data.pdf;
+                  this.showDocInPdfModal(b64,"Facture_" + moment().format("DD-MM-YYYY HH:mm"),"pdf")
+
+                }else{
+                  this.setState({loading:false})
+                  console.log(genFactRes.error)
+                }
+              }).catch( err => {
+                this.setState({loading:false})
+                console.log(err)
+              })
 
             }else{
-              this.setState({loading:false})
-              console.log(genFactRes.error)
+              console.log(updateFacRes.error)
             }
-          }).catch( err => {
-            this.setState({loading:false})
+
+          }).catch(err => {
             console.log(err)
           })
 
         }else{
-          console.log(updateFacRes.error)
+          console.log(detailsRes.error)
         }
-
       }).catch(err => {
         console.log(err)
       })
 
-    }*/
+
+
+    }
+    else{
 
       SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
         console.log(createFactRes)
@@ -4266,7 +4327,7 @@ export default class Main extends React.Component {
         console.log(err)
       })
 
-
+    }
 
   }
 
@@ -4279,7 +4340,7 @@ export default class Main extends React.Component {
     lignes_factures.map((ligne, key) => {
       total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
     })
-    let acces_token = utilFunctions.getUID();
+    let acces_token = facture.facture_acces_token ? facture.facture_acces_token : utilFunctions.getUID();
 
     let odoo_data = [{
       'access_token': acces_token,
@@ -4464,101 +4525,167 @@ export default class Main extends React.Component {
       )
     }
 
+    let find_provision_factures = (this.state.factures || []).filter(x => x.type === "provision" && x.client_id === facture.client_id &&
+        x.client_folder.id === facture.client_folder.id && x.partner === localStorage.getItem("email") && x.paid && x.paid === "true")
+        .sort( (a,b) => {
+          var c = new Date(a.created_at);
+          var d = new Date(b.created_at);
+          return d-c;
+        })
+    let latest = find_provision_factures.length > 0 ? find_provision_factures[0] : undefined
+    console.log(latest)
+    if(latest !== undefined){
+      odoo_data[0].invoice_line_ids.push(
+          [
+            0,
+            'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+            {
+              "account_analytic_id":false,
+              'account_id': 101,  //103
+              "currency_id":5,
+              'discount': 0,
+              'display_type': false,
+              'is_rounding_line': false,
+              'name':"Provision",
+              'origin': false,
+              'price_unit': - parseFloat(latest.details_provision.amount),
+              'product_id': 1,  //2
+              'quantity': 1,
+              'sequence': 10,
+              "uom_id":1,
+              'analytic_tag_ids': [
+                [
+                  6,
+                  false,
+                  []
+                ]
+              ],
+            }
+          ]
+      )
+    }
+
     if(facture.facture_odoo_id){
 
-      SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
-          { data: [[facture.facture_odoo_id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
-        console.log(validateRes)
-        if(validateRes.succes === true && validateRes.status === 200){
-
-          SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id,facture.facture_acces_token).then(genFactRes => {
-
-            if(genFactRes.succes === true && genFactRes.status === 200){
-
-              SmartService.getFile(facture.client_folder.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
-                if(resF.succes === true && resF.status === 200){
-                  let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
-
-                  SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
-                      localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
-
-                    if(ok.succes === true && ok.status === 200){
-
-                      SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                          ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
-
-                        if(updateRes.succes === true && updateRes.status === 200){
-
-                          let secretariat_folder = this.state.reelFolders.find(x => x.name === "SECRETARIAT");
-                          console.log(secretariat_folder)
-                          if(secretariat_folder){
-                            let compta_secretariat_folder = secretariat_folder.Content.folders.find(x => x.name === "COMPTABILITE");
-                            if(compta_secretariat_folder){
-                              console.log(compta_secretariat_folder)
-                              SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
-                                if(r.succes === true && r.status === 200){
-                                  SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
-                                      r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
-                                    if(updateRes2.succes === true && updateRes2.status === 200){
-                                      this.justReloadGed()
-                                    }else{
-                                      console.log(updateRes2.error)
-                                    }
-                                  }).catch(err => {console.log(err)})
-                                }else{
-                                  console.log(r.error)
-                                }
-                              }).catch(err => {console.log(err)})
-                            }
-                          }
-
-                          let updatedItem = facture;
-                          updatedItem.statut = "accepted";
-                          updatedItem.file_id = ok.data.file_id;
-                          //updatedItem.client_folder = {id:client, name:resF.data.name}
-
-                          rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
-                            if (updateRes && updateRes === true) {
-
-                              this.justReloadGed();
-                              this.setState({loading:false})
-                              this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
-
-                            } else {
-                              this.setState({loading:false})
-                              this.openSnackbar("error","Une erreur est survenue !")
-                            }
-                          }).catch(err => {
-                            this.setState({loading:false})
-                            this.openSnackbar("error","Une erreur est survenue !")
-                            console.log(err)
-                          })
-
-                        }else{
-                          this.openSnackbar("error",updateRes.error)
-                        }
-                      }).catch(err => {console.log(err)})
-
-                    }else{
-                      this.openSnackbar("error",ok.error)
-                      this.setState({loading:false})
-                    }
-                  }).catch(err => console.log(err))
-                }else{
-                  this.openSnackbar("error",resF.error)
-                  this.setState({loading:false})
-                }
-              }).catch( err => {console.log(err)})
-
-            }else{
-              console.log(genFactRes.error)
-            }
-          }).catch( err => {
-            console.log(err)
+      SmartService.details_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id).then( detailsRes => {
+        if (detailsRes.succes === true && detailsRes.status === 200) {
+          console.log(detailsRes.data[0])
+          let invoice_line_ids = detailsRes.data[0].invoice_line_ids || [];
+          console.log(invoice_line_ids)
+          invoice_line_ids.map(id => {
+            odoo_data[0].invoice_line_ids.push([2, id, {}])
           })
 
+          SmartService.update_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+              {data: [[facture.facture_odoo_id], odoo_data[0]], method: "write"}).then(updateFacRes => {
+            if (updateFacRes.succes === true && updateFacRes.status === 200) {
+
+              SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+                  { data: [[facture.facture_odoo_id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
+                console.log(validateRes)
+                if(validateRes.succes === true && validateRes.status === 200){
+
+                  SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id,facture.facture_acces_token).then(genFactRes => {
+
+                    if(genFactRes.succes === true && genFactRes.status === 200){
+
+                      SmartService.getFile(facture.client_folder.id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(resF => {
+                        if(resF.succes === true && resF.status === 200){
+                          let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
+
+                          SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:comptaFolder.id},
+                              localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( ok => {
+
+                            if(ok.succes === true && ok.status === 200){
+
+                              SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                                  ok.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes => {
+
+                                if(updateRes.succes === true && updateRes.status === 200){
+
+                                  let secretariat_folder = this.state.reelFolders.find(x => x.name === "SECRETARIAT");
+
+                                  if(secretariat_folder){
+                                    let compta_secretariat_folder = secretariat_folder.Content.folders.find(x => x.name === "COMPTABILITE");
+                                    if(compta_secretariat_folder){
+                                      console.log(compta_secretariat_folder)
+                                      SmartService.addFileFromBas64({b64file:genFactRes.data.pdf,folder_id:compta_secretariat_folder.id},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( r => {
+                                        if(r.succes === true && r.status === 200){
+                                          SmartService.updateFileName({name:"Facture_"+moment(facture_date).format('YYYY-MM-DD')},
+                                              r.data.file_id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( updateRes2 => {
+                                            if(updateRes2.succes === true && updateRes2.status === 200){
+                                              this.justReloadGed()
+                                            }else{
+                                              console.log(updateRes2.error)
+                                            }
+                                          }).catch(err => {console.log(err)})
+                                        }else{
+                                          console.log(r.error)
+                                        }
+                                      }).catch(err => {console.log(err)})
+                                    }
+                                  }
+
+                                  let updatedItem = facture;
+                                  updatedItem.statut = "accepted";
+                                  updatedItem.file_id = ok.data.file_id;
+                                  //updatedItem.client_folder = {id:client, name:resF.data.name}
+
+                                  rethink.update("test",'table("factures").get('+JSON.stringify(id_facture)+').update('+ JSON.stringify(updatedItem) + ')',db_name,false).then( updateRes => {
+                                    if (updateRes && updateRes === true) {
+
+                                      this.justReloadGed();
+                                      this.setState({loading:false})
+                                      this.openSnackbar("success","La facture est bien validée et placée dans le dossier COMPTABILITE du client")
+
+                                    } else {
+                                      this.setState({loading:false})
+                                      this.openSnackbar("error","Une erreur est survenue !")
+                                    }
+                                  }).catch(err => {
+                                    this.setState({loading:false})
+                                    this.openSnackbar("error","Une erreur est survenue !")
+                                    console.log(err)
+                                  })
+
+                                }else{
+                                  this.openSnackbar("error",updateRes.error)
+                                }
+                              }).catch(err => {console.log(err)})
+
+                            }else{
+                              this.openSnackbar("error",ok.error)
+                              this.setState({loading:false})
+                            }
+                          }).catch(err => console.log(err))
+                        }else{
+                          this.openSnackbar("error",resF.error)
+                          this.setState({loading:false})
+                        }
+                      }).catch( err => {console.log(err)})
+
+                    }else{
+                      console.log(genFactRes.error)
+                    }
+                  }).catch( err => {
+                    console.log(err)
+                  })
+
+                }else{
+                  console.log(validateRes.error)
+                }
+              }).catch(err => {
+                console.log(err)
+              })
+
+            }else{
+              console.log(updateFacRes.error)
+            }
+          }).catch(err => {
+            console.log(err)
+          })
         }else{
-          console.log(validateRes.error)
+          console.log(detailsRes.error)
         }
       }).catch(err => {
         console.log(err)

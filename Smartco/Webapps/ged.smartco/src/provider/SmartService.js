@@ -253,7 +253,6 @@ let SmartService = {
     },
 
     update_facture_odoo(token,usrtoken,data){
-        console.log(JSON.stringify(data))
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill/edit', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
@@ -335,8 +334,18 @@ let SmartService = {
         });
     },
 
-    update_odoo_client(id,data,token,usrtoken){
-        return fetch(endpoint + '/odoo/'+odoo_id+'/contact/' + id, {
+    update_odoo_client(data,token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/contact', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    mergePdf(token,usrtoken,data){
+        return fetch(endpoint + '/ged/'+OALegalGedId+'/merge', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),

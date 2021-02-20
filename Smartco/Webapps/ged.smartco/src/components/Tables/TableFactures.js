@@ -444,7 +444,7 @@ function Row(props) {
 
   return (
       <React.Fragment>
-        <TableRow style={{borderBottom:"1 px solid rgba(224, 224, 224, 1)"}} className={classes.root}>
+        <TableRow style={{borderBottom:row.type ? "1px solid rgba(224, 224, 224, 1)" : "none"}} className={classes.root}>
           <TableCell>
             {
               !row.type &&
@@ -545,11 +545,11 @@ function Row(props) {
                   [
                       <div style={{marginRight:3,maxWidth:50}}>
                           <IconButton key={0} aria-label="folder" title="Afficher le pdf de provision" color="default" size="small" onClick={() => {
-                              props.openPdf(row.details_avancefrais.uploadedFile,row.details_avancefrais.uploadedFileName,"pdf")
+                              props.openPdf(row.details_avancefrais.file,row.details_avancefrais.fileName,"pdf")
                           }}>
                               <PictureAsPdfIcon fontSize="small" style={{color:"red"}} />
                           </IconButton>
-                          <h6 style={{fontSize:"0.5rem"}}>document envoyé</h6>
+                          <h6 style={{fontSize:"0.5rem"}}>Document téléchargé</h6>
                       </div>,
                       <div style={{maxWidth:50}}>
                           <IconButton key={1} aria-label="folder" title="Afficher la facture" color="default" size="small" onClick={() => {
@@ -593,7 +593,7 @@ function Row(props) {
                                       </TableHead>
                                       <TableBody>
                                           {(row.lignes_facture || []).map((lf,key) => (
-                                              <TableRow key={key}>
+                                              <TableRow  key={key}>
                                                   {
                                                       row.statut === "wait" &&
                                                       <TableCell component="th" scope="row" align="center" >
