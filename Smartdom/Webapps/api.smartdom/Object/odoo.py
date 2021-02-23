@@ -49,7 +49,7 @@ class odoo:
         return [True, ret, None]
 
     def connection(self):
-        res = sql.get("SELECT `url`, `db`, `user`, `password`, `lang` FROM odoo WHERE id = %s", (self.odoo_id))
+        res = sql.get("SELECT `url`, `db`, `user`, `password`, `lang`, `invoice` FROM odoo WHERE id = %s", (self.odoo_id))
         if len(res) < 1:
             return [False, "Invalid odoo id", 400]
         self.opt = {
@@ -57,7 +57,8 @@ class odoo:
             "username" : res[0][2],
             "db": res[0][1],
             "password": res[0][3],
-            "lang": res[0][4]
+            "lang": res[0][4],
+            "invoice": res[0][5]
         }
         try:
             common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(self.opt['url']))
@@ -578,11 +579,12 @@ class odoo:
         #              "message_attachment_count":0}
         # ]
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
+        account = self.opt["invoice"] if "invoice" in self.opt else "account.invoice"
         try:
             ret = models.execute_kw(self.opt['db'],
                                 self.uid,
                                 self.opt['password'],
-                                'account.invoice', 'create',
+                                account, 'create',
                                 data, {}
                                 )
         except Exception as inst:
@@ -591,11 +593,12 @@ class odoo:
 
     def validate_fac(self, data):
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
+        account = self.opt["invoice"] if "invoice" in self.opt else "account.invoice"
         try:
             ret = models.execute_kw(self.opt['db'],
                                 self.uid,
                                 self.opt['password'],
-                                'account.invoice', 'action_invoice_open',
+                                account, 'action_invoice_open',
                                 data, {}
                                 )
         except Exception as inst:
@@ -632,11 +635,12 @@ class odoo:
         if method not in ["onchange", "write"]:
             return [False, "Invalid method", 400]
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
+        account = self.opt["invoice"] if "invoice" in self.opt else "account.invoice"
         try:
             ret = models.execute_kw(self.opt['db'],
                                     self.uid,
                                     self.opt['password'],
-                                    'account.invoice', method,
+                                    account, method,
                                     data, {}
                                     )
         except Exception as inst:
@@ -645,10 +649,11 @@ class odoo:
 
     def read_invoice(self, id):
         models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(self.opt['url']))
+        account = self.opt["invoice"] if "invoice" in self.opt else "account.invoice"
         ret = models.execute_kw(self.opt['db'],
                                 self.uid,
                                 self.opt['password'],
-            'account.invoice', 'read', [[int(id)]])
+                                account, 'read', [[int(id)]])
         return [True,ret, None]
 
     def edit_client(self, data, method):
