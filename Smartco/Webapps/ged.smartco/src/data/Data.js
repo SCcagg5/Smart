@@ -91,11 +91,11 @@ let Data = {
             code: "CH23 8080 8009 8912 1947 6"
         },
         {
-            title: "UBS Switzerland AG Case postale 1211 Genève 2",
-            swift_bic: "UBSWCHZH80A",
-            clearing: "0240",
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
             label: "Compte provision David",
-            code: "CH26 0027 9279 3425 9901 K"
+            code: "CH90 8080 8001 0324 9927 0"
         },
     ],
 

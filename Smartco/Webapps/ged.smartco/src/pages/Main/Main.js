@@ -598,6 +598,7 @@ export default class Main extends React.Component {
       //Get List Country_states ODOO
       //43 = Suisse
       SmartService.get_odoo_country_states(43,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(countryStatesRes => {
+        console.log(countryStatesRes)
         if (countryStatesRes.succes === true && countryStatesRes.status === 200) {
           let data = [["",""]]
           this.setState({odoo_country_states:data.concat(countryStatesRes.data || [])})
@@ -7000,6 +7001,7 @@ export default class Main extends React.Component {
                                               appearance="primary"
                                               onClick={() => this.beforeUpdateSociety()}
                                               iconAfter={<AssignmentTurnedInIcon/>}
+                                              //isDisabled={verifForms.verif_Email(this.state.selectedSociete.email)}
                                           >
                                             Enregistrer vos changements
                                           </AtlButton>

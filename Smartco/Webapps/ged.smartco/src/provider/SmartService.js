@@ -326,7 +326,7 @@ let SmartService = {
     },
 
     get_odoo_country_states(id,token,usrtoken){
-        return fetch(endpoint + '/odoo/'+odoo_id+'/get/country_state?arg=&limit=10000000&id=' + id, {
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/country_state?arg=&limit=1000000&id=' + id, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
