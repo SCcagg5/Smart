@@ -306,6 +306,24 @@ export default function TableTimeSheet(props) {
         )
     }
 
+    const renderTotalHours_CHF_allFolders = (cases) => {
+        let totalCHF = 0;
+        let totalHours = 0;
+        (cases || []).map((c) => {
+            (c || []).map((item,key) => {
+                let value = parseFloat(item.newTime.rateFacturation) * parseFloat(item.newTime.duree);
+                totalCHF = totalCHF + value;
+                totalHours = totalHours + parseFloat(item.newTime.duree);
+            })
+        })
+        return(
+            [
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{utilFunctions.formatDuration(totalHours.toString())}</TableCell>,
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{totalCHF.toFixed(2) + " CHF"}</TableCell>
+            ]
+        )
+    }
+
     const renderClientCases = (client_id) => {
         let cases = [];
         let clientsTempo = props.clientsTempo || [];
@@ -900,6 +918,7 @@ export default function TableTimeSheet(props) {
                                                                         <TableCell align="center" style={{fontWeight:"bold"}} >Durée</TableCell>
                                                                         <TableCell align="center" style={{fontWeight:"bold"}} >Total</TableCell>
                                                                     </TableRow>
+
                                                                 </TableHead>
                                                                 <TableBody>
                                                                     {(dossier || []).sort( (a,b) => {
@@ -1021,6 +1040,15 @@ export default function TableTimeSheet(props) {
                                     </React.Fragment>
                                 ))
                             }
+                            <TableRow>
+                                <TableCell/>
+                                <TableCell style={{width:"18%"}}/>
+                                <TableCell  style={{width:"18%"}}/>
+                                <TableCell  style={{width:"12%"}}/>
+                                <TableCell  style={{width:"12%"}}/>
+                                <TableCell  style={{width:"20%"}}/>
+                                {renderTotalHours_CHF_allFolders(groupedFormatedArray)}
+                            </TableRow>
                         </TableBody>
                     </Table>
             }
