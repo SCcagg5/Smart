@@ -103,6 +103,7 @@ import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import {Dropdown} from 'semantic-ui-react'
+import AltModal, { ModalTransition } from '@atlaskit/modal-dialog';
 
 const {DirectoryTree} = Tree;
 
@@ -155,6 +156,9 @@ export default class Main extends React.Component {
   avance_frais_upload={}
 
   state = {
+
+    openSocketChangeModal:false,
+
     loading: false,
     firstLoading: false,
     loadingGed:true,
@@ -578,6 +582,7 @@ export default class Main extends React.Component {
 
     };
 
+
     if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
       this.props.history.push('/login');
     } else {
@@ -745,40 +750,39 @@ export default class Main extends React.Component {
             console.log(err);
           });
 
-      //RethinkDB
-      rethink.createDB(db_name,"test").then( r1 => {
-        if (r1 === true) console.log("NEW DB CREATED");
-        if (r1 === false) console.log("DB ALREADY EXIST");
+      this.rethink_initialise()
 
-        rethink.tableList(db_name,"test").then(tablesRes => {
-          this.setState({tableList:tablesRes || []})
+    }
 
-          tablesRes.map((item,key) => {
 
-            rethink.getTableData(db_name,"test",item).then( rr => {
 
-              if(item === "annuaire_clients_mandat"){
+  }
 
-                if (this.props.location.pathname.indexOf('/home/clients') > -1) {
-                  if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
-                    let client_id = this.props.location.pathname.replace('/home/clients/', '');
-                    let client = rr.find(x => x.id === client_id);
-                    if (client) {
-                      this.setState({
-                        selectedSociete: client,
-                        selectedSocieteKey: client_id,
-                        showContainerSection: 'Societe',
-                        focusedItem: 'Societe',
-                        selectedSocietyMenuItem: ['clients'],
-                        openSocietyMenuItem: true,
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else {
-                      this.props.history.push('/');
-                    }
-                  } else {
+
+  rethink_initialise(){
+    //RethinkDB
+    /*this.setState({loading:true})*/
+    rethink.createDB(db_name,"test").then( r1 => {
+      if (r1 === true) console.log("NEW DB CREATED");
+      if (r1 === false) console.log("DB ALREADY EXIST");
+
+      rethink.tableList(db_name,"test").then( tablesRes => {
+        this.setState({tableList:tablesRes || []})
+
+        tablesRes.map((item,key) => {
+
+          rethink.getTableData(db_name,"test",item).then( rr => {
+
+            if(item === "annuaire_clients_mandat"){
+
+              if (this.props.location.pathname.indexOf('/home/clients') > -1) {
+                if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
+                  let client_id = this.props.location.pathname.replace('/home/clients/', '');
+                  let client = rr.find(x => x.id === client_id);
+                  if (client) {
                     this.setState({
+                      selectedSociete: client,
+                      selectedSocieteKey: client_id,
                       showContainerSection: 'Societe',
                       focusedItem: 'Societe',
                       selectedSocietyMenuItem: ['clients'],
@@ -786,240 +790,251 @@ export default class Main extends React.Component {
                       firstLoading: false,
                       loading: false
                     });
-                  }
-                }
-                this.setState({[item]:rr.sort( (a,b) => {
-                    let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
-                    let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
-                    if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
-                    if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
-                    return 0;
-                  })
-                })
-              }
-              else if(item === "contacts"){
-               if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
-                  if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
-
-                    let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
-                    let contact = rr.find(x => x.id === contact_id)
-                    if (contact) {
-                      this.setState({
-                        selectedContact: contact,
-                        selectedContactKey: contact_id,
-                        showContainerSection: 'Contacts',
-                        focusedItem: 'Contacts',
-                        openContactsMenu: true,
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else {
-                      this.props.history.push('/');
-                    }
-
                   } else {
+                    this.props.history.push('/');
+                  }
+                } else {
+                  this.setState({
+                    showContainerSection: 'Societe',
+                    focusedItem: 'Societe',
+                    selectedSocietyMenuItem: ['clients'],
+                    openSocietyMenuItem: true,
+                    firstLoading: false,
+                    loading: false
+                  });
+                }
+              }
+              this.setState({[item]:rr.sort( (a,b) => {
+                  let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
+                  let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
+                  if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
+                  if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
+                  return 0;
+                })
+              })
+            }
+            else if(item === "contacts"){
+              if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
+                if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
+
+                  let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
+                  let contact = rr.find(x => x.id === contact_id)
+                  if (contact) {
                     this.setState({
+                      selectedContact: contact,
+                      selectedContactKey: contact_id,
                       showContainerSection: 'Contacts',
                       focusedItem: 'Contacts',
                       openContactsMenu: true,
                       firstLoading: false,
                       loading: false
                     });
+                  } else {
+                    this.props.history.push('/');
                   }
-                }
-                let connected_email = localStorage.getItem("email");
-                let oa_contact = main_functions.getOAContactByEmail2(rr,connected_email);
-                if(oa_contact){
-                  let newTimeSheet = this.state.TimeSheet;
-                  newTimeSheet.newTime.utilisateurOA = connected_email;
-                  newTimeSheet.newTime.rateFacturation = oa_contact.rateFacturation || "";
+
+                } else {
                   this.setState({
-                    TimeSheet:newTimeSheet,
-                    [item]:rr.sort( (a,b) => {
-                      var c = a.sort || -1
-                      var d = b.sort || -1
-                      return c-d;
-                    })})
-                }
-                else{
-                  this.setState({[item]:rr.sort( (a,b) => {
-                      var c = a.sort || -1
-                      var d = b.sort || -1
-                      return c-d;
-                    })})
+                    showContainerSection: 'Contacts',
+                    focusedItem: 'Contacts',
+                    openContactsMenu: true,
+                    firstLoading: false,
+                    loading: false
+                  });
                 }
               }
-              else if(item === "rooms"){
-                let user_rooms = [];
-                rr.map((room,key) => {
-                  if(room.members.find(x => x.email === localStorage.getItem("email"))){
-                    user_rooms.push(room)
-                  }
-                })
-                this.setState({[item]:user_rooms})
-                if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
-                  if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
-                    if (rr.length > 0) {
-                      let room_id = this.props.location.pathname.replace('/home/rooms/', '');
-                      this.setState({
-                        showContainerSection: 'Rooms',
-                        focusedItem: 'Rooms',
-                        selectedRoomItems: [room_id],
-                        expandedRoomItems: [room_id],
-                        openRoomMenuItem: true,
-                        selectedRoom: user_rooms.find(x => x.id === room_id),
-                        firstLoading: false,
-                        loading: false
-                      });
-                    } else {
-                      this.props.history.push('/home/rooms');
-                      this.setState({
-                        showContainerSection: 'Rooms',
-                        focusedItem: 'Rooms',
-                        selectedRoomItems: [],
-                        expandedRoomItems: [],
-                        openRoomMenuItem: true,
-                        selectedRoom: '',
-                        firstLoading: false,
-                        loading: false
-                      });
-                    }
-                  }else{
+              let connected_email = localStorage.getItem("email");
+              let oa_contact = main_functions.getOAContactByEmail2(rr,connected_email);
+              if(oa_contact){
+                let newTimeSheet = this.state.TimeSheet;
+                newTimeSheet.newTime.utilisateurOA = connected_email;
+                newTimeSheet.newTime.rateFacturation = oa_contact.rateFacturation || "";
+                this.setState({
+                  TimeSheet:newTimeSheet,
+                  [item]:rr.sort( (a,b) => {
+                    var c = a.sort || -1
+                    var d = b.sort || -1
+                    return c-d;
+                  })})
+              }
+              else{
+                this.setState({[item]:rr.sort( (a,b) => {
+                    var c = a.sort || -1
+                    var d = b.sort || -1
+                    return c-d;
+                  })})
+              }
+            }
+            else if(item === "rooms"){
+              let user_rooms = [];
+              rr.map((room,key) => {
+                if(room.members.find(x => x.email === localStorage.getItem("email"))){
+                  user_rooms.push(room)
+                }
+              })
+              this.setState({[item]:user_rooms})
+              if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
+                if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
+                  if (rr.length > 0) {
+                    let room_id = this.props.location.pathname.replace('/home/rooms/', '');
                     this.setState({
                       showContainerSection: 'Rooms',
                       focusedItem: 'Rooms',
-                      selectedRoomItems:[],
+                      selectedRoomItems: [room_id],
+                      expandedRoomItems: [room_id],
+                      openRoomMenuItem: true,
+                      selectedRoom: user_rooms.find(x => x.id === room_id),
+                      firstLoading: false,
+                      loading: false
+                    });
+                  } else {
+                    this.props.history.push('/home/rooms');
+                    this.setState({
+                      showContainerSection: 'Rooms',
+                      focusedItem: 'Rooms',
+                      selectedRoomItems: [],
                       expandedRoomItems: [],
                       openRoomMenuItem: true,
-                      selectedRoom: "",
+                      selectedRoom: '',
                       firstLoading: false,
                       loading: false
                     });
                   }
-                }
-              }
-              else{
-                this.setState({[item]:rr})
-              }
-            });
-
-            this.getTableChanges('test',db_name,'table("'+item+'")',item);
-
-          });
-
-          if (this.props.location.pathname === '/home/cadeau_Entx') {
-              console.log("gift")
-              this.setState({
-                showContainerSection: 'Societe',
-                focusedItem: 'Societe',
-                selectedSocietyMenuItem: ['cadeau_Entx'],
-                openSocietyMenuItem: true,
-                firstLoading: false,
-                loading: false
-              });
-            }else if(this.props.location.pathname === "/home/qualified_signature/new"){
-              this.setState({
-                focusedItem: 'SignQualifie',
-                firstLoading: false,
-                loading: false
-              })
-            }
-            else if (this.props.location.pathname === '/home/meet/new') {
-              this.setState({
-                showContainerSection: 'Meet',
-                focusedItem: 'Meet',
-                selectedMeetMenuItem: ['new'],
-                openMeetMenuItem: true,
-                selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                firstLoading: false,
-                loading: false
-              });
-            }
-            else if (this.props.location.pathname === '/home/meet/rejoin') {
-              this.setState({
-                showContainerSection: 'Meet',
-                focusedItem: 'Meet',
-                selectedMeetMenuItem: ['rejoin'],
-                openMeetMenuItem: true,
-                selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                firstLoading: false,
-                loading: false
-              });
-            }
-            else if (this.props.location.pathname === '/home/timeSheet/activities') {
-              this.setState({
-                showContainerSection: 'TimeSheet',
-                focusedItem: 'TimeSheet',
-                selectedTimeSheetMenuItem: ['activities'],
-                openTimeSheetsMenu: true,
-                selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                firstLoading: false,
-                loading: false
-              });
-            }
-            else if (this.props.location.pathname === '/home/search') {
-              if (this.props.match.params.section_id) {
-                let textToSearch = this.props.match.params.section_id;
-                SmartService.search(
-                    textToSearch,
-                    localStorage.getItem('token'),
-                    localStorage.getItem('usrtoken')
-                )
-                    .then((searchRes) => {
-                      if (
-                          searchRes.succes === true &&
-                          searchRes.status === 200
-                      ) {
-                        this.setState({
-                          searchResult: searchRes.data,
-                          textSearch: textToSearch,
-                          selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
-                          firstLoading: false,
-                          loading: false
-                        });
-                      } else {
-                        console.log(searchRes.error);
-                      }
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
-              }
-            }
-            else if (this.props.location.pathname.indexOf('/home/search/') > -1) {
-              let textToSearch = this.props.location.pathname.replace('/home/search/', '');
-              SmartService.search(textToSearch, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(searchRes => {
-
-                if (searchRes.succes === true && searchRes.status === 200) {
+                }else{
                   this.setState({
-                    searchResult: searchRes.data,
-                    textSearch: textToSearch,
-                    selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                    showContainerSection: 'Rooms',
+                    focusedItem: 'Rooms',
+                    selectedRoomItems:[],
+                    expandedRoomItems: [],
+                    openRoomMenuItem: true,
+                    selectedRoom: "",
                     firstLoading: false,
                     loading: false
                   });
-                } else {
-                  console.log(searchRes.error);
                 }
-              }).catch(err => {
-                console.log(err);
-              });
-            }
-            else {
-              if(this.props.location.pathname.indexOf('/home/drive/') === -1 && this.props.location.pathname.indexOf('/home/drive') === -1 &&
-                  this.props.location.pathname !== '/home/shared/parent' && this.props.location.pathname.indexOf('/home/contacts') === -1 &&
-                  this.props.location.pathname.indexOf('/home/clients') === -1 && this.props.location.pathname.indexOf('/home/rooms') === -1){
-                console.log('URL ERROR');
-                this.props.history.push('/home/drive');
-                this.componentDidMount();
               }
             }
+            else{
+              this.setState({[item]:rr})
+            }
+          });
 
-        }).catch(err => {console.log(err)})
+          this.getTableChanges('test',db_name,'table("'+item+'")',item);
+
+        });
+
+        if (this.props.location.pathname === '/home/cadeau_Entx') {
+          console.log("gift")
+          this.setState({
+            showContainerSection: 'Societe',
+            focusedItem: 'Societe',
+            selectedSocietyMenuItem: ['cadeau_Entx'],
+            openSocietyMenuItem: true,
+            firstLoading: false,
+            loading: false
+          });
+        }
+        else if(this.props.location.pathname === "/home/qualified_signature/new"){
+          this.setState({
+            focusedItem: 'SignQualifie',
+            firstLoading: false,
+            loading: false
+          })
+        }
+        else if (this.props.location.pathname === '/home/meet/new') {
+          this.setState({
+            showContainerSection: 'Meet',
+            focusedItem: 'Meet',
+            selectedMeetMenuItem: ['new'],
+            openMeetMenuItem: true,
+            //selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+            firstLoading: false,
+            loading: false
+          });
+        }
+        else if (this.props.location.pathname === '/home/meet/rejoin') {
+          this.setState({
+            showContainerSection: 'Meet',
+            focusedItem: 'Meet',
+            selectedMeetMenuItem: ['rejoin'],
+            openMeetMenuItem: true,
+            //selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+            firstLoading: false,
+            loading: false
+          });
+        }
+        else if (this.props.location.pathname === '/home/timeSheet/activities') {
+          this.setState({
+            showContainerSection: 'TimeSheet',
+            focusedItem: 'TimeSheet',
+            selectedTimeSheetMenuItem: ['activities'],
+            openTimeSheetsMenu: true,
+            //selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+            firstLoading: false,
+            loading: false
+          });
+        }
+        else if (this.props.location.pathname === '/home/search') {
+          if (this.props.match.params.section_id) {
+            let textToSearch = this.props.match.params.section_id;
+            SmartService.search(
+                textToSearch,
+                localStorage.getItem('token'),
+                localStorage.getItem('usrtoken')
+            )
+                .then((searchRes) => {
+                  if (
+                      searchRes.succes === true &&
+                      searchRes.status === 200
+                  ) {
+                    this.setState({
+                      searchResult: searchRes.data,
+                      textSearch: textToSearch,
+                      //selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                      firstLoading: false,
+                      loading: false
+                    });
+                  } else {
+                    console.log(searchRes.error);
+                  }
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+          }
+        }
+        else if (this.props.location.pathname.indexOf('/home/search/') > -1) {
+          let textToSearch = this.props.location.pathname.replace('/home/search/', '');
+          SmartService.search(textToSearch, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(searchRes => {
+
+            if (searchRes.succes === true && searchRes.status === 200) {
+              this.setState({
+                searchResult: searchRes.data,
+                textSearch: textToSearch,
+                //selectedRoom: this.state.rooms.length > 0 ? this.state.rooms[0] : '',
+                firstLoading: false,
+                loading: false
+              });
+            } else {
+              console.log(searchRes.error);
+            }
+          }).catch(err => {
+            console.log(err);
+          });
+        }
+        else {
+          if(this.props.location.pathname.indexOf('/home/drive/') === -1 && this.props.location.pathname.indexOf('/home/drive') === -1 &&
+              this.props.location.pathname !== '/home/shared/parent' && this.props.location.pathname.indexOf('/home/contacts') === -1 &&
+              this.props.location.pathname.indexOf('/home/clients') === -1 && this.props.location.pathname.indexOf('/home/rooms') === -1){
+            console.log('URL ERROR');
+            this.props.history.push('/home/drive');
+            this.componentDidMount();
+          }
+        }
 
       }).catch(err => {console.log(err)})
 
-    }
+    }).catch(err => {console.log(err)})
   }
 
 
@@ -1169,10 +1184,11 @@ export default class Main extends React.Component {
       }
     }
     socket.error = function(event) {
-      console.log("ERROR INITIALISIATION TABLE");
+      console.log("ERROR READ CHANGES TABLE");
     };
     socket.onclose = ( event => {
       //this.props.history.push('/login');
+      this.setState({openSocketChangeModal:true})
       console.log("CLOSED READ CHANGES");
     })
   }
@@ -9437,6 +9453,30 @@ export default class Main extends React.Component {
               {this.state.uploadToastMessage}
             </Alert>
           </Snackbar>
+            <ModalTransition>
+            {this.state.openSocketChangeModal && (
+                <AltModal
+                    actions={[
+                        { text: 'Recharger', onClick: () => {
+                            if(navigator.onLine === true){
+                              this.rethink_initialise()
+                              this.setState({openSocketChangeModal:false})
+                            }else{
+                              this.openSnackbar("error","Vous êtes hors-ligne ! Veuillez vérifier votre connexion internet ")
+                            }
+                          } },
+                      { text: 'Rester hors ligne', onClick: () => {
+                          this.setState({openSocketChangeModal:false})
+                        } }
+                        ]}
+                    onClose={() => {}}
+                    heading="Connexion interrompue !"
+                    appearance="warning"
+                >
+                  Recharger la page à fin d'avoir les dernières opérations effectuées en temps réel
+                </AltModal>
+            )}
+          </ModalTransition>
 
         </div>
       </div>
