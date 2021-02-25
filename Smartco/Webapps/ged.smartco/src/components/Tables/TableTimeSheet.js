@@ -1014,7 +1014,8 @@ export default function TableTimeSheet(props) {
                                                                                     newTime:item.newTime
                                                                                 })
                                                                             })
-                                                                            let client_folder={id:lf_dossier_search,name:sheets_to_add[0].newTime.dossier_client.name}
+                                                                            let client_folder={id:sheets_to_add[0].newTime.dossier_client.folder_id,name:sheets_to_add[0].newTime.dossier_client.name}
+                                                                            console.log(client_folder)
                                                                             props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD HH:mm:ss"),partner_facture,sheets_to_add);
                                                                             setTimeout(() => {
                                                                                 selected.map((item,key) => {

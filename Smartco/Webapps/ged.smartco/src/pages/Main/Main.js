@@ -739,7 +739,8 @@ export default class Main extends React.Component {
               }
 
 
-            } else {
+            }
+            else {
               this.setState({ loading: false });
               localStorage.clear();
               this.props.history.push('/login');
@@ -1887,7 +1888,7 @@ export default class Main extends React.Component {
           reelFolders: gedRes.data.Proprietary.Content.folders || []
         });
       } else {
-        localStorage.clear();
+        localStorage.clear()
         this.props.history.push('/login');
       }
     }).catch(err => {
@@ -4871,120 +4872,7 @@ export default class Main extends React.Component {
             folder_id:find.folder_id
           },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
 
-            if(this.state.newClientFolder.type ===  "litige"){
-
-              data.oa_litige_folders.map((item,key) => {
-                SmartService.addFolder({
-                  name: item,
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log("OK"+key)
-                }).catch(err => {
-                  console.log(err);
-                });
-              })
-
-            }
-            if(this.state.newClientFolder.type === "corporate"){
-              data.oa_corporate_folders.map((item,key) => {
-                SmartService.addFolder({
-                  name: item,
-                  folder_id: addFolderClient.data.id
-                }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
-                  console.log("OK"+key)
-                }).catch(err => {
-                  console.log(err);
-                });
-              })
-            }
-
-            if(findCopy.folders && findCopy.folders.length > 0  ){
-              findCopy.folders.push(
-                  {
-                    folder_id:addFolderClient.data.id,
-                    team:team,
-                    name:this.state.newClientFolder.nom,
-                    type:this.state.newClientFolder.type,
-                    contrepartie:this.state.newClientFolder.contrepartie,
-                    autrepartie:this.state.newClientFolder.autrepartie,
-                    desc:this.state.newClientFolder.desc,
-                    created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
-                    created_by:localStorage.getItem("email"),
-                    facturation:{
-                      byEmail:JSON.stringify(this.state.newClientFolder.byEmail),
-                      sentBySecr:JSON.stringify(this.state.newClientFolder.sentBySecr),
-                      sentByAvocat:JSON.stringify(this.state.newClientFolder.sentByAvocat),
-                      language:this.state.newClientFolder.language,
-                      frequence:this.state.newClientFolder.frequence
-                    }
-                  }
-              )
-            }
-            else{
-              findCopy.folders = [{
-                folder_id:addFolderClient.data.id,
-                team:team,
-                name:this.state.newClientFolder.nom,
-                type:this.state.newClientFolder.type,
-                contrepartie:this.state.newClientFolder.contrepartie,
-                autrepartie:this.state.newClientFolder.autrepartie,
-                desc:this.state.newClientFolder.desc,
-                created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
-                created_by:localStorage.getItem("email"),
-                facturation:{
-                  byEmail:JSON.stringify(this.state.newClientFolder.byEmail),
-                  sentBySecr:JSON.stringify(this.state.newClientFolder.sentBySecr),
-                  sentByAvocat:JSON.stringify(this.state.newClientFolder.sentByAvocat),
-                  language:this.state.newClientFolder.language,
-                  frequence:this.state.newClientFolder.frequence
-                }
-              }]
-            }
-
-            rethink.update("test",'table("clients_cases").get('+JSON.stringify(findCopy.id)+').update('+ JSON.stringify(findCopy) + ')',db_name,false).then( updateRes => {
-              if (updateRes && updateRes === true) {
-
-                this.setState({
-                  loading: false,
-                  newClientFolder: {
-                    nom: '',
-                    type: 'corporate',
-                    team: [],
-                    contrepartie:'',
-                    autrepartie:'',
-                    desc:'',
-                    byEmail:true,
-                    sentBySecr:false,
-                    sentByAvocat:false,
-                    frequence:'',
-                    language:"Francais"
-                  },
-                  lead_contact_tmp: '',
-                  lead_contact_horaire_tmp: ''
-                });
-                this.justReloadGed();
-                this.openSnackbar('success', 'Dossier ajouté avec succès');
-
-              }else{
-              }
-            }).catch(err => {console.log(err)})
-
-          }).catch(err => {console.log(err)})
-
-        }
-
-        else{
-
-          SmartService.addFolder({
-            name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
-            folder_id: CLIENTS_folder_id
-          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
-
-            SmartService.addFolder({
-              name: this.state.newClientFolder.nom,
-              folder_id:addParentClientFolderRes.data.id
-            },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
-
+            if (addFolderClient.succes === true && addFolderClient.status === 200) {
               if(this.state.newClientFolder.type ===  "litige"){
 
                 data.oa_litige_folders.map((item,key) => {
@@ -5012,9 +4900,30 @@ export default class Main extends React.Component {
                 })
               }
 
-              findCopy.folder_id = addParentClientFolderRes.data.id;
-              findCopy.folders = [
-                {
+              if(findCopy.folders && findCopy.folders.length > 0  ){
+                findCopy.folders.push(
+                    {
+                      folder_id:addFolderClient.data.id,
+                      team:team,
+                      name:this.state.newClientFolder.nom,
+                      type:this.state.newClientFolder.type,
+                      contrepartie:this.state.newClientFolder.contrepartie,
+                      autrepartie:this.state.newClientFolder.autrepartie,
+                      desc:this.state.newClientFolder.desc,
+                      created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                      created_by:localStorage.getItem("email"),
+                      facturation:{
+                        byEmail:JSON.stringify(this.state.newClientFolder.byEmail),
+                        sentBySecr:JSON.stringify(this.state.newClientFolder.sentBySecr),
+                        sentByAvocat:JSON.stringify(this.state.newClientFolder.sentByAvocat),
+                        language:this.state.newClientFolder.language,
+                        frequence:this.state.newClientFolder.frequence
+                      }
+                    }
+                )
+              }
+              else{
+                findCopy.folders = [{
                   folder_id:addFolderClient.data.id,
                   team:team,
                   name:this.state.newClientFolder.nom,
@@ -5031,8 +4940,8 @@ export default class Main extends React.Component {
                     language:this.state.newClientFolder.language,
                     frequence:this.state.newClientFolder.frequence
                   }
-                }
-              ];
+                }]
+              }
 
               rethink.update("test",'table("clients_cases").get('+JSON.stringify(findCopy.id)+').update('+ JSON.stringify(findCopy) + ')',db_name,false).then( updateRes => {
                 if (updateRes && updateRes === true) {
@@ -5061,13 +4970,133 @@ export default class Main extends React.Component {
                 }else{
                 }
               }).catch(err => {console.log(err)})
+            }
+            else if(addFolderClient.succes === false && addFolderClient.status === 400){
+              this.setState({ loading: false });
+              localStorage.clear();
+              this.props.history.push('/login');
+            }
+            else{
+              this.setState({ loading: false });
+              console.log(addFolderClient.error)
+              this.openSnackbar("error",addFolderClient.error)
+            }
 
-            }).catch(err => console.log(err))
+
+
+          }).catch(err => {console.log(err)})
+
+        }
+
+        else{
+
+          SmartService.addFolder({
+            name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+            folder_id: CLIENTS_folder_id
+          }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
+
+            if (addParentClientFolderRes.succes === true && addParentClientFolderRes.status === 200) {
+
+              SmartService.addFolder({
+                name: this.state.newClientFolder.nom,
+                folder_id:addParentClientFolderRes.data.id
+              },localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClient => {
+
+                if(this.state.newClientFolder.type ===  "litige"){
+
+                  data.oa_litige_folders.map((item,key) => {
+                    SmartService.addFolder({
+                      name: item,
+                      folder_id: addFolderClient.data.id
+                    }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                      console.log("OK"+key)
+                    }).catch(err => {
+                      console.log(err);
+                    });
+                  })
+
+                }
+                if(this.state.newClientFolder.type === "corporate"){
+                  data.oa_corporate_folders.map((item,key) => {
+                    SmartService.addFolder({
+                      name: item,
+                      folder_id: addFolderClient.data.id
+                    }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addFolderClientRes11 => {
+                      console.log("OK"+key)
+                    }).catch(err => {
+                      console.log(err);
+                    });
+                  })
+                }
+
+                findCopy.folder_id = addParentClientFolderRes.data.id;
+                findCopy.folders = [
+                  {
+                    folder_id:addFolderClient.data.id,
+                    team:team,
+                    name:this.state.newClientFolder.nom,
+                    type:this.state.newClientFolder.type,
+                    contrepartie:this.state.newClientFolder.contrepartie,
+                    autrepartie:this.state.newClientFolder.autrepartie,
+                    desc:this.state.newClientFolder.desc,
+                    created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                    created_by:localStorage.getItem("email"),
+                    facturation:{
+                      byEmail:JSON.stringify(this.state.newClientFolder.byEmail),
+                      sentBySecr:JSON.stringify(this.state.newClientFolder.sentBySecr),
+                      sentByAvocat:JSON.stringify(this.state.newClientFolder.sentByAvocat),
+                      language:this.state.newClientFolder.language,
+                      frequence:this.state.newClientFolder.frequence
+                    }
+                  }
+                ];
+
+                rethink.update("test",'table("clients_cases").get('+JSON.stringify(findCopy.id)+').update('+ JSON.stringify(findCopy) + ')',db_name,false).then( updateRes => {
+                  if (updateRes && updateRes === true) {
+
+                    this.setState({
+                      loading: false,
+                      newClientFolder: {
+                        nom: '',
+                        type: 'corporate',
+                        team: [],
+                        contrepartie:'',
+                        autrepartie:'',
+                        desc:'',
+                        byEmail:true,
+                        sentBySecr:false,
+                        sentByAvocat:false,
+                        frequence:'',
+                        language:"Francais"
+                      },
+                      lead_contact_tmp: '',
+                      lead_contact_horaire_tmp: ''
+                    });
+                    this.justReloadGed();
+                    this.openSnackbar('success', 'Dossier ajouté avec succès');
+
+                  }else{
+                  }
+                }).catch(err => {console.log(err)})
+
+              }).catch(err => console.log(err))
+
+            }
+            else if(addParentClientFolderRes.succes === false && addParentClientFolderRes.status === 400){
+              this.setState({ loading: false });
+              localStorage.clear();
+              this.props.history.push('/login');
+            }
+            else{
+              this.setState({ loading: false });
+              console.log(addParentClientFolderRes.error)
+              this.openSnackbar("error",addParentClientFolderRes.error)
+            }
+
           }).catch(err => console.log(err))
 
         }
       }
-
       else {
 
         this.verifIsTableExist("clients_cases").then( v => {
@@ -9464,10 +9493,7 @@ export default class Main extends React.Component {
                             }else{
                               this.openSnackbar("error","Vous êtes hors-ligne ! Veuillez vérifier votre connexion internet ")
                             }
-                          } },
-                      { text: 'Rester hors ligne', onClick: () => {
-                          this.setState({openSocketChangeModal:false})
-                        } }
+                          } }
                         ]}
                     onClose={() => {}}
                     heading="Connexion interrompue !"
