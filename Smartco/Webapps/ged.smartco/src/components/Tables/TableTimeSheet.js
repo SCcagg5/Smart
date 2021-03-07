@@ -306,6 +306,24 @@ export default function TableTimeSheet(props) {
         )
     }
 
+    const renderTotalHours_CHF_allFolders = (cases) => {
+        let totalCHF = 0;
+        let totalHours = 0;
+        (cases || []).map((c) => {
+            (c || []).map((item,key) => {
+                let value = parseFloat(item.newTime.rateFacturation) * parseFloat(item.newTime.duree);
+                totalCHF = totalCHF + value;
+                totalHours = totalHours + parseFloat(item.newTime.duree);
+            })
+        })
+        return(
+            [
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{utilFunctions.formatDuration(totalHours.toString())}</TableCell>,
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{totalCHF.toFixed(2) + " CHF"}</TableCell>
+            ]
+        )
+    }
+
     const renderClientCases = (client_id) => {
         let cases = [];
         let clientsTempo = props.clientsTempo || [];
@@ -900,6 +918,7 @@ export default function TableTimeSheet(props) {
                                                                         <TableCell align="center" style={{fontWeight:"bold"}} >Durée</TableCell>
                                                                         <TableCell align="center" style={{fontWeight:"bold"}} >Total</TableCell>
                                                                     </TableRow>
+
                                                                 </TableHead>
                                                                 <TableBody>
                                                                     {(dossier || []).sort( (a,b) => {
@@ -995,7 +1014,8 @@ export default function TableTimeSheet(props) {
                                                                                     newTime:item.newTime
                                                                                 })
                                                                             })
-                                                                            let client_folder={id:lf_dossier_search,name:sheets_to_add[0].newTime.dossier_client.name}
+                                                                            let client_folder={id:sheets_to_add[0].newTime.dossier_client.folder_id,name:sheets_to_add[0].newTime.dossier_client.name}
+                                                                            console.log(client_folder)
                                                                             props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD HH:mm:ss"),partner_facture,sheets_to_add);
                                                                             setTimeout(() => {
                                                                                 selected.map((item,key) => {
@@ -1021,6 +1041,15 @@ export default function TableTimeSheet(props) {
                                     </React.Fragment>
                                 ))
                             }
+                            <TableRow>
+                                <TableCell/>
+                                <TableCell style={{width:"18%"}}/>
+                                <TableCell  style={{width:"18%"}}/>
+                                <TableCell  style={{width:"12%"}}/>
+                                <TableCell  style={{width:"12%"}}/>
+                                <TableCell  style={{width:"20%"}}/>
+                                {renderTotalHours_CHF_allFolders(groupedFormatedArray)}
+                            </TableRow>
                         </TableBody>
                     </Table>
             }

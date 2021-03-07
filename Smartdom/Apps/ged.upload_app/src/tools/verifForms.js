@@ -1,10 +1,7 @@
 let verifForms = {
 
     verif_inpuText:function(text) {
-        if(text !== undefined && text !== null){
-            return text === '' || text.trim() === '';
-        }
-
+        if(text !== null && text !== undefined) return text === '';
     },
 
     verif_Number:function(phone){
@@ -20,8 +17,8 @@ let verifForms = {
         return ((pwd1 === '' && pwd2 === '') || (pwd1 !== pwd2));
     },
     verif_Email:function (email) {
-        return this.verif_inpuText(email) || !(/^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,10})+$/.test(email));
+        return this.verif_inpuText(email) || !(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email));
     }
 };
 
-module.exports = verifForms;
+export default verifForms;
