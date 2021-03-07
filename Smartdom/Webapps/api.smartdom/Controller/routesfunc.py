@@ -7,6 +7,7 @@ from Object.admin import admin
 from Object.asset import asset
 from Object.ether import eth_contract
 from Object.ged import folder, file, ged, sign, room
+from Object.pdf import pdf
 from Object.contacter import contacter
 from Object.rethinkproxy import rethinkproxy
 from Object.odoo import odoo
@@ -671,6 +672,13 @@ def infos_assets(cn, nextc):
     if type not in ["54daf43b-9226-4277-b9a2-155fa656a324"]:
         return cn.toret.add_error("invalid type", 404)
     err = [True, OA_asset, None]
+    return cn.call_next(nextc, err)
+
+def doc_gen(cn, nextc):
+    err = check.contain(cn.pr, ["data"])
+    if not err[0]:
+        return cn.toret.add_error(err[1], err[2])
+    err = pdf.doc_report(cn.pr["data"])
     return cn.call_next(nextc, err)
 
 def admtoken(cn, nextc):

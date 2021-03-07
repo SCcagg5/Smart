@@ -61,3 +61,4 @@ gevent
 gevent-websocket
 rethinkdb
 PyPDF2
+reportlab
