@@ -8,6 +8,11 @@ const ITEM_PADDING_TOP = 8;
 
 let Data = {
 
+    oa_odoo_languages:[
+        {label:"Français",value:"fr_CH"},
+        {label:"Anglais",value:"en_US"}
+    ],
+
     oa_comptes_bank_factures: [
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",

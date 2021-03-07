@@ -209,6 +209,38 @@ const getFolderById = (id, drive) => {
     }
 };
 
+const searchFolderParentNodeById = (id, drive) => {
+    for (let i = 0; i < drive.length; i++) {
+        if (drive[i].id) {
+            if (drive[i].Content.folders.findIndex(x => x.id === id) === -1) {
+                let found = searchFolderParentNodeById(id, drive[i].Content.folders);
+                if (found) return found;
+            } else return drive[i];
+        } else {
+            if (drive[i].Content.folders.findIndex(x => x.key === id) === -1) {
+                let found = searchFolderParentNodeById(id, drive[i].folders);
+                if (found) return found;
+            } else return drive[i];
+        }
+    }
+};
+
+const searchFileParentNodeById = (id, drive) => {
+    for (let i = 0; i < drive.length; i++) {
+        if (drive[i].id) {
+            if (drive[i].Content.files.findIndex(x => x.id === id) === -1) {
+                let found = searchFileParentNodeById(id, drive[i].Content.folders);
+                if (found) return found;
+            } else return drive[i];
+        } else {
+            if (drive[i].Content.files.findIndex(x => x.key === id) === -1) {
+                let found = searchFileParentNodeById(id, drive[i].folders);
+                if (found) return found;
+            } else return drive[i];
+        }
+    }
+};
+
 const getContactById = (contacts, id) => {
     return contacts.find(x => x.id === id);
 }
@@ -718,6 +750,12 @@ const getContactFnameByEmail = (contacts, email) => {
     else return ""
 }
 
+const getContactReverseFnameByEmail = (contacts, email) => {
+    let find = contacts.find(x => x.email === email);
+    if (find) return find.prenom + " " + find.nom
+    else return ""
+}
+
 const getContactImageById = (contacts, id) => {
     let find = contacts.find(x => x.id === id);
     return find ? find.imageUrl : "";
@@ -755,6 +793,55 @@ const isTimeSheetFactured = (factures,id) => {
     }else return false
 }
 
+function deleteFileFromTree(drive, nodeId) {
+    for (let j = 0; j < drive.length; j++) {
+        if(drive[j].Content.files != null){
+            let filtered = drive[j].Content.files.filter(f => f.id === nodeId);
+            if (filtered && filtered.length > 0) {
+                console.log("found")
+                drive[j].Content.files = drive[j].Content.files.filter(f => f.id !== nodeId);
+                return;
+            }
+        }
+        if (drive[j].Content.folders != null) {
+            deleteFileFromTree(drive[j].Content.folders, nodeId);
+        }
+    }
+}
+
+function deleteFolderFromTree(drive, nodeId) {
+    for (let j = 0; j < drive.length; j++) {
+        if (drive[j].id === nodeId) {
+            console.log("found")
+            drive = drive.filter(f => f.id !== nodeId);
+            return drive
+        }
+        if(drive[j].Content.folders != null){
+            let filtered = drive[j].Content.folders.filter(f => f.id === nodeId);
+            if (filtered && filtered.length > 0) {
+                console.log("found")
+                drive[j].Content.folders = drive[j].Content.folders.filter(f => f.id !== nodeId);
+                return ;
+            }
+            deleteFolderFromTree(drive[j].Content.folders, nodeId);
+        }
+    }
+}
+
+function insertNodeIntoTree(drive, nodeId, newNode) {
+    for (let j = 0; j < drive.length; j++) {
+        if (drive[j].id === nodeId) {
+            if (newNode.type) {
+                drive[j].Content.files.push(newNode);
+            }else{
+                drive[j].Content.folders.push(newNode)
+            }
+        } else if (drive[j].Content.folders != null) {
+            insertNodeIntoTree(drive[j].Content.folders, nodeId, newNode);
+        }
+    }
+}
+
 export default {
     renderSearchOption,
     getTimeSuggestions,
@@ -787,6 +874,12 @@ export default {
     getOAContactByEmail2,
     getOAContactByUid,
     getContactFnameByEmail,
+    getContactReverseFnameByEmail,
     getClientTypeById,
-    toBase64
+    toBase64,
+    deleteFileFromTree,
+    deleteFolderFromTree,
+    searchFolderParentNodeById,
+    searchFileParentNodeById,
+    insertNodeIntoTree
 };

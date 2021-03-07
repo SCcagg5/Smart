@@ -94,7 +94,8 @@
     "styletron-engine-atomic": "^1.4.6",
     "styletron-react": "^5.2.7",
     "timeago.js": "^4.0.0-beta.2",
-    "video-react": "^0.14.1"
+    "video-react": "^0.14.1",
+    "react-data-table-component": "^7.0.0-alpha-5"
   },
   "scripts": {
     "start": "react-scripts start",

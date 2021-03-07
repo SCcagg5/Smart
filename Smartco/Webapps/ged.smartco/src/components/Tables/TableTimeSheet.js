@@ -209,13 +209,23 @@ export default function TableTimeSheet(props) {
         })
     })
 
-    let filtredArray = searchFilter.filter(x => !factures_ts.includes(x.id) && x.newTime.dossier_client.folder_id !== undefined)
+    let filtredArray = searchFilter.filter(x => !factures_ts.includes(x.id) && x.newTime.dossier_client.folder_id !== undefined && !x.removed_from_facture)
 
     const groupedArray = groupBy(filtredArray, function(n) {
         return n.newTime.dossier_client.folder_id
     });
 
     const groupedFormatedArray = Object.values(groupedArray);
+
+    groupedFormatedArray.sort( (a,b) => {
+        let c1 = a[0].newTime.client
+        let c2 = b[0].newTime.client
+        if(c1.toLowerCase().trim()  < c2.toLowerCase().trim()) { return -1; }
+        if(c1.toLowerCase().trim() > c2.toLowerCase().trim()) { return 1; }
+        return 0;
+    })
+    //console.log(groupedFormatedArray)
+
 
     const selected = searchFilter.filter((lf) => ( lf.checked === true ));
     let total = 0;

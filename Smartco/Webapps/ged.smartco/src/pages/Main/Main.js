@@ -302,7 +302,7 @@ export default class Main extends React.Component {
     contacts: [],
     societes: [],
     clients_cases:[],
-    annuaire_clients_mandat: [],
+    //annuaire_clients_mandat: [],
     time_sheets:[],
     /*rooms: [],*/
     selectedContact: '',
@@ -642,11 +642,24 @@ export default class Main extends React.Component {
           payTerms_id.map((id,key) => {
             payTerm_calls.push(
                 SmartService.get_paymentTerm_odoo_byID(id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(paymTermResData => {
-                  paymTerms.push({key:paymTermResData.data[0].id,value:paymTermResData.data[0].id,text:paymTermResData.data[0].display_name})
+                  paymTerms.push({key:paymTermResData.data[0].id,value:paymTermResData.data[0].id,
+                    text:paymTermResData.data[0].display_name ===  "15 Days" ? "15 jours" :
+                        paymTermResData.data[0].display_name ===  "30 Net Days" ? "30 jours net" :
+                            paymTermResData.data[0].display_name ===  "45 Days" ? "45 jours" :
+                                paymTermResData.data[0].display_name ===  "2 Months" ? "2 mois" :
+                                    paymTermResData.data[0].display_name ===  "Immediate Payment" ? "Règlement immédiat" : paymTermResData.data[0].display_name
+                  })
                 }).catch(err => console.log(err))
             )
           })
           Promise.all(payTerm_calls).then(response => {
+            paymTerms.sort( (a,b) => {
+              let c1 = a.text
+              let c2 = b.text
+              if(c1.toLowerCase().trim()  < c2.toLowerCase().trim()) { return -1; }
+              if(c1.toLowerCase().trim() > c2.toLowerCase().trim()) { return 1; }
+              return 0;
+            })
             this.setState({odoo_payTerms:paymTerms})
           }).catch(err => console.log(err))
         }else{
@@ -758,7 +771,6 @@ export default class Main extends React.Component {
 
 
   }
-
 
   rethink_initialise(){
     //RethinkDB
@@ -1037,7 +1049,6 @@ export default class Main extends React.Component {
 
     }).catch(err => {console.log(err)})
   }
-
 
   handleRoomTabsChange = (event, newValue) => {
     this.setState({selectedRoomTab:newValue})
@@ -1402,22 +1413,35 @@ export default class Main extends React.Component {
   };
 
   deleteFile_Folder = (file) => {
-    console.log(file)
-
     this.setState({ loading: true });
+    let drive = this.state.reelFolders
 
     SmartService.deleteFile(file.key || file.id, localStorage.getItem('token'), localStorage.getItem('usrtoken'))
       .then((deleteRes) => {
+        console.log(deleteRes)
         if (deleteRes.succes === true && deleteRes.status === 200) {
           if (file.typeF === 'file' || file.type === 'pdf'){
-            this.reloadGed()
+            let parentNode = main_functions.searchFileParentNodeById((file.key || file.id),drive);
+            console.log(parentNode)
+            if(parentNode && parentNode.id){
+              main_functions.deleteFileFromTree(drive,(file.key || file.id));
+              this.setState({
+                reelFolders:drive,folders:main_functions.changeStructure(drive),loading:false,
+                selectedFolderFiles:main_functions.getFolderFilesById(this.state.selectedFolderId, drive)
+              })
+            }else{
+              let r_files = this.state.rootFiles;
+              let find_index = r_files.findIndex(x => (x.id === file.key) || (x.id === file.id));
+              r_files.splice(find_index,1);
+              this.setState({
+                rootFiles:r_files, loading:false
+              })
+            }
           }
           else {
-
             let clients_tempo = this.state.clients_cases;
             let findRacine = clients_tempo.find(x => x.folder_id === file.key);
             if(findRacine){
-
               rethink.remove("test",'table("clients_cases").get('+JSON.stringify(findRacine.id)+').delete()',db_name,false).then(delRes => {
                 if (delRes && delRes === true) {
 
@@ -1425,7 +1449,8 @@ export default class Main extends React.Component {
                   console.log("error remove clients_cases item")
                 }
               }).catch(err => {console.log(err)})
-            }else{
+            }
+            else{
               let find_sub_index = -1;
               let itemToUpdated;
               let newFolders ;
@@ -1448,9 +1473,36 @@ export default class Main extends React.Component {
                 }).catch(err => {console.log(err)})
               }
             }
-            this.setState({ selectedFolderId: '' });
-            this.props.history.push('/home/drive');
-            this.reloadGed();
+            let parentNode = main_functions.searchFolderParentNodeById((file.key || file.id),drive);
+            if(parentNode && parentNode.id){
+              main_functions.deleteFolderFromTree(drive,(file.key || file.id));
+              this.props.history.push('/home/drive/'+parentNode.id);
+              this.setState({
+                reelFolders:drive,
+                folders:main_functions.changeStructure(drive),
+                selectedFolder:parentNode,
+                selectedFolderId:parentNode.id,
+                selectedDriveItem: [parentNode.id],
+                selectedFoldername: parentNode.name,
+                selectedFolderFolders:main_functions.getFolderFoldersById(parentNode.id, drive),
+                selectedFolderFiles:main_functions.getFolderFilesById(parentNode.id, drive),
+                breadcrumbs: main_functions.getBreadcumpsPath(parentNode.id, drive),
+                loading:false
+              })
+            }else{
+              let newDrive =main_functions.deleteFolderFromTree(drive,(file.key || file.id));
+              this.props.history.push('/home/drive');
+              this.setState({
+                rootFolders:newDrive,
+                reelFolders:newDrive,
+                folders:main_functions.changeStructure(newDrive),
+                selectedFolder:'',
+                selectedFolderId:'',
+                selectedDriveItem: [],
+                expandedDriveItems: [],
+                loading:false
+              })
+            }
           }
           this.openSnackbar('success', file.typeF === 'file' ? (file.name || file.title) + '.pdf est supprimé avec succès' : (file.name || file.title) + ' est supprimé avec succès');
         }
@@ -1466,7 +1518,7 @@ export default class Main extends React.Component {
       })
       .catch((err) => {
         this.setState({ loading: false });
-        this.openSnackbar('error', err);
+        this.openSnackbar('error', "Une erreur est survenue !");
       });
   };
 
@@ -1539,7 +1591,7 @@ export default class Main extends React.Component {
   beforeUpdateSociety(){
     let odoo_companies = this.state.odoo_companies || [];
     let client_id = this.state.selectedSociete.ID
-    let clientFname = this.state.selectedSociete.Nom + (this.state.selectedSociete.Prenom && this.state.selectedSociete.Prenom !== "") ? (" " + this.state.selectedSociete.Prenom) : ""
+    let clientFname = this.state.selectedSociete.Nom + ((this.state.selectedSociete.Prenom && this.state.selectedSociete.Prenom !== "") ? (" " + this.state.selectedSociete.Prenom) : "")
     let company_id;
     let findCompany = odoo_companies.find(x => x.client_id === client_id );
 
@@ -1595,6 +1647,9 @@ export default class Main extends React.Component {
   saveSocietyChanges = (odoo_company_id) => {
     this.setState({ loading: true });
     let id = this.state.selectedSociete.id || (this.state.annuaire_clients_mandat.find(x => x.ID === this.state.selectedSociete.ID)).id;
+    let clientFname = this.state.selectedSociete.Nom + ((this.state.selectedSociete.Prenom && this.state.selectedSociete.Prenom !== "") ? (" " + this.state.selectedSociete.Prenom) : "")
+    console.log(clientFname)
+    console.log(this.state.selectedSociete.client_fact_name)
     let data = {
       data:[
           odoo_company_id,
@@ -1606,7 +1661,9 @@ export default class Main extends React.Component {
           state_id: this.state.selectedSociete.adress_fact_state || false,
           country_id: 43,
           email: !verifForms.verif_Email(this.state.selectedSociete.email || "")  ? this.state.selectedSociete.email : false,
-          phone: this.state.selectedSociete.phone || ""
+          phone: this.state.selectedSociete.phone || "",
+          lang:this.state.selectedSociete.lang_fact || "fr_CH",
+          name:(!this.state.selectedSociete.client_fact_name || this.state.selectedSociete.client_fact_name.trim() === "") ? clientFname : this.state.selectedSociete.client_fact_name
         }
       ],
       method:"write"
@@ -1614,8 +1671,9 @@ export default class Main extends React.Component {
     SmartService.update_odoo_client(data,localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(updateRes => {
       console.log(updateRes)
       if (updateRes.succes === true && updateRes.status === 200) {
-
-        rethink.update("test",'table("annuaire_clients_mandat").get('+JSON.stringify(id)+').update('+ JSON.stringify(this.state.selectedSociete) + ')',db_name,false).then( updateRes => {
+        let item = this.state.selectedSociete;
+        item.odoo_id = odoo_company_id;
+        rethink.update("test",'table("annuaire_clients_mandat").get('+JSON.stringify(id)+').update('+ JSON.stringify(item) + ')',db_name,false).then( updateRes => {
           if (updateRes && updateRes === true) {
             this.setState({ loading: false });
             this.openSnackbar('success', 'Modification effectuée avec succès');
@@ -2695,7 +2753,7 @@ export default class Main extends React.Component {
                                           <div style={{ display: 'flex' }}>
                                             <SelectSearch
                                                 options={
-                                                  this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
+                                                  (this.state.annuaire_clients_mandat || []).map(({ Nom, Prenom, Type, imageUrl, ID }) =>
                                                       ({
                                                         value: ID,
                                                         name: Nom + ' ' + (Prenom || ''),
@@ -2711,7 +2769,7 @@ export default class Main extends React.Component {
                                                 onChange={ (e) => {
                                                   let obj = this.state.TimeSheet;
                                                   let findClientTempo = this.state.clients_cases.find(x => x.ID_client === e)
-                                                  let findClientFname = this.state.annuaire_clients_mandat.find(x => x.ID === e)
+                                                  let findClientFname = (this.state.annuaire_clients_mandat || []).find(x => x.ID === e)
                                                   obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
                                                   obj.newTime.client_id = e;
                                                   obj.newTime.dossier_client =  {
@@ -2910,7 +2968,7 @@ export default class Main extends React.Component {
                                   deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
                                   setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
                                   OA_contacts={this.state.contacts || []}
-                                  annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                  annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
                                   onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
                                     this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
                                         partner,lignes_facture)
@@ -2937,8 +2995,9 @@ export default class Main extends React.Component {
                                            facturesCp={this.state.factures}
                                            client_folders={this.state.client_folders}
                                            clients_tempo={this.state.clients_cases}
-                                           annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                           annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
                                            contacts={this.state.contacts || []}
+                                           timeSheets={this.state.time_sheets}
                                            sharedFolders={this.state.sharedReelFolders || []}
                                            validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount) => {
                                              this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount);
@@ -2976,6 +3035,7 @@ export default class Main extends React.Component {
                                            rerender={() => {this.setState({updateX:!this.state.updateX})}}
                                            taxs={this.state.odoo_taxs}
                                            payTerms={this.state.odoo_payTerms}
+                                           updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
                             />
                           </TabPanel>
                           <TabPanel>
@@ -3007,7 +3067,7 @@ export default class Main extends React.Component {
                                       }}
                                       value={this.state.wip_selected_contact}
                                   >
-                                    {this.state.annuaire_clients_mandat.map((contact, key) => (
+                                    {(this.state.annuaire_clients_mandat || []).map((contact, key) => (
                                         <MenuItem
                                             key={key}
                                             value={contact.ID}>
@@ -3113,7 +3173,7 @@ export default class Main extends React.Component {
                             <TableTimeSheetsNonFact
                                 lignesFactures={this.state.time_sheets || []}
                                 OA_contacts={this.state.contacts}
-                                annuaire_clients_mandat={this.state.annuaire_clients_mandat}
+                                annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
                                 client_folders={this.state.client_folders}
                                 openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
                                 clientsTempo={this.state.clients_cases}
@@ -3493,7 +3553,7 @@ export default class Main extends React.Component {
       data:{
         client:this.state.TimeSheet.newTime.client,
         client_adress:main_functions.getClientAdressById(this.state.annuaire_clients_mandat || [],this.state.TimeSheet.newTime.client_id),
-        gender:main_functions.getClientTypeById(this.state.annuaire_clients_mandat || [],this.state.TimeSheet.newTime.client_id) === "0" ? "" :"Mr/Ms",
+        gender:main_functions.getClientTypeById(this.state.annuaire_clients_mandat || [],this.state.TimeSheet.newTime.client_id) === "0" ? "" :"Mr/Ms ",
         date:moment().format("DD/MM/YYYY"),
         price:this.state.provision_amount,
         bank:bank.title,
@@ -3501,7 +3561,7 @@ export default class Main extends React.Component {
         swift:bank.swift_bic,
         clearing:bank.clearing,
         ref:this.state.TimeSheet.newTime.client + " - " + this.state.TimeSheet.newTime.dossier_client.name,
-        oa_contact:main_functions.getContactFnameByEmail(this.state.contacts || [],localStorage.getItem("email")),
+        oa_contact:main_functions.getContactReverseFnameByEmail(this.state.contacts || [],localStorage.getItem("email")),
         TVA:tax_label
       }}).then( res => {
       console.log(res)
@@ -5270,7 +5330,7 @@ export default class Main extends React.Component {
         if (resAdd && resAdd === true) {
           this.openSnackbar('success', newClient.Nom + ' est ajouté avec succès ');
           setTimeout(() => {
-            let findNew = this.state.annuaire_clients_mandat.find(x => x.ID === newClient.ID )
+            let findNew = (this.state.annuaire_clients_mandat || []).find(x => x.ID === newClient.ID )
             this.props.history.push('/home/clients/' + (findNew.id || findNew.ID));
             this.setState({
               loading: false,
@@ -5827,6 +5887,108 @@ export default class Main extends React.Component {
      this.setState({selectedSharedPopUpKeys:selectedKeys,selectedDrivePopUpKeys:[],signFile_Ged:info.node.key === "parent" ? "" : info.node.typeF === "folder" ? "" : info.node})
   }
 
+  addNewGedFolder(){
+     this.setState({loading:true})
+    SmartService.addFolder(
+        {name: this.state.newFolderName, folder_id: this.state.selectedFolderId === '' ? null : this.state.selectedFolderId},
+        localStorage.getItem('token'), localStorage.getItem('usrtoken')
+    )
+        .then((addfolderRes) => {
+          console.log(this.state.reelFolders)
+          console.log(addfolderRes)
+          if (addfolderRes.succes === true && addfolderRes.status === 200) {
+
+            let drive = this.state.reelFolders;
+            let newNode = {
+              id:addfolderRes.data.id,
+              name:this.state.newFolderName,
+              Content:{
+                folders:[],
+                files:[]
+              }
+            }
+            if(this.state.selectedFolderId === ''){
+              //Racine
+              drive.push(newNode)
+              this.setState({reelFolders:drive,folders:main_functions.changeStructure(drive),loading:false})
+            }else{
+              main_functions.insertNodeIntoTree(drive,this.state.selectedFolderId ,newNode);
+              this.setState({
+                reelFolders:drive,folders:main_functions.changeStructure(drive),loading:false
+              })
+            }
+            this.openSnackbar("success","Nouveau dossier ajouté avec succès")
+            setTimeout(() => {
+              this.setState({
+                newFolderModal: false,
+                newFolderFromRacine: false
+              });
+            }, 100);
+          } else {
+            this.openSnackbar("error",addfolderRes.error)
+            console.log(addfolderRes.error);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+  }
+
+  addNewGedFiles(acceptedFiles){
+    let calls = [];
+    for (let i = 0; i < acceptedFiles.length; i++) {
+      if(acceptedFiles[i].type === "application/pdf"){
+        let formData = new FormData();
+        formData.append('file', acceptedFiles[i]);
+        this.state.selectedFolderId !== '' &&
+        formData.append('folder_id', this.state.selectedFolderId);
+        calls.push(axios.request({
+              method: 'POST', url: data.endpoint + '/ged/'+ged_id+'/doc/addfile',
+              data: formData,
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                'token': localStorage.getItem('token'),
+                'usrtoken': localStorage.getItem('usrtoken')
+              },
+              onUploadProgress: (p) => {
+                this.setState({ progressUpload: (p.loaded / p.total) * 100 });
+              }
+            }).then( res => {
+              return {id:res.data.data.file_id,name:acceptedFiles[i].name.replace(".pdf",""),type:"pdf",date:new Date().getTime().toString()}
+            })
+        );
+      }
+    }
+    Promise.all(calls).then( response => {
+      let drive = this.state.reelFolders;
+      let rootFiles = this.state.rootFiles;
+      response.map( resp => {
+        if(this.state.selectedFolderId === ''){
+          rootFiles.push(resp);
+        }else{
+          main_functions.insertNodeIntoTree(drive,this.state.selectedFolderId ,resp);
+        }
+      })
+      this.setState({
+        reelFolders:drive,folders:main_functions.changeStructure(drive),
+        rootFiles: rootFiles,
+        loading:true,
+        openNewDocModal: false,
+        newFileFromRacine: false,
+        showNewDocScreen: false,
+        progressUpload: undefined
+      })
+      setTimeout(() => {
+        this.setState({loading:false})
+        this.openSnackbar('success', calls.length === 1 ? calls.length + ' fichier est ajouté avec succès' : calls.length +" fichiers sont ajoutés avec succès");
+      },500)
+
+      //this.reloadGed();
+    }).catch(err => {
+      console.log(err);
+    });
+  }
+
   render() {
 
     const current_user_contact = main_functions.getOAContactByEmail2(this.state.contacts,localStorage.getItem("email"))
@@ -5913,8 +6075,7 @@ export default class Main extends React.Component {
           <div style={{height: "100%"}}>
 
             <div style={{ display: 'flex',height: "100%"}}>
-              <div
-                style={{
+              <div style={{
                   height: "90%",
                   overflow: 'auto',
                   minHeight: 650,
@@ -5935,174 +6096,177 @@ export default class Main extends React.Component {
                     <Switch>
 
                       <Route exact path="/home/drive">
-                        <div>
+                        {
+                          this.state.loading === false && this.state.firstLoading === false &&
+                          <div>
                             <div>
-                                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                                      <div style={{ width: '100%' }}>
-                                        <h5 className="mt-0 mb-1">
-                                          {this.props.location.pathname.indexOf('/home/search/') > -1 ? 'Résultats de recherche'
-                                            : this.props.location.pathname === '/home/drive' ? 'Mon drive'
-                                              : this.state.breadcrumbs}
-                                        </h5>
-                                        <div
-                                          style={{
-                                            position: 'absolute',
-                                            right: 25,
-                                            marginTop: -44
-                                          }}
-                                        >
-                                          <IconButton
-                                            aria-label={
-                                              this.state.viewMode === 'list'
-                                                ? 'Vue liste'
-                                                : 'Vue grille'
-                                            }
-                                            onClick={() => {
-                                              this.state.viewMode === 'list'
-                                                ? this.setState({
-                                                  viewMode: 'grid'
-                                                })
-                                                : this.setState({
-                                                  viewMode: 'list'
-                                                });
-                                            }}
-                                            title={
-                                              this.state.viewMode === 'list'
-                                                ? 'Vue liste'
-                                                : 'Vue grille'
-                                            }
-                                            color="default"
-                                          >
-                                            {this.state.viewMode === 'list' ? (
-                                              <ViewComfyIcon />
-                                            ) : (
-                                              <ListIcon />
-                                            )}
-                                          </IconButton>
-                                        </div>
-                                        <div
-                                          style={{
-                                            height: 1,
-                                            backgroundColor: '#dadce0',
-                                            marginBottom: 15,
-                                            marginTop: 15
-                                          }}
-                                        />
-                                      </div>
-                                    </div>
-                                    <div style={{flexWrap: 'wrap', display: 'block'}}>
-                                      {
-                                        this.state.loadingGed === true ?
-                                            <div align="center" style={{marginTop:200}}>
-                                              <CircularProgress color="primary" />
-                                              <h6>Chargement...</h6>
-                                            </div>
-                                        :
-                                            (this.state.folders.length === 0 && this.state.rootFiles.length === 0) ? (
-                                                <div
-                                                    style={{
-                                                      marginTop: 25,
-                                                      display: 'flex'
-                                                    }}
-                                                >
-                                                  <h5
-                                                      style={{
-                                                        fontSize: 16,
-                                                        color: 'gray'
-                                                      }}
-                                                  >
-                                                    Aucun dossier encore ajouté !
-                                                  </h5>
-                                                  &nbsp;&nbsp;
-                                                  <h6
-                                                      style={{
-                                                        cursor: 'pointer',
-                                                        color: '#000',
-                                                        textDecoration: 'underline'
-                                                      }}
-                                                      onClick={() => {
-                                                        this.setState({
-                                                          newFolderModal: true,
-                                                          newFolderFromRacine: true
-                                                        });
-                                                      }}
-                                                  >
-                                                    Ajouter un dossier
-                                                  </h6>
-                                                </div>
-                                            ) : (
-                                                <div>
-                                                  <ListFolders
-                                                      items={this.state.rootFolders}
-                                                      onDoubleClickFolder={(folder) => {
-                                                        this.props.history.push({
-                                                          pathname: '/home/drive/' + folder.id
-                                                        });
-                                                        this.setState({
-                                                          selectedDriveItem: [folder.id],
-                                                          expandedDriveItems: [folder.id],
-                                                          autoExpandParent: true,
-                                                          selectedFolder: main_functions.getFolderById(folder.id, this.state.folders),
-                                                          selectedFoldername: folder.name,
-                                                          selectedFolderFiles:
-                                                              folder.Content.files || [],
-                                                          selectedFolderFolders:
-                                                              folder.Content.folders || [],
-                                                          focusedItem: 'Drive',
-                                                          breadcrumbs: main_functions.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedReelFolders)),
-                                                          selectedFolderId: folder.id,
-                                                          showContainerSection: 'Drive'
-                                                        });
-                                                      }}
-                                                  />
-                                                  <ListDocs
-                                                      docs={this.state.rootFiles || []}
-                                                      viewMode={this.state.viewMode}
-                                                      onDocClick={(item) => {
-                                                        this.openPdfModal(item.id || item.key)
-                                                      }}
-                                                      showDoc={(doc) =>
-                                                          this.openPdfModal(doc.id)
-                                                      }
-                                                      setLoading={(b) =>
-                                                          this.setState({ loading: b })
-                                                      }
-                                                      setSelectedFile={(file) =>
-                                                          this.setState({
-                                                            selectedFile: file
-                                                          })
-                                                      }
-                                                      openShareFileModal={() =>
-                                                          this.setState({
-                                                            openShareDocModal: true
-                                                          })
-                                                      }
-                                                      onDeleteFile={(file) => {
-                                                        this.deleteFile_Folder(file);
-                                                      }}
-                                                      onRenameFile={(file, newName) => {
-                                                        this.renameFile_Folder(file, newName);
-                                                      }}
-                                                      onSignBtnClick={(id) => {
-                                                        this.props.history.push(
-                                                            '/signDoc/doc/' + id
-                                                        );
-                                                      }}
-                                                      onDropFile={(files) => {
-                                                        this.uploadFilesToGed(files)
-                                                      }}
-                                                      setDocs={(docs) => this.setState({rootFiles:docs})}
-                                                      onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
-                                                      applyRights={false}
-                                                      selectedSharedFolder={this.state.selectedSharedFolder}
-                                                  />
-                                                </div>
-                                            )
-
-                                      }
-                                    </div>
+                              <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                <div style={{ width: '100%' }}>
+                                  <h5 className="mt-0 mb-1">
+                                    {this.props.location.pathname.indexOf('/home/search/') > -1 ? 'Résultats de recherche'
+                                        : this.props.location.pathname === '/home/drive' ? 'Mon drive'
+                                            : this.state.breadcrumbs}
+                                  </h5>
+                                  <div
+                                      style={{
+                                        position: 'absolute',
+                                        right: 25,
+                                        marginTop: -44
+                                      }}
+                                  >
+                                    <IconButton
+                                        aria-label={
+                                          this.state.viewMode === 'list'
+                                              ? 'Vue liste'
+                                              : 'Vue grille'
+                                        }
+                                        onClick={() => {
+                                          this.state.viewMode === 'list'
+                                              ? this.setState({
+                                                viewMode: 'grid'
+                                              })
+                                              : this.setState({
+                                                viewMode: 'list'
+                                              });
+                                        }}
+                                        title={
+                                          this.state.viewMode === 'list'
+                                              ? 'Vue liste'
+                                              : 'Vue grille'
+                                        }
+                                        color="default"
+                                    >
+                                      {this.state.viewMode === 'list' ? (
+                                          <ViewComfyIcon />
+                                      ) : (
+                                          <ListIcon />
+                                      )}
+                                    </IconButton>
                                   </div>
-                        </div>
+                                  <div
+                                      style={{
+                                        height: 1,
+                                        backgroundColor: '#dadce0',
+                                        marginBottom: 15,
+                                        marginTop: 15
+                                      }}
+                                  />
+                                </div>
+                              </div>
+                              <div style={{flexWrap: 'wrap', display: 'block'}}>
+                                {
+                                  this.state.loadingGed === true ?
+                                      <div align="center" style={{marginTop:200}}>
+                                        <CircularProgress color="primary" />
+                                        <h6>Chargement...</h6>
+                                      </div>
+                                      :
+                                      (this.state.folders.length === 0 && this.state.rootFiles.length === 0) ? (
+                                          <div
+                                              style={{
+                                                marginTop: 25,
+                                                display: 'flex'
+                                              }}
+                                          >
+                                            <h5
+                                                style={{
+                                                  fontSize: 16,
+                                                  color: 'gray'
+                                                }}
+                                            >
+                                              Aucun dossier encore ajouté !
+                                            </h5>
+                                            &nbsp;&nbsp;
+                                            <h6
+                                                style={{
+                                                  cursor: 'pointer',
+                                                  color: '#000',
+                                                  textDecoration: 'underline'
+                                                }}
+                                                onClick={() => {
+                                                  this.setState({
+                                                    newFolderModal: true,
+                                                    newFolderFromRacine: true
+                                                  });
+                                                }}
+                                            >
+                                              Ajouter un dossier
+                                            </h6>
+                                          </div>
+                                      ) : (
+                                          <div>
+                                            <ListFolders
+                                                items={this.state.rootFolders}
+                                                onDoubleClickFolder={(folder) => {
+                                                  this.props.history.push({
+                                                    pathname: '/home/drive/' + folder.id
+                                                  });
+                                                  this.setState({
+                                                    selectedDriveItem: [folder.id],
+                                                    expandedDriveItems: [folder.id],
+                                                    autoExpandParent: true,
+                                                    selectedFolder: main_functions.getFolderById(folder.id, this.state.folders),
+                                                    selectedFoldername: folder.name,
+                                                    selectedFolderFiles:
+                                                        folder.Content.files || [],
+                                                    selectedFolderFolders:
+                                                        folder.Content.folders || [],
+                                                    focusedItem: 'Drive',
+                                                    breadcrumbs: main_functions.getBreadcumpsPath(folder.id, this.state.reelFolders.concat(this.state.sharedReelFolders)),
+                                                    selectedFolderId: folder.id,
+                                                    showContainerSection: 'Drive'
+                                                  });
+                                                }}
+                                            />
+                                            <ListDocs
+                                                docs={this.state.rootFiles || []}
+                                                viewMode={this.state.viewMode}
+                                                onDocClick={(item) => {
+                                                  this.openPdfModal(item.id || item.key)
+                                                }}
+                                                showDoc={(doc) =>
+                                                    this.openPdfModal(doc.id)
+                                                }
+                                                setLoading={(b) =>
+                                                    this.setState({ loading: b })
+                                                }
+                                                setSelectedFile={(file) =>
+                                                    this.setState({
+                                                      selectedFile: file
+                                                    })
+                                                }
+                                                openShareFileModal={() =>
+                                                    this.setState({
+                                                      openShareDocModal: true
+                                                    })
+                                                }
+                                                onDeleteFile={(file) => {
+                                                  this.deleteFile_Folder(file);
+                                                }}
+                                                onRenameFile={(file, newName) => {
+                                                  this.renameFile_Folder(file, newName);
+                                                }}
+                                                onSignBtnClick={(id) => {
+                                                  this.props.history.push(
+                                                      '/signDoc/doc/' + id
+                                                  );
+                                                }}
+                                                onDropFile={(files) => {
+                                                  this.uploadFilesToGed(files)
+                                                }}
+                                                setDocs={(docs) => this.setState({rootFiles:docs})}
+                                                onDeleteFiles={(files) => {this.deleteManyFiles(files)}}
+                                                applyRights={false}
+                                                selectedSharedFolder={this.state.selectedSharedFolder}
+                                            />
+                                          </div>
+                                      )
+
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        }
                       </Route>
 
                       <Route exact path="/home/drive/:folder_id">
@@ -6969,7 +7133,7 @@ export default class Main extends React.Component {
 
                       <Route exact path="/home/clients">
                         {
-                          this.state.annuaire_clients_mandat.length === 0 ?
+                          !this.state.annuaire_clients_mandat || !this.state.odoo_companies ?
                               <div align="center" style={{marginTop:200}}>
                                 <CircularProgress color="primary" />
                                 <h6>Chargement...</h6>
@@ -6980,6 +7144,7 @@ export default class Main extends React.Component {
                                   societes={this.state.annuaire_clients_mandat || []}
                                   clients_tempo={this.state.clients_cases}
                                   onEditClick={(societe, key) => {
+                                    console.log(societe)
                                     this.setState({
                                       selectedSociete: societe,
                                       selectedSocieteKey: key
@@ -7142,7 +7307,34 @@ export default class Main extends React.Component {
                                             </div>
                                             <div className="row" style={{marginTop:20}}>
                                               <div className="col-md-12">
-                                                <h5 style={{ marginBottom: 10 }}>Adresse de facturation</h5>
+                                                <h5 style={{ marginBottom: 10 }}>Facturation</h5>
+                                                <div className="row mt-2">
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10,marginTop:10 }}>Nom du client dans la facture</p>
+                                                    <input
+                                                        className="form-control"
+                                                        type="text"
+                                                        id="edae"
+                                                        name="phone"
+                                                        value={this.state.selectedSociete.client_fact_name}
+                                                        onChange={this.handleChange('selectedSociete', 'client_fact_name')} />
+                                                  </div>
+                                                  <div className="col-md-6">
+                                                    <p style={{ marginBottom: 10,marginTop:10 }}>Langue</p>
+                                                    <select
+                                                        className="form-control custom-select"
+                                                        value={this.state.selectedSociete.lang_fact}
+                                                        onChange={this.handleChange('selectedSociete', 'lang_fact')}
+                                                    >
+                                                      {
+                                                        (data.oa_odoo_languages || []).map((item, key) =>
+                                                            <option key={key} value={item.value}>{item.label}</option>
+                                                        )
+                                                      }
+                                                    </select>
+                                                  </div>
+                                                </div>
+                                                <h6 style={{ marginBottom: 10 }}>Adresse de facturation</h6>
                                                 <div className="row mt-2">
                                                   <div className="col-md-6">
                                                     <p style={{ marginBottom: 10 }}>Rue...</p>
@@ -7210,7 +7402,7 @@ export default class Main extends React.Component {
                                                         onChange={this.handleChange('selectedSociete', 'adress_fact_country')}
                                                     >
                                                       {
-                                                        (this.state.odoo_countries.filter(x => x[0] === 43 || x[0] === "" ) || []).map((item, key) =>
+                                                        ((this.state.odoo_countries || []).filter(x => x[0] === 43 || x[0] === "" ) || []).map((item, key) =>
                                                             <option
                                                                 key={key}
                                                                 value={item[0]}>{item[1]}</option>
@@ -7866,7 +8058,7 @@ export default class Main extends React.Component {
 
                                       <SelectSearch
                                           options={
-                                            this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl, id }) =>
+                                            (this.state.annuaire_clients_mandat || []).map(({ Nom, Prenom, Type, imageUrl, id }) =>
                                                 ({
                                                   value: id,
                                                   name: Nom + ' ' + (Prenom || ''),
@@ -7881,7 +8073,7 @@ export default class Main extends React.Component {
                                           placeholder="Chercher votre client"
                                           onChange={ (e) => {
 
-                                            let findClient = this.state.annuaire_clients_mandat.find(x => x.id === e)
+                                            let findClient = (this.state.annuaire_clients_mandat || []).find(x => x.id === e)
                                             let data = this.state.clientCadeau
                                             data.email=findClient.email
                                             data.nom = findClient.Nom
@@ -8420,34 +8612,7 @@ export default class Main extends React.Component {
                 <button
                   className="btn btn-success  font-weight-normal"
                   style={{ fontFamily: 'sans-serif' }}
-                  onClick={() => {
-                    SmartService.addFolder(
-                      {
-                        name: this.state.newFolderName,
-                        folder_id: this.state.selectedFolderId === '' ? null : this.state.selectedFolderId
-                      },
-                      localStorage.getItem('token'),
-                      localStorage.getItem('usrtoken')
-                    )
-                      .then((addfolderRes) => {
-                        if (addfolderRes.succes === true && addfolderRes.status === 200) {
-                          this.openSnackbar("success","Nouveau dossier ajouté avec succès")
-                          this.reloadGed();
-                          setTimeout(() => {
-                            this.setState({
-                              newFolderModal: false,
-                              newFolderFromRacine: false
-                            });
-                          }, 500);
-                        } else {
-                          this.openSnackbar("error",addfolderRes.error)
-                          console.log(addfolderRes.error);
-                        }
-                      })
-                      .catch((err) => {
-                        console.log(err);
-                      });
-                  }}
+                  onClick={() => {this.addNewGedFolder()}}
                 >
                   Ajouter
                 </button>
@@ -8593,6 +8758,8 @@ export default class Main extends React.Component {
                       pattern={data.emailPatern}
                       limit={20}
                       limitMessage="Vous avez atteint le nombre maximal d'e-mails"
+                      contacts={this.state.contacts || []}
+                      openContactsMenuOnInputClick={true}
 
                     />
                   </div>
@@ -9073,45 +9240,7 @@ export default class Main extends React.Component {
                       onCancel={() => {
                       }}
                       onDrop={(acceptedFiles, rejectedFiles) => {
-                        let calls = [];
-                        for (let i = 0; i < acceptedFiles.length; i++) {
-                          if(acceptedFiles[i].type === "application/pdf"){
-                            let formData = new FormData();
-                            formData.append('file', acceptedFiles[i]);
-                            console.log(this.state.selectedFolderId)
-                            this.state.selectedFolderId !== '' &&
-                            formData.append(
-                              'folder_id',
-                              this.state.selectedFolderId
-                            );
-                            calls.push(axios.request({
-                                method: 'POST', url: data.endpoint + '/ged/'+ged_id+'/doc/addfile',
-                                data: formData,
-                                headers: {
-                                  'Content-Type': 'multipart/form-data',
-                                  'token': localStorage.getItem('token'),
-                                  'usrtoken': localStorage.getItem('usrtoken')
-                                },
-                                onUploadProgress: (p) => {
-                                  this.setState({ progressUpload: (p.loaded / p.total) * 100 });
-                                }
-                              }).then( res => {})
-                            );
-                          }
-                        }
-                        Promise.all(calls).then( response => {
-                          this.setState({
-                            openNewDocModal: false,
-                            newFileFromRacine: false,
-                            showNewDocScreen: false,
-                            progressUpload: undefined
-                          });
-                          this.openSnackbar('success', calls.length === 1 ? calls.length + ' fichier est ajouté avec succès' : calls.length +" fichiers sont ajoutés avec succès");
-
-                          this.reloadGed();
-                        }).catch(err => {
-                          console.log(err);
-                        });
+                        this.addNewGedFiles(acceptedFiles)
                       }}
                       progressAmount={this.state.progressUpload}
                       progressMessage={
@@ -9158,13 +9287,13 @@ export default class Main extends React.Component {
             </DialogTitle>
             <DialogContent>
               <SearchClientsContainer
-                societes={this.state.annuaire_clients_mandat}
+                societes={this.state.annuaire_clients_mandat || []}
                 contacts={this.state.contacts}
                 onSelectBtnClick={(client) => {
                   let obj = this.state.TimeSheet;
 
                   let findClientTempo = this.state.clients_tempo.find(x => x.ID_client === client.ID)
-                  let findClientFname = this.state.annuaire_clients_mandat.find(x => x.ID === client.ID)
+                  let findClientFname = (this.state.annuaire_clients_mandat || []).find(x => x.ID === client.ID)
                   console.log(findClientFname)
                   obj.newTime.client = findClientFname.Nom + ' ' + (findClientFname.Prenom || '');
                   if(findClientTempo){
@@ -9482,7 +9611,9 @@ export default class Main extends React.Component {
               {this.state.uploadToastMessage}
             </Alert>
           </Snackbar>
-            <ModalTransition>
+
+
+          <ModalTransition>
             {this.state.openSocketChangeModal && (
                 <AltModal
                     actions={[

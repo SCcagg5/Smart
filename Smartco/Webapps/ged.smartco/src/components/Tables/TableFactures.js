@@ -40,6 +40,7 @@ import Data from "../../data/Data";
 import { Dropdown, Input as Sinput } from 'semantic-ui-react'
 import SearchIcon from '@material-ui/icons/Search';
 import rethink from "../../controller/rethink";
+import AddIcon from '@material-ui/icons/Add';
 
 const db_name = "OA_LEGAL";
 
@@ -53,7 +54,6 @@ const useRowStyles = makeStyles({
 
 export default function CollapsibleTable(props) {
 
-  const [paymTerms, setPaymTerms] = React.useState(null);
   const [defaultTax, setDefaultTax] = React.useState("13");
   const [defaultPayterm, setDefaultPayterm] = React.useState("3");
   const [client_search, setClient_search] = React.useState("");
@@ -63,7 +63,6 @@ export default function CollapsibleTable(props) {
   const [statut_search, setStatut_search] = React.useState("tous");
   const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
   const [f_TooDeleted, setF_TooDeleted] = React.useState("");
-  const [updateX, setUpdateX] = React.useState(false);
 
 
 
@@ -286,6 +285,8 @@ export default function CollapsibleTable(props) {
                                          setClient_search(client_id)
                                          setLf_dossier_search(folder_id)
                                      }}
+                                     timeSheets={props.timeSheets}
+                                     updateTimeSheet={props.updateLigneFacture}
                                 />
                             ))
                           }
@@ -339,11 +340,10 @@ function Row(props) {
   const [fraisAdmin, setFraisAdmin] = React.useState("2%");
   const [compte_banc, setCompte_banc] = React.useState(1);
   const [deadline_date, setDeadline_date] = React.useState(new Date());
-  const [addReduction, setAddReduction] = React.useState(false);
   const [reductionType, setReductionType] = React.useState("%");
   const [reductionAmount, setReductionAmount] = React.useState("");
-  const [loading_paiment_state, setLoading_paiment_state] = React.useState(false);
-  const [showUpdateModal, setShowUpdateModal] = React.useState(false);
+  const [showAddUpdateModal, setShowAddUpdateModal] = React.useState(false);
+  const [addUpdateModalType, setAddUpdateModalType] = React.useState("add");
   const [selectedFacture, setSelectedFacture] = React.useState("");
   const [selectedRow, setSelectedRow] = React.useState("");
   const [toUpdated_date, setToUpdated_date] = React.useState(new Date());
@@ -358,10 +358,110 @@ function Row(props) {
   const [open, setOpen] = React.useState(false);
 
 
-    useEffect( () => { getDeatilsOdooFacture() }, [] );
+  useEffect( () => { getDeatilsOdooFacture() }, [] );
 
 
-    const getDeatilsOdooFacture = () => {
+
+  const updateTimeSheet = () => {
+      let newItem = selectedRow;
+      newItem.checked = "false"
+      newItem.newTime.utilisateurOA = toUpdated_OAUser
+      newItem.newTime.rateFacturation = toUpdated_rate
+      newItem.newTime.description = toUpdated_desc
+      newItem.newTime.date = moment(toUpdated_date).format("YYYY-MM-DD :HH:mm:ss")
+
+      let time = duration;
+      let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+      if(regexFormat.test(time) === true){
+          let duree = utilFunctions.durationToNumber(time);
+          if(duree === 0){
+              props.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
+          }else{
+              newItem.newTime.duree = utilFunctions.durationToNumber(duration)
+              let facture = selectedFacture
+              let findLigneIndex = (facture.lignes_facture || []).findIndex(x => x.id === newItem.id);
+              if(findLigneIndex > -1){
+                  facture.lignes_facture[findLigneIndex] = newItem;
+                  console.log(facture)
+                  props.updateFacture(facture.id,facture)
+                  setShowAddUpdateModal(false)
+              }else{
+                  props.openSnackbar('error', 'Une erreur est survenue !');
+              }
+          }
+      }else{
+          props.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
+      }
+  }
+
+  const addTimeSheet = () => {
+        let newItem = {
+            created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+            uid:utilFunctions.getUID(),
+            user_email:localStorage.getItem("email"),
+            newTime:{
+                client:selectedFacture.client,
+                client_id:selectedFacture.client_id,
+                date:moment(toUpdated_date).format("YYYY-MM-DD :HH:mm:ss"),
+                description:toUpdated_desc,
+                dossier_client:{
+                    folder_id:selectedFacture.client_folder.id,
+                    name:selectedFacture.client_folder.name
+                },
+                utilisateurOA:toUpdated_OAUser,
+                rateFacturation:toUpdated_rate,
+                duree:0
+            }
+        }
+
+        let time = duration;
+        let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+        if(regexFormat.test(time) === true){
+            let duree = utilFunctions.durationToNumber(time);
+            if(duree === 0){
+                props.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
+            }else{
+                newItem.newTime.duree = duree
+                selectedFacture.lignes_facture.push(newItem)
+                props.updateFacture(selectedFacture.id,selectedFacture)
+                setShowAddUpdateModal(false)
+            }
+        }else{
+            props.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
+        }
+    }
+
+  const onDeleteTimeSheetClick = () => {
+      let facture = selectedFacture;
+      if(facture.lignes_facture.length > 1){
+
+          let findLigneIndex = (facture.lignes_facture || []).findIndex(x => x.id === selectedRow.id);
+          if(findLigneIndex > -1){
+              (facture.lignes_facture || []).splice(findLigneIndex,1);
+
+              let timeSheets = props.timeSheets;
+              let find_tm_index = timeSheets.findIndex(x => x.id === selectedRow.id);
+              let find_tm = timeSheets.find(x => x.id === selectedRow.id);
+              if(find_tm_index > -1){
+                  console.log(find_tm)
+                  console.log("FOUND TM")
+                  find_tm.checked = ""
+                  find_tm.removed_from_facture = "true"
+                  props.updateTimeSheet(find_tm.id,find_tm)
+              }
+              props.updateFacture(facture.id,facture)
+              setOpenDeleteLfModal(false)
+          }else{
+              setOpenDeleteLfModal(false)
+              props.openSnackbar('error', 'Une erreur est survenue !');
+          }
+      }else{
+          setOpenDeleteLfModal(false)
+          props.openSnackbar('warning', 'Une facture doit comporter au moins un timeSheet !');
+      }
+  }
+
+  const getDeatilsOdooFacture = () => {
         if(row.facture_odoo_id && (row.statut === "confirmed" || row.statut === "accepted") ){
             SmartService.details_facture_odoo(localStorage.getItem("token"),localStorage.getItem("usrtoken"),row.facture_odoo_id).then( detailsRes => {
                 if(detailsRes.succes === true && detailsRes.status === 200){
@@ -573,7 +673,36 @@ function Row(props) {
                       <Collapse in={open} timeout="auto" unmountOnExit>
                           <Box margin={1}>
                               <div style={{marginLeft:30,border:"2px solid dodgerblue",padding:20,borderRadius:7.5}}>
-                                  <h5 style={{textDecoration:"underline"}}>Lignes factures</h5>
+                                  <div style={{display:"flex",justifyContent:"space-between"}}>
+                                      <h5 style={{textDecoration:"underline"}}>Lignes factures</h5>
+                                      {
+                                          row.statut === "wait" &&
+                                          <AtlButton appearance="default"
+                                                     iconBefore={<AddIcon/>}
+                                                     onClick={() => {
+                                                         setSelectedFacture(row)
+                                                         setSelectedRow(row)
+                                                         setDuration("")
+                                                         setToUpdated_date(new Date())
+                                                         let oa_contact = main_functions.getOAContactByEmail2(props.contacts,localStorage.getItem("email"));
+                                                         if(oa_contact){
+                                                             setToUpdated_OAUser(oa_contact.email)
+                                                             setToUpdated_rate(oa_contact.rateFacturation || "")
+                                                         }else{
+                                                             setToUpdated_OAUser("")
+                                                             setToUpdated_rate("")
+                                                         }
+                                                         setToUpdated_desc("")
+                                                         setAddUpdateModalType("add")
+                                                         setShowAddUpdateModal(true)
+                                                     }}
+                                          >
+                                              Ajouter un TimeSheet
+                                          </AtlButton>
+                                      }
+
+                                  </div>
+
                                   <Table size="small" aria-label="purchases">
                                       <TableHead>
                                           <TableRow>
@@ -606,7 +735,8 @@ function Row(props) {
                                                               setToUpdated_rate(row_copy.newTime.rateFacturation)
                                                               setToUpdated_OAUser(row_copy.newTime.utilisateurOA)
                                                               setToUpdated_desc(row_copy.newTime.description)
-                                                              setShowUpdateModal(true)
+                                                              setAddUpdateModalType("update")
+                                                              setShowAddUpdateModal(true)
                                                           }}
                                                           >
                                                               <EditIcon fontSize="small"/>
@@ -701,7 +831,7 @@ function Row(props) {
                                                           setTax(value)
                                                       }}
                                                       selection
-                                                      options={props.taxs || []}
+                                                      options={(props.taxs || []).filter(x => x.value !== "Hors TVA")}
                                                       loading={!props.taxs}
                                                   />
                                               </div>
@@ -779,18 +909,21 @@ function Row(props) {
               </TableRow>
           }
 
-        <Dialog open={showUpdateModal} maxWidth="md" fullWidth={true}    onClose={() => {
-          setShowUpdateModal(false)
-        }}
+
+
+
+        <Dialog open={showAddUpdateModal} maxWidth="md" fullWidth={true}
+                onClose={() => {
+                    setShowAddUpdateModal(false)
+                }}
                 aria-labelledby="form-dialog-title"
         >
           <DialogTitle disableTypography id="form-dialog-title">
-            <Typography variant="h6">Modifier</Typography>
+            <Typography variant="h6">{addUpdateModalType === "add" ? "Ajouter un TimeSheet" :"Modifier"}</Typography>
             <IconButton aria-label="close"
                         style={{position: 'absolute', right: 5, top: 5, color: "#c0c0c0"}}
                         onClick={() => {
-
-                          setShowUpdateModal(false)
+                            setShowAddUpdateModal(false)
                         }}>
               <CloseIcon/>
             </IconButton>
@@ -915,37 +1048,11 @@ function Row(props) {
                     isDisabled={ toUpdated_rate === "" || toUpdated_OAUser === ''}
                     appearance="primary"
                     onClick={() => {
-                      let newItem = selectedRow;
-                      newItem.checked = "false"
-                      newItem.newTime.utilisateurOA = toUpdated_OAUser
-                      newItem.newTime.rateFacturation = toUpdated_rate
-                      newItem.newTime.description = toUpdated_desc
-                      newItem.newTime.date = moment(toUpdated_date).format("YYYY-MM-DD :HH:mm:ss")
-
-                      let time = duration;
-                      let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
-                      if(regexFormat.test(time) === true){
-                        let duree = utilFunctions.durationToNumber(time);
-                        if(duree === 0){
-                          props.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
-                        }else{
-                          newItem.newTime.duree = utilFunctions.durationToNumber(duration)
-                          let facture = selectedFacture
-                          let findLigneIndex = (facture.lignes_facture || []).findIndex(x => x.id === newItem.id);
-                          if(findLigneIndex > -1){
-                            facture.lignes_facture[findLigneIndex] = newItem;
-                            console.log(facture)
-                            props.updateFacture(facture.id,facture)
-                            setShowUpdateModal(false)
-                          }else{
-                            props.openSnackbar('error', 'Une erreur est survenue !');
-                          }
-                        }
-                      }else{
-                        props.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
-                      }
-                    }}>
-                  Modifier</AtlButton>
+                        addUpdateModalType === "add" ? addTimeSheet() : updateTimeSheet()
+                    }}
+                >
+                    {addUpdateModalType === "add" ? "Ajouter" :"Modifier"}
+                </AtlButton>
               </div>
             </div>
 
@@ -956,28 +1063,8 @@ function Row(props) {
           {openDeleteLfModal === true && (
               <Modal
                   actions={[
-                    { text: 'Supprimer', onClick: () => {
-
-                        let facture = selectedFacture;
-                        if(facture.lignes_facture.length > 1){
-
-                          let findLigneIndex = (facture.lignes_facture || []).findIndex(x => x.id === selectedRow.id);
-                          if(findLigneIndex > -1){
-                            (facture.lignes_facture || []).splice(findLigneIndex,1);
-                            props.updateFacture(facture.id,facture)
-                            setOpenDeleteLfModal(false)
-                          }else{
-                            setOpenDeleteLfModal(false)
-                            props.openSnackbar('error', 'Une erreur est survenue !');
-                          }
-                        }else{
-                          setOpenDeleteLfModal(false)
-                          props.openSnackbar('warning', 'Une facture doit comporter au moins une ligne facture !');
-                        }
-
-                      } },
+                    { text: 'Supprimer', onClick: () => {onDeleteTimeSheetClick()}},
                     { text: 'Annuler', onClick: () => {
-
                         setOpenDeleteLfModal(false)
                       }},
                   ]}
