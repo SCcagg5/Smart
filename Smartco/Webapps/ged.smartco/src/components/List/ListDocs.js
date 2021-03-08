@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import IconButton from '@material-ui/core/IconButton';
-import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf';
 import moment from 'moment';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -8,7 +7,6 @@ import Typography from '@material-ui/core/Typography';
 import Menu from '@material-ui/core/Menu';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
 import EditIcon from '@material-ui/icons/Edit';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
@@ -22,12 +20,95 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { Modal, ModalBody, ModalHeader } from 'reactstrap';
 import GestureIcon from '@material-ui/icons/Gesture';
 import DescriptionIcon from '@material-ui/icons/Description';
+import DataTable from 'react-data-table-component';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+const paginationOptions = { rowsPerPageText: 'documents par page', rangeSeparatorText: 'de', selectAllRowsItem: true, selectAllRowsItemText: 'Tous' }
+const tableContextMessage = {singular:"document",plural:"documents",message:"sélectionnés"}
+const customTableStyles = {
+  header: {
+    style: {
+      minHeight: '56px'
+    },
+  },
+  headRow: {
+    style: {
+      borderBottomStyle: 'solid',
+      borderBottomWidth: '0px',
+      borderBottomColor: "#000"
+    },
+  },
+  headCells: {
+    style: {
+      color: "#000"
+    }
+  }
+}
+
+
 export default function ListDocs(props) {
+
+  const columns = [
+    {
+      name: 'Action',
+      selector: '',
+      sortable: false,
+      cell:(row, index, column, id) => {
+        return(
+            <IconButton color="default"
+                        onClick={(event) => {
+                          onDocContextMenu(event,row)
+                        }}
+            >
+          <MoreVertIcon/>
+        </IconButton>)
+      },
+      grow: 0,
+      center: true
+    },
+    {
+      name: "Nom",
+      selector: 'name',
+      sortable: true,
+      cell:(row, index, column, id) => {
+        return(
+            <div style={{cursor:"pointer",color:"#000",fontWeight:500,display:"flex"}}
+                 onClick={() => {props.onDocClick(row);}}
+            >
+              <IconButton color="default">
+                <DescriptionIcon
+                    style={{color: 'red', backgroundColor: '#fff'}} />
+              </IconButton>
+              <div style={{alignSelf:"center"}}>{row.name + ".pdf"}</div>
+            </div>
+        )},
+      grow:3
+    },
+    {
+      name: "Propriétaire",
+      selector: 'proprietary',
+      sortable: true,
+      cell:(row, index, column, id) => {return row.proprietary ? row.proprietary === localStorage.getItem("email") ? "Moi" : row.proprietary :"Moi"},
+      center:true
+    },
+    {
+      name: "Date de création",
+      selector: 'date',
+      sortable: true,
+      cell:(row, index, column, id) => {return moment(parseInt(row.date)).format('DD MMMM YYYY HH:mm:ss')},
+      grow:2
+    },
+    {
+      name: "Taille",
+      selector: '',
+      sortable: false,
+      cell:(row, index, column, id) => {return "-- Ko"}
+    }
+  ];
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [doc, setDoc] = useState('');
@@ -35,8 +116,24 @@ export default function ListDocs(props) {
   const [newFileName, setNewFileName] = useState('');
   const [open, setOpen] = React.useState(false);
   const [rights, setRights] = React.useState(null );
-
+  const [selectedRows, setSelectedRows] = React.useState([] );
   const selected_docs = props.docs.filter(x => x.selected && x.selected === true);
+
+
+  const onDocContextMenu = (event,item) => {
+    event.preventDefault();
+    props.setSelectedFile(item)
+    setDoc(item);
+    if(props.applyRights === true && item.rights){
+      if(item.proprietary === localStorage.getItem("email")){
+        setRights(null)
+      }else{
+        setRights(item.rights)
+      }
+    }
+    setNewFileName(item.name);
+    setAnchorEl(event.currentTarget);
+  }
 
   return (
     <div
@@ -58,7 +155,7 @@ export default function ListDocs(props) {
       }}
       style={{ overflow:'overlay',height:800 }}
     >
-      <h5 style={{ marginTop: 20 }}>Fichiers ({props.docs.length})</h5>
+      <h5 style={{ marginTop: 20,marginBottom:15 }}>Fichiers ({props.docs.length})</h5>
       {
         selected_docs.length > 1 &&
           <div style={{display:"flex",justifyContent:"space-between"}}>
@@ -73,31 +170,6 @@ export default function ListDocs(props) {
               </IconButton>
             </div>
           </div>
-      }
-      {
-        props.viewMode === 'list' && props.docs.length > 0 &&
-        <div className="list_view_item">
-          <div
-            style={{ width: 56 }}>
-            <h6 style={{ color: '#000' }}>Type</h6>
-          </div>
-          <div
-            style={{ width: 300 }}>
-            <h6 style={{ color: '#000' }}>Nom</h6>
-          </div>
-          <div
-            style={{ width: 215 }}>
-            <h6 style={{ color: '#000' }}>Propriétaire</h6>
-          </div>
-          <div
-            style={{ width: 200 }}>
-            <h6 style={{ color: '#000' }}>Date de création</h6>
-          </div>
-          <div
-            style={{ width: 150 }}>
-            <h6 style={{ color: '#000' }}>Taille</h6>
-          </div>
-        </div>
       }
       {
         (props.docs || []).map((item, key) =>
@@ -126,87 +198,56 @@ export default function ListDocs(props) {
                                 </div>
 
                             </span>
-            </div> :
-
-            <div key={key} className={item.selected && item.selected === true ? "list_view_item list_view_item_selected" : "list_view_item"}
-                 onClick={(e) => {
-                   if((e.ctrlKey)){
-                     let update_docs = props.docs;
-                     if(!item.selected){
-                       update_docs[key].selected = true
-                     }else{
-                       update_docs[key].selected = !item.selected
-                     }
-                     props.setDocs(update_docs)
-                   }else{
-                     let update_docs = props.docs;
-                     update_docs.map((el,k) => {
-                       if(el.selected && el.selected === true){
-                         el.selected = false;
-                       }
-                     })
-                     update_docs[key].selected = true;
-                     props.setDocs(update_docs)
-                   }
-                 }}
-                 onDoubleClick={() => {
-                   console.log(item)
-                   props.onDocClick(item);
-                 }}
-                 onContextMenu={(event) => {
-                   event.preventDefault();
-                   let update_docs = props.docs;
-                   update_docs.map((el,k) => {
-                     if(el.selected && el.selected === true){
-                       el.selected = false;
-                     }
-                   })
-                   update_docs[key].selected = true;
-                   props.setDocs(update_docs)
-                   props.setSelectedFile(item);
-                   setDoc(item);
-                   if(props.applyRights === true && item.rights){
-                     if(item.proprietary === localStorage.getItem("email")){
-                       setRights(null)
-                     }else{
-                       setRights(item.rights)
-                     }
-
-                   }
-                   setNewFileName(item.name);
-                   setAnchorEl(event.currentTarget);
-            }}
-            >
-              <div style={{ width: 56 }}>
-                <IconButton
-                  color="default">
-                  <DescriptionIcon
-                    style={{
-                      color: 'red',
-                      backgroundColor: '#fff'
-                    }} />
-                </IconButton>
-              </div>
-              <div
-                style={{ width: 300 }}>
-                <h6>{item.name + '.pdf'}</h6>
-              </div>
-              <div
-                style={{ width: 215 }}>
-                <h6 style={{ color: 'grey' }}>{item.proprietary ?
-                  item.proprietary === localStorage.getItem("email") ?
-                    "Moi" : item.proprietary  : 'Moi'}</h6>
-              </div>
-              <div
-                style={{ width: 200 }}>
-                <h6 style={{ color: 'grey' }}>{moment(parseInt(item.date)).format('DD MMMM YYYY hh:mm')}</h6>
-              </div>
-              <div
-                style={{ width: 150 }}>
-                <h6 style={{ color: 'grey' }}>-- Ko</h6>
-              </div>
-            </div>
+            </div> : null
         )
+      }
+      {
+        props.viewMode === "list" &&
+            <div style={{marginTop:10}}>
+              {
+                selectedRows.length > 0 &&
+                <div style={{backgroundColor:"#e3f2fd",padding:5,display:"flex",justifyContent:"space-between"}}>
+                  {
+                    selectedRows.length > 0 &&
+                    <div style={{alignSelf:"center",color:"rgba(0, 0, 0, 0.87)",fontSize:16,
+                      fontFamily:"-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"}}>
+                      {selectedRows.length === 1 ? selectedRows.length + " document sélectioné" : selectedRows.length + " documents sélectionnés"}
+                    </div>
+                  }
+                  <div>
+                    <IconButton color="default"
+                                onClick={() => {props.onDeleteFiles(selectedRows)}}
+                    >
+                      <DeleteOutlineIcon color="error" />
+                    </IconButton>
+                  </div>
+                </div>
+              }
+
+              <DataTable
+                  columns={columns}
+                  data={props.docs || []}
+                  defaultSortField="name"
+                  selectableRows={true}
+                  selectableRowsHighlight={true}
+                  onSelectedRowsChange={selected => {
+                    setSelectedRows(selected.selectedRows)
+                  }}
+                  dense={false}
+                  pagination={true}
+                  paginationPerPage={20}
+                  paginationComponentOptions={paginationOptions}
+                  highlightOnHover={true}
+                  striped={true}
+                  contextMessage={tableContextMessage}
+                  //progressPending={loadingEnregistrements === true}
+                  progressComponent={<h6>Chargement...</h6>}
+                  noDataComponent="Aucun fichier encore ajouté"
+                  customStyles={customTableStyles}
+
+              />
+            </div>
+
       }
       <Menu id="right-menu_doc"
             anchorEl={anchorEl}
@@ -316,6 +357,7 @@ export default function ListDocs(props) {
             Annuler
           </Button>
           <Button onClick={() => {
+            setOpen(false)
             props.onDeleteFile(doc);
           }}
                   color="secondary" style={{ textTransform: 'Capitalize', fontWeight: 'bold' }} variant="contained">
