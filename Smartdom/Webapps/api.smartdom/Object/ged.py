@@ -18,8 +18,9 @@ from .elastic import es, elastic
 
 class sign:
     def merge(b64_1, b64_2):
+        merger = PdfFileMerger()
         merger.append(PdfFileReader(io.BytesIO(b64decode(b64_1))))
-        merger.append(PdfFileReader(io.BytesIO((b64decode(b64_1)))))
+        merger.append(PdfFileReader(io.BytesIO((b64decode(b64_2)))))
         with io.BytesIO() as myio:
             merger.write(myio)
             t = base64.b64encode(myio.getvalue()).decode("utf-8")
