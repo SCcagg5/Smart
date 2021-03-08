@@ -46,6 +46,12 @@ import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import Collapse from "@material-ui/core/Collapse";
 import Box from "@material-ui/core/Box";
 import AltAvatarGroup from "@atlaskit/avatar-group";
+import SettingsIcon from '@material-ui/icons/Settings';
+import Switch from '@material-ui/core/Switch';
+import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
+import {CheckCircleOutline} from "@material-ui/icons";
+import Toggle from '@atlaskit/toggle';
+import rethink from "../../controller/rethink";
 
 const getTimeSuggestions = value => {
     const inputValue = value.trim().toLowerCase();
@@ -183,8 +189,10 @@ export default function TableTimeSheet(props) {
     const [showBy, setShowBy] = React.useState({ label: 'Par TimeSheet', value: 'timesheet' });
     const [open, setOpen] = React.useState(false);
     const [exapndedRowKey, setExapndedRowKey] = React.useState("");
+    const [showSetting, setShowSetting] = React.useState(false);
 
 
+    const [invisibleFolders, setInvisibleFolders] = React.useState(props.userCachedCases);
 
     const searchFilter = props.lignesFactures.filter((lf) => ( ( (lf.newTime.client_id.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
         ( lf.newTime.dossier_client && lf.newTime.dossier_client.folder_id && (lf.newTime.dossier_client.folder_id === lf_dossier_search ) || lf_dossier_search === "") &&
@@ -215,7 +223,7 @@ export default function TableTimeSheet(props) {
         return n.newTime.dossier_client.folder_id
     });
 
-    const groupedFormatedArray = Object.values(groupedArray);
+    let groupedFormatedArray = Object.values(groupedArray);
 
     groupedFormatedArray.sort( (a,b) => {
         let c1 = a[0].newTime.client
@@ -224,7 +232,8 @@ export default function TableTimeSheet(props) {
         if(c1.toLowerCase().trim() > c2.toLowerCase().trim()) { return 1; }
         return 0;
     })
-    //console.log(groupedFormatedArray)
+    groupedFormatedArray = showSetting === false ? groupedFormatedArray.filter(x => !invisibleFolders.includes(x[0].newTime.dossier_client.folder_id)) : groupedFormatedArray
+
 
 
     const selected = searchFilter.filter((lf) => ( lf.checked === true ));
@@ -841,227 +850,279 @@ export default function TableTimeSheet(props) {
                         </TableFooter>
                     </Table> :
 
-                    <Table aria-label="collapsible table" style={{marginTop:20}}>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell />
-                                <TableCell  style={{fontWeight:"bold"}} >Client</TableCell>
-                                <TableCell  style={{fontWeight:"bold"}} >Dossier</TableCell>
-                                <TableCell  style={{fontWeight:"bold"}} >Associes</TableCell>
-                                <TableCell  style={{fontWeight:"bold"}} >Equipe</TableCell>
-                                <TableCell align="center" style={{fontWeight:"bold"}} >Ajouté par </TableCell>
-                                <TableCell align="center"  style={{fontWeight:"bold"}} >Total(h)</TableCell>
-                                <TableCell align="center"  style={{fontWeight:"bold"}} >Total(CHF)</TableCell>
-
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
+                    <div>
+                        <div align="right" style={{backgroundColor:"aliceblue",marginTop:20}}>
+                            <IconButton onClick={() => setShowSetting(!showSetting)}>
+                                <SettingsIcon/>
+                            </IconButton>
                             {
-                                groupedFormatedArray.map((dossier,key) => (
-                                    <React.Fragment>
-                                        <TableRow className={classes.root}>
-                                            <TableCell>
-                                                <IconButton aria-label="expand row" size="small" onClick={() => {
-                                                    setOpen(!open)
-                                                    setExapndedRowKey(key)
-                                                }}>
-                                                    {open && key === exapndedRowKey ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                                                </IconButton>
-                                            </TableCell>
-                                            <TableCell style={{width:"18%"}} >{dossier[0].newTime.client}</TableCell>
-                                            <TableCell style={{width:"18%"}} >{dossier[0].newTime.dossier_client.name}</TableCell>
-                                            <TableCell style={{width:"12%"}} >
-                                                <AltAvatarGroup appearance="stack" maxCount={4} borderColor="#C0C0C0" isTooltipDisabled={false} size="small"
-                                                                data={(dossier[0].newTime.dossier_client.team || []).filter(x => x.type === "lead").map((item,key) => ({
-                                                                    name:item.email,
-                                                                    src:(props.OA_contacts || []).find(x => x.email === item.email) ? ((props.OA_contacts || []).find(x => x.email === item.email)).imageUrl : "" ,
-                                                                    appearance:"circle",
-                                                                    size:"small",
-                                                                    borderColor:"#C0C0C0"
-                                                                }))}
-                                                />
-                                            </TableCell>
-                                            <TableCell style={{width:"12%"}} >
-                                                <AltAvatarGroup appearance="stack" maxCount={4} borderColor="#C0C0C0" isTooltipDisabled={false} size="small"
-                                                                data={(dossier[0].newTime.dossier_client.team || []).filter(x => x.type === "team").map((item,key) => ({
-                                                                    name:item.email,
-                                                                    src:(props.OA_contacts || []).find(x => x.email === item.email) ? ((props.OA_contacts || []).find(x => x.email === item.email)).imageUrl : "" ,
-                                                                    appearance:"circle",
-                                                                    size:"small",
-                                                                    borderColor:"#C0C0C0"
-                                                                }))}
-                                                />
-                                            </TableCell>
-                                            <TableCell style={{width:"20%"}}>{renderOA_user(dossier[0].user_email)}</TableCell>
-                                            {
-                                                renderTotalHours_CHF_byFolder(dossier)
-                                            }
+                                showSetting === true &&
+                                <IconButton title="Enregistrer"
+                                            onClick={() => {
+                                                console.log(invisibleFolders)
+                                                setShowSetting(false)
+                                                if(props.cachedCases && props.cachedCases.user_email){
+                                                    props.updateUserCachedCases(invisibleFolders,"old",props.cachedCases.id)
+                                                }else{
+                                                    props.updateUserCachedCases(invisibleFolders,"new")
+                                                }
 
-                                        </TableRow>
-
-                                        <TableRow>
-                                            <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
-                                                <Collapse in={open && key === exapndedRowKey} timeout="auto" unmountOnExit>
-                                                    <Box margin={1}>
-                                                        <div style={{marginLeft:30,border:"2px solid dodgerblue",padding:20,borderRadius:7.5,maxHeight:600,overflow:"overlay"}}>
-                                                            <h5 style={{textDecoration:"underline"}}>{dossier.length === 0 ? "Aucun timesheet pour ce dossier" : dossier.length + " TimeSheet non encore facturés"}</h5>
-                                                            <Table size="small" aria-label="purchases">
-                                                                <TableHead>
-                                                                    <TableRow>
-                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >
-                                                                            <div style={{display:"flex"}}>
-                                                                                <IconButton size="small" onClick={() => {
-                                                                                    sort_in_folder_form === "asc" ? setSort_in_folder_form("desc") : setSort_in_folder_form("asc")
-                                                                                }}
-                                                                                >
-                                                                                    {
-                                                                                        sort_in_folder_form === "asc" ? <ArrowDropDownIcon fontSize="small"/> : <ArrowDropUpIcon fontSize="small"/>
-                                                                                    }
-
-                                                                                </IconButton>
-                                                                                <div>Date</div>
-                                                                            </div>
-                                                                        </TableCell>
-                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >Description</TableCell>
-                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >Utilisateur OA</TableCell>
-                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >Taux horaire</TableCell>
-                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >Durée</TableCell>
-                                                                        <TableCell align="center" style={{fontWeight:"bold"}} >Total</TableCell>
-                                                                    </TableRow>
-
-                                                                </TableHead>
-                                                                <TableBody>
-                                                                    {(dossier || []).sort( (a,b) => {
-                                                                        var c = new Date(a.newTime.date);
-                                                                        var d = new Date(b.newTime.date);
-                                                                        return sort_in_folder_form === "asc" ?  d-c : c-d;})
-                                                                        .map((lf,key) => (
-
-                                                                        <TableRow key={key}>
-                                                                                <TableCell component="th" scope="row" align="center" style={{width:"10%"}} >
-                                                                                    {moment(lf.newTime.date).format("DD-MM-YYYY")}
-                                                                                </TableCell>
-                                                                                <TableCell align="center" style={{width:"30%"}}>{lf.newTime.description}</TableCell>
-                                                                                <TableCell align="center" style={{width:"20%"}}>{renderOA_user(lf.newTime.utilisateurOA)}</TableCell>
-                                                                                <TableCell align="center" style={{width:"10%"}}>{lf.newTime.rateFacturation + " CHF"}</TableCell>
-                                                                                <TableCell align="center" style={{width:"10%"}}>
-                                                                                    {utilFunctions.formatDuration(lf.newTime.duree.toString())}
-                                                                                </TableCell>
-                                                                                <TableCell align="center" style={{width:"10%"}}>
-                                                                                    {(lf.newTime.duree * parseInt(lf.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF
-                                                                                </TableCell>
-                                                                            </TableRow>
-
-                                                                    ))}
-                                                                    <TableRow style={{padding:7}}>
-                                                                        <TableCell align="center" style={{width:"10%"}}/>
-                                                                        <TableCell align="center" style={{width:"30%",fontWeight:600}}/>
-                                                                        <TableCell align="center" style={{width:"20%",fontWeight:600}}/>
-                                                                        <TableCell align="center" style={{width:"10%",fontWeight:600}}/>
-                                                                        {renderTotalHours_CHF_byFolder(dossier)}
-                                                                    </TableRow>
-                                                                </TableBody>
-                                                            </Table>
-                                                            <div className="row mt-3">
-                                                                <div className="col-md-4">
-                                                                    <h5>Partner validant cette facture</h5>
-                                                                    <MuiSelect
-                                                                        labelId="demo-mutiple-chip-label14545"
-                                                                        id="demo-mutiple-chip34688"
-                                                                        style={{ width: 250 }}
-                                                                        value={partner_facture}
-                                                                        onChange={(e) => {
-                                                                            setPartner_facture(e.target.value)
-                                                                        }}
-                                                                        MenuProps={Data.MenuProps}
-                                                                    >
-                                                                        {props.OA_contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
-                                                                            <MenuItem
-                                                                                key={key}
-                                                                                value={contact.email}>
-                                                                                <div
-                                                                                    className="row align-items-center justify-content-center">
-                                                                                    <Avatar
-                                                                                        alt=""
-                                                                                        src={contact.imageUrl} />
-                                                                                    <div>{contact.nom + ' ' + contact.prenom}</div>
-                                                                                </div>
-                                                                            </MenuItem>
-                                                                        ))}
-                                                                    </MuiSelect>
-                                                                </div>
-                                                                <div className="col-md-4">
-                                                                    <h5>Date de la facture</h5>
-                                                                    <DatePicker
-                                                                        calendarIcon={
-                                                                            <img
-                                                                                alt=""
-                                                                                src={calendar}
-                                                                                style={{ width: 20 }} />}
-                                                                        onChange={(e) => {
-                                                                            setFacture_date(e)
-                                                                        }}
-                                                                        value={facture_date}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <div className="mt-3" style={{textAlign:"right"}}>
-                                                                <AtlButton
-                                                                    appearance="primary"
-                                                                    isDisabled={partner_facture === ""}
-                                                                    onClick={() => {
-                                                                        if(partner_facture === ""){
-                                                                            alert("Vous devez sélectionner un partner pour la validation !")
-                                                                        }else{
-                                                                            setCheck_all(false)
-                                                                            let sheets_to_add = [];
-                                                                            (dossier || []).map((item,key) => {
-                                                                                sheets_to_add.push({
-                                                                                    id:item.id,
-                                                                                    created_at:item.created_at,
-                                                                                    uid:item.uid,
-                                                                                    user_email:item.user_email,
-                                                                                    newTime:item.newTime
-                                                                                })
-                                                                            })
-                                                                            let client_folder={id:sheets_to_add[0].newTime.dossier_client.folder_id,name:sheets_to_add[0].newTime.dossier_client.name}
-                                                                            console.log(client_folder)
-                                                                            props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD HH:mm:ss"),partner_facture,sheets_to_add);
-                                                                            setTimeout(() => {
-                                                                                selected.map((item,key) => {
-                                                                                    if(typeof item.checked === "boolean"){
-                                                                                        item.checked = false;
-                                                                                    }
-                                                                                })
-                                                                                setPartner_facture("")
-                                                                                setFacture_date(new Date())
-                                                                            },250);
-                                                                        }
-
-                                                                    }}>
-                                                                    Envoyer la facture pour validation</AtlButton>
-                                                            </div>
-                                                        </div>
-                                                    </Box>
-
-                                                </Collapse>
-                                            </TableCell>
-                                        </TableRow>
-
-                                    </React.Fragment>
-                                ))
+                                            }}
+                                >
+                                    <CheckCircleOutline style={{color:"green"}}/>
+                                </IconButton>
                             }
-                            <TableRow>
-                                <TableCell/>
-                                <TableCell style={{width:"18%"}}/>
-                                <TableCell  style={{width:"18%"}}/>
-                                <TableCell  style={{width:"12%"}}/>
-                                <TableCell  style={{width:"12%"}}/>
-                                <TableCell  style={{width:"20%"}}/>
-                                {renderTotalHours_CHF_allFolders(groupedFormatedArray)}
-                            </TableRow>
-                        </TableBody>
-                    </Table>
+
+                        </div>
+                        <Table aria-label="collapsible table" style={{marginTop:20}}>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell />
+                                    <TableCell  style={{fontWeight:"bold"}} >Client</TableCell>
+                                    <TableCell  style={{fontWeight:"bold"}} >Dossier</TableCell>
+                                    <TableCell  style={{fontWeight:"bold"}} >Associes</TableCell>
+                                    <TableCell  style={{fontWeight:"bold"}} >Equipe</TableCell>
+                                    <TableCell align="center" style={{fontWeight:"bold"}} >Ajouté par </TableCell>
+                                    <TableCell align="center"  style={{fontWeight:"bold"}} >Total(h)</TableCell>
+                                    <TableCell align="center"  style={{fontWeight:"bold"}} >Total(CHF)</TableCell>
+                                    {
+                                        showSetting === true &&
+                                        <TableCell align="center" style={{fontWeight:"bold"}}>Visibilité</TableCell>
+                                    }
+
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {
+                                    groupedFormatedArray.map((dossier,key) => (
+                                        <React.Fragment>
+                                            <TableRow className={classes.root}>
+                                                <TableCell>
+                                                    <IconButton aria-label="expand row" size="small" onClick={() => {
+                                                        setOpen(!open)
+                                                        setExapndedRowKey(key)
+                                                    }}>
+                                                        {open && key === exapndedRowKey ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                                                    </IconButton>
+                                                </TableCell>
+                                                <TableCell style={{width:"18%"}} >{dossier[0].newTime.client}</TableCell>
+                                                <TableCell style={{width:"18%"}} >{dossier[0].newTime.dossier_client.name}</TableCell>
+                                                <TableCell style={{width:"12%"}} >
+                                                    <AltAvatarGroup appearance="stack" maxCount={4} borderColor="#C0C0C0" isTooltipDisabled={false} size="small"
+                                                                    data={(dossier[0].newTime.dossier_client.team || []).filter(x => x.type === "lead").map((item,key) => ({
+                                                                        name:item.email,
+                                                                        src:(props.OA_contacts || []).find(x => x.email === item.email) ? ((props.OA_contacts || []).find(x => x.email === item.email)).imageUrl : "" ,
+                                                                        appearance:"circle",
+                                                                        size:"small",
+                                                                        borderColor:"#C0C0C0"
+                                                                    }))}
+                                                    />
+                                                </TableCell>
+                                                <TableCell style={{width:"12%"}} >
+                                                    <AltAvatarGroup appearance="stack" maxCount={4} borderColor="#C0C0C0" isTooltipDisabled={false} size="small"
+                                                                    data={(dossier[0].newTime.dossier_client.team || []).filter(x => x.type === "team").map((item,key) => ({
+                                                                        name:item.email,
+                                                                        src:(props.OA_contacts || []).find(x => x.email === item.email) ? ((props.OA_contacts || []).find(x => x.email === item.email)).imageUrl : "" ,
+                                                                        appearance:"circle",
+                                                                        size:"small",
+                                                                        borderColor:"#C0C0C0"
+                                                                    }))}
+                                                    />
+                                                </TableCell>
+                                                <TableCell style={{width:"20%"}}>{renderOA_user(dossier[0].user_email)}</TableCell>
+                                                {
+                                                    renderTotalHours_CHF_byFolder(dossier)
+                                                }
+                                                {
+                                                    showSetting === true &&
+                                                    <TableCell>
+                                                        <Toggle id="sett-large" size="large"
+                                                                isChecked={!invisibleFolders.includes(dossier[0].newTime.dossier_client.folder_id)}
+                                                                onChange={event => {
+                                                                    let inv_folders = invisibleFolders;
+                                                                    if(event.target.checked === false){
+                                                                        inv_folders.push(dossier[0].newTime.dossier_client.folder_id)
+                                                                        setInvisibleFolders(inv_folders)
+                                                                        setX_update(!x_update)
+
+                                                                    }else{
+                                                                        let find_index = inv_folders.findIndex(x => x === dossier[0].newTime.dossier_client.folder_id )
+                                                                        inv_folders.splice(find_index,1)
+                                                                        setInvisibleFolders(inv_folders)
+                                                                        setX_update(!x_update)
+                                                                    }
+                                                                }}
+                                                        />
+                                                    </TableCell>
+                                                }
+
+                                            </TableRow>
+
+                                            <TableRow>
+                                                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+                                                    <Collapse in={open && key === exapndedRowKey} timeout="auto" unmountOnExit>
+                                                        <Box margin={1}>
+                                                            <div style={{marginLeft:30,border:"2px solid dodgerblue",padding:20,borderRadius:7.5,maxHeight:600,overflow:"overlay"}}>
+                                                                <h5 style={{textDecoration:"underline"}}>{dossier.length === 0 ? "Aucun timesheet pour ce dossier" : dossier.length + " TimeSheet non encore facturés"}</h5>
+                                                                <Table size="small" aria-label="purchases">
+                                                                    <TableHead>
+                                                                        <TableRow>
+                                                                            <TableCell align="center" style={{fontWeight:"bold"}} >
+                                                                                <div style={{display:"flex"}}>
+                                                                                    <IconButton size="small" onClick={() => {
+                                                                                        sort_in_folder_form === "asc" ? setSort_in_folder_form("desc") : setSort_in_folder_form("asc")
+                                                                                    }}
+                                                                                    >
+                                                                                        {
+                                                                                            sort_in_folder_form === "asc" ? <ArrowDropDownIcon fontSize="small"/> : <ArrowDropUpIcon fontSize="small"/>
+                                                                                        }
+
+                                                                                    </IconButton>
+                                                                                    <div>Date</div>
+                                                                                </div>
+                                                                            </TableCell>
+                                                                            <TableCell align="center" style={{fontWeight:"bold"}} >Description</TableCell>
+                                                                            <TableCell align="center" style={{fontWeight:"bold"}} >Utilisateur OA</TableCell>
+                                                                            <TableCell align="center" style={{fontWeight:"bold"}} >Taux horaire</TableCell>
+                                                                            <TableCell align="center" style={{fontWeight:"bold"}} >Durée</TableCell>
+                                                                            <TableCell align="center" style={{fontWeight:"bold"}} >Total</TableCell>
+                                                                        </TableRow>
+
+                                                                    </TableHead>
+                                                                    <TableBody>
+                                                                        {(dossier || []).sort( (a,b) => {
+                                                                            var c = new Date(a.newTime.date);
+                                                                            var d = new Date(b.newTime.date);
+                                                                            return sort_in_folder_form === "asc" ?  d-c : c-d;})
+                                                                            .map((lf,key) => (
+
+                                                                                <TableRow key={key}>
+                                                                                    <TableCell component="th" scope="row" align="center" style={{width:"10%"}} >
+                                                                                        {moment(lf.newTime.date).format("DD-MM-YYYY")}
+                                                                                    </TableCell>
+                                                                                    <TableCell align="center" style={{width:"30%"}}>{lf.newTime.description}</TableCell>
+                                                                                    <TableCell align="center" style={{width:"20%"}}>{renderOA_user(lf.newTime.utilisateurOA)}</TableCell>
+                                                                                    <TableCell align="center" style={{width:"10%"}}>{lf.newTime.rateFacturation + " CHF"}</TableCell>
+                                                                                    <TableCell align="center" style={{width:"10%"}}>
+                                                                                        {utilFunctions.formatDuration(lf.newTime.duree.toString())}
+                                                                                    </TableCell>
+                                                                                    <TableCell align="center" style={{width:"10%"}}>
+                                                                                        {(lf.newTime.duree * parseInt(lf.newTime.rateFacturation)).toFixed(2)}&nbsp;CHF
+                                                                                    </TableCell>
+                                                                                </TableRow>
+
+                                                                            ))}
+                                                                        <TableRow style={{padding:7}}>
+                                                                            <TableCell align="center" style={{width:"10%"}}/>
+                                                                            <TableCell align="center" style={{width:"30%",fontWeight:600}}/>
+                                                                            <TableCell align="center" style={{width:"20%",fontWeight:600}}/>
+                                                                            <TableCell align="center" style={{width:"10%",fontWeight:600}}/>
+                                                                            {renderTotalHours_CHF_byFolder(dossier)}
+                                                                        </TableRow>
+                                                                    </TableBody>
+                                                                </Table>
+                                                                <div className="row mt-3">
+                                                                    <div className="col-md-4">
+                                                                        <h5>Partner validant cette facture</h5>
+                                                                        <MuiSelect
+                                                                            labelId="demo-mutiple-chip-label14545"
+                                                                            id="demo-mutiple-chip34688"
+                                                                            style={{ width: 250 }}
+                                                                            value={partner_facture}
+                                                                            onChange={(e) => {
+                                                                                setPartner_facture(e.target.value)
+                                                                            }}
+                                                                            MenuProps={Data.MenuProps}
+                                                                        >
+                                                                            {props.OA_contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
+                                                                                <MenuItem
+                                                                                    key={key}
+                                                                                    value={contact.email}>
+                                                                                    <div
+                                                                                        className="row align-items-center justify-content-center">
+                                                                                        <Avatar
+                                                                                            alt=""
+                                                                                            src={contact.imageUrl} />
+                                                                                        <div>{contact.nom + ' ' + contact.prenom}</div>
+                                                                                    </div>
+                                                                                </MenuItem>
+                                                                            ))}
+                                                                        </MuiSelect>
+                                                                    </div>
+                                                                    <div className="col-md-4">
+                                                                        <h5>Date de la facture</h5>
+                                                                        <DatePicker
+                                                                            calendarIcon={
+                                                                                <img
+                                                                                    alt=""
+                                                                                    src={calendar}
+                                                                                    style={{ width: 20 }} />}
+                                                                            onChange={(e) => {
+                                                                                setFacture_date(e)
+                                                                            }}
+                                                                            value={facture_date}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="mt-3" style={{textAlign:"right"}}>
+                                                                    <AtlButton
+                                                                        appearance="primary"
+                                                                        isDisabled={partner_facture === ""}
+                                                                        onClick={() => {
+                                                                            if(partner_facture === ""){
+                                                                                alert("Vous devez sélectionner un partner pour la validation !")
+                                                                            }else{
+                                                                                setCheck_all(false)
+                                                                                let sheets_to_add = [];
+                                                                                (dossier || []).map((item,key) => {
+                                                                                    sheets_to_add.push({
+                                                                                        id:item.id,
+                                                                                        created_at:item.created_at,
+                                                                                        uid:item.uid,
+                                                                                        user_email:item.user_email,
+                                                                                        newTime:item.newTime
+                                                                                    })
+                                                                                })
+                                                                                let client_folder={id:sheets_to_add[0].newTime.dossier_client.folder_id,name:sheets_to_add[0].newTime.dossier_client.name}
+                                                                                console.log(client_folder)
+                                                                                props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD HH:mm:ss"),partner_facture,sheets_to_add);
+                                                                                setTimeout(() => {
+                                                                                    selected.map((item,key) => {
+                                                                                        if(typeof item.checked === "boolean"){
+                                                                                            item.checked = false;
+                                                                                        }
+                                                                                    })
+                                                                                    setPartner_facture("")
+                                                                                    setFacture_date(new Date())
+                                                                                },250);
+                                                                            }
+
+                                                                        }}>
+                                                                        Envoyer la facture pour validation</AtlButton>
+                                                                </div>
+                                                            </div>
+                                                        </Box>
+
+                                                    </Collapse>
+                                                </TableCell>
+                                            </TableRow>
+
+                                        </React.Fragment>
+                                    ))
+                                }
+                                <TableRow>
+                                    <TableCell/>
+                                    <TableCell style={{width:"18%"}}/>
+                                    <TableCell  style={{width:"18%"}}/>
+                                    <TableCell  style={{width:"12%"}}/>
+                                    <TableCell  style={{width:"12%"}}/>
+                                    <TableCell  style={{width:"20%"}}/>
+                                    {renderTotalHours_CHF_allFolders(groupedFormatedArray)}
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+
             }
 
             {

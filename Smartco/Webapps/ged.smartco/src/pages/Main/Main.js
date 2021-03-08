@@ -303,7 +303,7 @@ export default class Main extends React.Component {
     societes: [],
     clients_cases:[],
     //annuaire_clients_mandat: [],
-    time_sheets:[],
+    //time_sheets:[],
     /*rooms: [],*/
     selectedContact: '',
     selectedContactKey: '',
@@ -774,7 +774,6 @@ export default class Main extends React.Component {
 
   rethink_initialise(){
     //RethinkDB
-    /*this.setState({loading:true})*/
     rethink.createDB(db_name,"test").then( r1 => {
       if (r1 === true) console.log("NEW DB CREATED");
       if (r1 === false) console.log("DB ALREADY EXIST");
@@ -2410,12 +2409,17 @@ export default class Main extends React.Component {
       })
     })
 
+    let cached_cases = (this.state.cached_cases || []).find(x => x.user_email === localStorage.getItem("email"))
+    let user_cached_cases = cached_cases ? cached_cases.c_cases || [] : []
+    console.log(user_cached_cases)
+
     return(
-          this.state.time_sheets.length === 0 ?
+        !this.state.time_sheets || !this.state.cached_cases ?
               <div  align="center" style={{marginTop:200}}>
                 <CircularProgress color="primary" />
                 <h6>Chargement...</h6>
               </div> :
+
               <div  style={{height:"90%"}} >
                 <div className="row">
                   <div className="col-lg-12 ">
@@ -2960,28 +2964,71 @@ export default class Main extends React.Component {
 
                           </TabPanel>
                           <TabPanel>
+
+                                  <TableTimeSheet
+                                      lignesFactures={this.state.time_sheets || []}
+                                      lignesFacturesCopy={this.state.time_sheets || []}
+                                      deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
+                                      setLignesFactures={(lignes_factures) => this.setState({lignesFactures: lignes_factures})}
+                                      OA_contacts={this.state.contacts || []}
+                                      annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
+                                      onClickFacture={(client, client_folder, facture_date, partner, lignes_facture) => {
+                                        this.addFactureToValidated(client, client_folder, facture_date, localStorage.getItem("email"),
+                                            partner, lignes_facture)
+                                      }}
+                                      client_folders={this.state.client_folders}
+                                      updateLigneFacture={(id, ligne) => this.updateLigneFacture(id, ligne)}
+                                      openSnackbar={(type, msg) => this.openSnackbar(type, msg)}
+                                      clientsTempo={this.state.clients_cases}
+                                      updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
+                                      factures={this.state.factures || []}
+                                      cachedCases={cached_cases}
+                                      userCachedCases={user_cached_cases}
+                                      updateUserCachedCases={(cached,type,id) => {
+                                        this.setState({loading: true})
+                                        this.verifIsTableExist("cached_cases").then(v => {
+                                          if(type === "old"){
+                                            let item = {
+                                              user_email: localStorage.getItem("email"),
+                                              c_cases: cached
+                                            }
+                                            rethink.update("test",'table("cached_cases").get('+JSON.stringify(id)+').update('+ JSON.stringify(item) + ')',db_name,false).then( updateRes => {
+                                              if (updateRes && updateRes === true) {
+                                                this.setState({loading:false})
+                                                this.openSnackbar("success", "Votre configuration est enregistrée avec succès")
+                                              } else {
+                                                this.setState({loading:false})
+                                                this.openSnackbar("error","Une erreur est survenue !")
+                                              }
+                                            }).catch(err => {
+                                              this.setState({loading:false})
+                                              this.openSnackbar("error","Une erreur est survenue !")
+                                              console.log(err)
+                                            })
+                                          }else{
+                                            let item = {
+                                              user_email: localStorage.getItem("email"),
+                                              c_cases: cached
+                                            }
+                                            rethink.insert("test", 'table("cached_cases").insert(' + JSON.stringify(item) + ')', db_name, false).then(resAdd => {
+                                              if (resAdd && resAdd === true) {
+                                                this.setState({loading: false})
+                                                this.openSnackbar("success", "Votre configuration est enregistrée avec succès")
+                                              } else {
+                                                this.setState({loading: false})
+                                                this.openSnackbar("error", "Une erreur est survenue !")
+                                              }
+                                            }).catch(err => {
+                                              this.openSnackbar("error", "Une erreur est survenue !")
+                                              console.log(err)
+                                            })
+                                          }
+
+                                        }).catch(err => console.log(err))
+                                      }}
+                                  />
                             {
-                              this.state.time_sheets.length > 0 &&
-                              <TableTimeSheet
-                                  lignesFactures={this.state.time_sheets || []}
-                                  lignesFacturesCopy={this.state.time_sheets || []}
-                                  deleteLigneFacture={(id) => this.deleteLigneFacture(id)}
-                                  setLignesFactures={(lignes_factures) => this.setState({ lignesFactures: lignes_factures })}
-                                  OA_contacts={this.state.contacts || []}
-                                  annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
-                                  onClickFacture={(client,client_folder,facture_date,partner,lignes_facture) => {
-                                    this.addFactureToValidated(client,client_folder,facture_date,localStorage.getItem("email"),
-                                        partner,lignes_facture)
-                                  }}
-                                  client_folders={this.state.client_folders}
-                                  updateLigneFacture={(id,ligne) => this.updateLigneFacture(id,ligne)}
-                                  openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
-                                  clientsTempo={this.state.clients_cases}
-                                  updateAllLigneFacture={(data) => this.updateAllLigneFacture(data)}
-                                  factures={this.state.factures || []}
-                              />
-                            } {
-                            this.state.time_sheets.length === 0 &&
+                            this.state.time_sheets && this.state.time_sheets.length === 0 &&
                             <div style={{
                               marginTop: 30,
                               marginLeft: 10
@@ -2997,7 +3044,7 @@ export default class Main extends React.Component {
                                            clients_tempo={this.state.clients_cases}
                                            annuaire_clients_mandat={this.state.annuaire_clients_mandat || []}
                                            contacts={this.state.contacts || []}
-                                           timeSheets={this.state.time_sheets}
+                                           timeSheets={this.state.time_sheets || []}
                                            sharedFolders={this.state.sharedReelFolders || []}
                                            validateFacture={(row,key,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount) => {
                                              this.before_create_facture(row.created_at, row.lignes_facture,row.client_folder.id,row,template,client,paymTerm,deadline_date,tax,fraisAdmin,compte_banc,reductionType,reductionAmount);
