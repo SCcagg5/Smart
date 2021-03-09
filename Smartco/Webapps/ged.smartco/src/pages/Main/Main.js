@@ -432,11 +432,8 @@ export default class Main extends React.Component {
     destinationFolder:"",
 
     wip_selected_contact:"",
-    wip_selected_folder:"",
-    wip_selected_mandat:{
-      label:"",
-      value:""
-    },
+    wip_selected_client:"",
+    wip_selected_mandat:"",
 
     SEQ_file:"",
     signFile_destinationFolder:"",
@@ -2368,6 +2365,29 @@ export default class Main extends React.Component {
     );
   };
 
+  renderClientCases(client_id){
+    console.log("ENTRED")
+    let cases = [];
+    cases.push({value:"",label:""})
+    let clientsTempo = this.state.clients_cases || [];
+    clientsTempo.map((tmp,key) => {
+      (tmp.folders || []).map((f,i) => {
+        if(tmp.ID_client === client_id){
+          cases.push({
+            value:f.folder_id,
+            label:f.name
+          })
+        }
+      })
+    })
+
+    return(
+        cases.map((item,key) => (
+            <option key={key} value={item.value}>{item.label}</option>
+        ))
+    )
+  }
+
 
   renderTimeSheet = () => {
 
@@ -2411,7 +2431,6 @@ export default class Main extends React.Component {
 
     let cached_cases = (this.state.cached_cases || []).find(x => x.user_email === localStorage.getItem("email"))
     let user_cached_cases = cached_cases ? cached_cases.c_cases || [] : []
-    console.log(user_cached_cases)
 
     return(
         !this.state.time_sheets || !this.state.cached_cases ?
@@ -3088,22 +3107,9 @@ export default class Main extends React.Component {
                           <TabPanel>
                             <div style={{marginTop:25}}>
                               <div className="row">
-                                <div className="col-md-4">
+                                <div className="col-md-12">
                                   <div>
-                                    <h6>Mandats</h6>
-                                  </div>
-                                  <Select
-                                      value={this.state.wip_selected_mandat}
-                                      options={grouped_mandats_options}
-                                      onChange={(newValue, actionMeta) => {
-                                        console.log(newValue)
-                                        this.setState({wip_selected_mandat:newValue})
-                                      }}
-                                  />
-                                </div>
-                                <div className="col-md-6">
-                                  <div>
-                                    <h6>Sélectionner un client </h6>
+                                    <h6>Avocat</h6>
                                   </div>
                                   <MuiSelect
                                       labelId="demo-simple-select-label45845"
@@ -3114,15 +3120,15 @@ export default class Main extends React.Component {
                                       }}
                                       value={this.state.wip_selected_contact}
                                   >
-                                    {(this.state.annuaire_clients_mandat || []).map((contact, key) => (
+                                    {this.state.contacts.map((contact, key) => (
                                         <MenuItem
                                             key={key}
-                                            value={contact.ID}>
-                                          <div style={{display:"flex"}}>
-                                            <Avatar style={{marginLeft:10}}
-                                                    alt=""
-                                                    src={contact.Type === '1' ? contact.imageUrl ? contact.imageUrl : userAvatar : entIcon} />
-                                            <div style={{marginTop:10,marginLeft:8}}>{contact.Nom + ' ' + contact.Prenom}</div>
+                                            value={contact.email}>
+                                          <div className="row align-items-center justify-content-center">
+                                            <Avatar
+                                                alt=""
+                                                src={contact.imageUrl} />
+                                            <div>{contact.nom + ' ' + contact.prenom}</div>
                                           </div>
                                         </MenuItem>
                                     ))}
@@ -3130,23 +3136,68 @@ export default class Main extends React.Component {
                                 </div>
                               </div>
                               <div className="row mt-2">
-                                <div className="col-md-12">
+                                <div className="col-md-6">
                                   <div>
-                                    <h6>Dossier de destination</h6>
-                                    <input type="text" readOnly={true}
-                                           className="form-control custom-select"
-                                           style={{ width: 300,cursor:"pointer",height:40 }}
-                                           value={this.state.wip_selected_folder.title}
-                                           onClick={(e) => {
-                                             this.setState({anchorElDrive2:e.currentTarget})
-                                           }}
-                                    />
+                                    <h6>Client</h6>
                                   </div>
+                                  <SelectSearch
+                                      className="select-search"
+                                      options={[{value:"",name:"",ContactType:"",ContactName:"Aucun client",imageUrl:""}].concat(
+                                        this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
+                                            ({
+                                              value: ID,
+                                              name: Nom + ' ' + (Prenom || ''),
+                                              ContactType: Type,
+                                              ContactName: Nom + ' ' + (Prenom || ''),
+                                              imageUrl: imageUrl
+                                            })))
+                                      }
+                                      value={this.state.wip_selected_client}
+                                      renderOption={main_functions.renderSearchOption}
+                                      search
+                                      placeholder="Sélectionner.."
+                                      onChange={e => {
+                                        this.setState({wip_selected_client:e})
+                                        console.log(e)
+
+                                        let cases = [];
+                                        cases.push({value:"",label:""})
+                                        let clientsTempo = this.state.clients_cases || [];
+                                        clientsTempo.map((tmp,key) => {
+                                          (tmp.folders || []).map((f,i) => {
+                                            if(tmp.ID_client === e){
+                                              cases.push({
+                                                value:f.folder_id,
+                                                label:f.name
+                                              })
+                                            }
+                                          })
+                                        })
+                                        console.log(cases.length > 0 ? cases[1].value : "")
+                                        this.setState({wip_selected_mandat:cases.length > 0 ? cases[1].value : ""})
+                                      }}
+                                  />
+                                </div>
+                                <div className="col-md-6">
+                                  <h6>Dossier</h6>
+                                  <select className="form-control custom-select" style={{width:230,marginLeft:10}}
+                                          onChange={(event) => {
+                                            console.log(event.target.value)
+                                            this.setState({wip_selected_mandat:event.target.value})
+                                          }}
+                                          value={this.state.wip_selected_mandat}
+                                  >
+                                    {
+                                      this.renderClientCases(this.state.wip_selected_client)
+                                    }
+
+
+                                  </select>
                                 </div>
                               </div>
-                              <div align="center" className="mt-2">
+                              <div align="center" className="mt-4">
                                 <AtlButton
-                                    isDisabled={this.state.wip_selected_mandat === "" || this.state.wip_selected_folder === ""}
+                                    isDisabled={this.state.wip_selected_contact === ""}
                                     appearance="primary"
                                     onClick={() => {
                                       this.reportContact()
@@ -3155,7 +3206,7 @@ export default class Main extends React.Component {
                                   Générer le rapport
                                 </AtlButton>
                               </div>
-                              <Popover
+                              {/*<Popover
                                   id={id2}
                                   open={openDrivePopup2}
                                   anchorEl={this.state.anchorElDrive2}
@@ -3213,7 +3264,7 @@ export default class Main extends React.Component {
                                     </AtlButton>
                                   </div>
                                 </div>
-                              </Popover>
+                              </Popover>*/}
                             </div>
                           </TabPanel>
                           <TabPanel>
@@ -3922,23 +3973,24 @@ export default class Main extends React.Component {
 
   reportContact(){
     this.setState({loading:true})
-    let contact_timeSheets = [];
-    contact_timeSheets = (this.state.time_sheets || []).filter(x => x.newTime.dossier_client.folder_id === this.state.wip_selected_mandat.value)
-
-    let contact = main_functions.getContactById(this.state.contacts || [],this.state.wip_selected_contact)
-    if(contact){
-      contact_timeSheets = (contact_timeSheets || []).filter(x => x.newTime.utilisateurOA === contact.email)
+    let time_sheets = (this.state.time_sheets || []).filter(x => x.newTime.utilisateurOA === this.state.wip_selected_contact);
+    let contact = main_functions.getOAContactByEmail2(this.state.contacts || [],this.state.wip_selected_contact)
+    if(this.state.wip_selected_client !== ""){
+      time_sheets = (time_sheets || []).filter(x => x.newTime.client_id === this.state.wip_selected_client)
+      if(this.state.wip_selected_mandat !== ""){
+        time_sheets = time_sheets.filter(x => x.newTime.dossier_client.folder_id === this.state.wip_selected_mandat)
+      }
     }
     let toSend = {
       avocat:contact,
-      data:contact_timeSheets,
-      folder:this.state.wip_selected_folder.key
+      data:time_sheets
     }
     console.log(toSend)
-    SmartService.reportContact(toSend,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( reportRes => {
+    SmartService.reportContact({data:toSend},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( reportRes => {
+      console.log(reportRes)
       if(reportRes.succes === true && reportRes.status === 200){
         this.setState({loading:false})
-        this.openSnackbar("success","Opération effectué avec succès")
+        this.showDocInPdfModal(reportRes.data.data,"Rapport_"+ main_functions.getContactFnameByEmail(this.state.contacts,contact.email) ,"pdf")
       }else{
         this.setState({loading:false})
         this.openSnackbar("error",reportRes.error)

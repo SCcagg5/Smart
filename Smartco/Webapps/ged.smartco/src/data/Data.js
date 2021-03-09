@@ -20,7 +20,7 @@ let Data = {
             clearing: "80808",
             label: "Compte exploitation CHF",
             code: "CH95 8080 8001 1709 3913 2",
-            odoo_id:1
+            odoo_id:7
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -28,7 +28,7 @@ let Data = {
             clearing: "80808",
             label: "Compte exploitation EURO",
             code: "CH72 8080 8001 7984 2430 1",
-            odoo_id:6
+            odoo_id:8
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -36,7 +36,7 @@ let Data = {
             clearing: "80808",
             label: "Compte avoirs clients",
             code: "CH83 8080 8003 4728 9475 1",
-            odoo_id:4
+            odoo_id:9
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -44,7 +44,7 @@ let Data = {
             clearing: "80808",
             label: "Compte courant Collaborateurs",
             code: "CH92 8080 8002 1556 2401 6",
-            odoo_id:1
+            odoo_id:12
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -52,23 +52,23 @@ let Data = {
             clearing: "80808",
             label: "Compte courant Camille",
             code: "CH76 8080 8007 0616 4364 7",
-            odoo_id:1
+            odoo_id:18
         },
         {
-            title: "UBS Switzerland AG Case postale 1211 Genève 2",
-            swift_bic: "UBSWCHZH80A",
-            clearing: "0240",
-            label: "Compte exploitation David",
-            code: "CH79 0027 9279 3414 1401 V",
-            odoo_id:1
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte exploitation DAVID KOHLER",
+            code: "CH67 8080 8002 2638 9935 B",
+            odoo_id:20
         },
         {
-            title: "UBS Switzerland AG Case postale 1211 Genève 2",
-            swift_bic: "UBSWCHZH80A",
-            clearing: "0240",
-            label: "Compte avoirs clients David",
-            code: "CH69 0027 9279 3425 9902 J",
-            odoo_id:1
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte avoirs clients DAVID KOHLER",
+            code: "CH02 8080 8008 5392 0077 7",
+            odoo_id:19
         }
 
     ],
@@ -79,28 +79,32 @@ let Data = {
             swift_bic: "RAIFCH22XXX",
             clearing: "80808",
             label: "Compte provision",
-            code: "CH11 8080 8001 1046 8489 1"
+            code: "CH11 8080 8001 1046 8489 1",
+            odoo_id:10
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
             swift_bic: "RAIFCH22XXX",
             clearing: "80808",
             label: "Compte provisions Collaborateurs",
-            code: "CH76 8080 8005 1626 9511 4"
+            code: "CH76 8080 8005 1626 9511 4",
+            odoo_id:16
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
             swift_bic: "RAIFCH22XXX",
             clearing: "80808",
             label: "Compte provision Camille",
-            code: "CH23 8080 8009 8912 1947 6"
+            code: "CH23 8080 8009 8912 1947 6",
+            odoo_id:17
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
             swift_bic: "RAIFCH22XXX",
             clearing: "80808",
-            label: "Compte provision David",
-            code: "CH90 8080 8001 0324 9927 0"
+            label: "Compte provision DAVID KOHLER",
+            code: "CH90 8080 8001 0324 9927 0",
+            odoo_id:21
         },
     ],
 

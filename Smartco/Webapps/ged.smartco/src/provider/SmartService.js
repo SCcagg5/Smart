@@ -443,7 +443,7 @@ let SmartService = {
 
 
     reportClient(data,token,usrtoken){
-        return fetch(endpoint + '/ged/' + OALegalGedId + '/report/client/init', {
+        return fetch(endpoint + '/ged/' + OALegalGedId + '/report', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data)
@@ -453,7 +453,7 @@ let SmartService = {
     },
 
     reportContact(data,token,usrtoken){
-        return fetch(endpoint + '/ged/' + OALegalGedId + '/report/work', {
+        return fetch(endpoint + '/ged/' + OALegalGedId + '/report', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data)

@@ -184,7 +184,7 @@ export default function TableTimeSheet(props) {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(15);
     const [sort, setSort] = React.useState("asc");
-    const [sort_in_folder_form, setSort_in_folder_form] = React.useState("asc");
+    const [sort_in_folder_form, setSort_in_folder_form] = React.useState("desc");
 
     const [showBy, setShowBy] = React.useState({ label: 'Par TimeSheet', value: 'timesheet' });
     const [open, setOpen] = React.useState(false);
@@ -733,7 +733,6 @@ export default function TableTimeSheet(props) {
 
                                     <TableCell style={{ width: "6%"}} align="center">
                                         <IconButton size="small" color="default" onClick={() => {
-                                            console.log(row)
                                             if(row.user_email === localStorage.getItem("email") || row.newTime.utilisateurOA === localStorage.getItem("email")){
                                                 setSelectedRow(row)
                                                 const row_copy = row;
@@ -751,7 +750,6 @@ export default function TableTimeSheet(props) {
 
                                                 let findClientTempo = props.clientsTempo.find(x => x.ID_client === row_copy.newTime.client_id);
                                                 if(findClientTempo){
-                                                    console.log(findClientTempo.folders || [])
                                                     setSelectedClientFolders(findClientTempo.folders || [])
                                                     setTimeout(() => {
                                                         setToUpdated_dossier_client_id(row_copy.newTime.dossier_client.folder_id && row_copy.newTime.dossier_client.folder_id !== "" ? row_copy.newTime.dossier_client.folder_id : "" );
@@ -859,7 +857,6 @@ export default function TableTimeSheet(props) {
                                 showSetting === true &&
                                 <IconButton title="Enregistrer"
                                             onClick={() => {
-                                                console.log(invisibleFolders)
                                                 setShowSetting(false)
                                                 if(props.cachedCases && props.cachedCases.user_email){
                                                     props.updateUserCachedCases(invisibleFolders,"old",props.cachedCases.id)
@@ -1084,7 +1081,6 @@ export default function TableTimeSheet(props) {
                                                                                     })
                                                                                 })
                                                                                 let client_folder={id:sheets_to_add[0].newTime.dossier_client.folder_id,name:sheets_to_add[0].newTime.dossier_client.name}
-                                                                                console.log(client_folder)
                                                                                 props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD HH:mm:ss"),partner_facture,sheets_to_add);
                                                                                 setTimeout(() => {
                                                                                     selected.map((item,key) => {
@@ -1187,7 +1183,6 @@ export default function TableTimeSheet(props) {
                                         })
                                     })
                                     let client_folder={id:lf_dossier_search,name:sheets_to_add[0].newTime.dossier_client.name}
-                                    console.log(client_folder)
                                     props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD HH:mm:ss"),partner_facture,sheets_to_add);
                                     setTimeout(() => {
                                         selected.map((item,key) => {

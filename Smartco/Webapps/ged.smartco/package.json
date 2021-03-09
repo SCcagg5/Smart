@@ -99,7 +99,7 @@
     "video-react": "^0.14.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts start --max_old_space_size=5096",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
