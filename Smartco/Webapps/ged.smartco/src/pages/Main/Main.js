@@ -209,7 +209,6 @@ export default class Main extends React.Component {
 
     selectedDoc: '',
     folders: [],
-    miniDrive:[],
     sharedMiniDrive:[],
     reelFolders: [],
     sharedFolders: [],
@@ -434,6 +433,7 @@ export default class Main extends React.Component {
     wip_selected_contact:"",
     wip_selected_client:"",
     wip_selected_mandat:"",
+    wip_selected_folder:"",
 
     SEQ_file:"",
     signFile_destinationFolder:"",
@@ -1550,9 +1550,20 @@ export default class Main extends React.Component {
   handleChange = (object, name) => event => {
     let obj = this.state[object];
     obj[name] = event.target.value;
-    this.setState({
-      [object]: obj
-    });
+    if(name === "adress_fact_country"){
+      this.setState({loading:true})
+      SmartService.get_odoo_country_states(parseInt(event.target.value),localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(countryStatesRes => {
+        console.log(countryStatesRes)
+        if (countryStatesRes.succes === true && countryStatesRes.status === 200) {
+          let data = [["",""]]
+          this.setState({ [object]: obj,odoo_country_states:data.concat(countryStatesRes.data || []),loading:false})
+        }
+      }).catch(err => {console.log(err)})
+    }else{
+      this.setState({
+        [object]: obj
+      });
+    }
   };
 
   handleObjectChange = (object1, object2, name) => event => {
@@ -1655,7 +1666,7 @@ export default class Main extends React.Component {
           zip: this.state.selectedSociete.adress_fact_pc || "" ,
           city: this.state.selectedSociete.adress_fact_city || "",
           state_id: this.state.selectedSociete.adress_fact_state || false,
-          country_id: 43,
+          country_id: this.state.selectedSociete.adress_fact_country || 43,
           email: !verifForms.verif_Email(this.state.selectedSociete.email || "")  ? this.state.selectedSociete.email : false,
           phone: this.state.selectedSociete.phone || "",
           lang:this.state.selectedSociete.lang_fact || "fr_CH",
@@ -3107,7 +3118,7 @@ export default class Main extends React.Component {
                           <TabPanel>
                             <div style={{marginTop:25}}>
                               <div className="row">
-                                <div className="col-md-12">
+                                <div className="col-md-6">
                                   <div>
                                     <h6>Avocat</h6>
                                   </div>
@@ -3118,6 +3129,7 @@ export default class Main extends React.Component {
                                       onChange={(e) => {
                                         this.setState({wip_selected_contact:e.target.value})
                                       }}
+                                      defaultValue={localStorage.getItem("email")}
                                       value={this.state.wip_selected_contact}
                                   >
                                     {this.state.contacts.map((contact, key) => (
@@ -3134,38 +3146,50 @@ export default class Main extends React.Component {
                                     ))}
                                   </MuiSelect>
                                 </div>
+                                <div className="col-md-6">
+                                  <div>
+                                    <h6>Dossier de destination</h6>
+                                    <input type="text" readOnly={true}
+                                           className="form-control custom-select"
+                                           style={{ width: 300,cursor:"pointer" }}
+                                           value={this.state.wip_selected_folder.title}
+                                           onClick={(e) => {
+                                             this.setState({anchorElDrive2:e.currentTarget})
+                                           }}
+                                    />
+                                  </div>
+                                </div>
                               </div>
                               <div className="row mt-2">
                                 <div className="col-md-6">
                                   <div>
                                     <h6>Client</h6>
                                   </div>
-                                  <SelectSearch
-                                      className="select-search"
-                                      options={[{value:"",name:"",ContactType:"",ContactName:"Aucun client",imageUrl:""}].concat(
-                                        this.state.annuaire_clients_mandat.map(({ Nom, Prenom, Type, imageUrl, ID }) =>
-                                            ({
-                                              value: ID,
-                                              name: Nom + ' ' + (Prenom || ''),
-                                              ContactType: Type,
-                                              ContactName: Nom + ' ' + (Prenom || ''),
-                                              imageUrl: imageUrl
-                                            })))
-                                      }
+                                  <Dropdown
                                       value={this.state.wip_selected_client}
-                                      renderOption={main_functions.renderSearchOption}
+                                      labeled
+                                      placeholder={"Sélectionner..."}
                                       search
-                                      placeholder="Sélectionner.."
-                                      onChange={e => {
-                                        this.setState({wip_selected_client:e})
-                                        console.log(e)
+                                      selection
+                                      clearable={true}
+                                      options={
+                                        (this.state.annuaire_clients_mandat || []).map(({ Nom, Prenom, Type, imageUrl, ID }) =>
+                                            ({
+                                              key: ID,
+                                              text: Nom + ' ' + (Prenom || ''),
+                                              value: ID,
+                                              image: {avatar:true,src:imageUrl ? imageUrl : Type === "0" ? entIcon : userAvatar}
+                                            }))
+                                      }
+                                      onChange={ (e,{value}) => {
+                                        this.setState({wip_selected_client:value})
+                                        console.log(value)
 
                                         let cases = [];
-                                        cases.push({value:"",label:""})
                                         let clientsTempo = this.state.clients_cases || [];
                                         clientsTempo.map((tmp,key) => {
                                           (tmp.folders || []).map((f,i) => {
-                                            if(tmp.ID_client === e){
+                                            if(tmp.ID_client === value){
                                               cases.push({
                                                 value:f.folder_id,
                                                 label:f.name
@@ -3173,14 +3197,14 @@ export default class Main extends React.Component {
                                             }
                                           })
                                         })
-                                        console.log(cases.length > 0 ? cases[1].value : "")
-                                        this.setState({wip_selected_mandat:cases.length > 0 ? cases[1].value : ""})
+                                        console.log(cases.length > 0 ? cases[0].value : "")
+                                        this.setState({wip_selected_mandat:cases.length > 0 ? cases[0].value : ""})
                                       }}
                                   />
                                 </div>
                                 <div className="col-md-6">
                                   <h6>Dossier</h6>
-                                  <select className="form-control custom-select" style={{width:230,marginLeft:10}}
+                                  <select className="form-control custom-select" style={{width:300}}
                                           onChange={(event) => {
                                             console.log(event.target.value)
                                             this.setState({wip_selected_mandat:event.target.value})
@@ -3206,7 +3230,7 @@ export default class Main extends React.Component {
                                   Générer le rapport
                                 </AtlButton>
                               </div>
-                              {/*<Popover
+                              <Popover
                                   id={id2}
                                   open={openDrivePopup2}
                                   anchorEl={this.state.anchorElDrive2}
@@ -3264,7 +3288,7 @@ export default class Main extends React.Component {
                                     </AtlButton>
                                   </div>
                                 </div>
-                              </Popover>*/}
+                              </Popover>
                             </div>
                           </TabPanel>
                           <TabPanel>
@@ -3621,14 +3645,10 @@ export default class Main extends React.Component {
                     })
                   }).catch(err => {console.log(err)})
 
-
-
                 } else {
                   console.log(genFactRes.error)
                 }
               }).catch(err => {console.log(err)})
-
-
 
             }else{
               console.log(validateRes.error)
@@ -3985,12 +4005,39 @@ export default class Main extends React.Component {
       avocat:contact,
       data:time_sheets
     }
-    console.log(toSend)
+    console.log(JSON.stringify(toSend))
     SmartService.reportContact({data:toSend},localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( reportRes => {
       console.log(reportRes)
       if(reportRes.succes === true && reportRes.status === 200){
         this.setState({loading:false})
-        this.showDocInPdfModal(reportRes.data.data,"Rapport_"+ main_functions.getContactFnameByEmail(this.state.contacts,contact.email) ,"pdf")
+        let rapportName = "Rapport_"+ main_functions.getContactFnameByEmail(this.state.contacts,contact.email)
+        this.showDocInPdfModal(reportRes.data.data,rapportName ,"pdf")
+
+        if(this.state.wip_selected_folder !== ""){
+          SmartService.addFileFromBas64({b64file:reportRes.data.data,folder_id:this.state.wip_selected_folder.key},
+              localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( addFileRes => {
+            if (addFileRes.succes === true && addFileRes.status === 200) {
+              SmartService.updateFileName({name: rapportName},
+                  addFileRes.data.file_id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(updateNameRes => {
+                if (updateNameRes.succes === true && updateNameRes.status === 200) {
+                  let drive = this.state.reelFolders;
+                  let file = {id:addFileRes.data.file_id,name:rapportName,type:"pdf",date:new Date().getTime().toString()}
+                  main_functions.insertNodeIntoTree(drive,this.state.wip_selected_folder.key ,file);
+                  this.setState({reelFolders:drive,folders:main_functions.changeStructure(drive),
+                    miniDrive:main_functions.changeStructureWithFiles(drive),
+                    wip_selected_client:"",wip_selected_mandat:"",wip_selected_folder:""})
+                } else {
+                }
+              }).catch(err => {
+                console.log(err)
+              })
+            } else {
+
+            }
+          }).catch(err => {console.log(err)})
+        }else{
+          this.setState({wip_selected_client:"",wip_selected_mandat:""})
+        }
       }else{
         this.setState({loading:false})
         this.openSnackbar("error",reportRes.error)
@@ -6916,9 +6963,11 @@ export default class Main extends React.Component {
                                   handleRoomTabsChange={(event,newValue) => {
                                     this.handleRoomTabsChange(event,newValue)
                                   }}
-                                  miniDrive={this.state.miniDrive || []}
+                                  miniDrive={this.state.miniDrive}
                                   openPdfModal={(id) => {this.openPdfModal(id)}}
                                   openSnackbar={(type,msg) => {this.openSnackbar(type,msg)}}
+                                  sharedMiniDrive={this.state.sharedMiniDrive}
+                                  onLoadSharedMiniDriveData={this.onLoadSharedMiniDriveData}
                               />
                         }
                       </Route>
@@ -7501,7 +7550,7 @@ export default class Main extends React.Component {
                                                         onChange={this.handleChange('selectedSociete', 'adress_fact_country')}
                                                     >
                                                       {
-                                                        ((this.state.odoo_countries || []).filter(x => x[0] === 43 || x[0] === "" ) || []).map((item, key) =>
+                                                        (this.state.odoo_countries || []).map((item, key) =>
                                                             <option
                                                                 key={key}
                                                                 value={item[0]}>{item[1]}</option>

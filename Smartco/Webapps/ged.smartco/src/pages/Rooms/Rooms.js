@@ -35,6 +35,8 @@ export default function Rooms(props) {
                           openPdfModal={props.openPdfModal}
                           setSelectedRoom={props.setSelectedRoom}
                           openSnackbar={props.openSnackbar}
+                          onLoadSharedMiniDriveData={props.onLoadSharedMiniDriveData}
+                          sharedMiniDrive={props.sharedMiniDrive}
                 />
             </div>
         </div>

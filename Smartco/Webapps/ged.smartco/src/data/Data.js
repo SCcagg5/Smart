@@ -20,7 +20,7 @@ let Data = {
             clearing: "80808",
             label: "Compte exploitation CHF",
             code: "CH95 8080 8001 1709 3913 2",
-            odoo_id:7
+            odoo_id:1
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -28,7 +28,7 @@ let Data = {
             clearing: "80808",
             label: "Compte exploitation EURO",
             code: "CH72 8080 8001 7984 2430 1",
-            odoo_id:8
+            odoo_id:6
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -36,7 +36,7 @@ let Data = {
             clearing: "80808",
             label: "Compte avoirs clients",
             code: "CH83 8080 8003 4728 9475 1",
-            odoo_id:9
+            odoo_id:4
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -44,7 +44,7 @@ let Data = {
             clearing: "80808",
             label: "Compte courant Collaborateurs",
             code: "CH92 8080 8002 1556 2401 6",
-            odoo_id:12
+            odoo_id:60
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -52,15 +52,15 @@ let Data = {
             clearing: "80808",
             label: "Compte courant Camille",
             code: "CH76 8080 8007 0616 4364 7",
-            odoo_id:18
+            odoo_id:135
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
             swift_bic: "RAIFCH22XXX",
             clearing: "80808",
             label: "Compte exploitation DAVID KOHLER",
-            code: "CH67 8080 8002 2638 9935 B",
-            odoo_id:20
+            code: "CH67 8080 8002 2638 9935 8",
+            odoo_id:139
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -68,7 +68,7 @@ let Data = {
             clearing: "80808",
             label: "Compte avoirs clients DAVID KOHLER",
             code: "CH02 8080 8008 5392 0077 7",
-            odoo_id:19
+            odoo_id:137
         }
 
     ],
@@ -80,7 +80,7 @@ let Data = {
             clearing: "80808",
             label: "Compte provision",
             code: "CH11 8080 8001 1046 8489 1",
-            odoo_id:10
+            odoo_id:5
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -88,7 +88,7 @@ let Data = {
             clearing: "80808",
             label: "Compte provisions Collaborateurs",
             code: "CH76 8080 8005 1626 9511 4",
-            odoo_id:16
+            odoo_id:125
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -96,7 +96,7 @@ let Data = {
             clearing: "80808",
             label: "Compte provision Camille",
             code: "CH23 8080 8009 8912 1947 6",
-            odoo_id:17
+            odoo_id:133
         },
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
@@ -104,7 +104,7 @@ let Data = {
             clearing: "80808",
             label: "Compte provision DAVID KOHLER",
             code: "CH90 8080 8001 0324 9927 0",
-            odoo_id:21
+            odoo_id:141
         },
     ],
 

@@ -127,6 +127,10 @@ export default function RoomTabs(props) {
     const [selectedKeys, setSelectedKeys] = useState([]);
     const [autoExpandParent, setAutoExpandParent] = useState(true);
 
+    const [expandedSharedKeys, setExpandedSharedKeys] = useState([]);
+    const [selectedSharedKeys, setSelectedSharedKeys] = useState([]);
+    const [autoExpandSharedParent, setAutoExpandSharedParent] = useState(true);
+
 
     const [openNewTaskModal, setOpenNewTaskModal] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -142,6 +146,15 @@ export default function RoomTabs(props) {
 
     const onSelect = (selectedKeys, info) => {
         setSelectedKeys(selectedKeys)
+    }
+
+    const onExpandShared = (expandedKeys) => {
+        setExpandedSharedKeys(expandedKeys)
+        setAutoExpandSharedParent(false)
+    }
+
+    const onSelectShared = (selectedKeys, info) => {
+        setSelectedSharedKeys(selectedKeys)
     }
 
     const onDrop_container = (e,task) => {
@@ -664,7 +677,7 @@ export default function RoomTabs(props) {
                     <h6 style={{color:"darkblue"}}>Glisser et affecter des fichiers à cette tache</h6>
 
                     {
-                        props.miniDrive.length === 0 ?
+                        !props.miniDrive ?
                             <div align="center"  style={{marginTop:30}} >
                                 <CircularProgress color="secondary" size={20} />
                             </div>
@@ -688,6 +701,23 @@ export default function RoomTabs(props) {
                                         e.event.dataTransfer.setData("file", JSON.stringify(file))
                                     }}
                                     autoExpandParent={autoExpandParent}
+                                />
+                                <DirectoryTree
+                                    loadData={props.onLoadSharedMiniDriveData}
+                                    draggable={true}
+                                    showIcon={true}
+                                    onExpand={onExpandShared}
+                                    onSelect={onSelectShared}
+                                    treeData={props.sharedMiniDrive || []}
+                                    expandAction="click"
+                                    expandedKeys={expandedSharedKeys}
+                                    selectedKeys={selectedSharedKeys}
+                                    onDragStart={e => {
+                                        let file = {id:e.node.key,name:e.node.title,typeF:e.node.typeF}
+                                        console.log(file)
+                                        e.event.dataTransfer.setData("file", JSON.stringify(file))
+                                    }}
+                                    autoExpandParent={autoExpandSharedParent}
                                 />
                             </div>
                     }
