@@ -8,4 +8,7 @@ module.exports = function (app) {
     app.route('/api/generate_oa_procuration_doc')
         .post(api.generate_OA_procuration);
 
+    app.route('/api/generate_tn_sarl_statut_doc')
+        .post(api.generate_TN_sarl_statut);
+
 };

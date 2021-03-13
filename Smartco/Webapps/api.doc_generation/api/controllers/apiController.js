@@ -5,6 +5,49 @@ var Docxtemplater = require('docxtemplater');
 var fs = require('fs');
 var path = require('path');
 var moment = require('moment');
+var nodemailer = require('nodemailer')
+const ejs = require("ejs");
+
+
+exports.send_ENFIN_new_room_task_files_mail = function () {
+    let transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+            user: "smartco.majordhome2019@gmail.com",
+            pass: "Majordhome2019"
+        }
+    });
+
+    return new Promise(function(resolve, reject) {
+
+        ejs.renderFile(path.join(__dirname, '../mail_templates/ENFIN_new_room_task_files_template.html'),
+            {imc :"87",taille:"1.75cm",poids:"85kg"},
+            function (err, data) {
+                if (err) {
+                    reject(err);
+                } else {
+                    var mainOptions = {
+                        from: '"ENT ENFIN  " <noreply@enfin.fr>',
+                        to: "amine.babba@hotmail.com",
+                        subject: 'Des nouveaux fichiers compta sont ajoutés par le client Lauret JH dans la tache x',
+                        html: data
+                    };
+                    transporter.sendMail(mainOptions, function (err, info) {
+                        if (err) {
+                            reject(err)
+                        } else {
+                            resolve({
+                                is_send:true,
+                                message:"Mail envoyé avec succès"
+                            })
+                        }
+                    });
+                }
+            });
+    })
+};
 
 exports.generate_OA_provison_doc = async function (req, res) {
     console.log("Begin generate doc");
@@ -19,6 +62,37 @@ exports.generate_OA_procuration = async function (req, res) {
     generate_OA_procuration_doc(req, res, data, "oa_procuration");
 };
 
+exports.generate_TN_sarl_statut = async function (req, res) {
+    console.log("Begin generate doc");
+    var data = req.body.data;
+    generate_TN_SARL_Statut_doc(req, res, data, "Statut_SARL_TN");
+};
+
+async function generate_TN_SARL_Statut_doc(req, res, data, code) {
+
+    var ret = {'status' : 500, 'data': null, 'error': null};
+
+    var template = "DOC/STATUTS SARL TUNISIE.docx"
+
+    var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
+
+    var dataPdf = await ConvertDOcVerPdf(dataDOC, code);
+    //delete file
+    const path1 = '/tmp/' + code + '.docx';
+    const path2 = '/tmp/' + code + '.pdf';
+    try {
+        fs.unlinkSync(path1);
+        fs.unlinkSync(path2);
+    } catch (err) {
+        console.error(err)
+    }
+    ret.data = dataPdf.toString('base64');
+    ret.status = 200;
+    res.status(ret.status);
+    console.log("****End Generate Doc ****");
+    res.json(ret);
+
+}
 
 async function generate_OA_provison_doc(req, res, lang, data, code) {
 
@@ -123,7 +197,9 @@ function ConvertDOcVerPdf(json, code) {
             return new Promise((resolve, reject) => {
                 var converter = require('office-converter')();
                 converter.generatePdf('/tmp/' + file, function (err, result) {
-                    if (result.status === 0) {
+                    if(err) console.log(err)
+                    console.log(result)
+                    if (result && result.status === 0) {
                         resolve(code + ".pdf");
                     }
                 });

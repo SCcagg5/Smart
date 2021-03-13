@@ -5,6 +5,30 @@ function start() {
     var express = require('express');
     var app = express();
     var bodyParser = require('body-parser');
+    var schedule = require('node-schedule');
+    var rethink = require('./api/controllers/rethink')
+    var apiController = require('./api/controllers/apiController')
+    var db_name = "ENFIN"
+
+
+    /*const MinuteJob = schedule.scheduleJob('30 * * * * *', function(){
+
+        rethink.getTableData(db_name,"rooms").then(res => {
+            let rooms = res || [];
+            let rooms_tasks = [];
+            rooms.map(room => {
+                (room.tasks || []).filter(x => x.send_mail_period === "day").map(task => {
+                    rooms_tasks.push(task)
+                })
+            })
+            apiController.send_ENFIN_new_room_task_files_mail().then(r => {
+                console.log(r)
+            }).catch(err => {
+                console.log(err)
+            })
+        }).catch(err => {console.log(err)})
+
+    });*/
 
     app.use(bodyParser.urlencoded({
         extended: true
