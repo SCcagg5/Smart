@@ -16,6 +16,7 @@ import firebase from "firebase/app";
 import NewRecette from "./pages/Marketplace/Recettes/NewRecette";
 import Questions from "./pages/questions/questions";
 import Index from "./pages/watchData";
+import SARLCreation from "./pages/SocietyService/SARLCreation";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -43,7 +44,7 @@ export default class App extends Component {
     }
 
     state={
-        loading:true
+        loading:false
     }
 
     componentDidMount() {
@@ -75,6 +76,7 @@ export default class App extends Component {
             return (
                 <Router>
                     <Switch>
+                        <Route exact  path="/creation_societe/SARL" component={SARLCreation}/>
                         <Route exact path="/" component={RedirectCp}/>
                        {/* <Route exact path="/test" component={TestPage}/>*/}
                         <Route  path="/home" component={Main}/>

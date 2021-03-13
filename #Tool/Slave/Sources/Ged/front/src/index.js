@@ -12,6 +12,7 @@ import './App.css';
 import './assets/css/semantic-ui_clone.css'
 import './pages/Rooms/room.css'
 import "./assets/css/react-input-tags.css";
+import "../src/pages/SocietyService/index.css"
 
 import { BaseProvider, LightTheme } from "baseui";
 import { Provider as StyletronProvider } from "styletron-react";

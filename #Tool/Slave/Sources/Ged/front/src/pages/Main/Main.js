@@ -31,14 +31,6 @@ import {Modal, ModalBody, ModalHeader} from 'reactstrap';
 import PDFViewer from '../../customComponents/pdf-viewer-reactjs';
 import {isEmail, ReactMultiEmail} from 'react-multi-email';
 import '../../assets/css/multiEmail.css';
-import FTitle from '../../components/FlipPages/FTitle';
-import FHeader from '../../components/FlipPages/FHeader';
-import SwissWhoImage from '../../assets/images/SwissWhoWho.jpeg';
-import FlipPage from 'react-flip-page';
-import { PDFViewer as PdfView } from '@react-pdf/renderer';
-import Resume from '../../components/Pdf/Resume';
-
-
 import {
   Avatar,
   Button as MuiButton,
@@ -349,12 +341,6 @@ export default class Main extends React.Component {
         rateFacturation: ''
       }
     },
-
-    showPdfFlipModal:false,
-    showPdfPreviewModal:false,
-    isDocPreviewReady:false,
-
-
     lignesFactures: [],
     lignesFacturesCopy: [],
     lignef_template: '0',
@@ -5519,27 +5505,16 @@ export default class Main extends React.Component {
                                                     className="btn btn-success btn-xs waves-effect mb-2 waves-light m-1">
                                               <i className="fe-edit" />&nbsp;&nbsp;Enregistrer
                                             </button>
-                                            {active_modules.includes("PDFVIEWER") === true ?
-                                                <button type="button"
-                                                        onClick={() => {
-                                                          this.setState({showPdfPreviewModal: true});
-                                                          setTimeout(() => {
-                                                            this.setState({isDocPreviewReady: true});
-                                                          }, 5000);
-                                                        }}
-                                                        className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
-                                                  <i className="fe-printer"/>&nbsp;&nbsp;Aperçu
-                                                </button>:null
-                                            }
-                                            {active_modules.includes("PDFVIEWER")===true?
-                                            < button type="button"
-                                              onClick={() => {
-                                              this.setState({showPdfFlipModal: true});
-                                            }}
-                                              className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
+                                            <button type="button"
+                                                    onClick={() => {}}
+                                                    className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
+                                              <i className="fe-printer" />&nbsp;&nbsp;Aperçu
+                                            </button>
+                                            <button type="button"
+                                                    onClick={() => {}}
+                                                    className="btn btn-danger btn-xs waves-effect mb-2 waves-light m-1">
                                               <i className="fe-printer" />&nbsp;&nbsp;Book
-                                              </button>:null
-                                            }
+                                            </button>
                                           </div>
                                           <div style={{ marginTop: 30 }}
                                                className="text-left">
@@ -10764,220 +10739,6 @@ export default class Main extends React.Component {
 
               </div>
             </ModalBody>
-          </Modal>
-
-          <Modal
-              isOpen={this.state.showPdfFlipModal}
-              size="lg"
-              zIndex={1500}
-              toggle={() =>
-                  this.setState({ showPdfFlipModal: !this.state.showPdfFlipModal })
-              }
-          >
-            <ModalHeader
-                toggle={() =>
-                    this.setState({
-                      showPdfFlipModal: !this.state.showPdfFlipModal
-                    })
-                }
-            >
-              {' '}
-              Document{' '}
-            </ModalHeader>
-            <ModalBody>
-              <FlipPage
-                  orientation="horizontal"
-                  uncutPages={true}
-                  width={'100%'}
-                  height={800}
-                  showSwipeHint={true}
-                  showHint={true}
-                  showTouchHint={true}
-              >
-                <article>
-                  <img
-                      alt=""
-                      src={SwissWhoImage}
-                      style={{ width: '100%', height: 750, objectFit: 'contain' }}
-                  />
-                </article>
-                <article style={{ padding: 30 }}>
-                  <FHeader
-                      name={this.state.selectedContact.nom}
-                      speciality={this.state.selectedContact.speciality}
-                      email={this.state.selectedContact.email}
-                  />
-                  <div>
-                    <img
-                        alt=""
-                        src={this.state.selectedContact.imageUrl}
-                        style={{
-                          marginTop: 20,
-                          marginBottom: 10,
-                          width: 200,
-                          height: 200,
-                          objectFit: 'cover'
-                        }}
-                    />
-                  </div>
-                  <div style={{ marginTop: 40 }}>
-                    <FTitle>À propos</FTitle>
-                    <div
-                        style={{
-                          fontSize: 13,
-                          color: '#000'
-                        }}
-                    >
-                      {this.state.selectedContact.about || ''}
-                    </div>
-                  </div>
-                  <div style={{ marginTop: 40 }}>
-                    <FTitle>Famille & Vie privée</FTitle>
-                    <div
-                        style={{
-                          fontSize: 13,
-                          color: '#000'
-                        }}
-                    >
-                      {this.state.selectedContact.personalLife || ''}
-                    </div>
-                  </div>
-                </article>
-                <article style={{ padding: 30 }}>
-                  <div className="row">
-                    <div className="col-md-4">
-                      <div style={{ marginTop: 40 }}>
-                        <FTitle>Langues</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.langues || []).map(
-                              (item, i) => (
-                                  <li key={i} style={{ color: '#000' }}>
-                                    {item}
-                                  </li>
-                              )
-                          )}
-                        </ul>
-                      </div>
-                      <div style={{ marginTop: 55 }}>
-                        <FTitle>Domaines d'intérêt, loisirs et sports</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.hobbies || []).map(
-                              (item, i) => (
-                                  <li key={i} style={{ color: '#000' }}>
-                                    {item}
-                                  </li>
-                              )
-                          )}
-                        </ul>
-                      </div>
-                    </div>
-                    <div className="col-md-8">
-                      <div style={{ marginTop: 40 }}>
-                        <FTitle>Parcour professionnel</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.parcoursP || []).map(
-                              (item, i) => (
-                                  <li key={i} style={{ color: '#000' }}>
-                                    {item}
-                                  </li>
-                              )
-                          )}
-                        </ul>
-                      </div>
-                      <div style={{ marginTop: 55 }}>
-                        <FTitle>Formations</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.formations || []).map(
-                              (item, i) => (
-                                  <li key={i} style={{ color: '#000' }}>
-                                    {item}
-                                  </li>
-                              )
-                          )}
-                        </ul>
-                      </div>
-                      <div style={{ marginTop: 55 }}>
-                        <FTitle>Affiliations</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.affiliations || []).map(
-                              (item, i) => (
-                                  <li key={i} style={{ color: '#000' }}>
-                                    {item}
-                                  </li>
-                              )
-                          )}
-                        </ul>
-                      </div>
-                      <div style={{ marginTop: 55 }}>
-                        <FTitle>Domaines d'activités</FTitle>
-                        <ul>
-                          {(this.state.selectedContact.domainesAct || []).map(
-                              (item, i) => (
-                                  <li key={i} style={{ color: '#000' }}>
-                                    {item}
-                                  </li>
-                              )
-                          )}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </FlipPage>{' '}
-            </ModalBody>{' '}
-          </Modal>
-
-          <Modal
-              isOpen={this.state.showPdfPreviewModal}
-              size="lg"
-              zIndex={1500}
-              toggle={() =>
-                  this.setState({
-                    showPdfPreviewModal: !this.state.showPdfPreviewModal,
-                    isDocPreviewReady: false
-                  })
-              }
-          >
-            <ModalHeader
-                toggle={() =>
-                    this.setState({
-                      showPdfPreviewModal: !this.state.showPdfPreviewModal,
-                      isDocPreviewReady: false
-                    })
-                }
-            >
-              {' '}
-              Document{' '}
-            </ModalHeader>{' '}
-            <ModalBody>
-              {this.state.isDocPreviewReady === true && (
-                  <PdfView width={'100%'} height={800}>
-                    {' '}
-                    <Resume
-                        title={'Resume of ' + this.state.selectedContact.nom}
-                        name={this.state.selectedContact.nom}
-                        speciality={
-                          this.state.selectedContact.specialite ||
-                          this.state.selectedContact.titre +
-                          '(' +
-                          this.state.selectedContact.pays +
-                          ')'
-                        }
-                        email={this.state.selectedContact.email}
-                        image={this.state.selectedContact.imageUrl}
-                        about={this.state.selectedContact.about}
-                        personalLife={this.state.selectedContact.personalLife}
-                        parcoursP={this.state.selectedContact.parcoursP || []}
-                        langues={this.state.selectedContact.langues || []}
-                        hobbies={this.state.selectedContact.hobbies || []}
-                        formations={this.state.selectedContact.formations || []}
-                        affiliations={this.state.selectedContact.affiliations || []}
-                        domainesAct={this.state.selectedContact.domainesAct || []}
-                        firstPageImage={SwissWhoImage}
-                    />{' '}
-                  </PdfView>
-              )}
-            </ModalBody>{' '}
           </Modal>
 
           <Dialog
