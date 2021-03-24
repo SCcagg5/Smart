@@ -337,7 +337,7 @@ function Row(props) {
   const [paymTerm, setPaymTerm] = React.useState( props.paymTerms && props.paymTerms.length > 0 ? 3 : "");
   const [tax, setTax] = React.useState(props.taxs && props.taxs.length > 0 ? 13 : "");
   const [fraisAdmin, setFraisAdmin] = React.useState("2%");
-  const [compte_banc, setCompte_banc] = React.useState(7);
+  const [compte_banc, setCompte_banc] = React.useState(1);
   const [deadline_date, setDeadline_date] = React.useState(new Date());
   const [reductionType, setReductionType] = React.useState("%");
   const [reductionAmount, setReductionAmount] = React.useState("");

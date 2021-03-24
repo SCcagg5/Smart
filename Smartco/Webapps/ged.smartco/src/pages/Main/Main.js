@@ -4451,6 +4451,7 @@ export default class Main extends React.Component {
     if(facture.facture_odoo_id){
 
       SmartService.details_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id).then( detailsRes => {
+        console.log(detailsRes)
         if(detailsRes.succes === true && detailsRes.status === 200){
           console.log(detailsRes.data[0])
           let invoice_line_ids = detailsRes.data[0].invoice_line_ids || [];
@@ -7372,7 +7373,8 @@ export default class Main extends React.Component {
                                            className="text-left">
                                         <Tabs selectedIndex={this.state.selectedClientTabIndex} onSelect={index => {
                                           this.setState({selectedClientTabIndex:index})
-                                        }}>
+                                        }}
+                                        >
                                           <TabList>
                                             <Tab>Informations client</Tab>
                                             <Tab>Ouverture dossier</Tab>
