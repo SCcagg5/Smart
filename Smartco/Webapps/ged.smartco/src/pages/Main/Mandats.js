@@ -555,8 +555,45 @@ export default class Mandats extends React.Component{
 
                     <div className="mt-4">
                       <h5>FACTURATION-CLIENT</h5>
-                      <div
-                          className="row align-items-center">
+
+                        <div className="row mt-2">
+                            <div className="col-md-6">
+                                <div>Fréquence</div>
+                                <select
+                                    className="form-control custom-select"
+                                    value={doss.facturation.frequence}
+                                    onChange={(e) => {
+                                        let obj = this.state.client_mandat;
+                                        obj.folders[key].facturation.frequence = e.target.value
+                                        this.setState({client_mandat:obj})
+                                    }}
+                                >
+                                    <option value="Mensuelle">Mensuelle</option>
+                                    <option value="Trimestrielle">Trimestrielle</option>
+                                    <option value="Semestrielle">Semestrielle</option>
+                                    <option value="Annuelle">Annuelle</option>
+
+                                </select>
+                            </div>
+                            <div className="col-md-6">
+                                <div>Langue de Facturation</div>
+                                <select
+                                    className="form-control custom-select"
+                                    value={doss.facturation.language}
+                                    onChange={(e) => {
+                                        let obj = this.state.client_mandat;
+                                        obj.folders[key].facturation.language = e.target.value
+                                        this.setState({client_mandat:obj})
+                                    }}
+                                >
+                                    <option value="Francais">Français</option>
+                                    <option value="Anglais">Anglais</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                      {/*<div className="row align-items-center">
                         <div className="col-md-5">
                           <div
                               className="row justify-content-center align-items-center">
@@ -672,7 +709,7 @@ export default class Mandats extends React.Component{
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </div>*/}
 
                     </div>
 

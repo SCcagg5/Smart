@@ -196,7 +196,7 @@ export default function TableTimeSheet(props) {
 
     const searchFilter = props.lignesFactures.filter((lf) => ( ( (lf.newTime.client_id.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
         ( lf.newTime.dossier_client && lf.newTime.dossier_client.folder_id && (lf.newTime.dossier_client.folder_id === lf_dossier_search ) || lf_dossier_search === "") &&
-        ( lf.newTime && lf.newTime.utilisateurOA && (lf.newTime.utilisateurOA === lf_oaUser_search ) || lf_oaUser_search === "") &&
+        ( lf.newTime && lf.newTime.utilisateurOA && (lf.newTime.utilisateurOA === lf_oaUser_search) || lf_oaUser_search === "" || showBy.value !== "timesheet") &&
         ( lf.newTime && lf.newTime.dossier_client.team && (lf.newTime.dossier_client.team.find(x => x.uid === lf_assoc_dossier_search && x.type === "lead")  ) || lf_assoc_dossier_search === "") &&
         ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
         ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  ) &&
@@ -586,84 +586,92 @@ export default function TableTimeSheet(props) {
                         </select>
                     </div>
                 </div>
-                <div className="col-md-5 mt-2">
-                    <div style={{display:"flex"}}>
-                        <h5 >Par utilisateur OA</h5>
-                        <MuiSelect
-                            labelId="demo-mutiple-chip-label14545"
-                            id="demo-mutiple-chip34688"
-                            style={{ width: 250,marginLeft:10,marginRight:10 }}
-                            value={lf_oaUser_search}
-                            onChange={(e) => {
-                                setPage(0);
-                                setOpen(false)
-                                setExapndedRowKey("")
-                                setLf_oaUser_search(e.target.value)
-                            }}
-                            MenuProps={Data.MenuProps}
-                        >
-                            <MenuItem
-                                key={-1}
-                                value={""}>
-                                <div className="row align-items-center justify-content-center">
-                                    <div style={{marginLeft:10}}>{"Aucun"}</div>
-                                </div>
-                            </MenuItem>
-                            {props.OA_contacts.map((contact, key) => (
+                {
+                    showBy.value === "timesheet" &&
+                        <div className="col-md-5 mt-2">
+                            <div style={{display:"flex"}}>
+                                <h5 >Par utilisateur OA</h5>
+                                <MuiSelect
+                                    labelId="demo-mutiple-chip-label14545"
+                                    id="demo-mutiple-chip34688"
+                                    style={{ width: 250,marginLeft:10,marginRight:10 }}
+                                    value={lf_oaUser_search}
+                                    onChange={(e) => {
+                                        setPage(0);
+                                        setOpen(false)
+                                        setExapndedRowKey("")
+                                        setLf_oaUser_search(e.target.value)
+                                    }}
+                                    MenuProps={Data.MenuProps}
+                                >
+                                    <MenuItem
+                                        key={-1}
+                                        value={""}>
+                                        <div className="row align-items-center justify-content-center">
+                                            <div style={{marginLeft:10}}>{"Aucun"}</div>
+                                        </div>
+                                    </MenuItem>
+                                    {props.OA_contacts.map((contact, key) => (
+                                        <MenuItem
+                                            key={key}
+                                            value={contact.email}>
+                                            <div
+                                                className="row align-items-center justify-content-center">
+                                                <Avatar
+                                                    alt=""
+                                                    src={contact.imageUrl} />
+                                                <div>{contact.nom + ' ' + contact.prenom}</div>
+                                            </div>
+                                        </MenuItem>
+                                    ))}
+                                </MuiSelect>
+                            </div>
+                        </div>
+                }
+
+                {
+                    showBy.value !== "timesheet" &&
+                    <div className="col-md-5 mt-2">
+                        <div style={{display:"flex"}}>
+                            <h5 >Par associé en charge de dossier</h5>
+                            <MuiSelect
+                                labelId="demo-mutiple-chip-label14545"
+                                id="demo-mutiple-chip34688"
+                                style={{ width: 250,marginLeft:10,marginRight:10 }}
+                                value={lf_assoc_dossier_search}
+                                onChange={(e) => {
+                                    setPage(0);
+                                    setOpen(false)
+                                    setExapndedRowKey("")
+                                    setLf_assoc_dossier_search(e.target.value)
+                                }}
+                                MenuProps={Data.MenuProps}
+                            >
                                 <MenuItem
-                                    key={key}
-                                    value={contact.email}>
-                                    <div
-                                        className="row align-items-center justify-content-center">
-                                        <Avatar
-                                            alt=""
-                                            src={contact.imageUrl} />
-                                        <div>{contact.nom + ' ' + contact.prenom}</div>
+                                    key={-1}
+                                    value={""}>
+                                    <div className="row align-items-center justify-content-center">
+                                        <div style={{marginLeft:10}}>{"Aucun"}</div>
                                     </div>
                                 </MenuItem>
-                            ))}
-                        </MuiSelect>
+                                {props.OA_contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
+                                    <MenuItem
+                                        key={key}
+                                        value={contact.uid}>
+                                        <div
+                                            className="row align-items-center justify-content-center">
+                                            <Avatar
+                                                alt=""
+                                                src={contact.imageUrl} />
+                                            <div>{contact.nom + ' ' + contact.prenom}</div>
+                                        </div>
+                                    </MenuItem>
+                                ))}
+                            </MuiSelect>
+                        </div>
                     </div>
-                </div>
-                <div className="col-md-5 mt-2">
-                    <div style={{display:"flex"}}>
-                        <h5 >Par associé en charge de dossier</h5>
-                        <MuiSelect
-                            labelId="demo-mutiple-chip-label14545"
-                            id="demo-mutiple-chip34688"
-                            style={{ width: 250,marginLeft:10,marginRight:10 }}
-                            value={lf_assoc_dossier_search}
-                            onChange={(e) => {
-                                setPage(0);
-                                setOpen(false)
-                                setExapndedRowKey("")
-                                setLf_assoc_dossier_search(e.target.value)
-                            }}
-                            MenuProps={Data.MenuProps}
-                        >
-                            <MenuItem
-                                key={-1}
-                                value={""}>
-                                <div className="row align-items-center justify-content-center">
-                                    <div style={{marginLeft:10}}>{"Aucun"}</div>
-                                </div>
-                            </MenuItem>
-                            {props.OA_contacts.filter(x => x.type && x.type === "associe").map((contact, key) => (
-                                <MenuItem
-                                    key={key}
-                                    value={contact.uid}>
-                                    <div
-                                        className="row align-items-center justify-content-center">
-                                        <Avatar
-                                            alt=""
-                                            src={contact.imageUrl} />
-                                        <div>{contact.nom + ' ' + contact.prenom}</div>
-                                    </div>
-                                </MenuItem>
-                            ))}
-                        </MuiSelect>
-                    </div>
-                </div>
+                }
+
             </div>
             {
                 selected.length > 0 &&

@@ -6,6 +6,7 @@ import logo from "../../assets/images/logos/OALegalLogoV2.jpeg"
 import Snackbar from '@material-ui/core/Snackbar';
 import SmartService from "../../provider/SmartService";
 import Alert from '@material-ui/lab/Alert';
+import axios from "axios";
 
 /*import rethink from "../../controller/rethink";
 import * as json_clients_cases_data
@@ -29,7 +30,6 @@ class login extends Component {
     };
 
     componentDidMount() {
-
 
     }
 

@@ -157,6 +157,8 @@ export default class Main extends React.Component {
 
   state = {
 
+    isDisconnected: false,
+
     openSocketChangeModal:false,
 
     loading: false,
@@ -665,7 +667,7 @@ export default class Main extends React.Component {
       }).catch(err => {console.log(err)})
       //END
 
-        SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken'))
+      SmartService.getGed(localStorage.getItem('token'), localStorage.getItem('usrtoken'))
           .then((gedRes) => {
             if (gedRes.succes === true && gedRes.status === 200) {
 
@@ -5599,99 +5601,117 @@ export default class Main extends React.Component {
 
   }
 
-  createLignefacture(duplicate){
-    let objCopy = this.state.TimeSheet;
-    let time = this.state.TimeSheet.newTime.duree;
-    let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
-    if(regexFormat.test(time) === true){
+  verifConnexionState = () => {
+    return  new Promise((resolve, reject) => {
+      fetch('https://www.google.com/', { // Check for internet connectivity
+        mode: 'no-cors',
+      }).then(() => {
+        resolve(true)
+      }).catch(() => {
+        console.log('INTERNET CONNECTIVITY ISSUE');
+        this.openSnackbar("error","Vous êtes hors-ligne ! Veuillez vérifier votre connexion internet ")
+        resolve(false)
+      })
+    })
 
-      let duree = utilFunctions.durationToNumber(time);
+  }
 
-      if(duree === 0){
-        this.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
-      }else{
-        this.setState({loading:true})
-        this.verifIsTableExist("time_sheets").then( v => {
+  async createLignefacture(duplicate){
+    let connex_state = await this.verifConnexionState();
+    console.log(connex_state)
+    if(connex_state === true){
+      let objCopy = this.state.TimeSheet;
+      let time = this.state.TimeSheet.newTime.duree;
+      let regexFormat = /^[0-9]{1,2}h[0-9]{0,2}$/
+      if(regexFormat.test(time) === true){
 
-          let newItem = {
-            newTime: {
-              date:moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD HH:mm:ss'),
-              duree: duree,
-              client: this.state.TimeSheet.newTime.client,
-              client_id:this.state.selectedClientTimeEntree,
-              dossier_client:this.state.TimeSheet.newTime.dossier_client,
-              categoriesActivite: this.state.TimeSheet.newTime.categoriesActivite,
-              description: this.state.TimeSheet.newTime.description,
-              utilisateurOA: this.state.TimeSheet.newTime.utilisateurOA,
-              rateFacturation: this.state.TimeSheet.newTime.rateFacturation,
-              langue:''
-            },
-            uid:utilFunctions.getUID(),
-            user_email:localStorage.getItem('email'),
-            created_at:moment().format('YYYY-MM-DD HH:mm:ss')
-          }
-          if(duplicate === false){
-            this.setState({
-              selectedClientTimeEntree:'',
-              TimeSheet: {
-                newTime: {
-                  duree: '',
-                  client: '',
-                  client_id:'',
-                  dossier_client:{
-                    name:'',
-                    facturation:{
-                      language:''
-                    }
-                  },
-                  categoriesActivite: 'Temps facturé',
-                  description: '',
-                  date: new Date(),
-                  utilisateurOA: objCopy.newTime.utilisateurOA,
-                  rateFacturation: objCopy.newTime.rateFacturation
+        let duree = utilFunctions.durationToNumber(time);
+
+        if(duree === 0){
+          this.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
+        }else{
+          this.setState({loading:true})
+          this.verifIsTableExist("time_sheets").then( v => {
+
+            let newItem = {
+              newTime: {
+                date:moment(this.state.TimeSheet.newTime.date).format('YYYY-MM-DD HH:mm:ss'),
+                duree: duree,
+                client: this.state.TimeSheet.newTime.client,
+                client_id:this.state.selectedClientTimeEntree,
+                dossier_client:this.state.TimeSheet.newTime.dossier_client,
+                categoriesActivite: this.state.TimeSheet.newTime.categoriesActivite,
+                description: this.state.TimeSheet.newTime.description,
+                utilisateurOA: this.state.TimeSheet.newTime.utilisateurOA,
+                rateFacturation: this.state.TimeSheet.newTime.rateFacturation,
+                langue:''
+              },
+              uid:utilFunctions.getUID(),
+              user_email:localStorage.getItem('email'),
+              created_at:moment().format('YYYY-MM-DD HH:mm:ss')
+            }
+            if(duplicate === false){
+              this.setState({
+                selectedClientTimeEntree:'',
+                TimeSheet: {
+                  newTime: {
+                    duree: '',
+                    client: '',
+                    client_id:'',
+                    dossier_client:{
+                      name:'',
+                      facturation:{
+                        language:''
+                      }
+                    },
+                    categoriesActivite: 'Temps facturé',
+                    description: '',
+                    date: new Date(),
+                    utilisateurOA: objCopy.newTime.utilisateurOA,
+                    rateFacturation: objCopy.newTime.rateFacturation
+                  }
                 }
-              }
-            });
-          }
-          else{
-            this.setState({
-              TimeSheet: {
-                newTime: {
-                  duree: objCopy.newTime.duree,
-                  client: objCopy.newTime.client,
-                  client_id:objCopy.newTime.client_id,
-                  dossier_client:objCopy.newTime.dossier_client,
-                  categoriesActivite: objCopy.newTime.categoriesActivite,
-                  description: objCopy.newTime.description,
-                  date: new Date(objCopy.newTime.date),
-                  utilisateurOA: objCopy.newTime.utilisateurOA,
-                  rateFacturation: objCopy.newTime.rateFacturation
+              });
+            }
+            else{
+              this.setState({
+                TimeSheet: {
+                  newTime: {
+                    duree: objCopy.newTime.duree,
+                    client: objCopy.newTime.client,
+                    client_id:objCopy.newTime.client_id,
+                    dossier_client:objCopy.newTime.dossier_client,
+                    categoriesActivite: objCopy.newTime.categoriesActivite,
+                    description: objCopy.newTime.description,
+                    date: new Date(objCopy.newTime.date),
+                    utilisateurOA: objCopy.newTime.utilisateurOA,
+                    rateFacturation: objCopy.newTime.rateFacturation
+                  }
                 }
+              })
+            }
+            rethink.insert("test",'table("time_sheets").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+              if (resAdd && resAdd === true) {
+                this.setState({loading:false})
+                this.openSnackbar('success', 'Enregistrement effectué avec succès');
+              } else {
+                this.setState({loading:false})
+                this.openSnackbar("error","Une erreur est survenue !");
               }
-            })
-          }
-          rethink.insert("test",'table("time_sheets").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
-            if (resAdd && resAdd === true) {
-              this.setState({loading:false})
-              this.openSnackbar('success', 'Enregistrement effectué avec succès');
-            } else {
+            }).catch(err => {
               this.setState({loading:false})
               this.openSnackbar("error","Une erreur est survenue !");
-            }
-          }).catch(err => {
-            this.setState({loading:false})
-            this.openSnackbar("error","Une erreur est survenue !");
-            console.log(err)
-          })
+              console.log(err)
+            })
 
 
 
-        }).catch(err => {console.log(err)})
+          }).catch(err => {console.log(err)})
+        }
+      }else{
+        this.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
       }
-    }else{
-      this.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
     }
-
   }
 
   updateLigneFacture(id,ligne){
@@ -7665,7 +7685,7 @@ export default class Main extends React.Component {
                                                 <div className="col-md-6" style={{minWidth:500}}>
                                                   <div style={{ display: 'flex' }}>
                                                     <div className="mt-2">Associés</div>
-                                                    <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
+                                                    <IconButton size="small" style={{ marginTop: -5, marginLeft: 6,alignSelf:"center" }}
                                                                 onClick={() => {
                                                                   let objCp = this.state.newClientFolder;
                                                                   objCp.team.push({
@@ -7686,9 +7706,9 @@ export default class Main extends React.Component {
                                                         <div style={{
                                                           display: 'flex',
                                                           justifyContent: 'flex-start',
-                                                          marginTop: 15
+                                                          marginTop: 10
                                                         }}>
-                                                          <div>
+                                                          <div style={{alignSelf:"center"}}>
                                                             <div>
                                                               <MuiSelect
                                                                   labelId="demo-simple-select-labOuverture dossierel"
@@ -7723,7 +7743,7 @@ export default class Main extends React.Component {
                                                               </MuiSelect>
                                                             </div>
                                                           </div>
-                                                          <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
+                                                          <div style={{alignSelf:"center",marginTop: this.state.newClientFolder.team[key].uid !== '' ? 14 : -5 }}>
                                                             <div style={{marginLeft:10}}>
                                                               Taux horaire
                                                             </div>
@@ -7762,7 +7782,7 @@ export default class Main extends React.Component {
                                                 <div className="col-md-6" style={{minWidth:500}}>
                                                   <div style={{ display: 'flex' }}>
                                                     <div className="mt-2">Collaborateur/Stagiaire</div>
-                                                    <IconButton size="small" style={{ marginTop: -5, marginLeft: 3 }}
+                                                    <IconButton size="small" style={{ marginTop: -5, marginLeft: 3,alignSelf:"center" }}
                                                                 onClick={() => {
                                                                   let objCp = this.state.newClientFolder;
                                                                   objCp.team.push({
@@ -7785,8 +7805,8 @@ export default class Main extends React.Component {
                                                           justifyContent: 'flex-start',
                                                           marginTop: 15
                                                         }}>
-                                                          <div>
-                                                            <div>
+                                                          <div style={{alignSelf:"center"}}>
+                                                            <div >
                                                               <MuiSelect
                                                                   labelId="demo-simple-select-label"
                                                                   id="demo-simple-select"
@@ -7820,7 +7840,7 @@ export default class Main extends React.Component {
                                                               </MuiSelect>
                                                             </div>
                                                           </div>
-                                                          <div style={{ marginTop: this.state.newClientFolder.team[key].id !== '' ? 12 : -7 }}>
+                                                          <div style={{ marginTop: this.state.newClientFolder.team[key].uid !== '' ? 14 : -5,alignSelf:"center" }}>
                                                             <div style={{marginLeft:10}}>
                                                               Taux horaire
                                                             </div>
@@ -7861,123 +7881,39 @@ export default class Main extends React.Component {
 
                                             <div className="mt-4">
                                               <h5>FACTURATION-CLIENT</h5>
-                                              <div
-                                                  className="row align-items-center">
-                                                <div className="col-md-4">
-                                                  <div
-                                                      className="row justify-content-center align-items-center">
-                                                    <div
-                                                        className="col-md-4">
-                                                      <div>Par Email</div>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-8">
-                                                      <CB color="primary"
-                                                          checked={this.state.newClientFolder.byEmail}
-                                                          onChange={(e) => {
-                                                            let obj = this.state.newClientFolder;
-                                                            obj.byEmail = e.target.checked
-                                                            this.setState({newClientFolder:obj})
-                                                            //this.handleChange("newClientFolder",e.target.checked)
-                                                          }}
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                      className="row justify-content-center align-items-center">
-                                                    <div
-                                                        className="col-md-4">
-                                                      <div>Fréquence</div>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-8">
-                                                      <MuiSelect
-                                                          labelId="demo-simple-select-label"
-                                                          id="demo-simple-select"
-                                                          style={{ width: '100%' }}
-                                                          value={this.state.newClientFolder.frequence}
-                                                          onChange={(e) => {
-                                                            let obj = this.state.newClientFolder;
-                                                            obj.frequence = e.target.value
-                                                            this.setState({newClientFolder:obj})
-                                                          }}
-                                                      >
-                                                        <MenuItem
-                                                            value={'Mensuelle'}>Mensuelle</MenuItem>
-                                                        <MenuItem
-                                                            value={'Trimestrielle'}>Trimestrielle</MenuItem>
-                                                        <MenuItem
-                                                            value={'Semestrielle'}>Semestrielle</MenuItem>
-                                                        <MenuItem
-                                                            value={'Annuelle'}>Annuelle</MenuItem>
-                                                      </MuiSelect>
-                                                    </div>
-                                                  </div>
+                                              <div className="row mt-2">
+                                                <div className="col-md-6">
+                                                  <div>Fréquence</div>
+                                                  <select
+                                                      className="form-control custom-select"
+                                                      value={this.state.newClientFolder.frequence}
+                                                      onChange={(e) => {
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.frequence = e.target.value
+                                                        this.setState({newClientFolder:obj})
+                                                      }}
+                                                  >
+                                                    <option value="Mensuelle">Mensuelle</option>
+                                                    <option value="Trimestrielle">Trimestrielle</option>
+                                                    <option value="Semestrielle">Semestrielle</option>
+                                                    <option value="Annuelle">Annuelle</option>
+
+                                                  </select>
                                                 </div>
-                                                <div className="col-md-4">
-                                                  <div
-                                                      className="row justify-content-center align-items-center">
-                                                    <div
-                                                        className="col-md-6">
-                                                      <div>Envoyé par le secrétariat
-                                                      </div>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-6">
-                                                      <CB color="primary"
-                                                          checked={this.state.newClientFolder.sentBySecr}
-                                                          onChange={(e) => {
-                                                            let obj = this.state.newClientFolder;
-                                                            obj.sentBySecr = e.target.checked
-                                                            this.setState({newClientFolder:obj})
-                                                          }} />
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                      className="row justify-content-center align-items-center">
-                                                    <div
-                                                        className="col-md-6">
-                                                      <div>Envoyé par l’avocat
-                                                      </div>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-6">
-                                                      <CB color="primary"
-                                                          checked={this.state.newClientFolder.sentByAvocat}
-                                                          onChange={(e) => {
-                                                            let obj = this.state.newClientFolder;
-                                                            obj.sentByAvocat = e.target.checked
-                                                            this.setState({newClientFolder:obj})
-                                                          }} />
-                                                    </div>
-                                                  </div>
-                                                  <div
-                                                      className="row justify-content-center align-items-center">
-                                                    <div
-                                                        className="col-md-6">
-                                                      <div>Langue de Facturation
-                                                      </div>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-6">
-                                                      <MuiSelect
-                                                          labelId="demo-simple-select-label"
-                                                          id="demo-simple-select"
-                                                          style={{ width: '100%' }}
-                                                          value={this.state.newClientFolder.language}
-                                                          onChange={(e) => {
-                                                            let obj = this.state.newClientFolder;
-                                                            obj.language = e.target.value
-                                                            this.setState({newClientFolder:obj})
-                                                          }}
-                                                      >
-                                                        <MenuItem
-                                                            value={'Francais'}>Français</MenuItem>
-                                                        <MenuItem
-                                                            value={'Anglais'}>Anglais</MenuItem>
-                                                      </MuiSelect>
-                                                    </div>
-                                                  </div>
+                                                <div className="col-md-6">
+                                                  <div>Langue de Facturation</div>
+                                                  <select
+                                                      className="form-control custom-select"
+                                                      value={this.state.newClientFolder.language}
+                                                      onChange={(e) => {
+                                                        let obj = this.state.newClientFolder;
+                                                        obj.language = e.target.value
+                                                        this.setState({newClientFolder:obj})
+                                                      }}
+                                                  >
+                                                    <option value="Francais">Français</option>
+                                                    <option value="Anglais">Anglais</option>
+                                                  </select>
                                                 </div>
                                               </div>
 
@@ -8012,8 +7948,8 @@ export default class Main extends React.Component {
                                                       this.generateClientFolder(this.state.selectedSociete.ID, objCp.team);
                                                     }
                                                   }}
-                                                  className="btn btn-blue waves-effect mb-2 waves-light m-1">
-                                                <i className="fe-folder-plus" />&nbsp;&nbsp;Créer Dossier Client
+                                                  className="btn btn-blue waves-effect mb-2 waves-light m-1 mt-4">
+                                                <i className="fe-folder-plus" />&nbsp;&nbsp;Créer dossier client
                                               </button>
                                             </div>
                                           </TabPanel>
@@ -9766,17 +9702,21 @@ export default class Main extends React.Component {
 
 
           <ModalTransition>
-            {this.state.openSocketChangeModal && (
+            {this.state.openSocketChangeModal === true && (
                 <AltModal
                     actions={[
                         { text: 'Recharger', onClick: () => {
-                            if(navigator.onLine === true){
-                              this.rethink_initialise()
+                            fetch('https://www.google.com/', { // Check for internet connectivity
+                              mode: 'no-cors',
+                            }).then(() => {
+                                  console.log('CONNECTED TO INTERNET');
+                                  this.rethink_initialise()
                               this.setState({openSocketChangeModal:false})
-                            }else{
+                                }).catch(() => {
+                              console.log('INTERNET CONNECTIVITY ISSUE');
                               this.openSnackbar("error","Vous êtes hors-ligne ! Veuillez vérifier votre connexion internet ")
-                            }
-                          } }
+                            })
+                          }}
                         ]}
                     onClose={() => {}}
                     heading="Connexion interrompue !"

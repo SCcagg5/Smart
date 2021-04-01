@@ -21,7 +21,7 @@
     "@types/nw.gui": "^0.0.20",
     "antd": "^4.11.2",
     "availity-reactstrap-validation": "^2.5.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "baseui": "^9.78.0",
     "bootstrap": "^4.2.1",
     "chart.js": "^2.9.3",
@@ -99,7 +99,7 @@
     "video-react": "^0.14.1"
   },
   "scripts": {
-    "start": "react-scripts start --max_old_space_size=5096",
+    "start": "react-scripts --max_old_space_size=8192 start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

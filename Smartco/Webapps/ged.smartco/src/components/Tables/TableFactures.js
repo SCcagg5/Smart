@@ -41,6 +41,8 @@ import { Dropdown, Input as Sinput } from 'semantic-ui-react'
 import SearchIcon from '@material-ui/icons/Search';
 import rethink from "../../controller/rethink";
 import AddIcon from '@material-ui/icons/Add';
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import ArrowDropUpIcon from "@material-ui/icons/ArrowDropUp";
 
 const db_name = "OA_LEGAL";
 
@@ -229,6 +231,7 @@ export default function CollapsibleTable(props) {
                         <option  value={"tous"} label={"Tous"} />
                         <option  value={"wait"} label={"En attente"} />
                         <option  value={"accepted"} label={"Validée"} />
+                          <option  value={"paid"} label={"payée"} />
                       </select>
                     </div>
                   </div>
@@ -356,6 +359,8 @@ function Row(props) {
   const {row} =  props;
   const [open, setOpen] = React.useState(false);
 
+    const [sort, setSort] = React.useState("asc");
+
 
   useEffect( () => { getDeatilsOdooFacture() }, [] );
 
@@ -467,6 +472,7 @@ function Row(props) {
                     //console.log(detailsRes.data)
                     if(detailsRes.data.state === "paid"){
                         row.paid = "true"
+                        row.statut = "paid"
                         props.rerender()
                         rethink.update("test",'table("factures").get('+JSON.stringify(row.id)+').update('+ JSON.stringify(row) + ')',db_name,false).then( updateRes => {
                             if (updateRes && updateRes === true) {
@@ -709,7 +715,21 @@ function Row(props) {
                                                   row.statut === "wait" &&
                                                   <TableCell align="center" style={{fontWeight:"bold"}} >Actions</TableCell>
                                               }
-                                              <TableCell align="center" style={{fontWeight:"bold"}} >Date</TableCell>
+                                              <TableCell align="center" style={{fontWeight:"bold"}} >
+                                                  <div style={{display:"flex"}}>
+                                                      <IconButton size="small" onClick={() => {
+                                                          sort === "asc" ? setSort("desc") : setSort("asc")
+                                                      }}
+                                                      >
+                                                          {
+                                                              sort === "asc" ? <ArrowDropDownIcon fontSize="small"/> : <ArrowDropUpIcon fontSize="small"/>
+                                                          }
+
+                                                      </IconButton>
+                                                      <div>Date</div>
+                                                  </div>
+                                              </TableCell>
+
                                               <TableCell align="center" style={{fontWeight:"bold"}} >Description</TableCell>
                                               <TableCell align="center" style={{fontWeight:"bold"}} >Utilisateur OA</TableCell>
                                               <TableCell align="center" style={{fontWeight:"bold"}} >Taux horaire</TableCell>
@@ -720,7 +740,11 @@ function Row(props) {
                                           </TableRow>
                                       </TableHead>
                                       <TableBody>
-                                          {(row.lignes_facture || []).map((lf,key) => (
+                                          {(row.lignes_facture || []).sort( (a,b) => {
+                                              var c = new Date(a.newTime.date);
+                                              var d = new Date(b.newTime.date);
+                                              return sort === "asc" ?  d-c : c-d;
+                                          }).map((lf,key) => (
                                               <TableRow  key={key}>
                                                   {
                                                       row.statut === "wait" &&

@@ -9,6 +9,16 @@ const quelifiedSignEndpoint = "https://sign.1.smartdom.ch/sign/qualified";
 
 let SmartService = {
 
+    loginSSO(data){
+        return fetch("http://localhost:8081" + '/signin', {
+            method: 'POST',
+            headers:this.loadHeadersWithoutToken(),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     loadHeadersWithoutToken() {
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
@@ -263,6 +273,7 @@ let SmartService = {
     },
 
     details_facture_odoo(token,usrtoken,id){
+        console.log(id)
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill/'+id+'/details', {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
