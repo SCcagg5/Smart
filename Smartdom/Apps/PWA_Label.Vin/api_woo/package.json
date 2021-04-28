@@ -12,11 +12,18 @@
     "nodemon": "^1.17.4"
   },
   "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
     "@woocommerce/woocommerce-rest-api": "^1.0.1",
+    "assert": "^2.0.0",
     "body-parser": "^1.18.3",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
+    "mkdirp": "^1.0.4",
     "moment": "^2.24.0",
+    "node-fetch": "^2.6.1",
+    "pdf-lib": "^1.16.0",
+    "pdf-to-base64": "^1.0.3",
+    "qrcode": "^1.4.4",
     "stripe": "^8.144.0"
   }
 }

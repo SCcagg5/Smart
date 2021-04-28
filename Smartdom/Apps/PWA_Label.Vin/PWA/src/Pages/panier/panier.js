@@ -140,9 +140,9 @@ class Panier extends Component {
             type: "card",
             card: elements.getElement(CardElement),
             billing_details: {
-                email:"test@yopmail.fr",
+                email:"Etiquettepers@yopmail.fr",
                 phone:"",
-                name:"Test test"
+                name:"Etiquettepers Etiquettepers"
             }
         });
         if (payload.error) {

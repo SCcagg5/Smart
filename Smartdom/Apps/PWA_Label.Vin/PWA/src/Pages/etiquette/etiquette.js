@@ -1,0 +1,338 @@
+import React, {Component} from 'react';
+import DescriptionIcon from "@material-ui/core/SvgIcon/SvgIcon";
+import Button from "@material-ui/core/Button";
+import EditIcon from '@material-ui/icons/Edit';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
+import Etiquettepers from "../../Components/Etiquette/Etiquettepers"
+import TouchAppIcon from '@material-ui/icons/TouchApp';
+import down from "../../assets/images/icons/down.svg"
+import right from "../../assets/images/icons/right.svg"
+import Dialog from "@material-ui/core/Dialog/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogActions from "@material-ui/core/DialogActions/DialogActions";
+import "./style.css"
+import {navigateTo} from "../routes/history";
+class Etiquette extends Component {
+    constructor(props){
+        super(props)
+        this.state={
+            prodcut:'',
+            loading:true,
+            choice:"",
+            openUploadtModal:true,
+            openTitleModal:false,
+            photoUploaded:'',
+            textposition:'',
+            nom:'',
+            annee:''
+
+        }
+
+        this.onChangefirstEtiquette=this.onChangefirstEtiquette.bind(this)
+
+    }
+    uploadPhoto(e){
+        this.setState({photoUploaded:URL.createObjectURL(e.target.files[0]),openTitleModal:true,openUploadtModal:false})
+    }
+    handleChange(e){
+        this.setState({choice:e.target.value})
+    }
+    componentDidMount() {
+        let cart = JSON.parse(localStorage.getItem("cart"))
+        let product= cart[0]
+        this.setState({product:product,loading:false})
+    }
+
+    addTicket(){
+        let data = {
+            nom:this.state.nom,
+            annee:this.state.annee
+        }
+        localStorage.setItem('etiquette',JSON.stringify(data))
+        navigateTo('/home/cart')
+    }
+
+    onChangefirstEtiquette(item,e){
+        this.setState({[item]:e.target.value})
+
+    }
+
+    render() {
+        return (
+            <div>
+                <div style={{padding:10,minHeight:"100vh",marginTop:50,overflow:"auto"}}>
+                    <div className="pb-5">
+                        {this.state.loading===false &&
+                        <div className="h-100 pb-4 ">
+                            <div>
+                                <img style={{width:"100%",maxHeight:250}} src={this.state.product.images[0].src}/>
+                            </div>
+                            <hr style={{width:"100%",height:1,backgroundColor:"#e6e6e6"}}/>
+                            <div className="p-1">
+                                <div className="row align-items-center ">
+                                    <div className="col-8">
+                                        <text style={{fontSize:15,fontWeight:"bold"}}>{this.state.product.name}</text>
+                                    </div>
+                                    <div className="col-4">
+
+                                        <text style={{color:"#6EC1E4",fontFamily:"Pacifico-Regular",fontSize:25}}>{this.state.product.total}</text>
+                                        <text style={{color:"#6EC1E4",fontSize:20,fontWeight:"bold"}}> €</text>
+
+                                    </div>
+
+                                </div>
+
+                                <div className="p-1">
+                                    {/*<div className="row align-items-center  justify-content-center ">
+                                        <div className="col-4">
+                                            <div className="p-2 text-center" style={{borderStyle:"solid",borderColor:"#e6e6e6",borderWidth:1,borderRadius:10}}>
+                                                <InfoIcon className="mr-1" />
+                                                <text  className="font-weight-bold" style={{fontFamily:"IBMPlexSans-Bold",fontSize:15}}>75 g</text>
+                                            </div>
+                                        </div>
+                                        <div className="col-8">
+                                            <div className="row align-items-center p-2 text-center " style={{borderStyle:"solid",borderColor:"#e6e6e6",borderWidth:1,borderRadius:10 ,backgroundColor:'#f2f2f2'}}>
+                                                <div>
+                                                    <text  className="font-weight-bold" style={{fontFamily:"IBMPlexSans-Bold",fontSize:15,color:"#c6c6c6"}}>8 - 15min → </text>
+                                                </div>
+                                                <div>
+                                                    <FormControl  className="ml-1" variant="outlined" >
+
+                                                        <Select
+                                                            style={{height:30}}
+                                                            native
+
+                                                            inputProps={{
+                                                                name: 'age',
+                                                                id: 'outlined-age-native-simple',
+                                                            }}
+                                                        >
+                                                            <option value={10}>Ten</option>
+                                                            <option value={20}>Twenty</option>
+                                                            <option value={30}>Thirty</option>
+                                                        </Select>
+                                                    </FormControl>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>*/}
+
+
+                                </div>
+
+
+                            </div>
+
+                            <hr style={{width:"100%",height:1,backgroundColor:"#e6e6e6"}}/>
+
+                            <div className="row justify-content-center align-items-center text-center">
+                                <EditIcon />
+                                <h5>L'ÉTIQUETTE PERSONNALISÉE</h5>
+
+
+                            </div>
+
+                            <div>
+                                <FormControl component="fieldset">
+                                    <RadioGroup aria-label="gender" name="gender1" value={this.state.choice} onChange={(e)=>{this.handleChange(e)}}>
+                                        <FormControlLabel value="1" control={<Radio />} label="J'ecris mon message sur une étiquette standard" />
+                                        {this.state.choice==="1"&&<div>
+                                          <Etiquettepers nom={this.state.nom} annee={this.state.annee} onChange={this.onChangefirstEtiquette}/>
+                                        </div>}
+                                        <FormControlLabel value="2" control={<Radio />} label="Je crée mon étiquette de A à Z sur l'interface graphique " />
+                                        {
+                                            this.state.choice==="2"&&
+                                                <div className="text-center" >
+
+                                                    <TouchAppIcon fontSize="small" />
+                                                    <small>Création de votre etiquette sur notre interface graphique aprés ajouté le coffret à votre panier</small>
+                                                </div>
+                                        }
+                                        <FormControlLabel value="3" control={<Radio />} label="Je personalise une etiquette toute faite " />
+                                        {
+                                            this.state.choice==="3"&&<div>
+                                                <h5>
+                                                    Découvre les étiquettes toutes faites en cliquant sur la catégorie
+                                                <img src={down} style={{width:"18px"}}/>
+                                                </h5>
+                                                <div className="p-1 text-center">
+                                                    <img src={right} style={{width:"15px"}}/>
+                                                    <small className="ml-2">
+                                                    Pour Noel
+                                                    </small>
+
+                                                </div>
+                                                <div className="p-1 text-center">
+                                                    <img src={right} style={{width:"15px"}}/>
+                                                    <small className="ml-2">
+                                                        Pour Nouvel Année
+                                                    </small>
+
+                                                </div>
+                                                <div className="p-1 text-center">
+                                                    <img src={right} style={{width:"15px"}}/>
+                                                    <small className="ml-2">
+                                                        Pour Saint Valentin
+                                                    </small>
+
+                                                </div>
+                                                <div className="p-1 text-center">
+                                                    <img src={right} style={{width:"15px"}}/>
+                                                    <small className="ml-2">
+                                                        Pour un anniversaire
+                                                    </small>
+
+                                                </div>
+                                                <div className="p-1 text-center">
+                                                    <img src={right} style={{width:"15px"}}/>
+                                                    <small className="ml-2">
+                                                        Pour la féte de pères - mères
+                                                    </small>
+
+                                                </div>
+                                                <div className="p-1 text-center">
+                                                    <img src={right} style={{width:"15px"}}/>
+                                                    <small className="ml-2">
+                                                        Pour une demande témoin
+                                                    </small>
+
+                                                </div>
+                                                <div className="p-1 text-center">
+                                                    <img src={right} style={{width:"15px"}}/>
+                                                    <small className="ml-2">
+                                                        Pour une demande parrain - marraine
+                                                    </small>
+
+                                                </div>
+                                                <div className="p-1 text-center">
+                                                    <img src={right} style={{width:"15px"}}/>
+                                                    <small className="ml-2">
+                                                        Pour un homme amateur de bières
+                                                    </small>
+
+                                                </div>
+                                            </div>
+                                        }
+                                        <FormControlLabel value="disabled" control={<Radio />} label="Je crée jusqu'a 6 étiquettes differente dans mon coffret" />
+                                        <FormControlLabel value="5" control={<Radio />} label="Upload une photo ou prendre une selfie " />
+                                        {
+                                            this.state.choice==="5"&&
+                                                <div>
+                                            <Dialog onClose={() => {this.setState({openUploadtModal:false})}}
+                                                    aria-labelledby="simple-dialog-title" open={this.state.openUploadtModal}>
+                                                <DialogTitle id="simple-dialog-title">Très bon choix &#128512;</DialogTitle>
+                                                <DialogContent>
+                                                    <DialogContentText id="alert-dialog-description">
+                                                        Connectez-vous pour ajouter au panier
+                                                    </DialogContentText>
+                                                </DialogContent>
+                                                <DialogActions>
+                                                    <label for="file-upload">
+
+                                                        upload photo
+
+                                                        <input onChange={(e)=>{this.uploadPhoto(e)}} id="file-upload" type="file" style={{display:'none'}}/>
+
+                                                    </label>
+                                                    <label htmlFor="take-photo">
+
+                                                        prendre une selfie
+
+                                                        <input
+                                                            accept="image/*"
+                                                            id="take-photo"
+                                                            type="file"
+                                                            capture="environment"
+                                                            style={{display:'none'}}
+                                                            onChange={(e) => this.uploadPhoto(e)}
+                                                        />
+
+                                                    </label>
+                                                </DialogActions>
+
+
+
+                                            </Dialog>
+
+                                                    <Dialog onClose={() => {this.setState({openTitleModal:false})}}
+                                                            aria-labelledby="simple-dialog-title" open={this.state.openTitleModal}>
+                                                        <DialogTitle id="simple-dialog-title">Très bon choix &#128512;</DialogTitle>
+                                                        <DialogContent>
+                                                            <DialogContentText id="alert-dialog-description">
+                                                              Choisir style de titre et sous titre
+                                                            </DialogContentText>
+                                                        </DialogContent>
+                                                        <DialogActions>
+                                                            <label onClick={()=>{this.setState({textposition:"horizontal",openTitleModal:false})}}>
+
+                                                                Titre horizontal
+
+
+                                                            </label>
+                                                            <label onClick={()=>{this.setState({textposition:"vertical",openTitleModal:false})}} >
+
+                                                                Titre vertical
+
+
+
+                                                            </label>
+                                                        </DialogActions>
+
+
+
+                                                    </Dialog>
+                                                    {
+                                                        this.state.photoUploaded!=''&&
+                                                            this.state.textposition==="horizontal"?
+                                                            <div className="text-center" >
+
+
+
+                                                               <img src={this.state.photoUploaded} style={{width:300}}/>
+
+                                                                <input className="text-center noOutline mt-2" placeholder={'Titre'} style={{fontWeight:'bold',fontSize:20}} />
+                                                                <input className="text-center noOutline mt-2" placeholder={'Sous titre'} style={{fontSize:18}} />
+
+                                                            </div>:
+                                                            <div style={{position:'relative'}}>
+
+                                                                <input type={"text"} className="text-center noOutline vertical mt-2" placeholder={'Titre'} style={{fontWeight:'bold',fontSize:20}} />
+
+
+                                                                <img src={this.state.photoUploaded} style={{width:300,marginLeft:40}}/>
+
+
+                                                            </div>
+                                                    }
+                                                </div>
+                                        }
+
+                                    </RadioGroup>
+                                </FormControl>
+                            </div>
+
+                            <Button onClick={()=>this.addTicket()} variant="contained" color="secondary">
+                                Ajouter a la commande
+                            </Button>
+
+
+                        </div>
+
+
+                        }
+
+                    </div>
+                </div>
+
+            </div>
+        );
+    }
+}
+
+export default Etiquette;

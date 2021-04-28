@@ -17,6 +17,7 @@ import {navigateTo} from "../routes/history";
 import Loader from "../../Components/Loaders/Loader";
 import Alert from "@material-ui/lab/Alert";
 import Snackbar from "@material-ui/core/Snackbar";
+import { withRouter } from 'react-router-dom';
 
 class Product extends Component {
     constructor(props){
@@ -30,7 +31,8 @@ class Product extends Component {
             quantite:1,
             price:0,
             cartQuantite:0,
-            openConnectModal:false
+            openConnectModal:false,
+            openTicketModal:false
         }
     }
     componentDidMount() {
@@ -99,7 +101,7 @@ class Product extends Component {
                 cart.push(product)
                 localStorage.setItem('cart',JSON.stringify(cart))
                 this.props.onAddToCart(cart.length)
-                this.setState({cartQuantite:cart.length})
+                this.setState({cartQuantite:cart.length,openTicketModal:true})
                 this.openSnackbar("success","Produit ajouté avec succès dans votre panier")
             }else {
                 cart = []
@@ -226,7 +228,29 @@ class Product extends Component {
 
 
 
+                <Dialog onClose={() => {this.setState({openTicketModal:false})}}
+                        aria-labelledby="simple-dialog-title" open={this.state.openTicketModal}>
+                    <DialogTitle id="simple-dialog-title">Etiquette &#128512;</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Souhaitez vous personnaliser l’étiquette de ces bouteilles ?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => {
 
+                               this.props.history.push('/home/etiquette')
+
+                        }} color="primary">
+                            Oui
+                        </Button>
+                        <Button onClick={() => this.setState({openConnectModal:false})} color="primary">
+                           Non
+                        </Button>
+                    </DialogActions>
+
+
+                </Dialog>
 
                 <Dialog onClose={() => {this.setState({openConnectModal:false})}}
                         aria-labelledby="simple-dialog-title" open={this.state.openConnectModal}>
@@ -270,4 +294,4 @@ class Product extends Component {
     }
 }
 
-export default Product;
+export default withRouter( Product);

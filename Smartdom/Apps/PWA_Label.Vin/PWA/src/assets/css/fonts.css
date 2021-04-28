@@ -29,3 +29,12 @@
     src: local('Cerebri-sans Bold'), url("../fonts/cerebrisans-bold.woff") format("woff");
     font-weight: 700;
 }
+@font-face {
+    font-family: "Parisien";
+    font-style: italic;
+    font-weight: bold;
+
+
+    src: url("../fonts/Parisienne-Regular.ttf") format('truetype');
+
+}

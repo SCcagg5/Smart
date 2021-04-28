@@ -17,9 +17,11 @@ import EmailIcon from "@material-ui/icons/Email";
 import Snackbar from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
 import CajooService from "../../provider/cajooservice";
+import LabelService from '../../provider/labelservice'
 import {StripeCardInput, Input} from "react-rainbow-components";
-import {navigateTo} from "../routes/history";
 
+import rethink from "../../controller/rethink";
+const db_name="labelvinQRcode"
 const CARD_OPTIONS = {
     iconStyle: "solid",
     style: {
@@ -70,16 +72,29 @@ export default function Panier(props){
     const [userFname, setUserFname] = React.useState(localStorage.getItem("fname") || "");
     const [userEmail, setUserEmail] = React.useState(localStorage.getItem("email") || "");
     const [stripeCard, setStripeCard] = React.useState(null);
+    const [tables,setTable]=React.useState([])
+
+
+
 
 
     const total = parseFloat(livraison) + parseFloat(sousTotal)
 
     useEffect(() => {
+        createDB()
         getCart()
         getPayment_gateways()
+
     }, []);
 
+const createDB=()=>{
+    rethink.createDB(db_name,"test").then( r1 => {
+        if (r1 === true) console.log("NEW DB CREATED");
+        if (r1 === false) console.log("DB ALREADY EXIST");
 
+
+    })
+    }
     const openSnackbar = (type, msg) => {
         setOpenAlert(true)
         setAlertType(type)
@@ -90,6 +105,53 @@ export default function Panier(props){
         if (reason === 'clickaway') return;
         setOpenAlert(false)
     };
+
+
+     async function verifIsTableExist(table){
+        let tableList =tables
+        if(tableList.includes(table) === true){
+            console.log("TABLE EXIST")
+            return true;
+        }else{
+            console.log("CREATE TABLE")
+            tableList.push(table);
+            setTable(tableList)
+            let verif =  await rethink.createTable(db_name, table, "test");
+            return verif;
+        }
+    }
+  const  addNewQRCode=(id,text,annee,idasset)=> {
+       setLoading(true)
+
+        verifIsTableExist("QrCode").then( v => {
+           let data ={
+               idcmd :id,
+               text:text,
+               annee:annee,
+               idasset:idasset
+
+
+           }
+
+
+            rethink.insert("test",'table("QrCode").insert('+ JSON.stringify(data) + ')',db_name,false).then( resAdd => {
+                console.log(resAdd)
+                if (resAdd && resAdd === true) {
+                    openSnackbar('success', data.idcmd + ' est ajouté avec succès ');
+
+                    setLoading(false)
+                } else {
+                    setLoading(false)
+                    openSnackbar("error","Une erreur est survenue !")
+                }
+            }).catch(err => {
+                setLoading(false)
+                openSnackbar("error","Une erreur est survenue !")
+                console.log(err)
+            })
+
+        }).catch(err => {console.log(err)})
+    }
 
     const viderPanier = () => {
         localStorage.setItem('cart', JSON.stringify([]))
@@ -130,8 +192,8 @@ export default function Panier(props){
             type: "card",
             card: elements.getElement(CardElement),
             billing_details: {
-                email:"test@yopmail.fr",
-                name:"Test test"
+                email:"Etiquettepers@yopmail.fr",
+                name:"Etiquettepers Etiquettepers"
             }
         });
         if (payload.error) {
@@ -145,8 +207,8 @@ export default function Panier(props){
                     payment_method: {
                         card: elements.getElement(CardElement),
                         billing_details: {
-                            email:"test@yopmail.fr",
-                            name:"Test test"
+                            email:"Etiquettepers@yopmail.fr",
+                            name:"Etiquettepers Etiquettepers"
                         },
                     },
                     setup_future_usage: 'off_session',
@@ -205,23 +267,23 @@ export default function Panier(props){
                                     payment_method_title:"carte de paiement (Stripe)",
                                     billing: {
                                         first_name: "label",
-                                        last_name: "test",
+                                        last_name: "Etiquettepers.js",
                                         address_1: "17 rue de liberté",
                                         city: "Paris",
                                         state: "PA",
                                         postcode: "12345",
                                         country: "FR",
-                                        email: "test@test.fr"
+                                        email: "Etiquettepers@Etiquettepers.fr"
                                     },
                                     shipping: {
                                         first_name: "label",
-                                        last_name: "test",
+                                        last_name: "Etiquettepers.js",
                                         address_1: "17 rue de liberté",
                                         city: "Paris",
                                         state: "PA",
                                         postcode: "12345",
                                         country: "FR",
-                                        email: "test@test.fr"
+                                        email: "Etiquettepers@Etiquettepers.fr"
                                     },
                                     line_items: line_items
                                 };
@@ -231,14 +293,41 @@ export default function Panier(props){
 
                                 CajooService.addOrder(order).then( orderRes => {
                                     console.log(orderRes)
+                                    if (orderRes.status === 201) {
+
                                     setLoading(false)
-                                    openSnackbar("success","Félicitation ! Votre commande est effectué avec succès")
+                                        let data = JSON.parse(localStorage.getItem('etiquette'))
+                                        if (data!=null){
+                                            data.id=orderRes.data.id
+                                            data.total=sousTotal
+                                            let QrCOdeDAta={
+                                                name:"label",
+                                                number:line_items.length,
+                                                description:"label"
+                                            }
+                                            LabelService.createAsset(QrCOdeDAta).then((res)=>{
+                                                if (res&&res.status===200){
+                                                    LabelService.getCodes(res.data.id).then((ress)=>{
+                                                        if (ress&&ress.status===200){
+                                                            data.codes=ress.data.qr
+                                                            CajooService.generateTicket(data)
+                                                            addNewQRCode(orderRes.data.id,data.nom,data.annee,res.data.id)
+
+                                                        }
+                                                    })
+
+                                                }
+                                            })
+
+                                        }
+                                    openSnackbar("success", "Félicitation ! Votre commande est effectué avec succès")
                                     //sendTokenToServer( result.token.id, orderRes.data.id  );
                                     viderPanier()
                                     props.onClearPanier()
-                                    setTimeout(() => {
+                                    /*setTimeout(() => {
                                         navigateTo("/home/profil")
-                                    },1500)
+                                    },1500)*/
+                                }
 
                                 }).catch(err => {console.log(err)})
                             } else {
@@ -579,6 +668,8 @@ export default function Panier(props){
                                         height: 40
                                     }}>Payer {sousTotal + " €"}</Button>
                         </div>
+
+
                     </div>
                 </div>
 

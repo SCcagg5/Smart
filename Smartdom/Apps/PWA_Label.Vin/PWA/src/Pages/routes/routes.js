@@ -15,6 +15,7 @@ import Product from "../product/product";
 import Checkout from "../checkout/checkout";
 import {Elements} from "@stripe/react-stripe-js";
 import {loadStripe} from "@stripe/stripe-js";
+import Etiquette from "../etiquette/etiquette";
 
 /*const stripePromise = loadStripe("pk_test_DzPutapEGMVUdss4QraUUYyA", {locale: 'fr'});
 const ELEMENTS_OPTIONS = {
@@ -32,9 +33,12 @@ export default function Routes(props) {
                 <Route exact path="/home/categories" component={Categories}/>
                 <Route exact path="/home/products/:catID" component={Products}/>
                 <Route exact path="/home/product/:prodID">
+
                     <Product onAddToCart={props.onAddToCart} history={history}/>
                 </Route>
-               {/* <Route exact path="/home/cart">
+                <Route exact path="/home/etiquette" component={Etiquette}/>
+
+                {/* <Route exact path="/home/cart">
                     <Elements stripe={stripePromise} options={ELEMENTS_OPTIONS}>
                         <Panier onClearPanier={props.onClearPanier}/>
                     </Elements>
@@ -45,7 +49,9 @@ export default function Routes(props) {
                 <Route exact path="/home/checkout" component={Checkout}/>
                 <Route exact path="/home/profil" component={Profil}/>
                 <Route exact path="/home/rooms" component={Rooms}/>
+
                 <Route exact path="/home/chat" component={Chat}/>
+
             </Switch>
         </Router>
     );

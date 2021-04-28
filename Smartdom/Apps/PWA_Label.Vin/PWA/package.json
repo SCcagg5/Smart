@@ -23,6 +23,7 @@
     "moment": "^2.24.0",
     "node-sass": "^4.11.0",
     "notistack": "latest",
+    "html2canvas": "^1.0.0-rc.7",
     "react": "^16.13.1",
     "react-anchorme": "^2.1.0",
     "react-color": "^2.18.1",

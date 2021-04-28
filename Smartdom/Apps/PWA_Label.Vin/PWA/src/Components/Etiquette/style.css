@@ -1,0 +1,11 @@
+.noOutline{
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border:none;
+}
+.noOutline:focus{
+    border-color: inherit;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+

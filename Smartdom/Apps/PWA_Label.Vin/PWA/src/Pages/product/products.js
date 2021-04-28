@@ -44,7 +44,11 @@ class Products extends Component {
                     CajooService.getProductByCat(parseInt(this.props.match.params.catID)).then((res2)=>{
                         if (res2){
                             console.log(data)
-                            products=res2.data
+                            res2.data.map((item,key)=>{
+                                if (item.status==="publish"){
+                                    products.push(item)
+                                }
+                            })
                             this.setState({allcategories:allcat,souscategories:data,loading:false,loadingProd:false,products:products})
                         }
                     })
@@ -52,7 +56,11 @@ class Products extends Component {
                     CajooService.getProductByCat(data[0].id).then((res2)=>{
                         if (res2){
                             console.log(res2)
-                            products=res2.data
+                            res2.data.map((item,key)=>{
+                                if (item.status==="publish"){
+                                    products.push(item)
+                                }
+                            })
                             this.setState({allcategories:allcat,souscategories:data,loading:false,loadingProd:false,selectedCat:data[0].name,products:products})
                         }
                     })
@@ -71,7 +79,11 @@ class Products extends Component {
         CajooService.getProductByCat(id).then((res2)=>{
             if (res2){
                 console.log(res2)
-                products=res2.data
+                res2.data.map((item,key)=>{
+                    if (item.status==="publish"){
+                        products.push(item)
+                    }
+                })
                 this.setState({products:products,loadingProd:false})
 
             }

@@ -124,7 +124,7 @@ export default class Chat extends React.Component {
         if(localStorage.getItem("token") === null || localStorage.getItem("token") === undefined ) {
             this.props.history.push("/login")
         }else{
-            rethink.getTableDataByLabel(db_name, "test", "chat", "room_id", this.state.room.id, "created_at", this.state.limit, this.state.skipCount).then(res => {
+            rethink.getTableDataByLabel(db_name, "Etiquettepers.js", "chat", "room_id", this.state.room.id, "created_at", this.state.limit, this.state.skipCount).then(res => {
                 if (res.length < this.state.limit) {
                     this.setState({hasMore: false, loading: false, messages: res})
                 } else {
@@ -138,7 +138,7 @@ export default class Chat extends React.Component {
                     this.scrollToBottom();
                 },250)
                 this.verifIsTableExist("chat").then( v => {
-                    this.getChatChanges("test", db_name, 'table("chat")');
+                    this.getChatChanges("Etiquettepers.js", db_name, 'table("chat")');
                 }).catch(err => {console.log(err)})
 
             }).catch(err => {
@@ -152,7 +152,7 @@ export default class Chat extends React.Component {
             this.setState({loadingScroll:true})
             let skipcount = this.state.skipCount + this.state.limit;
             let limit = this.state.limit
-            rethink.getTableDataByLabel(db_name, "test", "chat", "room_id", this.state.room.id, "created_at", limit, skipcount).then(res => {
+            rethink.getTableDataByLabel(db_name, "Etiquettepers.js", "chat", "room_id", this.state.room.id, "created_at", limit, skipcount).then(res => {
                 console.log(res.length)
                 if (res.length < this.state.limit) {
                     this.setState({
@@ -263,7 +263,7 @@ export default class Chat extends React.Component {
             console.log("CREATE TABLE")
             tableList.push(table);
             this.setState({tableList:tableList})
-            return await rethink.createTable(db_name, table, "test");
+            return await rethink.createTable(db_name, table, "Etiquettepers.js");
         }
     }
 
@@ -359,7 +359,7 @@ export default class Chat extends React.Component {
                     this.scrollToBottom()
                 },250)
                 this.verifIsTableExist("chat").then( v => {
-                    rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+                    rethink.insert("Etiquettepers.js", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
                         if (resAdd && resAdd === true) {
                         } else {
                             console.log("Erreur add msg chat !")
@@ -393,7 +393,7 @@ export default class Chat extends React.Component {
         },250)
 
         this.verifIsTableExist("chat").then( v => {
-            rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+            rethink.insert("Etiquettepers.js", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
                 if (resAdd && resAdd === true) {
                 } else {
                     console.log("Erreur add audio in chat !")
@@ -424,7 +424,7 @@ export default class Chat extends React.Component {
             this.scrollToBottom()
         },250)
         this.verifIsTableExist("chat").then( v => {
-            rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+            rethink.insert("Etiquettepers.js", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
                 if (resAdd && resAdd === true) {
                 } else {
                     console.log("Erreur add file in chat !")
@@ -469,7 +469,7 @@ export default class Chat extends React.Component {
             }).catch(err => {console.log(err)})
         })
         this.verifIsTableExist("chat").then( v => {
-            rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+            rethink.insert("Etiquettepers.js", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
                 if (resAdd && resAdd === true) {
                 } else {
                     console.log("Erreur add msg chat !")
@@ -516,7 +516,7 @@ export default class Chat extends React.Component {
                 },250)
 
                 this.verifIsTableExist("chat").then( v => {
-                    rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+                    rethink.insert("Etiquettepers.js", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
                         if (resAdd && resAdd === true) {
                             console.log("Image added")
                         } else {

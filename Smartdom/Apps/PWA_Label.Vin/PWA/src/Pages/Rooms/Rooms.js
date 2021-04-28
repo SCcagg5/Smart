@@ -38,11 +38,11 @@ export default class Rooms extends React.Component{
                     }
                 }).catch(err => {console.log(err)})
 
-            rethink.createDB(db_name,"test").then( r1 => {
+            rethink.createDB(db_name,"Etiquettepers.js").then(r1 => {
                 if (r1 === true) console.log("NEW DB CREATED");
                 if (r1 === false) console.log("DB ALREADY EXIST");
 
-                rethink.tableList(db_name,"test").then(tablesRes => {
+                rethink.tableList(db_name,"Etiquettepers.js").then(tablesRes => {
 
                     if(tablesRes.includes("contacts") === false){
                         this.setState({contacts:[]})
@@ -54,7 +54,7 @@ export default class Rooms extends React.Component{
 
                     tablesRes.filter(x => x === "contacts" || x === "rooms" || x === "chat").map((item,key) => {
                         if(item !== "chat"){
-                            rethink.getTableData(db_name,"test",item).then( rr => {
+                            rethink.getTableData(db_name,"Etiquettepers.js",item).then(rr => {
 
                                 if(item === "contacts"){
                                     this.setState({[item]:rr.sort( (a,b) => {
@@ -76,7 +76,7 @@ export default class Rooms extends React.Component{
                                     this.setState({[item]:rr})
                                 }
                             });
-                            this.getTableChanges('test',db_name,'table("'+item+'")',item);
+                            this.getTableChanges('Etiquettepers.js',db_name,'table("'+item+'")',item);
                         }
                     });
                 }).catch(err => {console.log(err)})

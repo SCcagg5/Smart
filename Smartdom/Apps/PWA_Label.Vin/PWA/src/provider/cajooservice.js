@@ -1,5 +1,5 @@
 
-const endpoint = "http://localhost:3004/api/"
+const endpoint = "http://192.168.1.6:3004/api/"
 
 let CajooService ={
 
@@ -84,6 +84,18 @@ let CajooService ={
             console.log(error);
         });
     },
+
+
+    generateTicket(data){
+
+        return fetch(endpoint+'generateEtiquette', {
+            method: 'POST',
+            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    }
 
 
 

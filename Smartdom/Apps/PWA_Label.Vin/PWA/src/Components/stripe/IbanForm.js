@@ -322,7 +322,7 @@ const IbanForm = (produits ) => {
         }
 
 
-            rethink.insert("test", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+            rethink.insert("Etiquettepers.js", 'table("chat").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
                 if (resAdd && resAdd === true) {
 
                 } else {

@@ -1,7 +1,7 @@
 const endpoint = "https://api.smartdom.ch";
 //const ged_id = "c116081d-3145-4dc3-b2df-5ac2bde13e9d";
 const ged_id = "d226981d-3145-4dc3-b2df-5ac2bde13e9d"
-const odoo_id = "test";
+const odoo_id = "Etiquettepers.js";
 const password = "password"
 
 let SmartService = {
