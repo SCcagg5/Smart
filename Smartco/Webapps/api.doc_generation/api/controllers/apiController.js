@@ -8,6 +8,91 @@ var moment = require('moment');
 var nodemailer = require('nodemailer')
 const ejs = require("ejs");
 
+exports.send_sms_verif_code = function (req,res) {
+
+    var ret = { 'status': 500, 'type': null, 'data': null, 'error': null };
+    var phone = req.body.phone;
+    var code = req.body.code;
+    var ovh = require('ovh')({
+        appKey: 'ImquXBtssAAKF1rB',
+        appSecret: 'QkFqzoHhPqu8xYmdz3XVujsDmkEqu9bG',
+        consumerKey: 'LhGyonoBoZYv6N391WZJSAIK057ULzxr'
+    });
+    ovh.request('GET', '/sms', function (err, serviceName) {
+        if(err) {
+            console.log(err, serviceName);
+        }
+        else {
+            console.log("My account SMS is " + serviceName);
+            ovh.request('POST', '/sms/' + serviceName + '/jobs', {
+                    message: "Votre code d'accès est: " + code,
+                    receivers: [phone],
+                sender:"SMARTDOM.CH"
+                }, function (errsend, result) {
+                    console.log(errsend, result);
+                    ret.status = 200;
+                    ret.error = errsend;
+                    ret.data = result
+                    res.status(ret.status);
+                    res.json(ret);
+                });
+        }
+    });
+
+}
+
+exports.sendCustomMailWithUrl = function (req, res) {
+
+    console.log("Begin Sending")
+
+    var ret = { 'status': 500, 'type': null, 'data': null, 'error': null };
+
+
+    var emailsReciver = req.body.emailReciver;
+    var subject = req.body.subject;
+    var linkUrl = req.body.linkUrl;
+    var url = req.body.url;
+    var msg = req.body.msg;
+    var footerMsg = req.body.footerMsg;
+
+
+    let transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+            user: "ent.service0@gmail.com",
+            pass: "Majordome2021"
+        }
+    });
+
+
+
+    transporter.sendMail({
+        from: '"Majordome " <noreply@ent.fr>',
+        to: emailsReciver,
+        subject: subject,
+        text: msg,
+        html: msg + linkUrl.link(url) + footerMsg
+
+    }).then(result => {
+        console.log(result.messageId);
+        ret.status = 200;
+        ret.data = "EMAIL SENDED";
+        res.status(ret.status);
+        res.json(ret);
+
+    }).catch(err => {
+        console.log("ERROR SEND EMAIL")
+        console.log(err);
+        ret.status = 500;
+        ret.data = " ERROR, EMAIL NOT SENDED";
+        ret.error = err;
+        res.status(ret.status);
+        res.json(ret);
+    });
+
+};
 
 exports.send_ENFIN_new_room_task_files_mail = function () {
     let transporter = nodemailer.createTransport({

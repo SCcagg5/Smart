@@ -11,4 +11,10 @@ module.exports = function (app) {
     app.route('/api/generate_tn_sarl_statut_doc')
         .post(api.generate_TN_sarl_statut);
 
+    app.route('/api/sendCustomMailWithUrl')
+        .post(api.sendCustomMailWithUrl)
+
+    app.route('/api/send_sms_verifCode')
+        .post(api.send_sms_verif_code)
+
 };
