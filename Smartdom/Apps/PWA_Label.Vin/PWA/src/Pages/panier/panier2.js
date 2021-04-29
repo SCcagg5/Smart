@@ -21,42 +21,16 @@ import LabelService from '../../provider/labelservice'
 import {StripeCardInput, Input} from "react-rainbow-components";
 
 import rethink from "../../controller/rethink";
-const db_name="labelvinQRcode"
-const CARD_OPTIONS = {
-    iconStyle: "solid",
-    style: {
-        base: {
-            iconColor: "#c0c0c0",
-            color: "#000",
-            fontWeight: 500,
-            fontFamily: "Roboto, Open Sans, Segoe UI, sans-serif",
-            fontSize: "16px",
-            fontSmoothing: "antialiased",
-            ":-webkit-autofill": {
-                color: "#fce883"
-            },
-            "::placeholder": {
-                color: "#c0c0c0"
-            },
-            border:"1px solid #c0c0c0"
-        },
-        invalid: {
-            iconColor: "#ffc7ee",
-            color: "#ffc7ee"
-        }
-    }
-};
+import SmartService from "../../provider/SmartService";
+import utilFunctions from "../../tools/functions";
+import moment from "moment";
+import maillingService from "../../provider/maillingService";
+import {navigateTo} from "../routes/history";
+
+const db_name = "b116081d-3145-4dc3-b3df-5ac2bde13e9d"
 
 
-export default function Panier(props){
-
-
-    /*const stripe = useStripe();
-    const elements = useElements();*/
-
-
-
-
+export default function Panier(props) {
 
     const [openAlert, setOpenAlert] = React.useState(false);
     const [alertType, setAlertType] = React.useState("");
@@ -68,32 +42,31 @@ export default function Panier(props){
     const [cartQuantite, setCartQuantite] = React.useState(0);
     const [sousTotal, setSousTotal] = React.useState(0);
     const [livraison, setLivraison] = React.useState(0);
+    const [etiquettes, setEtiquettes] = React.useState(0);
 
     const [userFname, setUserFname] = React.useState(localStorage.getItem("fname") || "");
     const [userEmail, setUserEmail] = React.useState(localStorage.getItem("email") || "");
     const [stripeCard, setStripeCard] = React.useState(null);
-    const [tables,setTable]=React.useState([])
+    const [tables, setTable] = React.useState([])
+
+
+    const [currentUser, setCurrentUser] = React.useState()
 
 
 
-
-
-    const total = parseFloat(livraison) + parseFloat(sousTotal)
 
     useEffect(() => {
         createDB()
         getCart()
         getPayment_gateways()
-
+        verif_current_user_registration()
     }, []);
 
-const createDB=()=>{
-    rethink.createDB(db_name,"test").then( r1 => {
-        if (r1 === true) console.log("NEW DB CREATED");
-        if (r1 === false) console.log("DB ALREADY EXIST");
-
-
-    })
+    const createDB = () => {
+        rethink.createDB(db_name, "test").then(r1 => {
+            if (r1 === true) console.log("NEW DB CREATED");
+            if (r1 === false) console.log("DB ALREADY EXIST");
+        })
     }
     const openSnackbar = (type, msg) => {
         setOpenAlert(true)
@@ -107,34 +80,31 @@ const createDB=()=>{
     };
 
 
-     async function verifIsTableExist(table){
-        let tableList =tables
-        if(tableList.includes(table) === true){
+    async function verifIsTableExist(table) {
+        let tableList = tables
+        if (tableList.includes(table) === true) {
             console.log("TABLE EXIST")
             return true;
-        }else{
+        } else {
             console.log("CREATE TABLE")
             tableList.push(table);
             setTable(tableList)
-            let verif =  await rethink.createTable(db_name, table, "test");
+            let verif = await rethink.createTable(db_name, table, "test");
             return verif;
         }
     }
-  const  addNewQRCode=(id,text,annee,idasset)=> {
-       setLoading(true)
 
-        verifIsTableExist("QrCode").then( v => {
-           let data ={
-               idcmd :id,
-               text:text,
-               annee:annee,
-               idasset:idasset
+    const addNewQRCode = (id, text, annee, idasset) => {
+        setLoading(true)
 
-
-           }
-
-
-            rethink.insert("test",'table("QrCode").insert('+ JSON.stringify(data) + ')',db_name,false).then( resAdd => {
+        verifIsTableExist("QrCode").then(v => {
+            let data = {
+                idcmd: id,
+                text: text,
+                annee: annee,
+                idasset: idasset
+            }
+            rethink.insert("test", 'table("QrCode").insert(' + JSON.stringify(data) + ')', db_name, false).then(resAdd => {
                 console.log(resAdd)
                 if (resAdd && resAdd === true) {
                     openSnackbar('success', data.idcmd + ' est ajouté avec succès ');
@@ -142,15 +112,17 @@ const createDB=()=>{
                     setLoading(false)
                 } else {
                     setLoading(false)
-                    openSnackbar("error","Une erreur est survenue !")
+                    openSnackbar("error", "Une erreur est survenue !")
                 }
             }).catch(err => {
                 setLoading(false)
-                openSnackbar("error","Une erreur est survenue !")
+                openSnackbar("error", "Une erreur est survenue !")
                 console.log(err)
             })
 
-        }).catch(err => {console.log(err)})
+        }).catch(err => {
+            console.log(err)
+        })
     }
 
     const viderPanier = () => {
@@ -162,14 +134,19 @@ const createDB=()=>{
 
     const getCart = () => {
         let sousTotal = 0
+        let etiquettes = 0;
         let cart = localStorage.getItem('cart')
         if (cart !== null && cart !== undefined) {
             cart = JSON.parse(cart)
-            console.log(cart)
             cart.map((item, key) => {
                 let d = parseFloat(item.price) * parseInt(item.quantite)
                 sousTotal = (parseFloat(sousTotal) + d)
+                console.log(item)
+                if(item.have_etiquette && item.have_etiquette === true){
+                    etiquettes = etiquettes + 1
+                }
             })
+            setEtiquettes(etiquettes)
             setCart(cart)
             setCartQuantite(cart.length)
             setSousTotal(sousTotal.toFixed(2))
@@ -179,195 +156,399 @@ const createDB=()=>{
     const getPayment_gateways = () => {
         CajooService.getPayment_gateways().then(r => {
             console.log(r)
-        }).catch(err => {console.log(err)})
+        }).catch(err => {
+            console.log(err)
+        })
     }
 
 
     const validateStripePayment = async () => {
 
-        /*setOpenPayModal(false)
-        setLoading(false)*/
-
-        /*const payload = await stripe.createPaymentMethod({
-            type: "card",
-            card: elements.getElement(CardElement),
-            billing_details: {
-                email:"Etiquettepers@yopmail.fr",
-                name:"Etiquettepers Etiquettepers"
-            }
-        });
-        if (payload.error) {
-            console.log(payload.error)
-        } else {
-            console.log(payload.paymentMethod)
-
-            CajooService.get_stripe_client_secret({amount:1500,currency:"eur"}).then( async res => {
-
-                const result = await stripe.confirmCardPayment(res.data.clientSecret, {
-                    payment_method: {
-                        card: elements.getElement(CardElement),
-                        billing_details: {
-                            email:"Etiquettepers@yopmail.fr",
-                            name:"Etiquettepers Etiquettepers"
-                        },
-                    },
-                    setup_future_usage: 'off_session',
-                });
-                console.log(result)
-                if (result.error) {
-                    console.log(result.error);
-                } else if (result.paymentIntent.status === 'succeeded') {
-                    console.log("PAYMENT OK")
-                }
-            }).catch( err => {console.log(err)})
-        }*/
-
-
         setLoading(true)
+        localStorage.setItem("email", userEmail)
+        localStorage.setItem("fname", userFname)
 
-        localStorage.setItem("email",userEmail)
-        localStorage.setItem("fname",userFname)
+        if(currentUser !== undefined && currentUser !== null){
 
-        const { stripe, card, isComplete } = stripeCard;
-
-        if (isComplete) {
-            try {
-
-                CajooService.get_stripe_client_secret({amount:1500,currency:"eur"}).then( async res => {
-
-                    const result = await stripe.confirmCardPayment(res.data.clientSecret, {
-                        payment_method: {
-                            card,
-                            billing_details: {
-                                name:userFname,
-                                address: "17 rue de liberté, 20155 Paris France",
-                            },
-                        },
-                        setup_future_usage: 'off_session',
-                    });
-                    console.log(result)
-                    if (result.error) {
-                        console.log(result.error);
-                    } else if (result.paymentIntent.status === 'succeeded') {
-
-                        stripe.createToken(card).then(function(result) {
-                            console.log(result)
-                            if( result.token ) {
-
-                                let line_items = [];
-                                cart.map((item,key) => {
-                                    line_items.push({
-                                        product_id: item.id,
-                                        quantity: item.quantite
-                                    })
-                                })
-                                let order = {
-                                    set_paid: true,
-                                    payment_method:"stripe",
-                                    payment_method_title:"carte de paiement (Stripe)",
-                                    billing: {
-                                        first_name: "label",
-                                        last_name: "Etiquettepers.js",
-                                        address_1: "17 rue de liberté",
-                                        city: "Paris",
-                                        state: "PA",
-                                        postcode: "12345",
-                                        country: "FR",
-                                        email: "Etiquettepers@Etiquettepers.fr"
-                                    },
-                                    shipping: {
-                                        first_name: "label",
-                                        last_name: "Etiquettepers.js",
-                                        address_1: "17 rue de liberté",
-                                        city: "Paris",
-                                        state: "PA",
-                                        postcode: "12345",
-                                        country: "FR",
-                                        email: "Etiquettepers@Etiquettepers.fr"
-                                    },
-                                    line_items: line_items
-                                };
-
-                                setOpenPayModal(false)
-
-
-                                CajooService.addOrder(order).then( orderRes => {
-                                    console.log(orderRes)
-                                    if (orderRes.status === 201) {
-
-                                    setLoading(false)
-                                        let data = JSON.parse(localStorage.getItem('etiquette'))
-                                        if (data!=null){
-                                            data.id=orderRes.data.id
-                                            data.total=sousTotal
-                                            let QrCOdeDAta={
-                                                name:"label",
-                                                number:line_items.length,
-                                                description:"label"
-                                            }
-                                            LabelService.createAsset(QrCOdeDAta).then((res)=>{
-                                                if (res&&res.status===200){
-                                                    LabelService.getCodes(res.data.id).then((ress)=>{
-                                                        if (ress&&ress.status===200){
-                                                            data.codes=ress.data.qr
-                                                            CajooService.generateTicket(data)
-                                                            addNewQRCode(orderRes.data.id,data.nom,data.annee,res.data.id)
-
-                                                        }
-                                                    })
-
-                                                }
-                                            })
-
-                                        }
-                                    openSnackbar("success", "Félicitation ! Votre commande est effectué avec succès")
-                                    //sendTokenToServer( result.token.id, orderRes.data.id  );
-                                    viderPanier()
-                                    props.onClearPanier()
-                                    /*setTimeout(() => {
-                                        navigateTo("/home/profil")
-                                    },1500)*/
-                                }
-
-                                }).catch(err => {console.log(err)})
-                            } else {
-                                console.log( "There was a problem", result );
-                            }
-                        })
-                    }
-                }).catch(err => {console.log(err)})
-            } catch (err) {
-                console.log(err.message);
+        }else{
+            let user_data = {
+                email:userEmail,
+                fname:userFname,
+                phone:localStorage.getItem("phone"),
+                orders:[],
+                odoo_client_id:7,   //static just now
+                created_at:moment().format("YYYY-MM-DD HH:mm")
             }
+            setCurrentUser(user_data)
+            await save_rethink_woo_user(user_data);
         }
-    }
 
-    const  sendTokenToServer = ( token, order_id ) => {
+        const {stripe, card, isComplete} = stripeCard;
+            if (isComplete) {
+                try {
 
-        var url = "https://label.vin/wp-json/wc/v2/stripe-payment";
+                    CajooService.get_stripe_client_secret({amount: 1500, currency: "eur"}).then(async res => {
 
-        var formData = new FormData();
+                        const result = await stripe.confirmCardPayment(res.data.clientSecret, {
+                            payment_method: {
+                                card,
+                                billing_details: {
+                                    name: userFname,
+                                    address: "17 rue de liberté, 20155 Paris France",
+                                },
+                            },
+                            setup_future_usage: 'off_session',
+                        });
+                        console.log(result)
+                        if (result.error) {
+                            console.log(result.error);
+                        } else if (result.paymentIntent.status === 'succeeded') {
 
-        formData.append("order_id", order_id);
-        formData.append("payment_token", token);
-        formData.append("payment_method", 'stripe');
+                            stripe.createToken(card).then(function (result) {
+                                console.log(result)
+                                if (result.token) {
 
-        var request = new XMLHttpRequest();
-        request.open("POST", url);
-        request.send(formData);
-        request.onload = (e) => {
-            if (request.readyState === 4) {
-                if (request.status === 200) {
-                    console.log(request)
-                } else {
-                    console.log("Error", request)
+                                    let line_items = [];
+                                    cart.map((item, key) => {
+                                        line_items.push({
+                                            product_id: item.id,
+                                            quantity: item.quantite
+                                        })
+                                    })
+                                    let order = {
+                                        set_paid: true,
+                                        payment_method: "stripe",
+                                        payment_method_title: "carte de paiement (Stripe)",
+                                        billing: {
+                                            first_name: "label",
+                                            last_name: "Etiquettepers.js",
+                                            address_1: "17 rue de liberté",
+                                            city: "Paris",
+                                            state: "PA",
+                                            postcode: "12345",
+                                            country: "FR",
+                                            email: "Etiquettepers@Etiquettepers.fr"
+                                        },
+                                        shipping: {
+                                            first_name: "label",
+                                            last_name: "Etiquettepers.js",
+                                            address_1: "17 rue de liberté",
+                                            city: "Paris",
+                                            state: "PA",
+                                            postcode: "12345",
+                                            country: "FR",
+                                            email: "Etiquettepers@Etiquettepers.fr"
+                                        },
+                                        line_items: line_items
+                                    };
+
+                                    setOpenPayModal(false)
+
+                                    CajooService.addOrder(order).then(async orderRes => {
+                                        console.log(orderRes)
+                                        if (orderRes.status === 201) {
+
+                                            /*let data = JSON.parse(localStorage.getItem('etiquette'))
+                                            if (data != null) {
+                                                data.id = orderRes.data.id
+                                                data.total = sousTotal
+                                                let QrCOdeDAta = {
+                                                    name: "label",
+                                                    number: line_items.length,
+                                                    description: "label"
+                                                }
+                                                LabelService.createAsset(QrCOdeDAta).then((res) => {
+                                                    if (res && res.status === 200) {
+                                                        LabelService.getCodes(res.data.id).then((ress) => {
+                                                            if (ress && ress.status === 200) {
+                                                                data.codes = ress.data.qr
+                                                                CajooService.generateTicket(data)
+                                                                addNewQRCode(orderRes.data.id, data.nom, data.annee, res.data.id)
+
+                                                            }
+                                                        })
+
+                                                    }
+                                                })
+
+                                            }*/
+                                            let odoo_facture_data = await generate_facture_odoo()
+                                            console.log(odoo_facture_data)
+                                            if(odoo_facture_data.b64 && odoo_facture_data.b64 !== ""){
+                                                let line_items = orderRes.data.line_items || [];
+                                                let formated_line_items = []
+                                                line_items.map((item,key) => {
+                                                    formated_line_items.push({
+                                                        id:item.id,
+                                                        name:item.name,
+                                                        price:item.price,
+                                                        product_id:item.product_id,
+                                                        quantity:item.quantity,
+                                                        total:item.total
+                                                    })
+                                                })
+                                                let orderData = {
+                                                    woo_id:orderRes.data.id,
+                                                    total:orderRes.data.total,
+                                                    date_created:orderRes.data.date_created,
+                                                    line_items : formated_line_items,
+                                                    payment_method_title: orderRes.data.payment_method_title,
+                                                    odoo_fact_id:odoo_facture_data.facture_id,
+                                                    odoo_fact_b64:odoo_facture_data.b64
+                                                }
+                                                let user_data = currentUser
+                                                let orders = user_data.orders || [];
+                                                orders.push(orderData)
+                                                user_data.orders = orders
+                                                console.log(user_data)
+                                                rethink.update("test",'table("woo_users").get('+JSON.stringify(currentUser.id)+').update('+ JSON.stringify(user_data) + ')',db_name,false).then( updateRes => {
+                                                    if (updateRes && updateRes === true) {
+                                                        maillingService.send_odoo_facture({
+                                                            "emailReciver":currentUser.email,
+                                                            "subject":"Facture Label.vin",
+                                                            "msg":"Madame/Monsieur,<br/><br/>Suite à votre achat sur notre site <b>label.Vin</b> effectué(e) le "+moment().format("DD-MM-YYYY HH:mm")+" et correspondant au bon de commande n° " +orderRes.data.id +", nous vous adressons ci-joint une facture avec les détails de votre commande.",
+                                                            "footerMsg":"<br/><br/>En vous remerciant par avance,<br/><br/><br/>Cordialement",
+                                                            "attach":[
+                                                                {
+                                                                    filename:"Facture_Label.Vin_" + moment().format("DD-MM-YYYY"),
+                                                                    path:"data:application/pdf;base64," + odoo_facture_data.b64
+                                                                }
+                                                            ]
+                                                        }).then(sendRes => {
+                                                            console.log(sendRes)
+                                                        })
+                                                        setLoading(false)
+                                                        openSnackbar("success", "Félicitation ! Votre commande est effectué avec succès")
+                                                        viderPanier()
+                                                        props.onClearPanier()
+                                                        props.history.push('/home/chat',{b64_odoo_fact:odoo_facture_data.b64})
+                                                        //navigateTo("/home/chat",{b64_odoo_fact:odoo_facture_data.b64})
+                                                    }else{
+                                                        console.log("error update woo user")
+                                                    }
+                                                }).catch(err => {console.log(err)})
+
+                                            }
+                                        }
+                                    }).catch(err => {
+                                        console.log(err)
+                                    })
+                                } else {
+                                    console.log("There was a problem", result);
+                                }
+                            })
+                        }
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                } catch (err) {
+                    console.log(err.message);
                 }
             }
-        };
-
     }
 
-    return(
+    const generate_facture_odoo = () => {
+
+        return  new Promise((resolve, reject) => {
+
+            SmartService.getToken().then(tokenRes => {
+                console.log(tokenRes)
+                if (tokenRes.succes === true && tokenRes.status === 200) {
+
+                    SmartService.login({
+                        email: "label.vin@test.fr",
+                        password1: "test"
+                    }, tokenRes.data.token).then(loginRes => {
+
+                        let token = tokenRes.data.token;
+                        let usrtoken = loginRes.data.usrtoken
+                        let acces_token = utilFunctions.getUID();
+                        if (loginRes.succes === true && loginRes.status === 200) {
+
+                            let odoo_data = [{
+                                access_token: acces_token,
+                                journal_id: 1,
+                                message_attachment_count: 0,
+                                move_name: false,
+                                name: false,
+                                origin: false,
+                                partner_bank_id: 4,
+                                partner_id: 15,
+                                payment_term_id: 2,
+                                reference: false,
+                                sequence_number_next: "0001",
+                                type: "out_invoice",
+                                user_id: 2,
+                                account_id: 281,
+                                cash_rounding_id: false,
+                                comment: false,
+                                company_id: 1,
+                                currency_id: 1,
+                                date_due: moment().format("YYYY-MM-DD"),
+                                date_invoice: moment().format("YYYY-MM-DD"),
+                                fiscal_position_id: 1,
+                                incoterm_id: false,
+                                invoice_line_ids:[]
+                            }];
+
+                            let order_products = cart || [];
+                            order_products.map((product,key) => {
+                                odoo_data[0].invoice_line_ids.push(
+                                    [
+                                        0,
+                                        'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+                                        {
+                                            is_rounding_line: false,
+                                            name: product.name || "",
+                                            origin: false,
+                                            price_unit: parseFloat(product.price),
+                                            product_id: 1,
+                                            quantity: parseInt(product.quantite),
+                                            sequence: 10,
+                                            uom_id: 1,
+                                            currency_id: 1,
+                                            discount: 0,
+                                            display_type: false,
+                                            account_analytic_id: false,
+                                            account_id: 636,
+                                            analytic_tag_ids: [
+                                                [
+                                                    6,
+                                                    false,
+                                                    []
+                                                ]
+                                            ],
+                                            invoice_line_tax_ids:[[6,false,[]]]
+                                        }
+                                    ]
+                                );
+                            })
+
+                            if(etiquettes > 0){
+                                odoo_data[0].invoice_line_ids.push(
+                                    [
+                                        0,
+                                        'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+                                        {
+                                            is_rounding_line: false,
+                                            name: "Etiquettes",
+                                            origin: false,
+                                            price_unit: 7.5,
+                                            product_id: 1,
+                                            quantity: etiquettes,
+                                            sequence: 10,
+                                            uom_id: 1,
+                                            currency_id: 1,
+                                            discount: 0,
+                                            display_type: false,
+                                            account_analytic_id: false,
+                                            account_id: 636,
+                                            analytic_tag_ids: [
+                                                [
+                                                    6,
+                                                    false,
+                                                    []
+                                                ]
+                                            ],
+                                            invoice_line_tax_ids:[[6,false,[]]]
+                                        }
+                                    ]
+                                );
+                            }
+
+
+                            SmartService.create_facture_odoo(token, usrtoken, {data: odoo_data}).then(createFactRes => {
+                                console.log(createFactRes)
+                                if (createFactRes.succes === true && createFactRes.status === 200) {
+
+                                    SmartService.validate_facture_odoo(token, usrtoken,
+                                        {
+                                            data: [[createFactRes.data.id], {
+                                                journal_type: "sale",
+                                                lang: "fr_FR",
+                                                default_type: "out_invoice",
+                                                tz: "Europe/Paris",
+                                                uid: 2
+                                            }]
+                                        }).then(validateRes => {
+                                        console.log(validateRes)
+                                        if (validateRes.succes === true && validateRes.status === 200) {
+
+                                            SmartService.generate_facture_odoo(token, usrtoken, createFactRes.data.id, acces_token).then(genFactRes => {
+                                                console.log(genFactRes)
+
+                                                if (genFactRes.succes === true && genFactRes.status === 200) {
+                                                    resolve({b64:genFactRes.data.pdf,facture_id:createFactRes.data.id})
+                                                }else{
+                                                    reject(genFactRes.error)
+                                                }
+                                            }).catch(err => {
+                                                console.log(err)
+                                                reject(err)
+                                            })
+                                        }
+                                    }).catch(err => {
+                                        console.log(err)
+                                        reject(err)
+                                    })
+                                }
+                            }).catch(err => {
+                                console.log(err)
+                                reject(err)
+                            })
+
+                        }
+                    })
+                }
+            })
+
+        })
+    }
+
+    const save_rethink_woo_user = (data) => {
+        return  new Promise((resolve, reject) => {
+
+            rethink.createTable(db_name,"woo_users","test").then( r => {
+
+                rethink.insert("test", 'table("woo_users").insert(' + JSON.stringify(data) + ')', db_name, false).then(resAdd => {
+                    if (resAdd && resAdd === true) {
+                        console.log("woo user added")
+                        resolve(true)
+                    } else {
+                        console.log("ERROR ADD WOO USER")
+                        resolve(false)
+                    }
+                }).catch(err => {
+                    console.log(err)
+                    resolve(false)
+                })
+
+            }).catch(err => {
+                console.log(err)
+                resolve(false)
+            })
+        })
+    }
+
+    const verif_current_user_registration = () => {
+
+        rethink.getTableData(db_name,"test","woo_users").then( res => {
+            let users = res || []
+            let find_current = users.find(x => x.email === localStorage.getItem("email"))
+            if(find_current){
+                console.log("OLD USER")
+                setCurrentUser(find_current)
+            }else{
+                console.log("NEW USER")
+            }
+        }).catch( err => {
+            console.log(err)
+        })
+    }
+
+    const total = parseFloat(livraison) + parseFloat(sousTotal) + (etiquettes * 7.5)
+
+    return (
         <div>
             <MuiBackdrop open={loading}/>
             <div style={{padding: 10, minHeight: "100vh", marginTop: 50, overflow: "auto"}}>
@@ -385,109 +566,111 @@ const createDB=()=>{
                 <div className="px-2 mt-2">
                     {
                         cart.length !== 0 ?
-                        <div>
-                        <div className="row align-items-center justify-content-center">
-                            <div className="col-8">
-                                <h4 style={{fontWeight: "bold"}}>Votre produit</h4>
+                            <div>
+                                <div className="row align-items-center justify-content-center">
+                                    <div className="col-8">
+                                        <h4 style={{fontWeight: "bold"}}>Votre produit</h4>
 
-                            </div>
-                            <div className="col-3 text-center">
-                                <DeleteOutlineIcon onClick={() => {
-                                    viderPanier()
-                                }} color="secondary"/>
-
-                            </div>
-
-                        </div>
-
-                        <div className="mt-2">
-                            {cart.map((item, key) => (
-                                <div className="px-3 py-1 mt-1" style={{
-                                    borderStyle: "solid",
-                                    borderRadius: 10,
-                                    borderWidth: 1,
-                                    borderColor: "#a6a6a6"
-                                }}>
-                                    <div className="row align-items-center">
-                                        <div className="col-3">
-                                            <img alt="" src={item.images[0].src} style={{width: '100%'}}/>
-                                        </div>
-                                        <div className="col-5">
-                                            <div>
-                                                {item.name}
-                                            </div>
-                                            <div style={{fontWeight:700}}>
-                                                {item.price + " €"}
-                                            </div>
-
-                                        </div>
-                                        <div className="col-4">
-                                            <div className="p-2">
-                                                <div className=" ml-auto   row justify-content-center mt-2"
-                                                     style={{position: "relative", backgroundColor: "#ff7979"}}>
-                                                    <div className="col-6 text-center" style={{height: 40}}>
-                                                        <text style={{
-                                                            fontSize: 22,
-                                                            color: "white"
-                                                        }}>{item.quantite}</text>
-                                                    </div>
-                                                    <div onClick={() => {}}
-                                                         style={{position: "absolute", left: -21}}>
-                                                        <div style={{
-                                                            borderRadius: 1000,
-                                                            height: 40,
-                                                            width: 40,
-                                                            position: "relative",
-                                                            borderWidth: 1,
-                                                            backgroundColor: "red",
-                                                        }}>
-                                                            <text style={{
-                                                                fontSize: 20,
-                                                                position: "absolute",
-                                                                left: 14,
-                                                                bottom: 6,
-                                                                color: "white"
-                                                            }}>+
-                                                            </text>
-                                                        </div>
-                                                    </div>
-                                                    <div onClick={() => {}}
-                                                         style={{position: "absolute", right: -21}}>
-                                                        <div style={{
-                                                            borderRadius: 1000,
-                                                            height: 40,
-                                                            width: 40,
-                                                            position: "relative",
-                                                            borderWidth: 1,
-                                                            backgroundColor: "red"
-                                                        }}>
-                                                            <text style={{
-                                                                fontSize: 20,
-                                                                position: "absolute",
-                                                                left: 16,
-                                                                bottom: 6,
-                                                                color: "white"
-                                                            }}>-
-                                                            </text>
-                                                        </div>
-                                                    </div>
-
-
-                                                </div>
-                                            </div>
-                                        </div>
+                                    </div>
+                                    <div className="col-3 text-center">
+                                        <DeleteOutlineIcon onClick={() => {
+                                            viderPanier()
+                                        }} color="secondary"/>
 
                                     </div>
 
                                 </div>
-                            ))}
 
-                        </div>
-                    </div> :
+                                <div className="mt-2">
+                                    {cart.map((item, key) => (
+                                        <div className="px-3 py-1 mt-1" style={{
+                                            borderStyle: "solid",
+                                            borderRadius: 10,
+                                            borderWidth: 1,
+                                            borderColor: "#a6a6a6"
+                                        }}>
+                                            <div className="row align-items-center">
+                                                <div className="col-3">
+                                                    <img alt="" src={item.images[0].src} style={{width: '100%'}}/>
+                                                </div>
+                                                <div className="col-5">
+                                                    <div>
+                                                        {item.name}
+                                                    </div>
+                                                    <div style={{fontWeight: 700}}>
+                                                        {item.price + " €"}
+                                                    </div>
 
-                            <div align="center" style={{marginTop:30}}>
-                                <img alt="" src={require("../../assets/images/no_products_cart.jpg")} style={{width:"80%"}}/>
-                                <h6>Aucun produit encore ajouté dans votre panier</h6>
+                                                </div>
+                                                <div className="col-4">
+                                                    <div className="p-2">
+                                                        <div className=" ml-auto   row justify-content-center mt-2"
+                                                             style={{position: "relative", backgroundColor: "#ff7979"}}>
+                                                            <div className="col-6 text-center" style={{height: 40}}>
+                                                                <text style={{
+                                                                    fontSize: 22,
+                                                                    color: "white"
+                                                                }}>{item.quantite}</text>
+                                                            </div>
+                                                            <div onClick={() => {
+                                                            }}
+                                                                 style={{position: "absolute", left: -21}}>
+                                                                <div style={{
+                                                                    borderRadius: 1000,
+                                                                    height: 40,
+                                                                    width: 40,
+                                                                    position: "relative",
+                                                                    borderWidth: 1,
+                                                                    backgroundColor: "red",
+                                                                }}>
+                                                                    <text style={{
+                                                                        fontSize: 20,
+                                                                        position: "absolute",
+                                                                        left: 14,
+                                                                        bottom: 6,
+                                                                        color: "white"
+                                                                    }}>+
+                                                                    </text>
+                                                                </div>
+                                                            </div>
+                                                            <div onClick={() => {
+                                                            }}
+                                                                 style={{position: "absolute", right: -21}}>
+                                                                <div style={{
+                                                                    borderRadius: 1000,
+                                                                    height: 40,
+                                                                    width: 40,
+                                                                    position: "relative",
+                                                                    borderWidth: 1,
+                                                                    backgroundColor: "red"
+                                                                }}>
+                                                                    <text style={{
+                                                                        fontSize: 20,
+                                                                        position: "absolute",
+                                                                        left: 16,
+                                                                        bottom: 6,
+                                                                        color: "white"
+                                                                    }}>-
+                                                                    </text>
+                                                                </div>
+                                                            </div>
+
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    ))}
+
+                                </div>
+                            </div> :
+
+                            <div align="center" style={{marginTop: 30}}>
+                                <img alt="" src={require("../../assets/icons/empty_cart.png")} style={{width: "40%"}}/>
+                                <h6 style={{marginTop: 15}}>Aucun produit encore ajouté dans votre panier</h6>
                             </div>
 
                     }
@@ -507,6 +690,18 @@ const createDB=()=>{
                             </div>
 
                         </div>
+                        {
+                            etiquettes > 0 &&
+                            <div className="row align-items-center justify-content-between mt-2">
+                                <div className="col-4">
+                                    <text>Etiquettes</text>
+                                </div>
+                                <div className="col-4">
+                                    <text>{etiquettes + " x " + "7.5 €  =  " + (etiquettes * 7.5) + " €"}</text>
+                                </div>
+                            </div>
+                        }
+
                         <div className="row align-items-center justify-content-between mt-2">
                             <div className="col-4">
                                 <text>Livraison</text>
@@ -516,7 +711,6 @@ const createDB=()=>{
                                 <text>{livraison} €</text>
 
                             </div>
-
                         </div>
                         <div className="row align-items-center justify-content-between mt-2">
                             <div className="col-4">
@@ -569,7 +763,12 @@ const createDB=()=>{
                                     </div>
                                 </div>
                                 <div className="col-8 text-center">
-                                    <Button style={{borderRadius: 20,fontWeight:700,textTransform:"none",marginTop:15}} variant="contained" color="secondary"
+                                    <Button style={{
+                                        borderRadius: 20,
+                                        fontWeight: 700,
+                                        textTransform: "none",
+                                        marginTop: 15
+                                    }} variant="contained" color="secondary"
                                             onClick={() => {
                                                 setOpenPayModal(true)
                                             }}
@@ -616,14 +815,14 @@ const createDB=()=>{
                         />
                         <div style={{marginTop: 25}}>
                             <StripeCardInput
-                                    apiKey={"pk_test_DzPutapEGMVUdss4QraUUYyA"}
-                                    label="Stripe Credit/Debit Card Information"
-                                    onChange={event => setStripeCard(event)}
-                                    error={(stripeCard && stripeCard.error && stripeCard.error.message)}
-                                    locale="fr"
-                                />
+                                apiKey={"pk_test_DzPutapEGMVUdss4QraUUYyA"}
+                                label="Stripe Credit/Debit Card Information"
+                                onChange={event => setStripeCard(event)}
+                                error={(stripeCard && stripeCard.error && stripeCard.error.message)}
+                                locale="fr"
+                            />
 
-                                {/*<fieldset className="FormGroup">
+                            {/*<fieldset className="FormGroup">
                                     <CardField
                                         onChange={(e) => {
                                             console.log(e)
@@ -647,7 +846,7 @@ const createDB=()=>{
                                 value={userEmail}
                                 icon={<EmailIcon/>}
                                 onChange={event => setUserEmail(event.currentTarget.value)}
-                                disabled={localStorage.getItem("email") !== null || localStorage.getItem("email") !== undefined}
+                                disabled={localStorage.getItem("email") !== null || localStorage.getItem("email") !== undefined || localStorage.getItem("email") !== ""}
                             />
                             <FormControlLabel
                                 style={{marginTop: 25}}
@@ -666,7 +865,7 @@ const createDB=()=>{
                                         borderRadius: 20,
                                         width: "70%",
                                         height: 40
-                                    }}>Payer {sousTotal + " €"}</Button>
+                                    }}>Payer {total + " €"}</Button>
                         </div>
 
 
@@ -687,7 +886,6 @@ const createDB=()=>{
             </Snackbar>
         </div>
     )
-
 
 
 }

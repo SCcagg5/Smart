@@ -19,7 +19,7 @@ export default function Categories(props){
         let data=[]
         CajooService.getCategories().then((res)=>{
             console.log(res)
-            if (res){
+            if(res){
                 (res || []).map((item,key)=>{
                     if (item.parent===0){
                         data.push(item)

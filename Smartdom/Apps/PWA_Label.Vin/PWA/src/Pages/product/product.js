@@ -101,7 +101,7 @@ class Product extends Component {
                 cart.push(product)
                 localStorage.setItem('cart',JSON.stringify(cart))
                 this.props.onAddToCart(cart.length)
-                this.setState({cartQuantite:cart.length,openTicketModal:true})
+                this.setState({cartQuantite:cart.length})
                 this.openSnackbar("success","Produit ajouté avec succès dans votre panier")
             }else {
                 cart = []
@@ -211,7 +211,8 @@ class Product extends Component {
                             </div>
 
                             <div className="text-center mt-2 pb-4">
-                                <Button onClick={()=>this.addToCart()} style={{borderRadius:25,textTransform:"none",fontWeight:"bold"}} variant="contained" color="secondary"
+                                <Button onClick={()=> {this.setState({openTicketModal:true})}}
+                                        style={{borderRadius:25,textTransform:"none",fontWeight:"bold"}} variant="contained" color="secondary"
                                         startIcon={<ShoppingCartIcon />}
                                 >
                                     Ajouter au panier
@@ -238,13 +239,16 @@ class Product extends Component {
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={() => {
-
-                               this.props.history.push('/home/etiquette')
-
+                               this.props.history.push('/home/etiquette/' + this.state.product.id + '/' + this.state.quantite)
                         }} color="primary">
                             Oui
                         </Button>
-                        <Button onClick={() => this.setState({openConnectModal:false})} color="primary">
+                        <Button onClick={() => {
+                            this.setState({openTicketModal:false})
+                            setTimeout(() => {
+                                this.addToCart()
+                            },500)
+                        }} color="primary">
                            Non
                         </Button>
                     </DialogActions>

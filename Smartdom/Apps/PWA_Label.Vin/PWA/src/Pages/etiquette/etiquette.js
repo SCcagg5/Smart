@@ -18,11 +18,20 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogActions from "@material-ui/core/DialogActions/DialogActions";
 import "./style.css"
 import {navigateTo} from "../routes/history";
+import CajooService from "../../provider/cajooservice";
+import Snackbar from "@material-ui/core/Snackbar";
+import Alert from "@material-ui/lab/Alert";
+
 class Etiquette extends Component {
     constructor(props){
         super(props)
         this.state={
+            openAlert: false,
+            alertMessage: '',
+            alertType: '',
+
             prodcut:'',
+            quantity:1,
             loading:true,
             choice:"",
             openUploadtModal:true,
@@ -37,6 +46,20 @@ class Etiquette extends Component {
         this.onChangefirstEtiquette=this.onChangefirstEtiquette.bind(this)
 
     }
+
+    openSnackbar = (type, msg) => {
+        this.setState({
+            openAlert: true,
+            alertMessage: msg, //***
+            alertType: type
+        });
+    };
+
+    closeSnackbar = (event, reason) => {
+        if (reason === 'clickaway') return;
+        this.setState({openAlert: false});
+    };
+
     uploadPhoto(e){
         this.setState({photoUploaded:URL.createObjectURL(e.target.files[0]),openTitleModal:true,openUploadtModal:false})
     }
@@ -44,9 +67,20 @@ class Etiquette extends Component {
         this.setState({choice:e.target.value})
     }
     componentDidMount() {
-        let cart = JSON.parse(localStorage.getItem("cart"))
-        let product= cart[0]
-        this.setState({product:product,loading:false})
+        this.getProduct()
+    }
+
+    getProduct(){
+        console.log(this.props.history)
+        let path_array = this.props.history.location.pathname.split("/")
+        let id = path_array[path_array.length -2]
+        let quantity = path_array[path_array.length -1]
+
+        CajooService.getProductByid(id).then((res)=>{
+            if (res && res.status===200){
+                this.setState({product:res.data,quantity:quantity,loading:false})
+            }
+        })
     }
 
     addTicket(){
@@ -60,6 +94,38 @@ class Etiquette extends Component {
 
     onChangefirstEtiquette(item,e){
         this.setState({[item]:e.target.value})
+
+    }
+
+    addToCart(){
+
+            let product = this.state.product
+            product.quantite=this.state.quantity
+            product.have_etiquette = true
+            product.etiqu_name = this.state.name || "";
+            product.etiqu_year = this.state.annee || "";
+
+            let cart = localStorage.getItem('cart')
+            if (cart !== null && cart !== undefined){
+                cart = JSON.parse(localStorage.getItem('cart'))
+                cart.push(product)
+                localStorage.setItem('cart',JSON.stringify(cart))
+                this.props.onAddToCart(cart.length)
+                this.openSnackbar("success","Produit ajouté avec succès dans votre panier")
+                setTimeout(() => {
+                    navigateTo('/home/cart')
+                },600)
+            }else {
+                cart = []
+                cart.push(product)
+                localStorage.setItem('cart',JSON.stringify(cart))
+                this.props.onAddToCart(cart.length)
+                this.setState({cartQuantite:cart.length})
+                this.openSnackbar("success","Produit ajouté avec succès dans votre panier")
+                setTimeout(() => {
+                    navigateTo('/home/cart')
+                },600)
+            }
 
     }
 
@@ -81,7 +147,7 @@ class Etiquette extends Component {
                                     </div>
                                     <div className="col-4">
 
-                                        <text style={{color:"#6EC1E4",fontFamily:"Pacifico-Regular",fontSize:25}}>{this.state.product.total}</text>
+                                        <text style={{color:"#6EC1E4",fontFamily:"Pacifico-Regular",fontSize:25}}>{this.state.quantity + " x " +this.state.product.price}</text>
                                         <text style={{color:"#6EC1E4",fontSize:20,fontWeight:"bold"}}> €</text>
 
                                     </div>
@@ -317,11 +383,11 @@ class Etiquette extends Component {
                                 </FormControl>
                             </div>
 
-                            <Button onClick={()=>this.addTicket()} variant="contained" color="secondary">
-                                Ajouter a la commande
-                            </Button>
-
-
+                            <div align="center" style={{marginTop:10}}>
+                                <Button onClick={()=>this.addToCart()} variant="contained" color="secondary" style={{fontWeight:700,textTransform:"none"}}>
+                                    Ajouter au panier
+                                </Button>
+                            </div>
                         </div>
 
 
@@ -329,6 +395,17 @@ class Etiquette extends Component {
 
                     </div>
                 </div>
+
+
+                <Snackbar
+                    open={this.state.openAlert}
+                    autoHideDuration={5000}
+                    onClose={this.closeSnackbar}
+                >
+                    <Alert elevation={6} variant="filled" onClose={this.closeSnackbar} severity={this.state.alertType}>
+                        {this.state.alertMessage}
+                    </Alert>
+                </Snackbar>
 
             </div>
         );

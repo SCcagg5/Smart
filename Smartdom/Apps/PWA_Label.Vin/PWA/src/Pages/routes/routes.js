@@ -32,19 +32,16 @@ export default function Routes(props) {
             <Switch>
                 <Route exact path="/home/categories" component={Categories}/>
                 <Route exact path="/home/products/:catID" component={Products}/>
-                <Route exact path="/home/product/:prodID">
 
+                <Route exact path="/home/product/:prodID">
                     <Product onAddToCart={props.onAddToCart} history={history}/>
                 </Route>
-                <Route exact path="/home/etiquette" component={Etiquette}/>
+                <Route exact path="/home/etiquette/:prodID/:quantity">
+                    <Etiquette onAddToCart={props.onAddToCart} history={history}/>
+                </Route>
 
-                {/* <Route exact path="/home/cart">
-                    <Elements stripe={stripePromise} options={ELEMENTS_OPTIONS}>
-                        <Panier onClearPanier={props.onClearPanier}/>
-                    </Elements>
-                </Route>*/}
                 <Route exact path="/home/cart">
-                        <Panier onClearPanier={props.onClearPanier}/>
+                        <Panier onClearPanier={props.onClearPanier} history={history}/>
                 </Route>
                 <Route exact path="/home/checkout" component={Checkout}/>
                 <Route exact path="/home/profil" component={Profil}/>

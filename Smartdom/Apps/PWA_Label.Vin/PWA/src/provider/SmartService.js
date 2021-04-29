@@ -1,7 +1,7 @@
 const endpoint = "https://api.smartdom.ch";
 //const ged_id = "c116081d-3145-4dc3-b2df-5ac2bde13e9d";
-const ged_id = "d226981d-3145-4dc3-b2df-5ac2bde13e9d"
-const odoo_id = "Etiquettepers.js";
+const ged_id = "b116081d-3145-4dc3-b3df-5ac2bde13e9d"
+const odoo_id = "a39ccc3a-8b09-11eb-8dcd-0242ac130003";    //TEST01
 const password = "password"
 
 let SmartService = {
@@ -235,6 +235,16 @@ let SmartService = {
 
     create_facture_odoo(token,usrtoken,data){
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    validate_facture_odoo(token,usrtoken,data){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/bill/validate', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data),

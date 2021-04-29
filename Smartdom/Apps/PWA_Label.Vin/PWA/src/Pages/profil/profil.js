@@ -20,6 +20,9 @@ import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import moment from "moment";
 import Dialog from "@material-ui/core/Dialog";
+import rethink from "../../controller/rethink";
+
+const db_name = "b116081d-3145-4dc3-b3df-5ac2bde13e9d"
 
 export default function Profil(props){
 
@@ -33,7 +36,18 @@ export default function Profil(props){
     }, []);
 
     const getOrders = () => {
-        CajooService.getOrders().then(ordersRes => {
+
+        rethink.getTableData(db_name,"test","woo_users").then( res => {
+            let users = res || []
+            let find_current = users.find(x => x.email === localStorage.getItem("email"))
+            if(find_current){
+                setOrders(find_current.orders|| [])
+            }
+        }).catch( err => {
+            console.log(err)
+        })
+
+        /*CajooService.getOrders().then(ordersRes => {
             if(ordersRes){
                 let all_orders = ordersRes.data || [];
                 let user_orders = [];
@@ -45,8 +59,16 @@ export default function Profil(props){
                 console.log(user_orders)
                 setOrders(user_orders)
             }
-        }).catch(err => {console.log(err)})
+        }).catch(err => {console.log(err)})*/
     }
+
+    const downloadB64File = (b64,name) => {
+        let a = document.createElement('a');
+        a.href = 'data:application/pdf;base64,' + b64;
+        a.download = name;
+        a.click();
+    }
+
     return(
         <div>
             <MuiBackdrop open={loading}/>
@@ -136,8 +158,8 @@ export default function Profil(props){
                             orders.map((order,key) => (
                                 <div style={{backgroundColor:"#f0f0f0",borderRadius:7.5,width:"100%",padding:10,marginBottom:15}}>
                                     <div style={{display:"flex",justifyContent:"space-between"}}>
-                                        <h6>Commande #{order.id}</h6>
-                                        <p style={{fontSize:"0.75rem",fontWeight:"bold",color:"#f50057"}}>Total: {order.total + " €"}</p>
+                                        <h6>Commande #{order.woo_id}</h6>
+                                        <p style={{fontSize:"0.75rem",fontWeight:"bold",color:"#f50057"}}>Total: {(order.total + 7.5) + " €"}</p>
                                     </div>
                                     <p style={{fontSize:"0.6rem",marginTop:-10}}>Placé le {moment(order.date_created).format("DD-MM-YYYY HH:mm")}</p>
                                     <h6>Articles:</h6>
@@ -149,14 +171,19 @@ export default function Profil(props){
                                         ))
                                     }
                                     <div style={{display:"flex",marginTop:13}}>
+                                        <h6>Facture:</h6>
+                                        <p style={{fontSize:"0.6rem",marginLeft:5,textDecoration:"underline",color:"blue",cursor:"pointer"}}
+                                           onClick={() => downloadB64File(order.odoo_fact_b64,"facture_" + moment(order.date_created).format("DD-MM-YYYY HH:mm") + ".pdf")}
+                                        >
+                                            {"facture_" + moment(order.date_created).format("DD-MM-YYYY HH:mm") + ".pdf" || ""}</p>
+                                    </div>
+                                    <div style={{display:"flex",marginTop:9}}>
                                         <h6>Paiement:</h6>
                                         <p style={{fontSize:"0.6rem",marginLeft:5}}>{order.payment_method_title || ""}</p>
                                     </div>
                                     <div align="right" style={{marginTop:-10}}>
                                         <span className="badge-warning text-white p-1" style={{fontWeight:700,fontSize:"0.7rem",borderRadius:10}}>en cours de livraison</span>
                                     </div>
-
-
 
                                 </div>
                             ))

@@ -1,5 +1,6 @@
 
-const endpoint = "http://192.168.1.6:3004/api/"
+//const endpoint = "http://192.168.1.6:3004/api/"
+const endpoint = "http://localhost:3004/api/"
 
 let CajooService ={
 
