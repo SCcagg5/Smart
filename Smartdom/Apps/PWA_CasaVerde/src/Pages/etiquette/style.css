@@ -1,0 +1,17 @@
+.noOutline{
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border:none;
+}
+.noOutline:focus{
+    border-color: inherit;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.vertical{
+    transform: rotate(-90deg);
+    transform-origin: left 0;
+    position: absolute;
+    bottom: 0;
+    width: 50%;
+}

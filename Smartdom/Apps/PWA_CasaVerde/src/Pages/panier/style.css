@@ -1,0 +1,16 @@
+.shadow{
+    -webkit-box-shadow: 0px 4px 1px 1px rgba(189,189,189,1);
+    -moz-box-shadow: 0px 4px 1px 1px rgba(189,189,189,1);
+    box-shadow: 0px 4px 1px 1px rgba(189,189,189,1);
+}
+
+.FormGroup {
+    margin: 0 15px 20px;
+    padding: 0;
+    border:1px solid #c0c0c0;
+    background-color: #7795f8;
+    will-change: opacity, transform;
+    box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 #829fff;
+    border-radius: 4px;
+}
