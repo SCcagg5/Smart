@@ -1,0 +1,23 @@
+{
+  "name": "woo_api",
+  "version": "1.2.5",
+  "description": "woo-commerce api for nl",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"ERR: 00x0001: No test specified.\" && exit 1"
+  },
+  "author": "Babba Amine",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.17.4"
+  },
+  "dependencies": {
+    "@woocommerce/woocommerce-rest-api": "^1.0.1",
+    "body-parser": "^1.18.3",
+    "dotenv": "^8.2.0",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "moment": "^2.24.0",
+    "stripe": "^8.144.0"
+  }
+}
