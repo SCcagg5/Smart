@@ -41,7 +41,7 @@ class Accueil extends Component {
             current === "categories" ? "/home/categories" :
                 current === "cart" ? "/home/cart" :
                     current === "profil" ? "/home/profil" :
-                        current === "rooms" ? "/home/chat" : "/home/categories")
+                        current === "rooms" ? "/home/rooms" : "/home/categories")
 
     }
 
@@ -66,7 +66,7 @@ class Accueil extends Component {
                                        item === 0 ? "/home/categories" :
                                            item === 1 ? "/home/cart" :
                                                item === 2 ? "/home/profil" :
-                                                   item === 3 ? "/home/chat" : "/home/categories"
+                                                   item === 3 ? "/home/rooms" : "/home/categories"
                         )}}/>
                 }
             </>

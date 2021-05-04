@@ -48,7 +48,7 @@ export default class App extends React.Component {
                     <Switch>
                         <Redirect exact from={"/"} to={"/home/categories"}/>
                         <Route path="/home" component={Accueil}/>
-                        <Route path="/login" component={Login}/>
+                        {/*<Route path="/login" component={Login}/>*/}
                         <Route exact path="/phone" component={Phone}/>
                         <Route exact path="/verifCode/:phone" component={VerifCode}/>
                     </Switch>

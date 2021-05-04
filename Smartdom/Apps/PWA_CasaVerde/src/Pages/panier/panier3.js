@@ -184,149 +184,149 @@ export default function Panier(props) {
         }
 
         const {stripe, card, isComplete} = stripeCard;
-            if (isComplete) {
-                try {
+        if (isComplete) {
+            try {
 
-                    WooService.get_stripe_client_secret({amount: 1500, currency: "eur"}).then(async res => {
+                WooService.get_stripe_client_secret({amount: 1500, currency: "eur"}).then(async res => {
 
-                        const result = await stripe.confirmCardPayment(res.data.clientSecret, {
-                            payment_method: {
-                                card,
-                                billing_details: {
-                                    name: userFname,
-                                    address: "17 rue de liberté, 20155 Paris France",
-                                },
+                    const result = await stripe.confirmCardPayment(res.data.clientSecret, {
+                        payment_method: {
+                            card,
+                            billing_details: {
+                                name: userFname,
+                                address: "17 rue de liberté, 20155 Paris France",
                             },
-                            setup_future_usage: 'off_session',
-                        });
-                        console.log(result)
-                        if (result.error) {
-                            console.log(result.error);
-                        } else if (result.paymentIntent.status === 'succeeded') {
+                        },
+                        setup_future_usage: 'off_session',
+                    });
+                    console.log(result)
+                    if (result.error) {
+                        console.log(result.error);
+                    } else if (result.paymentIntent.status === 'succeeded') {
 
-                            stripe.createToken(card).then(function (result) {
-                                console.log(result)
-                                if (result.token) {
+                        stripe.createToken(card).then(function (result) {
+                            console.log(result)
+                            if (result.token) {
 
-                                    let line_items = [];
-                                    cart.map((item, key) => {
-                                        line_items.push({
-                                            product_id: item.id,
-                                            quantity: item.quantite
-                                        })
+                                let line_items = [];
+                                cart.map((item, key) => {
+                                    line_items.push({
+                                        product_id: item.id,
+                                        quantity: item.quantite
                                     })
-                                    let order = {
-                                        set_paid: true,
-                                        payment_method: "stripe",
-                                        payment_method_title: "carte de paiement (Stripe)",
-                                        billing: {
-                                            first_name: userFname,
-                                            last_name: "",
-                                            address_1: "17 rue de liberté",
-                                            city: "Paris",
-                                            state: "PA",
-                                            postcode: "12345",
-                                            country: "FR",
-                                            email: userEmail
-                                        },
-                                        shipping: {
-                                            first_name: userFname,
-                                            last_name: "",
-                                            address_1: "17 rue de liberté",
-                                            city: "Paris",
-                                            state: "PA",
-                                            postcode: "12345",
-                                            country: "FR",
-                                            email: userEmail
-                                        },
-                                        line_items: line_items
-                                    };
+                                })
+                                let order = {
+                                    set_paid: true,
+                                    payment_method: "stripe",
+                                    payment_method_title: "carte de paiement (Stripe)",
+                                    billing: {
+                                        first_name: userFname,
+                                        last_name: "",
+                                        address_1: "17 rue de liberté",
+                                        city: "Paris",
+                                        state: "PA",
+                                        postcode: "12345",
+                                        country: "FR",
+                                        email: userEmail
+                                    },
+                                    shipping: {
+                                        first_name: userFname,
+                                        last_name: "",
+                                        address_1: "17 rue de liberté",
+                                        city: "Paris",
+                                        state: "PA",
+                                        postcode: "12345",
+                                        country: "FR",
+                                        email: userEmail
+                                    },
+                                    line_items: line_items
+                                };
 
-                                    setOpenPayModal(false)
+                                setOpenPayModal(false)
 
-                                    WooService.addOrder(order).then(async orderRes => {
-                                        console.log(orderRes)
-                                        if (orderRes.status === 201) {
+                                WooService.addOrder(order).then(async orderRes => {
+                                    console.log(orderRes)
+                                    if (orderRes.status === 201) {
 
-                                            /*let dataTicket = JSON.parse(localStorage.getItem('etiquette'))
-                                            console.log(currentUser)
-                                            dataTicket.id=currentUser.id
-                                            dataTicket.total=sousTotal
-                                            WooService.generateTicket(dataTicket)*/
+                                        /*let dataTicket = JSON.parse(localStorage.getItem('etiquette'))
+                                        console.log(currentUser)
+                                        dataTicket.id=currentUser.id
+                                        dataTicket.total=sousTotal
+                                        WooService.generateTicket(dataTicket)*/
 
-                                            let odoo_facture_data = await generate_facture_odoo()
-                                            console.log(odoo_facture_data)
-                                            if(odoo_facture_data.b64 && odoo_facture_data.b64 !== ""){
-                                                let line_items = orderRes.data.line_items || [];
-                                                let formated_line_items = []
-                                                line_items.map((item,key) => {
-                                                    formated_line_items.push({
-                                                        id:item.id,
-                                                        name:item.name,
-                                                        price:item.price,
-                                                        product_id:item.product_id,
-                                                        quantity:item.quantity,
-                                                        total:item.total
-                                                    })
+                                        let odoo_facture_data = await generate_facture_odoo()
+                                        console.log(odoo_facture_data)
+                                        if(odoo_facture_data.b64 && odoo_facture_data.b64 !== ""){
+                                            let line_items = orderRes.data.line_items || [];
+                                            let formated_line_items = []
+                                            line_items.map((item,key) => {
+                                                formated_line_items.push({
+                                                    id:item.id,
+                                                    name:item.name,
+                                                    price:item.price,
+                                                    product_id:item.product_id,
+                                                    quantity:item.quantity,
+                                                    total:item.total
                                                 })
-                                                let orderData = {
-                                                    woo_id:orderRes.data.id,
-                                                    total:orderRes.data.total,
-                                                    date_created:orderRes.data.date_created,
-                                                    line_items : formated_line_items,
-                                                    payment_method_title: orderRes.data.payment_method_title,
-                                                    odoo_fact_id:odoo_facture_data.facture_id,
-                                                    odoo_fact_b64:odoo_facture_data.b64
-                                                }
-                                                let user_data = currentUser
-                                                let orders = user_data.orders || [];
-                                                orders.push(orderData)
-                                                user_data.orders = orders
-                                                console.log(user_data)
-                                                rethink.update("test",'table("woo_users").get('+JSON.stringify(currentUser.id)+').update('+ JSON.stringify(user_data) + ')',db_name,false).then( updateRes => {
-                                                    if (updateRes && updateRes === true) {
-                                                        maillingService.send_odoo_facture({
-                                                            "emailReciver":currentUser.email,
-                                                            "subject":"Facture Casa.Verde",
-                                                            "msg":"Madame/Monsieur,<br/><br/>Suite à votre achat sur notre site <b>Casa.Verde</b> effectué(e) le "+moment().format("DD-MM-YYYY HH:mm")+" et correspondant au bon de commande n° " +orderRes.data.id +", nous vous adressons ci-joint une facture avec les détails de votre commande.",
-                                                            "footerMsg":"<br/><br/>En vous remerciant par avance,<br/><br/><br/>Cordialement",
-                                                            "attach":[
-                                                                {
-                                                                    filename:"Facture_CasaVerde_" + moment().format("DD-MM-YYYY"),
-                                                                    path:"data:application/pdf;base64," + odoo_facture_data.b64
-                                                                }
-                                                            ]
-                                                        }).then(sendRes => {
-                                                            console.log(sendRes)
-                                                        })
-                                                        setLoading(false)
-                                                        openSnackbar("success", "Félicitation ! Votre commande est effectué avec succès")
-                                                        viderPanier()
-                                                        props.onClearPanier()
-                                                        props.history.push('/home/chat',{isOnlyBot:true,b64_odoo_fact:odoo_facture_data.b64})
-                                                        //navigateTo("/home/chat",{b64_odoo_fact:odoo_facture_data.b64})
-                                                    }else{
-                                                        console.log("error update woo user")
-                                                    }
-                                                }).catch(err => {console.log(err)})
-
+                                            })
+                                            let orderData = {
+                                                woo_id:orderRes.data.id,
+                                                total:orderRes.data.total,
+                                                date_created:orderRes.data.date_created,
+                                                line_items : formated_line_items,
+                                                payment_method_title: orderRes.data.payment_method_title,
+                                                odoo_fact_id:odoo_facture_data.facture_id,
+                                                odoo_fact_b64:odoo_facture_data.b64
                                             }
+                                            let user_data = currentUser
+                                            let orders = user_data.orders || [];
+                                            orders.push(orderData)
+                                            user_data.orders = orders
+                                            console.log(user_data)
+                                            rethink.update("test",'table("woo_users").get('+JSON.stringify(currentUser.id)+').update('+ JSON.stringify(user_data) + ')',db_name,false).then( updateRes => {
+                                                if (updateRes && updateRes === true) {
+                                                    maillingService.send_odoo_facture({
+                                                        "emailReciver":currentUser.email,
+                                                        "subject":"Facture Casa.Verde",
+                                                        "msg":"Madame/Monsieur,<br/><br/>Suite à votre achat sur notre site <b>Casa.Verde</b> effectué(e) le "+moment().format("DD-MM-YYYY HH:mm")+" et correspondant au bon de commande n° " +orderRes.data.id +", nous vous adressons ci-joint une facture avec les détails de votre commande.",
+                                                        "footerMsg":"<br/><br/>En vous remerciant par avance,<br/><br/><br/>Cordialement",
+                                                        "attach":[
+                                                            {
+                                                                filename:"Facture_CasaVerde_" + moment().format("DD-MM-YYYY"),
+                                                                path:"data:application/pdf;base64," + odoo_facture_data.b64
+                                                            }
+                                                        ]
+                                                    }).then(sendRes => {
+                                                        console.log(sendRes)
+                                                    })
+                                                    setLoading(false)
+                                                    openSnackbar("success", "Félicitation ! Votre commande est effectué avec succès")
+                                                    viderPanier()
+                                                    props.onClearPanier()
+                                                    props.history.push('/home/chat',{isOnlyBot:true,b64_odoo_fact:odoo_facture_data.b64})
+                                                    //navigateTo("/home/chat",{b64_odoo_fact:odoo_facture_data.b64})
+                                                }else{
+                                                    console.log("error update woo user")
+                                                }
+                                            }).catch(err => {console.log(err)})
+
                                         }
-                                    }).catch(err => {
-                                        console.log(err)
-                                    })
-                                } else {
-                                    console.log("There was a problem", result);
-                                }
-                            })
-                        }
-                    }).catch(err => {
-                        console.log(err)
-                    })
-                } catch (err) {
-                    console.log(err.message);
-                }
+                                    }
+                                }).catch(err => {
+                                    console.log(err)
+                                })
+                            } else {
+                                console.log("There was a problem", result);
+                            }
+                        })
+                    }
+                }).catch(err => {
+                    console.log(err)
+                })
+            } catch (err) {
+                console.log(err.message);
             }
+        }
     }
 
     const generate_facture_odoo = () => {
@@ -435,7 +435,7 @@ export default function Panier(props) {
                                 );
                             }
 
-                        console.log(odoo_data)
+                            console.log(odoo_data)
                             SmartService.create_facture_odoo(token, usrtoken, {data: odoo_data}).then(createFactRes => {
                                 console.log(createFactRes)
                                 if (createFactRes.succes === true && createFactRes.status === 200) {
