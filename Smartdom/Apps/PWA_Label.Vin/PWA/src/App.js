@@ -13,6 +13,9 @@ import history from "./Pages/routes/history";
 import SmartService from "./provider/SmartService";
 import utilFunctions from "./tools/functions";
 import rethink from "./controller/rethink";
+import DataClient from "./Pages/QRtest/dataclient";
+import SolarScore from "./Pages/QRtest/SolarScore";
+import TreeScore from "./Pages/QRtest/TreeScore";
 
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
@@ -51,6 +54,11 @@ export default class App extends React.Component {
                         <Route path="/login" component={Login}/>
                         <Route exact path="/phone" component={Phone}/>
                         <Route exact path="/verifCode/:phone" component={VerifCode}/>
+                        <Route exact path="/client/:id" component={DataClient}/>
+                        <Route exact path="/client/:id/solarscore" component={SolarScore}/>
+                        <Route exact path="/client/:id/treescore" component={TreeScore}/>
+
+
                     </Switch>
                 </Router>
             )

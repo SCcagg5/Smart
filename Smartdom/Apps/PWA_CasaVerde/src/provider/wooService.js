@@ -96,7 +96,9 @@ let WooService ={
         }).then(response => response.json()).catch(error => {
             console.log(error);
         });
-    }
+    },
+
+
 
 
 

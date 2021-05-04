@@ -26,7 +26,7 @@ const db_name = "b116081d-3145-4dc3-b3df-5ac2bde13e9d"
 
 export default function Profil(props){
 
-    const [loading, setLoading] = React.useState(false);
+    const [loading, setLoading] = React.useState(true);
     const [openInfoContent, setOpenInfoContent] = React.useState(false);
     const [orders, setOrders] = React.useState([]);
     const [openPayModal, setOpenPayModal] = React.useState(false);
@@ -42,6 +42,7 @@ export default function Profil(props){
             let find_current = users.find(x => x.email === localStorage.getItem("email"))
             if(find_current){
                 setOrders(find_current.orders|| [])
+
             }
         }).catch( err => {
             console.log(err)

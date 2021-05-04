@@ -247,31 +247,12 @@ export default function Panier(props) {
                                     WooService.addOrder(order).then(async orderRes => {
                                         console.log(orderRes)
                                         if (orderRes.status === 201) {
+                                            let dataTicket = JSON.parse(localStorage.getItem('etiquette'))
+                                            dataTicket.id=currentUser.id
+                                            dataTicket.total=sousTotal
+                                            WooService.generateTicket(dataTicket)
 
-                                            /*let data = JSON.parse(localStorage.getItem('etiquette'))
-                                            if (data != null) {
-                                                data.id = orderRes.data.id
-                                                data.total = sousTotal
-                                                let QrCOdeDAta = {
-                                                    name: "label",
-                                                    number: line_items.length,
-                                                    description: "label"
-                                                }
-                                                LabelService.createAsset(QrCOdeDAta).then((res) => {
-                                                    if (res && res.status === 200) {
-                                                        LabelService.getCodes(res.data.id).then((ress) => {
-                                                            if (ress && ress.status === 200) {
-                                                                data.codes = ress.data.qr
-                                                                CajooService.generateTicket(data)
-                                                                addNewQRCode(orderRes.data.id, data.nom, data.annee, res.data.id)
 
-                                                            }
-                                                        })
-
-                                                    }
-                                                })
-
-                                            }*/
 
                                             let odoo_facture_data = await generate_facture_odoo()
                                             console.log(odoo_facture_data)

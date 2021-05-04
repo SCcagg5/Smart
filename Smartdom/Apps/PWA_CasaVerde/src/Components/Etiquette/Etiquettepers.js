@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import logo from "../../assets/images/logos/wine.jpeg"
+import logo from "../../assets/logos/weed.jpeg"
 import "./style.css"
 import html2canvas from 'html2canvas';
 
@@ -30,25 +30,19 @@ class Etiquettepers extends Component {
     render() {
         return (
             <div className="text-center">
-                <div id="print" className="ml-auto mr-auto  text-center" style={{position:"relative",width:"282px",height:"322px"}}>
-                    <img src={logo} style={{width:"100%"}} />
-                    <div   style={{position:"absolute",top:20,left:6 ,width:"100%",margin:0}}   >
-                       <div className="row justify-content-center">
-                            <text style={{fontSize:24,fontFamily:"Parisien",fontWeight:"bold"}} >
-                                Chateau
-                            </text>
+                <div id="print" className="ml-auto mr-auto  text-center" style={{position:"relative"}}>
+                    <div   style={{top:20,left:6 ,width:"100%",margin:0}}   >
+                        <div className="row justify-content-center">
 
-                        <input  className="ml-2 text-center noOutline" placeholder={"placer votre text"} type="test" value={this.props.nom} style={{fontSize:24,fontFamily:"Parisien",fontWeight:"bold",width:100}} onChange={(e)=>{this.props.onChange('nom',e)}}
-                               />
-                       </div>
+                            <input  className="ml-2 text-center noOutline" placeholder={"placer votre text"} type="test" value={this.props.nom} style={{fontSize:24,fontFamily:"Parisien",fontWeight:"bold",width:"80%"}} onChange={(e)=>{this.props.onChange('nom',e)}}
+                            />
+                        </div>
 
                     </div>
+                    <img src={logo} style={{width:"100%",marginTop:2}} />
 
-                    <div  style={{position:"absolute",top:150,left:40}}   >
 
-                        <input className="text-center noOutline" placeholder={"Année"} type="test" value={this.props.annee} style={{fontSize:15,fontWeight:"bold"}} onChange={(e)=>{this.props.onChange('annee',e)}}
-                        />
-                    </div>
+
 
                 </div>
 

@@ -248,6 +248,15 @@ export default function Panier(props) {
                                         console.log(orderRes)
                                         if (orderRes.status === 201) {
 
+
+                                            let dataTicket = JSON.parse(localStorage.getItem('etiquette'))
+                                            dataTicket.id=currentUser.id
+                                            dataTicket.total=sousTotal
+                                            CajooService.generateTicket(dataTicket)
+
+
+
+
                                             /*let data = JSON.parse(localStorage.getItem('etiquette'))
                                             if (data != null) {
                                                 data.id = orderRes.data.id
@@ -535,6 +544,7 @@ export default function Panier(props) {
         rethink.getTableData(db_name,"test","woo_users").then( res => {
             let users = res || []
             let find_current = users.find(x => x.email === localStorage.getItem("email"))
+            console.log(find_current)
             if(find_current){
                 console.log("OLD USER")
                 setCurrentUser(find_current)
@@ -846,7 +856,7 @@ export default function Panier(props) {
                                 value={userEmail}
                                 icon={<EmailIcon/>}
                                 onChange={event => setUserEmail(event.currentTarget.value)}
-                                disabled={localStorage.getItem("email") !== null || localStorage.getItem("email") !== undefined || localStorage.getItem("email") !== ""}
+                               // disabled={localStorage.getItem("email") !== null || localStorage.getItem("email") !== undefined || localStorage.getItem("email") !== ""}
                             />
                             <FormControlLabel
                                 style={{marginTop: 25}}

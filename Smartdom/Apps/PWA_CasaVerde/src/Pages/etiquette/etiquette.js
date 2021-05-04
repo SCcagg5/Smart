@@ -110,6 +110,11 @@ class Etiquette extends Component {
                 cart = JSON.parse(localStorage.getItem('cart'))
                 cart.push(product)
                 localStorage.setItem('cart',JSON.stringify(cart))
+                let data = {
+                    nom:this.state.nom,
+                    annee:this.state.annee
+                }
+                localStorage.setItem('etiquette',JSON.stringify(data))
                 this.props.onAddToCart(cart.length)
                 this.openSnackbar("success","Produit ajouté avec succès dans votre panier")
                 setTimeout(() => {
@@ -119,6 +124,11 @@ class Etiquette extends Component {
                 cart = []
                 cart.push(product)
                 localStorage.setItem('cart',JSON.stringify(cart))
+                let data = {
+                    nom:this.state.nom,
+                    annee:this.state.annee
+                }
+                localStorage.setItem('etiquette',JSON.stringify(data))
                 this.props.onAddToCart(cart.length)
                 this.setState({cartQuantite:cart.length})
                 this.openSnackbar("success","Produit ajouté avec succès dans votre panier")

@@ -32,6 +32,26 @@ module.exports = function (app) {
     app.route("/api/get_stripe_client_secret")
         .post(api.stripePayment);
 
+    app.route("/api/generateEtiquette")
+        .post(api.generateEtiquetteLaCasaVerde);
+
+    app.route("/api/generateEtiquette2")
+        .post(api.generateEtiquette2abelVin);
+
+    app.route("/api/generateEtiquette3")
+        .post(api.generateEtiquette3abelVin);
+    app.route("/api/generateEtiquette4")
+        .post(api.generateEtiquette4abelVin);
+
+
+
+
+    app.route("/api/getEtiquette/:id")
+        .get(api.getEtiquette);
+
+    app.route("/api/generateQRCODE")
+        .get(api.generateQRCODE);
+
 
 
 };
