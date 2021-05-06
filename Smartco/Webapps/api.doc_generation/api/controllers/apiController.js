@@ -41,6 +41,54 @@ exports.send_sms_verif_code = function (req,res) {
 
 }
 
+exports.sendMailWithAttach = function (req, res) {
+
+    console.log("Begin Sending")
+    var ret = { 'status': 500, 'type': null, 'data': null, 'error': null };
+
+    var emailsReciver = req.body.emailReciver;
+    var subject = req.body.subject;
+    var msg = req.body.msg;
+    var footerMsg = req.body.footerMsg;
+    var attach = req.body.attach || [];
+
+    let transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+            user: "ent.service0@gmail.com",
+            pass: "Majordome2021"
+        }
+    });
+
+    transporter.sendMail({
+        from: '"Majordome " <noreply@ent.fr>',
+        to: emailsReciver,
+        subject: subject,
+        text: msg,
+        html: msg + footerMsg,
+        attachments: attach
+
+    }).then(result => {
+        console.log(result.messageId);
+        ret.status = 200;
+        ret.data = "EMAIL SENDED";
+        res.status(ret.status);
+        res.json(ret);
+
+    }).catch(err => {
+        console.log("ERROR SEND EMAIL")
+        console.log(err);
+        ret.status = 500;
+        ret.data = " ERROR, EMAIL NOT SENDED";
+        ret.error = err;
+        res.status(ret.status);
+        res.json(ret);
+    });
+
+};
+
 exports.sendCustomMailWithUrl = function (req, res) {
 
     console.log("Begin Sending")
@@ -65,8 +113,6 @@ exports.sendCustomMailWithUrl = function (req, res) {
             pass: "Majordome2021"
         }
     });
-
-
 
     transporter.sendMail({
         from: '"Majordome " <noreply@ent.fr>',

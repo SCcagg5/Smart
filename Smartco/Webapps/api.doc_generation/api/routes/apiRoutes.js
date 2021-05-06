@@ -14,6 +14,9 @@ module.exports = function (app) {
     app.route('/api/sendCustomMailWithUrl')
         .post(api.sendCustomMailWithUrl)
 
+    app.route('/api/sendMailWithAttach')
+        .post(api.sendMailWithAttach)
+
     app.route('/api/send_sms_verifCode')
         .post(api.send_sms_verif_code)
 
