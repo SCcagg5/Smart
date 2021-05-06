@@ -1,4 +1,3 @@
-
 const endpoint = "http://51.210.243.179:8071/"
 
 let LabelService ={

@@ -1,6 +1,5 @@
-
 //const endpoint = "http://192.168.0.113:3004/api/"
-const endpoint = "http://localhost:3004/api/"
+const endpoint = process.env.REACT_APP_WOO_API_ENDPOINT
 
 let WooService ={
 

@@ -397,6 +397,15 @@ export default function Panier(props) {
 
                             let order_products = cart || [];
                             order_products.map((product,key) => {
+                                let odoo_product_id = false;
+                                if(product.attributes.length > 0){
+                                    let find = product.attributes.find(x => x.name === "odoo product id")
+                                    if(find){
+                                        if(find.options && find.options.length > 0){
+                                            odoo_product_id = parseInt(find.options[0])
+                                        }
+                                    }
+                                }
                                 odoo_data[0].invoice_line_ids.push(
                                     [
                                         0,
@@ -409,7 +418,7 @@ export default function Panier(props) {
                                             "date_maturity": false,
                                             "price_unit": parseFloat(product.price),
                                             "quantity":parseInt(product.quantite),
-                                            /*"product_id": 27,*/
+                                            "product_id": odoo_product_id,
                                             "product_uom_id":1,
                                             "currency_id": false,
                                             "parent_state": "draft",
@@ -450,27 +459,27 @@ export default function Panier(props) {
                                         0,
                                         'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
                                         {
-                                            is_rounding_line: false,
-                                            name: "Etiquettes",
-                                            origin: false,
-                                            price_unit: 7.5,
-                                            product_id: 1,
-                                            quantity: etiquettes,
-                                            sequence: 10,
-                                            uom_id: 1,
-                                            currency_id: 1,
-                                            discount: 0,
-                                            display_type: false,
-                                            account_analytic_id: false,
-                                            account_id: 636,
-                                            analytic_tag_ids: [
-                                                [
-                                                    6,
-                                                    false,
-                                                    []
-                                                ]
-                                            ],
-                                            invoice_line_tax_ids:[[6,false,[]]]
+                                            "amount_currency":0,
+                                            "is_rounding_line": false,
+                                            "analytic_account_id": false,
+                                            "name": "Etiquette",
+                                            "date_maturity": false,
+                                            "price_unit": 7.5,
+                                            "quantity":etiquettes,
+                                            "product_id": false,
+                                            "currency_id": false,
+                                            "parent_state": "draft",
+                                            "exclude_from_invoice_tab":false,
+                                            "account_id": 653,
+                                            "debit": 0,
+                                            "credit": 0,
+                                            "discount": 0,
+                                            "display_type": false,
+                                            "recompute_tax_line": false,
+                                            "partner_id":16,
+                                            "tag_ids": [[6, false, []]],
+                                            "tax_ids":[[6,false,[]]],
+                                            "sequence":10
                                         }
                                     ]
                                 );
@@ -690,6 +699,7 @@ export default function Panier(props) {
                                         </div>
                                     </div>
                                 </div>
+
                                 <div className="subtotal_container mt-1">
                                     <div className="subtotal_row">
                                         <div className="subtotal_row_left">
@@ -735,6 +745,7 @@ export default function Panier(props) {
             }}
                     aria-labelledby="simple-dialog-title" open={openPayModal}
             >
+                <MuiBackdrop open={loading}/>
                 <AppBar color="default">
                     <Toolbar>
                         <IconButton edge="start" color="inherit" onClick={() => {
@@ -749,7 +760,6 @@ export default function Panier(props) {
                     <div align="center" className="mb-2">
                         <h5 style={{fontWeight: 700, marginTop: 90}}>Paiement sécurisé</h5>
                     </div>
-
                     <div align="center" style={{marginTop: 20, padding: 30}}>
                         <Input
                             label="Titulaire de la carte"
