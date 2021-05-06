@@ -9,22 +9,13 @@ import Rooms from "../Rooms/Rooms";
 import Chat from "../Chat/Chat";
 import history from "./history"
 import Profil from "../profil/profil";
-import Panier from "../panier/panier2";
+import Panier from "../panier/panier3";
 import Products from "../product/products";
 import Product from "../product/product";
 import Checkout from "../checkout/checkout";
-import {Elements} from "@stripe/react-stripe-js";
-import {loadStripe} from "@stripe/stripe-js";
 import Etiquette from "../etiquette/etiquette";
 
-/*const stripePromise = loadStripe("pk_test_DzPutapEGMVUdss4QraUUYyA", {locale: 'fr'});
-const ELEMENTS_OPTIONS = {
-    fonts: [
-        {
-            cssSrc: "https://fonts.googleapis.com/css?family=Roboto"
-        }
-    ]
-};*/
+
 
 export default function Routes(props) {
     return (
@@ -41,7 +32,7 @@ export default function Routes(props) {
                 </Route>
 
                 <Route exact path="/home/cart">
-                        <Panier onClearPanier={props.onClearPanier} history={history}/>
+                        <Panier onAddToCart={props.onAddToCart} onClearPanier={props.onClearPanier} history={history}/>
                 </Route>
                 <Route exact path="/home/checkout" component={Checkout}/>
                 <Route exact path="/home/profil" component={Profil}/>

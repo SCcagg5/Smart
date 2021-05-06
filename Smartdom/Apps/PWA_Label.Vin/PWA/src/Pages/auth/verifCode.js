@@ -56,7 +56,7 @@ export default function VerifCode(props){
                                 {loading && <Loader/>}
 
                                 <div align="center" className="mb-2">
-                                    <img style={{width:"70%",maxWidth:150, objectFit:"cover",marginTop:20}} src={require("../../assets/logos/label.vin_logo.jpeg")} alt=""/>
+                                    <img style={{width:"70%",maxWidth:150, objectFit:"cover",marginTop:20}} src={require("../../assets/logos/la-casa-verde-logo.jpg")} alt=""/>
                                     <h5 style={{fontWeight:700,marginTop:40}}>Confirmez votre numéro</h5>
                                     <label style={{color:"gray"}}>Entrez le code envoyé au {phone}</label>
                                 </div>

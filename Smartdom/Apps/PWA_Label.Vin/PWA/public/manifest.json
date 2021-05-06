@@ -1,19 +1,19 @@
 {
-  "short_name": "Cajoo",
-  "name": "Cajoo",
+  "short_name": "Casa Verde",
+  "name": "Casa Verde",
   "icons": [
     {
-      "src": "logoCajoo.png",
+      "src": "la-casa-verde-logo.jpg",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "logoCajoo.png",
+      "src": "la-casa-verde-logo.jpg",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logoCajoo.png",
+      "src": "la-casa-verde-logo.jpg",
       "type": "image/png",
       "sizes": "512x512"
     }

@@ -14,3 +14,128 @@
     inset 0 1px 0 #829fff;
     border-radius: 4px;
 }
+
+.cart_ul{
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    margin: 0;
+    padding: 0;
+}
+
+.cart_li{
+    min-height: 10rem;
+    padding: 1.5rem 1rem;
+    display: flex;
+    border-bottom: 1px solid #e3e3e3;
+}
+
+.cart_li_left{
+    display: flex;
+    align-items: center;
+}
+
+.cart_li_right{
+    flex-grow: 1;
+    margin-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.price_counter_conatiner{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.price_counter_form{
+    text-align: center;
+    display: grid;
+    grid-template-columns: 1fr 4rem 1fr;
+    grid-column-gap: 0.5rem;
+    align-items: center;
+    justify-items: center;
+}
+
+.btn_price_counter{
+    align-items: center;
+    background-color: white;
+    border-radius: .5rem;
+    display: inline-flex;
+    height: 2.5rem;
+    justify-content: center;
+    width: 2.5rem;
+    border: 0.0625rem solid #333;
+    transition: .2s ease-in-out;
+}
+
+.input_counter_container{
+    display: grid;
+    align-self: flex-start;
+}
+
+.input_span1{
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-template-areas: 'before input after';
+    grid-template-columns: auto 1fr auto;
+    height: 3rem;
+}
+.input_span2{
+    align-items: center;
+    display: flex;
+    grid-column: before-start / after-end;
+    grid-row: input-start / input-end;
+}
+
+.input_counter{
+    width: 3rem;
+    height: 2.5rem;
+    border-radius: .5rem;
+    padding: 0;
+    border: 0.0625rem solid #e0e0e0;
+    text-align: center;
+}
+
+.image_container{
+    border-radius: .25rem;
+    background-color: #f1f1f1;
+    display: flex;
+    height: 100%;
+    width: 5rem;
+    align-items: center;
+}
+
+.cart_products_container{
+    display: grid;
+    grid-template-rows: min-content 1fr;
+    overflow: auto;
+    box-sizing: border-box;
+    touch-action: manipulation;
+}
+
+.subtotal_container{
+    flex-direction: column;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.subtotal_row{
+    margin-bottom: .5rem;
+    line-height: initial;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.subtotal_row_left{
+    font-weight: 400;
+    font-size: 1rem;
+}
+.subtotal_row_right{
+    font-weight: 600;
+    font-size: 1rem;
+}

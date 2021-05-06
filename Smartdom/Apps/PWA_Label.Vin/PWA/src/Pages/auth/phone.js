@@ -23,7 +23,7 @@ export default function Phone(props){
                                 {loading && <Loader/>}
 
                                 <div align="center" className="mb-2">
-                                    <img style={{width:"70%",maxWidth:150, objectFit:"cover",marginTop:20}} src={require("../../assets/logos/label.vin_logo.jpeg")} alt=""/>
+                                    <img style={{width:"70%",maxWidth:150, objectFit:"cover",marginTop:20}} src={require("../../assets/logos/la-casa-verde-logo.jpg")} alt=""/>
                                     <h5 style={{fontWeight:700,marginTop:40}}>Gagnez du temps !</h5>
                                     <label style={{color:"gray"}}>Entrez votre numéro de téléphone</label>
                                 </div>
@@ -41,7 +41,7 @@ export default function Phone(props){
                                         countryCodeEditable={false}
                                     />
                                     <div align="center" style={{marginTop:40}}>
-                                        <Button color="secondary" variant="contained" disabled={phone === ""}
+                                        <Button color="primary" variant="contained" disabled={phone === ""}
                                                 onClick={() => {
                                                     setLoading(true)
                                                     setTimeout(() => {
@@ -49,7 +49,7 @@ export default function Phone(props){
                                                         window.location.reload()
                                                     },1500)
                                                 }}
-                                                style={{textTransform:"none",fontWeight:700,borderRadius:20,width:"70%",height:40}} >Commencer</Button>
+                                                style={{textTransform:"none",fontWeight:700,borderRadius:20,width:"70%",height:40,color:"#fff"}} >Commencer</Button>
                                     </div>
                                 </div>
                             </CardBody>

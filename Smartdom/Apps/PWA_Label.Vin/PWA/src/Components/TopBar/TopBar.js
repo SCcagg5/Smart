@@ -39,7 +39,7 @@ export default function TopBar(props) {
                     <MenuIcon style={{fontSize:26}} />
                 </IconButton>
 
-                <img alt="" src={props.logo} style={{width:110,textAlign:"center",position:"absolute",left:0,right:0,margin:"0 auto"}}/>
+                <img alt="" src={props.logo} style={{width:60,textAlign:"center",position:"absolute",left:0,right:0,margin:"0 auto"}}/>
 
 
                 {/*<div style={{position:"absolute",right:13}}>

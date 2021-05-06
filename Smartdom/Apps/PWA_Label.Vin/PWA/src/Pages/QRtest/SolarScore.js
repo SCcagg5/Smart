@@ -1,25 +1,6 @@
 import React, {useEffect} from "react";
 import MuiBackdrop from "../../Components/Loading/MuiBackdrop";
-import PersonIcon from '@material-ui/icons/Person';
-import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import LocationOnIcon from '@material-ui/icons/LocationOn';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
-import Collapse from '@material-ui/core/Collapse';
-import PhoneIcon from '@material-ui/icons/Phone';
-import EmailIcon from '@material-ui/icons/Email';
-import CajooService from "../../provider/cajooservice";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
-import moment from "moment";
-import Dialog from "@material-ui/core/Dialog";
+
 import rethink from "../../controller/rethink";
 import { useParams } from "react-router-dom";
 import arbre1 from "../../assets/icons/arbre1.jpeg"

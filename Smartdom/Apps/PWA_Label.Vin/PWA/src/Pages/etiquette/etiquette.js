@@ -18,7 +18,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogActions from "@material-ui/core/DialogActions/DialogActions";
 import "./style.css"
 import {navigateTo} from "../routes/history";
-import CajooService from "../../provider/cajooservice";
+import WooService from "../../provider/wooService";
 import Snackbar from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
 
@@ -76,7 +76,7 @@ class Etiquette extends Component {
         let id = path_array[path_array.length -2]
         let quantity = path_array[path_array.length -1]
 
-        CajooService.getProductByid(id).then((res)=>{
+        WooService.getProductByid(id).then((res)=>{
             if (res && res.status===200){
                 this.setState({product:res.data,quantity:quantity,loading:false})
             }

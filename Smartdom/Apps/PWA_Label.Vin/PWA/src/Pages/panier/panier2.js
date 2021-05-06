@@ -16,7 +16,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import EmailIcon from "@material-ui/icons/Email";
 import Snackbar from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
-import CajooService from "../../provider/cajooservice";
+import WooService from "../../provider/wooService";
 import LabelService from '../../provider/labelservice'
 import {StripeCardInput, Input} from "react-rainbow-components";
 
@@ -27,7 +27,7 @@ import moment from "moment";
 import maillingService from "../../provider/maillingService";
 import {navigateTo} from "../routes/history";
 
-const db_name = "b116081d-3145-4dc3-b3df-5ac2bde13e9d"
+const db_name = "4e92789a-aa10-11eb-bcbc-0242ac130002"
 
 
 export default function Panier(props) {
@@ -154,7 +154,7 @@ export default function Panier(props) {
     }
 
     const getPayment_gateways = () => {
-        CajooService.getPayment_gateways().then(r => {
+        WooService.getPayment_gateways().then(r => {
             console.log(r)
         }).catch(err => {
             console.log(err)
@@ -187,7 +187,7 @@ export default function Panier(props) {
             if (isComplete) {
                 try {
 
-                    CajooService.get_stripe_client_secret({amount: 1500, currency: "eur"}).then(async res => {
+                    WooService.get_stripe_client_secret({amount: 1500, currency: "eur"}).then(async res => {
 
                         const result = await stripe.confirmCardPayment(res.data.clientSecret, {
                             payment_method: {
@@ -220,67 +220,40 @@ export default function Panier(props) {
                                         payment_method: "stripe",
                                         payment_method_title: "carte de paiement (Stripe)",
                                         billing: {
-                                            first_name: "label",
-                                            last_name: "Etiquettepers.js",
+                                            first_name: userFname,
+                                            last_name: "",
                                             address_1: "17 rue de liberté",
                                             city: "Paris",
                                             state: "PA",
                                             postcode: "12345",
                                             country: "FR",
-                                            email: "Etiquettepers@Etiquettepers.fr"
+                                            email: userEmail
                                         },
                                         shipping: {
-                                            first_name: "label",
-                                            last_name: "Etiquettepers.js",
+                                            first_name: userFname,
+                                            last_name: "",
                                             address_1: "17 rue de liberté",
                                             city: "Paris",
                                             state: "PA",
                                             postcode: "12345",
                                             country: "FR",
-                                            email: "Etiquettepers@Etiquettepers.fr"
+                                            email: userEmail
                                         },
                                         line_items: line_items
                                     };
 
                                     setOpenPayModal(false)
 
-                                    CajooService.addOrder(order).then(async orderRes => {
+                                    WooService.addOrder(order).then(async orderRes => {
                                         console.log(orderRes)
                                         if (orderRes.status === 201) {
 
-
-                                            let dataTicket = JSON.parse(localStorage.getItem('etiquette'))
+                                            /*let dataTicket = JSON.parse(localStorage.getItem('etiquette'))
+                                            console.log(currentUser)
                                             dataTicket.id=currentUser.id
                                             dataTicket.total=sousTotal
-                                            CajooService.generateTicket(dataTicket)
+                                            WooService.generateTicket(dataTicket)*/
 
-
-
-
-                                            /*let data = JSON.parse(localStorage.getItem('etiquette'))
-                                            if (data != null) {
-                                                data.id = orderRes.data.id
-                                                data.total = sousTotal
-                                                let QrCOdeDAta = {
-                                                    name: "label",
-                                                    number: line_items.length,
-                                                    description: "label"
-                                                }
-                                                LabelService.createAsset(QrCOdeDAta).then((res) => {
-                                                    if (res && res.status === 200) {
-                                                        LabelService.getCodes(res.data.id).then((ress) => {
-                                                            if (ress && ress.status === 200) {
-                                                                data.codes = ress.data.qr
-                                                                CajooService.generateTicket(data)
-                                                                addNewQRCode(orderRes.data.id, data.nom, data.annee, res.data.id)
-
-                                                            }
-                                                        })
-
-                                                    }
-                                                })
-
-                                            }*/
                                             let odoo_facture_data = await generate_facture_odoo()
                                             console.log(odoo_facture_data)
                                             if(odoo_facture_data.b64 && odoo_facture_data.b64 !== ""){
@@ -314,12 +287,12 @@ export default function Panier(props) {
                                                     if (updateRes && updateRes === true) {
                                                         maillingService.send_odoo_facture({
                                                             "emailReciver":currentUser.email,
-                                                            "subject":"Facture Label.vin",
-                                                            "msg":"Madame/Monsieur,<br/><br/>Suite à votre achat sur notre site <b>label.Vin</b> effectué(e) le "+moment().format("DD-MM-YYYY HH:mm")+" et correspondant au bon de commande n° " +orderRes.data.id +", nous vous adressons ci-joint une facture avec les détails de votre commande.",
+                                                            "subject":"Facture Casa.Verde",
+                                                            "msg":"Madame/Monsieur,<br/><br/>Suite à votre achat sur notre site <b>Casa.Verde</b> effectué(e) le "+moment().format("DD-MM-YYYY HH:mm")+" et correspondant au bon de commande n° " +orderRes.data.id +", nous vous adressons ci-joint une facture avec les détails de votre commande.",
                                                             "footerMsg":"<br/><br/>En vous remerciant par avance,<br/><br/><br/>Cordialement",
                                                             "attach":[
                                                                 {
-                                                                    filename:"Facture_Label.Vin_" + moment().format("DD-MM-YYYY"),
+                                                                    filename:"Facture_CasaVerde_" + moment().format("DD-MM-YYYY"),
                                                                     path:"data:application/pdf;base64," + odoo_facture_data.b64
                                                                 }
                                                             ]
@@ -330,7 +303,7 @@ export default function Panier(props) {
                                                         openSnackbar("success", "Félicitation ! Votre commande est effectué avec succès")
                                                         viderPanier()
                                                         props.onClearPanier()
-                                                        props.history.push('/home/chat',{b64_odoo_fact:odoo_facture_data.b64})
+                                                        props.history.push('/home/chat',{isOnlyBot:true,b64_odoo_fact:odoo_facture_data.b64})
                                                         //navigateTo("/home/chat",{b64_odoo_fact:odoo_facture_data.b64})
                                                     }else{
                                                         console.log("error update woo user")
@@ -365,7 +338,7 @@ export default function Panier(props) {
                 if (tokenRes.succes === true && tokenRes.status === 200) {
 
                     SmartService.login({
-                        email: "label.vin@test.fr",
+                        email: "casa.verde@yopmail.com",
                         password1: "test"
                     }, tokenRes.data.token).then(loginRes => {
 
@@ -382,7 +355,7 @@ export default function Panier(props) {
                                 name: false,
                                 origin: false,
                                 partner_bank_id: 4,
-                                partner_id: 15,
+                                partner_id: 16,
                                 payment_term_id: 2,
                                 reference: false,
                                 sequence_number_next: "0001",
@@ -421,10 +394,7 @@ export default function Panier(props) {
                                             account_analytic_id: false,
                                             account_id: 636,
                                             analytic_tag_ids: [
-                                                [
-                                                    6,
-                                                    false,
-                                                    []
+                                                [6, false, []
                                                 ]
                                             ],
                                             invoice_line_tax_ids:[[6,false,[]]]
@@ -465,20 +435,14 @@ export default function Panier(props) {
                                 );
                             }
 
-
+                        console.log(odoo_data)
                             SmartService.create_facture_odoo(token, usrtoken, {data: odoo_data}).then(createFactRes => {
                                 console.log(createFactRes)
                                 if (createFactRes.succes === true && createFactRes.status === 200) {
 
                                     SmartService.validate_facture_odoo(token, usrtoken,
                                         {
-                                            data: [[createFactRes.data.id], {
-                                                journal_type: "sale",
-                                                lang: "fr_FR",
-                                                default_type: "out_invoice",
-                                                tz: "Europe/Paris",
-                                                uid: 2
-                                            }]
+                                            data: [[createFactRes.data.id]]
                                         }).then(validateRes => {
                                         console.log(validateRes)
                                         if (validateRes.succes === true && validateRes.status === 200) {
@@ -544,7 +508,6 @@ export default function Panier(props) {
         rethink.getTableData(db_name,"test","woo_users").then( res => {
             let users = res || []
             let find_current = users.find(x => x.email === localStorage.getItem("email"))
-            console.log(find_current)
             if(find_current){
                 console.log("OLD USER")
                 setCurrentUser(find_current)
@@ -856,7 +819,7 @@ export default function Panier(props) {
                                 value={userEmail}
                                 icon={<EmailIcon/>}
                                 onChange={event => setUserEmail(event.currentTarget.value)}
-                               // disabled={localStorage.getItem("email") !== null || localStorage.getItem("email") !== undefined || localStorage.getItem("email") !== ""}
+                                disabled={localStorage.getItem("email") !== null && localStorage.getItem("email") !== undefined && localStorage.getItem("email") !== ""}
                             />
                             <FormControlLabel
                                 style={{marginTop: 25}}

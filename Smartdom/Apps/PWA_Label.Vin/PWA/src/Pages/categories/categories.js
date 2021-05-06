@@ -1,5 +1,5 @@
 import React,{useEffect} from "react";
-import CajooService from "../../provider/cajooservice";
+import WooService from "../../provider/wooService";
 import MuiBackdrop from "../../Components/Loading/MuiBackdrop";
 import { navigateTo } from '../routes/history';
 
@@ -17,11 +17,11 @@ export default function Categories(props){
     const getCategories = () => {
         setLoading(true)
         let data=[]
-        CajooService.getCategories().then((res)=>{
+        WooService.getCategories().then((res)=>{
             console.log(res)
-            if(res){
-                (res || []).map((item,key)=>{
-                    if (item.parent===0){
+            if(Array.isArray(res)){
+                (res|| []).map((item,key)=>{
+                    if (item.parent===0 && item.slug !== "non-classe"){
                         data.push(item)
                     }
                 })
@@ -48,7 +48,7 @@ export default function Categories(props){
                                     navigateTo('/home/products/' + item.id)
                                 }} className="card cardShadow" style={{width:"100%",borderRadius:10,marginBottom:12}}>
                                     <img className="card-img-top" src={item.image ? item.image.src : ""} style={{borderTopRightRadius:10,WebkitBorderTopLeftRadius:10}} alt="Card image cap"/>
-                                    <div className="card-body" style={{padding:"0.5rem"}} >
+                                    <div className="card-body" style={{padding:"0.5rem",minHeight:61}} >
                                         <div style={{fontWeight:700}} className="text-center"> {item.name} </div>
                                     </div>
                                 </div>

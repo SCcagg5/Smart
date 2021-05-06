@@ -45,8 +45,7 @@ import MenuList from "@material-ui/core/MenuList";
 import MenuItem from "@material-ui/core/MenuItem";
 
 const {DirectoryTree} = Tree;
-//const db_name = "b446081d-3145-4dc3-b3df-5ac2bde13e9d";
-const db_name = "b116081d-3145-4dc3-b3df-5ac2bde13e9d";
+const db_name = "4e92789a-aa10-11eb-bcbc-0242ac130002";
 
 
 const speedDialActions = [
@@ -84,11 +83,11 @@ export default class Chat extends React.Component {
         textareaHeight: 45,
 
         //miniDrive:main_functions.changeStructure(this.props.location.state.miniDrive || [],true),
-        miniDrive: main_functions.changeStructure([], true),
+        miniDrive: main_functions.changeStructure(this.props.location.state.miniDrive ? this.props.location.state.miniDrive : [] , true),
         //room:this.props.location.state.room,
-        room: -1,
+        room: this.props.location.state.isOnlyBot === true ? -1 : this.props.location.state.room,
         //contacts:this.props.location.state.contacts,
-        contacts: [],
+        contacts: this.props.location.state.contacts ? this.props.location.state.contacts : [],
         autoExpandParent: true,
         expandedKeys: [],
         selectedKeys: [],
@@ -146,53 +145,55 @@ export default class Chat extends React.Component {
             console.log(err)
         });
 
-        setTimeout(() => {
-            let msgs = this.state.messages;
-            msgs.push({
-                created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
-                id: utilFunctions.getUID(),
-                room_id: -1,
-                text: "Félicitation, votre commande est bien effectué avec succès",
-                type: "text",
-                sender: {
-                    email: "ChatBot"
-                }
-            })
+        if(this.props.location.state.isOnlyBot && this.props.location.state.isOnlyBot === true ){
+            setTimeout(() => {
+                let msgs = this.state.messages;
+                msgs.push({
+                    created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                    id: utilFunctions.getUID(),
+                    room_id: -1,
+                    text: "Félicitation, votre commande est bien effectué avec succès",
+                    type: "text",
+                    sender: {
+                        email: "ChatBot"
+                    }
+                })
 
-            msgs.push({
-                created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
-                id: utilFunctions.getUID(),
-                room_id: -1,
-                text: "Voici la facture de votre commande:",
-                type: "text",
-                sender: {
-                    email: "ChatBot"
-                }
-            })
-            msgs.push({
-                uid: utilFunctions.getUID(),
-                created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
-                room_id: this.state.room.id,
-                type: "ged_file",
-                b64: this.props.location.state.b64_odoo_fact || "",
-                name: "Facture.pdf",
-                sender: {
-                    email: "ChatBot"
-                }
-            })
-            msgs.push({
-                created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
-                id: utilFunctions.getUID(),
-                room_id: -1,
-                text: "Une copie de la facture est bien aussi envoyée à votre adresse mail &#128512;",
-                type: "text",
-                sender: {
-                    email: "ChatBot"
-                }
-            })
-            this.setState({messages:msgs})
-        },600)
-
+                msgs.push({
+                    created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                    id: utilFunctions.getUID(),
+                    room_id: -1,
+                    text: "Voici la facture de votre commande:",
+                    type: "text",
+                    sender: {
+                        email: "ChatBot"
+                    }
+                })
+                msgs.push({
+                    uid: utilFunctions.getUID(),
+                    created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                    room_id: this.state.room.id,
+                    type: "ged_file",
+                    href_url:true,
+                    b64: this.props.location.state.odoo_fact_url || "",
+                    name: "Facture.pdf",
+                    sender: {
+                        email: "ChatBot"
+                    }
+                })
+                msgs.push({
+                    created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                    id: utilFunctions.getUID(),
+                    room_id: -1,
+                    text: "Une copie de la facture est bien aussi envoyée à votre adresse mail.",
+                    type: "text",
+                    sender: {
+                        email: "ChatBot"
+                    }
+                })
+                this.setState({messages:msgs})
+            },600)
+        }
 
     }
 
@@ -645,6 +646,13 @@ export default class Chat extends React.Component {
         a.click();
     }
 
+    downloadUrlFile(url) {
+        let a = document.createElement('a');
+        a.href =  url;
+        a.download = "Facture_" + moment().format("DD-MM-YYYY HH:mm");
+        a.click();
+    }
+
     onClickAction(event, action) {
         console.log(action)
         this.setState({openSpeedDial: false})
@@ -1067,7 +1075,8 @@ export default class Chat extends React.Component {
                                                                                     <div className="msg_file_icon"/>
                                                                                     <div className="msg_file_text"
                                                                                          onClick={() => {
-                                                                                             msg.id_in_ged ? this.downloadFile(msg.id_in_ged) : this.downloadB64File(msg.b64)
+                                                                                             (msg.href_url && msg.href_url === true) ?
+                                                                                                 this.downloadUrlFile(msg.b64) : msg.id_in_ged ? this.downloadFile(msg.id_in_ged) : this.downloadB64File(msg.b64)
                                                                                          }}
                                                                                     >
                                                                                         <span>{msg.name_in_ged || msg.name}</span>
@@ -1416,7 +1425,8 @@ export default class Chat extends React.Component {
                                                                                     <div className="msg_file_icon"/>
                                                                                     <div className="msg_file_text"
                                                                                          onClick={() => {
-                                                                                             msg.id_in_ged ? this.downloadFile(msg.id_in_ged) : this.downloadB64File(msg.b64)
+                                                                                             (msg.href_url && msg.href_url === true) ?
+                                                                                                 this.downloadUrlFile(msg.b64) : msg.id_in_ged ? this.downloadFile(msg.id_in_ged) : this.downloadB64File(msg.b64)
                                                                                          }}
                                                                                     >
                                                                                         <span>{msg.name_in_ged || msg.name}</span>
@@ -1764,59 +1774,61 @@ export default class Chat extends React.Component {
 
                                 }
 
+                                {
+                                    this.props.location.state.isOnlyBot === false &&
+                                    <div style={{
+                                        backgroundColor: "#f0f0f0",
+                                        position: "fixed",
+                                        bottom: 71,
+                                        height: 60,
+                                        width: "100%",
+                                        display: "flex"
+                                    }}
+                                    >
 
-                                <div style={{
-                                    backgroundColor: "#f0f0f0",
-                                    position: "fixed",
-                                    bottom: 71,
-                                    height: 60,
-                                    width: "100%",
-                                    display: "flex"
-                                }}>
+                                        <div style={{alignSelf: "center", margin: 10, flex: "none", display: "flex"}}>
+                                            <IconButton size="small"
+                                                        onClick={(event) => {
+                                                            this.setState({anchorElEmoji: event.currentTarget})
+                                                        }}
+                                            >
+                                                <SentimentVerySatisfiedIcon/>
+                                            </IconButton>
+                                            <SpeedDial
+                                                style={{marginTop: -295}}
+                                                ariaLabel="SpeedDial Chat"
+                                                hidden={false}
+                                                icon={<AttachFileIcon fontSize="small"/>}
+                                                onClose={() => {
+                                                    this.setState({openSpeedDial: false})
+                                                }}
+                                                onOpen={() => {
+                                                    this.setState({openSpeedDial: true})
+                                                }}
+                                                open={this.state.openSpeedDial}
+                                                direction="up"
+                                                onClick={() => {
+                                                    this.setState({openSpeedDial: !this.state.openSpeedDial})
+                                                }}
+                                                FabProps={{size: "small", color: "default", variant: "extended"}}
+                                            >
+                                                {speedDialActions.map((action) => (
+                                                    <SpeedDialAction
+                                                        title={action.name}
+                                                        key={action.name}
+                                                        icon={action.icon}
+                                                        tooltipTitle={action.name}
+                                                        onClick={(event) => {
+                                                            this.onClickAction(event, action)
+                                                        }}
+                                                        FabProps={{color: "default"}}
 
-                                    <div style={{alignSelf: "center", margin: 10, flex: "none", display: "flex"}}>
-                                        <IconButton size="small"
-                                                    onClick={(event) => {
-                                                        this.setState({anchorElEmoji: event.currentTarget})
-                                                    }}
-                                        >
-                                            <SentimentVerySatisfiedIcon/>
-                                        </IconButton>
-                                        <SpeedDial
-                                            style={{marginTop: -295}}
-                                            ariaLabel="SpeedDial Chat"
-                                            hidden={false}
-                                            icon={<AttachFileIcon fontSize="small"/>}
-                                            onClose={() => {
-                                                this.setState({openSpeedDial: false})
-                                            }}
-                                            onOpen={() => {
-                                                this.setState({openSpeedDial: true})
-                                            }}
-                                            open={this.state.openSpeedDial}
-                                            direction="up"
-                                            onClick={() => {
-                                                this.setState({openSpeedDial: !this.state.openSpeedDial})
-                                            }}
-                                            FabProps={{size: "small", color: "default", variant: "extended"}}
-                                        >
-                                            {speedDialActions.map((action) => (
-                                                <SpeedDialAction
-                                                    title={action.name}
-                                                    key={action.name}
-                                                    icon={action.icon}
-                                                    tooltipTitle={action.name}
-                                                    onClick={(event) => {
-                                                        this.onClickAction(event, action)
-                                                    }}
-                                                    FabProps={{color: "default"}}
-
-                                                />
-                                            ))}
-                                        </SpeedDial>
-                                    </div>
-                                    <div className="message-input" style={{flex: "1 1 auto"}}>
-                                        <div className="wrap">
+                                                    />
+                                                ))}
+                                            </SpeedDial>
+                                        </div>
+                                        <div className="message-input" style={{flex: "1 1 auto"}}>
+                                            <div className="wrap">
                                         <textarea placeholder="Tapez votre message..."
                                                   value={this.state.text}
                                                   onChange={(e => {
@@ -1829,17 +1841,18 @@ export default class Chat extends React.Component {
                                                       }
                                                   })}
                                         />
+                                            </div>
                                         </div>
+
+                                        <AudioRecorder
+                                            addAudioMsg={(b64, duration) => {
+                                                this.addAudio(b64, duration)
+                                            }}
+                                        />
+
+
                                     </div>
-
-                                    <AudioRecorder
-                                        addAudioMsg={(b64, duration) => {
-                                            this.addAudio(b64, duration)
-                                        }}
-                                    />
-
-
-                                </div>
+                                }
 
                                 <input style={{visibility: 'hidden', width: 0, height: 0}}
                                        type='file' accept='.png,.jpeg,.jpg'

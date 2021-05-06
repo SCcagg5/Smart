@@ -13,7 +13,7 @@ import Divider from '@material-ui/core/Divider';
 import Collapse from '@material-ui/core/Collapse';
 import PhoneIcon from '@material-ui/icons/Phone';
 import EmailIcon from '@material-ui/icons/Email';
-import CajooService from "../../provider/cajooservice";
+import WooService from "../../provider/wooService";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
@@ -22,11 +22,11 @@ import moment from "moment";
 import Dialog from "@material-ui/core/Dialog";
 import rethink from "../../controller/rethink";
 
-const db_name = "b116081d-3145-4dc3-b3df-5ac2bde13e9d"
+const db_name = "4e92789a-aa10-11eb-bcbc-0242ac130002"
 
 export default function Profil(props){
 
-    const [loading, setLoading] = React.useState(true);
+    const [loading, setLoading] = React.useState(false);
     const [openInfoContent, setOpenInfoContent] = React.useState(false);
     const [orders, setOrders] = React.useState([]);
     const [openPayModal, setOpenPayModal] = React.useState(false);
@@ -42,7 +42,6 @@ export default function Profil(props){
             let find_current = users.find(x => x.email === localStorage.getItem("email"))
             if(find_current){
                 setOrders(find_current.orders|| [])
-
             }
         }).catch( err => {
             console.log(err)
@@ -65,7 +64,7 @@ export default function Profil(props){
 
     const downloadB64File = (b64,name) => {
         let a = document.createElement('a');
-        a.href = 'data:application/pdf;base64,' + b64;
+        a.href = b64;
         a.download = name;
         a.click();
     }
@@ -160,7 +159,7 @@ export default function Profil(props){
                                 <div style={{backgroundColor:"#f0f0f0",borderRadius:7.5,width:"100%",padding:10,marginBottom:15}}>
                                     <div style={{display:"flex",justifyContent:"space-between"}}>
                                         <h6>Commande #{order.woo_id}</h6>
-                                        <p style={{fontSize:"0.75rem",fontWeight:"bold",color:"#f50057"}}>Total: {(order.total + 7.5) + " €"}</p>
+                                        <p style={{fontSize:"0.75rem",fontWeight:"bold",color:"#f50057"}}>Total: {order.total + " €"}</p>
                                     </div>
                                     <p style={{fontSize:"0.6rem",marginTop:-10}}>Placé le {moment(order.date_created).format("DD-MM-YYYY HH:mm")}</p>
                                     <h6>Articles:</h6>
@@ -174,7 +173,7 @@ export default function Profil(props){
                                     <div style={{display:"flex",marginTop:13}}>
                                         <h6>Facture:</h6>
                                         <p style={{fontSize:"0.6rem",marginLeft:5,textDecoration:"underline",color:"blue",cursor:"pointer"}}
-                                           onClick={() => downloadB64File(order.odoo_fact_b64,"facture_" + moment(order.date_created).format("DD-MM-YYYY HH:mm") + ".pdf")}
+                                           onClick={() => downloadB64File(order.odoo_fact_url,"facture_" + moment(order.date_created).format("DD-MM-YYYY HH:mm") + ".pdf")}
                                         >
                                             {"facture_" + moment(order.date_created).format("DD-MM-YYYY HH:mm") + ".pdf" || ""}</p>
                                     </div>

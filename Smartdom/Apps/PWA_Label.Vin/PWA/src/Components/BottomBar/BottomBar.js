@@ -13,15 +13,20 @@ import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 
 const useStyles = makeStyles({
     root: {
-        color: "green",
+        color: "secondary",
         "&$selected": {
-            color: "red"
+            color: "green"
         }
     },
     icon:{
         marginBottom:"unset"
+    },
+    customBadge: {
+        backgroundColor: "#00AFD7",
+        color: "white"
     }
 });
+
 
 export default function BottomBar(props) {
 
@@ -43,7 +48,7 @@ export default function BottomBar(props) {
                 {
                     props.phone !== null &&
                     [
-                        <BottomNavigationAction label="Cart" icon={<Badge badgeContent={props.cart} color="secondary"> <ShoppingCartIcon /></Badge>} />,
+                        <BottomNavigationAction label="Cart" icon={<Badge badgeContent={props.cart} color="secondary" classes={classes.customBadge} > <ShoppingCartIcon /></Badge>} />,
                         <BottomNavigationAction label="Compte" icon={<PermIdentityIcon/>}/>
                     ]
                 }

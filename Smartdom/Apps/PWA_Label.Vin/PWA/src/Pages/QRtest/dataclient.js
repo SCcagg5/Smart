@@ -12,21 +12,13 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 import Collapse from '@material-ui/core/Collapse';
 import PhoneIcon from '@material-ui/icons/Phone';
-import EmailIcon from '@material-ui/icons/Email';
-import CajooService from "../../provider/cajooservice";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
-import moment from "moment";
-import Dialog from "@material-ui/core/Dialog";
+
 import rethink from "../../controller/rethink";
 import { useParams } from "react-router-dom";
 import arbre1 from "../../assets/icons/arbre1.jpeg"
 import solar1 from "../../assets/icons/solar1.jpeg"
 import ecoscore from "../../assets/icons/Eco-Score.png"
 import QRCode from 'qrcode.react'
-import {navigateTo} from "../routes/history";
 
 const db_name = "b116081d-3145-4dc3-b3df-5ac2bde13e9d"
 

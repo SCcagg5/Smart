@@ -1,8 +1,8 @@
 
-//const endpoint = "http://192.168.1.6:3004/api/"
+//const endpoint = "http://192.168.0.113:3004/api/"
 const endpoint = "http://localhost:3004/api/"
 
-let CajooService ={
+let WooService ={
 
     loadHeaders() {
         let headers = new Headers();
@@ -96,7 +96,9 @@ let CajooService ={
         }).then(response => response.json()).catch(error => {
             console.log(error);
         });
-    }
+    },
+
+
 
 
 
@@ -107,4 +109,4 @@ let CajooService ={
 
 
 
-export default CajooService;
+export default WooService;

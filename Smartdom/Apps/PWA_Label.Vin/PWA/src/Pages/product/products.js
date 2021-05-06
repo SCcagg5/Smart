@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
-import BottomBar from "../../Components/BottomBar/BottomBar";
-import CajooService from "../../provider/cajooservice";
-import SwiperCore, { Navigation, Pagination, Scrollbar, A11y } from 'swiper';
+import WooService from "../../provider/wooService";
 import "./style.css"
 import { Swiper, SwiperSlide } from 'swiper/react';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -32,7 +30,7 @@ class Products extends Component {
         let products=[]
         let allcat=[]
         console.log(this.props.match.params.catID)
-        CajooService.getCategories().then((res)=>{
+        WooService.getCategories().then((res)=>{
             if (res){
                 allcat=res
                 res.map((item,key)=>{
@@ -41,7 +39,7 @@ class Products extends Component {
                     }
                 })
                 if (data.length===0){
-                    CajooService.getProductByCat(parseInt(this.props.match.params.catID)).then((res2)=>{
+                    WooService.getProductByCat(parseInt(this.props.match.params.catID)).then((res2)=>{
                         if (res2){
                             console.log(data)
                             res2.data.map((item,key)=>{
@@ -53,7 +51,7 @@ class Products extends Component {
                         }
                     })
                 }else {
-                    CajooService.getProductByCat(data[0].id).then((res2)=>{
+                    WooService.getProductByCat(data[0].id).then((res2)=>{
                         if (res2){
                             console.log(res2)
                             res2.data.map((item,key)=>{
@@ -76,7 +74,7 @@ class Products extends Component {
         let selectedCat = sousCat[key].name
         this.setState({selectedCat:selectedCat})
         let products=[]
-        CajooService.getProductByCat(id).then((res2)=>{
+        WooService.getProductByCat(id).then((res2)=>{
             if (res2){
                 console.log(res2)
                 res2.data.map((item,key)=>{
