@@ -45,6 +45,7 @@ import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import ArrowDropUpIcon from "@material-ui/icons/ArrowDropUp";
 
 const db_name = "OA_LEGAL";
+/*const odoo_id = "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9"*/
 
 const useRowStyles = makeStyles({
   root: {
@@ -340,7 +341,7 @@ function Row(props) {
   const [paymTerm, setPaymTerm] = React.useState( props.paymTerms && props.paymTerms.length > 0 ? 3 : "");
   const [tax, setTax] = React.useState(props.taxs && props.taxs.length > 0 ? 13 : "");
   const [fraisAdmin, setFraisAdmin] = React.useState("2%");
-  const [compte_banc, setCompte_banc] = React.useState(1);
+  const [compte_banc, setCompte_banc] = React.useState(localStorage.getItem("odoo_id") === "9035ce2a-a7a2-11eb-bcbc-0242ac130002" ? 157 : 1);
   const [deadline_date, setDeadline_date] = React.useState(new Date());
   const [reductionType, setReductionType] = React.useState("%");
   const [reductionAmount, setReductionAmount] = React.useState("");
@@ -467,7 +468,7 @@ function Row(props) {
 
   const getDeatilsOdooFacture = () => {
         if(row.facture_odoo_id && (row.statut === "confirmed" || row.statut === "accepted") ){
-            SmartService.details_facture_odoo(localStorage.getItem("token"),localStorage.getItem("usrtoken"),row.facture_odoo_id).then( detailsRes => {
+            SmartService.details_facture_odoo(row.odoo_id,localStorage.getItem("token"),localStorage.getItem("usrtoken"),row.facture_odoo_id).then( detailsRes => {
                 if(detailsRes.succes === true && detailsRes.status === 200){
                     //console.log(detailsRes.data)
                     if(detailsRes.data.state === "paid"){
@@ -822,9 +823,13 @@ function Row(props) {
                                                           console.log(e.target.value)
                                                       }}>
                                                       {
-                                                          data.oa_comptes_bank_factures.map((item,key) =>
-                                                              <option key={key} value={item.odoo_id}>{item.label}</option>
-                                                          )
+                                                          localStorage.getItem("odoo_id") ===  "9035ce2a-a7a2-11eb-bcbc-0242ac130002" ?
+                                                              data.oa_comptes_bank_factures_david.map((item,key) =>
+                                                                  <option key={key} value={item.odoo_id}>{item.label}</option>
+                                                              ) :
+                                                              data.oa_comptes_bank_factures.map((item,key) =>
+                                                                  <option key={key} value={item.odoo_id}>{item.label}</option>
+                                                              )
                                                       }
 
                                                   </select>

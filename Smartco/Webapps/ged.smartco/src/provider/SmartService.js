@@ -1,8 +1,7 @@
 const endpoint = "https://api.smartdom.ch"
 const password = "password"
 const OALegalGedId = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
-const odoo_id = "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
-//const odoo_id = "test"
+/*const odoo_id = "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9"*/
 const contractAdr = "0x9520c239bae78a4a672a70370d85051fcd8dd6c9"
 
 const quelifiedSignEndpoint = "https://sign.1.smartdom.ch/sign/qualified";
@@ -212,7 +211,7 @@ let SmartService = {
     },
 
 
-    create_company(token,usrtoken,data){
+    create_company(odoo_id,token,usrtoken,data){
         return fetch(endpoint + '/odoo/'+odoo_id+'/company', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
@@ -222,7 +221,7 @@ let SmartService = {
         });
     },
 
-    create_client(token,usrtoken,data){
+    create_client(odoo_id,token,usrtoken,data){
         return fetch(endpoint + '/odoo/'+odoo_id+'/user', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
@@ -232,7 +231,7 @@ let SmartService = {
         });
     },
 
-    create_client_folder(token,usrtoken,data){
+    create_client_folder(odoo_id,token,usrtoken,data){
         return fetch(endpoint + '/ged/'+OALegalGedId+'/odoo/'+odoo_id+'/case', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
@@ -242,7 +241,7 @@ let SmartService = {
         });
     },
 
-    create_facture_odoo(token,usrtoken,data){
+    create_facture_odoo(odoo_id,token,usrtoken,data){
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
@@ -252,7 +251,7 @@ let SmartService = {
         });
     },
 
-    validate_facture_odoo(token,usrtoken,data){
+    validate_facture_odoo(odoo_id,token,usrtoken,data){
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill/validate', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
@@ -262,7 +261,7 @@ let SmartService = {
         });
     },
 
-    update_facture_odoo(token,usrtoken,data){
+    update_facture_odoo(odoo_id,token,usrtoken,data){
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill/edit', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
@@ -272,7 +271,7 @@ let SmartService = {
         });
     },
 
-    details_facture_odoo(token,usrtoken,id){
+    details_facture_odoo(odoo_id,token,usrtoken,id){
         console.log(id)
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill/'+id+'/details', {
             method: 'GET',
@@ -282,7 +281,7 @@ let SmartService = {
         });
     },
 
-    generate_facture_odoo(token,usrtoken,id,accestoken){
+    generate_facture_odoo(odoo_id,token,usrtoken,id,accestoken){
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill/'+id+'?access_token='+accestoken, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
@@ -291,7 +290,7 @@ let SmartService = {
         });
     },
 
-    get_tax_odoo(token,usrtoken){
+    get_tax_odoo(odoo_id,token,usrtoken){
         return fetch(endpoint + '/odoo/'+odoo_id+'/get/tax_id', {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
@@ -300,7 +299,7 @@ let SmartService = {
         });
     },
 
-    get_tax_odoo_byID(id,token,usrtoken){
+    get_tax_odoo_byID(odoo_id,id,token,usrtoken){
         return fetch(endpoint + '/odoo/'+odoo_id+'/get/tax?id='+id, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
@@ -309,7 +308,7 @@ let SmartService = {
         });
     },
 
-    get_paymentTerm_odoo(token,usrtoken){
+    get_paymentTerm_odoo(odoo_id,token,usrtoken){
         return fetch(endpoint + '/odoo/'+odoo_id+'/get/payment_term_id', {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
@@ -318,7 +317,7 @@ let SmartService = {
         });
     },
 
-    get_paymentTerm_odoo_byID(id,token,usrtoken){
+    get_paymentTerm_odoo_byID(odoo_id,id,token,usrtoken){
         return fetch(endpoint + '/odoo/'+odoo_id+'/get/payment_term?id='+id, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
@@ -327,7 +326,7 @@ let SmartService = {
         });
     },
 
-    get_odoo_countries(token,usrtoken){
+    get_odoo_countries(odoo_id,token,usrtoken){
         return fetch(endpoint + '/odoo/'+odoo_id+'/get/country?arg=&limit=1000', {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
@@ -336,7 +335,7 @@ let SmartService = {
         });
     },
 
-    get_odoo_country_states(id,token,usrtoken){
+    get_odoo_country_states(odoo_id,id,token,usrtoken){
         return fetch(endpoint + '/odoo/'+odoo_id+'/get/country_state?arg=&limit=1000000&id=' + id, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
@@ -345,7 +344,7 @@ let SmartService = {
         });
     },
 
-    update_odoo_client(data,token,usrtoken){
+    update_odoo_client(odoo_id,data,token,usrtoken){
         return fetch(endpoint + '/odoo/'+odoo_id+'/contact', {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),

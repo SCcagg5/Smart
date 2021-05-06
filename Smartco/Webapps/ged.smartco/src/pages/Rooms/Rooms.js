@@ -33,6 +33,7 @@ export default function Rooms(props) {
                           handleRoomTabsChange={props.handleRoomTabsChange}
                           miniDrive={props.miniDrive}
                           openPdfModal={props.openPdfModal}
+                          openB64PdfModal={props.openB64PdfModal}
                           setSelectedRoom={props.setSelectedRoom}
                           openSnackbar={props.openSnackbar}
                           onLoadSharedMiniDriveData={props.onLoadSharedMiniDriveData}

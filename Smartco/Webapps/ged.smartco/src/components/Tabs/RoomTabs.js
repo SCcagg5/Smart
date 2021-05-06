@@ -281,6 +281,30 @@ export default function RoomTabs(props) {
         }).catch(err => {console.log(err)})
     }
 
+    const addRoomB64File = (b64,name) => {
+        let room = props.room;
+        let files = room.files || [];
+
+        files.push({
+            b64:b64,
+            name:name,
+            added_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+            added_by:{
+                email:localStorage.getItem("email"),
+                id:main_functions.getContactIdByEmail(props.contacts,localStorage.getItem("email"))
+            },
+            type:"b64"
+        })
+        room.files = files
+        rethink.update("test",'table("rooms").get('+JSON.stringify(room.id)+').update('+ JSON.stringify(room) + ')',db_name,false).then( updateRes => {
+            if (updateRes && updateRes === true) {
+
+            } else {
+                console.log("Error update room files")
+            }
+        }).catch(err => {console.log(err)})
+    }
+
     let contactSelectOptions = [];
     contactSelectOptions.push({label:"Aucun",value:""})
     props.annuaire_clients_mandat.map((client,key) => {
@@ -360,13 +384,15 @@ export default function RoomTabs(props) {
                         {
                             (props.room.files || []).map((file, key) => (
                                 <div key={key} style={{border:"1px solid #f0f0f0",borderRadius:7.5,width:"100%",display:"flex",marginBottom:10,boxShadow:"0 1px 3px rgba(0,0,0,.25)",cursor:"pointer"}}
-                                     onClick={() => props.openPdfModal(file.id_in_ged)}
+                                     onClick={() => {
+                                        file.id_in_ged ? props.openPdfModal(file.id_in_ged) : props.openB64PdfModal(file.b64)
+                                     }}  
                                 >
                                     <div style={{display:"flex",minWidth:"30%",alignItems:"center"}}>
                                         <IconButton size="small">
                                             <DescriptionIcon color="error"/>
                                         </IconButton>
-                                        <h6 style={{fontSize:"smaller",maxWidth:160}}>{file.name_in_ged}</h6>
+                                        <h6 style={{fontSize:"smaller",maxWidth:160}}>{file.name_in_ged || file.name + ".pdf"}</h6>
                                     </div>
                                     <div style={{minWidth:"25%",alignSelf:"center"}}>
                                         <h6>{file.added_by.id === "" ? file.added_by.email : main_functions.getContactFnameById(props.contacts,file.added_by.id)}</h6>

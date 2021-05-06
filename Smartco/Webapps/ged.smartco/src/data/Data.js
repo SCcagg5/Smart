@@ -13,6 +13,24 @@ let Data = {
         {label:"Anglais",value:"en_US"}
     ],
 
+    oa_comptes_bank_factures_david: [
+        {
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte exploitation",
+            code: "CH67 8080 8002 2638 9935 8",
+            odoo_id:157
+        },
+        {
+            title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",
+            swift_bic: "RAIFCH22XXX",
+            clearing: "80808",
+            label: "Compte avoirs clients",
+            code: "CH02 8080 8008 5392 0077 7",
+            odoo_id:156
+        }
+    ],
     oa_comptes_bank_factures: [
         {
             title: "BANQUE RAIFFEISEN DE LA VERSOIX 11, place Charles-David 1290 Versoix",

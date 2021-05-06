@@ -109,6 +109,7 @@ const {DirectoryTree} = Tree;
 
 
 const ged_id = "896ca0ed-8b4a-40fd-aeff-7ce26ee1bcf9";
+/*const odoo_id = "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9"*/
 const ent_name = "OaLegal";
 const db_name = "OA_LEGAL";
 const ENV_CLIENTS_FOLDER_ID = "4376a4bb-d5ec-441f-8868-f9ce96077420"
@@ -466,7 +467,7 @@ export default class Main extends React.Component {
 
   };
 
-  componentDidMount() {
+  async componentDidMount() {
 
     window.onpopstate = () => {
 
@@ -590,8 +591,17 @@ export default class Main extends React.Component {
       let meeturl = 'https://meet.smartdom.ch/oalegal_' + moment().format('DDMMYYYYHHmmss');
       this.setState({meeturl: meeturl})
 
+      let contacts = await rethink.getTableData(db_name,"test","contacts")
+      let find_current_contact = (contacts || []).find(x => x.email === localStorage.getItem("email"));
+      console.log(find_current_contact)
+      if(find_current_contact && find_current_contact.odoo_id){
+        localStorage.setItem("odoo_id",find_current_contact.odoo_id)
+      }
+
+    setTimeout(() => {
+
       //Get List Country ODOO
-      SmartService.get_odoo_countries(localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(countriesRes => {
+      SmartService.get_odoo_countries(localStorage.getItem("odoo_id"),localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(countriesRes => {
         if (countriesRes.succes === true && countriesRes.status === 200) {
           let data = [["",""]]
           this.setState({odoo_countries:data.concat(countriesRes.data || [])})
@@ -601,7 +611,7 @@ export default class Main extends React.Component {
 
       //Get List Country_states ODOO
       //43 = Suisse
-      SmartService.get_odoo_country_states(43,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(countryStatesRes => {
+      SmartService.get_odoo_country_states(localStorage.getItem("odoo_id"),43,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(countryStatesRes => {
         console.log(countryStatesRes)
         if (countryStatesRes.succes === true && countryStatesRes.status === 200) {
           let data = [["",""]]
@@ -611,14 +621,14 @@ export default class Main extends React.Component {
       //END
 
       //Get List TAX ODOO
-      SmartService.get_tax_odoo(localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( taxRes => {
+      SmartService.get_tax_odoo(localStorage.getItem("odoo_id"),localStorage.getItem("token"),localStorage.getItem("usrtoken")).then( taxRes => {
         if (taxRes.succes === true && taxRes.status === 200) {
           let taxs_id = taxRes.data || [];
           let tax_calls = [];
           let taxs = []
           taxs_id.map((id, key) => {
             tax_calls.push(
-                SmartService.get_tax_odoo_byID(id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(taxResData => {
+                SmartService.get_tax_odoo_byID(localStorage.getItem("odoo_id"),id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(taxResData => {
                   taxs.push({key:taxResData.data[0].id,value: taxResData.data[0].id, text: taxResData.data[0].display_name})
                 }).catch(err => console.log(err))
             )
@@ -633,14 +643,14 @@ export default class Main extends React.Component {
       //END
 
       //GET List PayTerms ODOO
-      SmartService.get_paymentTerm_odoo(localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(paymTermRes => {
+      SmartService.get_paymentTerm_odoo(localStorage.getItem("odoo_id"),localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(paymTermRes => {
         if(paymTermRes.succes === true && paymTermRes.status === 200){
           let payTerms_id = paymTermRes.data || [];
           let payTerm_calls = [];
           let paymTerms = [];
           payTerms_id.map((id,key) => {
             payTerm_calls.push(
-                SmartService.get_paymentTerm_odoo_byID(id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(paymTermResData => {
+                SmartService.get_paymentTerm_odoo_byID(localStorage.getItem("odoo_id"),id,localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(paymTermResData => {
                   paymTerms.push({key:paymTermResData.data[0].id,value:paymTermResData.data[0].id,
                     text:paymTermResData.data[0].display_name ===  "15 Days" ? "15 jours" :
                         paymTermResData.data[0].display_name ===  "30 Net Days" ? "30 jours net" :
@@ -765,9 +775,9 @@ export default class Main extends React.Component {
 
       this.rethink_initialise()
 
+    },300);
+
     }
-
-
 
   }
 
@@ -784,16 +794,28 @@ export default class Main extends React.Component {
 
           rethink.getTableData(db_name,"test",item).then( rr => {
 
-            if(item === "annuaire_clients_mandat"){
+              if(item === "annuaire_clients_mandat"){
 
-              if (this.props.location.pathname.indexOf('/home/clients') > -1) {
-                if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
-                  let client_id = this.props.location.pathname.replace('/home/clients/', '');
-                  let client = rr.find(x => x.id === client_id);
-                  if (client) {
+                if (this.props.location.pathname.indexOf('/home/clients') > -1) {
+                  if (this.props.location.pathname.indexOf('/home/clients/') > -1) {
+                    let client_id = this.props.location.pathname.replace('/home/clients/', '');
+                    let client = rr.find(x => x.id === client_id);
+                    if (client) {
+                      this.setState({
+                        selectedSociete: client,
+                        selectedSocieteKey: client_id,
+                        showContainerSection: 'Societe',
+                        focusedItem: 'Societe',
+                        selectedSocietyMenuItem: ['clients'],
+                        openSocietyMenuItem: true,
+                        firstLoading: false,
+                        loading: false
+                      });
+                    } else {
+                      this.props.history.push('/');
+                    }
+                  } else {
                     this.setState({
-                      selectedSociete: client,
-                      selectedSocieteKey: client_id,
                       showContainerSection: 'Societe',
                       focusedItem: 'Societe',
                       selectedSocietyMenuItem: ['clients'],
@@ -801,135 +823,128 @@ export default class Main extends React.Component {
                       firstLoading: false,
                       loading: false
                     });
-                  } else {
-                    this.props.history.push('/');
                   }
-                } else {
-                  this.setState({
-                    showContainerSection: 'Societe',
-                    focusedItem: 'Societe',
-                    selectedSocietyMenuItem: ['clients'],
-                    openSocietyMenuItem: true,
-                    firstLoading: false,
-                    loading: false
-                  });
                 }
-              }
-              this.setState({[item]:rr.sort( (a,b) => {
-                  let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
-                  let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
-                  if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
-                  if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
-                  return 0;
+                this.setState({[item]:rr.filter(x => x.admin_odoo_id === localStorage.getItem("odoo_id")).sort( (a,b) => {
+                    let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
+                    let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
+                    if(fname1.toLowerCase().trim()  < fname2.toLowerCase().trim()) { return -1; }
+                    if(fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) { return 1; }
+                    return 0;
+                  })
                 })
-              })
-            }
-            else if(item === "contacts"){
-              if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
-                if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
+              }
+              else if(item === "contacts"){
+                if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
+                  if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
 
-                  let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
-                  let contact = rr.find(x => x.id === contact_id)
-                  if (contact) {
+                    let contact_id = this.props.location.pathname.replace('/home/contacts/', '');
+                    let contact = rr.find(x => x.id === contact_id)
+                    if (contact) {
+                      this.setState({
+                        selectedContact: contact,
+                        selectedContactKey: contact_id,
+                        showContainerSection: 'Contacts',
+                        focusedItem: 'Contacts',
+                        openContactsMenu: true,
+                        firstLoading: false,
+                        loading: false
+                      });
+                    } else {
+                      this.props.history.push('/');
+                    }
+
+                  } else {
                     this.setState({
-                      selectedContact: contact,
-                      selectedContactKey: contact_id,
                       showContainerSection: 'Contacts',
                       focusedItem: 'Contacts',
                       openContactsMenu: true,
                       firstLoading: false,
                       loading: false
                     });
-                  } else {
-                    this.props.history.push('/');
                   }
-
-                } else {
+                }
+                let connected_email = localStorage.getItem("email");
+                let oa_contact = main_functions.getOAContactByEmail2(rr,connected_email);
+                if(oa_contact){
+                  let newTimeSheet = this.state.TimeSheet;
+                  newTimeSheet.newTime.utilisateurOA = connected_email;
+                  newTimeSheet.newTime.rateFacturation = oa_contact.rateFacturation || "";
                   this.setState({
-                    showContainerSection: 'Contacts',
-                    focusedItem: 'Contacts',
-                    openContactsMenu: true,
-                    firstLoading: false,
-                    loading: false
-                  });
+                    TimeSheet:newTimeSheet,
+                    [item]:rr.sort( (a,b) => {
+                      var c = a.sort || -1
+                      var d = b.sort || -1
+                      return c-d;
+                    })})
+                }
+                else{
+                  this.setState({[item]:rr.sort( (a,b) => {
+                      var c = a.sort || -1
+                      var d = b.sort || -1
+                      return c-d;
+                    })})
                 }
               }
-              let connected_email = localStorage.getItem("email");
-              let oa_contact = main_functions.getOAContactByEmail2(rr,connected_email);
-              if(oa_contact){
-                let newTimeSheet = this.state.TimeSheet;
-                newTimeSheet.newTime.utilisateurOA = connected_email;
-                newTimeSheet.newTime.rateFacturation = oa_contact.rateFacturation || "";
-                this.setState({
-                  TimeSheet:newTimeSheet,
-                  [item]:rr.sort( (a,b) => {
-                    var c = a.sort || -1
-                    var d = b.sort || -1
-                    return c-d;
-                  })})
-              }
-              else{
-                this.setState({[item]:rr.sort( (a,b) => {
-                    var c = a.sort || -1
-                    var d = b.sort || -1
-                    return c-d;
-                  })})
-              }
-            }
-            else if(item === "rooms"){
-              let user_rooms = [];
-              rr.map((room,key) => {
-                if(room.members.find(x => x.email === localStorage.getItem("email"))){
-                  user_rooms.push(room)
-                }
-              })
-              this.setState({[item]:user_rooms})
-              if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
-                if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
-                  if (rr.length > 0) {
-                    let room_id = this.props.location.pathname.replace('/home/rooms/', '');
+              else if(item === "rooms"){
+                let user_rooms = [];
+                rr.map((room,key) => {
+                  if(room.members.find(x => x.email === localStorage.getItem("email"))){
+                    user_rooms.push(room)
+                  }
+                })
+                this.setState({[item]:user_rooms})
+                if (this.props.location.pathname.indexOf('/home/rooms') > -1) {
+                  if (this.props.location.pathname.indexOf('/home/rooms/') > -1) {
+                    if (rr.length > 0) {
+                      let room_id = this.props.location.pathname.replace('/home/rooms/', '');
+                      this.setState({
+                        showContainerSection: 'Rooms',
+                        focusedItem: 'Rooms',
+                        selectedRoomItems: [room_id],
+                        expandedRoomItems: [room_id],
+                        openRoomMenuItem: true,
+                        selectedRoom: user_rooms.find(x => x.id === room_id),
+                        firstLoading: false,
+                        loading: false
+                      });
+                    } else {
+                      this.props.history.push('/home/rooms');
+                      this.setState({
+                        showContainerSection: 'Rooms',
+                        focusedItem: 'Rooms',
+                        selectedRoomItems: [],
+                        expandedRoomItems: [],
+                        openRoomMenuItem: true,
+                        selectedRoom: '',
+                        firstLoading: false,
+                        loading: false
+                      });
+                    }
+                  }else{
                     this.setState({
                       showContainerSection: 'Rooms',
                       focusedItem: 'Rooms',
-                      selectedRoomItems: [room_id],
-                      expandedRoomItems: [room_id],
-                      openRoomMenuItem: true,
-                      selectedRoom: user_rooms.find(x => x.id === room_id),
-                      firstLoading: false,
-                      loading: false
-                    });
-                  } else {
-                    this.props.history.push('/home/rooms');
-                    this.setState({
-                      showContainerSection: 'Rooms',
-                      focusedItem: 'Rooms',
-                      selectedRoomItems: [],
+                      selectedRoomItems:[],
                       expandedRoomItems: [],
                       openRoomMenuItem: true,
-                      selectedRoom: '',
+                      selectedRoom: "",
                       firstLoading: false,
                       loading: false
                     });
                   }
-                }else{
-                  this.setState({
-                    showContainerSection: 'Rooms',
-                    focusedItem: 'Rooms',
-                    selectedRoomItems:[],
-                    expandedRoomItems: [],
-                    openRoomMenuItem: true,
-                    selectedRoom: "",
-                    firstLoading: false,
-                    loading: false
-                  });
                 }
               }
-            }
-            else{
-              this.setState({[item]:rr})
-            }
-          });
-
+              else if(item === "odoo_companies"){
+                this.setState({[item]:rr.filter(x => x.odoo_id === localStorage.getItem("odoo_id"))})
+              }
+              else if(item === "clients_cases"){
+                this.setState({[item]:rr.filter(x => x.admin_odoo_id === localStorage.getItem("odoo_id"))})
+              }
+              else{
+                this.setState({[item]:rr})
+              }
+            });
           this.getTableChanges('test',db_name,'table("'+item+'")',item);
 
         });
@@ -1554,7 +1569,7 @@ export default class Main extends React.Component {
     obj[name] = event.target.value;
     if(name === "adress_fact_country"){
       this.setState({loading:true})
-      SmartService.get_odoo_country_states(parseInt(event.target.value),localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(countryStatesRes => {
+      SmartService.get_odoo_country_states(localStorage.getItem("odoo_id"),parseInt(event.target.value),localStorage.getItem("token"),localStorage.getItem("usrtoken")).then(countryStatesRes => {
         console.log(countryStatesRes)
         if (countryStatesRes.succes === true && countryStatesRes.status === 200) {
           let data = [["",""]]
@@ -1611,7 +1626,7 @@ export default class Main extends React.Component {
     }
     else{
       console.log("COMPANY NOT FOUND")
-      SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: clientFname } }).then(newCompRes => {
+      SmartService.create_company(localStorage.getItem("odoo_id"),localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: clientFname } }).then(newCompRes => {
         if(newCompRes.succes === true && newCompRes.status === 200){
           company_id = newCompRes.data.id;
           this.verifIsTableExist("odoo_companies").then( v => {
@@ -1620,7 +1635,8 @@ export default class Main extends React.Component {
               client_name:clientFname,
               client_id:client_id,
               client_uid:this.state.selectedSociete.id,
-              created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+              created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+              odoo_id:localStorage.getItem("odoo_id")
             }
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
@@ -1677,7 +1693,7 @@ export default class Main extends React.Component {
       ],
       method:"write"
     }
-    SmartService.update_odoo_client(data,localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(updateRes => {
+    SmartService.update_odoo_client(localStorage.getItem("odoo_id"),data,localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(updateRes => {
       console.log(updateRes)
       if (updateRes.succes === true && updateRes.status === 200) {
         let item = this.state.selectedSociete;
@@ -3092,7 +3108,7 @@ export default class Main extends React.Component {
                                            }}
                                            show_odoo_facture={(id,token,name) => {
                                              this.setState({loading: true})
-                                             SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+                                             SmartService.generate_facture_odoo(localStorage.getItem("odoo_id"),localStorage.getItem('token'), localStorage.getItem('usrtoken'),
                                                  id,token).then(genFactRes => {
                                                if (genFactRes.succes === true && genFactRes.status === 200) {
                                                  this.setState({loading: false})
@@ -3326,7 +3342,7 @@ export default class Main extends React.Component {
     }
     else{
       console.log("COMPANY NOT FOUND")
-      SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: clientFname } }).then(newCompRes => {
+      SmartService.create_company(localStorage.getItem("odoo_id"),localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: clientFname } }).then(newCompRes => {
         if(newCompRes.succes === true && newCompRes.status === 200){
           facture_company_id = newCompRes.data.id;
           this.verifIsTableExist("odoo_companies").then( v => {
@@ -3334,7 +3350,8 @@ export default class Main extends React.Component {
               odoo_company_id:facture_company_id,
               client_name:clientFname,
               client_id:client_id,
-              created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+              created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+              odoo_id:localStorage.getItem("odoo_id")
             }
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
@@ -3470,10 +3487,10 @@ export default class Main extends React.Component {
             }
           ]
       );
-      SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+      SmartService.create_facture_odoo(localStorage.getItem("odoo_id"),localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
         console.log(createFactRes)
         if (createFactRes.succes === true && createFactRes.status === 200) {
-          SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+          SmartService.validate_facture_odoo(localStorage.getItem("odoo_id"),localStorage.getItem('token'), localStorage.getItem('usrtoken'),
               {
                 data: [[createFactRes.data.id], {
                   journal_type: "sale",
@@ -3486,7 +3503,7 @@ export default class Main extends React.Component {
 
             if (validateRes.succes === true && validateRes.status === 200) {
 
-              SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+              SmartService.generate_facture_odoo(localStorage.getItem("odoo_id"),localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
                 if (genFactRes.succes === true && genFactRes.status === 200) {
 
                   let b64_fact = genFactRes.data.pdf;
@@ -3707,7 +3724,7 @@ export default class Main extends React.Component {
     }
     else{
       console.log("COMPANY NOT FOUND")
-      SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: clientFname } }).then(newCompRes => {
+      SmartService.create_company(localStorage.getItem("odoo_id"),localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: clientFname } }).then(newCompRes => {
         if(newCompRes.succes === true && newCompRes.status === 200){
           facture_company_id = newCompRes.data.id;
           this.verifIsTableExist("odoo_companies").then( v => {
@@ -3715,7 +3732,8 @@ export default class Main extends React.Component {
               odoo_company_id:facture_company_id,
               client_name:clientFname,
               client_id:client_id,
-              created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+              created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+              odoo_id:localStorage.getItem("odoo_id")
             }
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
@@ -3891,10 +3909,10 @@ export default class Main extends React.Component {
                           ]
                       );
 
-                      SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+                      SmartService.create_facture_odoo(localStorage.getItem("odoo_id"),localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
                         console.log(createFactRes)
                         if (createFactRes.succes === true && createFactRes.status === 200) {
-                          SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+                          SmartService.validate_facture_odoo(localStorage.getItem("odoo_id"),localStorage.getItem('token'), localStorage.getItem('usrtoken'),
                               {
                                 data: [[createFactRes.data.id], {
                                   journal_type: "sale",
@@ -4102,7 +4120,8 @@ export default class Main extends React.Component {
         partner:partnerEmail,
         lignes_facture:lignes_facture,
         statut:"wait",
-        client_folder:client_folder
+        client_folder:client_folder,
+        odoo_id:localStorage.getItem("odoo_id")
       }
 
       rethink.insert("test",'table("factures").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
@@ -4156,7 +4175,7 @@ export default class Main extends React.Component {
 
     }else{
 
-      SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: facture.client } }).then(newCompRes => {
+      SmartService.create_company(localStorage.getItem("odoo_id"),localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: facture.client } }).then(newCompRes => {
         if(newCompRes.succes === true && newCompRes.status === 200){
           facture_company_id = newCompRes.data.id;
           this.verifIsTableExist("odoo_companies").then( v => {
@@ -4164,7 +4183,8 @@ export default class Main extends React.Component {
               odoo_company_id:facture_company_id,
               client_name:facture.client,
               client_id:facture.client_id,
-              created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+              created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+              odoo_id:localStorage.getItem("odoo_id")
             }
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
@@ -4215,7 +4235,7 @@ export default class Main extends React.Component {
     }
     else{
       console.log("COMPANY NOT FOUND")
-      SmartService.create_company(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: facture.client } }).then(newCompRes => {
+      SmartService.create_company(localStorage.getItem("odoo_id"),localStorage.getItem('token'), localStorage.getItem('usrtoken'), { param: { name: facture.client } }).then(newCompRes => {
         if(newCompRes.succes === true && newCompRes.status === 200){
           facture_company_id = newCompRes.data.id;
           this.verifIsTableExist("odoo_companies").then( v => {
@@ -4223,7 +4243,8 @@ export default class Main extends React.Component {
               odoo_company_id:facture_company_id,
               client_name:facture.client,
               client_id:facture.client_id,
-              created_at:moment().format("YYYY-MM-DD HH:mm:ss")
+              created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+              odoo_id:localStorage.getItem("odoo_id")
             }
             rethink.insert("test",'table("odoo_companies").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
               if (resAdd && resAdd === true) {
@@ -4275,64 +4296,69 @@ export default class Main extends React.Component {
     odoo_data.push({
       'access_token': acces_token,
       'type': 'out_invoice',
-      "move_name":false,
-      "user_id":6,
-      "team_id":1,
-      "comment":false,
-      'l10n_ch_isr_sent': false,
+      "move_name":false,  // available only in odoo account.invoice => odoo 12
+      "user_id": localStorage.getItem("odoo_id") === "9035ce2a-a7a2-11eb-bcbc-0242ac130002" ? 8 :6,
+      /*"team_id":1,*/ // available only in odoo account.invoice => odoo 12
+      /*"comment":false,*/  // available only in odoo account.invoice => odoo 12
+      /*'l10n_ch_isr_sent': false,*/ // available only in odoo account.invoice => odoo 12
       'name': false,   //on peut mettre une petite desc sous le titre de la facture avec ce champs
-      'date_invoice': moment(facture_date).format('YYYY-MM-DD'),
+      'date_invoice': moment(facture_date).format('YYYY-MM-DD'),  //available only in odoo account.invoice => odoo 12
+      'invoice_date': moment(facture_date).format('YYYY-MM-DD'),
+      'date': moment(facture_date).format('YYYY-MM-DD'),
       'date_due': moment(deadline_date).format('YYYY-MM-DD'),
       'journal_id': 1,
       'currency_id': 5,
-      'invoice_user_id': 3,
+      /*'invoice_user_id': 3,*/
+      'invoice_user_id': 2,
       'invoice_incoterm_id': false,
-      'tax_lock_date_message': false,
-      'id': false,
-      'invoice_payment_state': 'not_paid',
-      'invoice_filter_type_domain': 'sale',
-      'company_currency_id': 5,
+      /*'invoice_payment_state': 'not_paid',*/
+      /*'invoice_filter_type_domain': 'sale',*/
+      /*'company_currency_id': 5,
       'commercial_partner_id': '',
-      'invoice_has_outstanding': false,
-      'l10n_ch_currency_name': 'CHF',
+      'invoice_has_outstanding': false,*/
+      /*'l10n_ch_currency_name': 'CHF',
       'invoice_sequence_number_next_prefix': false,
       'invoice_sequence_number_next': false,
       'invoice_has_matching_suspense_amount': false,
       'has_reconciled_entries': false,
-      'restrict_mode_hash_table': false,
+      'restrict_mode_hash_table': false,*/
       'partner_id': facture_company_id,
-      'invoice_vendor_bill_id': false,
-      'invoice_payment_term_id': 1,
+      /*'invoice_vendor_bill_id': false,
+      'invoice_payment_term_id': 1,*/
       'invoice_date_due': moment(deadline_date).format('YYYY-MM-DD'),
-      'company_id': 1,
-      'amount_untaxed': 0,
+      /*'company_id': 1,*/
+      /*'amount_untaxed': 0,
       'amount_by_group': [],
       'amount_total': 0,
       'invoice_payments_widget': 'False',
       'amount_residual': 0,
-      'invoice_outstanding_credits_debits_widget': false,
+      'invoice_outstanding_credits_debits_widget': false,*/
       'invoice_origin': false,
-      'invoice_cash_rounding_id': false,
+      /*'invoice_cash_rounding_id': false,*/
       'invoice_source_email': false,
-      'invoice_payment_ref': false,
+      /*'invoice_payment_ref': false,
       'reversed_entry_id': false,
       'message_follower_ids': [],
       'activity_ids': [],
-      'message_ids': [],
+      'message_ids': [],*/
       'message_attachment_count': 0,
       'invoice_line_ids': [],
-      "account_id": 6,
+      /*"account_id": 6,*/
       "reference": facture.client_folder.name,
       "fiscal_position_id": false,
-      "origin": false,
-      "reference_type":"none",
+      /*"origin": false,
+      "reference_type":"none",*/
       "incoterm_id":false,
       "sequence_number_next":false,
       "partner_shipping_id":facture_company_id,
       "payment_term_id":paymTerm,
+      /*"invoice_payment_term_id":paymTerm,*/
       "partner_bank_id":compte_banc,
       'bank_partner_id': compte_banc,
       'invoice_partner_bank_id': compte_banc,
+      /*"partner_bank_id":4,
+      'bank_partner_id': 4,
+      'invoice_partner_bank_id': 4,*/
     })
 
     lignes_factures.map((ligne, key) => {
@@ -4385,7 +4411,6 @@ export default class Main extends React.Component {
           ]
       );
     });
-
 
     if(reductionAmount !== ""){
       odoo_data[0].invoice_line_ids.push(
@@ -4449,10 +4474,9 @@ export default class Main extends React.Component {
       )
     }
 
-
     if(facture.facture_odoo_id){
 
-      SmartService.details_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id).then( detailsRes => {
+      SmartService.details_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id).then( detailsRes => {
         console.log(detailsRes)
         if(detailsRes.succes === true && detailsRes.status === 200){
           console.log(detailsRes.data[0])
@@ -4462,11 +4486,11 @@ export default class Main extends React.Component {
             odoo_data[0].invoice_line_ids.push([2,id,{}])
           })
 
-          SmartService.update_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+          SmartService.update_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'),
               { data: [[facture.facture_odoo_id],odoo_data[0]],method:"write" }).then( updateFacRes => {
             if(updateFacRes.succes === true && updateFacRes.status === 200){
 
-              SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id,facture.facture_acces_token).then(genFactRes => {
+              SmartService.generate_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id,facture.facture_acces_token).then(genFactRes => {
 
                 if(genFactRes.succes === true && genFactRes.status === 200){
 
@@ -4503,12 +4527,13 @@ export default class Main extends React.Component {
     }
     else{
 
-      SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+      SmartService.create_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+        console.log(facture.odoo_id)
         console.log(createFactRes)
         if (createFactRes.succes === true && createFactRes.status === 200) {
 
-          SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
-
+          SmartService.generate_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+            console.log(genFactRes)
             if(genFactRes.succes === true && genFactRes.status === 200){
 
               let updatedItem = facture;
@@ -4794,7 +4819,7 @@ export default class Main extends React.Component {
 
     if(facture.facture_odoo_id){
 
-      SmartService.details_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id).then( detailsRes => {
+      SmartService.details_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id).then( detailsRes => {
         if (detailsRes.succes === true && detailsRes.status === 200) {
           console.log(detailsRes.data[0])
           let invoice_line_ids = detailsRes.data[0].invoice_line_ids || [];
@@ -4803,16 +4828,16 @@ export default class Main extends React.Component {
             odoo_data[0].invoice_line_ids.push([2, id, {}])
           })
 
-          SmartService.update_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+          SmartService.update_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'),
               {data: [[facture.facture_odoo_id], odoo_data[0]], method: "write"}).then(updateFacRes => {
             if (updateFacRes.succes === true && updateFacRes.status === 200) {
 
-              SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+              SmartService.validate_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'),
                   { data: [[facture.facture_odoo_id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
                 console.log(validateRes)
                 if(validateRes.succes === true && validateRes.status === 200){
 
-                  SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id,facture.facture_acces_token).then(genFactRes => {
+                  SmartService.generate_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'),facture.facture_odoo_id,facture.facture_acces_token).then(genFactRes => {
 
                     if(genFactRes.succes === true && genFactRes.status === 200){
 
@@ -4921,16 +4946,16 @@ export default class Main extends React.Component {
     }
 
     else{
-      SmartService.create_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
+      SmartService.create_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'), { data: odoo_data }).then(createFactRes => {
         console.log(createFactRes)
         if(createFactRes.succes === true && createFactRes.status === 200){
 
-          SmartService.validate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),
+          SmartService.validate_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'),
               { data: [[createFactRes.data.id],{journal_type: "sale",lang: "fr_CH",type: "out_invoice",tz: false,uid: 8}] }).then(validateRes => {
             console.log(validateRes)
             if(validateRes.succes === true && validateRes.status === 200){
 
-              SmartService.generate_facture_odoo(localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
+              SmartService.generate_facture_odoo(facture.odoo_id,localStorage.getItem('token'), localStorage.getItem('usrtoken'),createFactRes.data.id,acces_token).then(genFactRes => {
 
                 if(genFactRes.succes === true && genFactRes.status === 200){
 
@@ -5060,7 +5085,7 @@ export default class Main extends React.Component {
 
     let verif_access = false;
 
-    if(localStorage.getItem("client_folder_id") || localStorage.getItem("client_shared_folder_id")  )
+    if(localStorage.getItem("client_folder_id") || localStorage.getItem("client_shared_folder_id"))
       verif_access = true;
 
     if(verif_access === true){
@@ -5306,18 +5331,10 @@ export default class Main extends React.Component {
 
         }
       }
+
       else {
 
         this.verifIsTableExist("clients_cases").then( v => {
-
-          SmartService.create_client(localStorage.getItem('token'), localStorage.getItem('usrtoken'), {
-            param: {
-              name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
-              base64: false, parent_id: false, function: false, phone: false, mobile: false, email: false, website: false, title: false
-            }
-          }).then(createClientRes => {
-            console.log(createClientRes)
-            if (createClientRes.succes === true && createClientRes.status === 200) {
 
               SmartService.addFolder({
                 name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
@@ -5358,60 +5375,145 @@ export default class Main extends React.Component {
                     })
                   }
 
-                  let newItem = {
-                    folder_id: addParentClientFolderRes.data.id,
-                    ID_client: ID,
-                    odoo_client_id: createClientRes.data.id,
-                    folders:[
-                      {
-                        folder_id:addFolderClient.data.id,
-                        team:team,
-                        name:this.state.newClientFolder.nom,
-                        type:this.state.newClientFolder.type,
-                        contrepartie:this.state.newClientFolder.contrepartie,
-                        autrepartie:this.state.newClientFolder.autrepartie,
-                        desc:this.state.newClientFolder.desc,
-                        created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
-                        created_by:localStorage.getItem("email"),
-                        facturation:{
-                          byEmail:JSON.stringify(this.state.newClientFolder.byEmail),
-                          sentBySecr:JSON.stringify(this.state.newClientFolder.sentBySecr),
-                          sentByAvocat:JSON.stringify(this.state.newClientFolder.sentByAvocat),
-                          language:this.state.newClientFolder.language,
-                          frequence:this.state.newClientFolder.frequence
+                  let find_odoo_companie = (this.state.odoo_companies || []).find(x => x.client_id === ID || x.client_uid === ID )
+
+                  if(find_odoo_companie){
+
+                    let newItem = {
+                      folder_id: addParentClientFolderRes.data.id,
+                      ID_client: ID,
+                      odoo_client_id: find_odoo_companie.odoo_company_id,
+                      folders:[
+                        {
+                          folder_id:addFolderClient.data.id,
+                          team:team,
+                          name:this.state.newClientFolder.nom,
+                          type:this.state.newClientFolder.type,
+                          contrepartie:this.state.newClientFolder.contrepartie,
+                          autrepartie:this.state.newClientFolder.autrepartie,
+                          desc:this.state.newClientFolder.desc,
+                          created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                          created_by:localStorage.getItem("email"),
+                          facturation:{
+                            byEmail:JSON.stringify(this.state.newClientFolder.byEmail),
+                            sentBySecr:JSON.stringify(this.state.newClientFolder.sentBySecr),
+                            sentByAvocat:JSON.stringify(this.state.newClientFolder.sentByAvocat),
+                            language:this.state.newClientFolder.language,
+                            frequence:this.state.newClientFolder.frequence
+                          }
                         }
-                      }
-                    ]
-                  }
-
-                  rethink.insert("test",'table("clients_cases").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
-                    if (resAdd && resAdd === true) {
-
-                      this.setState({
-                        loading: false,
-                        newClientFolder: {
-                          nom: '',
-                          type: 'corporate',
-                          team: [],
-                          contrepartie:'',
-                          autrepartie:'',
-                          desc:'',
-                          byEmail:true,
-                          sentBySecr:false,
-                          sentByAvocat:false,
-                          frequence:'',
-                          language:"Francais"
-                        },
-                        lead_contact_tmp: '',
-                        lead_contact_horaire_tmp: ''
-                      });
-                      this.justReloadGed();
-                      this.openSnackbar('success', 'Dossier ajouté avec succès');
-
-                    }else{
-
+                      ],
+                      admin_odoo_id:localStorage.getItem("odoo_id")
                     }
-                  }).catch(err => {console.log(err)})
+
+                    rethink.insert("test",'table("clients_cases").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+                      if (resAdd && resAdd === true) {
+
+                        this.setState({
+                          loading: false,
+                          newClientFolder: {
+                            nom: '',
+                            type: 'corporate',
+                            team: [],
+                            contrepartie:'',
+                            autrepartie:'',
+                            desc:'',
+                            byEmail:true,
+                            sentBySecr:false,
+                            sentByAvocat:false,
+                            frequence:'',
+                            language:"Francais"
+                          },
+                          lead_contact_tmp: '',
+                          lead_contact_horaire_tmp: ''
+                        });
+                        this.justReloadGed();
+                        this.openSnackbar('success', 'Dossier ajouté avec succès');
+
+                      }else{
+
+                      }
+                    }).catch(err => {console.log(err)})
+
+                  }else{
+
+                    let findClient = (this.state.annuaire_clients_mandat || []).find(x => x.ID === ID || x.id === ID)
+
+                    SmartService.create_company(localStorage.getItem("odoo_id"),localStorage.getItem("token"),localStorage.getItem("usrtoken"),
+                        { param: {
+                          name: findClient.Type === "0" ? findClient.Nom : (findClient.Nom + " " + findClient.Prenom),
+                          phone:findClient.phone || false,
+                          email:findClient.email || false,
+                        }}).then( createRes => {
+
+                      let newItem = {
+                        folder_id: addParentClientFolderRes.data.id,
+                        ID_client: ID,
+                        odoo_client_id: createRes.data.id,
+                        folders:[
+                          {
+                            folder_id:addFolderClient.data.id,
+                            team:team,
+                            name:this.state.newClientFolder.nom,
+                            type:this.state.newClientFolder.type,
+                            contrepartie:this.state.newClientFolder.contrepartie,
+                            autrepartie:this.state.newClientFolder.autrepartie,
+                            desc:this.state.newClientFolder.desc,
+                            created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
+                            created_by:localStorage.getItem("email"),
+                            facturation:{
+                              byEmail:JSON.stringify(this.state.newClientFolder.byEmail),
+                              sentBySecr:JSON.stringify(this.state.newClientFolder.sentBySecr),
+                              sentByAvocat:JSON.stringify(this.state.newClientFolder.sentByAvocat),
+                              language:this.state.newClientFolder.language,
+                              frequence:this.state.newClientFolder.frequence
+                            }
+                          }
+                        ],
+                        admin_odoo_id:localStorage.getItem("odoo_id")
+                      }
+
+                      rethink.insert("test",'table("clients_cases").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
+                        if (resAdd && resAdd === true) {
+
+                          this.setState({
+                            loading: false,
+                            newClientFolder: {
+                              nom: '',
+                              type: 'corporate',
+                              team: [],
+                              contrepartie:'',
+                              autrepartie:'',
+                              desc:'',
+                              byEmail:true,
+                              sentBySecr:false,
+                              sentByAvocat:false,
+                              frequence:'',
+                              language:"Francais"
+                            },
+                            lead_contact_tmp: '',
+                            lead_contact_horaire_tmp: ''
+                          });
+                          this.justReloadGed();
+                          this.openSnackbar('success', 'Dossier ajouté avec succès');
+
+                        }else{
+
+                        }
+                      }).catch(err => {console.log(err)})
+
+                          console.log(createRes)
+                      if (createRes.succes === true && createRes.status === 200) {
+
+                      }else{
+                        console.log(createRes.error)
+                      }
+
+
+                    }).catch(err => {
+                      console.log(err)
+                    })
+                  }
 
                 }).catch(err => {
                   console.log(err);
@@ -5420,23 +5522,9 @@ export default class Main extends React.Component {
                 console.log(err);
               });
 
-            }
-            else if(createClientRes.succes === false && createClientRes.status === 400){
-              this.setState({ loading: false });
-              localStorage.clear();
-              this.props.history.push('/login');
-            }
-            else{
-              this.setState({ loading: false });
-              console.log(createClientRes.error)
-              this.openSnackbar("error",createClientRes.error)
-            }
 
-          }).catch(err => {
-            this.setState({ loading: false });
-            this.openSnackbar("error","Une erreur est survenue !")
-            console.log(err);
-          });
+
+
 
         }).catch(err => {console.log(err)})
       }
@@ -5474,6 +5562,7 @@ export default class Main extends React.Component {
       let newClient = this.state.newClient;
       newClient.ID = utilFunctions.getUID();
       newClient.created_at = moment().format("YYYY-MM-DD HH:mm:ss");
+      newClient.admin_odoo_id = localStorage.getItem("odoo_id");
 
       rethink.insert("test",'table("annuaire_clients_mandat").insert('+ JSON.stringify(newClient) + ')',db_name,false).then( resAdd => {
         if (resAdd && resAdd === true) {
@@ -5515,6 +5604,7 @@ export default class Main extends React.Component {
       newContact.uid = utilFunctions.getUID();
       newContact.created_at = moment().format("YYYY-MM-DD HH:mm:ss")
       newContact.sort = this.state.contacts.length
+      newContact.odoo_id = "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9"
 
       rethink.insert("test",'table("contacts").insert('+ JSON.stringify(newContact) + ')',db_name,false).then( resAdd => {
         if(resAdd && resAdd === true){
@@ -6988,6 +7078,7 @@ export default class Main extends React.Component {
                                   }}
                                   miniDrive={this.state.miniDrive}
                                   openPdfModal={(id) => {this.openPdfModal(id)}}
+                                  openB64PdfModal={(b64,name) => {this.showDocInPdfModal(b64,name,"pdf")}}
                                   openSnackbar={(type,msg) => {this.openSnackbar(type,msg)}}
                                   sharedMiniDrive={this.state.sharedMiniDrive}
                                   onLoadSharedMiniDriveData={this.onLoadSharedMiniDriveData}
@@ -7994,6 +8085,7 @@ export default class Main extends React.Component {
                                                      reloadGed={() => this.justReloadGed()}
                                                      openSnackbar={(type,msg) => this.openSnackbar(type,msg)}
                                                      folders={this.state.folders || []}
+                                                     rooms={this.state.rooms || []}
                                             />
                                           </TabPanel>
                                         </Tabs>
