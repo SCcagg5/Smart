@@ -9586,7 +9586,7 @@ export default class Main extends React.Component {
                     onChange={this.handleChange('newClient', 'phone')} />
 
                 </div>
-                <div className="col-md-6">
+                {/*<div className="col-md-6">
                   <p style={{ marginBottom: 10 }}>Pays</p>
                   <select
                     style={{ minWidth: 300, height: 40 }}
@@ -9601,7 +9601,7 @@ export default class Main extends React.Component {
                       ))
                     }
                   </select>
-                </div>
+                </div>*/}
               </div>
             </DialogContent>
 
@@ -9616,7 +9616,7 @@ export default class Main extends React.Component {
                 Annuler
               </MuiButton>
               <MuiButton
-                disabled={this.state.newClient.Nom === '' || this.state.newClient.email === ''}
+                disabled={this.state.newClient.Nom === '' || verifForms.verif_Email(this.state.newClient.email)}
                 onClick={() => {
                   this.addNewClient();
                 }}
@@ -9749,7 +9749,7 @@ export default class Main extends React.Component {
                 Annuler
               </MuiButton>
               <MuiButton
-                disabled={this.state.newContact.nom.trim() === '' || this.state.newContact.prenom.trim() === '' || this.state.newContact.email === ''}
+                disabled={this.state.newContact.nom.trim() === '' || this.state.newContact.prenom.trim() === '' || verifForms.verif_Email(this.state.newContact.email)}
                 onClick={() => {
                   this.addNewContact()
                 }}
