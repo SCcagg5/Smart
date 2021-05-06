@@ -1,0 +1,46 @@
+version: '3'
+
+networks:
+    proxy:
+#        external:
+#        name: docker-compose_proxy
+
+services:
+     paw_labelvin_build:
+       build:
+         context: .
+         dockerfile: Dockerfile
+         target: builder
+       container_name: paw_labelvin_build   
+       volumes:
+         - ./:/app
+       networks:
+         - proxy
+       environment:
+         REACT_APP_ENDPOINT: https://api.smartdom.ch
+
+     paw_labelvin:
+       build:
+         context: .
+         dockerfile: Dockerfile
+         target: prod
+       container_name: paw_labelvin
+       restart: always
+       tty: true
+       stdin_open: true
+       ports:
+        - 80:80
+       volumes:
+         - ./prod/:/app
+       networks:
+         - proxy
+#        environment:
+#          VIRTUAL_HOST: $V_VIRTUAL_HOST
+#          VIRTUAL_PORT: $V_VIRTUAL_PORT
+#          LETSENCRYPT_HOST: $V_VIRTUAL_HOST
+#          LETSENCRYPT_EMAIL: $V_LETSENCRYPT_EMAIL
+       healthcheck:
+         test: "curl -Ls -o /dev/null -w \"%{http_code}\n%{url_effective}\n\" http://localhost:$$VIRTUAL_PORT"
+         interval: 30s
+         timeout: 3s
+         retries: 2
