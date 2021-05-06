@@ -1,8 +1,5 @@
 import React, {useEffect} from "react";
 import MuiBackdrop from "../../Components/Loading/MuiBackdrop";
-import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select/Select";
 import {Button} from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
 import AppBar from "@material-ui/core/AppBar";
@@ -10,22 +7,20 @@ import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import FaceIcon from "@material-ui/icons/Face";
-import {CardElement, Elements, useElements, useStripe} from "@stripe/react-stripe-js";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import EmailIcon from "@material-ui/icons/Email";
 import Snackbar from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
 import WooService from "../../provider/wooService";
-import LabelService from '../../provider/labelservice'
-import {StripeCardInput, Input} from "react-rainbow-components";
-
+import {Input, StripeCardInput} from "react-rainbow-components";
+import "./style.css"
 import rethink from "../../controller/rethink";
 import SmartService from "../../provider/SmartService";
 import utilFunctions from "../../tools/functions";
 import moment from "moment";
 import maillingService from "../../provider/maillingService";
-import {navigateTo} from "../routes/history";
+import Data from "../../data/Data";
 
 const db_name = "4e92789a-aa10-11eb-bcbc-0242ac130002"
 
@@ -51,6 +46,7 @@ export default function Panier(props) {
 
 
     const [currentUser, setCurrentUser] = React.useState()
+    const [updateSc, setUpdateSc] = React.useState(false)
 
 
 
@@ -149,7 +145,7 @@ export default function Panier(props) {
             setEtiquettes(etiquettes)
             setCart(cart)
             setCartQuantite(cart.length)
-            setSousTotal(sousTotal.toFixed(2))
+            setSousTotal(sousTotal)
         }
     }
 
@@ -160,7 +156,6 @@ export default function Panier(props) {
             console.log(err)
         })
     }
-
 
     const validateStripePayment = async () => {
 
@@ -256,7 +251,7 @@ export default function Panier(props) {
 
                                         let odoo_facture_data = await generate_facture_odoo()
                                         console.log(odoo_facture_data)
-                                        if(odoo_facture_data.b64 && odoo_facture_data.b64 !== ""){
+                                        if(odoo_facture_data.url && odoo_facture_data.url !== ""){
                                             let line_items = orderRes.data.line_items || [];
                                             let formated_line_items = []
                                             line_items.map((item,key) => {
@@ -276,7 +271,8 @@ export default function Panier(props) {
                                                 line_items : formated_line_items,
                                                 payment_method_title: orderRes.data.payment_method_title,
                                                 odoo_fact_id:odoo_facture_data.facture_id,
-                                                odoo_fact_b64:odoo_facture_data.b64
+                                                odoo_fact_url:odoo_facture_data.url,
+                                                access_token:odoo_facture_data.access_token
                                             }
                                             let user_data = currentUser
                                             let orders = user_data.orders || [];
@@ -285,6 +281,7 @@ export default function Panier(props) {
                                             console.log(user_data)
                                             rethink.update("test",'table("woo_users").get('+JSON.stringify(currentUser.id)+').update('+ JSON.stringify(user_data) + ')',db_name,false).then( updateRes => {
                                                 if (updateRes && updateRes === true) {
+
                                                     maillingService.send_odoo_facture({
                                                         "emailReciver":currentUser.email,
                                                         "subject":"Facture Casa.Verde",
@@ -292,8 +289,8 @@ export default function Panier(props) {
                                                         "footerMsg":"<br/><br/>En vous remerciant par avance,<br/><br/><br/>Cordialement",
                                                         "attach":[
                                                             {
-                                                                filename:"Facture_CasaVerde_" + moment().format("DD-MM-YYYY"),
-                                                                path:"data:application/pdf;base64," + odoo_facture_data.b64
+                                                                filename:"Facture_CasaVerde_" + moment().format("DD-MM-YYYY")+".pdf",
+                                                                path:odoo_facture_data.url_display
                                                             }
                                                         ]
                                                     }).then(sendRes => {
@@ -303,7 +300,7 @@ export default function Panier(props) {
                                                     openSnackbar("success", "Félicitation ! Votre commande est effectué avec succès")
                                                     viderPanier()
                                                     props.onClearPanier()
-                                                    props.history.push('/home/chat',{isOnlyBot:true,b64_odoo_fact:odoo_facture_data.b64})
+                                                    props.history.push('/home/chat',{isOnlyBot:true,odoo_fact_url:odoo_facture_data.url})
                                                     //navigateTo("/home/chat",{b64_odoo_fact:odoo_facture_data.b64})
                                                 }else{
                                                     console.log("error update woo user")
@@ -349,7 +346,32 @@ export default function Panier(props) {
 
                             let odoo_data = [{
                                 access_token: acces_token,
-                                journal_id: 1,
+                                "state": "draft",
+                                "type": "out_invoice",
+                                "auto_post": false,
+                                "currency_id": 1,
+                                "date": moment().format("YYYY-MM-DD"),
+                                "fiscal_position_id": false,
+                                "invoice_cash_rounding_id":false,
+                                "invoice_date": moment().format("YYYY-MM-DD"),
+                                "invoice_date_due": moment().format("YYYY-MM-DD"),
+                                "invoice_incoterm_id": false,
+                                "invoice_origin": false,
+                                "invoice_partner_bank_id": false,
+                                "invoice_payment_ref": false,
+                                "invoice_payment_state": "not_paid",
+                                "invoice_payment_term_id": 1,
+                                "invoice_sequence_number_next": false,
+                                "invoice_source_email": false,
+                                "invoice_user_id": 2,
+                                "invoice_vendor_bill_id": false,
+                                "message_attachment_count": 0,
+                                "journal_id":1,
+                                "narration": false,
+                                "partner_id": 16,
+                                "ref":false,
+                                "to_check": false,
+                                /*journal_id: 1,
                                 message_attachment_count: 0,
                                 move_name: false,
                                 name: false,
@@ -369,7 +391,7 @@ export default function Panier(props) {
                                 date_due: moment().format("YYYY-MM-DD"),
                                 date_invoice: moment().format("YYYY-MM-DD"),
                                 fiscal_position_id: 1,
-                                incoterm_id: false,
+                                incoterm_id: false,*/
                                 invoice_line_ids:[]
                             }];
 
@@ -380,7 +402,26 @@ export default function Panier(props) {
                                         0,
                                         'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
                                         {
-                                            is_rounding_line: false,
+                                            "amount_currency":0,
+                                            "is_rounding_line": false,
+                                            "analytic_account_id": false,
+                                            "name": product.name || "",
+                                            "date_maturity": false,
+                                            "price_unit": parseFloat(product.price),
+                                            "quantity":parseInt(product.quantite),
+                                            /*"product_id": 27,*/
+                                            "product_uom_id":1,
+                                            "currency_id": false,
+                                            "parent_state": "draft",
+                                            "exclude_from_invoice_tab":false,
+                                            "account_id": 653,
+                                            "debit": 0,
+                                            "credit": 0,
+                                            "discount": 0,
+                                            "display_type": false,
+                                            "recompute_tax_line": false,
+                                            "partner_id":16,
+                                            /*is_rounding_line: false,
                                             name: product.name || "",
                                             origin: false,
                                             price_unit: parseFloat(product.price),
@@ -392,12 +433,12 @@ export default function Panier(props) {
                                             discount: 0,
                                             display_type: false,
                                             account_analytic_id: false,
-                                            account_id: 636,
-                                            analytic_tag_ids: [
-                                                [6, false, []
-                                                ]
+                                            account_id: 636,*/
+                                            tag_ids: [
+                                                [6, false, []]
                                             ],
-                                            invoice_line_tax_ids:[[6,false,[]]]
+                                            tax_ids:[[6,false,[]]],
+                                            "sequence":10
                                         }
                                     ]
                                 );
@@ -446,10 +487,13 @@ export default function Panier(props) {
                                         }).then(validateRes => {
                                         console.log(validateRes)
                                         if (validateRes.succes === true && validateRes.status === 200) {
+                                            console.log(validateRes)
+                                            resolve({url:"https://odoo010.3.rocketbonds.ch/my/invoices/"+createFactRes.data.id+"?access_token="+acces_token+"&report_type=pdf&download=true",
+                                                url_display:"https://odoo010.3.rocketbonds.ch/my/invoices/"+createFactRes.data.id+"?access_token="+acces_token+"&report_type=pdf",
+                                                facture_id:createFactRes.data.id,access_token:acces_token})
 
-                                            SmartService.generate_facture_odoo(token, usrtoken, createFactRes.data.id, acces_token).then(genFactRes => {
+                                            /*SmartService.generate_facture_odoo(token, usrtoken, createFactRes.data.id, acces_token).then(genFactRes => {
                                                 console.log(genFactRes)
-
                                                 if (genFactRes.succes === true && genFactRes.status === 200) {
                                                     resolve({b64:genFactRes.data.pdf,facture_id:createFactRes.data.id})
                                                 }else{
@@ -458,7 +502,7 @@ export default function Panier(props) {
                                             }).catch(err => {
                                                 console.log(err)
                                                 reject(err)
-                                            })
+                                            })*/
                                         }
                                     }).catch(err => {
                                         console.log(err)
@@ -519,242 +563,170 @@ export default function Panier(props) {
         })
     }
 
+    const addProductQuantity = (product) => {
+        let findProductIndex = cart.findIndex(x => x.id === product.id)
+        let newCart = cart;
+        newCart[findProductIndex].quantite = product.quantite + 1
+        let sousTotal = 0;
+        newCart.map(item => {
+            sousTotal = sousTotal + (item.price * item.quantite)
+        })
+        setSousTotal(sousTotal)
+        setCart(newCart)
+        props.onAddToCart(cart.length)
+        localStorage.setItem('cart',JSON.stringify(cart))
+        setUpdateSc(!updateSc)
+    }
+
+    const subtractProductQuantity = (product) => {
+        if(product.quantite > 1){
+            let findProductIndex = cart.findIndex(x => x.id === product.id)
+            let newCart = cart;
+            newCart[findProductIndex].quantite = product.quantite - 1
+            let sousTotal = 0;
+            newCart.map(item => {
+                sousTotal = sousTotal + (item.price * item.quantite)
+            })
+            setSousTotal(sousTotal)
+            setCart(newCart)
+            props.onAddToCart(cart.length)
+            localStorage.setItem('cart',JSON.stringify(cart))
+            setUpdateSc(!updateSc)
+        }else if( product.quantite === 1){
+            let findProductIndex = cart.findIndex(x => x.id === product.id)
+            let newCart = cart;
+            newCart.splice(findProductIndex,1);
+            let sousTotal = 0;
+            newCart.map(item => {
+                sousTotal = sousTotal + (item.price * item.quantite)
+            })
+            setSousTotal(sousTotal)
+            setCart(newCart)
+            props.onAddToCart(cart.length)
+            localStorage.setItem('cart',JSON.stringify(cart))
+            setUpdateSc(!updateSc)
+        }
+
+    }
+
     const total = parseFloat(livraison) + parseFloat(sousTotal) + (etiquettes * 7.5)
 
     return (
         <div>
             <MuiBackdrop open={loading}/>
-            <div style={{padding: 10, minHeight: "100vh", marginTop: 50, overflow: "auto"}}>
+            <div style={{ minHeight: "100vh", marginTop: 50, overflow: "auto"}}>
 
-                <div className="row align-items-center justify-content-between p-2">
-                    <div className="col-2 text-center">
-                        <text style={{fontWeight: "bold", fontSize: 18}}>Panier</text>
+                {
+                    cart.length === 0 ?
+                        <div align="center" style={{marginTop: 30}}>
+                            <img alt="" src={require("../../assets/icons/shopping-basket.png")} style={{width: "30%",marginTop:15}}/>
+                            <h6 style={{marginTop: 15}}>Aucun produit encore ajouté dans votre panier</h6>
+                        </div>  :
 
-                    </div>
-                    <div className="col-2 text-center">
-                        <text style={{color: "red", fontSize: 16}}>Aide</text>
-
-                    </div>
-                </div>
-                <div className="px-2 mt-2">
-                    {
-                        cart.length !== 0 ?
-                            <div>
-                                <div className="row align-items-center justify-content-center">
-                                    <div className="col-8">
-                                        <h4 style={{fontWeight: "bold"}}>Votre produit</h4>
-
-                                    </div>
-                                    <div className="col-3 text-center">
-                                        <DeleteOutlineIcon onClick={() => {
-                                            viderPanier()
-                                        }} color="secondary"/>
-
-                                    </div>
-
-                                </div>
-
-                                <div className="mt-2">
-                                    {cart.map((item, key) => (
-                                        <div className="px-3 py-1 mt-1" style={{
-                                            borderStyle: "solid",
-                                            borderRadius: 10,
-                                            borderWidth: 1,
-                                            borderColor: "#a6a6a6"
-                                        }}>
-                                            <div className="row align-items-center">
-                                                <div className="col-3">
-                                                    <img alt="" src={item.images[0].src} style={{width: '100%'}}/>
-                                                </div>
-                                                <div className="col-5">
-                                                    <div>
-                                                        {item.name}
+                        <div>
+                            <div className="cart_products_container">
+                                <ul className="cart_ul">
+                                    {
+                                        cart.map((item, key) => (
+                                            <li className="cart_li">
+                                                <div className="cart_li_left">
+                                                    <div className="image_container">
+                                                        <img alt="" src={item.images[0].src} width={80} style={{position:"relative"}}/>
                                                     </div>
-                                                    <div style={{fontWeight: 700}}>
-                                                        {item.price + " €"}
-                                                    </div>
-
                                                 </div>
-                                                <div className="col-4">
-                                                    <div className="p-2">
-                                                        <div className=" ml-auto   row justify-content-center mt-2"
-                                                             style={{position: "relative", backgroundColor: "#ff7979"}}>
-                                                            <div className="col-6 text-center" style={{height: 40}}>
-                                                                <text style={{
-                                                                    fontSize: 22,
-                                                                    color: "white"
-                                                                }}>{item.quantite}</text>
-                                                            </div>
-                                                            <div onClick={() => {
-                                                            }}
-                                                                 style={{position: "absolute", left: -21}}>
-                                                                <div style={{
-                                                                    borderRadius: 1000,
-                                                                    height: 40,
-                                                                    width: 40,
-                                                                    position: "relative",
-                                                                    borderWidth: 1,
-                                                                    backgroundColor: "red",
-                                                                }}>
-                                                                    <text style={{
-                                                                        fontSize: 20,
-                                                                        position: "absolute",
-                                                                        left: 14,
-                                                                        bottom: 6,
-                                                                        color: "white"
-                                                                    }}>+
-                                                                    </text>
-                                                                </div>
-                                                            </div>
-                                                            <div onClick={() => {
-                                                            }}
-                                                                 style={{position: "absolute", right: -21}}>
-                                                                <div style={{
-                                                                    borderRadius: 1000,
-                                                                    height: 40,
-                                                                    width: 40,
-                                                                    position: "relative",
-                                                                    borderWidth: 1,
-                                                                    backgroundColor: "red"
-                                                                }}>
-                                                                    <text style={{
-                                                                        fontSize: 20,
-                                                                        position: "absolute",
-                                                                        left: 16,
-                                                                        bottom: 6,
-                                                                        color: "white"
-                                                                    }}>-
-                                                                    </text>
-                                                                </div>
-                                                            </div>
+                                                <div className="cart_li_right">
+                                                    <div style={{fontSize:"0.875rem",fontWeight:600,lineHeight:"1.5rem",color:"#333",marginTop:18}}>{item.name}</div>
+                                                    <div className="price_counter_conatiner">
+                                                        <div className="price_counter_form">
+                                                            <button className="btn_price_counter" onClick={() => {subtractProductQuantity(item)}}
+                                                                    style={{borderColor:item.quantite === 1 ? "red" : "#333"}}
+                                                            >
+                                                                {
+                                                                    item.quantite === 1 ?
+                                                                        <svg width="12" height="16" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                            <path d="M0.857143 14.2222C0.857143 15.2 1.62857 16 2.57143 16H9.42857C10.3714 16 11.1429 15.2 11.1429 14.2222V3.55556H0.857143V14.2222ZM2.57143 5.33333H9.42857V14.2222H2.57143V5.33333ZM9 0.888889L8.14286 0H3.85714L3 0.888889H0V2.66667H12V0.888889H9Z"
+                                                                                  fill={"#ff5252"}/>
+                                                                        </svg>  :
 
+                                                                        <svg width="14" height="2" viewBox="0 0 14 2" xmlns="http://www.w3.org/2000/svg">
+                                                                            <path d="M14 2H0V0H14V2Z" fill={"#4A4A4A"}/>
+                                                                        </svg>
+                                                                }
 
+                                                            </button>
+                                                            <div className="input_counter_container">
+                                                                <span className="input_span1">
+                                                                    <span className="input_span2">
+                                                                        <input className="input_counter" value={item.quantite} readOnly={true}/>
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                            <button className="btn_price_counter" onClick={() => {addProductQuantity(item)}}>
+                                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M14 8H8V14H6V8H0V6H6V0H8V6H14V8Z" fill="#4A4A4A"/>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                        <div>
+                                                            <div style={{fontSize:"1rem",fontWeight:600,color:"#333"}}>
+                                                                <span>{(item.price * item.quantite).toFixed(2) + " €"}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
+                                            </li>
+                                        ))}
+                                </ul>
+                            </div>
 
-                                            </div>
-
+                            <div style={{padding:"1.5rem 1.4rem"}}>
+                                <div className="subtotal_container">
+                                    <div className="subtotal_row">
+                                        <div className="subtotal_row_left">
+                                            <div>Sous-total</div>
                                         </div>
-                                    ))}
-
-                                </div>
-                            </div> :
-
-                            <div align="center" style={{marginTop: 30}}>
-                                <img alt="" src={require("../../assets/icons/empty_cart.png")} style={{width: "40%"}}/>
-                                <h6 style={{marginTop: 15}}>Aucun produit encore ajouté dans votre panier</h6>
-                            </div>
-
-                    }
-                </div>
-                <hr style={{height: 1, width: "100%", backgroundColor: '#a6a6a6'}}/>
-                {
-                    cart.length !== 0 &&
-                    <div className="px-2">
-                        <div className="row align-items-center justify-content-between">
-                            <div className="col-4">
-                                <text>Sous-total</text>
-
-                            </div>
-                            <div className="col-4">
-                                <text>{sousTotal} €</text>
-
-                            </div>
-
-                        </div>
-                        {
-                            etiquettes > 0 &&
-                            <div className="row align-items-center justify-content-between mt-2">
-                                <div className="col-4">
-                                    <text>Etiquettes</text>
-                                </div>
-                                <div className="col-4">
-                                    <text>{etiquettes + " x " + "7.5 €  =  " + (etiquettes * 7.5) + " €"}</text>
-                                </div>
-                            </div>
-                        }
-
-                        <div className="row align-items-center justify-content-between mt-2">
-                            <div className="col-4">
-                                <text>Livraison</text>
-
-                            </div>
-                            <div className="col-4">
-                                <text>{livraison} €</text>
-
-                            </div>
-                        </div>
-                        <div className="row align-items-center justify-content-between mt-2">
-                            <div className="col-4">
-                                <text style={{fontWeight: "bold"}}>Total</text>
-
-                            </div>
-                            <div className="col-4">
-                                <text style={{fontWeight: "bold"}}>{total.toFixed(2)} €</text>
-
-                            </div>
-
-                        </div>
-
-                        <div className="px-2" style={{marginBottom: 50}}>
-                            <div className="row align-items-center mt-2 ">
-                                <div className="col-4">
-                                    <div className="row align-items-center p-2 text-center " style={{
-                                        borderStyle: "solid",
-                                        borderColor: "#e6e6e6",
-                                        borderWidth: 0,
-                                        borderRadius: 10
-                                    }}>
-                                        <div>
-                                            <text className="font-weight-bold"
-                                                  style={{
-                                                      fontFamily: "IBMPlexSans-Bold",
-                                                      fontSize: 15,
-                                                      color: "#c6c6c6"
-                                                  }}>8 - 15min →
-                                            </text>
-                                        </div>
-                                        <div>
-                                            <FormControl className="ml-1" variant="outlined">
-
-                                                <Select
-                                                    style={{height: 30, color: "red"}}
-                                                    native
-
-                                                    inputProps={{
-                                                        name: 'age',
-                                                        id: 'outlined-age-native-simple',
-                                                    }}
-                                                >
-                                                    <option value={10}>Maison</option>
-                                                    <option value={20}>Boulot</option>
-                                                    <option value={30}>amie</option>
-                                                </Select>
-                                            </FormControl>
+                                        <div className="subtotal_row_right">
+                                            <span>{sousTotal.toFixed(2) + " €"}</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-8 text-center">
-                                    <Button style={{
-                                        borderRadius: 20,
-                                        fontWeight: 700,
-                                        textTransform: "none",
-                                        marginTop: 15
-                                    }} variant="contained" color="secondary"
-                                            onClick={() => {
-                                                setOpenPayModal(true)
-                                            }}
-                                    >
-                                        Commander
-                                    </Button>
+                                <div className="subtotal_container mt-1">
+                                    <div className="subtotal_row">
+                                        <div className="subtotal_row_left">
+                                            <div>Livraison</div>
+                                        </div>
+                                        <div className="subtotal_row_right">
+                                            <span>{livraison} €</span>
+                                        </div>
+                                    </div>
                                 </div>
 
+                                <hr style={{height: "0.0625rem", width: "100%", borderTop: '0.0625rem dashed #e0e0e0'}}/>
+
+                                <div className="subtotal_container mt-1">
+                                    <div className="subtotal_row">
+                                        <div className="subtotal_row_left">
+                                            <div>Total</div>
+                                        </div>
+                                        <div className="subtotal_row_right">
+                                            <span>{total.toFixed(2) + " €"}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-2 pb-4" style={{display:"flex",marginLeft:25,marginRight:25}}>
+                                <button className="btn_add_cart" style={{backgroundColor:Data.primary_color,borderColor:Data.primary_color,marginBottom:90}}
+                                        onClick={()=> {setOpenPayModal(true)}}
+                                >
+                                    Passer la commande
+                                </button>
                             </div>
                         </div>
-
-                    </div>
                 }
+
+
+
             </div>
 
 
@@ -794,19 +766,10 @@ export default function Panier(props) {
                                 error={(stripeCard && stripeCard.error && stripeCard.error.message)}
                                 locale="fr"
                             />
-
-                            {/*<fieldset className="FormGroup">
-                                    <CardField
-                                        onChange={(e) => {
-                                            console.log(e)
-                                        }}
-                                    />
-                                </fieldset>*/}
-
                         </div>
                         <div style={{marginTop: 25}}>
                             <FormControlLabel
-                                control={<Checkbox name="checkedA" checked={true}/>}
+                                control={<Checkbox name="checkedA" checked={true} color="primary"/>}
                                 label="Enregistrer cette carte pour faciliter mes prochaines courses"
                             />
                         </div>
@@ -823,12 +786,12 @@ export default function Panier(props) {
                             />
                             <FormControlLabel
                                 style={{marginTop: 25}}
-                                control={<Checkbox name="checkedA" checked={true}/>}
+                                control={<Checkbox name="checkedA" checked={true} color="primary"/>}
                                 label="Enregistrer votre email pour recevoir les factures"
                             />
                         </div>
                         <div align="center" style={{marginTop: 40}}>
-                            <Button color="secondary" variant="contained"
+                            <Button color="primary" variant="contained"
                                     onClick={() => {
                                         validateStripePayment()
                                     }}
@@ -837,8 +800,9 @@ export default function Panier(props) {
                                         fontWeight: 700,
                                         borderRadius: 20,
                                         width: "70%",
-                                        height: 40
-                                    }}>Payer {total + " €"}</Button>
+                                        height: 40,
+                                        color:"#fff"
+                                    }}>Payer {total.toFixed(2) + " €"}</Button>
                         </div>
 
 

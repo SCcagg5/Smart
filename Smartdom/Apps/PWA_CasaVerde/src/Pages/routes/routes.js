@@ -32,7 +32,7 @@ export default function Routes(props) {
                 </Route>
 
                 <Route exact path="/home/cart">
-                        <Panier onClearPanier={props.onClearPanier} history={history}/>
+                        <Panier onAddToCart={props.onAddToCart} onClearPanier={props.onClearPanier} history={history}/>
                 </Route>
                 <Route exact path="/home/checkout" component={Checkout}/>
                 <Route exact path="/home/profil" component={Profil}/>

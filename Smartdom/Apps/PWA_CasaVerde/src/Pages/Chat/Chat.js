@@ -174,7 +174,8 @@ export default class Chat extends React.Component {
                     created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                     room_id: this.state.room.id,
                     type: "ged_file",
-                    b64: this.props.location.state.b64_odoo_fact || "",
+                    href_url:true,
+                    b64: this.props.location.state.odoo_fact_url || "",
                     name: "Facture.pdf",
                     sender: {
                         email: "ChatBot"
@@ -645,6 +646,13 @@ export default class Chat extends React.Component {
         a.click();
     }
 
+    downloadUrlFile(url) {
+        let a = document.createElement('a');
+        a.href =  url;
+        a.download = "Facture_" + moment().format("DD-MM-YYYY HH:mm");
+        a.click();
+    }
+
     onClickAction(event, action) {
         console.log(action)
         this.setState({openSpeedDial: false})
@@ -1067,7 +1075,8 @@ export default class Chat extends React.Component {
                                                                                     <div className="msg_file_icon"/>
                                                                                     <div className="msg_file_text"
                                                                                          onClick={() => {
-                                                                                             msg.id_in_ged ? this.downloadFile(msg.id_in_ged) : this.downloadB64File(msg.b64)
+                                                                                             (msg.href_url && msg.href_url === true) ?
+                                                                                                 this.downloadUrlFile(msg.b64) : msg.id_in_ged ? this.downloadFile(msg.id_in_ged) : this.downloadB64File(msg.b64)
                                                                                          }}
                                                                                     >
                                                                                         <span>{msg.name_in_ged || msg.name}</span>
@@ -1416,7 +1425,8 @@ export default class Chat extends React.Component {
                                                                                     <div className="msg_file_icon"/>
                                                                                     <div className="msg_file_text"
                                                                                          onClick={() => {
-                                                                                             msg.id_in_ged ? this.downloadFile(msg.id_in_ged) : this.downloadB64File(msg.b64)
+                                                                                             (msg.href_url && msg.href_url === true) ?
+                                                                                                 this.downloadUrlFile(msg.b64) : msg.id_in_ged ? this.downloadFile(msg.id_in_ged) : this.downloadB64File(msg.b64)
                                                                                          }}
                                                                                     >
                                                                                         <span>{msg.name_in_ged || msg.name}</span>

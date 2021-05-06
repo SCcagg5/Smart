@@ -1,13 +1,7 @@
 import React, {Component} from 'react';
 import WooService from "../../provider/wooService";
-import InfoIcon from '@material-ui/icons/Info';
-import InputLabel from '@material-ui/core/InputLabel';
 import DescriptionIcon from '@material-ui/icons/Description';
 import Button from '@material-ui/core/Button';
-import ShoppingCartIcon from '@material-ui/icons/ShoppingCart'
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import BottomBar from "../../Components/BottomBar/BottomBar";
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -18,6 +12,8 @@ import Loader from "../../Components/Loaders/Loader";
 import Alert from "@material-ui/lab/Alert";
 import Snackbar from "@material-ui/core/Snackbar";
 import { withRouter } from 'react-router-dom';
+import Data from "../../data/Data";
+import MuiBackdrop from "../../Components/Loading/MuiBackdrop";
 
 class Product extends Component {
     constructor(props){
@@ -58,12 +54,12 @@ class Product extends Component {
 
 
     getProduct(){
-        console.log(this.props.history)
         let path_array = this.props.history.location.pathname.split("/")
         let id = path_array[path_array.length -1]
 
         WooService.getProductByid(id).then((res)=>{
             if (res && res.status===200){
+                console.log(res.data)
                 let price = this.state.quantite * res.data.price
                 this.setState({product:res.data,loading:false,price:price})
             }
@@ -118,105 +114,50 @@ class Product extends Component {
         const product= this.state.product
         return (
             <div>
-                {this.state.loading && <Loader/>}
+                <MuiBackdrop open={this.state.loading}/>
 
                 <div style={{padding:10,minHeight:"100vh",marginTop:50,overflow:"auto"}}>
                     <div className="pb-5">
                         {this.state.loading===false &&
                         <div className="h-100 pb-4 ">
                             <div>
-                                <img style={{width:"100%",maxHeight:250}} src={this.state.product.images[0].src}/>
+                                <div className="product_container" style={{width:"100",display:"inline-block",backgroundColor:"##ebebeb"}}>
+                                    <div className="product-image_padding">
+                                        <img alt="" className="product-image" src={this.state.product.images[0].src}/>
+                                    </div>
+                                </div>
                             </div>
-                            <hr style={{width:"100%",height:1,backgroundColor:"#e6e6e6"}}/>
                             <div className="p-1">
                                 <div className="row align-items-center ">
                                     <div className="col-8">
-                                        <text style={{fontSize:15,fontWeight:"bold"}}>{product.name}</text>
+                                        <h5 style={{fontSize:17,fontWeight:"bold",lineHeight:"1.5rem"}}>{product.name}</h5>
                                     </div>
-                                    <div className="col-4">
-
-                                        <text style={{color:"#6EC1E4",fontFamily:"Pacifico-Regular",fontSize:25}}>{this.state.price}</text>
-                                        <text style={{color:"#6EC1E4",fontSize:20,fontWeight:"bold"}}> €</text>
-
+                                    <div className="col-4" align="right">
+                                        <h6 style={{color:Data.primary_color,fontFamily:"Pacifico-Regular",fontSize:25}}>{this.state.price + " €"}</h6>
                                     </div>
 
                                 </div>
 
-                                <div className="p-1">
-                                    {/*<div className="row align-items-center  justify-content-center ">
-                                        <div className="col-4">
-                                            <div className="p-2 text-center" style={{borderStyle:"solid",borderColor:"#e6e6e6",borderWidth:1,borderRadius:10}}>
-                                                <InfoIcon className="mr-1" />
-                                                <text  className="font-weight-bold" style={{fontFamily:"IBMPlexSans-Bold",fontSize:15}}>75 g</text>
-                                            </div>
-                                        </div>
-                                        <div className="col-8">
-                                            <div className="row align-items-center p-2 text-center " style={{borderStyle:"solid",borderColor:"#e6e6e6",borderWidth:1,borderRadius:10 ,backgroundColor:'#f2f2f2'}}>
-                                                <div>
-                                                    <text  className="font-weight-bold" style={{fontFamily:"IBMPlexSans-Bold",fontSize:15,color:"#c6c6c6"}}>8 - 15min → </text>
-                                                </div>
-                                                <div>
-                                                    <FormControl  className="ml-1" variant="outlined" >
+                                <hr style={{width:"100%",height:1,backgroundColor:"#e6e6e6"}}/>
 
-                                                        <Select
-                                                            style={{height:30}}
-                                                            native
-
-                                                            inputProps={{
-                                                                name: 'age',
-                                                                id: 'outlined-age-native-simple',
-                                                            }}
-                                                        >
-                                                            <option value={10}>Ten</option>
-                                                            <option value={20}>Twenty</option>
-                                                            <option value={30}>Thirty</option>
-                                                        </Select>
-                                                    </FormControl>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>*/}
-                                    <div align="center" className="p-3 ">
-                                        <div className="col-8 row justify-content-center mt-2" style={{position:"relative",backgroundColor:"#ff7979"}}>
-                                            <div className="col-6 text-center" style={{height:50}}>
-                                                <text style={{fontSize:30,color:"white"}}>{this.state.quantite}</text>
-                                            </div>
-                                            <div onClick={()=>this.addQuantite()}  style={{position:"absolute",left:-21}}>
-                                                <div   style={{borderRadius:1000,height:50,width:50,position:"relative",borderWidth:1,backgroundColor:"red",}}>
-                                                    <text  style={{fontSize:30,position:"absolute",left:15,bottom:3,color:"white"}}>+</text>
-                                                </div>
-                                            </div>
-                                            <div onClick={()=>this.downQuantite()} style={{position:"absolute",right:-21}}>
-                                                <div   style={{borderRadius:1000,height:50,width:50,position:"relative",borderWidth:1,backgroundColor:"red"}}>
-                                                    <text  style={{fontSize:30,position:"absolute",left:20,bottom:3,color:"white"}}>-</text>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div className="px-1" style={{display:"flex"}}>
+                                    <DescriptionIcon fontSize="small" />
+                                    <h5>Description</h5>
+                                </div>
+                                <div className="px-1 mt-1">
+                                    <div style={{fontSize:15}}>
+                                        <div className="content" dangerouslySetInnerHTML={{__html: product.short_description}}/>
                                     </div>
-
-                                </div>
-
-
-                            </div>
-
-                            <hr style={{width:"100%",height:1,backgroundColor:"#e6e6e6"}}/>
-                            <div className="px-1" style={{display:"flex"}}>
-                                <DescriptionIcon fontSize="small" />
-                                <h5>Description</h5>
-                            </div>
-                            <div className="px-1 mt-1">
-                                <div style={{fontSize:15}}>
-                                    <div className="content" dangerouslySetInnerHTML={{__html: product.short_description}}/>
                                 </div>
                             </div>
 
-                            <div className="text-center mt-2 pb-4">
-                                <Button onClick={()=> {this.setState({openTicketModal:true})}}
-                                        style={{borderRadius:25,textTransform:"none",fontWeight:"bold"}} variant="contained" color="secondary"
-                                        startIcon={<ShoppingCartIcon />}
+
+                            <div className="mt-2 pb-4" style={{display:"flex"}}>
+                                <button className="btn_add_cart" style={{backgroundColor:Data.primary_color,borderColor:Data.primary_color}}
+                                        onClick={()=> {this.setState({openTicketModal:true})}}
                                 >
                                     Ajouter au panier
-                                </Button>
+                                </button>
                             </div>
 
                         </div>

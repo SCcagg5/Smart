@@ -1,7 +1,8 @@
 const endpoint = "https://api.smartdom.ch";
 //const ged_id = "c116081d-3145-4dc3-b2df-5ac2bde13e9d";
 const ged_id = "4e92789a-aa10-11eb-bcbc-0242ac130002"  // Casa verde
-const odoo_id = "a39ccc3a-8b09-11eb-8dcd-0242ac130003";    //odoo TEST01 casaVerde
+//const odoo_id = "a39ccc3a-8b09-11eb-8dcd-0242ac130003";    //odoo TEST01 casaVerde
+const odoo_id = "ce41476c-aa0e-11eb-bcbc-0242ac130002";    //odoo Ahmed instance casaVerde
 const password = "password"
 
 let SmartService = {

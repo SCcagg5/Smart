@@ -64,7 +64,7 @@ export default function Profil(props){
 
     const downloadB64File = (b64,name) => {
         let a = document.createElement('a');
-        a.href = 'data:application/pdf;base64,' + b64;
+        a.href = b64;
         a.download = name;
         a.click();
     }
@@ -159,7 +159,7 @@ export default function Profil(props){
                                 <div style={{backgroundColor:"#f0f0f0",borderRadius:7.5,width:"100%",padding:10,marginBottom:15}}>
                                     <div style={{display:"flex",justifyContent:"space-between"}}>
                                         <h6>Commande #{order.woo_id}</h6>
-                                        <p style={{fontSize:"0.75rem",fontWeight:"bold",color:"#f50057"}}>Total: {(order.total + 7.5) + " €"}</p>
+                                        <p style={{fontSize:"0.75rem",fontWeight:"bold",color:"#f50057"}}>Total: {order.total + " €"}</p>
                                     </div>
                                     <p style={{fontSize:"0.6rem",marginTop:-10}}>Placé le {moment(order.date_created).format("DD-MM-YYYY HH:mm")}</p>
                                     <h6>Articles:</h6>
@@ -173,7 +173,7 @@ export default function Profil(props){
                                     <div style={{display:"flex",marginTop:13}}>
                                         <h6>Facture:</h6>
                                         <p style={{fontSize:"0.6rem",marginLeft:5,textDecoration:"underline",color:"blue",cursor:"pointer"}}
-                                           onClick={() => downloadB64File(order.odoo_fact_b64,"facture_" + moment(order.date_created).format("DD-MM-YYYY HH:mm") + ".pdf")}
+                                           onClick={() => downloadB64File(order.odoo_fact_url,"facture_" + moment(order.date_created).format("DD-MM-YYYY HH:mm") + ".pdf")}
                                         >
                                             {"facture_" + moment(order.date_created).format("DD-MM-YYYY HH:mm") + ".pdf" || ""}</p>
                                     </div>

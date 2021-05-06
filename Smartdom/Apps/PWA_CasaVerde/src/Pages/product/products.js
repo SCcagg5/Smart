@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
-import BottomBar from "../../Components/BottomBar/BottomBar";
 import WooService from "../../provider/wooService";
-import SwiperCore, { Navigation, Pagination, Scrollbar, A11y } from 'swiper';
 import "./style.css"
 import { Swiper, SwiperSlide } from 'swiper/react';
 import CircularProgress from '@material-ui/core/CircularProgress';
