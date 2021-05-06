@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  woocommerce_api:
+     build:
+         context: .
+         dockerfile: Dockerfile
+         target: prod
+     container_name: woocommerce_api
+     restart: always
+     tty: true
+     stdin_open: true
+     ports:
+       - 3001:3001
+     volumes:
+       - ./:/api
+     environment:
+       WOO_URL: https://green.1.rocketbonds.ch/
+       WOO_CONSUMER_KEY: ck_a922f362d1389500e816380d162804918b92bceb
+       WOO_CONSUMER_SECRET: cs_71fb9a994780e43bf7457ff57d23f938990d173c
+       WOO_VERSION: wc/v2
+       STRIPE_SK: sk_test_0rg4e2dv9iOAxFCDrWMRgVqg
+#        VIRTUAL_HOST: dashboard.${SMARTCO_DOMAIN}
+#        VIRTUAL_PORT: 80
+#        LETSENCRYPT_HOST: dashboard.${SMARTCO_DOMAIN}
+#        LETSENCRYPT_EMAIL: ${SMARTCO_EMAIL}
