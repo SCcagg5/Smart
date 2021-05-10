@@ -8,19 +8,8 @@ export default function SideMenu(props) {
 
     return(
         <Drawer anchor="left" open={props.opened} onClose={props.onClose} style={{backgroundColor:"#f5f5f5"}}>
-            <div  style={{padding:15,width:300,marginLeft:15}}>
-                <img alt="" src={logo} style={{height:150,width:250,objectFit:"contain"}}/>
-            </div>
-
-            <div style={{marginTop:30}}>
-                {/*{
-                    props.items.map((item,key) =>
-                        <div key={key} className="menu-item" onClick={()=> props.history.push(item.to)} >
-                            <i className={item.icon} style={{fontSize:24,color:props.iconColor,marginLeft:20}}/>
-                            <div style={{color:props.textColor,fontSize:"1.05rem",fontWeight:700,marginLeft:25}}>{item.title}</div>
-                        </div>
-                    )
-                }*/}
+            <div align="center"  style={{padding:15,width:300,marginTop:30}}>
+                <img alt="" src={logo} style={{height:100,width:180,objectFit:"contain"}}/>
             </div>
             <div style={{position:"absolute",bottom:"1.3%",width:300}}>
                 <hr style={{border:"1px solid #f0f0f0"}}/>
@@ -28,13 +17,13 @@ export default function SideMenu(props) {
                     <i className="fe-help-circle" style={{fontSize:24,color:"green",marginLeft:20}}/>
                     <div style={{color:"#000",fontSize:"1.05rem",fontWeight:700,marginLeft:25}}>Aide</div>
                 </div>
-                <hr style={{border:"1px solid #f0f0f0"}}/>
+                {/*<hr style={{border:"1px solid #f0f0f0"}}/>
                 <div className="menu-item">
                     <i className="fe-user" style={{fontSize:24,color:"blue",marginLeft:20}}/>
                     <div style={{color:"#000",fontSize:"1.05rem",fontWeight:"normal",marginLeft:25}}>
                         {"Mon profil"}
                     </div>
-                </div>
+                </div>*/}
                 <hr style={{border:"1px solid #f0f0f0"}}/>
                 <div className="menu-item" onClick={()=> {
                     let emailCp = localStorage.getItem("email")

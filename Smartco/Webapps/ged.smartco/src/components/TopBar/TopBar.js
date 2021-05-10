@@ -39,7 +39,7 @@ export default function TopBar(props) {
                 <IconButton edge="start" aria-label="menu" onClick={props.onClickMenuIcon}>
                     <MenuIcon style={{fontSize:26}} />
                 </IconButton>
-                <img alt="" src={props.logo} style={{width:55,marginLeft:10}}/>
+                <img alt="" src={props.logo} style={{width:40,marginLeft:10}}/>
                 <SearchBar style={{marginLeft:110,width:700,marginTop:3}}
                     value={props.textSearch}
                            placeholder="Rechercher"

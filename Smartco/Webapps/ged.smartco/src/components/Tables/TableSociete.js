@@ -489,9 +489,7 @@ export default function TableSociete(props) {
                                     ))}
 
                                     {emptyRows > 0 && (
-                                        <TableRow  style={{ height: 53 * emptyRows,textAlign:"center"}}>
-                                            <th style={{marginTop:15}}>Aucun résultat trouvé !</th>
-                                        </TableRow>
+                                        <h6 style={{marginTop:50,color:"#000",width:"100%"}}>Aucun client encore ajouté !</h6>
                                     )}
                                 </TableBody>
                                 <TableFooter>

@@ -129,17 +129,17 @@ class login extends Component {
             <React.Fragment>
 
 
-                <div style={{justifyContent: "center", marginTop: 110}}>
+                <div style={{justifyContent: "center", marginTop: 80}}>
                     <Container>
                         <Row className="justify-content-center">
-                            <Col md={8} lg={6} xl={5}>
-                                <Card>
+                            <Col md={7} lg={5} xl={4}>
+                                <Card style={{boxShadow:"0 0.95rem 8rem rgb(56 65 74 / 15%)"}}>
                                     <CardBody className="p-4 position-relative">
                                         { /* preloader */}
                                         {this.state.loading && <Loader/>}
 
                                         <div align="center" className="mb-2">
-                                            <img style={{width: 250, objectFit: "cover"}} src={logo} alt=""/>
+                                            <img style={{width: 150, objectFit: "cover"}} src={logo} alt=""/>
                                         </div>
 
                                         <AvForm onValidSubmit={this.login}>
