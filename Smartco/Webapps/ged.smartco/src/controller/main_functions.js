@@ -842,6 +842,20 @@ function insertNodeIntoTree(drive, nodeId, newNode) {
     }
 }
 
+function insertNodeIntoSharedTree(drive, nodeId, newNode) {
+    for (let j = 0; j < drive.length; j++) {
+        if (drive[j].id === nodeId) {
+            if (newNode.type) {
+                drive[j].Content.files.push(newNode);
+            }else{
+                drive[j].Content.folders.push(newNode)
+            }
+        } else if (drive[j].Content.folders != null) {
+            insertNodeIntoSharedTree(drive[j].Content.folders, nodeId, newNode);
+        }
+    }
+}
+
 export default {
     renderSearchOption,
     getTimeSuggestions,

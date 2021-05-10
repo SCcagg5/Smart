@@ -22,6 +22,7 @@ import GestureIcon from '@material-ui/icons/Gesture';
 import DescriptionIcon from '@material-ui/icons/Description';
 import DataTable from 'react-data-table-component';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -117,7 +118,7 @@ export default function ListDocs(props) {
   const [open, setOpen] = React.useState(false);
   const [rights, setRights] = React.useState(null );
   const [selectedRows, setSelectedRows] = React.useState([] );
-  const selected_docs = props.docs.filter(x => x.selected && x.selected === true);
+  const selected_docs = (props.docs || []).filter(x => x.selected && x.selected === true);
 
 
   const onDocContextMenu = (event,item) => {
@@ -155,7 +156,16 @@ export default function ListDocs(props) {
       }}
       style={{ overflow:'overlay',height:800 }}
     >
-      <h5 style={{ marginTop: 20,marginBottom:15 }}>Fichiers ({props.docs.length})</h5>
+      <div style={{display:"flex"}}>
+        <h5 style={{ marginTop: 20,marginBottom:15,marginRight:12 }}>
+          Fichiers { (props.docs && props.docs.length > 0) ? ("(" + props.docs.length + ")") : ""}
+        </h5>
+        {
+          !props.docs &&
+          <CircularProgress size={12} color={"secondary"} style={{marginTop:21}}/>
+        }
+      </div>
+
       {
         selected_docs.length > 1 &&
           <div style={{display:"flex",justifyContent:"space-between"}}>
@@ -227,7 +237,7 @@ export default function ListDocs(props) {
               <DataTable
                   columns={columns}
                   data={props.docs || []}
-                  defaultSortField="name"
+                  defaultSortField="date"
                   selectableRows={true}
                   selectableRowsHighlight={true}
                   onSelectedRowsChange={selected => {
@@ -235,14 +245,14 @@ export default function ListDocs(props) {
                   }}
                   dense={false}
                   pagination={true}
-                  paginationPerPage={20}
+                  paginationPerPage={10}
                   paginationComponentOptions={paginationOptions}
                   highlightOnHover={true}
                   striped={true}
                   contextMessage={tableContextMessage}
-                  //progressPending={loadingEnregistrements === true}
+                  progressPending={!props.docs}
                   progressComponent={<h6>Chargement...</h6>}
-                  noDataComponent="Aucun fichier encore ajouté"
+                  noDataComponent=""
                   customStyles={customTableStyles}
 
               />

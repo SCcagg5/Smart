@@ -1,16 +1,31 @@
 import React from "react";
 import FolderIcon from '@material-ui/icons/Folder';
 import "./List.css"
+import MuiBackdrop from "../Loading/MuiBackdrop";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 export default function ListFolders(props) {
 
 
     return(
         <div>
-            <h5 style={{marginTop:20}}>Dossiers({props.items.length || 0})</h5>
+
+            <div style={{display:"flex"}}>
+                <h5 style={{marginTop:20,marginRight:12}}>
+                    Dossiers {(props.items && props.items.length > 0) ? ("(" + props.items.length + ")") : ""}
+                </h5>
+                {
+                    !props.items &&
+                    <CircularProgress size={12} color={"secondary"} style={{marginTop:21}}/>
+                }
+
+            </div>
+
+
+
             <div className="folders_container">
                 {
-                    props.items.map((folder,key) =>
+                    (props.items || []).map((folder,key) =>
                         <div key={key} className="folder_item_container">
                             <div className="folder_item" onClick={(e) => {
                                 props.onDoubleClickFolder(folder)

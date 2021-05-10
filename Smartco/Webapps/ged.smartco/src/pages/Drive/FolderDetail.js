@@ -17,13 +17,13 @@ export default class FolderDetail extends React.Component{
         return(
             <div style={{marginTop: 15}}>
                 <ListFolders
-                    items={this.props.selectedFolderFolders || []}
+                    items={this.props.selectedFolderFolders}
                     onDoubleClickFolder={(folder) => {
                         this.props.onDoubleClickFolder(folder)
                     }}
                 />
                 <ListDocs
-                    docs={this.props.selectedFolderFiles || []}
+                    docs={this.props.selectedFolderFiles}
                     viewMode={this.props.viewMode}
                     onDocClick={(item) => {
                         this.props.onDocClick(item)

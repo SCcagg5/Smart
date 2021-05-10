@@ -215,11 +215,11 @@ export default class Main extends React.Component {
     sharedMiniDrive:[],
     reelFolders: [],
     sharedFolders: [],
-    sharedReelFolders: [],
+    //sharedReelFolders: [],
     rootFiles: [],
     rootFolders: [],
     sharedRootFolders: [],
-    sharedRootFiles: [],
+    //sharedRootFiles: [],
 
     selectedFoldername: '',
     breadcrumbs: '',
@@ -227,13 +227,13 @@ export default class Main extends React.Component {
     selectedFolderId: '',
     selectedFile: '',
     selectedFolderFiles: [],
-    selectedFolderFolders: [],
+    //selectedFolderFolders: [],
 
     selectedSharedFolder:'',
     selectedSharedFolderId: '',
     selectedSharedFoldername:'',
-    selectedSharedFolderFiles: [],
-    selectedSharedFolderFolders: [],
+    //selectedSharedFolderFiles: [],
+    //selectedSharedFolderFolders: [],
 
     showNewDocScreen: false,
     newFolderModal: false,
@@ -593,7 +593,6 @@ export default class Main extends React.Component {
 
       let contacts = await rethink.getTableData(db_name,"test","contacts")
       let find_current_contact = (contacts || []).find(x => x.email === localStorage.getItem("email"));
-      console.log(find_current_contact)
       if(find_current_contact && find_current_contact.odoo_id){
         localStorage.setItem("odoo_id",find_current_contact.odoo_id)
       }
@@ -748,7 +747,7 @@ export default class Main extends React.Component {
                   loading: false
                 });
               }
-              else if (this.props.location.pathname === '/home/shared/parent') {
+              else if (this.props.location.pathname === '/home/shared/parent' || this.props.location.pathname.indexOf("/home/shared/") > -1 ) {
                 this.setState({
                   selectedDriveItem: [],
                   expandedDriveItems: [],
@@ -758,9 +757,8 @@ export default class Main extends React.Component {
                   firstLoading: false,
                   loading: false
                 });
+                this.props.history.push("/home/shared/parent")
               }
-
-
             }
             else {
               this.setState({ loading: false });
@@ -1050,7 +1048,8 @@ export default class Main extends React.Component {
         }
         else {
           if(this.props.location.pathname.indexOf('/home/drive/') === -1 && this.props.location.pathname.indexOf('/home/drive') === -1 &&
-              this.props.location.pathname !== '/home/shared/parent' && this.props.location.pathname.indexOf('/home/contacts') === -1 &&
+              this.props.location.pathname !== '/home/shared/parent' && this.props.location.pathname.indexOf("/home/shared/") === -1 &&
+              this.props.location.pathname.indexOf('/home/contacts') === -1 &&
               this.props.location.pathname.indexOf('/home/clients') === -1 && this.props.location.pathname.indexOf('/home/rooms') === -1){
             console.log('URL ERROR');
             this.props.history.push('/home/drive');
@@ -1231,14 +1230,13 @@ export default class Main extends React.Component {
   }
 
   onLoadSharedData = ({ key, children }) => {
-    console.log(key)
     return new Promise((resolve) => {
       console.log(key)
       if (children) {
         resolve();
         return;
       }
-      let origin = this.state.sharedFolders;
+      let origin = this.state.sharedFolders || [];
 
       SmartService.getFile(key, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
         if(Res.succes === true && Res.status === 200){
@@ -1931,7 +1929,7 @@ export default class Main extends React.Component {
           }
           else if(this.props.location.pathname.indexOf('/home/shared/') > -1){
             let key = this.props.location.pathname.replace('/home/shared/', '');
-            this.updateShared(key,this.state.sharedFolders);
+            this.updateShared(key,this.state.sharedFolders || []);
           }
           else {
             this.setState({
@@ -2241,6 +2239,7 @@ export default class Main extends React.Component {
           setFolderName={(name) =>
             this.setState({ selectedFoldername: name })
           }
+
           setFolderId={(id) => {
             this.props.history.push('/home/drive/' + id);
             this.setState({
@@ -2276,7 +2275,7 @@ export default class Main extends React.Component {
           }
 
           sharedFolders={this.state.sharedFolders || []}
-          sharedRootFiles={this.state.sharedRootFiles}
+          sharedRootFiles={this.state.sharedRootFiles || []}
           expandedDriveSharedItems={this.state.showContainerSection === 'Drive' ? this.state.expandedDriveSharedItems : []}
           setExpandedDriveSharedItems={(keys) =>
             this.setState({ expandedDriveSharedItems: keys })
@@ -2395,7 +2394,6 @@ export default class Main extends React.Component {
   };
 
   renderClientCases(client_id){
-    console.log("ENTRED")
     let cases = [];
     cases.push({value:"",label:""})
     let clientsTempo = this.state.clients_cases || [];
@@ -3466,17 +3464,10 @@ export default class Main extends React.Component {
               'name':'Avance de frais: '+desc,
               'origin': false,
               'price_unit': amount,
-              'product_id': 1,
+              'product_id': 3,
               'quantity': 1,
               'sequence': 10,
               "uom_id":1,
-              /*'invoice_line_tax_ids': [
-                [
-                  6,
-                  false,
-                  tax && tax !== "" ? [tax] : []
-                ]
-              ]*/
               'analytic_tag_ids': [
                 [
                   6,
@@ -3542,7 +3533,8 @@ export default class Main extends React.Component {
                       },
                       type:"avance_frais",
                       facture_odoo_id:createFactRes.data.id,
-                      facture_acces_token:acces_token
+                      facture_acces_token:acces_token,
+                      odoo_id:localStorage.getItem("odoo_id")
                     }
                     rethink.insert("test",'table("factures").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
                       if (resAdd && resAdd === true) {
@@ -3887,7 +3879,7 @@ export default class Main extends React.Component {
                               'name':'Prosivion',
                               'origin': false,
                               'price_unit': amount,
-                              'product_id': 1,
+                              'product_id': 4,
                               'quantity': 1,
                               'sequence': 10,
                               "uom_id":1,
@@ -3948,7 +3940,8 @@ export default class Main extends React.Component {
                                   },
                                   type:"provision",
                                   facture_odoo_id:createFactRes.data.id,
-                                  facture_acces_token:acces_token
+                                  facture_acces_token:acces_token,
+                                  odoo_id:localStorage.getItem("odoo_id")
                                 }
                                 rethink.insert("test",'table("factures").insert('+ JSON.stringify(newItem) + ')',db_name,false).then( resAdd => {
                                   if (resAdd && resAdd === true) {
@@ -4352,13 +4345,9 @@ export default class Main extends React.Component {
       "sequence_number_next":false,
       "partner_shipping_id":facture_company_id,
       "payment_term_id":paymTerm,
-      /*"invoice_payment_term_id":paymTerm,*/
       "partner_bank_id":compte_banc,
       'bank_partner_id': compte_banc,
       'invoice_partner_bank_id': compte_banc,
-      /*"partner_bank_id":4,
-      'bank_partner_id': 4,
-      'invoice_partner_bank_id': 4,*/
     })
 
     lignes_factures.map((ligne, key) => {
@@ -6146,13 +6135,13 @@ export default class Main extends React.Component {
 
   addNewGedFolder(){
      this.setState({loading:true})
+    console.log(this.state.selectedSharedFolderFolders)
     SmartService.addFolder(
         {name: this.state.newFolderName, folder_id: this.state.selectedFolderId === '' ? null : this.state.selectedFolderId},
         localStorage.getItem('token'), localStorage.getItem('usrtoken')
     )
         .then((addfolderRes) => {
-          console.log(this.state.reelFolders)
-          console.log(addfolderRes)
+
           if (addfolderRes.succes === true && addfolderRes.status === 200) {
 
             let drive = this.state.reelFolders;
@@ -6164,16 +6153,69 @@ export default class Main extends React.Component {
                 files:[]
               }
             }
-            if(this.state.selectedFolderId === ''){
-              //Racine
-              drive.push(newNode)
-              this.setState({reelFolders:drive,folders:main_functions.changeStructure(drive),loading:false})
-            }else{
+            if(this.props.location.pathname.indexOf('/home/drive/') > -1){
+              console.log("ELSE RACINE")
               main_functions.insertNodeIntoTree(drive,this.state.selectedFolderId ,newNode);
               this.setState({
                 reelFolders:drive,folders:main_functions.changeStructure(drive),loading:false
               })
             }
+            else if(this.props.location.pathname.indexOf('/home/drive') > -1){
+              console.log("Racine")
+              drive.push(newNode)
+              this.setState({reelFolders:drive,folders:main_functions.changeStructure(drive),loading:false})
+            }
+
+            if(this.props.location.pathname.indexOf('/home/shared/') > -1){
+              let origin = this.state.sharedFolders || [];
+              let childrens = this.state.selectedSharedFolder.children || [];
+              let treeNode = {
+                title: this.state.newFolderName,
+                key:addfolderRes.data.id,
+                icon:  (
+                    ({ selected }) =>
+                        selected ? (
+                            <FolderIcon style={{ color: '#1a73e8' }} />
+                        ) : (
+                            <FolderIcon style={{ color: 'grey' }} />
+                        )
+                ),
+                files: [] ,
+                folders: [] ,
+                typeF: 'folder',
+                rights:{
+                  administrate:true,
+                  edit:true,
+                  read:true,
+                  share:true
+                },
+                proprietary:localStorage.getItem("email")
+              };
+              childrens.push(treeNode)
+              let update = this.updateTreeData(origin, this.state.selectedSharedFolderId, childrens, this.state.selectedSharedFolder.files || [] );
+              //console.log(update)
+
+              let newSharedNode = {
+                id:addfolderRes.data.id,
+                name:this.state.newFolderName,
+                proprietary:localStorage.getItem("email"),
+                date:moment().unix() * 1000,
+                rights:{
+                  administrate:true,
+                  edit:true,
+                  read:true,
+                  share:true
+                }
+              }
+              let selected_sh_folder_folders = this.state.selectedSharedFolderFolders;
+              selected_sh_folder_folders.push(newSharedNode)
+              console.log(selected_sh_folder_folders)
+              this.setState({sharedFolders:update,selectedSharedFolderFolders:selected_sh_folder_folders,loading:false})
+            }
+            else if(this.props.location.pathname.indexOf('/home/shared') > -1){
+
+            }
+
             this.openSnackbar("success","Nouveau dossier ajouté avec succès")
             setTimeout(() => {
               this.setState({
@@ -6197,8 +6239,11 @@ export default class Main extends React.Component {
       if(acceptedFiles[i].type === "application/pdf"){
         let formData = new FormData();
         formData.append('file', acceptedFiles[i]);
-        this.state.selectedFolderId !== '' &&
-        formData.append('folder_id', this.state.selectedFolderId);
+        if(this.props.location.pathname.indexOf('/home/shared/') > -1){
+          formData.append('folder_id', this.state.selectedSharedFolderId);
+        }else{
+          this.state.selectedFolderId !== '' && formData.append('folder_id', this.state.selectedFolderId);
+        }
         calls.push(axios.request({
               method: 'POST', url: data.endpoint + '/ged/'+ged_id+'/doc/addfile',
               data: formData,
@@ -6211,39 +6256,63 @@ export default class Main extends React.Component {
                 this.setState({ progressUpload: (p.loaded / p.total) * 100 });
               }
             }).then( res => {
+              console.log(res)
               return {id:res.data.data.file_id,name:acceptedFiles[i].name.replace(".pdf",""),type:"pdf",date:new Date().getTime().toString()}
-            })
+            }).catch(err => {console.log(err)})
         );
       }
     }
-    Promise.all(calls).then( response => {
-      let drive = this.state.reelFolders;
-      let rootFiles = this.state.rootFiles;
-      response.map( resp => {
-        if(this.state.selectedFolderId === ''){
-          rootFiles.push(resp);
-        }else{
-          main_functions.insertNodeIntoTree(drive,this.state.selectedFolderId ,resp);
-        }
-      })
-      this.setState({
-        reelFolders:drive,folders:main_functions.changeStructure(drive),
-        rootFiles: rootFiles,
-        loading:true,
-        openNewDocModal: false,
-        newFileFromRacine: false,
-        showNewDocScreen: false,
-        progressUpload: undefined
-      })
-      setTimeout(() => {
-        this.setState({loading:false})
-        this.openSnackbar('success', calls.length === 1 ? calls.length + ' fichier est ajouté avec succès' : calls.length +" fichiers sont ajoutés avec succès");
-      },500)
+    if(calls.length > 0){
 
-      //this.reloadGed();
-    }).catch(err => {
-      console.log(err);
-    });
+      Promise.all(calls).then( response => {
+
+        let drive = this.state.reelFolders;
+        let rootFiles = this.state.rootFiles;
+        let shared_drive = this.state.sharedReelFolders || [];
+        let shared_root_files = this.state.sharedRootFiles || [];
+
+        response.map( resp => {
+          console.log(resp)
+          if(this.props.location.pathname === '/home/shared/parent'){
+            shared_root_files.push(resp)
+          }
+          else if(this.props.location.pathname.indexOf('/home/shared/') > -1) {
+            let selected_sh_files = this.state.selectedSharedFolderFiles || [];
+            selected_sh_files.push(resp);
+            this.setState({selectedSharedFolderFiles:selected_sh_files})
+          }
+          if(this.props.location.pathname === '/home/drive') {
+            rootFiles.push(resp);
+          }
+          else if(this.props.location.pathname.indexOf('/home/drive/') > -1) {
+            main_functions.insertNodeIntoTree(drive,this.state.selectedFolderId ,resp);
+          }
+        })
+        this.setState({
+          reelFolders:drive,
+          folders:main_functions.changeStructure(drive),
+          rootFiles: rootFiles,
+          sharedReelFolders:shared_drive,
+          sharedRootFiles:shared_root_files,
+          loading:true,
+          openNewDocModal: false,
+          newFileFromRacine: false,
+          showNewDocScreen: false,
+          progressUpload: undefined
+        })
+        setTimeout(() => {
+          this.setState({loading:false})
+          this.openSnackbar('success', calls.length === 1 ? calls.length + ' fichier est ajouté avec succès' : calls.length +" fichiers sont ajoutés avec succès");
+        },500)
+
+      }).catch( err => {
+        console.log(err);
+      });
+
+    }else{
+      this.openSnackbar("error","le type de(s) fichier(s) ajouté(s) est erronés ! ")
+    }
+
   }
 
   render() {
@@ -6710,25 +6779,7 @@ export default class Main extends React.Component {
                                   display: 'block'
                                 }}
                               >
-                                {
-                                  (this.state.sharedFolders.length === 0 && this.state.sharedRootFiles.length === 0) ? (
-                                    <div
-                                      style={{
-                                        marginTop: 25,
-                                        display: 'flex'
-                                      }}
-                                    >
-                                      <h5
-                                        style={{
-                                          fontSize: 16,
-                                          color: 'gray'
-                                        }}
-                                      >
-                                        Aucun dossier ou fichier encore partagé avec vous !
-                                      </h5>
-                                    </div>
-                                  ) : (
-                                    <div>
+                                <div>
                                       <ListFolders
                                         items={this.state.sharedReelFolders}
                                         onDoubleClickFolder={(folder) => {
@@ -6751,7 +6802,7 @@ export default class Main extends React.Component {
                                         }}
                                       />
                                       <ListDocs
-                                        docs={this.state.sharedRootFiles || []}
+                                        docs={this.state.sharedRootFiles}
                                         viewMode={this.state.viewMode}
                                         onDocClick={(item) =>
                                           this.openPdfModal(item.id || item.key)
@@ -6792,7 +6843,7 @@ export default class Main extends React.Component {
                                         selectedSharedFolder={this.state.selectedSharedFolder}
                                       />
                                     </div>
-                                  )}
+
                               </div>
                             </div>
                           }

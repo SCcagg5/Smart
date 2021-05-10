@@ -186,7 +186,7 @@ export default function LeftMenuV3(props) {
     }
 
     function onSelect_shared(selectedKeys, info) {
-        //console.log(info.node)
+        console.log(info.node)
         props.setSelectedDriveItem([])
         props.setSelectedDriveSharedItem(selectedKeys)
         if (info.node.typeF === "folder") {
@@ -317,6 +317,7 @@ export default function LeftMenuV3(props) {
                                                 autoExpandParent={props.autoExpandParent}
                                                 height={500}
                                             />
+
                                             <DirectoryTree
                                                 loadData={props.onLoadSharedData}
                                                 draggable
@@ -326,13 +327,12 @@ export default function LeftMenuV3(props) {
                                                 treeData={props.sharedFolders}
                                                 expandAction="click"
                                                 onRightClick={info => {
-
                                                     if (info.node.typeF === "folder" && info.node.key !== "parent") {
                                                         let rights = info.node.rights || [];
                                                         setRights(rights);
                                                         setShareAnchorElMenu(info.event.currentTarget)
-                                                        props.setSelectedFolder(info.node)
-                                                        props.setFolderName(info.node.title)
+                                                        props.setSelectedSharedFolder(info.node)
+                                                        props.setSharedFolderName(info.node.title)
                                                         props.setSharedFolderId(info.node.key)
 
                                                     }
