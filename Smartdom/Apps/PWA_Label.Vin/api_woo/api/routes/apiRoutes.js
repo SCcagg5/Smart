@@ -46,9 +46,9 @@ module.exports = function (app) {
     app.route("/api/getEtiquette/:id")
         .get(api.getEtiquette);
 
-    app.route("/api/generateQRCODE")
+   /* app.route("/api/generateQRCODE")
         .get(api.generateQRCODE);
-
+*/
 
 
 };
