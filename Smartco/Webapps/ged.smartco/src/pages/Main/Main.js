@@ -1686,7 +1686,9 @@ export default class Main extends React.Component {
           email: !verifForms.verif_Email(this.state.selectedSociete.email || "")  ? this.state.selectedSociete.email : false,
           phone: this.state.selectedSociete.phone || "",
           lang:this.state.selectedSociete.lang_fact || "fr_CH",
-          name:(!this.state.selectedSociete.client_fact_name || this.state.selectedSociete.client_fact_name.trim() === "") ? clientFname : this.state.selectedSociete.client_fact_name
+          name:(!this.state.selectedSociete.client_fact_name || this.state.selectedSociete.client_fact_name.trim() === "") ? clientFname : this.state.selectedSociete.client_fact_name,
+          is_company:this.state.selectedSociete.Type === "0",
+          company_type:this.state.selectedSociete.Type === "0" ? "company": "person"
         }
       ],
       method:"write"
@@ -5212,9 +5214,10 @@ export default class Main extends React.Component {
         }
 
         else{
-
+          let extraFolderName = localStorage.getItem("odoo_id") === "9035ce2a-a7a2-11eb-bcbc-0242ac130002" ? " (David Kohler)" :""
+          let folderName = this.state.selectedSociete.Type === "0" ? this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '') : this.state.selectedSociete.Nom
           SmartService.addFolder({
-            name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+            name: folderName + extraFolderName ,
             folder_id: CLIENTS_folder_id
           }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
 
@@ -5325,8 +5328,10 @@ export default class Main extends React.Component {
 
         this.verifIsTableExist("clients_cases").then( v => {
 
+          let extraFolderName = localStorage.getItem("odoo_id") === "9035ce2a-a7a2-11eb-bcbc-0242ac130002" ? " (David Kohler)" :""
+          let folderName = this.state.selectedSociete.Type === "0" ? this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '') : this.state.selectedSociete.Nom
               SmartService.addFolder({
-                name: this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || ''),
+                name: folderName + extraFolderName,
                 folder_id: CLIENTS_folder_id
               }, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(addParentClientFolderRes => {
                 console.log('OK');
