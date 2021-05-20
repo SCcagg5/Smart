@@ -4111,7 +4111,7 @@ export default class Main extends React.Component {
         created_at:moment().format("YYYY-MM-DD HH:mm:ss"),
         created_by:createdBy,
         client:lignes_facture[0].newTime.client,
-        client_id:lignes_facture[0].newTime.client_id,
+        client_id:localStorage.getItem("odoo_id") === "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9" ? lignes_facture[0].newTime.client_id : lignes_facture[0].newTime.david_client_id,
         partner:partnerEmail,
         lignes_facture:lignes_facture,
         statut:"wait",
@@ -7462,7 +7462,7 @@ export default class Main extends React.Component {
                                   societes={this.state.annuaire_clients_mandat || []}
                                   clients_tempo={this.state.clients_cases}
                                   onEditClick={(societe, key) => {
-                                    console.log(societe)
+                                    console.log(societe.ID)
                                     this.setState({
                                       selectedSociete: societe,
                                       selectedSocieteKey: key

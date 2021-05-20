@@ -194,14 +194,22 @@ export default function TableTimeSheet(props) {
 
     const [invisibleFolders, setInvisibleFolders] = React.useState(props.userCachedCases);
 
-    const searchFilter = props.lignesFactures.filter((lf) => ( ( (lf.newTime.client_id.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
+    const searchFilter = localStorage.getItem("odoo_id") === "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9" ? props.lignesFactures.filter((lf) => ( ( (lf.newTime.client_id.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
         ( lf.newTime.dossier_client && lf.newTime.dossier_client.folder_id && (lf.newTime.dossier_client.folder_id === lf_dossier_search ) || lf_dossier_search === "") &&
         ( lf.newTime && lf.newTime.utilisateurOA && (lf.newTime.utilisateurOA === lf_oaUser_search) || lf_oaUser_search === "" || showBy.value !== "timesheet") &&
         ( lf.newTime && lf.newTime.dossier_client.team && (lf.newTime.dossier_client.team.find(x => x.uid === lf_assoc_dossier_search && x.type === "lead")  ) || lf_assoc_dossier_search === "") &&
         ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
         ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  ) &&
         ( (selectedDate !== "" && (moment(selectedDate.format("YYYY-MM-DD")).isSame(moment(lf.newTime.date).format("YYYY-MM-DD")))) || selectedDate === "" )
-    ))
+    )) :
+        props.lignesFactures.filter((lf) => ( ( (lf.newTime.david_client_id && lf.newTime.david_client_id.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
+            ( lf.newTime.dossier_client && lf.newTime.dossier_client.david_folder_id && (lf.newTime.dossier_client.david_folder_id === lf_dossier_search ) || lf_dossier_search === "") &&
+            ( lf.newTime && lf.newTime.utilisateurOA && (lf.newTime.utilisateurOA === lf_oaUser_search) || lf_oaUser_search === "" || showBy.value !== "timesheet") &&
+            ( lf.newTime && lf.newTime.dossier_client.team && (lf.newTime.dossier_client.team.find(x => x.uid === lf_assoc_dossier_search && x.type === "lead")  ) || lf_assoc_dossier_search === "") &&
+            ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
+            ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  ) &&
+            ( (selectedDate !== "" && (moment(selectedDate.format("YYYY-MM-DD")).isSame(moment(lf.newTime.date).format("YYYY-MM-DD")))) || selectedDate === "" )
+        ))
 
     searchFilter.sort( (a,b) => {
         var c = new Date(a.newTime.date);
@@ -1088,7 +1096,8 @@ export default function TableTimeSheet(props) {
                                                                                         newTime:item.newTime
                                                                                     })
                                                                                 })
-                                                                                let client_folder={id:sheets_to_add[0].newTime.dossier_client.folder_id,name:sheets_to_add[0].newTime.dossier_client.name}
+                                                                                let client_folder={id:localStorage.getItem("odoo_id") === "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9" ? sheets_to_add[0].newTime.dossier_client.folder_id : sheets_to_add[0].newTime.dossier_client.david_folder_id ,
+                                                                                    name:sheets_to_add[0].newTime.dossier_client.name}
                                                                                 props.onClickFacture(lf_client_search,client_folder,moment(facture_date).format("YYYY-MM-DD HH:mm:ss"),partner_facture,sheets_to_add);
                                                                                 setTimeout(() => {
                                                                                     selected.map((item,key) => {
