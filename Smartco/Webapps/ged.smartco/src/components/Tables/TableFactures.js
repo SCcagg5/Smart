@@ -89,18 +89,35 @@ export default function CollapsibleTable(props) {
         )
     }
 
+    const renderTotal = () => {
+        let totalCHF = 0;
+        let totalHours = 0;
+        searchFilter.map((item,key) => {
+            let value = parseFloat(item.newTime.rateFacturation) * parseFloat(item.newTime.duree);
+            totalCHF = totalCHF + value;
+            totalHours = totalHours + parseFloat(item.newTime.duree);
+        })
+
+        return(
+            [
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{utilFunctions.formatDuration(totalHours.toString())}</TableCell>,
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{totalCHF.toFixed(2) + " CHF"}</TableCell>,
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{totalCHF.toFixed(2) + " CHF"}</TableCell>
+            ]
+        )
+    }
+
 
     let factures = (props.factures || []).filter(x => x.partner === localStorage.getItem("email"));
 
-    const searchFilter = factures.filter((lf) => (((lf.client_id === client_search) || client_search === "") &&
+    let searchFilter = factures.filter((lf) => (((lf.client_id === client_search) || client_search === "") &&
         (lf.client_folder && (lf.client_folder.id === lf_dossier_search) || lf_dossier_search === "") &&
         ((sdate_search !== null && (new Date(lf.created_at).getTime() >= sdate_search.getTime())) || sdate_search === null) &&
         ((edate_search !== null && (new Date(lf.created_at).getTime() <= (moment(edate_search).set({
             hour: 23,
             minute: 59
         }).unix() * 1000))) || edate_search === null) &&
-        ((statut_search === lf.statut) || statut_search === "tous" || (statut_search === "accepted" && lf.statut !== "wait")) &&
-        (!lf.paid || lf.paid === "false")
+        ((statut_search === lf.statut) || (statut_search === "tous" && lf.statut !== "paid") || (statut_search === "accepted" && lf.statut !== "wait" && lf.statut !== "paid"))
     ))
 
     searchFilter.sort((a, b) => {
@@ -108,6 +125,34 @@ export default function CollapsibleTable(props) {
         var d = new Date(b.created_at);
         return d - c;
     });
+
+
+    let renderTotalCHF = () => {
+        let totalHT = 0;
+        let totalTaxe = 0;
+        let total = 0;
+        searchFilter.map((item,key) => {
+            if(item.amount_untaxed){
+                totalHT = totalHT + item.amount_untaxed
+            }
+            if(item.amount_tax){
+                totalTaxe = totalTaxe + item.amount_tax
+            }
+            if(item.amount_total){
+                total = total + item.amount_total
+            }
+
+        })
+
+        return(
+            [
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{totalHT.toFixed(2) + " CHF"}</TableCell>,
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{totalTaxe.toFixed(2) + " CHF"}</TableCell>,
+                <TableCell align="center" style={{width:"10%",fontWeight:600,backgroundColor:"#f0f0f0"}}>{total.toFixed(2) + " CHF"}</TableCell>
+            ]
+        )
+    }
+
 
 
     return (
@@ -234,7 +279,7 @@ export default function CollapsibleTable(props) {
                                 <option value={"tous"} label={"Tous"}/>
                                 <option value={"wait"} label={"En attente"}/>
                                 <option value={"accepted"} label={"Validée"}/>
-                                <option value={"paid"} label={"payée"}/>
+                                <option value={"paid"} label={"Payée"}/>
                             </select>
                         </div>
                     </div>
@@ -298,6 +343,17 @@ export default function CollapsibleTable(props) {
                                         />
                                     ))
                                 }
+                                <TableRow>
+                                    <TableCell align="center"/>
+                                    <TableCell align="center"/>
+                                    <TableCell align="center"/>
+                                    <TableCell align="center"/>
+                                    <TableCell align="center"/>
+                                    {renderTotalCHF()}
+                                    <TableCell align="center"/>
+                                    <TableCell align="center"/>
+                                    <TableCell align="center"/>
+                                </TableRow>
                             </TableBody>
                         </Table> :
 
@@ -373,8 +429,10 @@ function Row(props) {
 
 
     useEffect(() => {
-        getDeatilsOdooFacture()
-    }, []);
+        if(!row.amount_untaxed && !row.amount_tax && !row.amount_total && row.statut !== "wait"){
+            getDeatilsOdooFacture()
+        }
+    }, [getDeatilsOdooFacture]);
 
 
     const updateTimeSheet = () => {
@@ -478,9 +536,10 @@ function Row(props) {
 
     const getDeatilsOdooFacture = () => {
         if (row.facture_odoo_id) {
+            console.log(row.facture_odoo_id)
             SmartService.details_facture_odoo(row.odoo_id, localStorage.getItem("token"), localStorage.getItem("usrtoken"), row.facture_odoo_id).then(detailsRes => {
                 if (detailsRes.succes === true && detailsRes.status === 200) {
-                    //console.log(detailsRes.data[0])
+                    console.log(detailsRes.data[0])
                     row.amount_untaxed = detailsRes.data[0].amount_untaxed;
                     row.amount_tax = detailsRes.data[0].amount_tax ? detailsRes.data[0].amount_tax : 0 ;
                     row.amount_total = detailsRes.data[0].amount_total;
@@ -493,11 +552,7 @@ function Row(props) {
                     }
                     props.rerender()
                     rethink.update("test", 'table("factures").get(' + JSON.stringify(row.id) + ').update(' + JSON.stringify(row) + ')', db_name, false).then(updateRes => {
-                        if (updateRes && updateRes === true) {
-                            console.log("row updated")
-                        } else {
-                            console.log("row not updated")
-                        }
+
                     }).catch(err => {
                         console.log(err)
                     })
@@ -572,7 +627,7 @@ function Row(props) {
                         </IconButton>
                     }
                 </TableCell>
-                <TableCell
+                <TableCell onClick={() => {console.log(row)}}
                     align="center">{row.type && row.type === "provision" ? "Provision" : row.type === "avance_frais" ? "Avance de frais" : "Facture"}</TableCell>
                 <TableCell align="center">{moment(row.date_facture).format("DD-MM-YYYY")}</TableCell>
                 <TableCell align="center">{row.client}</TableCell>
@@ -590,19 +645,25 @@ function Row(props) {
 
                 <TableCell align="center">
                     {
-                        row.amount_untaxed ? (row.amount_untaxed + " " + row.currency_id[1]) : <CircularProgress size={15} color={"secondary"}/>
+                        row.amount_untaxed ? (row.amount_untaxed + " " + row.currency_id[1]) :
+                            row.statut === "wait" ? "__" :
+                            <CircularProgress size={15} color={"secondary"}/>
                     }
                 </TableCell>
 
                 <TableCell align="center">
                     {
-                        row.amount_tax !== undefined ? (row.amount_tax + " " + row.currency_id[1]) : <CircularProgress size={15} color={"secondary"}/>
+                        row.amount_tax !== undefined ? (row.amount_tax + " " + row.currency_id[1]) :
+                            row.statut === "wait" ? "__" :
+                            <CircularProgress size={15} color={"secondary"}/>
                     }
                 </TableCell>
 
                 <TableCell align="center">{row.type && row.type === "provision" ?
                     row.details_provision.amount + " CHF" : row.type && row.type === "avance_frais" ? row.details_avancefrais.amount + " CHF" :
-                       row.amount_total ?  (row.amount_total + " " + row.currency_id[1]) : <CircularProgress size={15} color={"secondary"}/> }
+                       row.amount_total ?  (row.amount_total + " " + row.currency_id[1]) :
+                           row.statut === "wait" ? "__" :
+                           <CircularProgress size={15} color={"secondary"}/> }
                 </TableCell>
 
                 <TableCell align="center">
@@ -614,19 +675,19 @@ function Row(props) {
 
                 <TableCell align="center">
                     {
-                        row.statut === "wait" ? "" :
-                            row.paid ? row.paid === "true" ? "Payé" : "Non payé"
-                                :
+                        row.statut === "wait" ? "__" :
+                            row.paid ? row.paid === "true" ? "Payée" : "Non payée" :
                                 <CircularProgress size={15} color={"secondary"}/>
                     }
                 </TableCell>
 
                 <TableCell align="center" style={{
                     minWidth: 120,
-                    display: row.statut === "wait" || row.statut === "accepted" ? "block" : "flex"
-                }}>
+                    display: row.statut === "wait" || row.statut === "accepted" || row.statut === "paid" ? "block" : "flex"
+                }}
+                >
                     {
-                        row.statut === "accepted" &&
+                        (row.statut === "accepted" || row.statut === "paid") && (!row.type) &&
                         [
                             <IconButton key={0} aria-label="folder" title="Afficher la facture" color="default"
                                         size="small" onClick={() => {
@@ -665,7 +726,7 @@ function Row(props) {
                         </IconButton>
                     }
                     {
-                        row.statut === "confirmed" && row.type === "provision" &&
+                        (row.statut === "confirmed" || row.statut === "paid") && row.type === "provision" &&
                         [
                             <div style={{marginRight: 3, maxWidth: 50}}>
                                 <IconButton key={0} aria-label="folder" title="Afficher le pdf de provision"
@@ -690,7 +751,7 @@ function Row(props) {
 
                     }
                     {
-                        row.statut === "confirmed" && row.type === "avance_frais" &&
+                        (row.statut === "confirmed" || row.statut === "paid") && row.type === "avance_frais" &&
                         [
                             <div style={{marginRight: 3, maxWidth: 50}}>
                                 <IconButton key={0} aria-label="folder" title="Afficher le pdf de provision"

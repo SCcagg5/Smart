@@ -272,7 +272,6 @@ let SmartService = {
     },
 
     details_facture_odoo(odoo_id,token,usrtoken,id){
-        console.log(id)
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill/'+id+'/details', {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
