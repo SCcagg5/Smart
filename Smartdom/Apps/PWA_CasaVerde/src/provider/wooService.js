@@ -12,7 +12,7 @@ let WooService ={
 
 
     getCategories(){
-        return fetch("https://green.1.rocketbonds.ch/wp-json/wc/store/products/categories", {
+        return fetch("https://green.1.rocketbonds.me/wp-json/wc/store/products/categories", {
             method: 'GET',
             headers:this.loadHeaders(),
         }).then(response => response.json()).catch(error => {
