@@ -138,6 +138,14 @@ class Product extends Component {
 
                                 </div>
 
+                                <div className="mt-2 pb-4" style={{display:"flex"}}>
+                                    <button className="btn_add_cart" style={{backgroundColor:Data.primary_color,borderColor:Data.primary_color}}
+                                            onClick={()=> {this.setState({openTicketModal:true})}}
+                                    >
+                                        Ajouter au panier
+                                    </button>
+                                </div>
+
                                 <hr style={{width:"100%",height:1,backgroundColor:"#e6e6e6"}}/>
 
                                 <div className="px-1" style={{display:"flex"}}>
@@ -152,13 +160,7 @@ class Product extends Component {
                             </div>
 
 
-                            <div className="mt-2 pb-4" style={{display:"flex"}}>
-                                <button className="btn_add_cart" style={{backgroundColor:Data.primary_color,borderColor:Data.primary_color}}
-                                        onClick={()=> {this.setState({openTicketModal:true})}}
-                                >
-                                    Ajouter au panier
-                                </button>
-                            </div>
+
 
                         </div>
 
@@ -175,7 +177,7 @@ class Product extends Component {
                     <DialogTitle id="simple-dialog-title">Etiquette &#128512;</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
-                            Souhaitez vous personnaliser l’étiquette de ces bouteilles ?
+                            Souhaitez vous personnaliser l’étiquette de ces {product.name} ?
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>

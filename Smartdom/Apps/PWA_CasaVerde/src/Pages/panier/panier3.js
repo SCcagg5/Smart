@@ -575,7 +575,7 @@ export default function Panier(props) {
     const addProductQuantity = (product) => {
         let findProductIndex = cart.findIndex(x => x.id === product.id)
         let newCart = cart;
-        newCart[findProductIndex].quantite = product.quantite + 1
+        newCart[findProductIndex].quantite = parseFloat(product.quantite) + 1
         let sousTotal = 0;
         newCart.map(item => {
             sousTotal = sousTotal + (item.price * item.quantite)

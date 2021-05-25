@@ -124,13 +124,13 @@ class Products extends Component {
                                 <div className="row align-items-center p-1 mt-3">
                                     {
                                         this.state.products.map((item, key) => (
-                                            <div onClick={()=>{navigateTo('/home/product/'+item.id)}} className="col-6 p-1">
+                                            <div onClick={()=>{navigateTo('/home/product/'+item.id)}} className="col-6 col-md-3 col-lg-3 p-1">
                                                 <div className="card cardShadow"
                                                     style={{width: "100%", borderRadius: 10}}>
                                                     <img className="card-img-top" src={item.images[0].src} style={{
                                                         borderTopRightRadius: 10,
                                                         WebkitBorderTopLeftRadius: 10,
-                                                        maxHeight: 150
+                                                        maxHeight: 300
                                                     }} alt="Card image cap"/>
                                                     <div className="card-body" style={{padding:"0.5rem"}}>
                                                         <div className="text-center" style={{fontWeight:700,fontSize:13}}> {item.name}</div>
