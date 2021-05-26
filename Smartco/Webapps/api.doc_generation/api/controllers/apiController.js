@@ -277,7 +277,6 @@ async function generate_OA_procuration_doc(req, res, data, code) {
 
 }
 
-
 function GenerateWordwithImg(template, DataInput, longueur, largeur) {
     //Load the docx file as a binary
     var content = fs.readFileSync(path.resolve(__dirname, template), 'binary');
@@ -316,7 +315,6 @@ function GenerateWordwithImg(template, DataInput, longueur, largeur) {
     return doc.getZip().generate({type: 'nodebuffer'});
 
 }
-
 
 function ConvertDOcVerPdf(json, code) {
 
