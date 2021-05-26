@@ -30,6 +30,7 @@ import ContactsMenuItems from "./ContactsMenuItems";
 import '../../assets/css/antDesign.css';
 import {Input, Tree} from 'antd';
 import TimeSheetMenuItems from "./TimeSheetMenuItems";
+import ComptaMenuItems from "./ComptaMenuItems";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 
@@ -519,6 +520,39 @@ export default function LeftMenuV3(props) {
                                 </div>
 
                             }
+
+                    {
+                        localStorage.getItem("email") === "k.db@enfinconsulting.ch" ?
+                            <div>
+
+                                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "AvanceFrais" ? "aliceblue":""}} onClick={() => {
+                                    props.setComptaMenuItems()
+                                    props.setFocusedItem("AvanceFrais")
+                                }}
+                                >
+                                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                                    <div style={{display:"flex"}}>
+                                        {
+                                            props.showComptaMenuItems === true ?
+                                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                                        }
+                                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Compta</Typography>
+                                    </div>
+                                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                                </div>
+                                {
+                                    props.showComptaMenuItems === true &&
+                                    <div>
+                                        <ComptaMenuItems items={data.ComptaMenuItems} selectedComptaMenuItem={props.selectedComptaMenuItem}
+                                                            onClick={(nodeId) => {props.onComptaItemClick(nodeId)}} handleSelectComptaMenu={props.handleSelectComptaMenu}
+                                        />
+                                    </div>
+
+                                }
+
+                            </div> : null
+
+                    }
 
                         </div>
 
