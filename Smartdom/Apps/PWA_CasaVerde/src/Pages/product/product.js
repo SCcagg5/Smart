@@ -14,7 +14,8 @@ import Snackbar from "@material-ui/core/Snackbar";
 import { withRouter } from 'react-router-dom';
 import Data from "../../data/Data";
 import MuiBackdrop from "../../Components/Loading/MuiBackdrop";
-
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 class Product extends Component {
     constructor(props){
         super(props)
@@ -137,6 +138,57 @@ class Product extends Component {
                                     </div>
 
                                 </div>
+
+                                <div className="col-12">
+                                    <div className="row align-items-center p-2 text-center justify-content-center " style={{borderStyle:"solid",borderColor:"#e6e6e6",borderWidth:1,borderRadius:10 ,backgroundColor:'#f2f2f2'}}>
+                                        <div>
+                                            <text  className="font-weight-bold" style={{fontFamily:"IBMPlexSans-Bold",fontSize:15,color:"#c6c6c6"}}>8 - 15min → </text>
+                                        </div>
+                                        <div>
+                                            <FormControl  className="ml-1" variant="outlined" >
+
+                                                <Select
+                                                    style={{height:30}}
+                                                    native
+
+                                                    inputProps={{
+                                                        name: 'age',
+                                                        id: 'outlined-age-native-simple',
+                                                    }}
+                                                >
+                                                    <option value={10}>Maison</option>
+
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-3 ">
+                                    <div className="col-8 ml-auto   row justify-content-center mt-2" style={{position:"relative",backgroundColor:"#bcffcd"}}>
+
+
+                                        <div className="col-6 text-center" style={{height:50}}>
+                                            <text style={{fontSize:30,color:"white"}}>{this.state.quantite}</text>
+                                        </div>
+                                        <div onClick={()=>this.addQuantite()}  style={{position:"absolute",left:-21}}>
+                                            <div   style={{borderRadius:1000,height:50,width:50,position:"relative",borderWidth:1,backgroundColor:Data.primary_color,}}>
+                                                <text  style={{fontSize:30,position:"absolute",left:15,bottom:3,color:"white"}}>+</text>
+                                            </div>
+                                        </div>
+                                        <div onClick={()=>this.downQuantite()} style={{position:"absolute",right:-21}}>
+                                            <div   style={{borderRadius:1000,height:50,width:50,position:"relative",borderWidth:1,backgroundColor:Data.primary_color}}>
+                                                <text  style={{fontSize:30,position:"absolute",left:20,bottom:3,color:"white"}}>-</text>
+                                            </div>
+                                        </div>
+
+
+
+
+                                    </div>
+                                </div>
+
+
 
                                 <div className="mt-2 pb-4" style={{display:"flex"}}>
                                     <button className="btn_add_cart" style={{backgroundColor:Data.primary_color,borderColor:Data.primary_color}}

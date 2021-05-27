@@ -26,9 +26,9 @@
 }
 
 .btn_add_cart{
-    flex: 1;
     /*background-color: #44cbc8;*/
     border: 0.125rem solid;
+    margin-left: auto;
     color: #fff;
     align-items: center;
     cursor: pointer;
@@ -38,13 +38,14 @@
     pointer-events: auto;
     text-align: center;
     white-space: nowrap;
-    min-width: 7.5rem;
+    min-width:50%;
     height: 3rem;
     padding: 0 1rem;
     font-family: "Open Sans",sans-serif;
     font-size: .85rem;
     font-weight: 600;
     outline: none;
-    border-radius: .25rem;
+    border-radius: 100px;
     letter-spacing: 0.06em;
+
 }

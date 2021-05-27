@@ -13,6 +13,7 @@ import history from "./Pages/routes/history";
 import SmartService from "./provider/SmartService";
 import utilFunctions from "./tools/functions";
 import rethink from "./controller/rethink";
+import 'swiper/swiper.scss';
 
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
