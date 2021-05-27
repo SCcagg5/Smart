@@ -14,6 +14,7 @@ import SmartService from "./provider/SmartService";
 import utilFunctions from "./tools/functions";
 import rethink from "./controller/rethink";
 import 'swiper/swiper.scss';
+import GoogleLog from "./Pages/auth/googleLogin";
 
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
@@ -45,15 +46,23 @@ export default class App extends React.Component {
             )
         } else {
             return (
+                !localStorage.getItem("email") || localStorage.getItem("email") === "" ?
                 <Router history={history}>
                     <Switch>
-                        <Redirect exact from={"/"} to={"/home/categories"}/>
-                        <Route path="/home" component={Accueil}/>
-                        {/*<Route path="/login" component={Login}/>*/}
-                        <Route exact path="/phone" component={Phone}/>
-                        <Route exact path="/verifCode/:phone" component={VerifCode}/>
+                        <Redirect exact from={"/"} to={"/login_with_google"}/>
+                        <Redirect from={"/home"} to={"/login_with_google"}/>
+                        <Route path="/login_with_google" component={GoogleLog}/>
                     </Switch>
-                </Router>
+                </Router> :
+
+                    <Router history={history}>
+                        <Switch>
+                            <Redirect exact from={"/"} to={"/home/categories"}/>
+                            <Route path="/home" component={Accueil}/>
+                            <Route exact path="/phone" component={Phone}/>
+                            <Route exact path="/verifCode/:phone" component={VerifCode}/>
+                        </Switch>
+                    </Router>
             )
         }
     }

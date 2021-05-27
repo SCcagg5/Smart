@@ -21,6 +21,7 @@ import utilFunctions from "../../tools/functions";
 import moment from "moment";
 import maillingService from "../../provider/maillingService";
 import Data from "../../data/Data";
+import {navigateTo} from "../routes/history";
 
 const db_name = "4e92789a-aa10-11eb-bcbc-0242ac130002"
 
