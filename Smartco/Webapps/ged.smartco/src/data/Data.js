@@ -2,6 +2,7 @@ import VideoCallIcon from "@material-ui/icons/VideoCall";
 import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
 import HomeWorkIcon from '@material-ui/icons/HomeWork';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
+import ListAltIcon from '@material-ui/icons/ListAlt';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -220,6 +221,15 @@ let Data = {
             title:"DashBoard Project",
             icon:MeetingRoomIcon
         },*/
+    ],
+
+
+    ComptaMenuItems: [
+        {
+            nodeId: "AvanceFrais",
+            title: "Avance de frais",
+            icon: ListAltIcon
+        }
     ],
 
 

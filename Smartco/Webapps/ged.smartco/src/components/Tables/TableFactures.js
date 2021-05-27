@@ -629,7 +629,7 @@ function Row(props) {
                 </TableCell>
                 <TableCell onClick={() => {console.log(row)}}
                     align="center">{row.type && row.type === "provision" ? "Provision" : row.type === "avance_frais" ? "Avance de frais" : "Facture"}</TableCell>
-                <TableCell align="center">{moment(row.date_facture).format("DD-MM-YYYY")}</TableCell>
+                <TableCell align="center">{moment(row.created_at).format("DD-MM-YYYY")}</TableCell>
                 <TableCell align="center">{row.client}</TableCell>
                 <TableCell align="center" style={{textDecoration: "underline", cursor: "pointer"}}
                            onClick={() => {
