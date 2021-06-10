@@ -549,6 +549,7 @@ export default function TableTimeSheet(props) {
                                 setExapndedRowKey("")
                                 setLf_client_search(e)
                                 setLf_client_search_ID(e)
+                                console.log(e)
 
                                 let cases = [];
                                 let clientsTempo = props.clientsTempo || [];
@@ -579,6 +580,7 @@ export default function TableTimeSheet(props) {
                         <h5>Par dossier</h5>
                         <select className="form-control custom-select" style={{width:230,marginLeft:10}}
                                 onChange={(event) => {
+                                    console.log(event.target.value)
                                     setPage(0);
                                     setOpen(false)
                                     setExapndedRowKey("")

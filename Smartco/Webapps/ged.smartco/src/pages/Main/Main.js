@@ -4656,6 +4656,13 @@ export default class Main extends React.Component {
                         'quantity': 1,
                         'sequence': 10,
                         "uom_id": 1,
+                        /*'invoice_line_tax_ids': [
+                            [
+                                6,
+                                false,
+                                tax && tax !== "" ? [tax] : []
+                            ]
+                        ],*/
                         'analytic_tag_ids': [
                             [
                                 6,
@@ -4748,8 +4755,8 @@ export default class Main extends React.Component {
             })
 
 
-        } else {
-
+        }
+        else {
             SmartService.create_facture_odoo(facture.odoo_id, localStorage.getItem('token'), localStorage.getItem('usrtoken'), {data: odoo_data}).then(createFactRes => {
                 console.log(facture.odoo_id)
                 console.log(createFactRes)
@@ -4948,6 +4955,13 @@ export default class Main extends React.Component {
                         'quantity': 1,
                         'sequence': 10,
                         "uom_id": 1,
+                        /*'invoice_line_tax_ids': [
+                            [
+                                6,
+                                false,
+                                tax && tax !== "" ? [tax] : []
+                            ]
+                        ],*/
                         'analytic_tag_ids': [
                             [
                                 6,
@@ -5481,7 +5495,8 @@ export default class Main extends React.Component {
                         console.log(err)
                     })
 
-                } else {
+                }
+                else {
                     let extraFolderName = localStorage.getItem("odoo_id") === "9035ce2a-a7a2-11eb-bcbc-0242ac130002" ? " (David Kohler)" : ""
                     let folderName = this.state.selectedSociete.Type === "0" ? this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '') : this.state.selectedSociete.Nom
                     SmartService.addFolder({
@@ -5590,7 +5605,8 @@ export default class Main extends React.Component {
                     }).catch(err => console.log(err))
 
                 }
-            } else {
+            }
+            else {
 
                 this.verifIsTableExist("clients_cases").then(v => {
 
@@ -5697,7 +5713,9 @@ export default class Main extends React.Component {
                                     console.log(err)
                                 })
 
-                            } else {
+                            }
+
+                            else {
 
                                 let findClient = (this.state.annuaire_clients_mandat || []).find(x => x.ID === ID || x.id === ID)
 
@@ -6026,6 +6044,13 @@ export default class Main extends React.Component {
                             user_email: localStorage.getItem('email'),
                             created_at: moment().format('YYYY-MM-DD HH:mm:ss')
                         }
+                        if(localStorage.getItem("odoo_id") === "9035ce2a-a7a2-11eb-bcbc-0242ac130002"){
+                            newItem.newTime.david_client_id = this.state.selectedClientTimeEntree;
+                            let doss_client = this.state.TimeSheet.newTime.dossier_client;
+                            doss_client.david_folder_id = this.state.TimeSheet.newTime.dossier_client.folder_id;
+                            newItem.newTime.dossier_client = doss_client;
+                        }
+
                         if (duplicate === false) {
                             this.setState({
                                 selectedClientTimeEntree: '',
@@ -6048,7 +6073,8 @@ export default class Main extends React.Component {
                                     }
                                 }
                             });
-                        } else {
+                        }
+                        else {
                             this.setState({
                                 TimeSheet: {
                                     newTime: {
@@ -6065,6 +6091,7 @@ export default class Main extends React.Component {
                                 }
                             })
                         }
+                        console.log(newItem)
                         rethink.insert("test", 'table("time_sheets").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
                             if (resAdd && resAdd === true) {
                                 this.setState({loading: false})
@@ -6222,7 +6249,6 @@ export default class Main extends React.Component {
             }
         })
     }
-
 
     deleteContact(id) {
         this.setState({loading: true})
