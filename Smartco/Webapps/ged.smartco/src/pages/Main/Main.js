@@ -647,7 +647,9 @@ export default class Main extends React.Component {
                                     taxs.push({
                                         key: taxResData.data[0].id,
                                         value: taxResData.data[0].id,
-                                        text: taxResData.data[0].display_name
+                                        text: taxResData.data[0].display_name,
+                                        amount:taxResData.data[0].amount,
+                                        price_include:taxResData.data[0].price_include
                                     })
                                 }).catch(err => console.log(err))
                             )
@@ -4516,8 +4518,21 @@ export default class Main extends React.Component {
 
         let lignes_factures = lignes_f;
         let total = 0;
+        let tax_amount = 0;
+        let findTaxe = this.state.odoo_taxs.find(x => x.key === tax)
+
         lignes_factures.map((ligne, key) => {
-            total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
+            let somme = ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation)
+            total = total + somme;
+            if(tax && tax !== "" && findTaxe){
+                if(findTaxe.price_include === true){
+                    let tax_row = somme - ( somme / ((findTaxe.amount / 100 ) + 1) )
+                    tax_amount = tax_amount + tax_row;
+                }else{
+                    let tax_row = (somme * findTaxe.amount) / 100
+                    tax_amount = tax_amount + tax_row;
+                }
+            }
         })
         let acces_token = facture.facture_acces_token ? facture.facture_acces_token : utilFunctions.getUID();
 
@@ -4527,9 +4542,9 @@ export default class Main extends React.Component {
             'type': 'out_invoice',
             "move_name": false,  // available only in odoo account.invoice => odoo 12
             "user_id": localStorage.getItem("odoo_id") === "9035ce2a-a7a2-11eb-bcbc-0242ac130002" ? 8 : 6,
-            /*"team_id":1,*/ // available only in odoo account.invoice => odoo 12
-            /*"comment":false,*/  // available only in odoo account.invoice => odoo 12
-            /*'l10n_ch_isr_sent': false,*/ // available only in odoo account.invoice => odoo 12
+            "team_id":1, // available only in odoo account.invoice => odoo 12
+            "comment":false,  // available only in odoo account.invoice => odoo 12
+            'l10n_ch_isr_sent': false, // available only in odoo account.invoice => odoo 12
             'name': false,   //on peut mettre une petite desc sous le titre de la facture avec ce champs
             'date_invoice': moment(facture_date).format('YYYY-MM-DD'),  //available only in odoo account.invoice => odoo 12
             'invoice_date': moment(facture_date).format('YYYY-MM-DD'),
@@ -4537,46 +4552,46 @@ export default class Main extends React.Component {
             'date_due': moment(deadline_date).format('YYYY-MM-DD'),
             'journal_id': 1,
             'currency_id': 5,
-            /*'invoice_user_id': 3,*/
-            'invoice_user_id': 2,
+            'invoice_user_id': 3,
             'invoice_incoterm_id': false,
-            /*'invoice_payment_state': 'not_paid',*/
-            /*'invoice_filter_type_domain': 'sale',*/
-            /*'company_currency_id': 5,
-      'commercial_partner_id': '',
-      'invoice_has_outstanding': false,*/
-            /*'l10n_ch_currency_name': 'CHF',
-      'invoice_sequence_number_next_prefix': false,
-      'invoice_sequence_number_next': false,
-      'invoice_has_matching_suspense_amount': false,
-      'has_reconciled_entries': false,
-      'restrict_mode_hash_table': false,*/
+            'invoice_payment_state': 'not_paid',
+            'invoice_filter_type_domain': 'sale',
+            'company_currency_id': 5,
+            'commercial_partner_id': '',
+            'invoice_has_outstanding': false,
+            'l10n_ch_currency_name': 'CHF',
+            'invoice_sequence_number_next_prefix': false,
+            'invoice_sequence_number_next': false,
+            'invoice_has_matching_suspense_amount': false,
+            'has_reconciled_entries': false,
+            'restrict_mode_hash_table': false,
             'partner_id': facture_company_id,
-            /*'invoice_vendor_bill_id': false,
-      'invoice_payment_term_id': 1,*/
+            'invoice_vendor_bill_id': false,
+            'invoice_payment_term_id': 1,
             'invoice_date_due': moment(deadline_date).format('YYYY-MM-DD'),
-            /*'company_id': 1,*/
-            /*'amount_untaxed': 0,
-      'amount_by_group': [],
-      'amount_total': 0,
-      'invoice_payments_widget': 'False',
-      'amount_residual': 0,
-      'invoice_outstanding_credits_debits_widget': false,*/
+            'company_id': 1,
+            'amount_untaxed': 0,
+            'amount_by_group': [],
+            'amount_total': 0,
+            'invoice_payments_widget': 'False',
+            'amount_residual': 0,
+            'invoice_outstanding_credits_debits_widget': false,
             'invoice_origin': false,
-            /*'invoice_cash_rounding_id': false,*/
+            'invoice_cash_rounding_id': false,
             'invoice_source_email': false,
-            /*'invoice_payment_ref': false,
-      'reversed_entry_id': false,
-      'message_follower_ids': [],
-      'activity_ids': [],
-      'message_ids': [],*/
+            'invoice_payment_ref': false,
+            'reversed_entry_id': false,
+            'message_follower_ids': [],
+            'activity_ids': [],
+            'message_ids': [],
             'message_attachment_count': 0,
             'invoice_line_ids': [],
-            /*"account_id": 6,*/
+            'tax_line_ids':[],
+            "account_id": 6,
             "reference": facture.client_folder.name,
             "fiscal_position_id": false,
-            /*"origin": false,
-      "reference_type":"none",*/
+            "origin": false,
+            "reference_type":"none",
             "incoterm_id": false,
             "sequence_number_next": false,
             "partner_shipping_id": facture_company_id,
@@ -4713,11 +4728,35 @@ export default class Main extends React.Component {
                 if (detailsRes.succes === true && detailsRes.status === 200) {
                     console.log(detailsRes.data[0])
                     let invoice_line_ids = detailsRes.data[0].invoice_line_ids || [];
-                    console.log(invoice_line_ids)
+                    let tax_line_ids = detailsRes.data[0].tax_line_ids || [];
                     invoice_line_ids.map(id => {
-                        odoo_data[0].invoice_line_ids.push([2, id, {}])
+                        odoo_data[0].invoice_line_ids.push([2, id,false])
+                    })
+                    tax_line_ids.map(id => {
+                        odoo_data[0].tax_line_ids.push([2, id,false])
                     })
 
+                    console.log(findTaxe)
+                    if(tax && tax !== "" && findTaxe){
+
+                        odoo_data[0].tax_line_ids.push(
+                            [
+                                0,
+                                'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+                                {
+                                    account_analytic_id: false,
+                                    account_id: 75,
+                                    amount_rounding: 0,
+                                    currency_id: 5,
+                                    sequence: 0,
+                                    name:findTaxe.text,
+                                    tax_id: tax,
+                                    amount:tax_amount
+                                }
+                            ]
+                        )
+                    }
+                    console.log(odoo_data[0].tax_line_ids)
                     SmartService.update_facture_odoo(facture.odoo_id, localStorage.getItem('token'), localStorage.getItem('usrtoken'),
                         {data: [[facture.facture_odoo_id], odoo_data[0]], method: "write"}).then(updateFacRes => {
                         if (updateFacRes.succes === true && updateFacRes.status === 200) {
@@ -4817,8 +4856,21 @@ export default class Main extends React.Component {
 
         let lignes_factures = lignes_f;
         let total = 0;
+        let tax_amount = 0;
+        let findTaxe = this.state.odoo_taxs.find(x => x.key === tax)
+
         lignes_factures.map((ligne, key) => {
+            let somme = ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation)
             total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
+            if(tax && tax !== "" && findTaxe){
+                if(findTaxe.price_include === true){
+                    let tax_row = somme - ( somme / ((findTaxe.amount / 100 ) + 1) )
+                    tax_amount = tax_amount + tax_row;
+                }else{
+                    let tax_row = (somme * findTaxe.amount) / 100
+                    tax_amount = tax_amount + tax_row;
+                }
+            }
         })
         let acces_token = facture.facture_acces_token ? facture.facture_acces_token : utilFunctions.getUID();
 
@@ -4871,6 +4923,7 @@ export default class Main extends React.Component {
             'message_ids': [],
             'message_attachment_count': 0,
             'invoice_line_ids': [],
+            'tax_line_ids':[],
             "account_id": 6,
             "reference": facture.client_folder.name,
             "fiscal_position_id": false,
@@ -5020,7 +5073,6 @@ export default class Main extends React.Component {
                 return d - c;
             })
         let latest = find_provision_factures.length > 0 ? find_provision_factures[0] : undefined
-        console.log(latest)
         if (latest !== undefined) {
             odoo_data[0].invoice_line_ids.push(
                 [
@@ -5058,10 +5110,34 @@ export default class Main extends React.Component {
                 if (detailsRes.succes === true && detailsRes.status === 200) {
                     console.log(detailsRes.data[0])
                     let invoice_line_ids = detailsRes.data[0].invoice_line_ids || [];
-                    console.log(invoice_line_ids)
+                    let tax_line_ids = detailsRes.data[0].tax_line_ids || [];
                     invoice_line_ids.map(id => {
-                        odoo_data[0].invoice_line_ids.push([2, id, {}])
+                        odoo_data[0].invoice_line_ids.push([2, id, false])
                     })
+                    tax_line_ids.map(id => {
+                        odoo_data[0].tax_line_ids.push([2, id,false])
+                    })
+                    console.log(findTaxe)
+                    if(tax && tax !== "" && findTaxe){
+
+                        odoo_data[0].tax_line_ids.push(
+                            [
+                                0,
+                                'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+                                {
+                                    account_analytic_id: false,
+                                    account_id: 75,
+                                    amount_rounding: 0,
+                                    currency_id: 5,
+                                    sequence: 0,
+                                    name:findTaxe.text,
+                                    tax_id: tax,
+                                    amount:tax_amount
+                                }
+                            ]
+                        )
+                    }
+                    console.log(odoo_data[0].tax_line_ids)
 
                     SmartService.update_facture_odoo(facture.odoo_id, localStorage.getItem('token'), localStorage.getItem('usrtoken'),
                         {data: [[facture.facture_odoo_id], odoo_data[0]], method: "write"}).then(updateFacRes => {
@@ -5200,7 +5276,8 @@ export default class Main extends React.Component {
                 console.log(err)
             })
 
-        } else {
+        }
+        else {
             SmartService.create_facture_odoo(facture.odoo_id, localStorage.getItem('token'), localStorage.getItem('usrtoken'), {data: odoo_data}).then(createFactRes => {
                 console.log(createFactRes)
                 if (createFactRes.succes === true && createFactRes.status === 200) {
