@@ -200,7 +200,7 @@ export default function TableTimeSheet(props) {
         ( lf.newTime && lf.newTime.dossier_client.team && (lf.newTime.dossier_client.team.find(x => x.uid === lf_assoc_dossier_search && x.type === "lead")  ) || lf_assoc_dossier_search === "") &&
         ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
         ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  ) &&
-        ( (selectedDate !== "" && (moment(selectedDate.format("YYYY-MM-DD")).isSame(moment(lf.newTime.date).format("YYYY-MM-DD")))) || selectedDate === "" )
+        ( (selectedDate !== "" && (moment(selectedDate.format("YYYY-MM-DD")).isSame(moment(lf.newTime.date).format("YYYY-MM-DD")))) || selectedDate === "" ) && (!lf.archived || (lf.archived && lf.archived === 0))
     )) :
         props.lignesFactures.filter((lf) => ( ( (lf.newTime.david_client_id && lf.newTime.david_client_id.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
             ( lf.newTime.dossier_client && lf.newTime.dossier_client.david_folder_id && (lf.newTime.dossier_client.david_folder_id === lf_dossier_search ) || lf_dossier_search === "") &&
@@ -208,7 +208,7 @@ export default function TableTimeSheet(props) {
             ( lf.newTime && lf.newTime.dossier_client.team && (lf.newTime.dossier_client.team.find(x => x.uid === lf_assoc_dossier_search && x.type === "lead")  ) || lf_assoc_dossier_search === "") &&
             ( (lf_sdate_search !== null && ( new Date(lf.newTime.date).getTime() >= lf_sdate_search.getTime())) || lf_sdate_search === null  ) &&
             ( (lf_edate_search !== null && (new Date(lf.newTime.date).getTime() <= (moment(lf_edate_search).set({hour:23,minute:59}).unix() * 1000) ))  || lf_edate_search === null  ) &&
-            ( (selectedDate !== "" && (moment(selectedDate.format("YYYY-MM-DD")).isSame(moment(lf.newTime.date).format("YYYY-MM-DD")))) || selectedDate === "" )
+            ( (selectedDate !== "" && (moment(selectedDate.format("YYYY-MM-DD")).isSame(moment(lf.newTime.date).format("YYYY-MM-DD")))) || selectedDate === "" ) && (!lf.archived || (lf.archived && lf.archived === 0))
         ))
 
     searchFilter.sort( (a,b) => {

@@ -119,7 +119,7 @@ export default function TableTimeSheetsNonFact(props) {
     })
     timeSheetsNonFact = timeSheets.filter(x => !factures_ts.includes(x.id))
     const searchFilter = (timeSheetsNonFact || []).filter((lf) => ( ( (lf.newTime.client_id.trim() === lf_client_search.trim() ) || lf_client_search === "") &&
-        ( lf.newTime.dossier_client && lf.newTime.dossier_client.folder_id && (lf.newTime.dossier_client.folder_id === lf_dossier_search ) || lf_dossier_search === "")
+        ( lf.newTime.dossier_client && lf.newTime.dossier_client.folder_id && (lf.newTime.dossier_client.folder_id === lf_dossier_search ) || lf_dossier_search === "") && (!lf.archived || (lf.archived && lf.archived === 0))
     ))
 
     searchFilter.sort( (a,b) => {

@@ -123,23 +123,24 @@ async function insert(usr_token, cmd, db , read_change=false){
   return new Promise(function(resolve, reject) {
 
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
-    let ok = true;
+    let ok = false;
     socket.onopen = function(e) {
       let payload;
       payload = {"cmd": cmd, "db": db, "read_change": read_change}
       socket.send(JSON.stringify(payload));
     };
     socket.onmessage = function(event) {
-      //console.log(event)
-      if(event && event.data && event.data === "Invalid cmd")
-        ok = false;
+      console.log(event)
+      if(event && event.data && event.data === JSON.stringify("generated_keys")) ok = true
+      if(event && event.data && event.data === "Invalid cmd") ok = false;
     }
     socket.error = function(event) {
       console.log("ERROR INSERT RETHINK");
       ok = false
-      reject(ok)
+      resolve(ok)
     };
     socket.onclose = function(event) {
+      console.log("CLOSED INSERT")
       resolve(ok)
     };
   });
@@ -178,20 +179,21 @@ async function update(usr_token, cmd, db , read_change=false){
   return new Promise(function(resolve, reject) {
 
     let socket = new WebSocket("wss://api.smartdom.ch/ws/" + usr_token);
-    let ok = true;
+    let ok = false;
     socket.onopen = function(e) {
       let payload;
       payload = {"cmd": cmd, "db": db, "read_change": read_change}
       socket.send(JSON.stringify(payload));
     };
     socket.onmessage = function(event) {
-      if(event && event.data && event.data === "Invalid cmd")
-        ok = false;
+      console.log(event)
+      if(event && event.data && event.data === JSON.stringify("replaced")) ok = true;
+      if(event && event.data && event.data === "Invalid cmd") ok = false;
     }
     socket.error = function(event) {
       console.log("ERROR UPDATE RETHINK");
       ok = false;
-      reject(ok)
+      resolve(ok)
     };
     socket.onclose = function(event) {
       console.log("CLOSED");

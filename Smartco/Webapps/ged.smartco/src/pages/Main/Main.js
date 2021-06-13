@@ -864,7 +864,8 @@ export default class Main extends React.Component {
                                     return 0;
                                 })
                             })
-                        } else if (item === "contacts") {
+                        }
+                        else if (item === "contacts") {
                             if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
                                 if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
 
@@ -917,7 +918,8 @@ export default class Main extends React.Component {
                                     })
                                 })
                             }
-                        } else if (item === "rooms") {
+                        }
+                        else if (item === "rooms") {
                             let user_rooms = [];
                             rr.map((room, key) => {
                                 if (room.members.find(x => x.email === localStorage.getItem("email"))) {
@@ -965,11 +967,14 @@ export default class Main extends React.Component {
                                     });
                                 }
                             }
-                        } else if (item === "odoo_companies") {
+                        }
+                        else if (item === "odoo_companies") {
                             this.setState({[item]: rr.filter(x => x.odoo_id === localStorage.getItem("odoo_id"))})
-                        } else if (item === "clients_cases") {
+                        }
+                        else if (item === "clients_cases") {
                             this.setState({[item]: rr.filter(x => x.admin_odoo_id === localStorage.getItem("odoo_id") || localStorage.getItem("email") === "k.db@enfinconsulting.ch")})
-                        } else {
+                        }
+                        else {
                             this.setState({[item]: rr})
                         }
                     });
@@ -1222,27 +1227,35 @@ export default class Main extends React.Component {
             if (recieve.new_val && recieve.old_val) {
                 let index_to_updated = data.findIndex(x => x.id === recieve.old_val.id)
                 data[index_to_updated] = recieve.new_val;
+                console.log(data[index_to_updated])
                 this.setState({[table_name]: data})
             }
             //insert
             else if (recieve.new_val) {
-                data.push(recieve.new_val)
-                if (table_name === "annuaire_clients_mandat") {
-                    this.setState({
-                        [table_name]: data.sort((a, b) => {
-                            let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
-                            let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
-                            if (fname1.toLowerCase().trim() < fname2.toLowerCase().trim()) {
-                                return -1;
-                            }
-                            if (fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) {
-                                return 1;
-                            }
-                            return 0;
+                if (table_name === "time_sheets") {
+                    if(data.findIndex(x => x.uid === recieve.new_val.uid) === -1 ){
+                        data.push(recieve.new_val)
+                        this.setState({[table_name]: data})
+                    }
+                }else{
+                    data.push(recieve.new_val)
+                    if (table_name === "annuaire_clients_mandat") {
+                        this.setState({
+                            [table_name]: data.sort((a, b) => {
+                                let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
+                                let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
+                                if (fname1.toLowerCase().trim() < fname2.toLowerCase().trim()) {
+                                    return -1;
+                                }
+                                if (fname1.toLowerCase().trim() > fname2.toLowerCase().trim()) {
+                                    return 1;
+                                }
+                                return 0;
+                            })
                         })
-                    })
-                } else {
-                    this.setState({[table_name]: data})
+                    } else {
+                        this.setState({[table_name]: data})
+                    }
                 }
             }
             //remove
@@ -5066,7 +5079,7 @@ export default class Main extends React.Component {
         }
 
         let find_provision_factures = (this.state.factures || []).filter(x => x.type === "provision" && x.client_id === facture.client_id &&
-            x.client_folder.id === facture.client_folder.id && x.partner === localStorage.getItem("email") && x.paid && x.paid === "true")
+            x.client_folder.id === facture.client_folder.id && x.partner === localStorage.getItem("email") && x.paid && x.paid === "true" && !x.used)
             .sort((a, b) => {
                 var c = new Date(a.created_at);
                 var d = new Date(b.created_at);
@@ -5416,17 +5429,6 @@ export default class Main extends React.Component {
                 console.log(err);
             });
 
-        }
-
-    }
-
-    deleteLigneFact(lf) {
-        const r = window.confirm('Voulez-vous vraiment supprimer cette ligne facture ?');
-        if (r === true) {
-            let lignes_facture = this.state.lignesFactures;
-            let findIndex = lignes_facture.findIndex(x => x.uid === lf.uid);
-            lignes_facture.splice(findIndex, 1);
-            this.setState({lignesFactures: lignes_facture});
         }
 
     }
@@ -6088,8 +6090,8 @@ export default class Main extends React.Component {
     }
 
     async createLignefacture(duplicate) {
+        this.setState({loading: true})
         let connex_state = await this.verifConnexionState();
-        console.log(connex_state)
         if (connex_state === true) {
             let objCopy = this.state.TimeSheet;
             let time = this.state.TimeSheet.newTime.duree;
@@ -6099,10 +6101,11 @@ export default class Main extends React.Component {
                 let duree = utilFunctions.durationToNumber(time);
 
                 if (duree === 0) {
+                    this.setState({loading: false})
                     this.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
                 } else {
-                    this.setState({loading: true})
-                    this.verifIsTableExist("time_sheets").then(v => {
+
+                    this.verifIsTableExist("time_sheets").then( v => {
 
                         let newItem = {
                             newTime: {
@@ -6168,60 +6171,91 @@ export default class Main extends React.Component {
                                 }
                             })
                         }
-                        console.log(newItem)
-                        rethink.insert("test", 'table("time_sheets").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
-                            if (resAdd && resAdd === true) {
-                                this.setState({loading: false})
-                                this.openSnackbar('success', 'Enregistrement effectué avec succès');
-                            } else {
-                                this.setState({loading: false})
-                                this.openSnackbar("error", "Une erreur est survenue !");
-                            }
-                        }).catch(err => {
-                            this.setState({loading: false})
-                            this.openSnackbar("error", "Une erreur est survenue !");
-                            console.log(err)
-                        })
 
+                        let timeSheets = this.state.time_sheets || [];
+                        timeSheets.push(newItem)
+                        this.setState({time_sheets:timeSheets})
+
+                        setTimeout(() => {
+
+                            rethink.insert("test", 'table("time_sheets").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+                                if (resAdd && resAdd === true) {
+                                    this.setState({loading: false})
+                                    this.openSnackbar('success', 'Enregistrement effectué avec succès');
+                                } else {
+                                    let timeSheets = this.state.time_sheets || [];
+                                    let findNewAddedIndex = timeSheets.findIndex(x => x.uid === newItem.uid)
+                                    timeSheets.splice(findNewAddedIndex,1);
+                                    this.setState({time_sheets:timeSheets,loading: false})
+                                    this.openSnackbar("error", "Une erreur est survenue !");
+                                }
+                            }).catch( err => {
+                                let timeSheets = this.state.time_sheets || [];
+                                let findNewAddedIndex = timeSheets.findIndex(x => x.uid === newItem.uid)
+                                timeSheets.splice(findNewAddedIndex,1);
+                                this.setState({time_sheets:timeSheets,loading: false})
+                                this.openSnackbar("error", "Une erreur est survenue !");
+                                console.log(err)
+                            })
+
+                        },200);
 
                     }).catch(err => {
+                        this.setState({loading: false})
+                        this.openSnackbar("error", "Une erreur est survenue !");
                         console.log(err)
                     })
                 }
             } else {
+                this.setState({loading: false})
                 this.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
             }
         }
-    }
-
-    updateLigneFacture(id, ligne) {
-
-        rethink.update("test", 'table("time_sheets").get(' + JSON.stringify(id) + ').update(' + JSON.stringify(ligne) + ')', db_name, false).then(updateRes => {
-            if (updateRes && updateRes === true) {
-                this.openSnackbar("success", "Modification effectuée avec succès")
-            } else {
-                this.openSnackbar("error", "Une erreur est survenue !")
-            }
-        }).catch(err => {
-            this.openSnackbar("error", "Une erreur est survenue !")
-        })
-    }
-
-    deleteLigneFacture(id) {
-        this.setState({loading: true})
-        rethink.remove("test", 'table("time_sheets").get(' + JSON.stringify(id) + ').delete()', db_name, false).then(delRes => {
-            if (delRes && delRes === true) {
-                this.setState({loading: false})
-                this.openSnackbar("success", "Suppression effectuée  avec succès")
-            } else {
-                this.setState({loading: false})
-                this.openSnackbar("error", "Une erreur est survenue !")
-            }
-        }).catch(err => {
+        else{
             this.setState({loading: false})
-            this.openSnackbar("error", "Une erreur est survenue !")
-            console.log(err)
-        })
+        }
+    }
+
+    async updateLigneFacture(id, ligne) {
+        this.setState({loading: true})
+        let connex_state = await this.verifConnexionState();
+        if(connex_state === true){
+            rethink.update("test", 'table("time_sheets").get(' + JSON.stringify(id) + ').update(' + JSON.stringify(ligne) + ')', db_name, false).then(updateRes => {
+                if (updateRes && updateRes === true) {
+                    this.openSnackbar("success", "Modification effectuée avec succès")
+                } else {
+                    this.openSnackbar("error", "Une erreur est survenue !")
+                }
+            }).catch(err => {
+                this.openSnackbar("error", "Une erreur est survenue !")
+            })
+        }else{
+            this.setState({loading: false})
+        }
+
+    }
+
+    async deleteLigneFacture(id) {
+        this.setState({loading: true})
+        let connex_state = await this.verifConnexionState();
+        if(connex_state === true){
+            rethink.update("test", 'table("time_sheets").get(' + JSON.stringify(id) + ').update(' + JSON.stringify({archived:1}) + ')', db_name, false).then( updateRes => {
+                if (updateRes && updateRes === true) {
+                    this.setState({loading: false})
+                    this.openSnackbar("success", "Suppression effectuée  avec succès")
+                } else {
+                    this.setState({loading: false})
+                    this.openSnackbar("error", "Une erreur est survenue !")
+                }
+            }).catch(err => {
+                this.setState({loading: false})
+                this.openSnackbar("error", "Une erreur est survenue !")
+                console.log(err)
+            })
+        }else{
+            this.setState({loading: false})
+        }
+
     }
 
     delete_annuaire_client_mandat(id) {
