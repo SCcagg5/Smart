@@ -186,7 +186,7 @@ async function update(usr_token, cmd, db , read_change=false){
       socket.send(JSON.stringify(payload));
     };
     socket.onmessage = function(event) {
-      console.log(event)
+      //console.log(event)
       if(event && event.data && event.data === JSON.stringify("replaced")) ok = true;
       if(event && event.data && event.data === "Invalid cmd") ok = false;
     }

@@ -49,6 +49,7 @@ export default function ComptaInvoicesTable(props) {
     const [sdate_search, setSdate_search] = React.useState(null);
     const [edate_search, setEdate_search] = React.useState(null);
     const [statut_search, setStatut_search] = React.useState("tous");
+    const [x_update, setX_update] = React.useState(false);
 
 
     const renderClientCases = (client_id) => {
@@ -108,6 +109,8 @@ export default function ComptaInvoicesTable(props) {
                                     setClient_search("")
                                     setLf_dossier_search("")
                                     setLf_oaUser_search("")
+                                    setLf_processed_search("")
+                                    setLf_type_search("")
                                 }}
                             >Initialiser</AtlButton>
                         </div>
@@ -354,6 +357,7 @@ function Row(props) {
     const classes = useRowStyles();
     const {row} = props;
     const [open, setOpen] = React.useState(false);
+    const [x_update, setX_update] = React.useState(false);
 
     useEffect(() => {
         if(!row.amount_untaxed && !row.amount_tax && !row.amount_total && row.statut !== "wait"){
@@ -544,8 +548,9 @@ function Row(props) {
                     <Toggle id="sett-large" size="large"
                             isChecked={row.processed && row.processed === 1}
                             onChange={ event => {
-                                row.processed = !row.processed ? 1 : row.processed === 0 ? 1 : 0
-                                props.updateFacture(row.id,row)
+                                let item = row;
+                                item.processed = !item.processed ? 1 : item.processed === 1 ? 0 : 1
+                                props.updateFacture(item.id,item)
                             }}
                     />
                 </TableCell>

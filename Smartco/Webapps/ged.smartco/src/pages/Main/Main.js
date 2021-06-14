@@ -1227,7 +1227,7 @@ export default class Main extends React.Component {
             if (recieve.new_val && recieve.old_val) {
                 let index_to_updated = data.findIndex(x => x.id === recieve.old_val.id)
                 data[index_to_updated] = recieve.new_val;
-                console.log(data[index_to_updated])
+                //console.log(data[index_to_updated])
                 this.setState({[table_name]: data})
             }
             //insert
@@ -3723,7 +3723,8 @@ export default class Main extends React.Component {
                                         type: "avance_frais",
                                         facture_odoo_id: createFactRes.data.id,
                                         facture_acces_token: acces_token,
-                                        odoo_id: localStorage.getItem("odoo_id")
+                                        odoo_id: localStorage.getItem("odoo_id"),
+                                        processed: 0
                                     }
                                     rethink.insert("test", 'table("factures").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
                                         if (resAdd && resAdd === true) {
@@ -4167,7 +4168,8 @@ export default class Main extends React.Component {
                                                                     type: "provision",
                                                                     facture_odoo_id: createFactRes.data.id,
                                                                     facture_acces_token: acces_token,
-                                                                    odoo_id: localStorage.getItem("odoo_id")
+                                                                    odoo_id: localStorage.getItem("odoo_id"),
+                                                                    processed: 0
                                                                 }
                                                                 rethink.insert("test", 'table("factures").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
                                                                     if (resAdd && resAdd === true) {
@@ -4366,7 +4368,8 @@ export default class Main extends React.Component {
                     lignes_facture: lignes_facture,
                     statut: "wait",
                     client_folder: client_folder,
-                    odoo_id: localStorage.getItem("odoo_id")
+                    odoo_id: localStorage.getItem("odoo_id"),
+                    processed : 0
                 }
 
                 rethink.insert("test", 'table("factures").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
@@ -5235,6 +5238,7 @@ export default class Main extends React.Component {
                                                                     let updatedItem = facture;
                                                                     updatedItem.statut = "accepted";
                                                                     updatedItem.file_id = ok.data.file_id;
+                                                                    updatedItem.processed = 0
                                                                     //updatedItem.client_folder = {id:client, name:resF.data.name}
 
                                                                     rethink.update("test", 'table("factures").get(' + JSON.stringify(id_facture) + ').update(' + JSON.stringify(updatedItem) + ')', db_name, false).then(updateRes => {
@@ -5376,6 +5380,7 @@ export default class Main extends React.Component {
                                                             updatedItem.file_id = ok.data.file_id;
                                                             updatedItem.facture_odoo_id = createFactRes.data.id
                                                             updatedItem.facture_acces_token = acces_token
+                                                            updatedItem.processed = 0
 
                                                             rethink.update("test", 'table("factures").get(' + JSON.stringify(id_facture) + ').update(' + JSON.stringify(updatedItem) + ')', db_name, false).then(updateRes => {
                                                                 if (updateRes && updateRes === true) {
