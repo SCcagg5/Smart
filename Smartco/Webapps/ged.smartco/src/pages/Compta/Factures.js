@@ -6,9 +6,10 @@ import ComptaInvoicesTable from "../../components/Tables/TableComptaFactures";
 export default function ComptaInvoices(props){
 
 
+
     return(
         <div>
-            <h4 className="mt-0 mb-1">Liste des factures d'avance de frais </h4>
+            <h4 className="mt-0 mb-1">Liste des factures</h4>
 
             <ComptaInvoicesTable
                 factures={props.factures}
@@ -19,6 +20,7 @@ export default function ComptaInvoices(props){
                 show_odoo_facture={props.show_odoo_facture}
                 openFacture={props.openFacture}
                 openPdf={props.openPdf}
+                updateFacture={props.updateFacture}
             />
 
         </div>

@@ -35,7 +35,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 
 
-
 const {DirectoryTree} = Tree;
 const {Search} = Input;
 
@@ -59,8 +58,8 @@ export default function LeftMenuV3(props) {
     const generateList = data => {
         for (let i = 0; i < data.length; i++) {
             const node = data[i];
-            const { key } = node;
-            dataList.push({ key, title: data[i].title });
+            const {key} = node;
+            dataList.push({key, title: data[i].title});
             if (node.children) {
                 generateList(node.children);
             }
@@ -69,16 +68,16 @@ export default function LeftMenuV3(props) {
     generateList(props.driveFolders)
 
 
-    const  onChange = e => {
+    const onChange = e => {
         props.setAutoExpandParent(true)
         const {value} = e.target;
         const newExpandedKeys = dataList.map(item => {
 
-                if (item.title.toLowerCase().indexOf(value.toLowerCase()) > -1) {
-                    return getParentKey(item.key, props.driveFolders);
-                }
-                return null;
-            }).filter((item, i, self) => item && self.indexOf(item) === i);
+            if (item.title.toLowerCase().indexOf(value.toLowerCase()) > -1) {
+                return getParentKey(item.key, props.driveFolders);
+            }
+            return null;
+        }).filter((item, i, self) => item && self.indexOf(item) === i);
         props.setExpandedDriveItems(newExpandedKeys)
         setSearchValue(value)
     }
@@ -204,13 +203,17 @@ export default function LeftMenuV3(props) {
         data.map(item => {
             const index = item.title.toLowerCase().indexOf(searchValue.toLowerCase());
             const beforeStr = item.title.substr(0, index);
-            const searched = item.title.substr(index,searchValue.length)
+            const searched = item.title.substr(index, searchValue.length)
             const afterStr = item.title.substr(index + searchValue.length);
             const title =
                 index > -1 ? (
                     <span>
                         {beforeStr}
-                        <span style={{backgroundColor:searchValue !== ""&&"rgb(204, 204, 204)",paddingTop:searchValue !== ""&&"0.4rem",paddingBottom:searchValue !== ""&&"0.4rem"}}>{searched}</span>
+                        <span style={{
+                            backgroundColor: searchValue !== "" && "rgb(204, 204, 204)",
+                            paddingTop: searchValue !== "" && "0.4rem",
+                            paddingBottom: searchValue !== "" && "0.4rem"
+                        }}>{searched}</span>
                         {afterStr}
                     </span>
                 ) : (
@@ -219,22 +222,22 @@ export default function LeftMenuV3(props) {
             if (item.children) {
                 return {
                     title, key: item.key, children: loop(item.children),
-                    name:item.title,
+                    name: item.title,
                     icon: item.icon,
-                    files:item.files,
-                    folders:item.folders,
-                    typeF:item.typeF
+                    files: item.files,
+                    folders: item.folders,
+                    typeF: item.typeF
                 };
             }
 
             return {
                 title,
-                name:item.title,
+                name: item.title,
                 key: item.key,
                 icon: item.icon,
-                files:item.files,
-                folders:item.folders,
-                typeF:item.typeF
+                files: item.files,
+                folders: item.folders,
+                typeF: item.typeF
             };
         });
 
@@ -244,128 +247,132 @@ export default function LeftMenuV3(props) {
         <div style={{marginTop: 20, paddingRight: 10}}>
 
             <div align="center">
-                        <MuiButton
-                            variant="contained"
-                            color="default"
-                            startIcon={<AddIcon style={{color: "#A00015", fontSize: 28}}/>}
-                            size="large"
-                            style={{textTransform: "none", borderRadius: 20, backgroundColor: "#fff", color: "#000"}}
-                            onClick={(event) => {
-                                props.loadingGed === false && setAnchorEl(event.currentTarget)
-                            }}
-                        >
-                            Nouveau
-                        </MuiButton>
-                    </div>
+                <MuiButton
+                    variant="contained"
+                    color="default"
+                    startIcon={<AddIcon style={{color: "#A00015", fontSize: 28}}/>}
+                    size="large"
+                    style={{textTransform: "none", borderRadius: 20, backgroundColor: "#fff", color: "#000"}}
+                    onClick={(event) => {
+                        props.loadingGed === false && setAnchorEl(event.currentTarget)
+                    }}
+                >
+                    Nouveau
+                </MuiButton>
+            </div>
 
             <div style={{marginTop: 25, marginLeft: 5}}>
 
-                    <div>
-                        <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Drive" ? "aliceblue" : ""}}
-                             onClick={() => {
-                                 props.setSelectedDriveItem([])
-                                 props.setExpandedDriveItems([])
-                                 props.setSelectedDriveSharedItem([])
-                                 props.setExpandedDriveSharedItems([])
-                                 props.setShowDriveMenuItems()
-                                 props.setFocusedItem("Drive")
-                             }}
-                        >
-                            <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                            <div style={{display: "flex"}}>
-                                {
-                                    props.showDriveMenuItems === true ?
-                                        <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
-                                }
-                                <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Mon Drive</Typography>
-                            </div>
-                            <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                        </div>
-                        {
-                            props.showDriveMenuItems === true &&
-                            <div>
-                                {
-                                    props.loadingGed === true ?
-                                        <div align="center" className="mt-1">
-                                            <h6>Chargement...</h6>
-                                        </div> :
-
-                                        <div>
-                                            <Search style={{marginBottom: 8}} placeholder="Chercher" onChange={onChange}/>
-                                            <DirectoryTree
-                                                draggable
-                                                showIcon={true}
-                                                onExpand={onExpand}
-                                                onSelect={onSelect}
-                                                onDragEnter={onDragEnter}
-                                                onDrop={onDrop}
-                                                treeData={loop(props.driveFolders)}
-                                                expandAction="click"
-                                                onRightClick={info => {
-                                                    if (info.node.typeF === "folder") {
-                                                        setAnchorElMenu(info.event.currentTarget)
-                                                        props.setSelectedFolder(info.node)
-                                                        props.setFolderName(info.node.title)
-                                                        props.setFolderId(info.node.key)
-                                                    }
-                                                }}
-                                                expandedKeys={props.expandedDriveItems}
-                                                selectedKeys={props.selectedDriveItem}
-                                                onDragStart={e => {
-                                                    let node = {key:e.node.key,typeF:e.node.typeF}
-                                                    e.event.dataTransfer.setData("node", JSON.stringify(node))
-                                                }}
-                                                autoExpandParent={props.autoExpandParent}
-                                                height={500}
-                                            />
-
-                                            <DirectoryTree
-                                                loadData={props.onLoadSharedData}
-                                                draggable
-                                                showIcon={true}
-                                                onExpand={onExpand_shared}
-                                                onSelect={onSelect_shared}
-                                                treeData={props.sharedFolders}
-                                                expandAction="click"
-                                                onRightClick={info => {
-                                                    if (info.node.typeF === "folder" && info.node.key !== "parent") {
-                                                        let rights = info.node.rights || [];
-                                                        setRights(rights);
-                                                        setShareAnchorElMenu(info.event.currentTarget)
-                                                        props.setSelectedSharedFolder(info.node)
-                                                        props.setSharedFolderName(info.node.title)
-                                                        props.setSharedFolderId(info.node.key)
-
-                                                    }
-                                                }}
-                                                expandedKeys={props.expandedDriveSharedItems}
-                                                selectedKeys={props.selectedDriveSharedItem}
-                                                autoExpandParent={props.autoExpandSharedParent}
-                                            />
-                                        </div>
-                                }
-
-
-
-                            </div>
-                        }
-                    </div>
                 <div>
-                    <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "SignQualifie" ? "aliceblue" : ""}}
+                    <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Drive" ? "aliceblue" : ""}}
                          onClick={() => {
-                             props.setFocusedItem("SignQualifie")
+                             props.setSelectedDriveItem([])
+                             props.setExpandedDriveItems([])
+                             props.setSelectedDriveSharedItem([])
+                             props.setExpandedDriveSharedItems([])
+                             props.setShowDriveMenuItems()
+                             props.setFocusedItem("Drive")
                          }}
                     >
                         <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                        <div style={{display: "flex",marginLeft:15}}>
-                            <AssignmentTurnedInIcon style={{color: "#4caf50"}} fontSize="small"/>
-                            <Typography variant="inherit" style={{color: "#000", marginTop: 1,marginLeft:3}}>Signature qualifiée</Typography>
+                        <div style={{display: "flex"}}>
+                            {
+                                props.showDriveMenuItems === true ?
+                                    <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
+                            }
+                            <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Mon Drive</Typography>
                         </div>
                         <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                     </div>
+                    {
+                        props.showDriveMenuItems === true &&
+                        <div>
+                            {
+                                props.loadingGed === true ?
+                                    <div align="center" className="mt-1">
+                                        <h6>Chargement...</h6>
+                                    </div> :
+
+                                    <div>
+                                        <Search style={{marginBottom: 8}} placeholder="Chercher" onChange={onChange}/>
+                                        <DirectoryTree
+                                            draggable
+                                            showIcon={true}
+                                            onExpand={onExpand}
+                                            onSelect={onSelect}
+                                            onDragEnter={onDragEnter}
+                                            onDrop={onDrop}
+                                            treeData={loop(props.driveFolders)}
+                                            expandAction="click"
+                                            onRightClick={info => {
+                                                if (info.node.typeF === "folder") {
+                                                    setAnchorElMenu(info.event.currentTarget)
+                                                    props.setSelectedFolder(info.node)
+                                                    props.setFolderName(info.node.title)
+                                                    props.setFolderId(info.node.key)
+                                                }
+                                            }}
+                                            expandedKeys={props.expandedDriveItems}
+                                            selectedKeys={props.selectedDriveItem}
+                                            onDragStart={e => {
+                                                let node = {key: e.node.key, typeF: e.node.typeF}
+                                                e.event.dataTransfer.setData("node", JSON.stringify(node))
+                                            }}
+                                            autoExpandParent={props.autoExpandParent}
+                                            height={500}
+                                        />
+
+                                        <DirectoryTree
+                                            loadData={props.onLoadSharedData}
+                                            draggable
+                                            showIcon={true}
+                                            onExpand={onExpand_shared}
+                                            onSelect={onSelect_shared}
+                                            treeData={props.sharedFolders}
+                                            expandAction="click"
+                                            onRightClick={info => {
+                                                if (info.node.typeF === "folder" && info.node.key !== "parent") {
+                                                    let rights = info.node.rights || [];
+                                                    setRights(rights);
+                                                    setShareAnchorElMenu(info.event.currentTarget)
+                                                    props.setSelectedSharedFolder(info.node)
+                                                    props.setSharedFolderName(info.node.title)
+                                                    props.setSharedFolderId(info.node.key)
+
+                                                }
+                                            }}
+                                            expandedKeys={props.expandedDriveSharedItems}
+                                            selectedKeys={props.selectedDriveSharedItem}
+                                            autoExpandParent={props.autoExpandSharedParent}
+                                        />
+                                    </div>
+                            }
+
+
+                        </div>
+                    }
                 </div>
-
-
+                {
+                    localStorage.getItem("email") !== "k.db@enfinconsulting.ch" &&
+                    <div>
+                        <div style={{
+                            cursor: "pointer",
+                            backgroundColor: props.focusedItem === "SignQualifie" ? "aliceblue" : ""
+                        }}
+                             onClick={() => {
+                                 props.setFocusedItem("SignQualifie")
+                             }}
+                        >
+                            <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                            <div style={{display: "flex", marginLeft: 15}}>
+                                <AssignmentTurnedInIcon style={{color: "#4caf50"}} fontSize="small"/>
+                                <Typography variant="inherit" style={{color: "#000", marginTop: 1, marginLeft: 3}}>Signature
+                                    qualifiée</Typography>
+                            </div>
+                            <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                        </div>
+                    </div>
+                }
 
 
                 <div>
@@ -389,10 +396,11 @@ export default function LeftMenuV3(props) {
                                 }
                                 <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Rooms</Typography>
 
-                                <IconButton style={{marginLeft: 160, marginTop: -10,visibility:"hidden"}} onClick={(event) => {
-                                    event.stopPropagation()
-                                    props.onClickAddRoomBtn()
-                                }}>
+                                <IconButton style={{marginLeft: 160, marginTop: -10, visibility: "hidden"}}
+                                            onClick={(event) => {
+                                                event.stopPropagation()
+                                                props.onClickAddRoomBtn()
+                                            }}>
                                     <AddIcon/>
                                 </IconButton>
 
@@ -413,138 +421,174 @@ export default function LeftMenuV3(props) {
                     </div>
 
 
-                            <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Meet" ? "aliceblue" : ""}}
-                                 onClick={() => {
-                                     props.setShowMeetMenuItems()
-                                     props.setFocusedItem("Meet")
-                                 }}
-                            >
-                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                                <div style={{display: "flex"}}>
-                                    {
-                                        props.showMeetMenuItems === true ?
-                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
-                                    }
-                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Vidéoconférence</Typography>
-                                </div>
-                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                            </div>
+                    <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Meet" ? "aliceblue" : ""}}
+                         onClick={() => {
+                             props.setShowMeetMenuItems()
+                             props.setFocusedItem("Meet")
+                         }}
+                    >
+                        <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                        <div style={{display: "flex"}}>
                             {
-                                props.showMeetMenuItems === true &&
-                                <div>
-                                    <MeetMenuItems items={data.MeetMenuItem} selectedMeetItem={props.selectedMeetItem}
-                                                   onClick={(nodeId) => {
-                                                       props.onMeetItemClick(nodeId)
-                                                   }} handleSelectMeetMenu={props.handleSelectMeetMenu}
-                                    />
-                                </div>
-
+                                props.showMeetMenuItems === true ?
+                                    <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                             }
-                            <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Contacts" ? "aliceblue" : ""}}
-                                 onClick={() => {
-                                     props.setFocusedItem("Contacts")
-                                     props.setShowContacts()
-                                 }}
-                            >
-                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                                <div style={{display: "flex"}}>
-                                    {
-                                        props.showContacts === true ?
-                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
-                                    }
-                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Equipe OA</Typography>
-                                </div>
-                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                            </div>
+                            <Typography variant="inherit"
+                                        style={{color: "#000", marginTop: 3}}>Vidéoconférence</Typography>
+                        </div>
+                        <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                    </div>
+                    {
+                        props.showMeetMenuItems === true &&
+                        <div>
+                            <MeetMenuItems items={data.MeetMenuItem} selectedMeetItem={props.selectedMeetItem}
+                                           onClick={(nodeId) => {
+                                               props.onMeetItemClick(nodeId)
+                                           }} handleSelectMeetMenu={props.handleSelectMeetMenu}
+                            />
+                        </div>
+
+                    }
+                    <div style={{
+                        cursor: "pointer",
+                        backgroundColor: props.focusedItem === "Contacts" ? "aliceblue" : ""
+                    }}
+                         onClick={() => {
+                             props.setFocusedItem("Contacts")
+                             props.setShowContacts()
+                         }}
+                    >
+                        <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                        <div style={{display: "flex"}}>
                             {
-                                props.showContacts === true &&
-                                <div>
-                                    <ContactsMenuItems items={data.ContactsMenuItem}
-                                                       selectedContactsItem={props.selectedContactsItem}
-                                                       onClick={(nodeId) => {
-                                                           props.onContactsItemClick(nodeId)
-                                                       }} handleSelectContactsMenu={props.handleSelectContactsMenu}
-                                    />
-                                </div>
-
+                                props.showContacts === true ?
+                                    <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                             }
-                            <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Societe" ? "aliceblue" : ""}}
-                                 onClick={() => {
-                                     props.setShowSocietyMenuItems()
-                                     props.setFocusedItem("Societe")
-                                 }}
-                            >
-                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                                <div style={{display: "flex"}}>
-                                    {
-                                        props.showSocietyMenuItems === true ?
-                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
-                                    }
-                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Liste clients</Typography>
-                                </div>
-                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
-                            </div>
+                            <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Equipe OA</Typography>
+                        </div>
+                        <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                    </div>
+                    {
+                        props.showContacts === true &&
+                        <div>
+                            <ContactsMenuItems items={data.ContactsMenuItem}
+                                               selectedContactsItem={props.selectedContactsItem}
+                                               onClick={(nodeId) => {
+                                                   props.onContactsItemClick(nodeId)
+                                               }} handleSelectContactsMenu={props.handleSelectContactsMenu}
+                            />
+                        </div>
+
+                    }
+                    <div
+                        style={{cursor: "pointer", backgroundColor: props.focusedItem === "Societe" ? "aliceblue" : ""}}
+                        onClick={() => {
+                            props.setShowSocietyMenuItems()
+                            props.setFocusedItem("Societe")
+                        }}
+                    >
+                        <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                        <div style={{display: "flex"}}>
                             {
-                                props.showSocietyMenuItems === true &&
-                                <div>
-                                    <SocietyMenuItems items={data.SocietyMenuItem} selectedSocietyItem={props.selectedSocietyItem}
-                                                      onClick={(nodeId) => {
-                                                          props.onSocietyItemClick(nodeId)
-                                                      }}
-                                                      handleSelectSocietyMenu={props.handleSelectSocietyMenu}
-                                    />
-                                </div>
-
+                                props.showSocietyMenuItems === true ?
+                                    <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                             }
-                            <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "TimeSheet" ? "aliceblue":""}} onClick={() => {
+                            <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Liste
+                                clients</Typography>
+                        </div>
+                        <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                    </div>
+                    {
+                        props.showSocietyMenuItems === true &&
+                        <div>
+                            <SocietyMenuItems items={data.SocietyMenuItem}
+                                              selectedSocietyItem={props.selectedSocietyItem}
+                                              onClick={(nodeId) => {
+                                                  props.onSocietyItemClick(nodeId)
+                                              }}
+                                              handleSelectSocietyMenu={props.handleSelectSocietyMenu}
+                            />
+                        </div>
+
+                    }
+                    {
+                        localStorage.getItem("email") !== "k.db@enfinconsulting.ch" &&
+                        <div>
+                            <div style={{
+                                cursor: "pointer",
+                                backgroundColor: props.focusedItem === "TimeSheet" ? "aliceblue" : ""
+                            }} onClick={() => {
                                 props.setShowTimeSheetMenuItems()
                                 props.setFocusedItem("TimeSheet")
                             }}
                             >
-                                <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
-                                <div style={{display:"flex"}}>
+                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
+                                <div style={{display: "flex"}}>
                                     {
                                         props.showTimeSheetMenuItems === true ?
-                                            <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                                            <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                                     }
-                                    <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Time Sheet</Typography>
+                                    <Typography variant="inherit" style={{color: "#000", marginTop: 3}}>Time
+                                        Sheet</Typography>
                                 </div>
-                                <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                                <div style={{height: 1, backgroundColor: "#f0f0f0", marginTop: 10, marginBottom: 10}}/>
                             </div>
                             {
                                 props.showTimeSheetMenuItems === true &&
                                 <div>
-                                    <TimeSheetMenuItems items={data.TimeSheetMenuItem} selectedTimeSheetItem={props.selectedTimeSheetItem}
-                                                        onClick={(nodeId) => {props.onTimeSheetItemClick(nodeId)}} handleSelectTimeSheetMenu={props.handleSelectTimeSheetMenu}
+                                    <TimeSheetMenuItems items={data.TimeSheetMenuItem}
+                                                        selectedTimeSheetItem={props.selectedTimeSheetItem}
+                                                        onClick={(nodeId) => {
+                                                            props.onTimeSheetItemClick(nodeId)
+                                                        }} handleSelectTimeSheetMenu={props.handleSelectTimeSheetMenu}
                                     />
                                 </div>
 
                             }
+                        </div>
+                    }
 
                     {
                         localStorage.getItem("email") === "k.db@enfinconsulting.ch" ?
                             <div>
 
-                                <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "AvanceFrais" ? "aliceblue":""}} onClick={() => {
+                                <div style={{
+                                    cursor: "pointer",
+                                    backgroundColor: props.focusedItem === "AvanceFrais" ? "aliceblue" : ""
+                                }} onClick={() => {
                                     props.setComptaMenuItems()
                                     props.setFocusedItem("AvanceFrais")
                                 }}
                                 >
-                                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
-                                    <div style={{display:"flex"}}>
+                                    <div style={{
+                                        height: 1,
+                                        backgroundColor: "#f0f0f0",
+                                        marginTop: 10,
+                                        marginBottom: 10
+                                    }}/>
+                                    <div style={{display: "flex"}}>
                                         {
                                             props.showComptaMenuItems === true ?
-                                                <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                                                <ArrowDropDownIcon style={{color: "#000"}}/> : <ArrowRightIcon/>
                                         }
-                                        <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Compta</Typography>
+                                        <Typography variant="inherit"
+                                                    style={{color: "#000", marginTop: 3}}>Compta</Typography>
                                     </div>
-                                    <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                                    <div style={{
+                                        height: 1,
+                                        backgroundColor: "#f0f0f0",
+                                        marginTop: 10,
+                                        marginBottom: 10
+                                    }}/>
                                 </div>
                                 {
                                     props.showComptaMenuItems === true &&
                                     <div>
-                                        <ComptaMenuItems items={data.ComptaMenuItems} selectedComptaMenuItem={props.selectedComptaMenuItem}
-                                                            onClick={(nodeId) => {props.onComptaItemClick(nodeId)}} handleSelectComptaMenu={props.handleSelectComptaMenu}
+                                        <ComptaMenuItems items={data.ComptaMenuItems}
+                                                         selectedComptaMenuItem={props.selectedComptaMenuItem}
+                                                         onClick={(nodeId) => {
+                                                             props.onComptaItemClick(nodeId)
+                                                         }} handleSelectComptaMenu={props.handleSelectComptaMenu}
                                         />
                                     </div>
 
@@ -554,7 +598,7 @@ export default function LeftMenuV3(props) {
 
                     }
 
-                        </div>
+                </div>
 
 
                 <Menu
@@ -649,7 +693,7 @@ export default function LeftMenuV3(props) {
                         </ListItemIcon>
                         <Typography variant="inherit">Télécharger</Typography>
                     </MenuItem>
-                    <MenuItem  key={7} onClick={() => {
+                    <MenuItem key={7} onClick={() => {
                         setAnchorElMenu(null);
                         setOpenDeleteModal(true)
                     }} //disabled={localStorage.getItem("role") !== "admin"}
@@ -720,7 +764,7 @@ export default function LeftMenuV3(props) {
                         </ListItemIcon>
                         <Typography variant="inherit">Télécharger</Typography>
                     </MenuItem>
-                    <MenuItem  key={7} onClick={() => {
+                    <MenuItem key={7} onClick={() => {
                         setShareAnchorElMenu(null);
                         setOpenDeleteModal(true)
                     }} disabled={rights.administrate === false}
@@ -806,7 +850,6 @@ export default function LeftMenuV3(props) {
 
                     </ModalBody>
                 </Modal>
-
 
 
             </div>

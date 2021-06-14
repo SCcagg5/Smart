@@ -227,7 +227,7 @@ let Data = {
     ComptaMenuItems: [
         {
             nodeId: "AvanceFrais",
-            title: "Avance de frais",
+            title: "Toutes les factures",
             icon: ListAltIcon
         }
     ],

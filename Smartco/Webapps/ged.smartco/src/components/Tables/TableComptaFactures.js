@@ -26,6 +26,7 @@ import userAvatar from "../../assets/images/users/user4.jpg";
 import {Avatar, Select as MuiSelect} from "@material-ui/core";
 import Data from "../../data/Data";
 import MenuItem from "@material-ui/core/MenuItem";
+import Toggle from "@atlaskit/toggle";
 
 const db_name = "OA_LEGAL";
 /*const odoo_id = "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9"*/
@@ -42,6 +43,8 @@ export default function ComptaInvoicesTable(props) {
 
     const [client_search, setClient_search] = React.useState("");
     const [lf_dossier_search, setLf_dossier_search] = React.useState("");
+    const [lf_type_search, setLf_type_search] = React.useState("");
+    const [lf_processed_search, setLf_processed_search] = React.useState("");
     const [lf_oaUser_search, setLf_oaUser_search] = React.useState("");
     const [sdate_search, setSdate_search] = React.useState(null);
     const [edate_search, setEdate_search] = React.useState(null);
@@ -69,11 +72,13 @@ export default function ComptaInvoicesTable(props) {
         )
     }
 
-    let factures = (props.factures || []).filter(x => x.type && x.type === "avance_frais" && x.facture_odoo_id);
+    let factures = (props.factures || []).filter(x => x.facture_odoo_id);
     //console.log(factures)
 
     let searchFilter = factures.filter((lf) => (((lf.client_id === client_search) || client_search === "") &&
         (lf.client_folder && (lf.client_folder.id === lf_dossier_search) || lf_dossier_search === "") &&
+        ((lf.type && (lf.type === lf_type_search)) || (!lf.type && lf_type_search === "facture") || lf_type_search === "") &&
+        ((lf.processed && (lf.processed.toString() === lf_processed_search)) || (!lf.processed && lf_processed_search === "0" )  || lf_processed_search === "") &&
         ((lf.partner === lf_oaUser_search) || lf_oaUser_search === "") &&
         ((sdate_search !== null && (new Date(lf.created_at).getTime() >= sdate_search.getTime())) || sdate_search === null) &&
         ((edate_search !== null && (new Date(lf.created_at).getTime() <= (moment(edate_search).set({
@@ -108,8 +113,9 @@ export default function ComptaInvoicesTable(props) {
                         </div>
                     </div>
                     <div className="col-md-12">
-                        <h5>Rechercher</h5>
+                        <h5 style={{marginTop:-15}}>Rechercher</h5>
                     </div>
+
                     <div className="col-md-12">
                         <div style={{display: "flex"}}>
                             <h5>De</h5>
@@ -140,6 +146,7 @@ export default function ComptaInvoicesTable(props) {
                             </div>
                         </div>
                     </div>
+
                     <div className="col-md-6 mt-2">
                         <div style={{display: "flex"}}>
                             <h5 style={{marginRight: 10}}>Par client</h5>
@@ -234,7 +241,6 @@ export default function ComptaInvoicesTable(props) {
                             </MuiSelect>
                         </div>
                     </div>
-
                     <div className="col-md-6 mt-2">
                         <div style={{display: "flex"}}>
                             <h5>Par statut</h5>
@@ -254,6 +260,42 @@ export default function ComptaInvoicesTable(props) {
                             </select>
                         </div>
                     </div>
+
+                    <div className="col-md-6 mt-2">
+                        <div style={{display: "flex"}}>
+                            <h5 style={{marginRight: 10}}>Par type</h5>
+                            <select className="form-control custom-select" style={{width: 230, marginLeft: 10}}
+                                    onChange={(event) => {
+                                        setLf_type_search(event.target.value)
+                                    }}
+                                    value={lf_type_search}
+                            >
+                                <option value=""/>
+                                <option value="facture">Facture</option>
+                                <option value="provision">Provision</option>
+                                <option value="avance_frais">Avance de frais</option>
+
+
+                            </select>
+                        </div>
+                    </div>
+                    <div className="col-md-6 mt-2">
+                        <div style={{display: "flex"}}>
+                            <h5 style={{marginRight: 10}}>Traitée/Non traitée</h5>
+                            <select className="form-control custom-select" style={{width: 230, marginLeft: 10}}
+                                    onChange={(event) => {
+                                        setLf_processed_search(event.target.value)
+                                    }}
+                                    value={lf_processed_search}
+                            >
+                                <option value=""/>
+                                <option value={1}>Traitée</option>
+                                <option value={0}>Non traitée</option>
+
+
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 {
@@ -270,6 +312,7 @@ export default function ComptaInvoicesTable(props) {
                                     <TableCell align="center" style={{fontWeight: "bold"}}>Montant</TableCell>
                                     <TableCell align="center" style={{fontWeight: "bold"}}>Paiement</TableCell>
                                     <TableCell align="center" style={{fontWeight: "bold"}}>Actions</TableCell>
+                                    <TableCell align="center" style={{fontWeight: "bold"}}>Traitée</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -290,6 +333,7 @@ export default function ComptaInvoicesTable(props) {
                                                  setClient_search(client_id)
                                                  setLf_dossier_search(folder_id)
                                              }}
+                                             updateFacture={props.updateFacture}
                                         />
                                     ))
                                 }
@@ -373,16 +417,16 @@ function Row(props) {
             <TableRow style={{borderBottom: row.type ? "1px solid rgba(224, 224, 224, 1)" : "none"}}
                       className={classes.root}>
                 <TableCell>
-                    {
+                    {/*{
                         !row.type &&
                         <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
                             {open ? <KeyboardArrowUpIcon/> : <KeyboardArrowDownIcon/>}
                         </IconButton>
-                    }
+                    }*/}
                 </TableCell>
                 <TableCell onClick={() => {console.log(row)}}
                            align="center">{row.type && row.type === "provision" ? "Provision" : row.type === "avance_frais" ? "Avance de frais" : "Facture"}</TableCell>
-                <TableCell align="center">{moment(row.created_at).format("DD-MM-YYYY")}</TableCell>
+                <TableCell align="center" style={{minWidth:150}}>{moment(row.created_at).format("DD-MM-YYYY")}</TableCell>
                 <TableCell align="center">
                     {renderOA_user(row.created_by)}
                 </TableCell>
@@ -419,27 +463,16 @@ function Row(props) {
                     {
                         (row.statut === "accepted" || row.statut === "paid") && (!row.type) &&
                         [
-                            <IconButton key={0} aria-label="folder" title="Afficher la facture" color="default"
-                                        size="small" onClick={() => {
-                                props.openFacture(row.file_id)
-                            }}>
-                                <PictureAsPdfIcon fontSize="small" style={{color: "red"}}/>
-                            </IconButton>,
-                            <IconButton key={1} aria-label="folder" title="Ouvrir le dossier de la facture"
-                                        color="default" size="small" onClick={() => {
-                                SmartService.getFile(row.client_folder.id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(resF => {
-                                    if (resF.succes === true && resF.status === 200) {
-                                        let comptaFolder = resF.data.Content.folders.find(x => x.name === "COMPTABILITE");
-                                        props.openFactureFolder(comptaFolder.id)
-                                    } else {
-                                        alert("Le dossier n'existe pas !")
-                                    }
-                                }).catch(err => {
-                                    console.log(err)
-                                })
-                            }}>
-                                <FolderIcon fontSize="small"/>
-                            </IconButton>
+                            <div>
+                                <IconButton key={0} aria-label="folder" title="Afficher la facture" color="default"
+                                            size="small" onClick={() => {
+                                    props.openFacture(row.file_id)
+                                }}>
+                                    <PictureAsPdfIcon fontSize="small" style={{color: "red"}}/>
+                                </IconButton>
+                                <h6 style={{fontSize: "0.5rem"}}>Facture</h6>
+                            </div>
+
                         ]
 
                     }
@@ -506,6 +539,15 @@ function Row(props) {
 
                     }
 
+                </TableCell>
+                <TableCell align="center">
+                    <Toggle id="sett-large" size="large"
+                            isChecked={row.processed && row.processed === 1}
+                            onChange={ event => {
+                                row.processed = !row.processed ? 1 : row.processed === 0 ? 1 : 0
+                                props.updateFacture(row.id,row)
+                            }}
+                    />
                 </TableCell>
             </TableRow>
         </React.Fragment>

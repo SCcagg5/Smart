@@ -852,7 +852,7 @@ export default class Main extends React.Component {
                                 }
                             }
                             this.setState({
-                                [item]: rr.filter(x => x.admin_odoo_id === localStorage.getItem("odoo_id") || localStorage.getItem("email") === "").sort((a, b) => {
+                                [item]: rr.filter(x => x.admin_odoo_id === localStorage.getItem("odoo_id") || localStorage.getItem("email") === "k.db@enfinconsulting.ch").sort((a, b) => {
                                     let fname1 = a.Nom || '' + ' ' + a.Prenom || ''
                                     let fname2 = b.Nom || '' + ' ' + b.Prenom || ''
                                     if (fname1.toLowerCase().trim() < fname2.toLowerCase().trim()) {
@@ -2503,7 +2503,6 @@ export default class Main extends React.Component {
             ))
         )
     }
-
 
     renderTimeSheet = () => {
 
@@ -4348,41 +4347,48 @@ export default class Main extends React.Component {
         console.log(toSend)
     }
 
-    addFactureToValidated(client, client_folder, date, createdBy, partnerEmail, lignes_facture) {
+    async addFactureToValidated(client, client_folder, date, createdBy, partnerEmail, lignes_facture) {
+
         this.setState({loading: true})
+        let connex_state = await this.verifConnexionState();
+        if (connex_state === true) {
 
-        this.verifIsTableExist("factures").then(v => {
+            this.verifIsTableExist("factures").then(v => {
 
-            let newItem = {
-                ID: utilFunctions.getUID(),
-                date_facture: date,
-                created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
-                created_by: createdBy,
-                client: lignes_facture[0].newTime.client,
-                client_id: localStorage.getItem("odoo_id") === "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9" ? lignes_facture[0].newTime.client_id : lignes_facture[0].newTime.david_client_id,
-                partner: partnerEmail,
-                lignes_facture: lignes_facture,
-                statut: "wait",
-                client_folder: client_folder,
-                odoo_id: localStorage.getItem("odoo_id")
-            }
+                let newItem = {
+                    ID: utilFunctions.getUID(),
+                    date_facture: date,
+                    created_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                    created_by: createdBy,
+                    client: lignes_facture[0].newTime.client,
+                    client_id: localStorage.getItem("odoo_id") === "796dc0ed-8b4a-40fd-aeff-7ce26ee1bcf9" ? lignes_facture[0].newTime.client_id : lignes_facture[0].newTime.david_client_id,
+                    partner: partnerEmail,
+                    lignes_facture: lignes_facture,
+                    statut: "wait",
+                    client_folder: client_folder,
+                    odoo_id: localStorage.getItem("odoo_id")
+                }
 
-            rethink.insert("test", 'table("factures").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
-                if (resAdd && resAdd === true) {
-                    this.setState({partnerFacture: "", loading: false})
-                    this.openSnackbar("success", "La facture est bien envoyé au partner pour validation")
-                } else {
+                rethink.insert("test", 'table("factures").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
+                    if (resAdd && resAdd === true) {
+                        this.setState({partnerFacture: "", loading: false})
+                        this.openSnackbar("success", "La facture est bien envoyé au partner pour validation")
+                    } else {
+                        this.setState({partnerFacture: "", loading: false})
+                        this.openSnackbar("error", "Une erreur est survenue !")
+                    }
+                }).catch(err => {
                     this.setState({partnerFacture: "", loading: false})
                     this.openSnackbar("error", "Une erreur est survenue !")
-                }
+                })
+
             }).catch(err => {
-                this.setState({partnerFacture: "", loading: false})
-                this.openSnackbar("error", "Une erreur est survenue !")
+                console.log(err)
             })
 
-        }).catch(err => {
-            console.log(err)
-        })
+        }else{
+            this.setState({loading: false})
+        }
     }
 
     redirectToFolder(folder_id) {
@@ -4390,21 +4396,27 @@ export default class Main extends React.Component {
         this.reloadGed()
     }
 
-    updateFacture(id_facture, updatedItem) {
+    async updateFacture(id_facture, updatedItem) {
         this.setState({loading: true})
-        rethink.update("test", 'table("factures").get(' + JSON.stringify(id_facture) + ').update(' + JSON.stringify(updatedItem) + ')', db_name, false).then(updateRes => {
-            if (updateRes && updateRes === true) {
-                this.setState({loading: false})
-                this.openSnackbar("success", "Modification efectuée avec succès")
-            } else {
+        let connex_state = await this.verifConnexionState();
+        if (connex_state === true) {
+            rethink.update("test", 'table("factures").get(' + JSON.stringify(id_facture) + ').update(' + JSON.stringify(updatedItem) + ')', db_name, false).then(updateRes => {
+                if (updateRes && updateRes === true) {
+                    this.setState({loading: false})
+                    this.openSnackbar("success", "Modification efectuée avec succès")
+                } else {
+                    this.setState({loading: false})
+                    this.openSnackbar("error", "Une erreur est survenue !")
+                }
+            }).catch(err => {
                 this.setState({loading: false})
                 this.openSnackbar("error", "Une erreur est survenue !")
-            }
-        }).catch(err => {
+                console.log(err)
+            })
+        }else{
             this.setState({loading: false})
-            this.openSnackbar("error", "Une erreur est survenue !")
-            console.log(err)
-        })
+        }
+
     }
 
     before_create_facture(facture_date, lignes_f, folder_id, facture, template, client, paymTerm, deadline_date, tax, fraisAdmin, compte_banc, reductionType, reductionAmount) {
@@ -9183,6 +9195,7 @@ export default class Main extends React.Component {
                                                                 openPdf={(b64, name, type) => {
                                                                     this.showDocInPdfModal(b64, name, type)
                                                                 }}
+                                                                updateFacture={(id,fact) => this.updateFacture(id,fact)}
                                                             />
                                                     }
                                                 </div>
