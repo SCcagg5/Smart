@@ -4106,7 +4106,7 @@ export default class Main extends React.Component {
                                                         'name': 'Prosivion',
                                                         'origin': false,
                                                         'price_unit': amount,
-                                                        'product_id': 4,
+                                                        'product_id': 5,
                                                         'quantity': 1,
                                                         'sequence': 10,
                                                         "uom_id": 1,
@@ -4546,6 +4546,7 @@ export default class Main extends React.Component {
 
         let lignes_factures = lignes_f;
         let total = 0;
+        let reduction_amount = 0;
         let tax_amount = 0;
         let findTaxe = this.state.odoo_taxs.find(x => x.key === tax)
 
@@ -4681,6 +4682,16 @@ export default class Main extends React.Component {
         });
 
         if (reductionAmount !== "") {
+            reduction_amount = reductionType === "%" ? ((total * parseInt(reductionAmount)) / 100) : parseFloat(reductionAmount)
+            if(tax && tax !== "" && findTaxe){
+                if(findTaxe.price_include === true){
+                    let tax_row = reduction_amount - ( reduction_amount / ((findTaxe.amount / 100 ) + 1) )
+                    tax_amount = tax_amount - tax_row;
+                }else{
+                    let tax_row = (reduction_amount * findTaxe.amount) / 100
+                    tax_amount = tax_amount - tax_row;
+                }
+            }
             odoo_data[0].invoice_line_ids.push(
                 [
                     0,
@@ -4694,18 +4705,18 @@ export default class Main extends React.Component {
                         'is_rounding_line': false,
                         'name': reductionType === "%" ? "Réduction(" + reductionAmount + "%)" : "Réduction",
                         'origin': false,
-                        'price_unit': reductionType === "%" ? -((total * parseInt(reductionAmount)) / 100) : -parseFloat(reductionAmount),
+                        'price_unit': - reduction_amount,
                         'product_id': 1,  //2
                         'quantity': 1,
                         'sequence': 10,
                         "uom_id": 1,
-                        /*'invoice_line_tax_ids': [
+                        'invoice_line_tax_ids': [
                             [
                                 6,
                                 false,
                                 tax && tax !== "" ? [tax] : []
                             ]
-                        ],*/
+                        ],
                         'analytic_tag_ids': [
                             [
                                 6,
@@ -4732,7 +4743,7 @@ export default class Main extends React.Component {
                         'is_rounding_line': false,
                         'name': "Frais administratifs(2%)",
                         'origin': false,
-                        'price_unit': (total * 2) / 100,
+                        'price_unit': reductionAmount === "" ? (total * 2) / 100 : ((total - reduction_amount )* 2) / 100 ,
                         'product_id': 1,  //2
                         'quantity': 1,
                         'sequence': 10,
@@ -4764,7 +4775,6 @@ export default class Main extends React.Component {
                         odoo_data[0].tax_line_ids.push([2, id,false])
                     })
 
-                    console.log(findTaxe)
                     if(tax && tax !== "" && findTaxe){
 
                         odoo_data[0].tax_line_ids.push(
@@ -4884,6 +4894,7 @@ export default class Main extends React.Component {
 
         let lignes_factures = lignes_f;
         let total = 0;
+        let reduction_amount = 0;
         let tax_amount = 0;
         let findTaxe = this.state.odoo_taxs.find(x => x.key === tax)
 
@@ -5018,6 +5029,16 @@ export default class Main extends React.Component {
         });
 
         if (reductionAmount !== "") {
+            reduction_amount = reductionType === "%" ? ((total * parseInt(reductionAmount)) / 100) : parseFloat(reductionAmount)
+            if(tax && tax !== "" && findTaxe){
+                if(findTaxe.price_include === true){
+                    let tax_row = reduction_amount - ( reduction_amount / ((findTaxe.amount / 100 ) + 1) )
+                    tax_amount = tax_amount - tax_row;
+                }else{
+                    let tax_row = (reduction_amount * findTaxe.amount) / 100
+                    tax_amount = tax_amount - tax_row;
+                }
+            }
             odoo_data[0].invoice_line_ids.push(
                 [
                     0,
@@ -5031,18 +5052,18 @@ export default class Main extends React.Component {
                         'is_rounding_line': false,
                         'name': reductionType === "%" ? "Réduction(" + reductionAmount + "%)" : "Réduction",
                         'origin': false,
-                        'price_unit': reductionType === "%" ? -((total * parseInt(reductionAmount)) / 100) : -parseFloat(reductionAmount),
+                        'price_unit': - reduction_amount,
                         'product_id': 1,  //2
                         'quantity': 1,
                         'sequence': 10,
                         "uom_id": 1,
-                        /*'invoice_line_tax_ids': [
+                        'invoice_line_tax_ids': [
                             [
                                 6,
                                 false,
                                 tax && tax !== "" ? [tax] : []
                             ]
-                        ],*/
+                        ],
                         'analytic_tag_ids': [
                             [
                                 6,
@@ -5069,7 +5090,7 @@ export default class Main extends React.Component {
                         'is_rounding_line': false,
                         'name': "Frais administratifs(2%)",
                         'origin': false,
-                        'price_unit': (total * 2) / 100,
+                        'price_unit': reductionAmount === "" ? (total * 2) / 100 : ((total - reduction_amount )* 2) / 100 ,
                         'product_id': 1,  //2
                         'quantity': 1,
                         'sequence': 10,
@@ -5093,14 +5114,18 @@ export default class Main extends React.Component {
             )
         }
 
-        let find_provision_factures = (this.state.factures || []).filter(x => x.type === "provision" && x.client_id === facture.client_id &&
-            x.client_folder.id === facture.client_folder.id && x.partner === localStorage.getItem("email") && x.paid && x.paid === "true" && !x.used)
-            .sort((a, b) => {
-                var c = new Date(a.created_at);
-                var d = new Date(b.created_at);
-                return d - c;
-            })
+
+            let find_provision_factures = (this.state.factures || []).filter(x => x.type === "provision" && x.client_id === facture.client_id &&
+                x.client_folder.id === facture.client_folder.id && x.partner === localStorage.getItem("email") && x.paid && x.paid === "true" && (!x.used || (x.used && x.used === 0)))
+                .sort((a, b) => {
+                    var c = new Date(a.created_at);
+                    var d = new Date(b.created_at);
+                    return d - c;
+                })
+
+
         let latest = find_provision_factures.length > 0 ? find_provision_factures[0] : undefined
+        console.log(latest)
         if (latest !== undefined) {
             odoo_data[0].invoice_line_ids.push(
                 [
@@ -5116,10 +5141,17 @@ export default class Main extends React.Component {
                         'name': "Provision",
                         'origin': false,
                         'price_unit': -parseFloat(latest.details_provision.amount),
-                        'product_id': 1,  //2
+                        'product_id': 5,
                         'quantity': 1,
                         'sequence': 10,
                         "uom_id": 1,
+                        /*'invoice_line_tax_ids': [
+                            [
+                                6,
+                                false,
+                                tax && tax !== "" ? [tax] : []
+                            ]
+                        ],*/
                         'analytic_tag_ids': [
                             [
                                 6,
@@ -5239,7 +5271,13 @@ export default class Main extends React.Component {
                                                                     updatedItem.statut = "accepted";
                                                                     updatedItem.file_id = ok.data.file_id;
                                                                     updatedItem.processed = 0
-                                                                    //updatedItem.client_folder = {id:client, name:resF.data.name}
+
+                                                                    //update provision facture
+                                                                    if (latest !== undefined) {
+                                                                        latest.used = 1;
+                                                                        rethink.update("test", 'table("factures").get(' + JSON.stringify(latest.id) + ').update(' + JSON.stringify(latest) + ')', db_name, false)
+                                                                    }
+
 
                                                                     rethink.update("test", 'table("factures").get(' + JSON.stringify(id_facture) + ').update(' + JSON.stringify(updatedItem) + ')', db_name, false).then(updateRes => {
                                                                         if (updateRes && updateRes === true) {

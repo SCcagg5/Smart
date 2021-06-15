@@ -429,7 +429,7 @@ function Row(props) {
 
 
     useEffect(() => {
-        if(!row.amount_untaxed && !row.amount_tax && !row.amount_total && row.statut !== "wait"){
+        if((!row.amount_untaxed && !row.amount_tax && !row.amount_total) || (!row.paid || row.paid === "false") || row.statut !== "wait"){
             getDeatilsOdooFacture()
         }
     }, [getDeatilsOdooFacture]);
@@ -536,10 +536,8 @@ function Row(props) {
 
     const getDeatilsOdooFacture = () => {
         if (row.facture_odoo_id) {
-            console.log(row.facture_odoo_id)
             SmartService.details_facture_odoo(row.odoo_id, localStorage.getItem("token"), localStorage.getItem("usrtoken"), row.facture_odoo_id).then(detailsRes => {
                 if (detailsRes.succes === true && detailsRes.status === 200) {
-                    console.log(detailsRes.data[0])
                     row.amount_untaxed = detailsRes.data[0].amount_untaxed;
                     row.amount_tax = detailsRes.data[0].amount_tax ? detailsRes.data[0].amount_tax : 0 ;
                     row.amount_total = detailsRes.data[0].amount_total;

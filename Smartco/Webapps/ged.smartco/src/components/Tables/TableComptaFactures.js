@@ -360,7 +360,7 @@ function Row(props) {
     const [x_update, setX_update] = React.useState(false);
 
     useEffect(() => {
-        if(!row.amount_untaxed && !row.amount_tax && !row.amount_total && row.statut !== "wait"){
+        if((!row.amount_untaxed && !row.amount_tax && !row.amount_total) || (!row.paid || row.paid === "false") || row.statut !== "wait"){
             getDeatilsOdooFacture()
         }
     }, [getDeatilsOdooFacture]);
