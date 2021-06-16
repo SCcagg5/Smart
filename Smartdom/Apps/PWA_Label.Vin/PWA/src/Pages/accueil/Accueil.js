@@ -25,7 +25,7 @@ class Accueil extends Component {
     }
 
     componentDidMount() {
-        localStorage.setItem('phone',"+21629034789")
+        localStorage.setItem('phone',"+33 6 76 95 31 01")
 
         let path_array = this.props.location.pathname.split("/")
         let current = path_array[path_array.length -1]

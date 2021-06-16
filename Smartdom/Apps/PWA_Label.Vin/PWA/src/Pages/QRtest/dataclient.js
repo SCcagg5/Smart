@@ -112,7 +112,7 @@ export default function DataClient(props){
                                 props.history.push('/client/'+user.id.toString()+'/treescore')
                             }}>
                                 <ListItemIcon>
-                                    <img src={arbre1} style={{width:30,height:30}}/>
+                                    <img src={arbre1} style={{width:30}}/>
                                 </ListItemIcon>
                                 <ListItemText primary="My Tree Score"/>
                                 <ChevronRightIcon/>
@@ -121,7 +121,7 @@ export default function DataClient(props){
                                 props.history.push('/client/'+user.id.toString()+'/solarscore')
                             }}>
                                 <ListItemIcon>
-                                    <img src={solar1} style={{width:30,height:30}}/>
+                                    <img src={solar1} style={{width:30}}/>
                                 </ListItemIcon>
                                 <ListItemText primary="My Solar Score"/>
                                 <ChevronRightIcon/>
@@ -129,7 +129,7 @@ export default function DataClient(props){
                             <Divider/>
                             <ListItem button style={{height: 60}}>
                                 <ListItemIcon>
-                                    <img src={ecoscore} style={{width:50,height:30}}/>
+                                    <img src={ecoscore} style={{width:50}}/>
                                 </ListItemIcon>
                                 <ListItemText primary="My EcoScore"/>
                                 <ChevronRightIcon/>

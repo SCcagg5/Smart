@@ -15,3 +15,59 @@
     bottom: 0;
     width: 50%;
 }
+
+.folders_container{
+    display: grid;
+    grid-gap: 0;
+    grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+    padding-left: 20px;
+    padding: 7.5px;
+    border-radius: 7.5px;
+}
+
+.folder_item_container{
+    display: flex;
+    flex: 1 1 220px;
+    overflow: hidden;
+    padding: 7px;
+    position: relative;
+    vertical-align: top;
+    max-width: 100%;
+    min-width: 0;
+    color: rgba(0,0,0,.72);
+    touch-action: pan-x pan-y;
+}
+.folder_item{
+    background-color: #fff;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    flex: 1 1 auto;
+    overflow: hidden;
+    position: relative;
+    transition: box-shadow 200ms cubic-bezier(0.4,0.0,0.2,1);
+    padding: 10px;
+    cursor: pointer;
+}
+.folder_item_drag_over{
+    border: 2px solid dodgerblue;
+}
+.folders_container_drag_over{
+    border: 2px solid dodgerblue;
+    /*min-height: 200px;*/
+}
+
+.docs_container_hover{
+    margin-top:15px;
+    border: 2px solid dodgerblue;
+    padding: 10px;
+    border-radius: 7.5px;
+    height: 350px;
+    width: 100%;
+    margin-right: 15px;
+}
+.folder_container_empty{
+    min-height: 250px;
+}

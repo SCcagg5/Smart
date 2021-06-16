@@ -17,6 +17,9 @@ module.exports = function (app) {
     app.route("/api/addCustomer")
         .post(api.addCustomer);
 
+    app.route("/api/getCustomers")
+        .get(api.getCustomers);
+
     app.route("/api/addOrder")
         .post(api.addOrder);
 
@@ -34,6 +37,8 @@ module.exports = function (app) {
 
     app.route("/api/generateEtiquette")
         .post(api.generateEtiquetteLaCasaVerde);
+    app.route("/api/generateEtiquettePerso")
+        .post(api.generateEtiquettePerso);
 
     app.route("/api/generateEtiquette2")
         .post(api.generateEtiquette2abelVin);
@@ -42,6 +47,12 @@ module.exports = function (app) {
         .post(api.generateEtiquette3abelVin);
     app.route("/api/generateEtiquette4")
         .post(api.generateEtiquette4abelVin);
+
+    app.route("/api/generateTicket")
+        .get(api.generateTicket);
+
+    app.route("/api/getTicketPDF")
+        .post(api.generateTicketPDF);
 
 
 
@@ -53,5 +64,6 @@ module.exports = function (app) {
         .get(api.generateQRCODE);
 
 
-
+    app.route("/api/generateFactureLabel")
+        .post(api.generateFactureLabelVin);
 };

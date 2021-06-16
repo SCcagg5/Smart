@@ -1,6 +1,6 @@
 
 //const endpoint = "http://192.168.0.113:3004/api/"
-const endpoint = process.env.REACT_APP_WOO_API_ENDPOINT
+const endpoint =process.env.REACT_APP_endpoint
 
 let WooService ={
 
@@ -89,11 +89,22 @@ let WooService ={
 
     generateTicket(data){
 
-        return fetch(endpoint+'generateEtiquette', {
+        return fetch(endpoint+'generateEtiquettePerso', {
             method: 'POST',
             headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
             body: JSON.stringify(data)
         }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    generateFactureLabel(data){
+
+        return fetch(endpoint+'generateFactureLabel', {
+            method: 'POST',
+            headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        }).then(response =>  response.blob()).catch(error => {
             console.log(error);
         });
     },

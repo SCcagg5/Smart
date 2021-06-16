@@ -6,7 +6,7 @@ import "./room.css"
 import TopBar from "../../Components/TopBar/TopBar";
 import AltAvatarGroup from "@atlaskit/avatar-group";
 
-const db_name = "4e92789a-aa10-11eb-bcbc-0242ac130002";
+const db_name = "b116081d-3145-4dc3-b3df-5ac2bde13e9d";
 
 export default class Rooms extends React.Component {
 

@@ -243,71 +243,86 @@ export default function Panier(props) {
                                     console.log(orderRes)
                                     if (orderRes.status === 201) {
 
-                                        /*let dataTicket = JSON.parse(localStorage.getItem('etiquette'))
+                                        let dataTicket = JSON.parse(localStorage.getItem('etiquette'))
                                         console.log(currentUser)
                                         dataTicket.id=currentUser.id
                                         dataTicket.total=sousTotal
-                                        WooService.generateTicket(dataTicket)*/
+                                        dataTicket.tel=localStorage.getItem('phone')
+                                        WooService.generateTicket(dataTicket)
+                                        WooService.generateFactureLabel(orderRes).then((res)=>{
+                                            console.log(res)
+                                            var file = new Blob([res], {type: 'application/pdf'});
+                                            var fileURL = URL.createObjectURL(file);
+                                            window.open(fileURL);
 
-                                        let odoo_facture_data = await generate_facture_odoo()
-                                        console.log(odoo_facture_data)
-                                        if(odoo_facture_data.url && odoo_facture_data.url !== ""){
-                                            let line_items = orderRes.data.line_items || [];
-                                            let formated_line_items = []
-                                            line_items.map((item,key) => {
-                                                formated_line_items.push({
-                                                    id:item.id,
-                                                    name:item.name,
-                                                    price:item.price,
-                                                    product_id:item.product_id,
-                                                    quantity:item.quantity,
-                                                    total:item.total
-                                                })
-                                            })
-                                            let orderData = {
-                                                woo_id:orderRes.data.id,
-                                                total:orderRes.data.total,
-                                                date_created:orderRes.data.date_created,
-                                                line_items : formated_line_items,
-                                                payment_method_title: orderRes.data.payment_method_title,
-                                                odoo_fact_id:odoo_facture_data.facture_id,
-                                                odoo_fact_url:odoo_facture_data.url,
-                                                access_token:odoo_facture_data.access_token
-                                            }
-                                            let user_data = currentUser
-                                            let orders = user_data.orders || [];
-                                            orders.push(orderData)
-                                            user_data.orders = orders
-                                            console.log(user_data)
-                                            rethink.update("test",'table("woo_users").get('+JSON.stringify(currentUser.id)+').update('+ JSON.stringify(user_data) + ')',db_name,false).then( updateRes => {
-                                                if (updateRes && updateRes === true) {
+                                        })
 
-                                                    maillingService.send_odoo_facture({
-                                                        "emailReciver":currentUser.email,
-                                                        "subject":"Facture Casa.Verde",
-                                                        "msg":"Madame/Monsieur,<br/><br/>Suite à votre achat sur notre site <b>Casa.Verde</b> effectué(e) le "+moment().format("DD-MM-YYYY HH:mm")+" et correspondant au bon de commande n° " +orderRes.data.id +", nous vous adressons ci-joint une facture avec les détails de votre commande.",
-                                                        "footerMsg":"<br/><br/>En vous remerciant par avance,<br/><br/><br/>Cordialement",
-                                                        "attach":[
-                                                            {
-                                                                filename:"Facture_CasaVerde_" + moment().format("DD-MM-YYYY")+".pdf",
-                                                                path:odoo_facture_data.url_display
-                                                            }
-                                                        ]
-                                                    }).then(sendRes => {
-                                                        console.log(sendRes)
-                                                    })
-                                                    setLoading(false)
-                                                    openSnackbar("success", "Félicitation ! Votre commande est effectué avec succès")
-                                                    viderPanier()
-                                                    props.onClearPanier()
-                                                    props.history.push('/home/chat',{isOnlyBot:true,odoo_fact_url:odoo_facture_data.url})
-                                                    //navigateTo("/home/chat",{b64_odoo_fact:odoo_facture_data.b64})
-                                                }else{
-                                                    console.log("error update woo user")
-                                                }
-                                            }).catch(err => {console.log(err)})
+                                        setLoading(false)
+                                        viderPanier()
 
-                                        }
+
+                                        /* let odoo_facture_data = await generate_facture_odoo()
+                                         console.log(odoo_facture_data)
+                                         if(odoo_facture_data.url && odoo_facture_data.url !== ""){
+                                             let line_items = orderRes.data.line_items || [];
+                                             let formated_line_items = []
+                                             line_items.map((item,key) => {
+                                                 formated_line_items.push({
+                                                     id:item.id,
+                                                     name:item.name,
+                                                     price:item.price,
+                                                     product_id:item.product_id,
+                                                     quantity:item.quantity,
+                                                     total:item.total
+                                                 })
+                                             })
+                                             let orderData = {
+                                                 woo_id:orderRes.data.id,
+                                                 total:orderRes.data.total,
+                                                 date_created:orderRes.data.date_created,
+                                                 line_items : formated_line_items,
+                                                 payment_method_title: orderRes.data.payment_method_title,
+                                                 odoo_fact_id:odoo_facture_data.facture_id,
+                                                 odoo_fact_url:odoo_facture_data.url,
+                                                 access_token:odoo_facture_data.access_token
+                                             }
+                                             let user_data = currentUser
+                                             let orders = user_data.orders || [];
+                                             orders.push(orderData)
+                                             user_data.orders = orders
+                                             console.log(user_data)
+                                             rethink.update("test",'table("woo_users").get('+JSON.stringify(currentUser.id)+').update('+ JSON.stringify(user_data) + ')',db_name,false).then( updateRes => {
+                                                 if (updateRes && updateRes === true) {
+
+                                                     maillingService.send_odoo_facture({
+                                                         "emailReciver":currentUser.email,
+                                                         "subject":"Facture Casa.Verde",
+                                                         "msg":"Madame/Monsieur,<br/><br/>Suite à votre achat sur notre site <b>Casa.Verde</b> effectué(e) le "+moment().format("DD-MM-YYYY HH:mm")+" et correspondant au bon de commande n° " +orderRes.data.id +", nous vous adressons ci-joint une facture avec les détails de votre commande.",
+                                                         "footerMsg":"<br/><br/>En vous remerciant par avance,<br/><br/><br/>Cordialement",
+                                                         "attach":[
+                                                             {
+                                                                 filename:"Facture_CasaVerde_" + moment().format("DD-MM-YYYY")+".pdf",
+                                                                 path:odoo_facture_data.url_display
+                                                             }
+                                                         ]
+                                                     }).then(sendRes => {
+                                                         console.log(sendRes)
+                                                     })
+                                                     setLoading(false)
+                                                     openSnackbar("success", "Félicitation ! Votre commande est effectué avec succès")
+                                                     viderPanier()
+                                                     props.onClearPanier()
+                                                     props.history.push('/home/chat',{isOnlyBot:true,odoo_fact_url:odoo_facture_data.url})
+                                                     //navigateTo("/home/chat",{b64_odoo_fact:odoo_facture_data.b64})
+                                                 }else{
+                                                     console.log("error update woo user")
+                                                 }
+                                             }).catch(err => {console.log(err)})
+
+                                         }
+
+                                         */
+
                                     }
                                 }).catch(err => {
                                     console.log(err)

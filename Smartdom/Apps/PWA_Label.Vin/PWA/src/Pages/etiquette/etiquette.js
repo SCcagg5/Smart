@@ -21,7 +21,10 @@ import {navigateTo} from "../routes/history";
 import WooService from "../../provider/wooService";
 import Snackbar from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
-
+import dataImages from './dataImage'
+import FolderIcon from '@material-ui/icons/Folder';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import NewImage from "../../assets/images/etiquette/art/IMG_20200201_220041.jpg"
 class Etiquette extends Component {
     constructor(props){
         super(props)
@@ -38,8 +41,10 @@ class Etiquette extends Component {
             openTitleModal:false,
             photoUploaded:'',
             textposition:'',
-            nom:'',
-            annee:''
+            nom:"IMG_20200201_220041.jpg",
+            annee:'',
+            idCat:0,
+            afficherImage:false
 
         }
 
@@ -70,6 +75,8 @@ class Etiquette extends Component {
         this.getProduct()
     }
 
+
+
     getProduct(){
         console.log(this.props.history)
         let path_array = this.props.history.location.pathname.split("/")
@@ -95,6 +102,10 @@ class Etiquette extends Component {
     onChangefirstEtiquette(item,e){
         this.setState({[item]:e.target.value})
 
+    }
+
+    getImages(key){
+        this.setState({afficherImage:true,idCat:key})
     }
 
     addToCart(){
@@ -214,184 +225,6 @@ class Etiquette extends Component {
 
                             </div>
 
-                            <div>
-                                <FormControl component="fieldset">
-                                    <RadioGroup aria-label="gender" name="gender1" value={this.state.choice} onChange={(e)=>{this.handleChange(e)}}>
-                                        <FormControlLabel value="1" control={<Radio />} label="J'ecris mon message sur une étiquette standard" />
-                                        {this.state.choice==="1"&&<div>
-                                          <Etiquettepers nom={this.state.nom} annee={this.state.annee} onChange={this.onChangefirstEtiquette}/>
-                                        </div>}
-                                        <FormControlLabel value="2" control={<Radio />} label="Je crée mon étiquette de A à Z sur l'interface graphique " />
-                                        {
-                                            this.state.choice==="2"&&
-                                                <div className="text-center" >
-
-                                                    <TouchAppIcon fontSize="small" />
-                                                    <small>Création de votre etiquette sur notre interface graphique aprés ajouté le coffret à votre panier</small>
-                                                </div>
-                                        }
-                                        <FormControlLabel value="3" control={<Radio />} label="Je personalise une etiquette toute faite " />
-                                        {
-                                            this.state.choice==="3"&&<div>
-                                                <h5>
-                                                    Découvre les étiquettes toutes faites en cliquant sur la catégorie
-                                                <img src={down} style={{width:"18px"}}/>
-                                                </h5>
-                                                <div className="p-1 text-center">
-                                                    <img src={right} style={{width:"15px"}}/>
-                                                    <small className="ml-2">
-                                                    Pour Noel
-                                                    </small>
-
-                                                </div>
-                                                <div className="p-1 text-center">
-                                                    <img src={right} style={{width:"15px"}}/>
-                                                    <small className="ml-2">
-                                                        Pour Nouvel Année
-                                                    </small>
-
-                                                </div>
-                                                <div className="p-1 text-center">
-                                                    <img src={right} style={{width:"15px"}}/>
-                                                    <small className="ml-2">
-                                                        Pour Saint Valentin
-                                                    </small>
-
-                                                </div>
-                                                <div className="p-1 text-center">
-                                                    <img src={right} style={{width:"15px"}}/>
-                                                    <small className="ml-2">
-                                                        Pour un anniversaire
-                                                    </small>
-
-                                                </div>
-                                                <div className="p-1 text-center">
-                                                    <img src={right} style={{width:"15px"}}/>
-                                                    <small className="ml-2">
-                                                        Pour la féte de pères - mères
-                                                    </small>
-
-                                                </div>
-                                                <div className="p-1 text-center">
-                                                    <img src={right} style={{width:"15px"}}/>
-                                                    <small className="ml-2">
-                                                        Pour une demande témoin
-                                                    </small>
-
-                                                </div>
-                                                <div className="p-1 text-center">
-                                                    <img src={right} style={{width:"15px"}}/>
-                                                    <small className="ml-2">
-                                                        Pour une demande parrain - marraine
-                                                    </small>
-
-                                                </div>
-                                                <div className="p-1 text-center">
-                                                    <img src={right} style={{width:"15px"}}/>
-                                                    <small className="ml-2">
-                                                        Pour un homme amateur de bières
-                                                    </small>
-
-                                                </div>
-                                            </div>
-                                        }
-                                        <FormControlLabel value="disabled" control={<Radio />} label="Je crée jusqu'a 6 étiquettes differente dans mon coffret" />
-                                        <FormControlLabel value="5" control={<Radio />} label="Upload une photo ou prendre une selfie " />
-                                        {
-                                            this.state.choice==="5"&&
-                                                <div>
-                                            <Dialog onClose={() => {this.setState({openUploadtModal:false})}}
-                                                    aria-labelledby="simple-dialog-title" open={this.state.openUploadtModal}>
-                                                <DialogTitle id="simple-dialog-title">Très bon choix &#128512;</DialogTitle>
-                                                <DialogContent>
-                                                    <DialogContentText id="alert-dialog-description">
-                                                        Connectez-vous pour ajouter au panier
-                                                    </DialogContentText>
-                                                </DialogContent>
-                                                <DialogActions>
-                                                    <label for="file-upload">
-
-                                                        upload photo
-
-                                                        <input onChange={(e)=>{this.uploadPhoto(e)}} id="file-upload" type="file" style={{display:'none'}}/>
-
-                                                    </label>
-                                                    <label htmlFor="take-photo">
-
-                                                        prendre une selfie
-
-                                                        <input
-                                                            accept="image/*"
-                                                            id="take-photo"
-                                                            type="file"
-                                                            capture="environment"
-                                                            style={{display:'none'}}
-                                                            onChange={(e) => this.uploadPhoto(e)}
-                                                        />
-
-                                                    </label>
-                                                </DialogActions>
-
-
-
-                                            </Dialog>
-
-                                                    <Dialog onClose={() => {this.setState({openTitleModal:false})}}
-                                                            aria-labelledby="simple-dialog-title" open={this.state.openTitleModal}>
-                                                        <DialogTitle id="simple-dialog-title">Très bon choix &#128512;</DialogTitle>
-                                                        <DialogContent>
-                                                            <DialogContentText id="alert-dialog-description">
-                                                              Choisir style de titre et sous titre
-                                                            </DialogContentText>
-                                                        </DialogContent>
-                                                        <DialogActions>
-                                                            <label onClick={()=>{this.setState({textposition:"horizontal",openTitleModal:false})}}>
-
-                                                                Titre horizontal
-
-
-                                                            </label>
-                                                            <label onClick={()=>{this.setState({textposition:"vertical",openTitleModal:false})}} >
-
-                                                                Titre vertical
-
-
-
-                                                            </label>
-                                                        </DialogActions>
-
-
-
-                                                    </Dialog>
-                                                    {
-                                                        this.state.photoUploaded!=''&&
-                                                            this.state.textposition==="horizontal"?
-                                                            <div className="text-center" >
-
-
-
-                                                               <img src={this.state.photoUploaded} style={{width:300}}/>
-
-                                                                <input className="text-center noOutline mt-2" placeholder={'Titre'} style={{fontWeight:'bold',fontSize:20}} />
-                                                                <input className="text-center noOutline mt-2" placeholder={'Sous titre'} style={{fontSize:18}} />
-
-                                                            </div>:
-                                                            <div style={{position:'relative'}}>
-
-                                                                <input type={"text"} className="text-center noOutline vertical mt-2" placeholder={'Titre'} style={{fontWeight:'bold',fontSize:20}} />
-
-
-                                                                <img src={this.state.photoUploaded} style={{width:300,marginLeft:40}}/>
-
-
-                                                            </div>
-                                                    }
-                                                </div>
-                                        }
-
-                                    </RadioGroup>
-                                </FormControl>
-                            </div>
 
                             <div align="center" style={{marginTop:10}}>
                                 <Button onClick={()=>this.addToCart()} variant="contained" color="secondary" style={{fontWeight:700,textTransform:"none"}}>
@@ -403,6 +236,274 @@ class Etiquette extends Component {
 
                         }
 
+                        <div>
+                            <FormControl component="fieldset">
+                                <RadioGroup aria-label="gender" name="gender1" value={this.state.choice}
+                                            onChange={(e) => {
+                                                this.handleChange(e)
+                                            }}>
+                                    <FormControlLabel value="1" control={<Radio/>}
+                                                      label="J'ecris mon message sur une étiquette standard"/>
+                                    {this.state.choice === "1" && <div>
+                                        <Etiquettepers nom={this.state.nom} annee={this.state.annee}
+                                                       onChange={this.onChangefirstEtiquette}/>
+                                    </div>}
+                                    <FormControlLabel value="2" control={<Radio/>}
+                                                      label="Je crée mon étiquette de A à Z sur l'interface graphique "/>
+                                    {
+                                        this.state.choice === "2" &&
+                                        <div className="text-center">
+
+                                            <TouchAppIcon fontSize="small"/>
+                                            <small>Création de votre etiquette sur notre interface graphique aprés
+                                                ajouté le coffret à votre panier
+                                            </small>
+                                        </div>
+                                    }
+                                    <FormControlLabel value="3" control={<Radio/>}
+                                                      label="Je personalise une etiquette toute faite "/>
+                                    {
+                                        this.state.choice === "3" && <div>
+                                            <h5>
+                                                Découvre les étiquettes toutes faites en cliquant sur la catégorie
+                                                <img src={down} style={{width: "18px"}}/>
+                                            </h5>
+                                            <div className="p-1 text-center">
+                                                <img src={right} style={{width: "15px"}}/>
+                                                <small className="ml-2">
+                                                    Pour Noel
+                                                </small>
+
+                                            </div>
+                                            <div className="p-1 text-center">
+                                                <img src={right} style={{width: "15px"}}/>
+                                                <small className="ml-2">
+                                                    Pour Nouvel Année
+                                                </small>
+
+                                            </div>
+                                            <div className="p-1 text-center">
+                                                <img src={right} style={{width: "15px"}}/>
+                                                <small className="ml-2">
+                                                    Pour Saint Valentin
+                                                </small>
+
+                                            </div>
+                                            <div className="p-1 text-center">
+                                                <img src={right} style={{width: "15px"}}/>
+                                                <small className="ml-2">
+                                                    Pour un anniversaire
+                                                </small>
+
+                                            </div>
+                                            <div className="p-1 text-center">
+                                                <img src={right} style={{width: "15px"}}/>
+                                                <small className="ml-2">
+                                                    Pour la féte de pères - mères
+                                                </small>
+
+                                            </div>
+                                            <div className="p-1 text-center">
+                                                <img src={right} style={{width: "15px"}}/>
+                                                <small className="ml-2">
+                                                    Pour une demande témoin
+                                                </small>
+
+                                            </div>
+                                            <div className="p-1 text-center">
+                                                <img src={right} style={{width: "15px"}}/>
+                                                <small className="ml-2">
+                                                    Pour une demande parrain - marraine
+                                                </small>
+
+                                            </div>
+                                            <div className="p-1 text-center">
+                                                <img src={right} style={{width: "15px"}}/>
+                                                <small className="ml-2">
+                                                    Pour un homme amateur de bières
+                                                </small>
+
+                                            </div>
+                                        </div>
+                                    }
+                                    <FormControlLabel value="disabled" control={<Radio/>}
+                                                      label="Je crée jusqu'a 6 étiquettes differente dans mon coffret"/>
+                                    <FormControlLabel value="5" control={<Radio/>}
+                                                      label="Upload une photo ou prendre une selfie "/>
+                                    {
+                                        this.state.choice === "5" &&
+                                        <div>
+                                            <Dialog onClose={() => {
+                                                this.setState({openUploadtModal: false})
+                                            }}
+                                                    aria-labelledby="simple-dialog-title"
+                                                    open={this.state.openUploadtModal}>
+                                                <DialogTitle id="simple-dialog-title">Très bon
+                                                    choix &#128512;</DialogTitle>
+                                                <DialogContent>
+                                                    <DialogContentText id="alert-dialog-description">
+                                                        Connectez-vous pour ajouter au panier
+                                                    </DialogContentText>
+                                                </DialogContent>
+                                                <DialogActions>
+                                                    <label htmlFor="file-upload">
+
+                                                        upload photo
+
+                                                        <input onChange={(e) => {
+                                                            this.uploadPhoto(e)
+                                                        }} id="file-upload" type="file" style={{display: 'none'}}/>
+
+                                                    </label>
+                                                    <label htmlFor="take-photo">
+
+                                                        prendre une selfie
+
+                                                        <input
+                                                            accept="image/*"
+                                                            id="take-photo"
+                                                            type="file"
+                                                            capture="environment"
+                                                            style={{display: 'none'}}
+                                                            onChange={(e) => this.uploadPhoto(e)}
+                                                        />
+
+                                                    </label>
+                                                </DialogActions>
+
+
+                                            </Dialog>
+
+                                            <Dialog onClose={() => {
+                                                this.setState({openTitleModal: false})
+                                            }}
+                                                    aria-labelledby="simple-dialog-title"
+                                                    open={this.state.openTitleModal}>
+                                                <DialogTitle id="simple-dialog-title">Très bon
+                                                    choix &#128512;</DialogTitle>
+                                                <DialogContent>
+                                                    <DialogContentText id="alert-dialog-description">
+                                                        Choisir style de titre et sous titre
+                                                    </DialogContentText>
+                                                </DialogContent>
+                                                <DialogActions>
+                                                    <label onClick={() => {
+                                                        this.setState({
+                                                            textposition: "horizontal",
+                                                            openTitleModal: false
+                                                        })
+                                                    }}>
+
+                                                        Titre horizontal
+
+
+                                                    </label>
+                                                    <label onClick={() => {
+                                                        this.setState({textposition: "vertical", openTitleModal: false})
+                                                    }}>
+
+                                                        Titre vertical
+
+
+                                                    </label>
+                                                </DialogActions>
+
+
+                                            </Dialog>
+                                            {
+                                                this.state.photoUploaded != '' &&
+                                                this.state.textposition === "horizontal" ?
+                                                    <div className="text-center">
+
+
+                                                        <img src={this.state.photoUploaded} style={{width: 300}}/>
+
+                                                        <input className="text-center noOutline mt-2"
+                                                               placeholder={'Titre'}
+                                                               style={{fontWeight: 'bold', fontSize: 20}}/>
+                                                        <input className="text-center noOutline mt-2"
+                                                               placeholder={'Sous titre'} style={{fontSize: 18}}/>
+
+                                                    </div> :
+                                                    <div style={{position: 'relative'}}>
+
+                                                        <input type={"text"}
+                                                               className="text-center noOutline vertical mt-2"
+                                                               placeholder={'Titre'}
+                                                               style={{fontWeight: 'bold', fontSize: 20}}/>
+
+
+                                                        <img src={this.state.photoUploaded}
+                                                             style={{width: 300, marginLeft: 40}}/>
+
+
+                                                    </div>
+                                            }
+                                        </div>
+                                    }
+
+                                    <FormControlLabel value="6" control={<Radio/>}
+                                                      label="Je choisis une images a partir nos dossiers"/>
+                                    {this.state.choice === "6" && <div>
+                                        <div>
+                                            {this.state.afficherImage===false ?
+                                                dataImages.map((item,key)=>(
+                                                    <div onClick={()=>{this.
+                                                        getImages(key)
+                                                    }} key={key} className="folder_item_container"
+                                                         draggable
+
+
+                                                    >
+                                                        <div className="folder_item">
+                                                            <div>
+                                                                <FolderIcon style={{color:"rgb(95, 99, 104)"}}/>
+                                                            </div>
+                                                            <div style={{marginTop:4,marginLeft:8,color:"rgb(95, 99, 104)"}}>
+                                                                {item.categories}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                ))
+                                                :
+                                                <div>
+                                                    <ArrowBackIcon  color={"primary"} onClick={()=>{this.setState({afficherImage:false})}}/>
+                                                <div className='row justify-content-center'>
+
+
+                                                    {
+                                                        dataImages[this.state.idCat].images.map((item, key) => (
+                                                            <div  className='col-4 mt-2'>
+                                                                <img src={item.src} style={{width:'100%'}}/>
+                                                            </div>
+
+                                                        ))
+                                                    }
+
+                                                    <div   className='col-4 mt-2'>
+                                                        <img src={NewImage} style={{width:'100%'}}/>
+                                                    </div>
+
+                                                </div>
+
+                                                    <div align="center" style={{marginTop:10}}>
+                                                        <Button onClick={()=>this.addToCart()} variant="contained" color="secondary" style={{fontWeight:700,textTransform:"none"}}>
+                                                            Ajouter au panier
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                        </div>
+                                    </div>}
+
+
+
+
+                                </RadioGroup>
+                            </FormControl>
+                        </div>
                     </div>
                 </div>
 
