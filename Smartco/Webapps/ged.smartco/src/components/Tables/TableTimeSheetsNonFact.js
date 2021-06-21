@@ -114,7 +114,7 @@ export default function TableTimeSheetsNonFact(props) {
     let factures_ts = []
     factures.map((fact,key2) => {
         (fact.lignes_facture || []).map((lf,k) => {
-            fact.statut === "accepted" && lf.id && factures_ts.push(lf.id)
+            (fact.statut === "accepted" || fact.statut === "paid") && lf.id && factures_ts.push(lf.id)
         })
     })
     timeSheetsNonFact = timeSheets.filter(x => !factures_ts.includes(x.id))

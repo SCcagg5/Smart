@@ -221,7 +221,7 @@ export default function TableTimeSheet(props) {
     let factures_ts = []
     factures.map((fact) => {
         (fact.lignes_facture || []).map((lf) => {
-            fact.statut === "accepted" && lf.id && factures_ts.push(lf.id)
+            (fact.statut === "accepted" || fact.statut === "paid") && lf.id && factures_ts.push(lf.id)
         })
     })
 

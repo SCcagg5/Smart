@@ -64,6 +64,7 @@ export default function CollapsibleTable(props) {
     const [sdate_search, setSdate_search] = React.useState(null);
     const [edate_search, setEdate_search] = React.useState(null);
     const [statut_search, setStatut_search] = React.useState("tous");
+    const [lf_oaUser_search, setLf_oaUser_search] = React.useState(localStorage.getItem("email"));
     const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
     const [f_TooDeleted, setF_TooDeleted] = React.useState("");
 
@@ -108,10 +109,11 @@ export default function CollapsibleTable(props) {
     }
 
 
-    let factures = (props.factures || []).filter(x => x.partner === localStorage.getItem("email"));
+    let factures = (props.factures || []);
 
     let searchFilter = factures.filter((lf) => (((lf.client_id === client_search) || client_search === "") &&
         (lf.client_folder && (lf.client_folder.id === lf_dossier_search) || lf_dossier_search === "") &&
+        ((lf.partner === lf_oaUser_search) || lf_oaUser_search === "") &&
         ((sdate_search !== null && (new Date(lf.created_at).getTime() >= sdate_search.getTime())) || sdate_search === null) &&
         ((edate_search !== null && (new Date(lf.created_at).getTime() <= (moment(edate_search).set({
             hour: 23,
@@ -262,7 +264,7 @@ export default function CollapsibleTable(props) {
                         </div>
                     </div>
 
-                    <div className="col-md-12 mt-2">
+                    <div className="col-md-6 mt-2">
                         <div style={{display: "flex"}}>
                             <h5>Par statut</h5>
                             <select
@@ -281,6 +283,45 @@ export default function CollapsibleTable(props) {
                                 <option value={"accepted"} label={"Validée"}/>
                                 <option value={"paid"} label={"Payée"}/>
                             </select>
+                        </div>
+                    </div>
+                    <div className="col-md-6 mt-2">
+                        <div style={{display:"flex"}}>
+                            <h5 >Par utilisateur OA</h5>
+                            <MuiSelect
+                                labelId="demo-mutiple-chip-label14545"
+                                id="demo-mutiple-chip34688"
+                                style={{ width: 250,marginLeft:10,marginRight:10 }}
+                                value={lf_oaUser_search}
+                                onChange={(e) => {
+                                    /*setPage(0);
+                                    setOpen(false)
+                                    setExapndedRowKey("")*/
+                                    setLf_oaUser_search(e.target.value)
+                                }}
+                                MenuProps={Data.MenuProps}
+                            >
+                                <MenuItem
+                                    key={-1}
+                                    value={""}>
+                                    <div className="row align-items-center justify-content-center">
+                                        <div style={{marginLeft:10}}>{"Aucun"}</div>
+                                    </div>
+                                </MenuItem>
+                                {(props.contacts || []).map((contact, key) => (
+                                    <MenuItem
+                                        key={key}
+                                        value={contact.email}>
+                                        <div
+                                            className="row align-items-center justify-content-center">
+                                            <Avatar
+                                                alt=""
+                                                src={contact.imageUrl} />
+                                            <div>{contact.nom + ' ' + contact.prenom}</div>
+                                        </div>
+                                    </MenuItem>
+                                ))}
+                            </MuiSelect>
                         </div>
                     </div>
                 </div>
@@ -890,12 +931,12 @@ function Row(props) {
                                                         </TableCell>
                                                     }
 
-                                                    <TableCell component="th" scope="row" align="center">
+                                                    <TableCell component="th" scope="row" align="center" style={{minWidth:140}}>
                                                         {moment(lf.newTime.date).format("DD-MM-YYYY")}
                                                     </TableCell>
                                                     <TableCell align="center">{lf.newTime.description}</TableCell>
                                                     <TableCell align="center">{lf.newTime.utilisateurOA}</TableCell>
-                                                    <TableCell
+                                                    <TableCell style={{minWidth:120}}
                                                         align="center">{lf.newTime.rateFacturation + " CHF"}</TableCell>
                                                     <TableCell align="center">
                                                         {utilFunctions.formatDuration(lf.newTime.duree.toString())}
