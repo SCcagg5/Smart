@@ -119,7 +119,7 @@ export default function CollapsibleTable(props) {
             hour: 23,
             minute: 59
         }).unix() * 1000))) || edate_search === null) &&
-        ((statut_search === lf.statut) || (statut_search === "tous" && lf.statut !== "paid") || (statut_search === "accepted" && lf.statut !== "wait" && lf.statut !== "paid"))
+        ((statut_search === lf.statut) || (statut_search === "tous") || (statut_search === "accepted" && lf.statut !== "wait"))
     ))
 
     searchFilter.sort((a, b) => {
@@ -699,7 +699,7 @@ function Row(props) {
                 </TableCell>
 
                 <TableCell align="center">{row.type && row.type === "provision" ?
-                    row.details_provision.amount + " CHF" : row.type && row.type === "avance_frais" ? row.details_avancefrais.amount + " CHF" :
+                    row.amount_total + " " + row.currency_id[1] : row.type && row.type === "avance_frais" ? row.details_avancefrais.amount + " CHF" :
                        row.amount_total ?  (row.amount_total + " " + row.currency_id[1]) :
                            row.statut === "wait" ? "__" :
                            <CircularProgress size={15} color={"secondary"}/> }

@@ -648,8 +648,8 @@ export default class Main extends React.Component {
                                         key: taxResData.data[0].id,
                                         value: taxResData.data[0].id,
                                         text: taxResData.data[0].display_name,
-                                        amount:taxResData.data[0].amount,
-                                        price_include:taxResData.data[0].price_include
+                                        amount: taxResData.data[0].amount,
+                                        price_include: taxResData.data[0].price_include
                                     })
                                 }).catch(err => console.log(err))
                             )
@@ -864,8 +864,7 @@ export default class Main extends React.Component {
                                     return 0;
                                 })
                             })
-                        }
-                        else if (item === "contacts") {
+                        } else if (item === "contacts") {
                             if (this.props.location.pathname.indexOf('/home/contacts') > -1) {
                                 if (this.props.location.pathname.indexOf('/home/contacts/') > -1) {
 
@@ -918,8 +917,7 @@ export default class Main extends React.Component {
                                     })
                                 })
                             }
-                        }
-                        else if (item === "rooms") {
+                        } else if (item === "rooms") {
                             let user_rooms = [];
                             rr.map((room, key) => {
                                 if (room.members.find(x => x.email === localStorage.getItem("email"))) {
@@ -967,14 +965,11 @@ export default class Main extends React.Component {
                                     });
                                 }
                             }
-                        }
-                        else if (item === "odoo_companies") {
+                        } else if (item === "odoo_companies") {
                             this.setState({[item]: rr.filter(x => x.odoo_id === localStorage.getItem("odoo_id"))})
-                        }
-                        else if (item === "clients_cases") {
+                        } else if (item === "clients_cases") {
                             this.setState({[item]: rr.filter(x => x.admin_odoo_id === localStorage.getItem("odoo_id") || localStorage.getItem("email") === "k.db@enfinconsulting.ch")})
-                        }
-                        else {
+                        } else {
                             this.setState({[item]: rr})
                         }
                     });
@@ -1233,11 +1228,11 @@ export default class Main extends React.Component {
             //insert
             else if (recieve.new_val) {
                 if (table_name === "time_sheets") {
-                    if(data.findIndex(x => x.uid === recieve.new_val.uid) === -1 ){
+                    if (data.findIndex(x => x.uid === recieve.new_val.uid) === -1) {
                         data.push(recieve.new_val)
                         this.setState({[table_name]: data})
                     }
-                }else{
+                } else {
                     data.push(recieve.new_val)
                     if (table_name === "annuaire_clients_mandat") {
                         this.setState({
@@ -3561,15 +3556,15 @@ export default class Main extends React.Component {
     }
 
     sendMailAttach(to, subject, msg, footerMsg, attach) {
-            DocGenerationService.sendMailAttach({
-                emailReciver: to,
-                subject: subject,
-                msg: msg,
-                footerMsg: footerMsg,
-                attach: attach
-            }).then(sendRes => {
-                console.log(sendRes)
-            })
+        DocGenerationService.sendMailAttach({
+            emailReciver: to,
+            subject: subject,
+            msg: msg,
+            footerMsg: footerMsg,
+            attach: attach
+        }).then(sendRes => {
+            console.log(sendRes)
+        })
     }
 
     async save_avanceFrais(file, folder_id, date, facture_company_id, client_folder_name, amount, desc) {
@@ -3737,7 +3732,10 @@ export default class Main extends React.Component {
                                                 this.state.TimeSheet.newTime.client + "</b> dans son dossier <b>" + this.state.TimeSheet.newTime.dossier_client.name + "</b> <br><br>" +
                                                 "Vous trouverez ci-joint la facture en format Pdf. <br><br> Pour plus de détails, veuillez consulter votre esapce GED dans le menu <b>Compta -> Avance de frais</b>",
                                                 "<br><br> Cordialement",
-                                                [{filename:"AvanceFrais",path:"data:application/pdf;base64," + b64_fact}]
+                                                [{
+                                                    filename: "AvanceFrais",
+                                                    path: "data:application/pdf;base64," + b64_fact
+                                                }]
                                             )
 
                                             SmartService.getFile(folder_id, localStorage.getItem('token'), localStorage.getItem('usrtoken')).then(Res => {
@@ -4369,7 +4367,7 @@ export default class Main extends React.Component {
                     statut: "wait",
                     client_folder: client_folder,
                     odoo_id: localStorage.getItem("odoo_id"),
-                    processed : 0
+                    processed: 0
                 }
 
                 rethink.insert("test", 'table("factures").insert(' + JSON.stringify(newItem) + ')', db_name, false).then(resAdd => {
@@ -4389,7 +4387,7 @@ export default class Main extends React.Component {
                 console.log(err)
             })
 
-        }else{
+        } else {
             this.setState({loading: false})
         }
     }
@@ -4416,7 +4414,7 @@ export default class Main extends React.Component {
                 this.openSnackbar("error", "Une erreur est survenue !")
                 console.log(err)
             })
-        }else{
+        } else {
             this.setState({loading: false})
         }
 
@@ -4545,7 +4543,7 @@ export default class Main extends React.Component {
         let id_facture = facture.id
 
         let lignes_factures = lignes_f;
-        let total = 0;
+        let total = 0.0;
         let reduction_amount = 0;
         let tax_amount = 0;
         let findTaxe = this.state.odoo_taxs.find(x => x.key === tax)
@@ -4553,11 +4551,11 @@ export default class Main extends React.Component {
         lignes_factures.map((ligne, key) => {
             let somme = ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation)
             total = total + somme;
-            if(tax && tax !== "" && findTaxe){
-                if(findTaxe.price_include === true){
-                    let tax_row = somme - ( somme / ((findTaxe.amount / 100 ) + 1) )
+            if (tax && tax !== "" && findTaxe) {
+                if (findTaxe.price_include === true) {
+                    let tax_row = somme - (somme / ((findTaxe.amount / 100) + 1))
                     tax_amount = tax_amount + tax_row;
-                }else{
+                } else {
                     let tax_row = (somme * findTaxe.amount) / 100
                     tax_amount = tax_amount + tax_row;
                 }
@@ -4571,8 +4569,8 @@ export default class Main extends React.Component {
             'type': 'out_invoice',
             "move_name": false,  // available only in odoo account.invoice => odoo 12
             "user_id": localStorage.getItem("odoo_id") === "9035ce2a-a7a2-11eb-bcbc-0242ac130002" ? 8 : 6,
-            "team_id":1, // available only in odoo account.invoice => odoo 12
-            "comment":false,  // available only in odoo account.invoice => odoo 12
+            "team_id": 1, // available only in odoo account.invoice => odoo 12
+            "comment": false,  // available only in odoo account.invoice => odoo 12
             'l10n_ch_isr_sent': false, // available only in odoo account.invoice => odoo 12
             'name': false,   //on peut mettre une petite desc sous le titre de la facture avec ce champs
             'date_invoice': moment(facture_date).format('YYYY-MM-DD'),  //available only in odoo account.invoice => odoo 12
@@ -4615,12 +4613,12 @@ export default class Main extends React.Component {
             'message_ids': [],
             'message_attachment_count': 0,
             'invoice_line_ids': [],
-            'tax_line_ids':[],
+            'tax_line_ids': [],
             "account_id": 6,
             "reference": facture.client_folder.name,
             "fiscal_position_id": false,
             "origin": false,
-            "reference_type":"none",
+            "reference_type": "none",
             "incoterm_id": false,
             "sequence_number_next": false,
             "partner_shipping_id": facture_company_id,
@@ -4683,7 +4681,7 @@ export default class Main extends React.Component {
 
         if (reductionAmount !== "") {
             reduction_amount = reductionType === "%" ? ((total * parseInt(reductionAmount)) / 100) : parseFloat(reductionAmount)
-            if(tax && tax !== "" && findTaxe){
+            /*if(tax && tax !== "" && findTaxe){
                 if(findTaxe.price_include === true){
                     let tax_row = reduction_amount - ( reduction_amount / ((findTaxe.amount / 100 ) + 1) )
                     tax_amount = tax_amount - tax_row;
@@ -4691,7 +4689,7 @@ export default class Main extends React.Component {
                     let tax_row = (reduction_amount * findTaxe.amount) / 100
                     tax_amount = tax_amount - tax_row;
                 }
-            }
+            }*/
             odoo_data[0].invoice_line_ids.push(
                 [
                     0,
@@ -4705,7 +4703,55 @@ export default class Main extends React.Component {
                         'is_rounding_line': false,
                         'name': reductionType === "%" ? "Réduction(" + reductionAmount + "%)" : "Réduction",
                         'origin': false,
-                        'price_unit': - reduction_amount,
+                        'price_unit': -reduction_amount,
+                        'product_id': 1,  //2
+                        'quantity': 1,
+                        'sequence': 10,
+                        "uom_id": 1,
+                        /*'invoice_line_tax_ids': [
+                            [
+                                6,
+                                false,
+                                tax && tax !== "" ? [tax] : []
+                            ]
+                        ],*/
+                        'analytic_tag_ids': [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                    }
+                ]
+            )
+        }
+
+        if (fraisAdmin === "2%") {
+            let fraisAdminAmount = (total * 2) / 100;
+            if (tax && tax !== "" && findTaxe) {
+                if (findTaxe.price_include === true) {
+                    let tax_row = fraisAdminAmount - (fraisAdminAmount / ((findTaxe.amount / 100) + 1))
+                    tax_amount = tax_amount + tax_row;
+                } else {
+                    let tax_row = (fraisAdminAmount * findTaxe.amount) / 100
+                    tax_amount = tax_amount + tax_row;
+                }
+            }
+            odoo_data[0].invoice_line_ids.push(
+                [
+                    0,
+                    'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+                    {
+                        "account_analytic_id": false,
+                        'account_id': 101,  //103
+                        "currency_id": 5,
+                        'discount': 0,
+                        'display_type': false,
+                        'is_rounding_line': false,
+                        'name': "Frais administratifs(2%)",
+                        'origin': false,
+                        'price_unit': fraisAdminAmount,
                         'product_id': 1,  //2
                         'quantity': 1,
                         'sequence': 10,
@@ -4729,39 +4775,8 @@ export default class Main extends React.Component {
             )
         }
 
-        if (fraisAdmin === "2%") {
-            odoo_data[0].invoice_line_ids.push(
-                [
-                    0,
-                    'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
-                    {
-                        "account_analytic_id": false,
-                        'account_id': 101,  //103
-                        "currency_id": 5,
-                        'discount': 0,
-                        'display_type': false,
-                        'is_rounding_line': false,
-                        'name': "Frais administratifs(2%)",
-                        'origin': false,
-                        'price_unit': reductionAmount === "" ? (total * 2) / 100 : ((total - reduction_amount )* 2) / 100 ,
-                        'product_id': 1,  //2
-                        'quantity': 1,
-                        'sequence': 10,
-                        "uom_id": 1,
-                        'analytic_tag_ids': [
-                            [
-                                6,
-                                false,
-                                []
-                            ]
-                        ],
-                    }
-                ]
-            )
-        }
-
         if (facture.facture_odoo_id) {
-
+            console.log(total)
             SmartService.details_facture_odoo(facture.odoo_id, localStorage.getItem('token'), localStorage.getItem('usrtoken'), facture.facture_odoo_id).then(detailsRes => {
                 console.log(detailsRes)
                 if (detailsRes.succes === true && detailsRes.status === 200) {
@@ -4769,13 +4784,14 @@ export default class Main extends React.Component {
                     let invoice_line_ids = detailsRes.data[0].invoice_line_ids || [];
                     let tax_line_ids = detailsRes.data[0].tax_line_ids || [];
                     invoice_line_ids.map(id => {
-                        odoo_data[0].invoice_line_ids.push([2, id,false])
+                        odoo_data[0].invoice_line_ids.push([2, id, false])
                     })
                     tax_line_ids.map(id => {
-                        odoo_data[0].tax_line_ids.push([2, id,false])
+                        odoo_data[0].tax_line_ids.push([2, id, false])
                     })
 
-                    if(tax && tax !== "" && findTaxe){
+                    if (tax && tax !== "" && findTaxe) {
+                        console.log(tax_amount)
 
                         odoo_data[0].tax_line_ids.push(
                             [
@@ -4787,9 +4803,9 @@ export default class Main extends React.Component {
                                     amount_rounding: 0,
                                     currency_id: 5,
                                     sequence: 0,
-                                    name:findTaxe.text,
+                                    name: findTaxe.text,
                                     tax_id: tax,
-                                    amount:tax_amount
+                                    amount: tax_amount
                                 }
                             ]
                         )
@@ -4832,8 +4848,7 @@ export default class Main extends React.Component {
             })
 
 
-        }
-        else {
+        } else {
             SmartService.create_facture_odoo(facture.odoo_id, localStorage.getItem('token'), localStorage.getItem('usrtoken'), {data: odoo_data}).then(createFactRes => {
                 console.log(facture.odoo_id)
                 console.log(createFactRes)
@@ -4901,11 +4916,11 @@ export default class Main extends React.Component {
         lignes_factures.map((ligne, key) => {
             let somme = ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation)
             total = total + (ligne.newTime.duree * parseFloat(ligne.newTime.rateFacturation));
-            if(tax && tax !== "" && findTaxe){
-                if(findTaxe.price_include === true){
-                    let tax_row = somme - ( somme / ((findTaxe.amount / 100 ) + 1) )
+            if (tax && tax !== "" && findTaxe) {
+                if (findTaxe.price_include === true) {
+                    let tax_row = somme - (somme / ((findTaxe.amount / 100) + 1))
                     tax_amount = tax_amount + tax_row;
-                }else{
+                } else {
                     let tax_row = (somme * findTaxe.amount) / 100
                     tax_amount = tax_amount + tax_row;
                 }
@@ -4962,7 +4977,7 @@ export default class Main extends React.Component {
             'message_ids': [],
             'message_attachment_count': 0,
             'invoice_line_ids': [],
-            'tax_line_ids':[],
+            'tax_line_ids': [],
             "account_id": 6,
             "reference": facture.client_folder.name,
             "fiscal_position_id": false,
@@ -5030,7 +5045,7 @@ export default class Main extends React.Component {
 
         if (reductionAmount !== "") {
             reduction_amount = reductionType === "%" ? ((total * parseInt(reductionAmount)) / 100) : parseFloat(reductionAmount)
-            if(tax && tax !== "" && findTaxe){
+            /*if(tax && tax !== "" && findTaxe){
                 if(findTaxe.price_include === true){
                     let tax_row = reduction_amount - ( reduction_amount / ((findTaxe.amount / 100 ) + 1) )
                     tax_amount = tax_amount - tax_row;
@@ -5038,7 +5053,7 @@ export default class Main extends React.Component {
                     let tax_row = (reduction_amount * findTaxe.amount) / 100
                     tax_amount = tax_amount - tax_row;
                 }
-            }
+            }*/
             odoo_data[0].invoice_line_ids.push(
                 [
                     0,
@@ -5052,7 +5067,55 @@ export default class Main extends React.Component {
                         'is_rounding_line': false,
                         'name': reductionType === "%" ? "Réduction(" + reductionAmount + "%)" : "Réduction",
                         'origin': false,
-                        'price_unit': - reduction_amount,
+                        'price_unit': -reduction_amount,
+                        'product_id': 1,  //2
+                        'quantity': 1,
+                        'sequence': 10,
+                        "uom_id": 1,
+                        /*'invoice_line_tax_ids': [
+                            [
+                                6,
+                                false,
+                                tax && tax !== "" ? [tax] : []
+                            ]
+                        ],*/
+                        'analytic_tag_ids': [
+                            [
+                                6,
+                                false,
+                                []
+                            ]
+                        ],
+                    }
+                ]
+            )
+        }
+
+        if (fraisAdmin === "2%") {
+            let fraisAdminAmount = (total * 2) / 100;
+            if (tax && tax !== "" && findTaxe) {
+                if (findTaxe.price_include === true) {
+                    let tax_row = fraisAdminAmount - (fraisAdminAmount / ((findTaxe.amount / 100) + 1))
+                    tax_amount = tax_amount + tax_row;
+                } else {
+                    let tax_row = (fraisAdminAmount * findTaxe.amount) / 100
+                    tax_amount = tax_amount + tax_row;
+                }
+            }
+            odoo_data[0].invoice_line_ids.push(
+                [
+                    0,
+                    'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
+                    {
+                        "account_analytic_id": false,
+                        'account_id': 101,  //103
+                        "currency_id": 5,
+                        'discount': 0,
+                        'display_type': false,
+                        'is_rounding_line': false,
+                        'name': "Frais administratifs(2%)",
+                        'origin': false,
+                        'price_unit': fraisAdminAmount,
                         'product_id': 1,  //2
                         'quantity': 1,
                         'sequence': 10,
@@ -5076,53 +5139,14 @@ export default class Main extends React.Component {
             )
         }
 
-        if (fraisAdmin === "2%") {
-            odoo_data[0].invoice_line_ids.push(
-                [
-                    0,
-                    'virtual_' + (Math.floor(100 + Math.random() * 900)).toString(),
-                    {
-                        "account_analytic_id": false,
-                        'account_id': 101,  //103
-                        "currency_id": 5,
-                        'discount': 0,
-                        'display_type': false,
-                        'is_rounding_line': false,
-                        'name': "Frais administratifs(2%)",
-                        'origin': false,
-                        'price_unit': reductionAmount === "" ? (total * 2) / 100 : ((total - reduction_amount )* 2) / 100 ,
-                        'product_id': 1,  //2
-                        'quantity': 1,
-                        'sequence': 10,
-                        "uom_id": 1,
-                        /*'invoice_line_tax_ids': [
-                [
-                  6,
-                  false,
-                  tax && tax !== "" ? [tax] : []
-                ]
-              ],*/
-                        'analytic_tag_ids': [
-                            [
-                                6,
-                                false,
-                                []
-                            ]
-                        ],
-                    }
-                ]
-            )
-        }
 
-
-            let find_provision_factures = (this.state.factures || []).filter(x => x.type === "provision" && x.client_id === facture.client_id &&
-                x.client_folder.id === facture.client_folder.id && x.partner === localStorage.getItem("email") && x.paid && x.paid === "true" && (!x.used || (x.used && x.used === 0)))
-                .sort((a, b) => {
-                    var c = new Date(a.created_at);
-                    var d = new Date(b.created_at);
-                    return d - c;
-                })
-
+        let find_provision_factures = (this.state.factures || []).filter(x => x.type === "provision" && x.client_id === facture.client_id &&
+            x.client_folder.id === facture.client_folder.id && x.partner === localStorage.getItem("email") && x.paid && x.paid === "true" && (!x.used || (x.used && x.used === 0)))
+            .sort((a, b) => {
+                var c = new Date(a.created_at);
+                var d = new Date(b.created_at);
+                return d - c;
+            })
 
         let latest = find_provision_factures.length > 0 ? find_provision_factures[0] : undefined
         console.log(latest)
@@ -5140,18 +5164,11 @@ export default class Main extends React.Component {
                         'is_rounding_line': false,
                         'name': "Provision",
                         'origin': false,
-                        'price_unit': -parseFloat(latest.details_provision.amount),
+                        'price_unit': -latest.amount_total,
                         'product_id': 5,
                         'quantity': 1,
                         'sequence': 10,
                         "uom_id": 1,
-                        /*'invoice_line_tax_ids': [
-                            [
-                                6,
-                                false,
-                                tax && tax !== "" ? [tax] : []
-                            ]
-                        ],*/
                         'analytic_tag_ids': [
                             [
                                 6,
@@ -5175,10 +5192,10 @@ export default class Main extends React.Component {
                         odoo_data[0].invoice_line_ids.push([2, id, false])
                     })
                     tax_line_ids.map(id => {
-                        odoo_data[0].tax_line_ids.push([2, id,false])
+                        odoo_data[0].tax_line_ids.push([2, id, false])
                     })
                     console.log(findTaxe)
-                    if(tax && tax !== "" && findTaxe){
+                    if (tax && tax !== "" && findTaxe) {
 
                         odoo_data[0].tax_line_ids.push(
                             [
@@ -5190,9 +5207,9 @@ export default class Main extends React.Component {
                                     amount_rounding: 0,
                                     currency_id: 5,
                                     sequence: 0,
-                                    name:findTaxe.text,
+                                    name: findTaxe.text,
                                     tax_id: tax,
-                                    amount:tax_amount
+                                    amount: tax_amount
                                 }
                             ]
                         )
@@ -5343,8 +5360,7 @@ export default class Main extends React.Component {
                 console.log(err)
             })
 
-        }
-        else {
+        } else {
             SmartService.create_facture_odoo(facture.odoo_id, localStorage.getItem('token'), localStorage.getItem('usrtoken'), {data: odoo_data}).then(createFactRes => {
                 console.log(createFactRes)
                 if (createFactRes.succes === true && createFactRes.status === 200) {
@@ -5629,8 +5645,7 @@ export default class Main extends React.Component {
                         console.log(err)
                     })
 
-                }
-                else {
+                } else {
                     let extraFolderName = localStorage.getItem("odoo_id") === "9035ce2a-a7a2-11eb-bcbc-0242ac130002" ? " (David Kohler)" : ""
                     let folderName = this.state.selectedSociete.Type === "0" ? this.state.selectedSociete.Nom + ' ' + (this.state.selectedSociete.Prenom || '') : this.state.selectedSociete.Nom
                     SmartService.addFolder({
@@ -5739,8 +5754,7 @@ export default class Main extends React.Component {
                     }).catch(err => console.log(err))
 
                 }
-            }
-            else {
+            } else {
 
                 this.verifIsTableExist("clients_cases").then(v => {
 
@@ -5847,9 +5861,7 @@ export default class Main extends React.Component {
                                     console.log(err)
                                 })
 
-                            }
-
-                            else {
+                            } else {
 
                                 let findClient = (this.state.annuaire_clients_mandat || []).find(x => x.ID === ID || x.id === ID)
 
@@ -6160,7 +6172,7 @@ export default class Main extends React.Component {
                     this.openSnackbar('error', 'La durée doit etre supérieur à zéro !');
                 } else {
 
-                    this.verifIsTableExist("time_sheets").then( v => {
+                    this.verifIsTableExist("time_sheets").then(v => {
 
                         let newItem = {
                             newTime: {
@@ -6179,7 +6191,7 @@ export default class Main extends React.Component {
                             user_email: localStorage.getItem('email'),
                             created_at: moment().format('YYYY-MM-DD HH:mm:ss')
                         }
-                        if(localStorage.getItem("odoo_id") === "9035ce2a-a7a2-11eb-bcbc-0242ac130002"){
+                        if (localStorage.getItem("odoo_id") === "9035ce2a-a7a2-11eb-bcbc-0242ac130002") {
                             newItem.newTime.david_client_id = this.state.selectedClientTimeEntree;
                             let doss_client = this.state.TimeSheet.newTime.dossier_client;
                             doss_client.david_folder_id = this.state.TimeSheet.newTime.dossier_client.folder_id;
@@ -6208,8 +6220,7 @@ export default class Main extends React.Component {
                                     }
                                 }
                             });
-                        }
-                        else {
+                        } else {
                             this.setState({
                                 TimeSheet: {
                                     newTime: {
@@ -6229,7 +6240,7 @@ export default class Main extends React.Component {
 
                         let timeSheets = this.state.time_sheets || [];
                         timeSheets.push(newItem)
-                        this.setState({time_sheets:timeSheets})
+                        this.setState({time_sheets: timeSheets})
 
                         setTimeout(() => {
 
@@ -6240,20 +6251,20 @@ export default class Main extends React.Component {
                                 } else {
                                     let timeSheets = this.state.time_sheets || [];
                                     let findNewAddedIndex = timeSheets.findIndex(x => x.uid === newItem.uid)
-                                    timeSheets.splice(findNewAddedIndex,1);
-                                    this.setState({time_sheets:timeSheets,loading: false})
+                                    timeSheets.splice(findNewAddedIndex, 1);
+                                    this.setState({time_sheets: timeSheets, loading: false})
                                     this.openSnackbar("error", "Une erreur est survenue !");
                                 }
-                            }).catch( err => {
+                            }).catch(err => {
                                 let timeSheets = this.state.time_sheets || [];
                                 let findNewAddedIndex = timeSheets.findIndex(x => x.uid === newItem.uid)
-                                timeSheets.splice(findNewAddedIndex,1);
-                                this.setState({time_sheets:timeSheets,loading: false})
+                                timeSheets.splice(findNewAddedIndex, 1);
+                                this.setState({time_sheets: timeSheets, loading: false})
                                 this.openSnackbar("error", "Une erreur est survenue !");
                                 console.log(err)
                             })
 
-                        },200);
+                        }, 200);
 
                     }).catch(err => {
                         this.setState({loading: false})
@@ -6265,8 +6276,7 @@ export default class Main extends React.Component {
                 this.setState({loading: false})
                 this.openSnackbar('error', 'Le format de la durée est invalide ! Veuillez utiliser le format --h--');
             }
-        }
-        else{
+        } else {
             this.setState({loading: false})
         }
     }
@@ -6274,7 +6284,7 @@ export default class Main extends React.Component {
     async updateLigneFacture(id, ligne) {
         this.setState({loading: true})
         let connex_state = await this.verifConnexionState();
-        if(connex_state === true){
+        if (connex_state === true) {
             rethink.update("test", 'table("time_sheets").get(' + JSON.stringify(id) + ').update(' + JSON.stringify(ligne) + ')', db_name, false).then(updateRes => {
                 if (updateRes && updateRes === true) {
                     this.openSnackbar("success", "Modification effectuée avec succès")
@@ -6284,7 +6294,7 @@ export default class Main extends React.Component {
             }).catch(err => {
                 this.openSnackbar("error", "Une erreur est survenue !")
             })
-        }else{
+        } else {
             this.setState({loading: false})
         }
 
@@ -6293,8 +6303,8 @@ export default class Main extends React.Component {
     async deleteLigneFacture(id) {
         this.setState({loading: true})
         let connex_state = await this.verifConnexionState();
-        if(connex_state === true){
-            rethink.update("test", 'table("time_sheets").get(' + JSON.stringify(id) + ').update(' + JSON.stringify({archived:1}) + ')', db_name, false).then( updateRes => {
+        if (connex_state === true) {
+            rethink.update("test", 'table("time_sheets").get(' + JSON.stringify(id) + ').update(' + JSON.stringify({archived: 1}) + ')', db_name, false).then(updateRes => {
                 if (updateRes && updateRes === true) {
                     this.setState({loading: false})
                     this.openSnackbar("success", "Suppression effectuée  avec succès")
@@ -6307,7 +6317,7 @@ export default class Main extends React.Component {
                 this.openSnackbar("error", "Une erreur est survenue !")
                 console.log(err)
             })
-        }else{
+        } else {
             this.setState({loading: false})
         }
 
@@ -9238,7 +9248,7 @@ export default class Main extends React.Component {
                                                                 openPdf={(b64, name, type) => {
                                                                     this.showDocInPdfModal(b64, name, type)
                                                                 }}
-                                                                updateFacture={(id,fact) => this.updateFacture(id,fact)}
+                                                                updateFacture={(id, fact) => this.updateFacture(id, fact)}
                                                             />
                                                     }
                                                 </div>
