@@ -6293,11 +6293,14 @@ export default class Main extends React.Component {
             rethink.update("test", 'table("time_sheets").get(' + JSON.stringify(id) + ').update(' + JSON.stringify(ligne) + ')', db_name, false).then(updateRes => {
                 if (updateRes && updateRes === true) {
                     this.openSnackbar("success", "Modification effectuée avec succès")
+                    this.setState({loading: false})
                 } else {
                     this.openSnackbar("error", "Une erreur est survenue !")
+                    this.setState({loading: false})
                 }
             }).catch(err => {
                 this.openSnackbar("error", "Une erreur est survenue !")
+                this.setState({loading: false})
             })
         } else {
             this.setState({loading: false})
