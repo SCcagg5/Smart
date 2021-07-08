@@ -1231,6 +1231,10 @@ export default class Main extends React.Component {
                     if (data.findIndex(x => x.uid === recieve.new_val.uid) === -1) {
                         data.push(recieve.new_val)
                         this.setState({[table_name]: data})
+                    }else{
+                        let index_to_updated = data.findIndex(x => x.uid === recieve.new_val.uid)
+                        data[index_to_updated] = recieve.new_val;
+                        this.setState({[table_name]: data})
                     }
                 } else {
                     data.push(recieve.new_val)
@@ -6220,7 +6224,8 @@ export default class Main extends React.Component {
                                     }
                                 }
                             });
-                        } else {
+                        }
+                        else {
                             this.setState({
                                 TimeSheet: {
                                     newTime: {

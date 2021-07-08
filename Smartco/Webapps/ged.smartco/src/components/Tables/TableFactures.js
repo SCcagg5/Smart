@@ -462,6 +462,7 @@ function Row(props) {
     const [timeSuggestions, setTimeSuggestions] = React.useState([]);
     const [duration, setDuration] = React.useState("");
     const [openDeleteLfModal, setOpenDeleteLfModal] = React.useState(false);
+    const [loading_row, setLoading_row] = React.useState(false);
 
     const {row} = props;
     const [open, setOpen] = React.useState(false);
@@ -471,6 +472,7 @@ function Row(props) {
 
     useEffect(() => {
         if((!row.amount_untaxed && !row.amount_tax && !row.amount_total) || (!row.paid || row.paid === "false") || row.statut !== "wait"){
+            console.log(row.facture_odoo_id)
             getDeatilsOdooFacture()
         }
     }, [getDeatilsOdooFacture]);
@@ -576,8 +578,10 @@ function Row(props) {
     }
 
     const getDeatilsOdooFacture = () => {
+        setLoading_row(true)
         if (row.facture_odoo_id) {
             SmartService.details_facture_odoo(row.odoo_id, localStorage.getItem("token"), localStorage.getItem("usrtoken"), row.facture_odoo_id).then(detailsRes => {
+                row.facture_odoo_id === 1107 && console.log(detailsRes);
                 if (detailsRes.succes === true && detailsRes.status === 200) {
                     row.amount_untaxed = detailsRes.data[0].amount_untaxed;
                     row.amount_tax = detailsRes.data[0].amount_tax ? detailsRes.data[0].amount_tax : 0 ;
@@ -698,9 +702,11 @@ function Row(props) {
                     }
                 </TableCell>
 
-                <TableCell align="center">{row.type && row.type === "provision" ?
-                    row.amount_total + " " + row.currency_id[1] : row.type && row.type === "avance_frais" ? row.details_avancefrais.amount + " CHF" :
-                       row.amount_total ?  (row.amount_total + " " + row.currency_id[1]) :
+                <TableCell align="center">
+                    {
+                    row.type && row.type === "provision" ?
+                    (row.amount_total ? row.amount_total : "") + " " + (row.currency_id ? row.currency_id[1] : "--") : row.type && row.type === "avance_frais" ? row.details_avancefrais.amount + " CHF" :
+                       row.amount_total ?  (row.amount_total + " " + (row.currency_id ? row.currency_id[1] : "--")) :
                            row.statut === "wait" ? "__" :
                            <CircularProgress size={15} color={"secondary"}/> }
                 </TableCell>
