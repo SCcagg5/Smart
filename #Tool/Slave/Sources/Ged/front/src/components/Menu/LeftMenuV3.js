@@ -38,6 +38,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import product1 from "../../assets/images/products/product1.jpg"
 import product2 from "../../assets/images/products/product2.jpg"
 import product3 from "../../assets/images/products/priduct3.jpg"
+import ComptaMenuItems from "./ComptaMenuItems";
 
 const modules = process.env.REACT_APP_ACTIVE_MODULES;
 const active_modules = (modules || "").split("/")
@@ -412,7 +413,11 @@ export default function LeftMenuV3(props) {
                                     <h6>Chargement...</h6>
                                 </div> :
                                 <div>
-                                    <Search style={{marginBottom: 8}} placeholder="Chercher" onChange={onChange}/>
+                                    {
+                                        localStorage.getItem("role") === "admin" &&
+                                        <Search style={{marginBottom: 8}} placeholder="Chercher" onChange={onChange}/>
+                                    }
+
                                     <DirectoryTree
                                         draggable={true}
                                         allowDrop={(options) => {
@@ -519,7 +524,8 @@ export default function LeftMenuV3(props) {
                     <MenuItem key={5} onClick={() => {
                         setAnchorElMenu(null);
                         setOpenRenameModal(true);
-                        setnewFolderName(props.selectedFolder.title)
+                        console.log(props.selectedFolder)
+                        setnewFolderName(props.selectedFolder.name)
                     }} //disabled={localStorage.getItem("role") !== "admin"}
                     >
                         <ListItemIcon>
@@ -588,7 +594,8 @@ export default function LeftMenuV3(props) {
                     <MenuItem key={5} onClick={() => {
                         setShareAnchorElMenu(null);
                         setOpenRenameModal(true);
-                        setnewFolderName(props.selectedFolder.title)
+                        console.log(props.selectedFolder)
+                        setnewFolderName(props.selectedFolder.name)
                     }} disabled={rights.edit === false}
                     >
                         <ListItemIcon>
@@ -694,7 +701,7 @@ export default function LeftMenuV3(props) {
                 </Modal>
 
                 {
-                    active_modules.includes("MARKETPLACE_EDITEUR_PRODUIT") === true &&
+                    active_modules.includes("MARKETPLACE_EDITEUR_PRODUIT") === true && localStorage.getItem("role") === "admin" &&
                     <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "PackProduit" ? "aliceblue" : ""}}
                          onClick={(e) => {
                              e.preventDefault()
@@ -811,7 +818,7 @@ export default function LeftMenuV3(props) {
 
                     {/*Meeting Jitsii*/}
                     {
-                        active_modules.includes("MEET") === true &&
+                        active_modules.includes("MEET") === true && localStorage.getItem("role") === "admin" &&
                         <div>
                             <div style={{cursor: "pointer", backgroundColor: props.focusedItem === "Meet" ? "aliceblue" : ""}}
                                  onClick={() => {
@@ -844,7 +851,7 @@ export default function LeftMenuV3(props) {
                     }
 
                     {
-                        (active_modules.includes("ROOMS") === true || active_modules.includes("TIMESHEET") === true) &&
+                        (active_modules.includes("ROOMS") === true || active_modules.includes("TIMESHEET") === true) && localStorage.getItem("role") === "admin" &&
                             <div>
                                 {/*Contacts*/}
                                 <div>
@@ -920,7 +927,7 @@ export default function LeftMenuV3(props) {
 
                     {/*TimeSheet*/}
                     {
-                        active_modules.includes("TIMESHEET") === true &&
+                        active_modules.includes("TIMESHEET") === true && localStorage.getItem("role") === "admin" &&
                         <div>
 
                             <div style={{
@@ -954,12 +961,41 @@ export default function LeftMenuV3(props) {
 
                             }
 
+                            <div>
+
+                                        <div style={{cursor:"pointer",backgroundColor:props.focusedItem === "Invoices" ? "aliceblue":""}} onClick={() => {
+                                            props.setComptaMenuItems()
+                                            props.setFocusedItem("Invoices")
+                                        }}
+                                        >
+                                            <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                                            <div style={{display:"flex"}}>
+                                                {
+                                                    props.showComptaMenuItems === true ?
+                                                        <ArrowDropDownIcon style={{color:"#000"}}/> : <ArrowRightIcon/>
+                                                }
+                                                <Typography variant="inherit" style={{color:"#000",marginTop:3}} >Compta</Typography>
+                                            </div>
+                                            <div style={{height:1,backgroundColor:"#f0f0f0",marginTop:10,marginBottom:10}}/>
+                                        </div>
+                                        {
+                                            props.showComptaMenuItems === true &&
+                                            <div>
+                                                <ComptaMenuItems items={data.ComptaMenuItems} selectedComptaMenuItem={props.selectedComptaMenuItem}
+                                                                 onClick={(nodeId) => {props.onComptaItemClick(nodeId)}} handleSelectComptaMenu={props.handleSelectComptaMenu}
+                                                />
+                                            </div>
+
+                                        }
+
+                                    </div>
+
                         </div>
                     }
 
                     {/*Marketplace*/}
                     {
-                        active_modules.includes("MARKETPLACE") === true &&
+                        active_modules.includes("MARKETPLACE") === true && localStorage.getItem("role") === "admin" &&
                         <div style={{marginBottom:40}}>
                             <div style={{
                                 cursor: "pointer",

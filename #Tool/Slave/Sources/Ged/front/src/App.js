@@ -17,6 +17,7 @@ import NewRecette from "./pages/Marketplace/Recettes/NewRecette";
 import Questions from "./pages/questions/questions";
 import Index from "./pages/watchData";
 import SARLCreation from "./pages/SocietyService/SARLCreation";
+import SignInvitedDoc from "./pages/Drive/SignInvitedDoc";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -50,7 +51,7 @@ export default class App extends Component {
     componentDidMount() {
 
         SmartService.getLogo().then( res => {
-            console.log(res)
+
             if (res && res.succes === true && res.status === 200 && res.data.logo && res.data.logo !== "") {
                 localStorage.setItem("logo",res.data.image === null ? d_logo : res.data.image)
                 localStorage.setItem("ent_name",res.data.name)
@@ -76,11 +77,12 @@ export default class App extends Component {
             return (
                 <Router>
                     <Switch>
-                        <Route exact  path="/creation_societe/SARL" component={SARLCreation}/>
+                        <Route exact  path="/creation_societe/Tunisie/SARL" component={SARLCreation}/>
                         <Route exact path="/" component={RedirectCp}/>
                        {/* <Route exact path="/test" component={TestPage}/>*/}
                         <Route  path="/home" component={Main}/>
                         <Route exact path="/signDoc/doc/:doc_id" component={SignDocV3}/>
+                        <Route exact path="/signDoc/s/:s_id/actio/:actio_id/ged/:ged_id/doc/:doc_id" component={SignInvitedDoc}/>
                         <Route exact path="/newRecette" component={NewRecette}/>
                         <Route exact path="/login" component={Login}/>
                         <Route exact path="/signup" component={signup}/>

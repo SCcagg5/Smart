@@ -57,6 +57,33 @@ let utilFunctions = {
         let hourFormated = parseInt(hourValue) || 0
         let minuteFormated = parseInt(minuteValue) || 0
         return hourFormated + (minuteFormated / 60)
+    },
+
+
+    numberToWord(num){
+        if(num === 1) return "première"
+        if(num === 2) return "deuxième"
+        if(num === 3) return "troisième"
+        if(num === 4) return "quatrième"
+        if(num === 5) return "cinquième"
+        if(num === 6) return "sixième"
+        if(num === 7) return "septième"
+        if(num === 8) return "huitième"
+        if(num === 9) return "neuvième"
+        if(num === 10) return "dixième"
+    },
+
+    numberToWord2(num){
+        if(num === 1) return "un"
+        if(num === 2) return "deux"
+        if(num === 3) return "trois"
+        if(num === 4) return "quatre"
+        if(num === 5) return "cinq"
+        if(num === 6) return "six"
+        if(num === 7) return "sept"
+        if(num === 8) return "huit"
+        if(num === 9) return "neuf"
+        if(num === 10) return "dix"
     }
 
 

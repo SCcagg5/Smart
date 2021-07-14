@@ -87,6 +87,14 @@ let SmartService = {
             console.log(error);
         });
     },
+    getFileByGed(Ged_id,fileId,token,usrtoken){
+        return fetch(endpoint + '/ged/'+Ged_id+'/doc/'+ fileId, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
     deleteFile(fileId,token,usrtoken){
         return fetch(endpoint + '/ged/'+ged_id+'/doc/'+ fileId, {
             method: 'DELETE',
@@ -170,7 +178,25 @@ let SmartService = {
         });
     },
 
+    getUserSignaturesByGed(Ged_id,token,usrtoken){
+        return fetch(endpoint + '/ged/' + Ged_id + '/sign', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     getSignatureById(id,token,usrtoken){
+        return fetch(endpoint + '/ged/' + ged_id + '/sign/'+ id, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    getSignatureByIdByGed(Ged_id,id,token,usrtoken){
         return fetch(endpoint + '/ged/' + ged_id + '/sign/'+ id, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
@@ -187,6 +213,14 @@ let SmartService = {
             console.log(error);
         });
     },
+    deleteSignatureByGedById(Ged_id,id,token,usrtoken){
+        return fetch(endpoint + '/ged/' + Ged_id + '/sign/'+ id, {
+            method: 'DELETE',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
 
     addSignature(data,token,usrtoken){
         return fetch(endpoint + '/ged/' + ged_id + '/sign', {
@@ -197,9 +231,28 @@ let SmartService = {
             console.log(error);
         });
     },
+    addSignatureByGed(Ged_id,data,token,usrtoken){
+        return fetch(endpoint + '/ged/' + Ged_id + '/sign', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
 
     signDoc(data, doc_id, sign_id,token,usrtoken){
         return fetch(endpoint + '/ged/' + ged_id + '/doc/' + doc_id + '/sign/' + sign_id, {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    signDocByGed(Ged_id,data, doc_id, sign_id,token,usrtoken){
+        return fetch(endpoint + '/ged/' + Ged_id + '/doc/' + doc_id + '/sign/' + sign_id, {
             method: 'POST',
             headers:this.loadHeaders(token,usrtoken),
             body:JSON.stringify(data)
@@ -289,8 +342,101 @@ let SmartService = {
         });
     },
 
+    validate_facture_odoo(token,usrtoken,data){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/bill/validate', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    update_facture_odoo(token,usrtoken,data){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/bill/edit', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    update_odoo_client(data,token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/contact', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data),
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    details_facture_odoo(token,usrtoken,id){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/bill/'+id+'/details', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
     generate_facture_odoo(token,usrtoken,id,accestoken){
         return fetch(endpoint + '/odoo/'+odoo_id+'/bill/'+id+'?access_token='+accestoken, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    get_tax_odoo(token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/tax_id', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    get_tax_odoo_byID(id,token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/tax?id='+id, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    get_paymentTerm_odoo(token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/payment_term_id', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    get_paymentTerm_odoo_byID(id,token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/payment_term?id='+id, {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    get_odoo_countries(token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/country?arg=&limit=1000', {
+            method: 'GET',
+            headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    get_odoo_country_states(id,token,usrtoken){
+        return fetch(endpoint + '/odoo/'+odoo_id+'/get/country_state?arg=&limit=1000000&id=' + id, {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
         }).then(response => response.json()).catch(error => {
@@ -302,6 +448,16 @@ let SmartService = {
         return fetch(endpoint + '/infos/', {
             method: 'GET',
             headers:this.loadHeaders(token,usrtoken)
+        }).then(response => response.json()).catch(error => {
+            console.log(error);
+        });
+    },
+
+    addUserToGed(data,token,usrtoken){
+        return fetch(endpoint + '/ged/'+ged_id + '/adduser', {
+            method: 'POST',
+            headers:this.loadHeaders(token,usrtoken),
+            body:JSON.stringify(data)
         }).then(response => response.json()).catch(error => {
             console.log(error);
         });

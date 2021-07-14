@@ -29,6 +29,9 @@ import Snackbar from '@material-ui/core/Snackbar';
 import SaveIcon from '@material-ui/icons/Save';
 import AtlButton from '@atlaskit/button';
 import GestureIcon from '@material-ui/icons/Gesture';
+import rethink from "../../controller/rethink";
+import Modal, { ModalTransition } from '@atlaskit/modal-dialog';
+import Textfield from '@atlaskit/textfield';
 
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -41,13 +44,15 @@ const pageHeight = 850;
 const icon = <CheckBoxOutlineBlankIcon fontSize="small"/>;
 const checkedIcon = <CheckBoxIcon fontSize="small"/>;
 
-export default class SignDocV3 extends React.Component {
+export default class SignInvitedDoc extends React.Component {
 
     sigCanvas = {}
     sigParapheCanvas = {}
     signatureUpload = {}
 
     state = {
+        signToken:"",
+        usrSignToken:"",
         firstLoading: true,
         loading: false,
 
@@ -85,62 +90,73 @@ export default class SignDocV3 extends React.Component {
         y: 425,
 
 
-        uploadedSignature:""
+        uploadedSignature:"",
+
+        current_soc:"",
+        current_actio:"",
+        confirmPassSpinner:false,
+        openConfirmActioPass:false,
+        actioPass:""
     }
 
 
     componentDidMount() {
-        if (localStorage.getItem('email') === undefined || localStorage.getItem('email') === null) {
-            this.props.history.push('/login')
-        } else {
-            SmartService.getFile(this.props.match.params.doc_id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(fileRes => {
-                if (fileRes.succes === true && fileRes.status === 200) {
 
-                    SmartService.getUserSignatures(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( signaturesRes => {
+        let ged_id = this.props.match.params.ged_id;
+        let s_id = this.props.match.params.s_id;
+        let actio_id = this.props.match.params.actio_id;
 
-                        if (signaturesRes.succes === true && signaturesRes.status === 200) {
-                            let signaturesIds = signaturesRes.data || [];
-                            let calls = []
-                            let signatures = [];
-                            signaturesIds.map((item,key) => {
-                                calls.push(
-                                    SmartService.getSignatureById(item.id,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
-                                        signatures.push({
-                                            b64:r.data,
-                                            id:item.id
-                                        })
-                                    })
-                                );
-                            })
-                            Promise.all(calls).then( response => {
-                                console.log(signatures)
-                                this.setState({ savedSignatures : signatures,docBase64: fileRes.data.Content.Data,
-                                    docName: fileRes.data.name + ".pdf", firstLoading: false });
-                            }).catch(err => {
-                                this.setState({ loading: false });
-                                console.log(err);
-                            });
-                        }else{
-                            this.openSnackbar("error",signaturesRes.error)
-                        }
-                    }).catch( err => {
-                        console.log(err);
-                        this.openSnackbar("error","Une erreur est survenue !")
-                    })
-
-                } else {
-
+        rethink.getTableData(ged_id,"test","societies").then( sRes => {
+            let find_s = sRes.find(x => x.uid === s_id);
+            if(find_s){
+                let findActio = (find_s.associes || []).find(x => x.id === actio_id);
+                if(findActio){
+                    this.setState({firstLoading:false,current_soc:find_s,current_actio:findActio,openConfirmActioPass:true})
+                }else{
+                    this.openSnackbar("error","Une erreur est survenue ou l'adresse du lien n'est plus valide")
                 }
-            }).catch(err => {
+            }else{
+                this.openSnackbar("error","Une erreur est survenue ou l'adresse du lien n'est plus valide !")
+            }
+        }).catch(err => {console.log(err)})
 
-            })
+
+
+    }
+
+    verifPass(){
+
+        let ged_id = this.props.match.params.ged_id;
+        let doc_id = this.props.match.params.doc_id;
+
+        this.setState({confirmPassSpinner:true})
+        if(this.state.actioPass === this.state.current_actio.pwd){
+            SmartService.getToken().then( tokenRes => {
+                if (tokenRes.succes === true && tokenRes.status === 200) {
+
+                    SmartService.login({email:"sign@test.fr", password1: "sign"}, tokenRes.data.token).then(loginRes => {
+
+                        SmartService.getFileByGed(ged_id,doc_id,tokenRes.data.token,loginRes.data.usrtoken).then(fileRes => {
+                            console.log(fileRes)
+                            if (fileRes.succes === true && fileRes.status === 200) {
+                                this.setState({signToken:tokenRes.data.token,usrSignToken:loginRes.data.usrtoken,openConfirmActioPass:false,
+                                    docBase64: fileRes.data.Content.Data, docName: fileRes.data.name + ".pdf",firstLoading:false,confirmPassSpinner:false})
+                            }
+                        }).catch(err => {console.log(err)})
+
+                    }).catch(err => {console.log(err)})
+                }
+            }).catch(err => {console.log(err)})
         }
-
+        else{
+            this.setState({confirmPassSpinner:false})
+            this.openSnackbar("error","Mot de passe incorrect !")
+        }
     }
 
     updateSignatures(){
 
-        SmartService.getUserSignatures(localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( signaturesRes => {
+        SmartService.getUserSignaturesByGed(this.props.match.params.ged_id,this.state.signToken, this.state.usrSignToken).then( signaturesRes => {
 
             if (signaturesRes.succes === true && signaturesRes.status === 200) {
                 let signaturesIds = signaturesRes.data || [];
@@ -148,7 +164,7 @@ export default class SignDocV3 extends React.Component {
                 let signatures = [];
                 signaturesIds.map((item,key) => {
                     calls.push(
-                        SmartService.getSignatureById(item.id,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
+                        SmartService.getSignatureByIdByGed(this.props.match.params.ged_id,item.id,this.state.signToken, this.state.usrSignToken).then( r => {
                             signatures.push({
                                 b64:r.data,
                                 id:item.id
@@ -210,9 +226,9 @@ export default class SignDocV3 extends React.Component {
                     let b64Sign = this.sigCanvas.getTrimmedCanvas().toDataURL('image/png');
                     let formated_b64Sign = b64Sign.replace("data:image/png;base64,","");
 
-                    SmartService.addSignature({base64:formated_b64Sign}
-                        ,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
-
+                    SmartService.addSignatureByGed(this.props.match.params.ged_id,{base64:formated_b64Sign}
+                        ,this.state.signToken, this.state.usrSignToken).then( r => {
+                            console.log(r)
                         if (r.succes === true && r.status === 200) {
 
                             signatures.push({
@@ -247,8 +263,8 @@ export default class SignDocV3 extends React.Component {
                         let signatures = this.state.signatures;
                         let formated_b64Sign = dataUrl.replace("data:image/png;base64,","");
 
-                        SmartService.addSignature({base64:formated_b64Sign}
-                            ,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
+                        SmartService.addSignatureByGed(this.props.match.params.ged_id,{base64:formated_b64Sign}
+                            ,this.state.signToken, this.state.usrSignToken).then( r => {
                             console.log(r)
                             if (r.succes === true && r.status === 200) {
                                 signatures.push({
@@ -284,8 +300,8 @@ export default class SignDocV3 extends React.Component {
                         signUpload.startsWith("data:image/jpeg") ? signUpload.replace("data:image/jpeg;base64,","") :
                             signUpload.startsWith("data:image/jpg") ? signUpload.replace("data:image/jpg;base64,","") : signUpload
 
-                    SmartService.addSignature({base64:formated_b64Sign}
-                        ,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
+                    SmartService.addSignatureByGed(this.props.match.params.ged_id,{base64:formated_b64Sign}
+                        ,this.state.signToken, this.state.usrSignToken).then( r => {
                         console.log(r)
                         if (r.succes === true && r.status === 200) {
                             signatures.push({
@@ -328,8 +344,8 @@ export default class SignDocV3 extends React.Component {
                     let b64Sign = this.sigParapheCanvas.getTrimmedCanvas().toDataURL('image/png');
                     let formated_b64Sign = b64Sign.replace("data:image/png;base64,","");
 
-                    SmartService.addSignature({base64:formated_b64Sign}
-                        ,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
+                    SmartService.addSignatureByGed(this.props.match.params.ged_id,{base64:formated_b64Sign}
+                        ,this.state.signToken, this.state.usrSignToken).then( r => {
 
                         if (r.succes === true && r.status === 200) {
 
@@ -372,8 +388,8 @@ export default class SignDocV3 extends React.Component {
                         let signatures = this.state.signatures;
                         let formated_b64Sign = dataUrl.replace("data:image/png;base64,","");
 
-                        SmartService.addSignature({base64:formated_b64Sign}
-                            ,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
+                        SmartService.addSignatureByGed(this.props.match.params.ged_id,{base64:formated_b64Sign}
+                            ,this.state.signToken, this.state.usrSignToken).then( r => {
                             console.log(r)
                             if (r.succes === true && r.status === 200) {
                                 for(let i = 0 ; i < iterationCount ; i++){
@@ -419,8 +435,8 @@ export default class SignDocV3 extends React.Component {
                         signUpload.startsWith("data:image/jpeg") ? signUpload.replace("data:image/jpeg;base64,","") :
                             signUpload.startsWith("data:image/jpg") ? signUpload.replace("data:image/jpg;base64,","") : signUpload
 
-                    SmartService.addSignature({base64:formated_b64Sign}
-                        ,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( r => {
+                    SmartService.addSignatureByGed(this.props.match.params.ged_id,{base64:formated_b64Sign}
+                        ,this.state.signToken, this.state.usrSignToken).then( r => {
                         console.log(r)
                         if (r.succes === true && r.status === 200) {
                             for(let i = 0 ; i < iterationCount ; i++){
@@ -456,7 +472,7 @@ export default class SignDocV3 extends React.Component {
             signaturesCp.splice(signatures.findIndex(x => x.id === id),1)
         })
         this.setState({signatures: signaturesCp})
-        SmartService.deleteSignatureById(id, localStorage.getItem("token"), localStorage.getItem("usrtoken")).then(deleteRes => {
+        SmartService.deleteSignatureByGedById(this.props.match.params.ged_id,id, this.state.signToken, this.state.usrSignToken).then(deleteRes => {
             console.log(deleteRes)
             if (deleteRes.succes === true && deleteRes.status === 200) {
                 this.setState({toDeletedSignId:""})
@@ -488,7 +504,8 @@ export default class SignDocV3 extends React.Component {
                 id_sign:sign.id
             })
         })
-        SmartService.signDoc({placement:signToAdd},this.props.match.params.doc_id,signToAdd[0].id_sign,localStorage.getItem("token"), localStorage.getItem("usrtoken")).then( saveRes => {
+        SmartService.signDocByGed(this.props.match.params.ged_id,{placement:signToAdd},
+            this.props.match.params.doc_id,signToAdd[0].id_sign,this.state.signToken, this.state.usrSignToken).then( saveRes => {
             console.log(saveRes)
             if (saveRes.succes === true && saveRes.status === 200) {
 
@@ -504,9 +521,6 @@ export default class SignDocV3 extends React.Component {
                 if(isOk === true){
                     this.setState({loading:false})
                     this.openSnackbar("success","Enregistrement effectué avec succès")
-                    setTimeout(() => {
-                        this.props.history.goBack()
-                    },1000);
                 }else{
                     console.log(error)
                     this.setState({loading:false})
@@ -570,7 +584,7 @@ export default class SignDocV3 extends React.Component {
                             onClickDelete={(id) => {
                                 this.setState({toDeletedSignId:id,openDeleteSignModal:true})
                             }}
-                            showBackButton={true}
+                            showBackButton={false}
                 />
                 {
                     this.state.firstLoading === false &&
@@ -1042,6 +1056,34 @@ export default class SignDocV3 extends React.Component {
                         </Button>
                     </DialogActions>
                 </Dialog>
+
+                <ModalTransition>
+                    {this.state.openConfirmActioPass && (
+                        <Modal
+                            actions={[
+                                { text: 'Confirmer',
+                                    isLoading:this.state.confirmPassSpinner === true,
+                                    onClick: () => this.verifPass(),
+                                    appearance:"primary"},
+                            ]}
+                            onClose={() => {}}
+                            heading="Veuillez saisir votre mot de passe reçu par mail"
+                            width="medium"
+                            scrollBehavior="outside"
+                        >
+                            <>
+                                <div className="row mt-1">
+                                    <div className="col-md-6">
+                                        <label className="mt-2" style={{color:"#d3d3d3"}}>Mot de passe</label>
+                                        <Textfield name="fname" isCompact={true} value={this.state.actioPass}
+                                                   onChange={e => this.setState({actioPass:e.target.value})}
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        </Modal>
+                    )}
+                </ModalTransition>
 
                 <Snackbar
                     open={this.state.openAlert}

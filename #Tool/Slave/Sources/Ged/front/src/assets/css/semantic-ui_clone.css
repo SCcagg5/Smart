@@ -24994,8 +24994,8 @@ body.dimmable > .dimmer {
     outline: 0;
     -webkit-transform: rotateZ(0);
     transform: rotateZ(0);
-    min-width: 300px;
-    max-width: 300px;
+    /*min-width: 300px;*/
+    /*max-width: 300px;*/
     min-height: 2.71428571em;
     background: #fff;
     display: inline-block;

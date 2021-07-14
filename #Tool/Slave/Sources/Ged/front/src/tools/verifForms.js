@@ -20,7 +20,7 @@ let verifForms = {
         return ((pwd1 === '' && pwd2 === '') || (pwd1 !== pwd2));
     },
     verif_Email:function (email) {
-        return this.verif_inpuText(email) || !(/^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/.test(email));
+        return this.verif_inpuText(email) || !(/^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,9})+$/.test(email));
     }
 };
 

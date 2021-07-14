@@ -66,7 +66,7 @@ class login extends Component {
 
                                     SmartService.getInfoGed(tokenRes.data.token,loginRes.data.usrtoken).then( infoGedRes => {
                                         if (infoGedRes.succes === true && infoGedRes.status === 200) {
-
+                                            console.log(infoGedRes)
                                             localStorage.setItem("token",tokenRes.data.token)
                                             localStorage.setItem("usrtoken",loginRes.data.usrtoken)
                                             localStorage.setItem("email",infoRes.data.email)

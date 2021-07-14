@@ -36,9 +36,13 @@ export default function SignTopBar(props) {
     return(
         <AppBar position="fixed" color="default" className="fe-ai" >
             <Toolbar style={{height:props.height}}>
-                <IconButton edge="start" aria-label="menu" onClick={() => props.onBackBtnClick()}>
-                    <ArrowBackIcon style={{fontSize:26}} />
-                </IconButton>
+                {
+                    props.showBackButton === true &&
+                    <IconButton edge="start" aria-label="menu" onClick={() => props.onBackBtnClick()}>
+                        <ArrowBackIcon style={{fontSize:26}} />
+                    </IconButton>
+                }
+
                 <div style={{cursor:"pointer",marginLeft:30,display:"flex"}} onClick={handleToggle} ref={anchorRef}
                      aria-controls={open ? 'menu-list-grow' : undefined}
                      aria-haspopup="true">
