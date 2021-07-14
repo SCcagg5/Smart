@@ -199,11 +199,263 @@ exports.generate_TN_sarl_statut = async function (req, res) {
     generate_TN_SARL_Statut_doc(req, res, data, "Statut_SARL_TN");
 };
 
+exports.generate_TN_augmCapital1 = async function (req, res) {
+    console.log("Begin generate doc");
+    var data = req.body.data;
+    generate_TN_AugmCapital1_doc(req, res, data, "Augmentation_Capital_TN");
+};
+
+exports.generate_TN_augmCapital2 = async function (req, res) {
+    console.log("Begin generate doc");
+    var data = req.body.data;
+    generate_TN_AugmCapital2_doc(req, res, data, "Augmentation_Capital_TN");
+};
+exports.generate_TN_augmCapital3 = async function (req, res) {
+    console.log("Begin generate doc");
+    var data = req.body.data;
+    generate_TN_AugmCapital3_doc(req, res, data, "Augmentation_Capital_TN");
+};
+exports.generate_TN_augmCapital4 = async function (req, res) {
+    console.log("Begin generate doc");
+    var data = req.body.data;
+    generate_TN_AugmCapital4_doc(req, res, data, "Augmentation_Capital_TN");
+};
+exports.generate_TN_registre_actios = async function (req, res) {
+    console.log("Begin generate doc");
+    var data = req.body.data;
+    generate_TN_RegActios_doc(req, res, data, "Registre_actionnaires_TN");
+};
+
+exports.generate_FR_sas_statut = async function (req, res) {
+    console.log("Begin generate doc");
+    var data = req.body.data;
+    generate_FR_SAS_Statut_doc(req, res, data, "Statut_SAS_FR");
+};
+
+exports.generate_tezos_assoc_allocation = async function (req, res) {
+    console.log("Begin generate doc");
+    var data = req.body.data;
+    generate_Tezos_assoc_allocation_doc(req, res, data, "Tezos_allocation");
+};
+exports.generate_suisse_convertible_loan = async function (req, res) {
+    console.log("Begin generate doc");
+    var data = req.body.data;
+    generate_suisse_convertible_loan_doc(req, res, data, "SuisseConvertibleLoan");
+};
+
+
 async function generate_TN_SARL_Statut_doc(req, res, data, code) {
 
     var ret = {'status' : 500, 'data': null, 'error': null};
 
     var template = "DOC/STATUTS SARL TUNISIE.docx"
+
+    var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
+
+    var dataPdf = await ConvertDOcVerPdf(dataDOC, code);
+    //delete file
+    const path1 = '/tmp/' + code + '.docx';
+    const path2 = '/tmp/' + code + '.pdf';
+    try {
+        fs.unlinkSync(path1);
+        fs.unlinkSync(path2);
+    } catch (err) {
+        console.error(err)
+    }
+    ret.data = dataPdf.toString('base64');
+    ret.status = 200;
+    res.status(ret.status);
+    console.log("****End Generate Doc ****");
+    res.json(ret);
+
+}
+
+
+async function generate_TN_AugmCapital1_doc(req, res, data, code) {
+
+    var ret = {'status' : 500, 'data': null, 'error': null};
+
+    var template = "DOC/AugmCapitalNormal.docx"
+
+    var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
+
+    var dataPdf = await ConvertDOcVerPdf(dataDOC, code);
+    //delete file
+    const path1 = '/tmp/' + code + '.docx';
+    const path2 = '/tmp/' + code + '.pdf';
+    try {
+        fs.unlinkSync(path1);
+        fs.unlinkSync(path2);
+    } catch (err) {
+        console.error(err)
+    }
+    ret.data = dataPdf.toString('base64');
+    ret.status = 200;
+    res.status(ret.status);
+    console.log("****End Generate Doc ****");
+    res.json(ret);
+
+}
+
+async function generate_TN_AugmCapital2_doc(req, res, data, code) {
+
+    var ret = {'status' : 500, 'data': null, 'error': null};
+
+    var template = "DOC/AugmCapitalNewAssocie.docx"
+
+    var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
+
+    var dataPdf = await ConvertDOcVerPdf(dataDOC, code);
+    //delete file
+    const path1 = '/tmp/' + code + '.docx';
+    const path2 = '/tmp/' + code + '.pdf';
+    try {
+        fs.unlinkSync(path1);
+        fs.unlinkSync(path2);
+    } catch (err) {
+        console.error(err)
+    }
+    ret.data = dataPdf.toString('base64');
+    ret.status = 200;
+    res.status(ret.status);
+    console.log("****End Generate Doc ****");
+    res.json(ret);
+
+}
+async function generate_TN_AugmCapital3_doc(req, res, data, code) {
+
+    var ret = {'status' : 500, 'data': null, 'error': null};
+
+    var template = "DOC/AugmCapitalWithoutNewAssocie.docx"
+
+    var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
+
+    var dataPdf = await ConvertDOcVerPdf(dataDOC, code);
+    //delete file
+    const path1 = '/tmp/' + code + '.docx';
+    const path2 = '/tmp/' + code + '.pdf';
+    try {
+        fs.unlinkSync(path1);
+        fs.unlinkSync(path2);
+    } catch (err) {
+        console.error(err)
+    }
+    ret.data = dataPdf.toString('base64');
+    ret.status = 200;
+    res.status(ret.status);
+    console.log("****End Generate Doc ****");
+    res.json(ret);
+
+}
+
+async function generate_TN_AugmCapital4_doc(req, res, data, code) {
+
+    var ret = {'status' : 500, 'data': null, 'error': null};
+
+    var template = "DOC/AugmCapital_CessionAction_Without_New_Associe.docx"
+
+    var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
+
+    var dataPdf = await ConvertDOcVerPdf(dataDOC, code);
+    //delete file
+    const path1 = '/tmp/' + code + '.docx';
+    const path2 = '/tmp/' + code + '.pdf';
+    try {
+        fs.unlinkSync(path1);
+        fs.unlinkSync(path2);
+    } catch (err) {
+        console.error(err)
+    }
+    ret.data = dataPdf.toString('base64');
+    ret.status = 200;
+    res.status(ret.status);
+    console.log("****End Generate Doc ****");
+    res.json(ret);
+
+}
+async function generate_TN_RegActios_doc(req, res, data, code) {
+
+    var ret = {'status' : 500, 'data': null, 'error': null};
+
+    var template = "DOC/Registre_actios.docx"
+
+    var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
+
+    var dataPdf = await ConvertDOcVerPdf(dataDOC, code);
+    //delete file
+    const path1 = '/tmp/' + code + '.docx';
+    const path2 = '/tmp/' + code + '.pdf';
+    try {
+        fs.unlinkSync(path1);
+        fs.unlinkSync(path2);
+    } catch (err) {
+        console.error(err)
+    }
+    ret.data = dataPdf.toString('base64');
+    ret.status = 200;
+    res.status(ret.status);
+    console.log("****End Generate Doc ****");
+    res.json(ret);
+
+}
+
+async function generate_FR_SAS_Statut_doc(req, res, data, code) {
+
+    var ret = {'status' : 500, 'data': null, 'error': null};
+
+    var template = "DOC/Statut_SAS_France.docx"
+
+    var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
+
+    var dataPdf = await ConvertDOcVerPdf(dataDOC, code);
+    //delete file
+    const path1 = '/tmp/' + code + '.docx';
+    const path2 = '/tmp/' + code + '.pdf';
+    try {
+        fs.unlinkSync(path1);
+        fs.unlinkSync(path2);
+    } catch (err) {
+        console.error(err)
+    }
+    ret.data = dataPdf.toString('base64');
+    ret.status = 200;
+    res.status(ret.status);
+    console.log("****End Generate Doc ****");
+    res.json(ret);
+
+}
+
+async function generate_Tezos_assoc_allocation_doc(req, res, data, code) {
+
+    var ret = {'status' : 500, 'data': null, 'error': null};
+
+    var template = "DOC/tezos_assoc_allocation.docx"
+
+    var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
+
+    var dataPdf = await ConvertDOcVerPdf(dataDOC, code);
+    //delete file
+    const path1 = '/tmp/' + code + '.docx';
+    const path2 = '/tmp/' + code + '.pdf';
+    try {
+        fs.unlinkSync(path1);
+        fs.unlinkSync(path2);
+    } catch (err) {
+        console.error(err)
+    }
+    ret.data = dataPdf.toString('base64');
+    ret.status = 200;
+    res.status(ret.status);
+    console.log("****End Generate Doc ****");
+    res.json(ret);
+
+}
+
+async function generate_suisse_convertible_loan_doc(req, res, data, code) {
+
+    var ret = {'status' : 500, 'data': null, 'error': null};
+
+    var template = "DOC/SuisseConvertibleLoan.docx"
 
     var dataDOC = await GenerateWordwithImg(template, data, 120, 50);
 
