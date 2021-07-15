@@ -440,9 +440,9 @@ export default function AugmCapital(props){
                 })
             }
 
-            if(item.isOld === "false"){
+            /*if(item.isOld === "false"){
                 item.nbActions = item.nbNewActions
-            }
+            }*/
         })
 
         let newAugmCapital = {
@@ -689,7 +689,7 @@ export default function AugmCapital(props){
                     nbActions:(item.nbActionsHistory && item.nbActionsHistory.length > 0) ? (item.nbActionsHistory[item.nbActionsHistory.length -1].nbActions + parseInt(item.nbNewCession))  : parseInt(item.nbNewCession) + parseInt(item.isOld && item.isOld === "false" ? "0" : item.nbActions),
                     valeurAction:selected_soc.capital.valeurAction,
                     cession:"true",
-                    augmCapital_uid,
+                    augmCapital_uid:augmCapital_uid,
                     cession_uid:cession_uid
                 })
                 item.nbActionsHistory = nbActionsHistory;
@@ -709,9 +709,9 @@ export default function AugmCapital(props){
                 item.nbActionsHistory = nbActionsHistory;
             }
 
-            if(item.isOld === "false"){
+            /*if(item.isOld === "false"){
                 item.nbActions = item.nbNewActions
-            }
+            }*/
         })
 
         let newAugmCapital = {

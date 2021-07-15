@@ -72,42 +72,56 @@ export default class DetailsSoc extends React.Component{
         })
     }
 
-    remove_AugmCapital(augm,key){
-        this.props.setLoading(true)
+    remove_AugmCapital(augm){
 
-        let item = this.props.soc;
-        (item.augmCapital || []).splice(key,1);
-        let capital_history = item.capitalHistory || [];
-        let find_cap_hist_index = capital_history.findIndex(x => x.augmCapital_uid === augm.uid);
-        (item.capitalHistory || []).splice(find_cap_hist_index,1);
-        let cession_actions = item.cessionActions || [];
-        let find_cession_actions_hist_index = cession_actions.findIndex(x => x.augmCapital_uid === augm.uid);
-        (item.cessionActions || []).splice(find_cession_actions_hist_index,1);
+        var r = window.confirm("Voulez-vous vraiment supprimer cette augmentation de capital ?");
+        if (r === true) {
+            this.props.setLoading(true)
+            let item = this.props.soc;
 
-        let associes = item.associes || [];
-        associes.map((assoc,i) => {
-            let assoc_nb_actions_hist = assoc.nbActionsHistory || [];
-            let find_assoc_nb_actions_hist_index = assoc_nb_actions_hist.findIndex(x => x.augmCapital_uid === augm.uid);
-            (assoc.nbActionsHistory || []).splice(find_assoc_nb_actions_hist_index,1);
-        });
-        item.associes = associes
+            let capital_history = item.capitalHistory || [];
+            let find_cap_hist_index = capital_history.findIndex(x => x.augmCapital_uid === augm.uid);
+            (item.capitalHistory || []).splice(find_cap_hist_index,1);
+            let cession_actions = item.cessionActions || [];
+            let find_cession_actions_hist_index = cession_actions.findIndex(x => x.augmCapital_uid === augm.uid);
+            (item.cessionActions || []).splice(find_cession_actions_hist_index,1);
 
-        setTimeout(() => {
+            let associes = item.associes || [];
+            let augmCapital = item.augmCapital || [];
 
-            rethink.update("test",'table("societies").get('+JSON.stringify(item.id)+').update('+ JSON.stringify(item) + ')',db_name,false).then( updateRes => {
-                if (updateRes && updateRes === true) {
-                    this.props.setLoading(false)
-                    this.props.openSnackbar("success","L'opération d'augmentation de capital est supprimée avec succès")
-                }else{
+            associes.map((assoc,i) => {
+                let assoc_nb_actions_hist = assoc.nbActionsHistory || [];
+                assoc.nbActionsHistory = assoc_nb_actions_hist.filter(x => x.augmCapital_uid !== augm.uid)
+                
+                if(assoc.nbActionsHistory.length === 0 && assoc.nbActions === ""){
+                    assoc.to_remove = "true"
+                }
+            });
+            item.associes = associes.filter(x => !x.to_remove)
+            item.augmCapital = augmCapital.filter(x => x.uid !== augm.uid);
+
+            setTimeout(() => {
+
+                rethink.update("test",'table("societies").get('+JSON.stringify(item.id)+').update('+ JSON.stringify(item) + ')',db_name,false).then( updateRes => {
+                    if (updateRes && updateRes === true) {
+                        this.props.setLoading(false)
+                        this.props.openSnackbar("success","L'opération d'augmentation de capital est supprimée avec succès")
+                    }else{
+                        this.props.setLoading(false)
+                        this.props.openSnackbar("error","Une erreur est survenue !")
+                    }
+                }).catch( err => {
                     this.props.setLoading(false)
                     this.props.openSnackbar("error","Une erreur est survenue !")
-                }
-            }).catch( err => {
-                this.props.setLoading(false)
-                this.props.openSnackbar("error","Une erreur est survenue !")
-            } )
+                } )
 
-        },1000);
+            },1000);
+
+        }else{
+            this.props.setLoading(false)
+        }
+
+
     }
 
     getActioByID(id){
